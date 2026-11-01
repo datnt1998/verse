@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Icon, Sheet, toast } from '@noverse/ui'
+import { Button, Icon, Segmented, Sheet, toast } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
 import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { assistantName, type Assistant } from '../../components/agents'
@@ -37,10 +37,14 @@ export function QueueBanner({ queue }: { queue: QueueController }) {
   return <div role="status" {...stylex.props(sx.banner, warning && sx.warningBanner)}><span {...stylex.props(sx.bannerIcon)}><Icon name={warning ? 'danger' : 'pause'} size={16} /></span><span>{text}</span></div>
 }
 export function QueueIdle({ summary = false, onNavigate }: { summary?: boolean; onNavigate?: () => void }) {
-  return <div {...stylex.props(sx.idle)}><span {...stylex.props(sx.idleOrb)} aria-hidden="true"><span {...stylex.props(sx.idleDot)} /></span><span {...stylex.props(sx.idleTitle)}>{m.idle}</span><span {...stylex.props(sx.idleHint)}>{summary ? m.idleSummary : m.idleHint}</span><a {...stylex.props(sx.button, sx.idleButton)} href={`#${paths.new()}`} onClick={onNavigate}><Icon name="add" size={16} />{m.newVideo}</a></div>
+  return <div {...stylex.props(sx.idle)}><span {...stylex.props(sx.idleOrb)} aria-hidden="true"><span {...stylex.props(sx.idleDot)} /></span><span {...stylex.props(sx.idleTitle)}>{m.idle}</span><span {...stylex.props(sx.idleHint)}>{summary ? m.idleSummary : m.idleHint}</span><a href={`#${paths.new()}`} onClick={onNavigate} {...stylex.props(sx.link)}><Icon name="add" size={16} />{m.newVideo}</a></div>
 }
 export function QueueStepper({ label, value, max, disabled, unit, onChange }: { label: string; value: number; max: number; disabled: boolean; unit?: (value: number) => string; onChange: (value: number) => void }) {
-  return <div role="group" aria-label={label} {...stylex.props(sx.stepper)}><button type="button" aria-label={`${label} giảm`} disabled={disabled || value <= 1} aria-disabled={disabled || value <= 1} {...stylex.props(sx.stepButton)} onClick={() => onChange(value - 1)}><Icon name="minus" size={16} /></button><span aria-live="polite" {...stylex.props(sx.stepValue)}>{unit ? unit(value) : value}</span><button type="button" aria-label={`${label} tăng`} disabled={disabled || value >= max} aria-disabled={disabled || value >= max} {...stylex.props(sx.stepButton)} onClick={() => onChange(value + 1)}><Icon name="add" size={16} /></button></div>
+  return <div role="group" aria-label={label} {...stylex.props(sx.stepper)}>
+    <Button variant="icon" size="lg" aria-label={`${label} giảm`} disabled={disabled || value <= 1} onClick={() => onChange(value - 1)}><Icon name="minus" size={16} /></Button>
+    <span aria-live="polite" {...stylex.props(sx.stepValue)}>{unit ? unit(value) : value}</span>
+    <Button variant="icon" size="lg" aria-label={`${label} tăng`} disabled={disabled || value >= max} onClick={() => onChange(value + 1)}><Icon name="add" size={16} /></Button>
+  </div>
 }
 export function QueueRulesSheet({ open, onClose, queue }: { open: boolean; onClose: () => void; queue: QueueController }) {
   const { view, busy, online, patch } = queue
@@ -54,7 +58,7 @@ export function QueueRulesSheet({ open, onClose, queue }: { open: boolean; onClo
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.imageSlots}</span><span {...stylex.props(sx.sub)}>{m.imageBounds}</span></span><QueueStepper label={tt.rules.imageSlotsTitle} value={view.imageWorkers} max={8} disabled={disabled} onChange={(imageWorkers) => void patch({ imageWorkers })} /></div><div {...stylex.props(sx.divider)} />
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.rescan}</span><span {...stylex.props(sx.sub)}>{m.rescanBounds}</span></span><QueueStepper label={tt.rules.rescanTitle} value={view.rescanHours} max={24} unit={tt.rules.rescanUnit} disabled={disabled} onChange={(rescanHours) => void patch({ rescanHours })} /></div>
       <p {...stylex.props(sx.ruleFooter)}>{m.rulesNote}</p>
-    </div></AdminReadOnly><div {...stylex.props(sx.sheetFooter)}><button type="button" {...stylex.props(sx.primary)} onClick={onClose}>{m.done}</button></div>
+    </div></AdminReadOnly><div {...stylex.props(sx.sheetFooter)}><Button variant="primary" size="xl" block onClick={onClose}>{m.done}</Button></div>
   </Sheet>
 }
 function Quota({ quota }: { quota: QueueImageQuota }) {
@@ -82,7 +86,7 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
     return () => cancelAnimationFrame(frame)
   }, [itemId, items])
   const closeRules = () => { setRulesOpen(false); if (route.name === 'queue' && route.sheet) navigate(paths.queue({ item: route.item }), true) }
-  if (!view) return <main {...stylex.props(sx.content)}><h1 {...stylex.props(sx.heading)}>{tt.title}</h1><span role="status">{res.status === 'error' ? tt.fail.title : t.common.loading}</span>{res.status === 'error' && <button type="button" {...stylex.props(sx.button)} onClick={() => void res.refresh().catch(() => toast.err(tt.fail.title))}>{tt.fail.retry}</button>}</main>
+  if (!view) return <main {...stylex.props(sx.content)}><h1 {...stylex.props(sx.heading)}>{tt.title}</h1><span role="status">{res.status === 'error' ? tt.fail.title : t.common.loading}</span>{res.status === 'error' && <Button size="lg" onClick={() => void res.refresh().catch(() => toast.err(tt.fail.title))}>{tt.fail.retry}</Button>}</main>
   const state = viewState(view)
   const empty = state === 'empty'
   const shown = filter === 'all' ? items : items.filter((item) => item.channelId === filter)
@@ -98,7 +102,17 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
     }
   }
   return <div className={`mq ${stylex.props(sx.screen).className}`} data-state={state}>
-    <header {...stylex.props(sx.header)}><a {...stylex.props(sx.back)} href={`#${paths.workbench()}`} aria-label={m.back}><span {...stylex.props(sx.backIcon)}><Icon name="arrow-r" size={18} /></span></a><span {...stylex.props(sx.grow, sx.stack)}><h1 {...stylex.props(sx.heading)}>{tt.title}</h1><span {...stylex.props(sx.subLine)}>{!online ? <span aria-hidden="true" {...stylex.props(sx.statusDot)} /> : view.paused ? <Icon name="pause" size={13} xstyle={sx.statusPause} /> : <span aria-hidden="true" {...stylex.props(sx.statusDot, empty ? sx.statusDotMuted : state === 'limited' && sx.statusDotWarn)} />}<span {...stylex.props(sx.ellipsis)}>{!online ? m.offlineSub : empty ? m.idle : view.paused ? m.pausedSub(items.length) : tt.sheetSub(view.running.length, items.length)}</span></span></span>{!empty && <button type="button" {...stylex.props(sx.button)} disabled={busy || !online} aria-pressed={view.paused} onClick={() => void patch({ paused: !view.paused })}><Icon name={view.paused ? 'play' : 'pause'} size={16} />{view.paused ? tt.resume : tt.pause}</button>}</header>
+    <header {...stylex.props(sx.header)}>
+      <a href={`#${paths.workbench()}`} aria-label={m.back} {...stylex.props(sx.back)}><span {...stylex.props(sx.backIcon)}><Icon name="arrow-r" size={18} /></span></a>
+      <span {...stylex.props(sx.grow, sx.stack)}>
+        <h1 {...stylex.props(sx.heading)}>{tt.title}</h1>
+        <span {...stylex.props(sx.subLine)}>
+          {!online ? <span aria-hidden="true" {...stylex.props(sx.statusDot)} /> : view.paused ? <Icon name="pause" size={13} xstyle={sx.statusPause} /> : <span aria-hidden="true" {...stylex.props(sx.statusDot, empty ? sx.statusDotMuted : state === 'limited' && sx.statusDotWarn)} />}
+          <span {...stylex.props(sx.ellipsis)}>{!online ? m.offlineSub : empty ? m.idle : view.paused ? m.pausedSub(items.length) : tt.sheetSub(view.running.length, items.length)}</span>
+        </span>
+      </span>
+      {!empty && <Button size="lg" disabled={busy || !online} aria-pressed={view.paused} onClick={() => void patch({ paused: !view.paused })} icon={<Icon name={view.paused ? 'play' : 'pause'} size={16} />}>{view.paused ? tt.resume : tt.pause}</Button>}
+    </header>
     <main {...stylex.props(sx.content)}><QueueBanner queue={queue} />{empty && <QueueIdle />}
       {!empty && <><section {...stylex.props(sx.group)}><h2 {...stylex.props(sx.section)}>{tt.runningNow}<span {...stylex.props(sx.count)}>{view.running.length}/{view.workers.total} {tt.lanes}</span></h2>{view.running.map((job) => {
         const agent = agentOf(job.agent), step = Math.min(8, Math.max(0, job.stepIndex)), limited = state === 'limited' && step === 5
@@ -125,12 +139,10 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
       })}<span {...stylex.props(sx.hint)}>{state === 'paused' ? m.pausedHint : state === 'limited' ? m.limitedHint : m.runHint}</span></section>
       <section {...stylex.props(sx.group)}>
         <h2 {...stylex.props(sx.section)}>{tt.nextRotation}<span {...stylex.props(sx.count)}>{items.length}</span></h2>
-        <div role="radiogroup" aria-label={tt.filterAria} {...stylex.props(sx.filters)}>
-          {['all', ...filters].map((id) => <button key={id} type="button" role="radio" aria-checked={filter === id} {...stylex.props(sx.filter, filter === id && sx.filterOn)} onClick={() => setFilter(id)}>
-            {id === 'all' ? tt.filterAll : queue.channels.get(id)?.name || id}
-            <span {...stylex.props(sx.small)}>{id === 'all' ? items.length : items.filter((item) => item.channelId === id).length}</span>
-          </button>)}
-        </div>
+        <Segmented label={tt.filterAria} value={filter} onChange={setFilter} size="lg" fit="content"
+          options={['all', ...filters].map((id) => ({
+            id, label: <>{id === 'all' ? tt.filterAll : queue.channels.get(id)?.name || id} <span {...stylex.props(sx.small)}>{id === 'all' ? items.length : items.filter((item) => item.channelId === id).length}</span></>,
+          }))} />
         <div>
           {shown.map((item) => <div key={item.id} id={`queue-item-${item.id}`} tabIndex={-1} className={`mq-row ${stylex.props(sx.queueRow, item.id === itemId && sx.highlighted).className}`}>
             <span {...stylex.props(sx.number)}>{items.indexOf(item) + 1}</span>
@@ -145,13 +157,15 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
                 {!view.paused && item.etaStart ? `${fmtEta(item.etaStart)} · ` : ''}{waitLine(item, view.paused)}
               </span>
             </span>
-            <button type="button" {...stylex.props(sx.icon, sx.rowMore)} aria-label={m.rowAction(item.title)} aria-haspopup="dialog" onClick={() => setSelected(item)}><Icon name="more" size={18} /></button>
+            <Button variant="icon" size="lg" aria-label={m.rowAction(item.title)} aria-haspopup="dialog" onClick={() => setSelected(item)}><Icon name="more" size={18} /></Button>
           </div>)}
           {shown.length === 0 && <span {...stylex.props(sx.hint)}>{tt.noRows}</span>}
         </div>
       </section></>}
-      {removed.length > 0 && <div role="status" {...stylex.props(sx.undoBanner)}><span {...stylex.props(sx.grow)}>{m.removed(removed.length)}</span><button type="button" {...stylex.props(sx.undoButton)} disabled={busy || !online} onClick={() => void undo()}>{t.common.undo}</button></div>}
-      <button type="button" className={`mq-rules-link ${stylex.props(sx.rulesLink).className}`} aria-haspopup="dialog" onClick={() => setRulesOpen(true)}><Icon name="setting" size={20} /><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.rulesLinkTitle)}>{tt.rulesTitle}</span><span {...stylex.props(sx.sub, sx.ellipsis)}>{m.rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)}</span></span><Icon name="arrow-r" size={16} /></button>
+      {removed.length > 0 && <div role="status" {...stylex.props(sx.undoBanner)}><span {...stylex.props(sx.grow)}>{m.removed(removed.length)}</span><Button variant="quiet" size="lg" disabled={busy || !online} onClick={() => void undo()}>{t.common.undo}</Button></div>}
+      <Button size="lg" block className="mq-rules-link" aria-haspopup="dialog" onClick={() => setRulesOpen(true)} icon={<Icon name="setting" size={20} />}>
+        <span {...stylex.props(sx.stack)}><span>{tt.rulesTitle}</span><span {...stylex.props(sx.sub, sx.ellipsis)}>{m.rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)}</span></span>
+      </Button>
       {view.imageQuota.length > 0 && <section {...stylex.props(sx.card, sx.panel, state === 'limited' && sx.warningBorder)}><div {...stylex.props(sx.row)}><h2 {...stylex.props(sx.panelTitle)}>{tt.rules.quota}</h2><a {...stylex.props(sx.link, sx.panelLink)} href={`#${paths.settings('agents')}`}>{tt.quotaSettings}</a></div>{view.imageQuota.map((quota) => <Quota key={`${quota.provider}-${quota.role}`} quota={quota} />)}</section>}
       <section {...stylex.props(sx.card, sx.panel)}><div {...stylex.props(sx.row)}><h2 {...stylex.props(sx.panelTitle)}>{tt.rules.pace}</h2>{view.pace[0] && <a {...stylex.props(sx.link, sx.panelLink)} href={`#${paths.channel(view.pace[0].channelId, 'sources')}`}>{tt.paceEdit}</a>}</div>{view.pace.map((pace) => <div key={pace.channelId} {...stylex.props(sx.quotaRow)}><a {...stylex.props(sx.row)} href={`#${paths.channel(pace.channelId, 'sources')}`}><QueueAvatar queue={queue} channelId={pace.channelId} /><span {...stylex.props(sx.grow, sx.ellipsis)}>{queue.channels.get(pace.channelId)?.name || pace.channelId}</span><span>{pace.used}/{pace.limit}</span></a><div {...stylex.props(sx.bar)} role="img" aria-label={`${queue.channels.get(pace.channelId)?.name}: ${pace.used}/${pace.limit}`}><span {...stylex.props(sx.fill(pace.limit ? Math.min(100, pace.used / pace.limit * 100) : 0))} /></div></div>)}<span {...stylex.props(sx.small)}>{tt.paceNote}</span></section>
       {view.doneToday.length > 0 && <section {...stylex.props(sx.group)}><h2 {...stylex.props(sx.section)}>{tt.doneHeading(view.doneToday.length)}</h2>{view.doneToday.map((job) => <a key={job.jobId} {...stylex.props(sx.doneRow)} href={`#${paths.workbench({ video: job.jobId })}`}><span aria-hidden="true" {...stylex.props(sx.doneDot, job.state === 'review' && sx.reviewDot)} /><span title={job.title} {...stylex.props(sx.grow, sx.ellipsis)}>{job.title}</span><span {...stylex.props(sx.small)}>{job.state === 'review' ? tt.status.review : fmtEta(job.at)}</span></a>)}</section>}
@@ -167,18 +181,17 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
           </span>
         </div>
         <div {...stylex.props(sx.actions)}>
-          <button type="button" disabled={busy || !online || items[0]?.id === selected.id} {...stylex.props(sx.action)} onClick={() => { const id = selected.id; setSelected(null); void patch({ id, action: 'front' }) }}>
-            <Icon name="arrow-up" size={20} />
-            <span {...stylex.props(sx.actionStack)}><span {...stylex.props(sx.actionTitle)}>{m.front}</span><span {...stylex.props(sx.sub)}>{items[0]?.id === selected.id ? m.alreadyFront : m.frontHint}</span></span>
-          </button>
-          {selected.sourceUrl && <a {...stylex.props(sx.action)} href={selected.sourceUrl} target="_blank" rel="noreferrer" onClick={() => setSelected(null)}>
-            <Icon name="link" size={20} />
-            <span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.actionTitle)}>{m.source}</span><span {...stylex.props(sx.sub, sx.ellipsis)}>{selected.source}</span></span>
+          <Button size="xl" block disabled={busy || !online || items[0]?.id === selected.id} aria-describedby="queue-front-reason" onClick={() => { const id = selected.id; setSelected(null); void patch({ id, action: 'front' }) }} icon={<Icon name="arrow-up" size={20} />}>
+            {m.front}
+          </Button>
+          <span id="queue-front-reason" {...stylex.props(sx.sub)}>{items[0]?.id === selected.id ? m.alreadyFront : m.frontHint}</span>
+          {selected.sourceUrl && <a href={selected.sourceUrl} target="_blank" rel="noreferrer" onClick={() => setSelected(null)} {...stylex.props(sx.link)}>
+            <Icon name="link" size={20} />{m.source}
           </a>}
-          <button type="button" disabled={busy || !online} {...stylex.props(sx.action, sx.remove)} onClick={() => void remove(selected)}>
-            <Icon name="trash" size={20} />
-            <span {...stylex.props(sx.actionStack)}><span {...stylex.props(sx.actionTitle)}>{tt.removeItem}</span><span {...stylex.props(sx.sub)}>{m.removeHint}</span></span>
-          </button>
+          <Button variant="dsoft" size="xl" block disabled={busy || !online} title={m.removeHint} onClick={() => void remove(selected)} icon={<Icon name="trash" size={20} />}>
+            {tt.removeItem}
+          </Button>
+          <span {...stylex.props(sx.sub)}>{m.removeHint}</span>
         </div>
       </>}
     </Sheet>

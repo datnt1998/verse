@@ -2,7 +2,8 @@
 // “Đã chọn N”, mỗi nút kèm số video hợp lệ trong số đã chọn (khoá khi 0, lý do ở
 // tooltip), ⋯ cho Huỷ/Xoá, “Thoát chọn Esc”. Thay chỗ ô nhắn trợ lý ở dock.
 import * as stylex from '@stylexjs/stylex'
-import { ActionMenu, Icon, type ActionMenuItem } from '@noverse/ui'
+import { ActionMenu, Button, Icon, type ActionMenuItem } from '@noverse/ui'
+import { ActionButton } from '../../components'
 import { t } from '../../i18n/channels'
 import type { BulkCounts } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
@@ -43,26 +44,22 @@ export function VideoBulkBar({ count, counts, busy, onRetry, onApprove, onBundle
       {buttons.map((button) => {
         const off = button.n === 0 || busy
         return (
-          <button
-            key={button.id}
-            type="button"
-            aria-disabled={off}
-            title={button.tip}
-            onClick={() => { if (!off) button.run() }}
-            {...stylex.props(sx.bulkBtn, off && sx.bulkBtnOff)}
-          >
+          <ActionButton key={button.id} size="sm"
+            lockedReason={off ? button.tip : undefined}
+            tooltip={button.tip}
+            onClick={() => { if (!off) button.run() }}>
             <Icon name={button.icon} size={15} />
             {button.label}
             <span className={`num ${stylex.props(sx.chipCount).className}`}>{button.n}</span>
-          </button>
+          </ActionButton>
         )
       })}
-      <ActionMenu alwaysVisible label={tt.more} items={more} width={248} triggerStyle={sx.bulkMore} trigger={<Icon name="more" size={16} />} />
+      <ActionMenu alwaysVisible label={tt.more} items={more} width={248} trigger={<Icon name="more" size={16} />} />
       <span {...stylex.props(sx.spacer)} />
-      <button type="button" onClick={onExit} {...stylex.props(sx.bulkExit)}>
+      <Button variant="quiet" size="sm" onClick={onExit}>
         {tt.exit}
         <kbd className={`mono ${stylex.props(sx.kbd).className}`}>Esc</kbd>
-      </button>
+      </Button>
     </div>
   )
 }

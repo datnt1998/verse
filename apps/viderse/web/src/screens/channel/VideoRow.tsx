@@ -3,7 +3,7 @@
 // chi tiết, template, nút “Việc tiếp” theo trạng thái và menu ⋯.
 import { memo, type MouseEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { ActionMenu, Icon, type ActionMenuItem } from '@noverse/ui'
+import { ActionMenu, Button, Checkbox, Icon, type ActionMenuItem } from '@noverse/ui'
 import type { ChannelJob } from '../../api/channelVideos'
 import { statusColor, statusName } from '../../components/StatusLabel'
 import { requestMarkPosted } from '../../components/performance'
@@ -87,13 +87,13 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
             <span title={line} {...stylex.props(mch.vStatusText)}>{line}</span>
           </span>
           {action === 'pack'
-            ? <button type="button" onClick={() => downloadBundle([job.id])} {...stylex.props(mch.vAct)}>{tt.pack}</button>
+            ? <Button variant="quiet" size="sm" onClick={() => downloadBundle([job.id])}>{tt.pack}</Button>
             : action === 'review'
-              ? <a href={reviewHref(job)} {...stylex.props(mch.vAct, mch.vActWarn)}>{tt.review}</a>
+              ? <a href={reviewHref(job)} {...stylex.props(sx.actionLink, sx.tone(statusColor('review')))}>{tt.review}</a>
               : action === 'fix'
-                ? <a href={workbenchHref(job)} {...stylex.props(mch.vAct, mch.vActFix)}>{tt.fix}</a>
+                ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.fix}</a>
                 : action === 'open'
-                  ? <a href={workbenchHref(job)} {...stylex.props(mch.vAct)}>{tt.open}</a>
+                  ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.open}</a>
                   : null}
         </div>
         <ActionMenu
@@ -101,7 +101,6 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
           label={tt.moreFor(title)}
           items={menuItems(job, props)}
           width={248}
-          triggerStyle={mch.vMore}
           trigger={<Icon name="more" size={16} />}
         />
       </div>
@@ -111,16 +110,12 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
   return (
     <div role="row" onClick={click} {...stylex.props(sx.grid, sx.row, selecting && sx.rowSelecting, selecting && chosen && sx.rowChosen)}>
       {selecting && (
-        <button
-          type="button"
-          role="checkbox"
-          aria-checked={chosen}
-          aria-label={tt.pick(title)}
-          onClick={(event) => { event.stopPropagation(); onPick(job.id, event.shiftKey) }}
-          {...stylex.props(sx.check)}
-        >
-          <span aria-hidden="true" {...stylex.props(sx.box, chosen && sx.boxOn)}>{chosen ? '✓' : ''}</span>
-        </button>
+        <Checkbox checked={chosen} aria-label={tt.pick(title)} xstyle={sx.check}
+          onChange={() => onPick(job.id, false)}
+          onClick={(event) => {
+            event.stopPropagation()
+            if (event.shiftKey) { event.preventDefault(); onPick(job.id, true) }
+          }} />
       )}
       <a role="cell" href={workbenchHref(job)} {...stylex.props(sx.video)}>
         <span aria-hidden="true" {...stylex.props(sx.thumb)}>
@@ -142,20 +137,19 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
       <span role="cell" title={templateName} {...stylex.props(sx.tpl, sx.template)}>{templateName}</span>
       <span role="cell" {...stylex.props(sx.actions)}>
         {action === 'pack'
-          ? <button type="button" onClick={() => downloadBundle([job.id])} {...stylex.props(sx.act)}>{tt.pack}</button>
+          ? <Button variant="quiet" size="sm" onClick={() => downloadBundle([job.id])}>{tt.pack}</Button>
           : action === 'review'
-            ? <a href={reviewHref(job)} {...stylex.props(sx.act, sx.actReview)}>{tt.review}</a>
+            ? <a href={reviewHref(job)} {...stylex.props(sx.actionLink, sx.tone(statusColor('review')))}>{tt.review}</a>
             : action === 'fix'
-              ? <a href={workbenchHref(job)} {...stylex.props(sx.act, sx.actFix)}>{tt.fix}</a>
+              ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.fix}</a>
               : action === 'open'
-                ? <a href={workbenchHref(job)} {...stylex.props(sx.act)}>{tt.open}</a>
+                ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.open}</a>
                 : null}
         <ActionMenu
           alwaysVisible
           label={tt.moreFor(title)}
           items={menuItems(job, props)}
           width={248}
-          triggerStyle={sx.more}
           trigger={<Icon name="more" size={15} />}
         />
       </span>

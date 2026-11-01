@@ -141,3 +141,14 @@ it('dismisses rules on Escape without inventing an additional save mutation', as
   expect(patches).toHaveLength(0)
   expect(document.querySelector('.m-overlay')?.classList.contains('m-out')).toBe(true)
 })
+
+it('returns to every mobile row when the filter receives the Home key', async () => {
+  const choices = host.querySelectorAll<HTMLButtonElement>('[role="radiogroup"] [role="radio"]')
+  await click(choices[2])
+  expect(choices[2].getAttribute('aria-checked')).toBe('true')
+  expect(host.querySelectorAll('.mq-row')).toHaveLength(1)
+  expect(host.querySelector('.mq-row')?.textContent).toContain(queued[1].title)
+  await act(async () => { choices[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
+  expect(choices[0].getAttribute('aria-checked')).toBe('true')
+  expect(host.querySelectorAll('.mq-row')).toHaveLength(2)
+})

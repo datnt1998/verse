@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Icon, Sheet } from '@noverse/ui'
+import { Button, Icon, Sheet } from '@noverse/ui'
 import { Orb } from '../../components'
 import { Segmented } from '../../components/Segmented'
 import type { Assistant } from '../../components/agents'
@@ -54,7 +54,7 @@ function OpenQueueSummary({ onClose, initialTab, unreadFallback }: { onClose: ()
   const inboxSub = !inbox.history.data && !inbox.history.error ? t.common.loading : rows.length === 0 ? shell.jobsSheetInboxEmpty : hasUnread ? shell.jobsSheetInboxSub(rows.filter((n) => !n.readAt).length) : shell.jobsSheetInboxReadAll
   return <Sheet open onClose={onClose} label={tt.sheetTitleMobile} size="md" height="auto" xstyle={sx.sheet} bodyStyle={sx.sheetBody}>
     {/* Đầu sheet: tiêu đề + dòng phụ theo tab; nút Tạm dừng chỉ có ở tab Đang chạy. */}
-    <div {...stylex.props(sx.summaryHead)}><span {...stylex.props(sx.grow, sx.stack)}><h2 {...stylex.props(sx.sheetTitle)}>{tt.sheetTitleMobile}</h2><span className={`vi-sub ${stylex.props(sx.sub).className}`}>{tab === 'inbox' ? inboxSub : runningSub}</span></span>{tab === 'running' && view && !empty && <button type="button" {...stylex.props(sx.button, sx.summaryPause)} disabled={busy || !online} aria-disabled={busy || !online} aria-pressed={view.paused} onClick={() => void patch({ paused: !view.paused })}><Icon name={view.paused ? 'play' : 'pause'} size={16} />{view.paused ? tt.resume : tt.pause}</button>}</div>
+    <div {...stylex.props(sx.summaryHead)}><span {...stylex.props(sx.grow, sx.stack)}><h2 {...stylex.props(sx.sheetTitle)}>{tt.sheetTitleMobile}</h2><span className={`vi-sub ${stylex.props(sx.sub).className}`}>{tab === 'inbox' ? inboxSub : runningSub}</span></span>{tab === 'running' && view && !empty && <Button size="lg" disabled={busy || !online} aria-pressed={view.paused} onClick={() => void patch({ paused: !view.paused })} icon={<Icon name={view.paused ? 'play' : 'pause'} size={16} />}>{view.paused ? tt.resume : tt.pause}</Button>}</div>
     <div {...stylex.props(inboxStyles.tabs)}>
       <Segmented size={40} radius={9} fit="fill" tabs={{ id: 'jobs-tabs', panel: 'jobs-panel' }} label={tt.title} value={tab} onChange={(id) => setTab(id as 'running' | 'inbox')}
         options={[
@@ -87,14 +87,14 @@ function TabLabel({ label, count, tone }: { label: string; count: number; tone: 
 /** Tab Thông báo — cùng dòng, cùng câu, cùng thứ tự với popover máy tính. */
 function InboxTab({ inbox, unread, onClose }: { inbox: NotificationInbox; unread: boolean; onClose: () => void }) {
   const { history, groups, rows, more, paging, pageError, loadMore, mark } = inbox
-  if (history.error) return <div role="alert" {...stylex.props(inboxStyles.empty)}>Không tải được thông báo. <button type="button" {...stylex.props(inboxStyles.plain)} onClick={() => void history.refresh()}>{t.common.retry}</button></div>
+  if (history.error) return <div role="alert" {...stylex.props(inboxStyles.empty)}>Không tải được thông báo. <Button variant="quiet" size="lg" onClick={() => void history.refresh()}>{t.common.retry}</Button></div>
   if (history.initialLoading) return <div role="status" {...stylex.props(inboxStyles.empty)}>{t.common.loading}</div>
   if (rows.length === 0) return (
     <div {...stylex.props(inboxStyles.emptyBody)}>
       <span aria-hidden="true" {...stylex.props(inboxStyles.emptyOrb)}><Icon name="notify" size={20} /></span>
       <span {...stylex.props(inboxStyles.emptyTitle)}>{shell.jobsSheetInboxEmpty}</span>
       <span {...stylex.props(inboxStyles.emptyHint)}>{shell.notificationsEmptyBody}</span>
-      <a {...stylex.props(inboxStyles.settingsButton)} href={`#${paths.settings('notifications')}`} onClick={onClose}><Icon name="setting" size={16} />{shell.notificationSettings}</a>
+      <a href={`#${paths.settings('notifications')}`} onClick={onClose} {...stylex.props(sx.link)}><Icon name="setting" size={16} />{shell.notificationSettings}</a>
     </div>
   )
   return <>
@@ -102,11 +102,11 @@ function InboxTab({ inbox, unread, onClose }: { inbox: NotificationInbox; unread
       {groups.map((group) => group.rows.length ? <div key={group.label}>
         <div {...stylex.props(inboxStyles.group)}>
           <span {...stylex.props(inboxStyles.groupLabel)}>{group.label}</span>
-          {unread && group === groups.find((item) => item.rows.length) && <button type="button" {...stylex.props(inboxStyles.markRead)} onClick={() => void mark('all')}>{shell.markAllRead}</button>}
+          {unread && group === groups.find((item) => item.rows.length) && <Button variant="quiet" size="lg" onClick={() => void mark('all')}>{shell.markAllRead}</Button>}
         </div>
         {group.rows.map((n) => <NotificationRow key={n.id} n={n} variant="phone" onOpen={onClose} />)}
       </div> : null)}
-      {more ? <div {...stylex.props(inboxStyles.moreRow)}><button type="button" {...stylex.props(sx.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? t.common.loading : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(sx.sub)}>{pageError}</span>}</div> : null}
+      {more ? <div {...stylex.props(inboxStyles.moreRow)}><Button size="lg" disabled={paging} onClick={() => void loadMore()}>{paging ? t.common.loading : 'Xem thêm'}</Button>{pageError && <span role="alert" {...stylex.props(sx.sub)}>{pageError}</span>}</div> : null}
       <a {...stylex.props(inboxStyles.settingsLink)} href={`#${paths.settings('notifications')}`} onClick={onClose}><Icon name="setting" size={16} />{shell.notificationSettings}</a>
     </div>
   </>
@@ -122,7 +122,6 @@ const inboxStyles = stylex.create({
   group: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', minHeight: 32, padding: `0 ${s['--vv-s-16']}` },
   /* Nhãn nhóm 11.5px, chữ hoa, cùng nhịp .sec của artboard. */
   groupLabel: { fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--vv-fg-note)' },
-  markRead: { minHeight: 44, padding: `0 ${s['--vv-s-2']}`, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: color['--color-fg-2'], fontSize: 13, cursor: 'pointer' },
   moreRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], padding: `${s['--vv-s-10']} ${s['--vv-s-16']}` },
   /* Chân danh sách: lối vào Cài đặt thông báo (cùng đích với popover máy tính). */
   settingsLink: { minHeight: 44, display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], padding: `0 ${s['--vv-s-16']}`, color: color['--color-fg-2'], fontSize: 13, textDecoration: 'none', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'] },

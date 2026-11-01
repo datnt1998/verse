@@ -60,9 +60,7 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
       <div className={`vch-head__actions ${stylex.props(channelStyles.headActions).className}`}>
         {!narrow && (
           <ActionButton
-            className={stylex.props(channelStyles.touchTarget).className}
             size="compact"
-            xstyle={[channelStyles.headBtn]}
             onClick={() => channel.youtubeUrl ? window.open(channel.youtubeUrl, '_blank', 'noreferrer') : navigate(paths.channel(channel.id, 'settings'))}
             icon={<Icon name="link" size={15} />}
           >
@@ -70,10 +68,9 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
           </ActionButton>
         )}
         <ActionButton
-          className={stylex.props(channelStyles.touchTarget).className}
+          xstyle={narrow ? channelStyles.headPrimaryFlex : undefined}
           variant="primary"
-          size={narrow ? 'md' : 'compact'}
-          xstyle={[channelStyles.headBtn, channelStyles.headBtnPrimary, narrow && channelStyles.headBtnPrimaryMobile]}
+          size={narrow ? 'xl' : 'compact'}
           onClick={() => navigate(paths.new(channel.id))}
           icon={<Icon name="video-add" size={15} />}
         >
@@ -82,9 +79,8 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
         {/* MChannel: nút icon không viền, đứng sau nút chính (artboard đầu trang). */}
         {narrow && (
           <Button
-            className={stylex.props(channelStyles.headBtnLinkMobile).className}
             variant="icon"
-            xstyle={channelStyles.headBtnLinkMobile}
+            size="xl"
             aria-label={channel.youtubeUrl ? tt.page.openYouTube : tt.page.linkYouTube}
             onClick={() => channel.youtubeUrl ? window.open(channel.youtubeUrl, '_blank', 'noreferrer') : navigate(paths.channel(channel.id, 'settings'))}
             icon={<Icon name="link" size={18} />}

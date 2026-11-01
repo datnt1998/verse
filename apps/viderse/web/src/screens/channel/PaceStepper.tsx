@@ -3,7 +3,7 @@ import { channelStyles } from './channel.stylex'
 // Ô nhịp 1–50 dùng ở tab Nguồn và Tạo kênh: nút −/+ và ô số; gõ số rồi rời ô
 // (hoặc Enter) thì lưu một lần. Artboard Channel/CreateChannel › "Nhịp mỗi ngày".
 import { useEffect, useState } from 'react'
-import { Icon } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
 import { t } from '../../i18n/channels'
 
 export function PaceStepper({ value, onSave, label }: {
@@ -28,9 +28,9 @@ export function PaceStepper({ value, onSave, label }: {
   }
   return (
     <span className={`vch-stepper ${stylex.props(channelStyles.stepper).className}`}>
-      <button {...stylex.props(channelStyles.stepperButton)} type="button" aria-label={tt.decrease} disabled={value <= 1} onClick={() => step(value - 1)}>
+      <Button variant="icon" aria-label={tt.decrease} disabled={value <= 1} onClick={() => step(value - 1)}>
         <Icon name="minus" size={14} />
-      </button>
+      </Button>
       <input {...stylex.props(channelStyles.stepperInput)}
         type="number"
         inputMode="numeric"
@@ -42,9 +42,9 @@ export function PaceStepper({ value, onSave, label }: {
         onBlur={commit}
         onKeyDown={(event) => { if (event.key === 'Enter') commit() }}
       />
-      <button {...stylex.props(channelStyles.stepperButton)} type="button" aria-label={tt.increase} disabled={value >= 50} onClick={() => step(value + 1)}>
+      <Button variant="icon" aria-label={tt.increase} disabled={value >= 50} onClick={() => step(value + 1)}>
         <Icon name="add" size={14} />
-      </button>
+      </Button>
     </span>
   )
 }

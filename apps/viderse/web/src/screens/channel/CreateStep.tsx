@@ -7,7 +7,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // "Cách kênh chạy" (Mẫu chuẩn + nhịp). Nút Tạo kênh khoá (aria-disabled + lý do)
 // tới khi chọn được một đối thủ. Mức tự chủ (§20) không có trong đợt này.
 import { useState } from 'react'
-import { Button, Field, Icon, MobilePage, Segmented as KitSegmented, toast } from '@noverse/ui'
+import { Button, Checkbox, Field, Icon, MobilePage, Segmented as KitSegmented, toast } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
@@ -125,14 +125,8 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                 const checked = picked.includes(rival.id)
                 const isRef = picked[0] === rival.id
                 return (
-                  <button
-                    key={rival.id}
-                    type="button"
-                    role="checkbox"
-                    aria-checked={checked}
-                    onClick={() => toggle(rival.id)}
-                    {...stylex.props(mch.pick)}
-                  >
+                  <Checkbox key={rival.id} checked={checked} onChange={() => toggle(rival.id)}
+                    xstyle={mch.pick} label={<>
                     <ChannelAvatar
                       name={rival.title}
                       src={rival.avatarUrl ?? undefined}
@@ -150,8 +144,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                         {num.format(rival.videoCount)} video đã quét
                       </span>
                     </span>
-                    <span aria-hidden="true" {...stylex.props(mch.pickBox, checked && mch.pickBoxOn)}>{checked ? <Icon name="tick" size={13} /> : null}</span>
-                  </button>
+                    </>} />
                 )
               })}
             </div>
@@ -283,17 +276,8 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               const checked = picked.includes(rival.id)
               const isRef = picked[0] === rival.id
               return (
-                <button
-                  key={rival.id}
-                  type="button"
-                  role="checkbox"
-                  aria-checked={checked}
-                  className={`vch-pick ${stylex.props(channelStyles.pick).className}`}
-                  onClick={() => toggle(rival.id)}
-                >
-                  <span className={`vch-pickbox ${stylex.props(channelStyles.pickbox).className}`} data-on={checked || undefined} aria-hidden="true">
-                    {checked && <Icon name="tick" size={12} />}
-                  </span>
+                <Checkbox key={rival.id} checked={checked} onChange={() => toggle(rival.id)}
+                  xstyle={channelStyles.pick} label={<>
                   <ChannelAvatar
                     name={rival.title}
                     src={rival.avatarUrl ?? undefined}
@@ -311,7 +295,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                       {num.format(rival.videoCount)} video đã quét
                     </span>
                   </span>
-                </button>
+                  </>} />
               )
             })}
           </div>
@@ -394,10 +378,10 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               <Segmented
                 size="sm"
                
-                buttonStyle={autonomyStyles.segSm}
                 label={ta.title}
                 value={aut}
-                options={presetIds.map((id) => ({ id, label: ta.presets[id], style: { paddingInline: 12 } }))}
+                fit="content"
+                options={presetIds.map((id) => ({ id, label: ta.presets[id] }))}
                 onChange={(id) => setAut(id as PresetId)}
               />
             </div>
@@ -419,8 +403,8 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
           <Icon name={canCreate ? 'info' : 'danger'} size={15} />
           {canCreate ? tt.noteReady : tt.noteBlocked}
         </span>
-        <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={onCancel}>{tt.cancel}</ActionButton>
-        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
+        <ActionButton size="md" onClick={onCancel}>{tt.cancel}</ActionButton>
+        <ActionButton
           variant="primary"
           size="md"
           lockedReason={canCreate ? undefined : tt.blockedTitle}
@@ -481,13 +465,9 @@ function AddRivalPicked({ onAdded, mobile = false }: { onAdded: (rival: Rival) =
         placeholder={tt.addPlaceholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      {mobile
-        ? <button type="submit" disabled={pending || !value.trim()} {...stylex.props(mch.addBtn)}>{pending ? t.common.loading : tt.addSubmitM}</button>
-        : (
-          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
-            {tt.addSubmit}
-          </ActionButton>
-        )}
+      <ActionButton size={mobile ? 'lg' : 'sm'} type="submit" disabled={pending || !value.trim()} pending={pending}>
+        {mobile ? tt.addSubmitM : tt.addSubmit}
+      </ActionButton>
       {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )

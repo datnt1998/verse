@@ -124,7 +124,7 @@ export function VideosFresh({ channel, rival }: {
                   <span className={`num ${stylex.props(channelStyles.leadMeta).className}`}>{meta}</span>
                 </span>
               </div>
-              <ActionButton className={stylex.props(channelStyles.touchTarget, channelStyles.leadMake).className}
+              <ActionButton xstyle={channelStyles.leadMake}
                 size="sm"
                 variant="primary"
                 icon={<Icon name="video-add" size={14} />}
@@ -156,7 +156,7 @@ export function VideosFresh({ channel, rival }: {
           </div>
           <span className={`num ${stylex.props(channelStyles.leadSplit).className}`}>
             <span>{hasSources ? (seen ? tt.videos.paceSeen(channel.pacePerDay, seen) : tt.videos.pace(channel.pacePerDay)) : tt.videos.noRivals}</span>
-            <button type="button" {...stylex.props(channelStyles.leadLink)} onClick={() => navigate(paths.channel(channel.id, 'sources'))}>{tt.videos.paceLink}</button>
+            <ActionButton variant="quiet" size="sm" onClick={() => navigate(paths.channel(channel.id, 'sources'))}>{tt.videos.paceLink}</ActionButton>
           </span>
         </div>
       </div>

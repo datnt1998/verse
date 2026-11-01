@@ -6,7 +6,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // `activity` kind identity); thẻ "Việc tiếp theo" là video mới nhất thật của
 // đối thủ tham chiếu. Nút Làm video là việc của hàng chờ — khoá kèm lý do.
 import { useState, type ReactNode } from 'react'
-import { Icon, ProgressBar, Spinner } from '@noverse/ui'
+import { Button, Icon, ProgressBar, Spinner } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import { t } from '../../i18n/channels'
@@ -65,14 +65,10 @@ export function DoneStep({ channelId, onLeave }: {
     <MobilePage
       title={tt.noName}
       leading={(
-        <button
-          type="button"
-          aria-label={t.common.close}
-          onClick={() => { onLeave(); navigate(data ? paths.channel(data.id) : paths.workbench()) }}
-          {...stylex.props(mch.closeBtn)}
-        >
+        <Button variant="icon" size="lg" aria-label={t.common.close}
+          onClick={() => { onLeave(); navigate(data ? paths.channel(data.id) : paths.workbench()) }}>
           <Icon name="close" size={20} />
-        </button>
+        </Button>
       )}
     >
       {content}
@@ -86,7 +82,7 @@ export function DoneStep({ channelId, onLeave }: {
           <h1 {...stylex.props(channelStyles.newTitle, channelStyles.doneHeading)}>{tt.title}</h1>
           <p className={`vch-intro ${stylex.props(channelStyles.intro).className}`}>{channels.initialLoading || channel.initialLoading ? t.common.loading : tt.bruteForce}</p>
           <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} variant="primary" onClick={() => { onLeave(); window.location.hash = `#${paths.channelNew()}` }}>
+            <ActionButton variant="primary" onClick={() => { onLeave(); window.location.hash = `#${paths.channelNew()}` }}>
               {t.channels.create.title}
             </ActionButton>
           </div>
@@ -276,7 +272,7 @@ export function DoneStep({ channelId, onLeave }: {
                   <span className={`vch-next__title ${stylex.props(channelStyles.nextTitle).className}`} title={video.title}>{video.title}</span>
                   <span className={`vch-next__meta ${stylex.props(channelStyles.nextMeta).className}`}>{latestMeta ? `${latestMeta} · ${tt.nextHint}` : tt.nextHint}</span>
                 </span>
-                <ActionButton className={stylex.props(channelStyles.touchTarget).className}
+                <ActionButton
                   variant="primary"
                   size="md"
                   lockedReason={t.channels.queueLock}
@@ -295,7 +291,7 @@ export function DoneStep({ channelId, onLeave }: {
         {mobile ? (
           <>
             {directorFailed && (
-              <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="lg" block icon={<Icon name="edit" size={16} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
+              <ActionButton size="lg" block icon={<Icon name="edit" size={16} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
                 {tt.nameInProfile}
               </ActionButton>
             )}
@@ -306,16 +302,16 @@ export function DoneStep({ channelId, onLeave }: {
           </>
         ) : (
           <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id)}` }}>
+            <ActionButton size="md" onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id)}` }}>
               {tt.openChannel}
             </ActionButton>
             {/* r38: Đạo diễn chưa đặt được tên → cho đặt tay ở Hồ sơ kênh. */}
             {directorFailed && (
-              <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" icon={<Icon name="edit" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
+              <ActionButton size="md" icon={<Icon name="edit" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
                 {tt.nameInProfile}
               </ActionButton>
             )}
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" variant="quiet" icon={<Icon name="radar" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.explore()}` }}>
+            <ActionButton size="md" variant="quiet" icon={<Icon name="radar" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.explore()}` }}>
               {tt.explore}
             </ActionButton>
           </div>
@@ -382,7 +378,6 @@ function StepRow({ who, label, step, percent, mobile = false, onRetry, retrying 
         <ActionButton
           variant="outline"
           size="lg"
-          xstyle={[channelStyles.retryM]}
           icon={<Icon name="refresh" size={15} />}
           pending={retrying}
           onClick={onRetry}

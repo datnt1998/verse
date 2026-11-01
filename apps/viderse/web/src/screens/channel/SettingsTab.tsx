@@ -10,7 +10,7 @@ import { mch } from './mobile/mchannel.stylex'
 // rộng hết. Lỗi 400 theo trường hiện dưới ô; chữ đang gõ được giữ nguyên để
 // người dùng sửa rồi lưu lại.
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Field, FieldError, Icon, TextArea } from '@noverse/ui'
+import { Button, Field, FieldError, Icon, TextArea } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, Orb } from '../../components'
@@ -217,7 +217,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
               <div {...stylex.props(channelStyles.form, channelStyles.formRoom)}>
                 <div {...stylex.props(channelStyles.field)}>
                   <span {...stylex.props(channelStyles.fieldLabel)}>{tt.language}</span>
-                  <Segmented buttonStyle={channelStyles.touchTarget}
+                  <Segmented
                     label={tt.language}
                     size={phone ? 'xl' : 'sm'}
                     radius={phone ? 10 : undefined}
@@ -278,13 +278,12 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                     {tags.map((tag) => (
                       <span {...stylex.props(channelStyles.tag)} key={tag}>
                         {tag}
-                        <button {...stylex.props(channelStyles.tagButton)}
-                          type="button"
+                        <Button variant="icon"
                           aria-label={tt.removeTag(tag)}
                           onClick={() => void saveTags(tags.filter((item) => item !== tag))}
                         >
                           <Icon name="close" size={12} />
-                        </button>
+                        </Button>
                       </span>
                     ))}
                     <input
@@ -353,11 +352,11 @@ export function SettingsTab({ channel }: { channel: Channel }) {
           </div>
           <div {...stylex.props(channelStyles.deleteActions)}>
             {workingCount > 0 && (
-              <ActionButton xstyle={channelStyles.deleteBtn} variant="outline" onClick={() => navigate(paths.channel(channel.id, 'videos'))}>
+              <ActionButton variant="outline" onClick={() => navigate(paths.channel(channel.id, 'videos'))}>
                 {tt.viewRunning(workingCount)}
               </ActionButton>
             )}
-            <ActionButton xstyle={channelStyles.deleteBtn} variant="danger-soft"
+            <ActionButton variant="danger-soft"
               lockedReason={workingCount > 0 ? tt.deleteLocked(workingCount) : undefined}
               onClick={onDelete}
               icon={<Icon name="trash" size={15} />}

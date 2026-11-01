@@ -4,7 +4,7 @@
 // /api/queue: pause/resume, Quy tắc chạy, kéo đổi thứ tự (position float),
 // Lên đầu, Bỏ khỏi hàng chờ.
 import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react'
-import { Icon, toast } from '@noverse/ui'
+import { ActionMenu, Button, Icon, Segmented, toast } from '@noverse/ui'
 import { ActionButton, ChannelAvatar, Orb, ScreenEmpty } from '../../components'
 import { assistantName, type Assistant } from '../../components/agents'
 import { t } from '../../i18n/queue'
@@ -44,11 +44,11 @@ function Stepper({ aria, value, min, max, fmt, disabled, onChange }: {
 }) {
   return (
     <div role="group" aria-label={aria} className={`vq-step${fmt ? ' vq-step--wide' : ''} ${stylex.props(styles["vq-step"]).className}`}>
-      <button type="button" className={`vq-step__btn ${stylex.props(styles["vq-step__btn"]).className}`} aria-label={`${aria} giảm`} disabled={disabled || value <= min}
-        onClick={() => onChange(value - 1)}><Icon name="minus" size={14} /></button>
+      <Button variant="icon" aria-label={`${aria} giảm`} disabled={disabled || value <= min}
+        onClick={() => onChange(value - 1)}><Icon name="minus" size={14} /></Button>
       <span className={`num mono ${stylex.props(styles.stepValue, !!fmt && styles.stepWide).className}`} aria-live="polite">{fmt ? fmt(value) : value}</span>
-      <button type="button" className={`vq-step__btn ${stylex.props(styles["vq-step__btn"]).className}`} aria-label={`${aria} tăng`} disabled={disabled || value >= max}
-        onClick={() => onChange(value + 1)}><Icon name="add" size={14} /></button>
+      <Button variant="icon" aria-label={`${aria} tăng`} disabled={disabled || value >= max}
+        onClick={() => onChange(value + 1)}><Icon name="add" size={14} /></Button>
     </div>
   )
 }
@@ -57,7 +57,6 @@ export function QueueScreen() {
   const [filter, setFilter] = useState<string>('all')
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropId, setDropId] = useState<string | null>(null)
-  const [menuId, setMenuId] = useState<string | null>(null)
   const mobile = useMediaQuery('(max-width: 767px)')
   const queue = useQueue()
   const { view, res, channels, channelsRes, items, patch, busy, online } = queue
@@ -113,7 +112,6 @@ export function QueueScreen() {
   const pauseBtn = view && (
     <ActionButton
       className="vq-pause"
-      xstyle={[styles['vq-pause'], view.paused && !mobile && styles.pausePaused]}
       variant={view.paused && !mobile ? 'primary' : 'outline'}
       onClick={() => void patch({ paused: !view.paused }, (v) => ({ ...v, paused: !v.paused }))}
       disabled={busy || !online}
@@ -123,18 +121,13 @@ export function QueueScreen() {
     </ActionButton>
   )
 
-  const menu = (item: QueueQueuedItem) => menuId === item.id && (
-    <div role="menu" className={`vq-menu ${stylex.props(styles.liquidCard, styles["vq-menu"]).className}`}>
-      <button type="button" role="menuitem" disabled={busy || !online || items[0]?.id === item.id} {...stylex.props(styles.menuItem)} onClick={() => { setMenuId(null); void patch({ id: item.id, action: 'front' }) }}>
-        <Icon name="arrow-up" size={15} />{tt.menuTop}
-      </button>
-      <a role="menuitem" {...stylex.props(styles.menuItem)} href={`#${paths.channel(item.channelId)}`}><Icon name="channel" size={15} />{tt.menuChannel}</a>
-      {item.sourceUrl && <a role="menuitem" {...stylex.props(styles.menuItem)} href={item.sourceUrl} target="_blank" rel="noreferrer"><Icon name="link" size={15} />{tt.menuSource}</a>}
-      <div aria-hidden="true" className={`vq-menu__sep ${stylex.props(styles["vq-menu__sep"]).className}`} />
-      <button type="button" role="menuitem" disabled={busy || !online} className={`vq-menu__danger ${stylex.props(styles.menuItem, styles["vq-menu__danger"]).className}`} onClick={() => { setMenuId(null); void removeItem(item) }}>
-        <Icon name="trash" size={15} />{tt.removeItem}
-      </button>
-    </div>
+  const menu = (item: QueueQueuedItem) => (
+    <ActionMenu label={tt.menuMore(item.title)} alwaysVisible items={[
+      { id: 'front', label: tt.menuTop, icon: <Icon name="arrow-up" />, disabled: busy || !online || items[0]?.id === item.id, onSelect: () => { void patch({ id: item.id, action: 'front' }) } },
+      { id: 'channel', label: tt.menuChannel, icon: <Icon name="channel" />, href: `#${paths.channel(item.channelId)}` },
+      ...(item.sourceUrl ? [{ id: 'source', label: tt.menuSource, icon: <Icon name="link" />, href: item.sourceUrl, target: '_blank' as const, rel: 'noreferrer' }] : []),
+      { id: 'remove', label: tt.removeItem, icon: <Icon name="trash" />, danger: true, disabled: busy || !online, onSelect: () => { void removeItem(item) } },
+    ]} />
   )
 
   const runningCard = (j: QueueView['running'][number], i: number) => {
@@ -166,7 +159,7 @@ export function QueueScreen() {
         <div className={`vq-run__foot ${stylex.props(styles["vq-run__foot"]).className}`}>
           <span className={`num vq-run__meta ${stylex.props(styles["vq-run__meta"]).className}`}>{tt.labels.lane(i + 1)} · Bước {stepIdx + 1}/9 · {STEP_LABELS[stepIdx]}{j.startedAt ? ` · ${tt.started(fmtEta(j.startedAt))}` : ''}</span>
           {view?.paused && j.pausedAt && <span className={`vq-run__note ${stylex.props(styles["vq-run__note"]).className}`}>{tt.runningNote}</span>}
-          <a className={`vq-open ${stylex.props(styles["vq-open"]).className}`} href={`#${paths.workbench({ video: j.jobId })}`}><Icon name="workbench" size={14} />{tt.openWorkbench}</a>
+          <a href={`#${paths.workbench({ video: j.jobId })}`} {...stylex.props(styles['vq-link'])}><Icon name="workbench" size={14} />{tt.openWorkbench}</a>
         </div>
       </article>
     )
@@ -203,12 +196,11 @@ export function QueueScreen() {
         <span className={`vq-start__sub ${stylex.props(styles["vq-start__sub"]).className}`}>{waitLine(item, view?.paused ?? false)}</span>
       </span>
       <span role="cell" className={`vq-acts ${stylex.props(styles["vq-acts"]).className}`}>
-        <button type="button" className={`vq-icon ${stylex.props(styles["vq-icon"]).className}`} aria-label={tt.menuTopOf(item.title)} title={tt.menuTop}
-          onClick={() => void patch({ id: item.id, action: 'front' })}><Icon name="arrow-up" size={15} /></button>
-        <button type="button" className={`vq-icon ${stylex.props(styles["vq-icon"]).className}`} aria-haspopup="menu" aria-expanded={menuId === item.id} aria-label={tt.menuMore(item.title)}
-          onClick={() => setMenuId((m) => (m === item.id ? null : item.id))}><Icon name="more" size={15} /></button>
+        <Button variant="icon" aria-label={tt.menuTopOf(item.title)} title={tt.menuTop}
+          disabled={busy || !online || items[0]?.id === item.id}
+          onClick={() => void patch({ id: item.id, action: 'front' })}><Icon name="arrow-up" size={15} /></Button>
+        {menu(item)}
       </span>
-      {menu(item)}
     </div>
   )
 
@@ -302,7 +294,7 @@ export function QueueScreen() {
         )}
 
         {res.status === 'error' && !view && (
-          <ScreenEmpty title={tt.fail.title} hint="" action={<button type="button" className={`vq-btn ${stylex.props(styles["vq-btn"]).className}`} onClick={() => void res.refresh().catch(() => toast.err(tt.fail.title))}>{tt.fail.retry}</button>} />
+          <ScreenEmpty title={tt.fail.title} hint="" action={<Button onClick={() => void res.refresh().catch(() => toast.err(tt.fail.title))}>{tt.fail.retry}</Button>} />
         )}
         {view === undefined && res.status !== 'error' && <ScreenEmpty title={t.common.loading} hint="" />}
         {view !== undefined && state === 'empty' && (
@@ -311,8 +303,8 @@ export function QueueScreen() {
             <b {...stylex.props(styles.emptyTitle)}>{tt.empty.title}</b>
             <span className={`vq-empty__hint ${stylex.props(styles["vq-empty__hint"]).className}`}>{tt.empty.hint}</span>
             <div className={`vq-empty__acts ${stylex.props(styles["vq-empty__acts"]).className}`}>
-              <a className={`vq-btn ${stylex.props(styles["vq-btn"]).className}`} href={`#${paths.explore()}`}><Icon name="radar" size={16} />{tt.empty.explore}</a>
-              <a className={`vq-btn vq-btn--pri ${stylex.props(styles["vq-btn"], styles["vq-btn--pri"]).className}`} href={`#${paths.new()}`}><Icon name="add" size={16} />{tt.empty.newVideo}</a>
+              <a href={`#${paths.explore()}`} {...stylex.props(styles['vq-link'])}><Icon name="radar" size={16} />{tt.empty.explore}</a>
+              <a href={`#${paths.new()}`} {...stylex.props(styles['vq-link'])}><Icon name="add" size={16} />{tt.empty.newVideo}</a>
             </div>
           </div>
         )}
@@ -357,12 +349,9 @@ export function QueueScreen() {
               <div className={`vq-sechead vq-sechead--q ${stylex.props(styles["vq-sechead"], styles["vq-sechead--q"]).className}`}>
                 <h2 {...stylex.props(styles.sectionHeading)} id="vq-h-q">{tt.comingUp}</h2>
                 {filters.length > 0 && (
-                  <div role="tablist" aria-label={tt.filterAria} className={`vq-tabs ${stylex.props(styles["vq-tabs"]).className}`}>
-                    <button type="button" role="tab" {...stylex.props(styles.tab, filter === "all" && styles.tabSelected)} aria-selected={filter === 'all'} onClick={() => setFilter('all')}>{tt.filterAll}<span className={`num ${stylex.props(styles.tabCount).className}`}>{items.length}</span></button>
-                    {filters.map(([cid, n]) => (
-                      <button key={cid} type="button" role="tab" {...stylex.props(styles.tab, filter === cid && styles.tabSelected)} aria-selected={filter === cid} onClick={() => setFilter(cid)}>{chName(cid)}<span className={`num ${stylex.props(styles.tabCount).className}`}>{n}</span></button>
-                    ))}
-                  </div>
+                  <Segmented label={tt.filterAria} value={filter} onChange={setFilter} size="sm" fit="content"
+                    options={[{ id: 'all', label: <>{tt.filterAll} <span className="num">{items.length}</span></> },
+                      ...filters.map(([cid, n]) => ({ id: cid, label: <>{chName(cid)} <span className="num">{n}</span></> }))]} />
                 )}
                 <span className={`vq-draghint ${stylex.props(styles["vq-draghint"]).className}`}>{tt.dragHint}</span>
               </div>
@@ -470,7 +459,6 @@ const styles = stylex.create({
   "vq-run__foot": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "minWidth": 0 },
   "vq-run__meta": { "fontSize": "12px", "color": "var(--vv-fg-note)", "whiteSpace": "nowrap", "flex": "1", "overflow": "hidden", "textOverflow": "ellipsis" },
   "vq-run__note": { "fontSize": "11.5px", "color": color["--color-warn"], "whiteSpace": "nowrap" },
-  "vq-open": { height: "30px", padding: `0 ${s["--vv-s-11"]}`, display: "inline-flex", alignItems: "center", gap: s["--vv-s-7"], borderRadius: r["--vv-r-8"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-4"], fontSize: "12.5px", color: color["--color-fg"], textDecoration: "none", whiteSpace: "nowrap" },
   "vq-rot": { "borderRadius": r["--vv-r-14"], "padding": `${s["--vv-s-14"]} ${s["--vv-s-16"]}`, "display": "flex", "flexDirection": "column", "gap": s["--vv-s-12"] },
   "vq-rot__head": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "color": color["--color-fg-3"] },
   "rotationHeading": { "margin": 0, "fontSize": "13.5px", "fontWeight": 600, "color": color["--color-fg"] },
@@ -484,10 +472,6 @@ const styles = stylex.create({
   "rotationMeta": { "fontSize": "11px", "color": color["--color-fg-4"], "whiteSpace": "nowrap" },
   "vq-rot__loop": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-6"], "fontSize": "12px", "color": color["--color-fg-4"] },
   "vq-rot__text": { "margin": 0, "fontSize": "12.5px", "color": color["--color-fg-3"], "lineHeight": 1.6 },
-  "vq-tabs": { display: "flex", gap: s["--vv-s-2"], padding: s["--vv-s-3"], borderRadius: r["--vv-r-9"], backgroundColor: color["--color-surface-1"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-2"] },
-  "tab": { height: "26px", padding: `0 ${s["--vv-s-9"]}`, display: "flex", alignItems: "center", gap: s["--vv-s-6"], borderRadius: r["--vv-r-6"], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", color: color["--color-fg-3"], fontSize: "12.5px", cursor: "pointer" },
-  "tabSelected": { backgroundColor: color["--color-surface-4"], color: color["--color-fg"] },
-  "tabCount": { "color": color["--color-fg-4"] },
   "vq-draghint": { "marginLeft": "auto", "fontSize": "12px", "color": color["--color-fg-4"] },
   "vq-table": { "borderRadius": r["--vv-r-14"], "overflow": "visible" },
   "vq-row": { position: "relative", display: "grid", alignItems: "center", gridTemplateColumns: { "default": "24px 14px 64px minmax(0, 1fr) 196px 156px 92px 64px", "@media (min-width: 768px) and (max-width: 1380px)": "24px 14px 64px minmax(0, 1fr) 176px 88px 64px", "@media (min-width: 768px) and (max-width: 1100px)": "24px 64px minmax(0, 1fr) 88px 64px" }, gap: s["--vv-s-12"], padding: `${s["--vv-s-8"]} ${s["--vv-s-14"]}`, borderBottomWidth: { default: "1px", ":last-of-type": 0 }, borderBottomStyle: { default: "solid", ":last-of-type": "none" }, borderBottomColor: { default: "var(--vv-hover-row)", ":last-of-type": "currentColor" } },
@@ -510,20 +494,13 @@ const styles = stylex.create({
   "vq-start__eta": { "fontSize": "12.5px" },
   "vq-start__sub": { "fontSize": "11px", "color": "var(--vv-fg-note)", "whiteSpace": "nowrap" },
   "vq-acts": { "display": "flex", "justifyContent": "flex-end", "gap": s["--vv-s-2"] },
-  "vq-icon": { width: "28px", height: "28px", borderRadius: r["--vv-r-7"], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: { default: "transparent", ":hover": color["--color-surface-3"] }, backgroundImage: { default: "none" }, color: { default: color["--color-fg-4"], ":hover": color["--color-fg"] }, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" },
   "vq-norows": { "padding": `${s["--vv-s-24"]} ${s["--vv-s-14"]}`, "textAlign": "center", "fontSize": "13px", "color": color["--color-fg-4"] },
   "vq-foot": { "padding": `${s["--vv-s-10"]} ${s["--vv-s-14"]}`, "display": "flex", "flexWrap": "wrap", "gap": `${s["--vv-s-6"]} ${s["--vv-s-16"]}`, "fontSize": "12px", "color": color["--color-fg-4"] },
-  "vq-menu": { position: "absolute", right: s["--vv-s-12"], top: s["--vv-s-44"], zIndex: 5, width: "232px", padding: s["--vv-s-5"], borderRadius: r["--vv-r-11"], backgroundColor: color["--color-surface-2"], display: "flex", flexDirection: "column" },
-  "menuItem": { display: "flex", alignItems: "center", gap: s["--vv-s-8"], padding: `${s["--vv-s-7"]} ${s["--vv-s-8"]}`, borderRadius: r["--vv-r-7"], fontSize: "13px", color: { default: color["--color-fg-2"], ":hover": color["--color-fg"] }, backgroundColor: { default: "transparent", ":hover": color["--color-surface-3"] }, backgroundImage: { default: "none" }, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", cursor: "pointer", textAlign: "left", textDecoration: "none" },
-  "vq-menu__danger": { "color": { default: color["--color-warn"], ":hover": color["--color-warn"] } },
-  "vq-menu__sep": { height: "1px", margin: `${s["--vv-s-4"]} ${s["--vv-s-6"]}`, backgroundColor: line["--line-2"] },
   "vq-empty": { "flex": "1", "minHeight": "420px", "display": "flex", "flexDirection": "column", "alignItems": "center", "justifyContent": "center", "gap": s["--vv-s-14"], "textAlign": "center" },
   "vq-empty__orbs": { "display": "flex", "alignItems": "center", "gap": s["--vv-s-8"], "opacity": 0.85 },
   "emptyTitle": { "fontSize": "18px", "fontWeight": 600 },
   "vq-empty__hint": { "maxWidth": "440px", "fontSize": "13.5px", "color": color["--color-fg-3"], "lineHeight": 1.6 },
   "vq-empty__acts": { "display": "flex", "flexWrap": "wrap", "justifyContent": "center", "gap": s["--vv-s-8"], "marginTop": s["--vv-s-4"] },
-  "vq-btn": { height: "36px", padding: `0 ${s["--vv-s-13"]}`, display: "inline-flex", alignItems: "center", gap: s["--vv-s-8"], borderRadius: r["--vv-r-10"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-1"], fontSize: "13px", color: color["--color-fg"], textDecoration: "none", backgroundColor: "transparent", backgroundImage: "none", cursor: "pointer" },
-  "vq-btn--pri": { backgroundColor: color["--color-fg"], color: color["--color-bg"], fontWeight: 600, borderWidth: 0, borderStyle: "none", borderColor: "currentColor" },
   "vq-side": { "flex": "0 0 340px", "maxWidth": "340px", "minHeight": 0, "overflowY": "auto", "padding": `${s["--vv-s-22"]} ${s["--vv-s-16"]} ${s["--vv-s-24"]}`, "display": { "default": "flex", "@media (max-width: 767px)": "none" }, "flexDirection": "column", "gap": s["--vv-s-12"], "boxShadow": `inset 1px 0 0 ${line["--line-1"]}`, "paddingLeft": `calc(${s["--vv-s-16"]} + ${s["--vv-s-1"]})` },
   "vq-grp": { "padding": `0 ${s["--vv-s-4"]}`, "fontSize": "11.5px", "fontWeight": 600, "textTransform": "uppercase", "letterSpacing": "0.06em", "color": "var(--vv-fg-note)" },
   "vq-card": { "borderRadius": r["--vv-r-14"], "padding": s["--vv-s-14"], "display": "flex", "flexDirection": "column", "gap": s["--vv-s-10"] },
@@ -534,8 +511,7 @@ const styles = stylex.create({
   "vq-sep": { height: "1px", backgroundColor: line["--line-2"] },
   "vq-link": { "fontSize": "12px", "color": { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, "textDecoration": "none" },
   "vq-mini": { "fontSize": "12px", "color": "var(--vv-fg-note)" },
-  "vq-step": { display: "flex", alignItems: "stretch", height: "32px", borderRadius: r["--vv-r-10"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-4"], backgroundColor: color["--color-surface-0"], overflow: "hidden" },
-  "vq-step__btn": { width: "32px", borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: { default: "transparent", ":hover:not(:disabled)": color["--color-surface-3"] }, backgroundImage: { default: "none" }, color: { default: color["--color-fg"], ":hover:not(:disabled)": color["--color-fg"] }, display: "flex", alignItems: "center", justifyContent: "center", cursor: { default: "pointer", ":disabled": "default" }, opacity: { default: null, ":disabled": 0.35 } },
+  "vq-step": { display: "flex", alignItems: "center", flexShrink: 0 },
   "stepValue": { "minWidth": "42px", "display": "flex", "alignItems": "center", "justifyContent": "center", "boxShadow": `inset 1px 0 0 ${line["--line-3"]}, inset -1px 0 0 ${line["--line-3"]}`, "fontSize": "13px", "whiteSpace": "nowrap" },
   "stepWide": { "minWidth": "64px" },
   "vq-pace": { "display": "flex", "flexDirection": "column", "gap": s["--vv-s-6"] },
@@ -552,8 +528,6 @@ const styles = stylex.create({
   "doneReview": { backgroundColor: color["--color-warn"] },
   "vq-done__t": { "flex": "1", "minWidth": 0, "whiteSpace": "nowrap", "overflow": "hidden", "textOverflow": "ellipsis" },
   "vq-done__at": { "color": color["--color-fg-4"], "whiteSpace": "nowrap" },
-  "vq-pause": { "height": { "default": "36px", "@media (max-width: 767px)": "40px" }, paddingBlock: 0, paddingInline: { default: s["--vv-s-13"], "@media (max-width: 767px)": s["--vv-s-14"] }, "gap": s["--vv-s-8"], "borderRadius": { "default": r["--vv-r-10"], "@media (max-width: 767px)": r["--vv-r-12"] }, "borderColor": kit["--kit-line-12"], "fontSize": { "default": "13px", "@media (max-width: 767px)": "13.5px" }, "fontWeight": 400, "lineHeight": { "default": "1.55", "@media (max-width: 767px)": "1.5" } },
-  "pausePaused": { paddingBlock: 0, paddingInline: s["--vv-s-14"], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", fontWeight: 600 },
   "pauseLabel": { "gap": s["--vv-s-8"] },
   "vq-rules": { "display": "flex", "flexDirection": "column", "gap": s["--vv-s-12"] },
   "sectionHeading": { "margin": 0, "fontSize": "14px", "fontWeight": 600 },

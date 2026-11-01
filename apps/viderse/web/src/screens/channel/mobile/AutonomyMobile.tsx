@@ -4,7 +4,7 @@
 // xác nhận Tự chạy / Tự duyệt hết vẫn y nguyên.
 import * as stylex from '@stylexjs/stylex'
 import { useState } from 'react'
-import { Icon, Segmented, Sheet } from '@noverse/ui'
+import { Button, Icon, RadioCard, Segmented, Sheet } from '@noverse/ui'
 import { Orb } from '../../../components/Orb'
 import { t } from '../../../i18n/autonomy'
 import {
@@ -108,35 +108,31 @@ export function AutonomyCardMobile({ channel }: { channel: Channel }) {
           const copy = tt.rows[row]
           return (
             <div key={row}>
-              <button
+              <Button variant="quiet" block size="lg" icon={<Icon name="arrow-right-2" size={16} />}
                 type="button"
                 aria-label={copy.label}
                 aria-haspopup="dialog"
                 disabled={disabled}
                 onClick={() => setOpenRow(row)}
-                {...stylex.props(mch.autonomyRow)}
               >
                 <span {...stylex.props(mch.autonomyRowText)}>
                   <span {...stylex.props(mch.autonomyLabel)}>{copy.label}</span>
                   <span {...stylex.props(mch.autonomyCur)}>{optionLabel(row, rowValue, min)}</span>
                 </span>
-                <Icon name="arrow-right-2" size={16} xstyle={mch.chev} />
-              </button>
+              </Button>
               {row === 'approve' && autonomy.approve.mode === 'score' && (
                 <div {...stylex.props(mch.thrRow)}>
                   <span {...stylex.props(mch.paceLabel)}>{tt.threshold}</span>
                   <span role="group" aria-label={tt.threshold} {...stylex.props(mch.thrStepper)}>
-                    <button type="button" aria-label={tt.thresholdDown} disabled={disabled || min <= APPROVE_MIN}
-                      onClick={() => void saveAutonomy(autonomy, withThreshold(autonomy, min - APPROVE_STEP))}
-                      {...stylex.props(mch.iconBtn32)}>
+                    <Button variant="icon" aria-label={tt.thresholdDown} disabled={disabled || min <= APPROVE_MIN}
+                      onClick={() => void saveAutonomy(autonomy, withThreshold(autonomy, min - APPROVE_STEP))}>
                       <Icon name="minus" size={14} />
-                    </button>
+                    </Button>
                     <output aria-live="polite" className={`num ${stylex.props(mch.thresholdValue).className}`}>{min}</output>
-                    <button type="button" aria-label={tt.thresholdUp} disabled={disabled || min >= APPROVE_MAX}
-                      onClick={() => void saveAutonomy(autonomy, withThreshold(autonomy, min + APPROVE_STEP))}
-                      {...stylex.props(mch.iconBtn32)}>
+                    <Button variant="icon" aria-label={tt.thresholdUp} disabled={disabled || min >= APPROVE_MAX}
+                      onClick={() => void saveAutonomy(autonomy, withThreshold(autonomy, min + APPROVE_STEP))}>
                       <Icon name="add" size={14} />
-                    </button>
+                    </Button>
                   </span>
                 </div>
               )}
@@ -164,18 +160,9 @@ export function AutonomyCardMobile({ channel }: { channel: Channel }) {
             const current = openRow === 'approve' ? autonomy.approve.mode : autonomy[openRow]
             const on = option === current
             return (
-              <button
-                key={option}
-                type="button"
-                role="radio"
-                aria-checked={on}
-                disabled={disabled}
-                onClick={() => setRow(openRow, option)}
-                {...stylex.props(mch.choice, on && mch.choiceOn)}
-              >
-                <span aria-hidden="true" {...stylex.props(mch.radio, on && mch.radioOn)}>{on && <span {...stylex.props(mch.radioDot)} />}</span>
-                <span>{optionLabel(openRow, option, min)}</span>
-              </button>
+              <RadioCard key={option} checked={on} disabled={disabled}
+                size="lg" onChange={() => setRow(openRow, option)}
+                label={optionLabel(openRow, option, min)} />
             )
           })}
         </div>

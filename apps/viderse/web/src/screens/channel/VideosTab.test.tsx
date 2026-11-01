@@ -73,7 +73,7 @@ describe('Kênh › Video', () => {
     for (const id of ['review', 'attention', 'ready']) await click(host.querySelector(`[role=checkbox][aria-label="Chọn Video ${id}"]`)!)
     const bar = dock.querySelector('[role=toolbar]')!
     expect(bar.textContent).toContain('Đã chọn 3')
-    const counts = Object.fromEntries([...bar.querySelectorAll('button[title]')].map((el) => [el.textContent?.replace(/\d+$/, ''), el.textContent?.match(/\d+$/)?.[0]]))
+    const counts = Object.fromEntries([...bar.querySelectorAll('button')].map((el) => [el.textContent?.trim().replace(/\s*\d+$/, ''), el.textContent?.match(/\d+$/)?.[0]]))
     expect(counts).toMatchObject({ 'Thử lại': '1', 'Duyệt & dựng': '1', 'Tải gói': '1', 'Đánh dấu đã đăng': '1' })
     await act(async () => { window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' })) })
     expect(dock.querySelector('[role=toolbar]')).toBeNull()
@@ -94,7 +94,6 @@ describe('Kênh › Video', () => {
     try {
       await mount(jobs(all, ['ready', 'posted']))
       const bundle = () => [...host.querySelectorAll('button')].find((el) => el.textContent?.trim() === 'Tải gói đã xong')!
-      expect(bundle().getAttribute('aria-disabled')).toBe('false')
       await click(bundle())
       await act(async () => { await new Promise((resolve) => setTimeout(resolve, 10)) })
       expect(clicked).toEqual(['/api/clone/download?ids=ready,posted'])

@@ -3,10 +3,11 @@
 // `perf` chỉ có khi bộ lọc là Tất cả hoặc Đã đăng (usePerformance chỉ gọi ở đó).
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Icon, Segmented, Skeleton } from '@noverse/ui'
+import { Button, Icon, Segmented, Skeleton } from '@noverse/ui'
 import type { ChannelJob, ChannelJobs } from '../../api/channelVideos'
 import type { Performance } from '../../api/performance'
 import { InsightsTeaser, PostedInsights, postedDetail, usePerformance } from '../../components/performance'
+import { ActionButton } from '../../components'
 import { statusColor } from '../../components/StatusLabel'
 import type { Resource } from '../../data/useResource'
 import { useMediaQuery } from '../../lib/useMediaQuery'
@@ -116,7 +117,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
             <div role="alert" {...stylex.props(mch.vEmpty)}>
               <div>{tt.errorTitle}</div>
               <div {...stylex.props(mch.hint)}>{tt.errorHint}</div>
-              <button type="button" onClick={() => void jobs.refresh()} {...stylex.props(mch.linkBtn44)}>{t.common.retry}</button>
+              <Button variant="quiet" size="lg" onClick={() => void jobs.refresh()}>{t.common.retry}</Button>
             </div>
           )}
           {shown.map((job: ChannelJob, index) => (
@@ -140,7 +141,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
           {data !== undefined && rows.length === 0 && (
             <div {...stylex.props(mch.vEmpty)}>
               <div>{tt.emptyFilter}</div>
-              <button type="button" onClick={() => onFilter('all')} {...stylex.props(mch.linkBtn44)}>{tt.showAll}</button>
+              <Button variant="quiet" size="lg" onClick={() => onFilter('all')}>{tt.showAll}</Button>
             </div>
           )}
         </div>
@@ -152,31 +153,22 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
   return (
     <section aria-label={tt.region} {...stylex.props(sx.section)}>
       <div {...stylex.props(sx.toolbar)}>
-        <div role="radiogroup" aria-label={tt.filterLabel} {...stylex.props(sx.filters)}>
-          {FILTER_IDS.map((id) => (
-            <button key={id} type="button" role="radio" aria-checked={filter === id} onClick={() => onFilter(id)} {...stylex.props(sx.chip, filter === id && sx.chipOn)}>
-              <span aria-hidden="true" {...stylex.props(sx.chipDot(DOT[id]))} />
-              {tt.filters[id]}
-              {list && <span className={`num ${stylex.props(sx.chipCount).className}`}>{counts[id]}</span>}
-            </button>
-          ))}
-        </div>
+        <Segmented label={tt.filterLabel} value={filter} onChange={(id) => onFilter(id as FilterId)}
+          size="sm" fit="content" options={FILTER_IDS.map((id) => ({
+            id, icon: <span aria-hidden="true" {...stylex.props(sx.chipDot(DOT[id]))} />,
+            label: <>{tt.filters[id]} {list && <span className={`num ${stylex.props(sx.chipCount).className}`}>{counts[id]}</span>}</>,
+          }))} />
         <span {...stylex.props(sx.spacer)} />
-        <button type="button" aria-pressed={selecting} onClick={onToggleSelect} {...stylex.props(sx.toolBtn, selecting && sx.toolBtnOn)}>
-          <Icon name="tick-b" size={15} xstyle={[sx.toolIcon, selecting && sx.toolIconOn]} />
+        <Button variant={selecting ? 'ghost' : 'quiet'} size="sm" aria-pressed={selecting} onClick={onToggleSelect}
+          icon={<Icon name="tick-b" size={15} />}>
           {selecting ? tt.exitSelect : tt.select}
-        </button>
+        </Button>
         {!selecting && (
-          <button
-            type="button"
-            aria-disabled={bundleIds.size === 0}
-            title={bundleIds.size === 0 ? tt.bundleNone : undefined}
+          <ActionButton size="sm" lockedReason={bundleIds.size === 0 ? tt.bundleNone : undefined}
             onClick={() => { if (bundleIds.size > 0) onBundleDone(data!.bulkEligibility.bundle) }}
-            {...stylex.props(sx.toolBtn, bundleIds.size === 0 && sx.toolBtnLocked)}
-          >
-            <Icon name="download" size={15} />
+            icon={<Icon name="download" size={15} />}>
             {tt.bundleDone}
-          </button>
+          </ActionButton>
         )}
       </div>
 
@@ -204,7 +196,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
               <Icon name="video-play" size={22} xstyle={sx.emptyIcon} />
               <span {...stylex.props(sx.emptyText)}>{tt.errorTitle}</span>
               <span {...stylex.props(sx.sub)}>{tt.errorHint}</span>
-              <button type="button" onClick={() => void jobs.refresh()} {...stylex.props(sx.toolBtn, sx.emptyBtn)}>{t.common.retry}</button>
+              <Button variant="quiet" size="sm" onClick={() => void jobs.refresh()}>{t.common.retry}</Button>
             </div>
           )}
           {shown.map((job: ChannelJob) => (
@@ -227,7 +219,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
             <div {...stylex.props(sx.empty)}>
               <Icon name="video-play" size={22} xstyle={sx.emptyIcon} />
               <span {...stylex.props(sx.emptyText)}>{tt.emptyFilter}</span>
-              <button type="button" onClick={() => onFilter('all')} {...stylex.props(sx.toolBtn, sx.emptyBtn)}>{tt.showAll}</button>
+              <Button variant="quiet" size="sm" onClick={() => onFilter('all')}>{tt.showAll}</Button>
             </div>
           )}
         </div>

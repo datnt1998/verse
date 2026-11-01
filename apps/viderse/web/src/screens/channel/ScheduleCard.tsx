@@ -8,7 +8,7 @@ import { channelStyles } from './channel.stylex'
 // bằng hàm thuần `mergePostingSchedules` (không nhân bản logic của Khám phá —
 // dùng chung kiểu và hằng số ngày).
 import { useState } from 'react'
-import { Icon } from '@noverse/ui'
+import { Icon, Segmented } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
 import { t } from '../../i18n/channels'
 import { paths } from '../../router'
@@ -54,14 +54,8 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
         <div {...stylex.props(mch.scheduleHead)}>
           <Icon name="calendar" size={16} />
           <h2 {...stylex.props(mch.scheduleTitle)}>{tt.title}</h2>
-          <button
-            type="button"
-            aria-label={tt.zone}
-            onClick={() => setZone(zone === 'vn' ? 'ny' : 'vn')}
-            {...stylex.props(mch.scheduleZone, mch.buttonReset)}
-          >
-            {tt.zones[zone]}
-          </button>
+          <Segmented label={tt.zone} value={zone} onChange={(id) => setZone(id as PostingZone)}
+            size="sm" fit="content" options={ZONES.map((id) => ({ id, label: tt.zones[id] }))} />
         </div>
         {sources.length === 0 ? (
           <p {...stylex.props(mch.hint)}>{tt.none}</p>
@@ -97,20 +91,8 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
     <section className={`vch-card vch-schedule${variant === 'aside' ? '' : ' vch-schedule--tab'} ${stylex.props(channelStyles.card, variant !== 'aside' && channelStyles.scheduleTab).className}`} aria-label={tt.title}>
       <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
         <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="calendar" size={16} />{variant === 'aside' ? tt.titleShort : tt.title}</h2>
-        <div role="radiogroup" aria-label={tt.zone} className={`vch-zone ${stylex.props(channelStyles.zone).className}`}>
-          {ZONES.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={zone === id}
-              className={`vch-zone__btn ${stylex.props(channelStyles.zoneBtn).className}`}
-              onClick={() => setZone(id)}
-            >
-              {tt.zones[id]}
-            </button>
-          ))}
-        </div>
+        <Segmented label={tt.zone} value={zone} onChange={(id) => setZone(id as PostingZone)}
+          size="sm" fit="content" options={ZONES.map((id) => ({ id, label: tt.zones[id] }))} />
       </div>
 
       {sources.length === 0 ? (

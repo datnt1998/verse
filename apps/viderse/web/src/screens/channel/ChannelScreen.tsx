@@ -6,7 +6,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // dụng cho kênh" + "Lịch đăng". Điện thoại (artboard MChannel): không cột trái,
 // tab nhãn ngắn một hàng; mọi số hiện ra đều đọc từ API kênh.
 import { useEffect, useState } from 'react'
-import { Icon, Spinner } from '@noverse/ui'
+import { Icon, Spinner, Tabs } from '@noverse/ui'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { t } from '../../i18n/channels'
@@ -77,8 +77,8 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
         hint={tt.page.notFoundHint}
         action={(
           <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} onClick={() => void channel.refresh()}>{t.common.retry}</ActionButton>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} variant="primary" onClick={() => navigate(paths.workbench())}>{tt.page.backToChannels}</ActionButton>
+            <ActionButton size="lg" onClick={() => void channel.refresh()}>{t.common.retry}</ActionButton>
+            <ActionButton size="lg" variant="primary" onClick={() => navigate(paths.workbench())}>{tt.page.backToChannels}</ActionButton>
           </div>
         )}
       />
@@ -116,41 +116,25 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
       <main className={`vch-center vv-wide ${stylex.props(channelStyles.center).className}`} aria-label={tt.page.title}>
         <ChannelHeader channel={data} />
         <VideoStats channel={data} jobs={jobs} />
-        <div
-          role="tablist"
-          aria-label={tt.page.tablist}
-          className={`vch-tabs ${stylex.props(channelStyles.tabs).className}`}
-          onKeyDown={(event) => {
-            if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
-            event.preventDefault()
-            const index = TABS.indexOf(tab)
-            const next = event.key === 'Home' ? TABS[0]
-              : event.key === 'End' ? TABS[TABS.length - 1]
-                : TABS[(index + (event.key === 'ArrowRight' ? 1 : TABS.length - 1)) % TABS.length]
-            pickTab(next)
-            event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')[TABS.indexOf(next)]?.focus()
-          }}
-        >
-          {TABS.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={tab === id}
-              tabIndex={tab === id ? 0 : -1}
-              className={`vch-tab ${stylex.props(channelStyles.tab, narrow && mch.tabM).className}`}
-              onClick={() => pickTab(id)}
-            >
-              {tabLabels[id]}
-              {counts[id] && <span className={`vch-tab__count num ${stylex.props(channelStyles.tabCount, tab === id && channelStyles.tabCountOn).className}`}>{counts[id]}</span>}
-            </button>
-          ))}
+        <div {...stylex.props(channelStyles.tabRegion)}>
+        <Tabs
+          variant="underline"
+          label={tt.page.tablist}
+          value={tab}
+          onChange={(id) => pickTab(id as ChannelTab)}
+          tabs={{ id: 'channel-tabs', panel: 'channel-panel' }}
+          items={TABS.map((id) => ({
+            id, label: <>{tabLabels[id]}{counts[id] && <span className={`num ${stylex.props(channelStyles.tabCount, tab === id && channelStyles.tabCountOn).className}`}>{counts[id]}</span>}</>,
+          }))}
+        />
         </div>
 
+        <div id="channel-panel" role="tabpanel" aria-labelledby={`channel-tabs-${tab}`} {...stylex.props(channelStyles.tabRegion)}>
         {tab === 'videos' && <VideosTab channel={data} rival={referenceRival} jobs={jobs} dockSlot={dockSlot} onSelecting={setSelecting} />}
         {tab === 'sources' && <SourcesTab channel={data} channels={list} />}
         {tab === 'templates' && <TemplatesTab channel={data} />}
         {tab === 'settings' && <SettingsTab channel={data} />}
+        </div>
         <div ref={setDockSlot} {...stylex.props(narrow ? mch.composerHidden : videoStyles.dock)}>
           {!selecting && <AssistantComposer scope={{ channelId: data.id }} label={assistantCopy.composer.channel} placeholder={assistantCopy.composer.channelPlaceholder} recipient="scout" />}
         </div>

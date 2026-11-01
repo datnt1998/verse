@@ -11,7 +11,7 @@ import { channelStyles } from './channel.stylex'
 // đối thủ cuối → khối nhịp hiện lý do tạm dừng.
 // Mức tự chủ + Ưu tiên kênh (§20) thay công tắc Tự lấy: AutonomyCard.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ActionSheet, Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
+import { ActionSheet, Button, Checkbox, Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/channels'
@@ -127,17 +127,14 @@ export function SourcesTab({ channel, channels }: {
             <span {...stylex.props(mch.rivalHeadTitle)}>{tt.rivalsTitle}</span>
             <span className={`num ${stylex.props(mch.rivalCount).className}`}>{channel.sources.length}</span>
             <span {...stylex.props(mch.spacer)} />
-            <button
-              ref={triggerRef}
-              type="button"
+            <Button variant="quiet" size="lg" ref={triggerRef}
               aria-haspopup="dialog"
               aria-expanded={pickerOpen}
               onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
-              {...stylex.props(mch.linkBtn44, mch.rivalLink)}
             >
               <Icon name="add" size={14} />
               {tt.linkBtn}
-            </button>
+            </Button>
             {pickerOpen && (
               <LinkPickerPopover
                 channel={channel}
@@ -183,17 +180,14 @@ export function SourcesTab({ channel, channels }: {
         <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
           <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="radar" size={16} />{tt.rivalsTitle} <span className={`vch-row__count num ${stylex.props(channelStyles.rowCount).className}`}>{channel.sources.length}</span></h2>
           <div className={`vch-linkslot ${stylex.props(channelStyles.linkslot).className}`}>
-            <button
-              ref={triggerRef}
-              type="button"
-              className={`vch-linkbtn ${stylex.props(channelStyles.linkbtn).className}`}
+            <Button variant="quiet" size="sm" ref={triggerRef}
               aria-haspopup="dialog"
               aria-expanded={pickerOpen}
               onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
             >
               <Icon name="add" size={14} />
               {tt.linkBtn}
-            </button>
+            </Button>
             {pickerOpen && (
               <LinkPickerPopover
                 channel={channel}
@@ -209,7 +203,7 @@ export function SourcesTab({ channel, channels }: {
           <div className={`vch-empty ${stylex.props(channelStyles.empty).className}`} style={{ margin: '0 var(--vv-s-14) var(--vv-s-12)' }} role="status">
             <b {...stylex.props(channelStyles.emptyTitle)}>{tt.emptyTitle}</b>
             <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.emptyBody}</span>
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
+            <ActionButton size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
           </div>
         ) : channel.sources.map((source) => (
           <SourceRow
@@ -301,21 +295,18 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
         </div>
         <ActionButton
           size="sm"
-          xstyle={mch.refreshBtn}
           lockedReason={t.channels.queueLock}
           icon={<Icon name="video-add" size={14} />}
         >
           {tt.makeLatest}
         </ActionButton>
-        <button
-          type="button"
+        <Button variant="icon"
           aria-label={`${tt.unlink}: ${source.title}`}
           aria-haspopup="dialog"
           onClick={() => setSheet(true)}
-          {...stylex.props(mch.moreBtn)}
         >
           <Icon name="more" size={16} />
-        </button>
+        </Button>
         <ActionSheet
           open={sheet}
           onClose={() => setSheet(false)}
@@ -347,27 +338,15 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
         </span>
         <span className={`vch-rival__meta ${stylex.props(channelStyles.rivalMeta).className}`}>{meta}</span>
         <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
-          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" lockedReason={t.channels.queueLock} icon={<Icon name="video-add" size={14} />}>
+          <ActionButton size="sm" lockedReason={t.channels.queueLock} icon={<Icon name="video-add" size={14} />}>
             {tt.makeLatest}
           </ActionButton>
-          <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
-            {tt.topVideos}
-          </a>
-          <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`}>
-            {tt.openExplore}
-          </a>
+          <a href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`} {...stylex.props(channelStyles.appliedLink)}>{tt.topVideos}</a>
+          <a href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`} {...stylex.props(channelStyles.appliedLink)}>{tt.openExplore}</a>
         </div>
       </div>
       <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
-        <button
-          type="button"
-          className={`vch-chip ${stylex.props(channelStyles.chip).className}`}
-          title={tt.unlinkTip}
-          onClick={onUnlink}
-          style={{ color: 'var(--color-fg-3)' }}
-        >
-          {tt.unlink}
-        </button>
+        <Button variant="quiet" size="sm" title={tt.unlinkTip} onClick={onUnlink}>{tt.unlink}</Button>
       </div>
     </div>
   )
@@ -412,13 +391,9 @@ function AddRivalRow({ channelId, onLinked, mobile = false }: { channelId: strin
         placeholder={tt.placeholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      {mobile
-        ? <button type="submit" disabled={pending || !value.trim()} {...stylex.props(mch.addBtn)}>{pending ? t.common.loading : tt.submit}</button>
-        : (
-          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="sm" type="submit" disabled={pending || !value.trim()} pending={pending}>
-            {tt.submit}
-          </ActionButton>
-        )}
+      <ActionButton size={mobile ? 'lg' : 'sm'} type="submit" disabled={pending || !value.trim()} pending={pending}>
+        {tt.submit}
+      </ActionButton>
       {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )
@@ -524,19 +499,10 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
             const blocked = linked || others.length > 0
             const reason = linked ? tt.alreadyLinked : others.length > 0 ? tt.linkedElsewhere(others[0].name || t.channels.page.noName) : ''
             return (
-              <button
-                key={rival.id}
-                type="button"
-                role="checkbox"
-                aria-checked={picked.has(rival.id) || linked}
-                aria-disabled={blocked || undefined}
-                title={reason || undefined}
-                className={`vch-pickerrow ${stylex.props(channelStyles.pickerrow).className}`}
-                onClick={() => { if (!blocked) toggle(rival.id) }}
-              >
-                <span aria-hidden="true" className={`vch-pickbox ${stylex.props(channelStyles.pickbox).className}`} data-on={picked.has(rival.id) || linked || undefined}>
-                  {(picked.has(rival.id) || linked) && <Icon name="tick" size={12} />}
-                </span>
+              <Checkbox key={rival.id} checked={picked.has(rival.id) || linked}
+                aria-disabled={blocked || undefined} title={reason || undefined}
+                xstyle={channelStyles.pickerrow} onChange={() => { if (!blocked) toggle(rival.id) }}
+                label={<>
                 <ChannelAvatar
                   name={rival.title}
                   src={rival.avatarUrl ?? undefined}
@@ -552,7 +518,7 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
                       : rival.handle ?? '')}
                   </span>
                 </span>
-              </button>
+                </>} />
             )
           })}
         </div>
@@ -563,7 +529,7 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
           <Icon name="radar" size={13} />
           {tt.followNew}
         </a>
-        <ActionButton className={stylex.props(channelStyles.touchTarget).className}
+        <ActionButton
           variant="primary"
           size="sm"
           disabled={picked.size === 0}

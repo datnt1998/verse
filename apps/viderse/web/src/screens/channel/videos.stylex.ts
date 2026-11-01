@@ -25,28 +25,9 @@ export const videoStyles = stylex.create({
   // ── vùng danh sách ──────────────────────────────────────────────────
   section: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'], minWidth: 0 },
   toolbar: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: space['--vv-s-8'] },
-  filters: {
-    display: 'flex', flexWrap: 'wrap', gap: space['--vv-s-2'], padding: space['--vv-s-3'], borderRadius: corners['--vv-r-10'],
-    backgroundColor: color['--color-surface-1'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-1'],
-  },
-  chip: {
-    height: space['--vv-s-28'], padding: '0 var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], borderRadius: corners['--vv-r-7'],
-    borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', fontFamily: 'inherit', fontSize: 12.5, whiteSpace: 'nowrap', cursor: 'pointer',
-    backgroundColor: { default: 'transparent', ':hover': color['--color-surface-4'] }, color: color['--color-fg-3'],
-  },
-  chipOn: { backgroundColor: color['--color-surface-6'], color: color['--color-fg'] },
   chipDot: (dot: string) => ({ width: space['--vv-s-7'], height: space['--vv-s-7'], borderRadius: '50%', backgroundColor: dot, flex: '0 0 auto' }),
   chipCount: { color: 'var(--vv-fg-note)' },
   spacer: { flex: 1 },
-  toolBtn: {
-    height: space['--vv-s-32'], padding: '0 var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], borderRadius: corners['--vv-r-8'],
-    borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-4'], fontFamily: 'inherit', fontSize: 13, whiteSpace: 'nowrap', cursor: 'pointer',
-    backgroundColor: { default: 'transparent', ':hover:not([aria-disabled="true"])': 'var(--vv-hover)' }, color: color['--color-fg'],
-  },
-  toolBtnOn: { borderColor: 'var(--vv-line-30)', backgroundColor: 'var(--vv-wash-8)' },
-  toolBtnLocked: { opacity: 0.42, cursor: 'not-allowed' },
-  toolIcon: { color: color['--color-fg-3'], flex: '0 0 auto' },
-  toolIconOn: { color: color['--color-fg'] },
 
   // ── bảng ────────────────────────────────────────────────────────────
   card: {
@@ -71,15 +52,7 @@ export const videoStyles = stylex.create({
   },
   rowSelecting: { paddingLeft: space['--vv-s-46'] },
   rowChosen: { backgroundColor: ROW_HOVER },
-  check: {
-    position: 'absolute', left: space['--vv-s-8'], top: '50%', transform: 'translateY(-50%)', width: space['--vv-s-32'], height: space['--vv-s-32'],
-    borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', backgroundColor: 'transparent', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-  },
-  box: {
-    width: space['--vv-s-18'], height: space['--vv-s-18'], borderRadius: corners['--vv-r-5'], borderWidth: 1.5, borderStyle: 'solid', borderColor: 'var(--vv-line-30)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: color['--color-bg'], backgroundColor: 'transparent',
-  },
-  boxOn: { borderColor: color['--color-accent'], backgroundColor: color['--color-accent'] },
+  check: { position: 'absolute', left: space['--vv-s-8'], top: '50%', transform: 'translateY(-50%)' },
   video: { display: 'flex', alignItems: 'center', gap: space['--vv-s-12'], minWidth: 0, color: 'inherit', textDecoration: 'none' },
   thumb: {
     position: 'relative', width: 80, height: 45, borderRadius: corners['--vv-r-7'], flex: '0 0 auto', overflow: 'hidden',
@@ -104,18 +77,10 @@ export const videoStyles = stylex.create({
   statusDetail: { fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingLeft: space['--vv-s-14'] },
   tpl: { fontSize: 12.5, color: color['--color-fg-2'], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   actions: { display: 'flex', justifyContent: 'flex-end', gap: space['--vv-s-4'] },
-  act: {
-    height: space['--vv-s-28'], padding: '0 var(--vv-s-10)', display: 'flex', alignItems: 'center', borderRadius: corners['--vv-r-7'], whiteSpace: 'nowrap',
-    borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: { default: 'transparent', ':hover': 'var(--vv-hover)' },
-    color: color['--color-fg'], fontFamily: 'inherit', fontSize: 12.5, fontWeight: 400, textDecoration: 'none', cursor: 'pointer',
-  },
-  actReview: { borderColor: 'rgba(246, 203, 140, 0.4)', color: color['--color-warn'], fontWeight: 500 },
-  actFix: { borderColor: 'rgba(255, 154, 92, 0.4)', color: 'var(--vv-warn-ink)', fontWeight: 500 },
-  more: { width: space['--vv-s-28'], height: space['--vv-s-28'], borderRadius: corners['--vv-r-7'], color: 'var(--vv-fg-note)' },
+  actionLink: { display: 'inline-flex', alignItems: 'center', color: color['--color-fg-2'], textDecorationLine: 'underline' },
   empty: { padding: 'var(--vv-s-32) var(--vv-s-14)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: space['--vv-s-8'], textAlign: 'center' },
   emptyIcon: { color: 'var(--vv-fg-note)' },
   emptyText: { fontSize: 13.5, color: color['--color-fg-2'] },
-  emptyBtn: { height: space['--vv-s-30'], padding: '0 var(--vv-s-12)', borderRadius: corners['--vv-r-8'] },
   footnote: { fontSize: 12, color: 'var(--vv-fg-note)', padding: '0 var(--vv-s-2)' },
   skelRow: { alignItems: 'center', padding: 'var(--vv-s-8) var(--vv-s-14)', borderBottomWidth: space['--vv-s-1'], borderBottomStyle: 'solid', borderBottomColor: 'rgba(255, 255, 255, 0.04)' },
   skelText: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-6'] },
@@ -135,16 +100,4 @@ export const videoStyles = stylex.create({
     backgroundColor: 'rgb(28, 28, 31)', backgroundImage: 'none', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: 'var(--vv-line-14)', boxShadow: surface['--card-shadow'],
   },
   bulkCount: { fontSize: 13.5, fontWeight: 600, marginRight: space['--vv-s-6'], whiteSpace: 'nowrap' },
-  bulkBtn: {
-    height: space['--vv-s-36'], padding: '0 var(--vv-s-11)', display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], borderRadius: corners['--vv-r-10'],
-    borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-4'], fontFamily: 'inherit', fontSize: 13, whiteSpace: 'nowrap', cursor: 'pointer',
-    backgroundColor: { default: 'transparent', ':hover:not([aria-disabled="true"])': 'var(--vv-hover)' }, color: color['--color-fg'],
-  },
-  bulkBtnOff: { color: 'var(--vv-fg-note)', cursor: 'not-allowed' },
-  bulkMore: { width: space['--vv-s-28'], height: space['--vv-s-28'], borderRadius: corners['--vv-r-9'], color: color['--color-fg-3'] },
-  bulkExit: {
-    height: space['--vv-s-36'], padding: '0 var(--vv-s-12)', borderRadius: corners['--vv-r-10'], display: 'flex', alignItems: 'center', gap: space['--vv-s-6'],
-    borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', backgroundColor: { default: 'transparent', ':hover': 'var(--vv-hover)' },
-    color: color['--color-fg-3'], fontFamily: 'inherit', fontSize: 13, cursor: 'pointer',
-  },
 })

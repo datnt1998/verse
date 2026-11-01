@@ -7,6 +7,7 @@ import { QueueScreen } from './QueueScreen'
 import { JobsPill } from '../../shell/JobsPill'
 import type { QueueView } from '../../api/clone'
 import type { Status } from '../../api/status'
+import { t } from '../../i18n/queue'
 import { readFileSync } from 'node:fs'
 import { URL as NodeURL } from 'node:url'
 const golden = JSON.parse(readFileSync(new NodeURL('../../../../internal/pipeline/testdata/clone-views.golden.json', import.meta.url), 'utf8'))
@@ -81,4 +82,31 @@ it.each([0, 5])('marks only an image step as quota-blocked (step %s)', async (st
   await act(async () => root.render(<QueueScreen />))
   expect(el.querySelector('.vq')?.getAttribute('data-state')).toBe('limited')
   expect(el.querySelector('.vq-run')?.hasAttribute('data-limited')).toBe(stepIndex === 5)
+})
+
+it('filters queued rows with controlled keyboard choices and retains native menu navigation', async () => {
+  const filteredView = { ...view, items: [{ ...view.items[0], sourceUrl: 'https://youtu.be/abcdefghijk' }, { ...view.items[1], channelId: 'other' }] }
+  await act(async () => root.unmount())
+  cache.clear()
+  vi.stubGlobal('fetch', vi.fn(async (path: string) => response(path === '/api/queue' ? filteredView : { channels: [{ id: 'mine', name: 'Kênh của tôi' }, { id: 'other', name: 'Other channel' }] })))
+  root = createRoot(el)
+  await act(async () => root.render(<QueueScreen />))
+  const group = el.querySelector(`[role="radiogroup"][aria-label="${t.screens.queue.filterAria}"]`)!
+  const choices = group.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+  await act(async () => { choices[1].click() })
+  expect(choices[1].getAttribute('aria-checked')).toBe('true')
+  expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(1)
+  expect(el.querySelector('.vq-row:not(.vq-row--head)')?.textContent).toContain(view.items[0].title)
+  await act(async () => { choices[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
+  expect(choices[0].getAttribute('aria-checked')).toBe('true')
+  expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(2)
+  const trigger = el.querySelector<HTMLButtonElement>(`[aria-label="${t.screens.queue.menuMore(view.items[0].title)}"]`)!
+  await act(async () => { trigger.click() })
+  const menu = document.querySelector('[role="menu"]')!
+  expect(menu.querySelector<HTMLAnchorElement>(`a[href="#/channels/${view.items[0].channelId}"]`)).not.toBeNull()
+  expect(menu.querySelector<HTMLAnchorElement>('a[target="_blank"]')?.href).toBe(filteredView.items[0].sourceUrl)
+  expect(menu.querySelector('button:disabled')?.textContent).toContain(t.screens.queue.menuTop)
+  await act(async () => { menu.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+  expect(document.querySelector('[role="menu"]')).toBeNull()
+  expect(document.activeElement).toBe(trigger)
 })

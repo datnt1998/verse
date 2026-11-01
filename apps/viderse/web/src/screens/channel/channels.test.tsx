@@ -251,7 +251,7 @@ describe('Nguồn: dòng phụ và popover liên kết', () => {
       '/api/rivals': () => respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList),
     })
     const el = await mount(<SourcesTab channel={channel({ id: 'c5' })} channels={[channel({ id: 'c5' })]} />)
-    const trigger = el.querySelector('.vch-linkbtn') as HTMLButtonElement
+    const trigger = el.querySelector<HTMLButtonElement>('[aria-haspopup="dialog"]')!
     expect(trigger.getAttribute('aria-haspopup')).toBe('dialog')
     expect(trigger.getAttribute('aria-expanded')).toBe('false')
 
