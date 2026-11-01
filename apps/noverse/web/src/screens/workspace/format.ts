@@ -1,5 +1,6 @@
 // Định dạng chỉ-dùng-ở-Workspace. Số/giờ/tiền vi-VN đã chuyển sang src/lib/format.ts
 // (07-copy.md › “Số, đơn vị, viết tắt”) — đừng viết lại hàm trùng ở đây.
+import { formatDuration } from '../../lib/format'
 
 /**
  * `Date#toLocaleTimeString(locale, opts)` dựng một `Intl.DateTimeFormat` mới ở **mỗi** lần gọi
@@ -39,6 +40,17 @@ export function formatClock(iso: string | null | undefined): string {
 export function formatShortClock(iso: string | null | undefined): string {
   const full = formatClock(iso)
   return full === '—' ? full : full.slice(0, 5)
+}
+
+/**
+ * Thời lượng một thao tác của luồng viết (Gói AS · 21-dev-prompt mục 5): dưới 0,1 giây ghi
+ * “<0,1 giây”; 0 hoặc không đo được thì trả '' để nơi gọi ẩn hẳn — không bao giờ “0 giây”.
+ */
+export function formatRunDuration(ms: number | null | undefined): string {
+  const value = ms ?? 0
+  if (!Number.isFinite(value) || value <= 0) return ''
+  if (value < 100) return '<0,1 giây'
+  return formatDuration(value)
 }
 
 export const percentOf = (part: number | null | undefined, total: number | null | undefined): number =>
