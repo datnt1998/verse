@@ -39,16 +39,6 @@ export function cloneExportSettings(): ExtendedExportSettings {
   return { ...exportSettings('youtube', 'medium', true), rateControl: 'variable', videoBitrate: CLONE_EXPORT_VIDEO_BITRATE, audioBitrate: CLONE_EXPORT_AUDIO_BITRATE }
 }
 
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} KB`
-  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} MB`
-  return `${(bytes / 1024 ** 3).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} GB`
-}
-export function formatDuration(seconds: number): string {
-  const rounded = Math.max(0, Math.ceil(seconds))
-  return `${Math.floor(rounded / 60).toString().padStart(2, '0')}:${(rounded % 60).toString().padStart(2, '0')}`
-}
-
 export function preflightMessage(check: ExportPreflightCheck): string {
   const params = check.detailParams ?? {}
   switch (check.id) {

@@ -79,6 +79,8 @@ describe('AutonomyCard', () => {
   it('lên Tự chạy: hộp xác nhận trước, chỉ sau khi xác nhận mới gửi confirmed', async () => {
     const el = await mount(<AutonomyCard channel={channel()} />)
     await click(radio(el, 'Tự chạy'))
+    // Hộp Tự chạy nạp theo yêu cầu: chờ chunk của nó tải xong.
+    await flush(200)
     expect(patches).toHaveLength(0)
     expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain('Chuyển Midnight Tales sang Tự chạy?')
     await click(dialogButton('Chuyển sang Tự chạy'))

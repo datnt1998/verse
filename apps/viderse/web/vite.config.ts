@@ -13,6 +13,8 @@ import stylex from '@stylexjs/unplugin'
 const uiPkg = (rel: string) => fileURLToPath(new URL(`../../../platform/ui/src/${rel}`, import.meta.url))
 
 const editorPath = (rel: string) => fileURLToPath(new URL(`./src/editor/${rel}`, import.meta.url))
+// Hợp đồng clone (schema wire) dùng chung cho shell và editor, nên nằm ngoài src/editor.
+const appLibPath = (rel: string) => fileURLToPath(new URL(`./src/lib/${rel}`, import.meta.url))
 // StyleX's own resolver can't see vite aliases — map the package to source.
 // Vitest không có httpServer nên bỏ configureServer để vòng hẹn giờ HMR không kẹt.
 function stylexPlugin(): Plugin {
@@ -61,7 +63,8 @@ export default defineConfig({
       { find: /^@\/components\/clone\/source-comparison$/, replacement: editorPath('vendor/components/clone/source-comparison.tsx') },
       { find: /^@\/components\/clone\/clone-entry$/, replacement: editorPath('bridge/ui/clone-status.ts') },
       { find: /^@\/app\/editor\/actions$/, replacement: editorPath('bridge/ui/project-actions.ts') },
-      { find: /^@\/lib\/(clone-view|clone-quality|app-routes|navigation-return|format|video-sort)$/, replacement: editorPath('vendor/lib/$1.ts') },
+      { find: /^@\/lib\/(clone-view|clone-quality)$/, replacement: appLibPath('clone/$1.ts') },
+      { find: /^@\/lib\/(app-routes|navigation-return|format|video-sort)$/, replacement: editorPath('vendor/lib/$1.ts') },
     ],
     dedupe: ['react', 'react-dom'],
   },

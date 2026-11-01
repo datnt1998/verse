@@ -3,7 +3,7 @@
 // dẫn Cài đặt và có chấm đỏ khi có mục attention; ở màn Cài đặt bánh răng đang mở
 // (nền --color-surface-6) và chỗ bộ đổi kênh là nhãn “Cài đặt · máy này”.
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-header/.vv-gear).
-import { useState, type MouseEvent } from 'react'
+import { Suspense, lazy, useState, type MouseEvent } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -17,12 +17,15 @@ import { useResource } from '../data/useResource'
 import { getServerStorage } from '../api/storageServer'
 import { serverStorageCopy } from '../i18n/storageServer'
 import { AccountMenu } from './AccountMenu'
-import { ActivityPopover } from './ActivityPopover'
 import { getActivity } from '../api/activity'
 import { keys } from '../data/keys'
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { shellChrome } from './shell.stylex'
+
+// Bảng Hoạt động chỉ mở khi bấm chuông: chunk riêng, không nằm trong lần tải đầu.
+const ActivityPopover = lazy(() => import('./ActivityPopover').then((m) => ({ default: m.ActivityPopover })))
+
 const sx = stylex.create({
   header: {
     position: 'sticky',
@@ -122,7 +125,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
       <div {...stylex.props(sx.zone, sx.zoneRight)}>
         <div {...stylex.props(sx.activityAnchor)}>
           <JobsPill status={status} online={online} unread={(activity.data?.unread ?? []).some((n) => n.kind === 'review_ready' || n.kind === 'needs_attention')} onOpen={() => setActivityOpen((open) => !open)} expanded={activityOpen} />
-          {activityOpen && <ActivityPopover activity={activity.data} error={activity.error} retry={() => void activity.refresh()} close={() => setActivityOpen(false)} />}
+          {activityOpen && <Suspense fallback={null}><ActivityPopover activity={activity.data} error={activity.error} retry={() => void activity.refresh()} close={() => setActivityOpen(false)} /></Suspense>}
         </div>
         <a
           href={settingsTarget ?? `#${paths.settings()}`}

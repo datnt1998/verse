@@ -9,7 +9,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { EditorIconButton, EditorSelect } from '@/editor/ui/controls'
 import { getEditorStorage } from '@editor/storage/storage-backend'
 import type { ServerExportRecord } from '@editor/storage/types'
-import { EXPORT_PRESETS, EXPORT_QUALITY_OPTIONS, exportTechnicalSummary, formatBytes, formatDuration, preflightMessage, type ExportPreset } from './export-settings'
+import { EXPORT_PRESETS, EXPORT_QUALITY_OPTIONS, exportTechnicalSummary, preflightMessage, type ExportPreset } from './export-settings'
+import { formatBytes, formatDuration } from '../../../lib/units'
 import { useExportController, useExportDialogState } from './use-export-controller'
 import type { CloneQuality } from '@/editor/ui/clone/use-clone-quality'
 

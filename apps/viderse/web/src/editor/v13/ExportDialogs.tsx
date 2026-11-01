@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Dialog, Icon, Spinner } from '@noverse/ui'
-import { formatBytes } from '../ui/export/export-settings'
+import { formatBytes } from '../../lib/units'
 import { rangeTime } from './FixPanel'
 import { sx } from './editor.stylex'
 import { exportStyles as s } from './export.stylex'

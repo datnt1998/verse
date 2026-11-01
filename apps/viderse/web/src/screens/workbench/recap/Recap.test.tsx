@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { groupJobs } from '../workbench-logic'
-import { recapLead, shouldAutoOpenRecap } from './Recap'
+import { recapLead, shouldAutoOpenRecap } from './recap-logic'
 
 describe('Bản tin khi trở lại', () => {
   it('chỉ tự mở khi có điều mới, đủ thời gian và được bật', () => {

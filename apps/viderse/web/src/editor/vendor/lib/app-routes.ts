@@ -2,7 +2,7 @@
  * The app's route shape in one place: every channel-centred link is built here
  * so a rename touches one module. Pure — safe for the client bundle.
  */
-import type { CloneStageGroup } from "./clone-view";
+import type { CloneStageGroup } from "@/lib/clone-view";
 
 export type CloneListRouteQuery = { stage?: CloneStageGroup | "active" | "all"; q?: string };
 

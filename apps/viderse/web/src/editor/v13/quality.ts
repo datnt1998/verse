@@ -1,6 +1,6 @@
 import type { TimelineItem } from '@editor/types/timeline'
 import { request } from '../../api/request'
-import type { CloneHardBlocker, CloneScore } from '../vendor/lib/clone-quality'
+import type { CloneHardBlocker, CloneScore } from '@/lib/clone-quality'
 
 export type QualityRange = {
   start: number; end: number; checkId: string; status: string

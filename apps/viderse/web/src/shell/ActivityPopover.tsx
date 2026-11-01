@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Icon } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
@@ -9,8 +9,10 @@ import { request } from '../api/request'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
 import { paths } from '../router'
-import NotificationSettings from '../screens/settings/NotificationSettings'
 import { notificationDetail } from './activityText'
+
+// Tab Cài đặt thông báo chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
+const NotificationSettings = lazy(() => import('../screens/settings/NotificationSettings'))
 
 const s = stylex.create({
   pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 66px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--kit-surface-15)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)' },
@@ -160,7 +162,7 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
         <button role="tab" aria-selected={tab === 'inbox'} {...stylex.props(s.tab, tab === 'inbox' && s.active)} onClick={() => setTab('inbox')}>Thông báo<span {...stylex.props(s.tabCount, tab === 'inbox' && s.activeCount)}>{activity.unread.length}</span></button>
       </div>}
       <div {...stylex.props(s.scroll)}>
-        {tab === 'settings' ? <NotificationSettings embedded /> : tab === 'running' ? tasks.length || activity.queued ? <>
+        {tab === 'settings' ? <Suspense fallback={null}><NotificationSettings embedded /></Suspense> : tab === 'running' ? tasks.length || activity.queued ? <>
           {(['video', 'other'] as const).map((group) => {
             const selected = tasks.filter((task) => group === 'video' ? task.kind === 'video' : task.kind !== 'video')
             return <div key={group}>{selected.length > 0 && <><div {...stylex.props(s.group)}>{group === 'video' ? 'Video' : 'Khác'} <span>{selected.length}</span></div>{selected.map((task) => <Task key={task.id} task={task} refresh={refresh} />)}</>}{group === 'video' && !!activity.queued && <div {...stylex.props(s.row)}><a href={`#${paths.queue()}`} {...stylex.props(s.button)}>{activity.queued} chờ lượt{nextQueued && <> · tiếp theo {nextChannel?.name || nextQueued.title}{nextQueued.etaStart && <> lúc {new Date(nextQueued.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</>}</>}</a></div>}</div>
