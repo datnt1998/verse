@@ -332,6 +332,7 @@
   --vv-st-review-bg: rgba(246, 203, 140, .12);
   --vv-st-review-border: rgba(246, 203, 140, .2);
   --vv-danger-soft: rgba(255, 154, 92, .12);
+  --vv-danger-8: rgba(255, 154, 92, .08);
   --vv-danger-border: rgba(255, 154, 92, .3);
   --vv-scout-tint: rgba(127, 163, 255, .16);
   --vv-scout-arc: #7FA3FF;

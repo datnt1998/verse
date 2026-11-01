@@ -37,7 +37,18 @@ export const exploreStyles = stylex.create({
   segmented: { flex: "0 0 auto" },
   chip: { position: "relative", height: space["--vv-s-28"], padding: "0 var(--vv-s-10) 0 var(--vv-s-8)", display: "inline-flex", alignItems: "center", gap: space["--vv-s-6"], borderRadius: corners["--vv-r-8"], backgroundColor: { "default": "transparent", ":is([aria-pressed=\"true\"])": color["--color-surface-6"], ":hover:not(:disabled):not([aria-pressed=\"true\"])": "var(--vv-hover)" }, borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: { "default": line["--line-4"], ":is([aria-pressed=\"true\"])": "var(--vv-line-14)" }, fontFamily: "inherit", fontSize: exploreLayout.chipFontSize, fontWeight: "inherit", fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", lineHeight: "inherit", color: { "default": color["--color-fg-3"], ":is([aria-pressed=\"true\"])": color["--color-fg"] }, whiteSpace: "nowrap", cursor: { "default": "pointer", ":disabled": "not-allowed" }, opacity: { "default": null, ":disabled": ".55" }, outlineWidth: { "default": null, ":focus-within": space['--vv-s-2'] }, outlineStyle: { "default": null, ":focus-within": "solid" }, outlineColor: { "default": null, ":focus-within": color["--color-accent"] }, outlineOffset: { "default": null, ":focus-within": exploreLayout.chipOutlineOffset }, minHeight: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": { "default": null, [stylex.when.ancestor(':is(*)', exploreRootMarker)]: space["--vv-s-44"] } } },
   chipValue: { fontWeight: 500, color: color["--color-fg"] },
+  chipCustom: { borderColor: "var(--vv-amber-28)" },
   chipLocked: { cursor: "not-allowed", backgroundColor: { "default": null, ":hover": "transparent" } },
+  // Lưới ô xương khi quét lần đầu (artboard Explore › list=firstScan): 8 ô
+  // mờ dần trên máy tính, 3 ô trên điện thoại.
+  skeletonGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(210px, 100%), 1fr))", gap: "14px 12px", paddingBottom: 90, "@media (max-width: 767px)": { display: "flex", flexDirection: "column", gap: space["--vv-s-18"], paddingBottom: space["--vv-s-24"] } },
+  skeletonTile: { display: "flex", flexDirection: "column", gap: space["--vv-s-8"], ":nth-child(n+4)": { "@media (max-width: 767px)": { display: "none" } } },
+  skeletonThumb: { position: "relative", aspectRatio: "16 / 9", borderRadius: corners["--vv-r-11"], overflow: "hidden", "@media (max-width: 767px)": { borderRadius: corners["--vv-r-12"] } },
+  // MExplore: ô xương chỉ có 2 dòng chữ (13 + 11 px), không phải 3 như máy tính.
+  skeletonMeta: { display: "block", "@media (max-width: 767px)": { display: "none" } },
+  skeletonFade: (opacity: number) => ({ opacity }),
+  // Khối trạng thái danh sách thay cả lưới: cùng bề rộng cột giữa.
+  listState: { display: "flex", flexDirection: "column", gap: space["--vv-s-12"], width: "100%" },
   count: { fontSize: exploreLayout.countFontSize, color: "var(--vv-fg-note)" },
   search: { position: "relative", flex: { "default": exploreLayout.searchFlex, "@media (max-width: 767px)": "1 1 100%" }, width: { "default": exploreLayout.searchWidth, "@media (max-width: 767px)": "auto" }, minWidth: 0 },
   searchInput: { width: "100%", height: space["--vv-s-32"], padding: "0 var(--vv-s-30)", borderRadius: corners["--vv-r-10"], borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: { "default": line["--line-4"], ":hover": "var(--vv-line-14)", ":focus": line["--line-focus"] }, backgroundColor: color["--color-surface-0"], color: color["--color-fg"], fontSize: exploreLayout.searchInputFontSize, outlineWidth: 0, outlineStyle: "none", outlineColor: "currentColor", textOverflow: "ellipsis", transitionProperty: "border-color, box-shadow", transitionDuration: exploreLayout.searchInputTransitionDuration, transitionTimingFunction: "ease, ease", boxShadow: { "default": null, ":focus": exploreLayout.searchInputBoxShadow }, minHeight: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": space["--vv-s-44"] } },
@@ -112,7 +123,7 @@ export const exploreStyles = stylex.create({
   heatx: { display: "grid", gridTemplateColumns: "var(--vv-s-22) repeat(4, minmax(0, 1fr))", fontSize: exploreLayout.heatxFontSize, color: "var(--vv-fg-note)" },
   empty: { flex: 1, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: { "default": "var(--vv-s-36) 0 var(--vv-s-60)", "@media (max-width: 767px)": "var(--vv-s-24) var(--vv-s-14) var(--vv-s-36)" } },
   emptyBox: { width: exploreLayout.emptyBoxWidth, display: "flex", flexDirection: "column", alignItems: "center", gap: space["--vv-s-14"], textAlign: "center" },
-  emptyTitle: { margin: "var(--vv-s-4) 0 0", fontSize: exploreLayout.emptyTitleFontSize, fontWeight: 600, letterSpacing: exploreLayout.emptyTitleLetterSpacing },
+  emptyTitle: { margin: "var(--vv-s-4) 0 0", fontSize: { "default": exploreLayout.emptyTitleFontSize, "@media (max-width: 767px)": 19 }, fontWeight: 600, letterSpacing: exploreLayout.emptyTitleLetterSpacing },
   emptyBody: { margin: 0, fontSize: exploreLayout.emptyBodyFontSize, color: color["--color-fg-3"], lineHeight: 1.6 },
   emptyForm: { width: "100%", display: "flex", gap: space["--vv-s-8"], marginTop: space["--vv-s-4"] },
   emptyInput: { flex: 1, minWidth: 0 },

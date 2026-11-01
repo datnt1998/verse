@@ -10,15 +10,17 @@ const ROW_HOVER = 'rgba(255, 255, 255, 0.035)'
 const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
 export const videoStyles = stylex.create({
   // ── số liệu đầu kênh ────────────────────────────────────────────────
-  stats: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', gap: space['--vv-s-10'] },
+  stats: { display: 'grid', gridTemplateColumns: { default: 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))', [PHONE]: 'repeat(4, minmax(0, 1fr))' }, gap: { default: space['--vv-s-10'], [PHONE]: 0 }, borderRadius: { default: null, [PHONE]: corners['--vv-r-14'] }, backgroundImage: { default: null, [PHONE]: surface['--card-bg'] }, backgroundColor: 'transparent', borderWidth: { default: null, [PHONE]: space['--vv-s-1'] }, borderStyle: { default: null, [PHONE]: 'solid' }, borderColor: { default: null, [PHONE]: line['--line-2'] }, boxShadow: { default: null, [PHONE]: surface['--card-shadow'] }, overflow: { default: null, [PHONE]: 'hidden' } },
   stat: {
-    borderRadius: corners['--vv-r-12'], padding: 'var(--vv-s-10) var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: space['--vv-s-2'],
-    backgroundImage: surface['--card-bg'], backgroundColor: 'transparent', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], boxShadow: surface['--card-shadow'],
+    borderRadius: { default: corners['--vv-r-12'], [PHONE]: 0 }, padding: { default: 'var(--vv-s-10) var(--vv-s-14)', [PHONE]: 'var(--vv-s-10) var(--vv-s-4) var(--vv-s-9)' }, display: 'flex', flexDirection: 'column', alignItems: { default: null, [PHONE]: 'center' }, gap: { default: space['--vv-s-2'], [PHONE]: space['--vv-s-1'] },
+    backgroundImage: { default: surface['--card-bg'], [PHONE]: 'none' }, backgroundColor: 'transparent', borderWidth: { default: space['--vv-s-1'], [PHONE]: 0 }, borderStyle: { default: 'solid', [PHONE]: 'none' }, borderColor: { default: line['--line-2'], [PHONE]: 'currentColor' }, boxShadow: { default: surface['--card-shadow'], [PHONE]: 'none' },
   },
-  statLabel: { fontSize: 12, color: 'var(--vv-fg-note)' },
-  statValue: { fontSize: 20, fontWeight: 600, letterSpacing: '-0.01em', color: color['--color-fg'] },
+  // Vách mờ giữa các cột của thẻ một mảnh trên điện thoại (MChannel › stats).
+  statDivider: { borderLeftWidth: { default: 0, [PHONE]: space['--vv-s-1'] }, borderLeftStyle: { default: null, [PHONE]: 'solid' }, borderLeftColor: { default: null, [PHONE]: line['--line-1'] } },
+  statLabel: { fontSize: { default: 12, [PHONE]: 11.5 }, color: 'var(--vv-fg-note)', order: { default: null, [PHONE]: 2 }, whiteSpace: { default: null, [PHONE]: 'nowrap' } },
+  statValue: { fontSize: { default: 20, [PHONE]: 19 }, fontWeight: 600, letterSpacing: '-0.01em', color: color['--color-fg'], order: { default: null, [PHONE]: 1 } },
   statValueWarn: { color: color['--color-warn'] },
-  statSub: { fontSize: 11.5, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  statSub: { fontSize: 11.5, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', order: { default: null, [PHONE]: 3 }, display: { default: null, [PHONE]: 'none' } },
 
   // ── vùng danh sách ──────────────────────────────────────────────────
   section: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'], minWidth: 0 },

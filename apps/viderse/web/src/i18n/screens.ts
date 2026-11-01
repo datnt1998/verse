@@ -72,8 +72,6 @@ export const screenExplore = {
   statusLabel: 'Lọc theo trạng thái',
   statusOptions: { all: 'Tất cả', notMade: 'Chưa làm cho kênh nào', made: 'Đã làm' },
   videoCount: (shown: string, scanned: string) => `${shown} / ${scanned} video`,
-  videosEmpty: 'Chưa có video nào khớp bộ lọc.',
-  videosError: 'Chưa tải được danh sách video.',
   searchLabel: 'Tìm theo tiêu đề video',
   searchPlaceholder: 'Tìm tiêu đề',
   searchClear: 'Xoá tìm',
@@ -86,6 +84,29 @@ export const screenExplore = {
   noMatchAll: 'tất cả đối thủ',
   noMatchLong: 'dài ≥ 8 phút',
   noMatchWithin: (days: string) => `đăng trong ${days}`,
+  // Trạng thái danh sách: lọc rỗng · quét lần đầu · lỗi · mất kết nối.
+  listFilterTitle: 'Chưa có video nào khớp bộ lọc',
+  listFilterText: (filters: string[], scanned: string, where: string | null) =>
+    filters.length
+      ? `Đang lọc ${filters.join(', ')} — trong ${scanned} video đã quét${where ? ` của ${where}` : ''}. Nới bộ lọc để thấy thêm.`
+      : `Trong ${scanned} video đã quét${where ? ` của ${where}` : ''} chưa có video nào. Nới bộ lọc để thấy thêm.`,
+  listFilterClear: 'Bỏ lọc',
+  listScanTitle: (done: string, total: string) => `Trinh sát đang lấy video đầu tiên · ${done} / ${total}`,
+  listScanText: (total: string, name: string) =>
+    `Đang đọc ${total} video mới nhất của ${name} để tính mức thường. Video hiện dần ở đây, thường xong trong khoảng 1 phút.`,
+  listErrorTitle: 'Chưa tải được danh sách video',
+  listErrorText: (scanned: string) =>
+    `Máy chủ trả lời quá chậm. ${scanned} video đã quét vẫn còn nguyên, chỉ là chưa tải về màn này.`,
+  listOfflineTitle: 'Mất kết nối máy chủ',
+  listOfflineText: (seconds: number) =>
+    `Tự thử lại sau ${seconds} giây. Bộ lọc, ô tìm và video đang chọn vẫn giữ nguyên.`,
+  listOfflineTextMobile: (seconds: number) =>
+    `Tự thử lại sau ${seconds} giây. Bộ lọc và video đang chọn vẫn giữ nguyên.`,
+  listRetry: 'Thử lại',
+  listRetryNow: 'Thử lại ngay',
+  listCountFiltered: (scanned: string) => `0 / ${scanned} video`,
+  listCountScanning: (done: string, total: string) => `Đang quét · ${done} / ${total} video`,
+  listCountScanned: (scanned: string) => `${scanned} video đã quét`,
   preview: 'Xem trước',
   previewLabel: 'Video đã chọn',
   rivalInfo: 'Thông tin đối thủ',

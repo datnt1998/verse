@@ -8,12 +8,14 @@ import { getQueue } from '../../api/clone'
 import { keys } from '../../data/keys'
 import { useResource, type Resource } from '../../data/useResource'
 import { t } from '../../i18n/channels'
+import { useMediaQuery } from '../../lib/useMediaQuery'
 import { channelStats } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
 
 const labels = t.channels.videos.stats
 
 export function VideoStats({ channel, jobs }: { channel: Channel; jobs: Resource<ChannelJobs> }) {
+  const narrow = useMediaQuery('(max-width: 767px)')
   const queue = useResource(keys.queue(), ({ signal }) => getQueue(signal), { enabled: (jobs.data?.queuedTotal ?? 0) > 0 })
   const data = jobs.data
   const etas = (queue.data?.items ?? []).filter((item) => item.channelId === channel.id && item.etaStart).map((item) => item.etaStart as string).sort()
@@ -23,9 +25,10 @@ export function VideoStats({ channel, jobs }: { channel: Channel; jobs: Resource
   const placeholder = [labels.made, labels.posted, labels.waiting, labels.queued]
   return (
     <div {...stylex.props(sx.stats)}>
-      {(stats ?? placeholder.map((label) => ({ key: label, label, value: null, sub: '', tone: 'neutral' as const }))).map((stat) => (
-        <div key={stat.key} {...stylex.props(sx.stat)}>
-          <span {...stylex.props(sx.statLabel)}>{stat.label}</span>
+      {(stats ?? placeholder.map((value) => ({ key: value, label: value, value: null, sub: '', tone: 'neutral' as const }))).map((stat, index) => (
+        <div key={stat.key} {...stylex.props(sx.stat, index > 0 && sx.statDivider)}>
+          {/* MChannel: nhãn ngắn “Đã làm” cho 4 cột vừa 390px; máy tính giữ “Video đã làm”. */}
+          <span {...stylex.props(sx.statLabel)}>{narrow && stat.label === labels.made ? labels.madeShort : stat.label}</span>
           <span className={`num ${stylex.props(sx.statValue, stat.tone === 'warn' && sx.statValueWarn).className}`}>
             {stat.value !== null ? stat.value : jobs.error ? '—' : <Skeleton width={28} height={20} />}
           </span>
