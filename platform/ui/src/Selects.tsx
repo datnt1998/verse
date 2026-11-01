@@ -310,7 +310,7 @@ const sx = stylex.create({
     color: color['--color-fg'], fontWeight: 500, position: 'relative',
     transition: { default: 'background .15s, box-shadow .2s, transform .08s, border-color .15s', [NO_MOTION]: 'none' },
   },
-  optLabel: { flex: '1 1 auto', minWidth: 0, fontSize: 12.5, whiteSpace: 'nowrap' },
+  optLabel: { flex: '1 1 auto', minWidth: 0, fontSize: 12.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   optLabelPlain: { flex: 1 },
   noMatch: { paddingTop: 14, paddingBottom: 14, paddingInline: 10, display: 'flex', flexDirection: 'column', gap: 4 },
   noMatchTitle: { fontSize: 13, color: color['--color-fg-2'] },
