@@ -93,6 +93,15 @@ describe('luật thiết kế trong src/', () => {
     }
     expect(offenders).toEqual([])
   })
+  it('className đứng trước {...stylex.props()} sẽ bị ghi đè — ghép vào chuỗi className', () => {
+    const offenders: string[] = []
+    for (const file of files) {
+      if (!file.endsWith('.tsx')) continue
+      const text = readFileSync(file, 'utf8')
+      if (/className=(?:"[^"]*"|\{[^{}]*\})\s+\{\.\.\.stylex\.props\(/.test(text)) offenders.push(file.replace(`${SRC}/`, ''))
+    }
+    expect(offenders).toEqual([])
+  })
   it('mọi var(--token) không có giá trị dự phòng đều được khai báo', () => {
     // Token chưa khai báo làm cả khai báo CSS bị bỏ qua mà không báo lỗi
     // (hover mất nền, min-height mất tác dụng). Token khai báo ở CSS của app,

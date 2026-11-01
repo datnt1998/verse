@@ -48,7 +48,7 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
             {channels[0] ? tt.bulkMakeFor(count, channels[0].name) : tt.bulkMake(count)}
             <Icon name="arrow-d" size={13} aria-hidden />
           </ActionButton>
-          {open && <div role="menu" aria-label={tt.makeChannel} className="vx-bulk__menu" {...stylex.props(shellChrome.menu)}>
+          {open && <div role="menu" aria-label={tt.makeChannel} className={`vx-bulk__menu ${stylex.props(shellChrome.menu).className}`}>
             {channels.map((channel) => <button type="button" role="menuitem" {...stylex.props(shellChrome.item, exploreStyles.touchTarget)} key={channel.id}
               onClick={() => { setOpen(false); onMake(channel.id) }}>
               {tt.bulkMakeFor(count, channel.name)}

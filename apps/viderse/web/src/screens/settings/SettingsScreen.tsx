@@ -323,7 +323,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
             <span className={`vv-mset__sum-sub ${stylex.props(settingsStyles.msetSumSub).className}`}>{summarySub}</span>
           </span>
         </div>
-        <nav className="vv-mset__list" {...stylex.props(settingsStyles.msetList, box.card)} aria-label={t.shell.settings}>
+        <nav className={`vv-mset__list ${stylex.props(settingsStyles.msetList, box.card).className}`} aria-label={t.shell.settings}>
           {rows.map((r) => (
             <button
               key={r.id}

@@ -146,7 +146,7 @@ function ProgressCard({ data, rows, startPending, startError }: {
   } else if (data.state === 'login') { headline = t.prep.card.login; sub = t.prep.card.sub.login }
   else if (eta) headline = fill(t.prep.card.runningEta, { eta: fmtEta(eta) })
   return (
-    <section className="vv-setup__card" {...stylex.props(setupStyles.card, box.card)} aria-live="polite">
+    <section className={`vv-setup__card ${stylex.props(setupStyles.card, box.card).className}`} aria-live="polite">
       <div className={`vv-setup__card-head ${stylex.props(setupStyles.cardHead).className}`}>
         <b {...stylex.props(setupStyles.cardHeading)}>{headline}</b>
         <span className={`num ${stylex.props(setupStyles.cardCount).className}`}>{fill(t.prep.card.count, { done, total })}</span>
@@ -251,7 +251,7 @@ export default function SetupScreen() {
             </p>
           ) : null}
           <ProgressCard data={data} rows={rows} startPending={start.pending} startError={start.error ? (start.error as Error).message : null} />
-          <ol className="vv-setup__steps" {...stylex.props(setupStyles.steps, box.card)} aria-label={t.prep.hero.title}>
+          <ol className={`vv-setup__steps ${stylex.props(setupStyles.steps, box.card).className}`} aria-label={t.prep.hero.title}>
             {rows.map((s, i) => <StepRow key={s.id} step={s} index={i} focus={loginFocus} />)}
           </ol>
           {data.complete ? (

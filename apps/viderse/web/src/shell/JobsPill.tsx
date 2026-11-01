@@ -55,7 +55,7 @@ export function JobsPill({ status, online, unread = false, compact = false, mobi
     >
       {kind === 'paused' || kind === 'offline'
         ? <Icon aria-hidden name={kind === 'paused' ? 'pause' : 'danger'} size={compact ? 13 : 14} xstyle={kind === 'paused' ? styles.pausedIcon : styles.offlineIcon} />
-        : <span aria-hidden="true" className="vv-jobs__dot" {...stylex.props(styles.dot, kind === 'run' ? styles.runningDot : styles.idleDot, mobileBar && styles.mobileDot, spinning && styles.rec)} />}
+        : <span aria-hidden="true" className={`vv-jobs__dot ${stylex.props(styles.dot, kind === 'run' ? styles.runningDot : styles.idleDot, mobileBar && styles.mobileDot, spinning && styles.rec).className}`} />}
       <span className={`num ${stylex.props(mobileBar && styles.mobileText).className ?? ''}`}>{visible}</span>
       {unread && <span role="img" aria-label={t.shell.jobsUnread} className={`vv-jobs__unread ${stylex.props(styles.unread).className}`} />}
       {mobileBar && <span aria-hidden="true" {...stylex.props(styles.touchHalo)} />}
