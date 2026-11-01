@@ -12,6 +12,7 @@ import { MobileShell } from './MobileShell'
 import { OfflineStrip } from './OfflineStrip'
 import { t } from '../i18n/all'
 import type { Status } from '../api/status'
+import { useTabMode } from '@noverse/ui'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -48,6 +49,11 @@ afterEach(async () => {
 const STATUS: Status = {
   running: 2, queued: 5, paused: false, reviewCount: 4,
   attention: [{ kind: 'login_expired', text: 'Đăng nhập ChatGPT hết hạn', href: '#/settings' }],
+}
+
+function SelectionMode({ selecting }: { selecting: boolean }) {
+  useTabMode(selecting ? 'hide' : undefined)
+  return <p>Danh sách video</p>
 }
 
 describe('AppHeader', () => {
@@ -107,6 +113,20 @@ describe('MobileShell — MMain', () => {
     // Điện thoại: nút tròn — số việc đang chạy ở giữa, không còn viên chữ “2 · 5”.
     expect(c.querySelector('.vv-jobsbtn__n')?.textContent).toBe('2')
     expect(c.querySelector('.vv-jobs .num')).toBeNull()
+  })
+
+  it('chọn nhiều khoá điều hướng tab và thoát chọn khôi phục điều hướng', async () => {
+    const c = await render(<MobileShell route={{ name: 'explore' }} status={STATUS} online><SelectionMode selecting /></MobileShell>)
+    const nav = c.querySelector('.vv-tabbar') as HTMLElement
+    const tab = nav.querySelector('button') as HTMLButtonElement
+    expect(nav.getAttribute('aria-hidden')).toBe('true')
+    expect(tab.tabIndex).toBe(-1)
+    await act(async () => { tab.click() })
+    expect(location.hash).toBe('#/')
+
+    await act(async () => { roots.at(-1)!.render(<MobileShell route={{ name: 'explore' }} status={STATUS} online><SelectionMode selecting={false} /></MobileShell>) })
+    expect(nav.getAttribute('aria-hidden')).toBe('false')
+    expect(tab.tabIndex).toBe(0)
   })
 })
 

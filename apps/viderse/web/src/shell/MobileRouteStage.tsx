@@ -27,16 +27,15 @@ export type PaneSnapshot = { route: Route; signature: string }
 /**
  * Pane của một route; `null` = màn đẩy (Cài đặt, Hàng chờ, Thư viện, template,
  * Editor…) — phủ lên trên, các pane đã mở vẫn nằm nguyên bên dưới.
- * Kênh và Tạo kênh chung một pane vì thanh tab chỉ có một mục Kênh.
+ * Tạo kênh và chi tiết video là màn đẩy; pane gốc giữ nguyên khi quay lại.
  */
 export function paneKeyOf(route: Route): string | null {
   switch (route.name) {
     case 'workbench': return 'workbench'
     case 'review': return 'review'
     case 'new': return 'new'
-    case 'channel':
-    case 'channel-new': return 'channels'
-    case 'explore': return 'explore'
+    case 'channel': return 'channels'
+    case 'explore': return route.video ? null : 'explore'
     default: return null
   }
 }
@@ -95,7 +94,7 @@ function useWarmTabs() {
 }
 
 /** Màn đẩy tự cuộn bên trong và không có thanh tab dưới (Hàng chờ, Thư viện, sửa template). */
-const SELF_SCROLL: Partial<Record<Route['name'], true>> = { queue: true, library: true, template: true }
+const SELF_SCROLL: Partial<Record<Route['name'], true>> = { queue: true, library: true, template: true, 'channel-new': true }
 
 export function MobileRouteStage({ route, renderScreen = (next: Route) => <RouteScreen route={next} /> }: {
   route: Route
@@ -107,6 +106,7 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
   if (active) keepPane(panes, active, route)
   useWarmTabs()
   const pushed = active === null
+  const selfScroll = SELF_SCROLL[route.name] || (route.name === 'explore' && Boolean(route.video))
   return <div {...stylex.props(stageStyles.stage)}>
     <div {...stylex.props(stageStyles.panes)}>
       <MobilePanes
@@ -114,8 +114,8 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
         active={active}
       />
     </div>
-    {pushed && <div {...stylex.props(stageStyles.push, SELF_SCROLL[route.name] && stageStyles.fullBleed)}>
-      <div {...stylex.props(stageStyles.paneBody, SELF_SCROLL[route.name] && stageStyles.paneBodyFill)}>
+    {pushed && <div {...stylex.props(stageStyles.push, selfScroll && stageStyles.fullBleed)}>
+      <div {...stylex.props(stageStyles.paneBody, selfScroll && stageStyles.paneBodyFill)}>
         <Suspense fallback={null}>{renderScreen(route)}</Suspense>
       </div>
     </div>}

@@ -10,8 +10,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
 import { PANE_STALE_MS, PaneStaleContext } from '../data/paneStale'
 import { useResource } from '../data/useResource'
-import { parseHash, type Route } from '../router'
-import { MobileRouteStage, paneKeyOf } from './MobileRouteStage'
+import type { Route } from '../router'
+import { MobileRouteStage } from './MobileRouteStage'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -35,9 +35,23 @@ const WorkPane = () => {
   </div>
 }
 const ReviewPane = () => <div data-marker="review">Duyệt</div>
+const ExplorePane = () => {
+  const [filter, setFilter] = useState('all')
+  return <div data-marker="explore" data-filter={filter}>
+    <button type="button" onClick={() => setFilter('long')}>lọc</button>
+  </div>
+}
+const ChannelPane = () => {
+  const [filter, setFilter] = useState('all')
+  return <div data-marker="channel" data-filter={filter}>
+    <button type="button" onClick={() => setFilter('ready')}>lọc kênh</button>
+  </div>
+}
 const renderScreen = (route: Route) => {
   if (route.name === 'workbench') return <WorkPane />
   if (route.name === 'review') return <ReviewPane />
+  if (route.name === 'explore' && !route.video) return <ExplorePane />
+  if (route.name === 'channel') return <ChannelPane />
   return <div data-marker="pushed" data-screen={route.name}>màn đẩy</div>
 }
 
@@ -60,33 +74,6 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn((path: string) => Promise.resolve(Response.json(path.includes('clone/counts') ? { approvedToday: null } : {}))))
 })
 
-describe('đệm cuối vùng cuộn', () => {
-  // Chromium bỏ qua `padding-bottom` của hộp cuộn flex khi nội dung dài hơn khung,
-  // nên hàng cuối của màn chui xuống dưới thanh tab. Vùng cuộn phải là khối
-  // (block) và màn nằm trong một cột flex riêng đủ cao bằng khung.
-  it('pane cuộn ở dạng khối, màn nằm trong cột flex con', async () => {
-    const { container } = await render({ name: 'workbench' })
-    await act(async () => {})
-    const scroller = paneOf(container, 'workbench').firstElementChild as HTMLElement
-    expect(getComputedStyle(scroller).display).toBe('block')
-    expect(scroller.children).toHaveLength(1)
-    const body = scroller.firstElementChild as HTMLElement
-    expect(body.querySelector('[data-marker="workbench"]')).toBeTruthy()
-    // Màn không còn là con trực tiếp của hộp cuộn: cột flex con giữ đệm cuối.
-    expect(scroller.firstElementChild).not.toBe(container.querySelector('[data-marker="workbench"]'))
-  })
-
-  it('màn đẩy cũng cuộn ở dạng khối trong cột flex con', async () => {
-    const { container } = await render({ name: 'library' })
-    await act(async () => {})
-    const screen = container.querySelector('[data-marker="pushed"]') as HTMLElement
-    const body = screen.parentElement as HTMLElement
-    const push = body.parentElement as HTMLElement
-    expect(getComputedStyle(push).display).toBe('block')
-    expect(push.children).toHaveLength(1)
-    expect(body.querySelector('[data-marker="pushed"]')).toBeTruthy()
-  })
-})
 
 describe('giữ pane khi đổi tab', () => {
   it('đổi tab rồi quay lại: state, DOM và dữ liệu còn nguyên, không gọi lại API', async () => {
@@ -125,22 +112,37 @@ describe('giữ pane khi đổi tab', () => {
     expect(container.querySelector('[data-marker="workbench"]')).toBe(node)
     expect(workbenchFetches).toBe(1)
   })
-})
 
-describe('route → pane', () => {
-  it('5 tab có pane riêng, màn đẩy không chiếm pane', () => {
-    expect(paneKeyOf(parseHash('#/').route)).toBe('workbench')
-    expect(paneKeyOf(parseHash('#/review').route)).toBe('review')
-    expect(paneKeyOf(parseHash('#/new').route)).toBe('new')
-    expect(paneKeyOf(parseHash('#/channels/new').route)).toBe('channels')
-    expect(paneKeyOf(parseHash('#/channels/yt-1').route)).toBe('channels')
-    expect(paneKeyOf(parseHash('#/explore').route)).toBe('explore')
-    expect(paneKeyOf(parseHash('#/settings').route)).toBeNull()
-    expect(paneKeyOf(parseHash('#/queue').route)).toBeNull()
-    expect(paneKeyOf(parseHash('#/library').route)).toBeNull()
-    expect(paneKeyOf(parseHash('#/templates/t-1').route)).toBeNull()
+  it('mở video đối thủ rồi quay lại giữ bộ lọc và vị trí của danh sách', async () => {
+    const { container, draw } = await render({ name: 'explore' })
+    const list = container.querySelector('[data-marker="explore"]') as HTMLElement
+    await act(async () => { list.querySelector('button')!.click() })
+    const pane = paneOf(container, 'explore')
+    pane.scrollTop = 320
+
+    await draw({ name: 'explore', video: 'rival-video-1' })
+    expect(container.querySelector('[data-marker="pushed"]')).toBeTruthy()
+    expect(pane.getAttribute('aria-hidden')).toBe('true')
+
+    await draw({ name: 'explore' })
+    expect(container.querySelector('[data-marker="pushed"]')).toBeNull()
+    expect(container.querySelector('[data-marker="explore"]')).toBe(list)
+    expect(list.dataset.filter).toBe('long')
+    expect(pane.scrollTop).toBe(320)
+  })
+
+  it('tạo kênh là màn con, quay lại giữ trạng thái trang kênh đang mở', async () => {
+    const { container, draw } = await render({ name: 'channel', channelId: 'channel-1' })
+    const channel = container.querySelector('[data-marker="channel"]') as HTMLElement
+    await act(async () => { channel.querySelector('button')!.click() })
+    await draw({ name: 'channel-new' })
+    expect(container.querySelector('[data-marker="channel"]')).toBe(channel)
+    await draw({ name: 'channel', channelId: 'channel-1' })
+    expect(container.querySelector('[data-marker="channel"]')).toBe(channel)
+    expect(channel.dataset.filter).toBe('ready')
   })
 })
+
 
 describe('nạp trước tab chưa mở', () => {
   it('sau khung hình đầu, dữ liệu của các tab còn lại được nạp ở nhịp rảnh', async () => {

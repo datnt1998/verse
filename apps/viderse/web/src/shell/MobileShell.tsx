@@ -6,7 +6,7 @@ import { Suspense, lazy, useState, type ReactNode } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, navSection, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
-import { Icon, MobileRuntimeProvider, MobileTabBar as KitMobileTabBar, MobileTopBar, type IconName, type MobileTabItem, type MobileTabBarSlots } from '@noverse/ui'
+import { Icon, MobileRuntimeProvider, useMobileRuntime, MobileTabBar as KitMobileTabBar, MobileTopBar, type IconName, type MobileTabItem, type MobileTabBarSlots } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { JobsPill } from './JobsPill'
 import type { Status } from '../api/status'
@@ -37,6 +37,7 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
   fixed?: boolean
 }) {
   const section = navSection(route)
+  const { tabMode } = useMobileRuntime()
   const items: MobileTabItem[] = TAB_ITEMS.map((item) => ({
     key: item.key,
     label: item.label || undefined,
@@ -63,6 +64,7 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
   return <KitMobileTabBar
     items={items}
     activeKey={section ?? undefined}
+    mode={tabMode}
     slots={slots}
     ariaLabel={t.nav.bottom}
     centerAction={<span className={`vv-tabbar__new ${stylex.props(mobileShellStyles.newButton).className}`}><Icon name="add" size={22} /></span>}
@@ -84,9 +86,9 @@ export function MobileShell({ route, status, online, userName, channels, channel
   // Chunk của bảng Việc nền (6 chunk) chỉ được tải khi người dùng mở lần đầu —
   // mount sẵn <QueueSummarySheet open={false}> sẽ kéo cả cụm vào lần vẽ đầu của shell.
   const [jobsLoaded, setJobsLoaded] = useState(false)
-  /* MLibrary / MTemplate là màn con tự vẽ thanh riêng (artboard: quay lại +
-     tiêu đề), không thanh app chung phía trên. */
-  const subPage = route.name === 'library' || route.name === 'template'
+  // Màn con có thanh riêng, không dùng appbar hay thanh tab của màn gốc.
+  const subPage = route.name === 'library' || route.name === 'template' ||
+    route.name === 'channel-new' || (route.name === 'explore' && Boolean(route.video))
   const [jobsTab, setJobsTab] = useState<'running' | 'inbox'>('running')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   if (route.name === 'queue') return <MobileRuntimeProvider hidden><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div></MobileRuntimeProvider>
@@ -114,7 +116,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
     )
   }
   return (
-    <MobileRuntimeProvider hidden={route.name === 'channel-new'}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
+    <MobileRuntimeProvider hidden={subPage}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
       {!subPage &&
       <MobileTopBar
         slots={{ root: `vv-mbar ${stylex.props(mobileShellStyles.bar).className}`, leading: stylex.props(mobileShellStyles.lead).className, actions: stylex.props(mobileShellStyles.end).className }}
