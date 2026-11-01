@@ -700,6 +700,7 @@ GET  /api/editor/:projectId/quality → { total: number; measuredAt: string; ite
 POST /api/editor/:projectId/captions/align { cueIds: string[] | "all-drifting" } → { cues: { cueId, offsetSec, words: { w, startSec, endSec }[] }[] }   // khớp mốc từng từ theo giọng gốc
 POST /api/clone/:jobId/measure → BackgroundTask (kind "measure")                                    // Đo lại độ hoàn thiện; Kiểm định chạy nền ~1 phút
 POST /api/clone/:jobId/export { accept?: true }                                                      // accept = Vẫn xuất (ghi gate.accepted)
+POST /api/clone/:jobId/quality { accept: boolean } → { accepted: boolean }                           // “Vẫn xuất” (accept) / “Bật lại kiểm tra Độ hoàn thiện” (không accept)
 ```
 - Mở editor từ Cần xử lý: `?fix=captionAlignment&cue=<id đầu tiên>` → chọn sẵn đoạn, playhead tới `startSec`.
 - `captions/align` là một thao tác hoàn tác được (một bước undo cho cả lệnh), lưu project như mọi sửa khác; không tự đo lại.

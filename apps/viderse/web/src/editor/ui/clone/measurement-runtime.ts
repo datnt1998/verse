@@ -135,11 +135,17 @@ export async function fetchMeasurementState(jobId: string): Promise<{
 }
 
 /**
- * The owner's call on a failing checklist from the editor: the editor's own
- * export dialog then renders, so the clone pipeline is not resumed here.
+ * The owner's call on a failing checklist: "Vẫn xuất" — accept the gate and
+ * queue the clone export. Same action as the build screen's Vẫn xuất button
+ * (POST /api/clone/:id/export {accept:true}); the pipeline then renders.
  */
-export async function acceptCloneQuality(jobId: string, accept: boolean): Promise<void> {
-  await api(`${base}/${encodeURIComponent(jobId)}`, z.object({}).passthrough(), json({ action: "acceptQuality", accept, resume: false }));
+export async function acceptCloneExport(jobId: string): Promise<void> {
+  await api(`${base}/${encodeURIComponent(jobId)}/export`, z.object({}).passthrough(), json({ accept: true }));
+}
+
+/** Put the checklist back in charge after "Vẫn xuất" (POST /api/clone/:id/quality). */
+export async function setCloneQualityAcceptance(jobId: string, accept: boolean): Promise<void> {
+  await api(`${base}/${encodeURIComponent(jobId)}/quality`, z.object({}).passthrough(), json({ accept }));
 }
 
 export async function createMeasurementApi(jobId: string): Promise<{
