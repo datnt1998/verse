@@ -34,8 +34,8 @@ Mọi màn điện thoại Viderse (< 768 px) khớp artboard `apps/viderse/docs
 |---|---|---|---|
 | 1a | **Nền safe-area + thanh tab không đè** (kit tokens, Noverse cutover, Viderse shell/tab bar 30 px, đệm cuộn, mọi thanh dính đáy, `.vv-mset` dưới notch, sheet padding, toast neo, `--kb`, tab mode `hide`/`mini`) | — | đã tích hợp; sửa vùng cuộn có 220 phép đo cuối màn không che khuất, kiểm lại sau đổi bố cục |
 | 1b | **Giữ màn khi đổi tab** (`KeepAlive` lên kit, Viderse pane keep-alive, giữ cuộn, 0 request khi cache còn, prefetch idle) | — | đã tích hợp |
-| 1c | **Component mobile hệ thống** theo MKit (kích thước 44/46/48, sheet title 18, chip 36/44, field 16 px…) + Noverse cutover | — | đã tích hợp; tiếp tục hội tụ control/motion theo V33 |
-| 2 | **Màn theo artboard**: MMain (Bàn dựng 1 cột + chi tiết + kế hoạch + bản tin + việc nền), MReview (8 trạng thái), MExplore + MCompVideo (B2 màn riêng), MCreate + MChannel + MSettings, MNew + MQueue + MAuth polish | 1a, 1c | đang làm ở các nhánh màn riêng |
+| 1c | **Component mobile hệ thống** theo MKit (kích thước 44/46/48, sheet title 18, chip 36/44, field 16 px…) + Noverse cutover | — | đã tích hợp V33; kiểm kit233 test, native và focus/menu/segmented đạt |
+| 2 | **Màn theo artboard**: MMain (Bàn dựng 1 cột + chi tiết + kế hoạch + bản tin + việc nền), MReview (8 trạng thái), MExplore + MCompVideo (B2 màn riêng), MCreate + MChannel + MSettings, MNew + MQueue + MAuth polish | 1a, 1c | đã tích hợp; có báo cáo/ảnh native từng slice và lượt kiểm bản production tích hợp 390/360 trong `plans/reports/261102-final-built-mobile/` |
 | 3 | **Hiệu năng** theo báo cáo 02 (ngân sách JS màn đầu, TBT, render storm, ảnh) | 1b | đã tích hợp lượt đầu; còn ngân sách JS/CSS/font cần đo lại sau cắt màn điện thoại |
 | 4 | **GAP design** → làm màn khi artboard về | design | V34 đã tích hợp; còn các GAP API nêu trên |
 
