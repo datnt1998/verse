@@ -171,7 +171,6 @@ export function ConnectSection() {
           />
         ))}
         {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
-        <YoutubeDataKeyCard />
 
         {dirtyBar}
 
@@ -179,6 +178,8 @@ export function ConnectSection() {
           <Icon name="add" size={15} />
           {c.addOpenShort}
         </button>
+
+        <YoutubeDataKeyCard mobile />
 
         <Sheet open={addSheet} onClose={() => setAddSheet(false)} title={c.addTitle} subtitle={c.addSubMobile} size="md" homeIndicator height="auto">
           <AddProviderBody mobile onAdded={onAdded} onReveal={onReveal} onDone={() => setAddSheet(false)} providers={list} />
@@ -234,7 +235,6 @@ export function ConnectSection() {
           />
         ))}
         {providers.data && list.length === 0 && <div className={`conn-note-line ${stylex.props(settingsStyles.connNoteLine).className}`}>{c.empty}</div>}
-        <YoutubeDataKeyCard />
       </div>
 
       {addOpen ? (
@@ -247,6 +247,10 @@ export function ConnectSection() {
           {c.addOpen}
         </button>
       )}
+
+      {/* r38: khoá YouTube Data API không phải nhà cung cấp AI — nhóm riêng
+          DƯỚI nút Thêm nhà cung cấp (artboard Settings › section=connect). */}
+      <YoutubeDataKeyCard />
 
     </div>
   )
