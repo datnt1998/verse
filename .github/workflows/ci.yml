@@ -156,3 +156,10 @@ jobs:
 
       - name: Test
         run: npm test
+
+      # Máy chủ nhúng internal/web/dist lúc go build: bundle cũ làm trang đo
+      # của bước score/export không tồn tại. Build phải ra đúng bản đã commit.
+      - name: Embedded web bundle is current
+        run: |
+          npm run build
+          test -z "$(git status --porcelain -- ../internal/web/dist)" || { git status --short -- ../internal/web/dist; exit 1; }

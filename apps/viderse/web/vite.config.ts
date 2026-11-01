@@ -2,6 +2,7 @@
 // platform/ui): StyleX biên dịch stylex.create/defineVars lúc build, gộp vào
 // CSS chính. Mỗi màn hình lazy vào chunk riêng; scripts/size.mjs đo JS tải
 // lần đầu từ manifest.
+import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -33,8 +34,11 @@ function stylexPlugin(): Plugin {
   return plugin
 }
 
-/** Preserve module provenance alongside Vite's manifest for the cold-route budget. */
+/** Preserve module provenance alongside Vite's manifest for the cold-route
+ * budget. Ids are relative to this app so the shipped bundle carries no
+ * machine path and builds byte-identically on every machine. */
 function editorBudgetManifest(): Plugin {
+  const root = fileURLToPath(new URL('.', import.meta.url))
   return {
     name: 'viderse-editor-budget',
     apply: 'build',
@@ -42,7 +46,9 @@ function editorBudgetManifest(): Plugin {
       const chunks: Record<string, string[]> = {}
       for (const output of Object.values(bundle)) {
         if (output.type !== 'chunk') continue
-        chunks[output.fileName] = Object.keys(output.modules).filter((id) => id.includes('/src/editor/'))
+        chunks[output.fileName] = Object.keys(output.modules)
+          .filter((id) => id.includes('/src/editor/'))
+          .map((id) => relative(root, id))
       }
       this.emitFile({ type: 'asset', fileName: '.vite/editor-budget.json', source: JSON.stringify(chunks) })
     },

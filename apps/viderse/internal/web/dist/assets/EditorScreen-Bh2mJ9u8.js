@@ -1,1 +1,0 @@
-import{j as e,t}from"./index-qdcr4GI-.js";import{S as r}from"./ScreenEmpty-tzobhMlu.js";function s({route:i}){return e.jsx(r,{title:t.screens.editor.emptyTitle,hint:t.screens.editor.emptyHint})}export{s as EditorScreen};
