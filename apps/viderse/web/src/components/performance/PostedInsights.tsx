@@ -69,7 +69,7 @@ function InsightRow({ insight, channelId, onApplied }: { insight: Insight; chann
         : actionable && <Button size="sm" variant="ghost" pending={state === 'pending'} pendingLabel={copy.applying} onClick={() => void apply()}>{copy.apply[actionable]}</Button>}
       <div {...stylex.props(sx.bars)}>
         {insight.groups.map((group, index) => (
-          <BarRow key={group.label} label={copy.bar(group.label, group.n, index === 0)} value={group.median7d} width={widths[index] ?? 0} top={index === 0} />
+          <BarRow key={group.label} label={copy.bar(group.label, group.n)} value={group.median7d} width={widths[index] ?? 0} top={index === 0} />
         ))}
       </div>
     </div>

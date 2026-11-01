@@ -22,7 +22,8 @@ export const performanceCopy = {
     title: 'Trợ lý nhận ra',
     prelim: (counted: number) => `Sơ bộ · ${counted} video có số liệu 7 ngày`,
     help: 'So theo lượt xem 7 ngày · không tự áp dụng',
-    bar: (label: string, n: number, first: boolean) => (first ? `${label} · ${n} video` : `${label} · ${n}`),
+    // Cột nhãn của thanh rộng 150px: nhãn dài (“Không phải câu hỏi”) bỏ chữ “video” để vừa, như artboard.
+    bar: (label: string, n: number) => (label.length > 14 ? `${label} · ${n}` : `${label} · ${n} video`),
     apply: { add_rule: 'Thêm vào quy tắc viết', 'template.rotation': 'Cho chạy nhiều hơn' } as const,
     applying: 'Đang áp dụng…',
     applied: 'Đã áp dụng',
