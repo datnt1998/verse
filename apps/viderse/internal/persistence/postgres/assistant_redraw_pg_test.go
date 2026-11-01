@@ -81,7 +81,7 @@ func TestAssistantParseRunRedrawSceneFiveOnRealJob(t *testing.T) {
 	edits := &jobedit.Service{Store: sceneRevisionStore{store}, Media: &stepstest.FakeMedia{Root: t.TempDir()}}
 	svc := assistant.New(assistant.Deps{
 		Director: func(context.Context) (llmretry.Generator, error) {
-			return cannedDirector{`{"outcome":"steps","steps":[{"intent":"redraw_image","sceneNo":5,"feedback":"cho y tá cầm đèn pin","parts":null,"count":null,"minDurationMinutes":null,"rival":null,"channel":null,"preset":null,"rule":null,"pick":null,"videoTitle":null}],"ask":null,"unsupportedKind":null}`}, nil
+			return cannedDirector{`{"outcome":"steps","steps":[{"intent":"redraw_image","sceneNo":5,"feedback":"cho y tá cầm đèn pin","parts":null,"count":null,"minDurationMinutes":null,"rival":null,"channel":null,"preset":null,"rule":null,"pick":null,"videoTitle":null,"drawSource":null}],"ask":null,"unsupportedKind":null}`}, nil
 		},
 		Jobs:     &pipeline.Service{Store: store},
 		Images:   &cloneimages.Service{Edits: edits},

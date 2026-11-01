@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
@@ -262,4 +263,49 @@ func (s *Service) prepareOverrides(ctx context.Context, l loaded, input Override
 	}
 	next.Revision++
 	return next, plan, nil
+}
+
+// SetDrawSource đặt nguồn vẽ ảnh RIÊNG cho một video (lệnh /provider): lần vẽ
+// sau — vẽ lại hay cảnh chưa vẽ — dùng nguồn này trước, rồi tới chuỗi dự phòng
+// chung của Hoạ sĩ. Không vẽ lại ảnh nào ngay và không đụng video khác. Nguồn
+// rỗng = bỏ nguồn riêng, quay lại nguồn ở Cài đặt. Video chưa tới bước ảnh thì
+// nguồn được ghi vào checkpoint của bước đó (như override từ hàng chờ).
+func (s *Service) SetDrawSource(ctx context.Context, id, provider, modelID string) error {
+	snap, err := s.Edits.Read(ctx, id, domain.CloneImages)
+	if err != nil {
+		return err
+	}
+	if snap.Job.SupersededAt != nil {
+		return cloneError(domain.CloneErrNotFound, "Job đã bị thay thế bởi generation mới")
+	}
+	raw := snap.Manifest
+	if len(raw) == 0 {
+		raw = snap.Step.Checkpoint
+	}
+	next := model.Manifest{Version: 1, Revision: 1, SceneRevision: -1}
+	if len(raw) > 0 {
+		if err = json.Unmarshal(raw, &next); err != nil {
+			return cloneError(domain.CloneErrInternal, "Manifest ảnh không đọc được")
+		}
+	}
+	if next.Overrides == nil {
+		next.Overrides = &model.Overrides{}
+	}
+	next.Overrides.DrawProvider, next.Overrides.DrawModel = provider, modelID
+	next.Revision++
+	if snap.Step.Status == domain.CloneRunning {
+		// Worker owns the items: gửi override để nó trộn vào manifest đang chạy.
+		if len(raw) == 0 {
+			return cloneError(domain.CloneErrConflict, "Video đang vẽ ảnh — chờ xong rồi đổi nguồn vẽ")
+		}
+		if len(snap.Manifest) == 0 {
+			snap.Manifest = raw
+		}
+		return s.Edits.CommitImageOverride(ctx, snap, next)
+	}
+	if jobedit.Busy(snap, domain.CloneImages) {
+		return cloneError(domain.CloneErrConflict, "Video đang xử lý — chờ xong rồi đổi nguồn vẽ")
+	}
+	// Không invalidate: ảnh đã vẽ giữ nguyên, chỉ lần vẽ sau dùng nguồn mới.
+	return s.Edits.Commit(ctx, snap, next, "", false, nil)
 }

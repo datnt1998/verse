@@ -61,3 +61,18 @@ func clip(s string, n int) string {
 func cleanLine(s string) string {
 	return strings.Join(strings.Fields(s), " ")
 }
+
+// youTubeLink lấy link người dùng dán trong câu (/posted [link]); bỏ dấu câu
+// dính cuối. Rỗng khi câu không có link — link là tuỳ chọn.
+func youTubeLink(text string) string {
+	for _, field := range strings.Fields(text) {
+		token := strings.Trim(field, `.,;:!?()[]{}<>"'“”‘’`)
+		lower := strings.ToLower(token)
+		for _, prefix := range []string{"http://", "https://", "youtu.be/", "www.youtube.com/", "youtube.com/", "m.youtube.com/"} {
+			if strings.HasPrefix(lower, prefix) {
+				return token
+			}
+		}
+	}
+	return ""
+}

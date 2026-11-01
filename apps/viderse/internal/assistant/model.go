@@ -39,6 +39,7 @@ type modelStep struct {
 	Rule               *string  `json:"rule"`
 	Pick               *string  `json:"pick"`
 	VideoTitle         *string  `json:"videoTitle"`
+	DrawSource         *string  `json:"drawSource"`
 }
 
 type modelAsk struct {
@@ -105,7 +106,7 @@ func stepSchema() map[string]any {
 		"type":                 "object",
 		"additionalProperties": false,
 		"required": []string{"intent", "sceneNo", "feedback", "parts", "count", "minDurationMinutes",
-			"rival", "channel", "preset", "rule", "pick", "videoTitle"},
+			"rival", "channel", "preset", "rule", "pick", "videoTitle", "drawSource"},
 		"properties": map[string]any{
 			"intent":   enum(intentNames()...),
 			"sceneNo":  n(integer()),
@@ -122,6 +123,7 @@ func stepSchema() map[string]any {
 			"rule":               n(str()),
 			"pick":               n(enum(pickNewest, pickTopWeek, pickTopAll, pickTitle)),
 			"videoTitle":         n(str()),
+			"drawSource":         n(enum("chatgpt", "grok", "gemini")),
 		},
 	}
 }
@@ -147,7 +149,12 @@ Allowed intents (use exactly these ids, nothing else):
 - prioritize: move a video already in the queue to the front. pick = top_week | newest | title; rival = rival name if said; videoTitle = title if said.
 - set_autonomy: set a channel's autonomy level. preset = careful | balanced | auto. Never anything else.
 - add_rule: remember a rule for a channel for future videos. rule = the rule in one Vietnamese sentence, as the user said it.
+- set_draw_source: change which AI draws the images of the open video. drawSource = chatgpt | grok | gemini. Only this video changes; other videos keep the shared setting. If the user names no source, use outcome "ask" with the three sources, and each option text must be a full sentence: "Đổi nguồn vẽ ảnh của video này sang ChatGPT" (same for Grok, Gemini).
+- export_anyway: export the open video even though its quality score is below the gate (the owner decided "Vẫn xuất"). Only valid when the open video is waiting at the quality-score step. No extra field.
+- mark_posted: the open video has ALREADY been published on YouTube; the owner wants it marked as posted. The optional link is read from the user's text, never from you. This never means "upload/publish it for me" — uploading is unsupported: use outcome "unsupported" for that.
 Fill "channel" with the channel name the user mentioned (as said) or null. Set every field you do not use to null.
+
+The sentence may start with a slash command typed in the composer. Map each command to its intent: /redraw <scene> = redraw_image, /provider <chatgpt|grok|gemini> = set_draw_source, /pause = pause, /resume = resume, /export-anyway = export_anyway, /posted [link] = mark_posted. An unknown command (/xyz) is outcome "unsupported".
 
 Plan 1 to 5 steps in the order that makes sense. One step per video for make_videos/make_latest/prioritize.
 Use outcome "ask" only when a required detail is missing and cannot be inferred from the context lists (give a short Vietnamese question and 2–4 short options). Use outcome "unsupported" when the sentence is not any allowed intent. Deleting anything (channel, video, template, account, data) is never allowed: outcome "unsupported", unsupportedKind "delete". Other unsupported requests use unsupportedKind "other". When outcome is not "steps", steps must be an empty array.
@@ -268,6 +275,10 @@ func validateModelStep(s modelStep) error {
 	case AddRule:
 		if s.Rule == nil || strings.TrimSpace(*s.Rule) == "" {
 			return errors.New("rule không được rỗng")
+		}
+	case SetDrawSource:
+		if s.DrawSource == nil || *s.DrawSource == "" {
+			return errors.New("drawSource là chatgpt, grok hoặc gemini")
 		}
 	case MakeVideos, Prioritize:
 		if s.Pick == nil {

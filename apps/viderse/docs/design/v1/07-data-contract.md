@@ -338,10 +338,13 @@ type VideoImageOverrides = {
   coverPromptSet: boolean;
   coverPromptId?: string;
   noImages?: boolean;
+  drawProvider?: string;   // nguồn vẽ riêng của video (lệnh /provider): provider id đã kết nối
+  drawModel?: string;      // model ảnh của nguồn đó
 };
 ```
 
 - Recipe hiệu lực lấy template trước, rồi đè lựa chọn của video; worker khôi phục manifest đã công bố trước khi reconcile để không làm mất ngoại lệ sau một lượt dựng thành công.
+- `drawProvider`/`drawModel` là nguồn vẽ riêng của **một** video (lệnh `/provider`): lần vẽ sau dùng nguồn này trước, rồi tới chuỗi nguồn chung của Hoạ sĩ; ảnh đã vẽ không bị vẽ lại, video khác không đổi.
 - `style` (cách ghép) **không** đè được theo video; đổi thì Làm lại từ đầu với template khác.
 
 API:

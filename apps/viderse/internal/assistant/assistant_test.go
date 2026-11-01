@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/core/llmretry"
 )
 
@@ -81,6 +82,8 @@ func TestEveryIntentPlansThenRunsThroughTheRealService(t *testing.T) {
 			"autonomy.preset " + chanA + " balanced", "Mức tự chủ: Cân bằng", 0},
 		{"add_rule", chanScope(), map[string]any{"intent": "add_rule", "rule": "Tiêu đề luôn dưới 60 ký tự"},
 			"rules.add " + chanA + " Tiêu đề luôn dưới 60 ký tự [assistant]", "Lưu quy tắc: “Tiêu đề luôn dưới 60 ký tự”", 0},
+		{"set_draw_source", jobScope(), map[string]any{"intent": "set_draw_source", "drawSource": "grok"},
+			"images.drawSource " + jobID + " prov-grok model-grok", "Đổi nguồn vẽ ảnh: Grok", 0},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -143,6 +146,123 @@ func TestParseThenRunRedrawPutsSceneIntoDrawing(t *testing.T) {
 	}
 	if r.w.status["scene-05"] != "pending" {
 		t.Fatalf("cảnh 5 = %q, muốn pending (đang vẽ)", r.w.status["scene-05"])
+	}
+}
+
+// /provider: nguồn vẽ riêng của video; nguồn chưa kết nối thì nói đúng chỗ sửa.
+func TestProviderCommandSetsVideoDrawSource(t *testing.T) {
+	r := newRig(t, func(int, string) string {
+		return planJSON(map[string]any{"intent": "set_draw_source", "drawSource": "grok"})
+	})
+	plan := mustPlan(t, r, jobScope(), "/provider grok")
+	step := plan.Steps[0]
+	if step.Title != "Đổi nguồn vẽ ảnh: Grok" || step.Agent != "artist" || !strings.Contains(step.Detail, "video khác") {
+		t.Fatalf("thẻ = %+v", step)
+	}
+	if len(r.w.log.all()) != 0 {
+		t.Fatalf("plan đã ghi: %v", r.w.log.all())
+	}
+	if st := runAll(t, r, plan); st.State != "done" {
+		t.Fatalf("run = %+v", st)
+	}
+	if !r.w.log.has("images.drawSource " + jobID + " prov-grok model-grok") || r.w.drawSource.Model != "model-grok" {
+		t.Fatalf("log=%v nguồn=%+v", r.w.log.all(), r.w.drawSource)
+	}
+	// Cùng lệnh lần nữa: video đã vẽ bằng nguồn đó rồi.
+	reply, err := r.svc.Plan(context.Background(), jobScope(), "/provider grok")
+	if err != nil {
+		t.Fatalf("Plan lần hai: %v", err)
+	}
+	if reply.Unknown == nil || !strings.Contains(reply.Unknown.Lead, "đã vẽ ảnh bằng Grok rồi") {
+		t.Fatalf("unknown = %+v", reply.Unknown)
+	}
+}
+
+func TestProviderCommandNamesSettingsWhenSourceIsNotConnected(t *testing.T) {
+	r := newRig(t, func(int, string) string {
+		return planJSON(map[string]any{"intent": "set_draw_source", "drawSource": "gemini"})
+	})
+	reply, err := r.svc.Plan(context.Background(), jobScope(), "/provider gemini")
+	if err != nil {
+		t.Fatalf("Plan: %v", err)
+	}
+	if reply.Unknown == nil || !strings.Contains(reply.Unknown.Lead, "Chưa kết nối Gemini") ||
+		!strings.Contains(reply.Unknown.Lead, "Cài đặt › Kết nối AI") {
+		t.Fatalf("unknown = %+v", reply.Unknown)
+	}
+	if len(r.w.log.all()) != 0 {
+		t.Fatalf("log = %v", r.w.log.all())
+	}
+}
+
+// /export-anyway: chỉ ở Kiểm định và chỉ khi điểm chưa đạt.
+func TestExportAnywayCommandAcceptsTheGateAndExports(t *testing.T) {
+	r := newRig(t, func(int, string) string { return planJSON(map[string]any{"intent": "export_anyway"}) })
+	r.w.activeStep = domain.CloneScore
+	plan := mustPlan(t, r, jobScope(), "/export-anyway")
+	if step := plan.Steps[0]; step.Title != "Xuất video dù điểm chưa đạt" || len(step.Reruns) == 0 {
+		t.Fatalf("thẻ = %+v", step)
+	}
+	if st := runAll(t, r, plan); st.State != "done" {
+		t.Fatalf("run = %+v", st)
+	}
+	if !r.w.log.has("quality.exportAnyway " + jobID) {
+		t.Fatalf("log = %v", r.w.log.all())
+	}
+}
+
+func TestExportAnywayCommandRefusesOutsideScoreStep(t *testing.T) {
+	r := newRig(t, func(int, string) string { return planJSON(map[string]any{"intent": "export_anyway"}) })
+	r.w.activeStep = domain.CloneBuild
+	reply, err := r.svc.Plan(context.Background(), jobScope(), "/export-anyway")
+	if err != nil {
+		t.Fatalf("Plan: %v", err)
+	}
+	if reply.Unknown == nil || !strings.Contains(reply.Unknown.Lead, "bước Kiểm định") {
+		t.Fatalf("unknown = %+v", reply.Unknown)
+	}
+	if len(r.w.log.all()) != 0 {
+		t.Fatalf("log = %v", r.w.log.all())
+	}
+}
+
+// /posted [link]: link đọc từ câu người dùng, đi đúng đường đánh dấu đã đăng.
+func TestPostedCommandMarksTheVideoPostedWithTheLinkFromTheSentence(t *testing.T) {
+	r := newRig(t, func(int, string) string { return planJSON(map[string]any{"intent": "mark_posted"}) })
+	plan := mustPlan(t, r, jobScope(), "/posted https://youtu.be/dQw4w9WgXcQ")
+	if step := plan.Steps[0]; step.Title != "Đánh dấu đã đăng" || step.Agent != "scout" {
+		t.Fatalf("thẻ = %+v", step)
+	}
+	if st := runAll(t, r, plan); st.State != "done" {
+		t.Fatalf("run = %+v", st)
+	}
+	if !r.w.log.has(`posted ` + jobID + ` "https://youtu.be/dQw4w9WgXcQ"`) {
+		t.Fatalf("log = %v", r.w.log.all())
+	}
+}
+
+func TestPostedCommandWithoutLinkStillMarksPosted(t *testing.T) {
+	r := newRig(t, func(int, string) string { return planJSON(map[string]any{"intent": "mark_posted"}) })
+	plan := mustPlan(t, r, jobScope(), "video này đã đăng rồi")
+	if st := runAll(t, r, plan); st.State != "done" {
+		t.Fatalf("run = %+v", st)
+	}
+	if !r.w.log.has(`posted ` + jobID + ` ""`) {
+		t.Fatalf("log = %v", r.w.log.all())
+	}
+}
+
+func TestPostedCommandRejectsALinkThatIsNotAYouTubeVideo(t *testing.T) {
+	r := newRig(t, func(int, string) string { return planJSON(map[string]any{"intent": "mark_posted"}) })
+	reply, err := r.svc.Plan(context.Background(), jobScope(), "/posted https://example.com/bai-viet")
+	if err != nil {
+		t.Fatalf("Plan: %v", err)
+	}
+	if reply.Unknown == nil || !strings.Contains(reply.Unknown.Lead, "Đây không phải link video YouTube") {
+		t.Fatalf("unknown = %+v", reply.Unknown)
+	}
+	if len(r.w.log.all()) != 0 {
+		t.Fatalf("log = %v", r.w.log.all())
 	}
 }
 
@@ -323,8 +443,8 @@ func TestSystemPromptDeclaresUserTextAsData(t *testing.T) {
 			t.Errorf("system prompt thiếu intent %s", id)
 		}
 	}
-	if len(registry) != 15 {
-		t.Fatalf("registry có %d intent, muốn 15", len(registry))
+	if len(registry) != 18 {
+		t.Fatalf("registry có %d intent, muốn 18", len(registry))
 	}
 }
 

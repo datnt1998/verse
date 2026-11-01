@@ -98,7 +98,7 @@ func (s *Service) resolveStep(ctx context.Context, d *scopeData, text string, m 
 		if d.kind != "job" {
 			return replyOf(s.unknown(d, unsupportedOther))
 		}
-		return s.resolveJob(ctx, d, id, m)
+		return s.resolveJob(ctx, d, id, m, text)
 	}
 	ch, ask := s.pickChannel(d, text, m.Channel)
 	if ask != nil {
@@ -131,7 +131,7 @@ func (s *Service) resolveStep(ctx context.Context, d *scopeData, text string, m 
 	return replyOf(s.unknown(d, unsupportedOther))
 }
 
-func (s *Service) resolveJob(ctx context.Context, d *scopeData, id IntentID, m modelStep) resolved {
+func (s *Service) resolveJob(ctx context.Context, d *scopeData, id IntentID, m modelStep, text string) resolved {
 	jp := jobParams{JobID: d.jobID}
 	feedback := ""
 	if m.Feedback != nil {
@@ -161,6 +161,14 @@ func (s *Service) resolveJob(ctx context.Context, d *scopeData, id IntentID, m m
 			parts = []string{"title", "description", "tags"}
 		}
 		return one(id, metadataParams{JobID: d.jobID, Parts: parts, Direction: feedback})
+	case SetDrawSource:
+		if m.DrawSource == nil || strings.TrimSpace(*m.DrawSource) == "" {
+			return replyOf(s.unknown(d, unsupportedOther))
+		}
+		return one(id, drawSourceParams{JobID: d.jobID, Source: strings.ToLower(cleanLine(*m.DrawSource))})
+	case MarkPosted:
+		// Link (nếu có) đọc từ chính câu người dùng, không lấy từ mô hình.
+		return one(id, postedParams{JobID: d.jobID, Link: youTubeLink(text)})
 	default:
 		return one(id, jp)
 	}
