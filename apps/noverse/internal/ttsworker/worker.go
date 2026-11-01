@@ -10,7 +10,11 @@
 //   - a worker whose fence moved (cancel, retry, reclaim) gets 409/404 on any
 //     publish and stops instead of retrying;
 //   - Ctrl-C/EOT during a job releases the lease so the job is claimable
-//     immediately, while progress already reported is preserved.
+//     immediately, while progress already reported is preserved;
+//   - a transport failure or 5xx while uploading a rendered segment is the
+//     server's outage, not the chapter's fault: the lease is released (or left
+//     to lapse) and the job stays recoverable. Synthesis and input errors are
+//     terminal and reported through /fail.
 package ttsworker
 
 import (
@@ -43,6 +47,19 @@ var (
 	ErrTransport = errors.New("mất kết nối tới máy chủ việc")
 )
 
+// Internal outcomes of one claim → process pass. They never reach the CLI as a
+// stopped worker: the run loop turns them into a wait and keeps serving.
+var (
+	// errNotReady: the reader is not serving right now, so nothing is claimed.
+	errNotReady = errors.New("bộ đọc chưa sẵn sàng")
+	// errLeaseReleased: the server failed (not the chapter), so the lease was
+	// released and the job stays claimable instead of being marked failed.
+	errLeaseReleased = errors.New("đã trả việc về hàng đợi")
+	// errServerBusy marks an availability answer from the server (5xx): the
+	// request may succeed later, the input is not at fault.
+	errServerBusy = errors.New("máy chủ tạm thời không phục vụ")
+)
+
 // Config is the worker's runtime configuration. Token comes from the
 // environment (TTS_WORKER_TOKEN); it is never taken from argv.
 type Config struct {
@@ -71,6 +88,10 @@ type Config struct {
 	Preview bool
 	// StateEvery throttles percent-only state posts (default 2 s).
 	StateEvery time.Duration
+	// StateDir is where the worker keeps its durable, per-credential state: the
+	// last operator command sequence it executed. Empty uses
+	// ~/.ainovel/worker. The token never appears in a path or a file name.
+	StateDir string
 	// Now is the clock; tests replace it.
 	Now func() time.Time
 }
@@ -87,6 +108,7 @@ type Worker struct {
 	mu          sync.Mutex
 	state       voice.ProvisionState
 	ready       bool
+	pinDone     bool
 	attempts    int
 	exhausted   bool
 	nextAttempt time.Time
@@ -143,6 +165,9 @@ func New(cfg Config) (*Worker, error) {
 		State: voice.ProvisionStateMissing, Percent: voice.ProvisionPercentUnknown,
 		Engine: cfg.Engine.Name(),
 	}
+	// A restarted worker must not replay the operator command it already ran:
+	// that would also clear a hash_mismatch stop nobody overrode.
+	w.loadCommandSeq()
 	return w, nil
 }
 
@@ -206,16 +231,27 @@ type attachment struct {
 // work queued (never failed) and keeps the server informed instead. An empty
 // queue backs off by cfg.Poll.
 func (w *Worker) Run(ctx context.Context) error {
+	// Pin reconciliation runs once per start, before the first claim. Files on
+	// disk prove an installation exists, not that it matches the pinned tag: a
+	// worker binary upgraded against an older installation must reconcile (and
+	// keep the downloaded model and voices) instead of serving stale source.
+	// Provision() is idempotent and returns at once when the pin is installed;
+	// with --no-provision there is no provisioner and nothing is downloaded.
+	// prepare also publishes the resulting state, so a restarting worker is
+	// never silent between launch and its first claim.
+	w.prepare(ctx)
 	for {
 		if err := ctx.Err(); err != nil {
 			return nil
 		}
-		if !w.Ready() {
+		// Readiness is re-derived from the engine on every pass: the reader can
+		// stop (idle shutdown, crash) long after it first reported ready.
+		if !w.refreshReady(ctx) {
 			w.prepare(ctx)
 			if ctx.Err() != nil {
 				return nil
 			}
-			if !w.Ready() {
+			if !w.refreshReady(ctx) {
 				if !sleepCtx(ctx, w.cfg.Poll) {
 					return nil
 				}
@@ -226,15 +262,20 @@ func (w *Worker) Run(ctx context.Context) error {
 		// An operator's install command must be seen even while we are busy
 		// claiming; a command re-provisions before the next claim.
 		_ = w.pollCommand(ctx)
-		if !w.Ready() {
-			continue
-		}
 		processed, err := w.RunOnce(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			// A cancelled run surfaces as a transport error mid-request; that is
 			// a shutdown (launchd/SIGTERM), not a failure to report.
 			if ctx.Err() != nil {
 				return nil
+			}
+			if errors.Is(err, errLeaseReleased) {
+				// The server, not the chapter, failed: the lease is already back
+				// in the queue, so wait a beat instead of hammering it.
+				if !sleepCtx(ctx, w.cfg.Poll) {
+					return nil
+				}
+				continue
 			}
 			return err
 		}
@@ -247,11 +288,11 @@ func (w *Worker) Run(ctx context.Context) error {
 }
 
 // RunOnce claims at most one job and processes it. It reports whether a job
-// was claimed (false = queue empty).
+// was claimed (false = queue empty, or the reader is not serving right now).
 func (w *Worker) RunOnce(ctx context.Context) (bool, error) {
 	claimed, err := w.claim(ctx)
 	if err != nil {
-		if errors.Is(err, errNoJob) {
+		if errors.Is(err, errNoJob) || errors.Is(err, errNotReady) {
 			return false, nil
 		}
 		return false, err
@@ -262,6 +303,12 @@ func (w *Worker) RunOnce(ctx context.Context) (bool, error) {
 var errNoJob = errors.New("không có việc")
 
 func (w *Worker) claim(ctx context.Context) (job, error) {
+	// No claim without a serving reader: a chapter claimed from a dead engine
+	// would be failed for a machine-side reason. The gate lives here so every
+	// entry point (loop, tests, future `worker once`) obeys it.
+	if !w.refreshReady(ctx) {
+		return job{}, errNotReady
+	}
 	body := map[string]any{"leaseSec": int(w.cfg.Lease / time.Second)}
 	if w.cfg.Project != "" {
 		body["projectId"] = w.cfg.Project
@@ -324,6 +371,15 @@ func (w *Worker) process(parent context.Context, j job) error {
 			}
 			if parent.Err() != nil {
 				return w.abandon(parent, j, false)
+			}
+			if errors.Is(err, ErrTransport) || errors.Is(err, errServerBusy) {
+				// The render succeeded; only the upload did not reach a healthy
+				// server. Failing the job would terminalize a valid chapter over
+				// an outage, so the lease goes back to the queue. If even the
+				// release cannot reach the server the lease simply lapses, which
+				// is equally recoverable.
+				_ = w.abandon(parent, j, false)
+				return errLeaseReleased
 			}
 			return w.failJob(parent, j, fmt.Errorf("đoạn %d: %w", i+1, err))
 		}
@@ -412,6 +468,11 @@ func (w *Worker) upload(ctx context.Context, j job, sha string, wav []byte) (str
 		if status == http.StatusConflict || status == http.StatusNotFound {
 			return "", ErrFenced
 		}
+		if status >= 500 {
+			// Availability, not the audio: the caller releases the lease and the
+			// job stays claimable (worker.go failure model).
+			return "", fmt.Errorf("%w: upload: %s", errServerBusy, apiError(status, raw))
+		}
 		return "", fmt.Errorf("upload: %s", apiError(status, raw))
 	}
 	var stored struct {
@@ -436,11 +497,19 @@ func (w *Worker) heartbeat(ctx context.Context, j job, fenced func()) func() {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
+				// The heartbeat carries the same complete state payload as the
+				// state post: the server replaces the stored JSON on either
+				// path, so a slimmer body would erase channel, ffmpeg and the
+				// preview capability on the first beat of a long job.
+				state, err := json.Marshal(w.stateBody())
+				if err != nil {
+					continue
+				}
 				body, _ := json.Marshal(map[string]any{
 					"fence": j.Fence, "leaseSec": int(w.cfg.Lease / time.Second),
 					// A long job must not let the reader's state go stale: the
 					// heartbeat is the only traffic while a job runs.
-					"state": w.State(),
+					"state": json.RawMessage(state),
 				})
 				// A heartbeat failure that is not a fence answer is transient:
 				// the lease still covers us until the next tick.

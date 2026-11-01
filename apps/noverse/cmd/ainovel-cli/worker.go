@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -67,6 +68,13 @@ func runWorkerCommand(args []string, out, errw io.Writer) int {
 		Engine:  engine,
 		Project: *project,
 		Lease:   *lease,
+	}
+	// Durable per-credential state (the operator command sequence this machine
+	// already ran) lives beside the rest of the app config. Without it a
+	// restart would replay an old install command and clear a hash_mismatch
+	// stop nobody overrode.
+	if dir := bootstrap.DefaultConfigDir(); dir != "" {
+		workerCfg.StateDir = filepath.Join(dir, "worker")
 	}
 	if *noProvision {
 		fmt.Fprintln(out, "Tự cài bộ đọc: tắt (--no-provision) — worker chỉ nhận việc khi bộ đọc đã sẵn sàng.")

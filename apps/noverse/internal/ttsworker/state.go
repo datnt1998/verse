@@ -50,6 +50,20 @@ type statePayload struct {
 	FFmpeg bool `json:"ffmpeg"`
 }
 
+// stateBody builds the one complete payload this machine publishes. The state
+// post and the job heartbeat both send exactly this: the server replaces the
+// stored JSON on either path, so a heartbeat carrying less would erase the
+// channel, the ffmpeg fact and the preview capability on its first beat.
+func (w *Worker) stateBody() statePayload {
+	next := w.State()
+	next.UpdatedAt = w.now().UTC()
+	// Hai sự thật chỉ máy này biết, luôn đi kèm mỗi lần công bố: kênh nối (chỗ
+	// Nâng cao hiện "Kênh nối") và việc máy nhận làm thêm ngoài tạo hàng loạt.
+	next.Channel = w.channel()
+	next.Capabilities = &voice.ProvisionCapabilities{Preview: w.cfg.Preview}
+	return statePayload{ProvisionState: next, FFmpeg: w.ffmpeg}
+}
+
 // now reads the worker clock (tests replace Config.Now).
 func (w *Worker) now() time.Time { return w.cfg.Now() }
 
@@ -70,6 +84,36 @@ func (w *Worker) Ready() bool {
 	return w.ready
 }
 
+// pinned reports whether this start has reconciled the configured pin. It is
+// false until Provision succeeds once, so the first readiness pass always
+// reconciles even when the files are already on disk.
+func (w *Worker) pinned() bool {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.pinDone
+}
+
+// refreshReady re-derives readiness from the engine before a claim. The cached
+// flag alone latches: a reader that stops after its first success (idle
+// shutdown, crash) would keep receiving claims the engine cannot serve, and
+// those chapters would be failed for a machine-side reason. Losing readiness
+// returns the loop to the preparation/backoff path instead.
+func (w *Worker) refreshReady(ctx context.Context) bool {
+	st := w.cfg.Engine.Status(ctx)
+	if st.Ready {
+		if !w.Ready() {
+			w.markReady(st)
+		}
+		return true
+	}
+	if w.Ready() {
+		// The reader stopped while we were advertising it: report the truth and
+		// let ensureReady restart it under the normal backoff.
+		w.setState(w.statusState(st))
+	}
+	return false
+}
+
 // prepare advances the reader towards ready and keeps the server informed.
 // It is one not-ready tick: start/install when due, publish the state, then
 // pick up an operator command. Errors are transient by design — the run loop
@@ -83,11 +127,25 @@ func (w *Worker) prepare(ctx context.Context) {
 	_ = w.pollCommand(ctx)
 }
 
-// ensureReady drives the engine from "not installed" to "ready": it provisions
-// when the reader is missing, starts it when it is installed but idle, and
-// records the reason when either fails.
+// ensureReady drives the engine from "not installed" to "ready": it reconciles
+// the pinned build when automatic provisioning is on, starts the reader when it
+// is installed but idle, and records the reason when either fails.
 func (w *Worker) ensureReady(ctx context.Context) {
 	st := w.cfg.Engine.Status(ctx)
+	// Automatic provisioning reconciles the configured pin before anything is
+	// served — even when the files already exist. Installed() only proves
+	// presence, not the tag: without this, a worker upgraded against an older
+	// installation would run the old source and never reach Provision's
+	// idempotent upgrade path (which keeps the downloaded model and voices).
+	// With --no-provision there is no provisioner: nothing is ever downloaded.
+	if w.cfg.Provisioner != nil && !w.pinned() {
+		if !w.due() {
+			return
+		}
+		w.setState(w.statusState(st))
+		w.provision(ctx)
+		return
+	}
 	if st.Ready {
 		w.markReady(st)
 		return
@@ -138,12 +196,28 @@ func (w *Worker) provision(ctx context.Context) {
 	_ = w.publishState(ctx)
 	err := w.cfg.Provisioner.Provision(ctx, func(st voice.ProvisionState) { w.report(ctx, st) })
 	if err == nil {
+		// The pinned build is now on disk: the readiness pass may start the
+		// reader instead of reconciling again.
+		w.mu.Lock()
+		w.pinDone = true
+		w.mu.Unlock()
 		w.resetAttempts()
-		// A successful provision leaves the reader serving; claim without
-		// waiting for the next poll tick.
-		if st := w.cfg.Engine.Status(ctx); st.Ready {
+		st := w.cfg.Engine.Status(ctx)
+		if st.Ready {
+			// The reader is already serving: claim without waiting for the next
+			// poll tick.
 			w.markReady(st)
+			return
 		}
+		// Provision reports the install as ready, not the engine. Until it
+		// actually serves, publish the start path's state rather than leaving a
+		// premature "ready" that no claim may act on.
+		w.setState(voice.ProvisionState{
+			State: voice.ProvisionStateStarting, Step: voice.ProvisionStepStart,
+			Percent: voice.ProvisionPercentUnknown,
+			Engine:  w.cfg.Engine.Name(), Model: st.Model,
+			Message: "Đang khởi động bộ đọc…",
+		})
 		return
 	}
 	if ctx.Err() != nil {
@@ -172,7 +246,10 @@ func (w *Worker) report(ctx context.Context, st voice.ProvisionState) {
 }
 
 // pollCommand asks the server whether an operator queued an install. A seq the
-// worker has already seen never runs twice, so one click provisions once.
+// worker has already seen never runs twice, so one click provisions once. The
+// seen seq is durable (see command_state.go): the server keeps the command row
+// indefinitely, so an in-memory counter alone would replay it after a restart
+// and clear a hash_mismatch stop the operator never overrode.
 func (w *Worker) pollCommand(ctx context.Context) error {
 	callCtx, cancel := context.WithTimeout(ctx, stateRequestTimeout)
 	defer cancel()
@@ -195,9 +272,6 @@ func (w *Worker) pollCommand(ctx context.Context) error {
 	}
 	w.mu.Lock()
 	fresh := cmd.Seq > w.lastSeq
-	if fresh {
-		w.lastSeq = cmd.Seq
-	}
 	w.mu.Unlock()
 	if !fresh {
 		return nil
@@ -209,6 +283,17 @@ func (w *Worker) pollCommand(ctx context.Context) error {
 	if w.cfg.Provisioner == nil {
 		return nil
 	}
+	// Record the sequence before the install runs: a crash between the write
+	// and the work loses this one click (the operator can click again) but can
+	// never replay it. If the marker cannot be written the command waits for
+	// the next poll instead of running unrecorded — replaying it later is the
+	// failure this file exists to prevent.
+	if err := w.persistCommandSeq(cmd.Seq); err != nil {
+		return fmt.Errorf("ghi nhận lệnh đã chạy: %w", err)
+	}
+	w.mu.Lock()
+	w.lastSeq = cmd.Seq
+	w.mu.Unlock()
 	// An operator's click always runs once: clear an exhausted retry budget so
 	// the command is not swallowed by the backoff.
 	w.resetAttempts()
@@ -220,16 +305,11 @@ func (w *Worker) pollCommand(ctx context.Context) error {
 // it. State/step transitions always go out; percent-only ticks are throttled to
 // StateEvery so a fast download does not flood the listener.
 func (w *Worker) publishState(ctx context.Context) error {
-	next := w.State()
-	if !w.shouldSend(next) {
+	if !w.shouldSend(w.State()) {
 		return nil
 	}
-	next.UpdatedAt = w.now().UTC()
-	// Hai sự thật chỉ máy này biết, luôn đi kèm mỗi lần công bố: kênh nối (chỗ
-	// Nâng cao hiện "Kênh nối") và việc máy nhận làm thêm ngoài tạo hàng loạt.
-	next.Channel = w.channel()
-	next.Capabilities = &voice.ProvisionCapabilities{Preview: w.cfg.Preview}
-	body, err := json.Marshal(statePayload{ProvisionState: next, FFmpeg: w.ffmpeg})
+	payload := w.stateBody()
+	body, err := json.Marshal(payload)
 	if err != nil {
 		return err
 	}
@@ -243,7 +323,7 @@ func (w *Worker) publishState(ctx context.Context) error {
 		return fmt.Errorf("state: %s", apiError(status, raw))
 	}
 	w.mu.Lock()
-	w.sent, w.sentAt, w.sentOnce = next, w.now(), true
+	w.sent, w.sentAt, w.sentOnce = payload.ProvisionState, w.now(), true
 	w.mu.Unlock()
 	return nil
 }

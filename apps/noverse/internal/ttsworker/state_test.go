@@ -6,6 +6,9 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -203,10 +206,17 @@ func (s *stateServer) snapshot() (states []voice.ProvisionState, claims int) {
 
 func newStateWorker(t *testing.T, srv *stateServer, eng voice.Engine, prov Provisioner) *Worker {
 	t.Helper()
+	return newStateWorkerWith(t, srv, eng, prov, testToken, t.TempDir())
+}
+
+// newStateWorkerWith pins the credential and the durable state directory, so a
+// test can build a replacement worker that shares a credential (a restart).
+func newStateWorkerWith(t *testing.T, srv *stateServer, eng voice.Engine, prov Provisioner, token, dir string) *Worker {
+	t.Helper()
 	w, err := New(Config{
-		APIURL: srv.srv.URL, Token: testToken, Engine: eng,
+		APIURL: srv.srv.URL, Token: token, Engine: eng,
 		Lease: 30 * time.Second, Heartbeat: 5 * time.Second, Poll: 5 * time.Millisecond,
-		Provisioner: prov,
+		Provisioner: prov, StateDir: dir,
 	})
 	if err != nil {
 		t.Fatalf("new worker: %v", err)
@@ -365,23 +375,31 @@ func TestWorkerCommandProvisionsOnce(t *testing.T) {
 	eng := &stateEngine{installed: true, ready: true}
 	prov := &fakeProvisioner{}
 	w := newStateWorker(t, srv, eng, prov)
-	srv.setCommand(7, "install")
 
+	// Let the startup pin reconciliation run first; the command below is then
+	// unambiguously the one extra provision.
 	runUntil(t, w, 5*time.Second, func() bool { return prov.count() > 0 })
+	base := prov.count()
+	srv.setCommand(7, "install")
+	runUntil(t, w, 5*time.Second, func() bool { return prov.count() > base })
 	// Keep polling the same seq: it must not run a second time.
 	runFor(t, w, 150*time.Millisecond)
-	if got := prov.count(); got != 1 {
-		t.Fatalf("provision calls = %d, want exactly 1 for one command seq", got)
+	if got := prov.count(); got != base+1 {
+		t.Fatalf("provision calls = %d, want %d for one command seq", got, base+1)
 	}
 }
 
-// A long job must keep the reader state fresh: heartbeats carry it.
+// A long job must keep the reader state fresh: heartbeats carry it, and they
+// carry the same complete payload as the state post — the server replaces the
+// stored JSON on either path, so a slimmer beat would erase channel, ffmpeg and
+// the preview capability on the first tick.
 func TestWorkerHeartbeatCarriesState(t *testing.T) {
 	srv := newStateServer(t)
 	eng := &stateEngine{installed: true, ready: true}
 	w, err := New(Config{
 		APIURL: srv.srv.URL, Token: testToken, Engine: eng,
 		Lease: 30 * time.Second, Heartbeat: 5 * time.Millisecond, Poll: 5 * time.Millisecond,
+		Preview: true, StateDir: t.TempDir(),
 	})
 	if err != nil {
 		t.Fatalf("new worker: %v", err)
@@ -392,7 +410,6 @@ func TestWorkerHeartbeatCarriesState(t *testing.T) {
 	stop := w.heartbeat(ctx, job{ID: "j1", Fence: 3}, func() {})
 	time.Sleep(30 * time.Millisecond)
 	stop()
-	cancel()
 
 	srv.mu.Lock()
 	beats := append([]map[string]any(nil), srv.heartbeats...)
@@ -406,6 +423,46 @@ func TestWorkerHeartbeatCarriesState(t *testing.T) {
 	}
 	if st["state"] != voice.ProvisionStateReady {
 		t.Fatalf("heartbeat state = %v, want ready", st["state"])
+	}
+	if st["channel"] != srv.srv.URL {
+		t.Fatalf("heartbeat state channel = %v, want %q", st["channel"], srv.srv.URL)
+	}
+	if _, ok := st["ffmpeg"].(bool); !ok {
+		t.Fatalf("heartbeat state carries no ffmpeg fact: %v", st)
+	}
+	caps, _ := st["capabilities"].(map[string]any)
+	if caps == nil || caps["preview"] != true {
+		t.Fatalf("heartbeat state capabilities = %v, want preview", st["capabilities"])
+	}
+	if st["updatedAt"] == nil {
+		t.Fatalf("heartbeat state carries no timestamp: %v", st)
+	}
+
+	// An error state must survive the same path: the heartbeat is the only
+	// traffic while a job runs, so it is what the status card reads.
+	w.setState(voice.ProvisionState{
+		State: voice.ProvisionStateError, Percent: voice.ProvisionPercentUnknown,
+		Engine: eng.Name(), Message: "tải mẫu giọng hỏng",
+		Error: &voice.ProvisionError{Code: voice.ProvisionErrModelFailed, Message: "tải mẫu giọng hỏng"},
+	})
+	stop2 := w.heartbeat(ctx, job{ID: "j1", Fence: 3}, func() {})
+	time.Sleep(20 * time.Millisecond)
+	stop2()
+	cancel()
+
+	srv.mu.Lock()
+	beats = append([]map[string]any(nil), srv.heartbeats...)
+	srv.mu.Unlock()
+	last, ok := beats[len(beats)-1]["state"].(map[string]any)
+	if !ok || last["state"] != voice.ProvisionStateError {
+		t.Fatalf("last heartbeat state = %v, want error", beats[len(beats)-1])
+	}
+	perr, _ := last["error"].(map[string]any)
+	if perr == nil || perr["code"] != voice.ProvisionErrModelFailed {
+		t.Fatalf("heartbeat lost the error code: %v", last["error"])
+	}
+	if last["channel"] != srv.srv.URL {
+		t.Fatalf("error heartbeat lost the channel: %v", last["channel"])
 	}
 }
 
@@ -427,6 +484,7 @@ func TestWorkerHashMismatchNeverAutoRetries(t *testing.T) {
 				Lease: 30 * time.Second, Heartbeat: 5 * time.Second, Poll: 5 * time.Millisecond,
 				Provisioner:      prov,
 				ProvisionBackoff: []time.Duration{time.Millisecond, time.Millisecond},
+				StateDir:         t.TempDir(),
 			})
 			if err != nil {
 				t.Fatalf("new worker: %v", err)
@@ -455,7 +513,7 @@ func TestWorkerPublishesChannelAndPreview(t *testing.T) {
 	w, err := New(Config{
 		APIURL: srv.srv.URL, Token: testToken, Engine: &stateEngine{installed: true, ready: true},
 		Lease: 30 * time.Second, Heartbeat: 5 * time.Second, Poll: 5 * time.Millisecond,
-		Provisioner: &fakeProvisioner{}, Preview: true,
+		Provisioner: &fakeProvisioner{}, Preview: true, StateDir: t.TempDir(),
 	})
 	if err != nil {
 		t.Fatalf("new worker: %v", err)
@@ -471,5 +529,202 @@ func TestWorkerPublishesChannelAndPreview(t *testing.T) {
 	}
 	if last.Capabilities == nil || !last.Capabilities.Preview {
 		t.Fatalf("capabilities = %+v, want preview", last.Capabilities)
+	}
+}
+
+// A reader that stops after serving (idle shutdown, crash) must send the worker
+// back to preparation/backoff instead of claiming a chapter the engine cannot
+// read. Readiness is re-derived before every claim, not latched at the first
+// success.
+func TestWorkerStopsClaimingWhenReaderDies(t *testing.T) {
+	srv := newStateServer(t)
+	eng := &stateEngine{installed: true, ready: true}
+	w := newStateWorker(t, srv, eng, nil) // --no-provision: the machine restarts it itself
+
+	runUntil(t, w, 5*time.Second, func() bool {
+		_, claims := srv.snapshot()
+		return claims > 0
+	})
+	// The engine dies and cannot be restarted.
+	eng.set(func(e *stateEngine) {
+		e.ready = false
+		e.voicesErr = errors.New("máy đọc không khởi động lại được")
+	})
+	_, before := srv.snapshot()
+	runFor(t, w, 200*time.Millisecond)
+	states, after := srv.snapshot()
+	if after != before {
+		t.Fatalf("claims went %d → %d after the reader died: the worker claimed without a ready engine", before, after)
+	}
+	// Simulate the latched cache: the worker still believes it is ready while
+	// the engine is dead. A claim must re-check the engine, not the cache, or
+	// the chapter would be failed for a machine-side reason.
+	w.markReady(voice.Status{Ready: true, State: voice.StateReady})
+	if _, err := w.RunOnce(context.Background()); err != nil {
+		t.Fatalf("run once: %v", err)
+	}
+	if _, afterDirect := srv.snapshot(); afterDirect != after {
+		t.Fatalf("RunOnce claimed a job with a dead reader (%d → %d)", after, afterDirect)
+	}
+	last := states[len(states)-1]
+	if last.State != voice.ProvisionStateError || last.Error == nil || last.Error.Code != voice.ProvisionErrStartFailed {
+		t.Fatalf("last state = %+v, want error/start_failed", last)
+	}
+}
+
+// Files on disk are not proof of the pinned tag. With automatic provisioning
+// on, the worker must run the idempotent provision pass before its first claim
+// even though the reader is installed — otherwise a newer worker binary keeps
+// serving the old source.
+func TestWorkerReconcilesPinBeforeClaim(t *testing.T) {
+	srv := newStateServer(t)
+	eng := &stateEngine{installed: true} // files exist, tag may be stale
+	var once sync.Once
+	provisioned := make(chan struct{})
+	prov := &fakeProvisioner{onRun: func() {
+		once.Do(func() { close(provisioned) })
+		eng.set(func(e *stateEngine) { e.ready = true })
+	}}
+	w := newStateWorker(t, srv, eng, prov)
+
+	runUntil(t, w, 5*time.Second, func() bool {
+		_, claims := srv.snapshot()
+		return claims > 0
+	})
+	select {
+	case <-provisioned:
+	default:
+		t.Fatal("worker claimed before reconciling the pinned build")
+	}
+	if prov.count() == 0 {
+		t.Fatal("installed files skipped the provision pass")
+	}
+}
+
+// --no-provision must never download or start anything: the worker only reports
+// the missing reader and waits for a human.
+func TestWorkerNoProvisionNeverDownloads(t *testing.T) {
+	srv := newStateServer(t)
+	eng := &stateEngine{} // nothing installed
+	w := newStateWorker(t, srv, eng, nil)
+
+	runFor(t, w, 150*time.Millisecond)
+	states, claims := srv.snapshot()
+	if claims != 0 {
+		t.Fatalf("worker claimed %d job(s) without a reader", claims)
+	}
+	if eng.calls() != 0 {
+		t.Fatalf("--no-provision started the reader %d time(s)", eng.calls())
+	}
+	if len(states) == 0 || states[len(states)-1].State != voice.ProvisionStateMissing {
+		t.Fatalf("states = %+v, want a missing state", states)
+	}
+}
+
+// A restart with the same credential must not replay the command the previous
+// process already ran — replaying would also clear a hash_mismatch stop nobody
+// overrode. A genuinely new seq still runs, and the marker never carries the
+// token.
+func TestWorkerCommandSeqSurvivesRestart(t *testing.T) {
+	srv := newStateServer(t)
+	dir := t.TempDir()
+	eng := &stateEngine{installed: true, ready: true}
+	p1 := &fakeProvisioner{}
+	w1 := newStateWorkerWith(t, srv, eng, p1, testToken, dir)
+	srv.setCommand(7, "install")
+	if err := w1.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll command: %v", err)
+	}
+	if p1.count() != 1 {
+		t.Fatalf("first process provisioned %d time(s), want 1", p1.count())
+	}
+
+	p2 := &fakeProvisioner{}
+	w2 := newStateWorkerWith(t, srv, eng, p2, testToken, dir)
+	if got := w2.lastSeq; got != 7 {
+		t.Fatalf("restored seq = %d, want 7", got)
+	}
+	if err := w2.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll command after restart: %v", err)
+	}
+	if p2.count() != 0 {
+		t.Fatalf("old command replayed after restart: %d provision(s)", p2.count())
+	}
+
+	// A new operator click must still run.
+	srv.setCommand(8, "install")
+	if err := w2.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll new command: %v", err)
+	}
+	if p2.count() != 1 {
+		t.Fatalf("new command provisioned %d time(s), want 1", p2.count())
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("read state dir: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("state dir holds %d entries, want one marker", len(entries))
+	}
+	if strings.Contains(entries[0].Name(), testToken) {
+		t.Fatalf("state file name leaks the token: %q", entries[0].Name())
+	}
+	info, err := entries[0].Info()
+	if err != nil {
+		t.Fatalf("stat marker: %v", err)
+	}
+	if perm := info.Mode().Perm(); perm != 0o600 {
+		t.Fatalf("marker mode = %o, want 600", perm)
+	}
+}
+
+// The durable acknowledgement is per credential: a second machine sharing the
+// state directory has its own command history.
+func TestWorkerCommandSeqIsPerCredential(t *testing.T) {
+	srv := newStateServer(t)
+	dir := t.TempDir()
+	eng := &stateEngine{installed: true, ready: true}
+	p1 := &fakeProvisioner{}
+	w1 := newStateWorkerWith(t, srv, eng, p1, testToken, dir)
+	srv.setCommand(7, "install")
+	if err := w1.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll command: %v", err)
+	}
+	if p1.count() != 1 {
+		t.Fatalf("first credential provisioned %d time(s), want 1", p1.count())
+	}
+
+	p2 := &fakeProvisioner{}
+	w2 := newStateWorkerWith(t, srv, eng, p2, "other-machine-token", dir)
+	if err := w2.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll command: %v", err)
+	}
+	if p2.count() != 1 {
+		t.Fatalf("second credential provisioned %d time(s), want 1 (its own history)", p2.count())
+	}
+}
+
+// The sequence is recorded before the install runs. If the marker cannot be
+// written, the command waits for a later poll instead of running unrecorded and
+// being replayed after a restart.
+func TestWorkerCommandWaitsWhenAckCannotBePersisted(t *testing.T) {
+	srv := newStateServer(t)
+	blocked := filepath.Join(t.TempDir(), "not-a-dir")
+	if err := os.WriteFile(blocked, []byte("x"), 0o600); err != nil {
+		t.Fatalf("prepare blocker: %v", err)
+	}
+	prov := &fakeProvisioner{}
+	w := newStateWorkerWith(t, srv, &stateEngine{installed: true, ready: true}, prov, testToken, blocked)
+	srv.setCommand(9, "install")
+
+	if err := w.pollCommand(context.Background()); err == nil {
+		t.Fatal("pollCommand ran a command whose sequence it could not record")
+	}
+	if prov.count() != 0 {
+		t.Fatalf("command ran %d time(s) without a durable ack", prov.count())
+	}
+	if w.lastSeq != 0 {
+		t.Fatalf("lastSeq = %d, want 0 after a failed ack", w.lastSeq)
 	}
 }
