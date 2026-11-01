@@ -261,3 +261,10 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 - Các ngăn Video/Nguồn/Template/Hồ sơ và sheet tự động dùng màn điện thoại riêng; tạo kênh có đầu trang riêng, chọn đối thủ bắt buộc và nút tạo cố định có chừa bàn phím/inset. Dữ liệu nhận diện vẫn lấy thật từ máy chủ, không ghép ảnh minh hoạ thay kết quả.
 - Đã chạy tạo kênh qua API thật, mở kênh vừa tạo và xem trường hợp Đạo diễn lỗi; các ảnh và kích thước thực nằm trong báo cáo `plans/reports/viderse-mobile/mchannel-screenshots.json`. Ảnh chụp trước lượt chuyển style tĩnh sang StyleX nên lượt kiểm hình tích hợp vẫn còn mở.
 - Sau tích hợp: bộ kiểm tra kênh có 55 test đạt. Menu hành động đối thủ dùng đúng một nút trigger thay vì lồng hai nút, giữ liên kết nguồn/kênh hoạt động; kiểm tra chức năng liên kết đã đạt.
+
+## Duyệt ảnh điện thoại — đã tích hợp (02/11/2026)
+
+- Màn riêng có chọn phiên bản/so sánh với bản trước, prompt của đúng phiên bản, sửa prompt/góp ý/vẽ lại/bỏ ảnh và duyệt cả video. Dùng API hiện có; không giả ảnh tham chiếu hoặc prompt lịch sử chưa được lưu.
+- Chạy UI với API thật đã xác nhận các thao tác nhận 202, trạng thái được lưu và chuyển video kế tiếp. Ảnh đối chiếu có đủ 390/360 px, inset 0 và 59/34; lượt chụp lại vẽ/hiện ảnh mới xác nhận ảnh đã tải và toàn bộ khung ảnh nằm trong vùng nhìn.
+- Sửa lỗi polling máy tính/điện thoại bị ngắt liên tục khi danh sách việc làm mới: chu kỳ tải ảnh theo ID ổn định, không theo đối tượng việc thay mới. Regression tái hiện không có lượt tải ảnh, sau sửa đạt chu kỳ mong đợi.
+- Sau tích hợp, bộ kiểm tra review và luật thiết kế đạt 27 test. API chấp nhận vẽ lại là thật; hoàn tất ảnh mới trong lượt đối chiếu dùng dữ liệu fixture đi qua polling thật, không phải chứng cứ provider ảnh bên ngoài đã tạo thành công.
