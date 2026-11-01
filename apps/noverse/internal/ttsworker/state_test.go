@@ -224,6 +224,30 @@ func runFor(t *testing.T, w *Worker, d time.Duration) {
 	}
 }
 
+// runUntil runs the worker until cond holds (or the deadline passes), then stops
+// it. Fixed sleeps make these tests depend on machine load; waiting for the
+// observable effect does not.
+func runUntil(t *testing.T, w *Worker, deadline time.Duration, cond func() bool) {
+	t.Helper()
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan error, 1)
+	go func() { done <- w.Run(ctx) }()
+	limit := time.After(deadline)
+	for !cond() {
+		select {
+		case <-limit:
+			cancel()
+			<-done
+			t.Fatal("condition not reached in time")
+		case <-time.After(2 * time.Millisecond):
+		}
+	}
+	cancel()
+	if err := <-done; err != nil && !errors.Is(err, context.Canceled) {
+		t.Fatalf("run: %v", err)
+	}
+}
+
 // A worker whose reader is not ready must not claim: work stays queued on the
 // server instead of being failed. It must still tell the server why.
 func TestWorkerDoesNotClaimBeforeReady(t *testing.T) {
@@ -232,6 +256,12 @@ func TestWorkerDoesNotClaimBeforeReady(t *testing.T) {
 	prov := &fakeProvisioner{err: &voice.ProvisionError{Code: voice.ProvisionErrUVFailed, Message: "không tải được uv"}}
 	w := newStateWorker(t, srv, eng, prov)
 
+	runUntil(t, w, 5*time.Second, func() bool {
+		states, _ := srv.snapshot()
+		return len(states) > 0
+	})
+	// Keep it running after the failure: the reader never becomes ready, so the
+	// claim gate must hold.
 	runFor(t, w, 120*time.Millisecond)
 
 	states, claims := srv.snapshot()
@@ -259,11 +289,10 @@ func TestWorkerClaimsWhenReady(t *testing.T) {
 	eng := &stateEngine{installed: true, ready: true}
 	w := newStateWorker(t, srv, eng, &fakeProvisioner{})
 
-	runFor(t, w, 60*time.Millisecond)
-
-	if _, claims := srv.snapshot(); claims == 0 {
-		t.Fatal("ready worker never claimed")
-	}
+	runUntil(t, w, 5*time.Second, func() bool {
+		_, claims := srv.snapshot()
+		return claims > 0
+	})
 	states, _ := srv.snapshot()
 	if len(states) == 0 || states[len(states)-1].State != voice.ProvisionStateReady {
 		t.Fatalf("states = %+v, want a ready state", states)
@@ -339,8 +368,9 @@ func TestWorkerCommandProvisionsOnce(t *testing.T) {
 	w := newStateWorker(t, srv, eng, prov)
 	srv.setCommand(7, "install")
 
+	runUntil(t, w, 5*time.Second, func() bool { return prov.count() > 0 })
+	// Keep polling the same seq: it must not run a second time.
 	runFor(t, w, 150*time.Millisecond)
-
 	if got := prov.count(); got != 1 {
 		t.Fatalf("provision calls = %d, want exactly 1 for one command seq", got)
 	}

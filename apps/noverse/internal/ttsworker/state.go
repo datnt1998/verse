@@ -128,6 +128,11 @@ func (w *Worker) provision(ctx context.Context) {
 	err := w.cfg.Provisioner.Provision(ctx, func(st voice.ProvisionState) { w.report(ctx, st) })
 	if err == nil {
 		w.resetAttempts()
+		// A successful provision leaves the reader serving; claim without
+		// waiting for the next poll tick.
+		if st := w.cfg.Engine.Status(ctx); st.Ready {
+			w.markReady(st)
+		}
 		return
 	}
 	if ctx.Err() != nil {
