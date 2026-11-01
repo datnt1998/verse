@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // Interactive kit controls: Dialog body pad, underline Tabs, ChipSelect, Dropzone/FileRow,
 // ProgressBar chưa biết %, Button icon vuông 44/48.
-import { act } from 'react'
+import { act, StrictMode, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -10,6 +10,7 @@ import { ProgressBar } from './feedback'
 import { ChipSelect } from './Selects'
 import { Segmented, Tabs } from './Tabs'
 import { ActionMenu } from './Menus'
+import { Dialog } from './Dialog'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -27,6 +28,47 @@ async function mount(node: React.ReactNode) {
   return container
 }
 
+
+describe('Dialog focus ownership', () => {
+  it('restores the opener after closing, without stealing focus on rerender in StrictMode', async () => {
+    function Fixture() {
+      const [open, setOpen] = useState(false)
+      const [revision, setRevision] = useState(0)
+      return <><button onClick={() => setOpen(true)}>Open dialog</button>{open && <Dialog title="Edit" onClose={() => setOpen(false)}><button onClick={() => setRevision(value => value + 1)}>Revision {revision}</button></Dialog>}</>
+    }
+    const container = await mount(<StrictMode><Fixture /></StrictMode>)
+    const opener = container.querySelector<HTMLButtonElement>('button')!
+    opener.focus()
+    await act(async () => { opener.click() })
+    const edit = [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent === 'Revision 0')!
+    edit.focus()
+    await act(async () => { edit.click() })
+    expect(document.activeElement).toBe(edit)
+    await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+    expect(document.activeElement).toBe(opener)
+  })
+
+  it('returns to the exact parent-dialog trigger before restoring the page trigger', async () => {
+    function Fixture() {
+      const [outer, setOuter] = useState(false)
+      const [inner, setInner] = useState(false)
+      return <><button onClick={() => setOuter(true)}>Page trigger</button>{outer && <Dialog title="Outer" onClose={() => setOuter(false)}><button onClick={() => setInner(true)}>Child trigger</button>{inner && <Dialog title="Inner" onClose={() => setInner(false)}><input aria-label="Value" /></Dialog>}</Dialog>}</>
+    }
+    const container = await mount(<Fixture />)
+    const pageTrigger = container.querySelector<HTMLButtonElement>('button')!
+    pageTrigger.focus()
+    await act(async () => { pageTrigger.click() })
+    const childTrigger = [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent === 'Child trigger')!
+    childTrigger.focus()
+    await act(async () => { childTrigger.click() })
+    await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    expect(document.activeElement).toBe(childTrigger)
+    expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1)
+    await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    expect(document.activeElement).toBe(pageTrigger)
+  })
+})
 
 describe('Tabs gạch chân', () => {
   it('tablist có aria-selected, id/aria-controls theo cặp tabs và mũi tên đổi tab', async () => {

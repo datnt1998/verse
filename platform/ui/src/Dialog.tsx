@@ -102,6 +102,9 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
 }) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const ref = useRef<HTMLDivElement>(null)
+  const returnFocus = useRef<Element | null>(typeof document === 'undefined' ? null : document.activeElement)
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
   const titleId = useId()
 
   useEffect(() => {
@@ -144,7 +147,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
     }
     document.addEventListener('keydown', onKey, true)
     // Esc: đăng ký làm một lớp; chỉ lớp trên cùng nhận (menu/popover bên trong đăng ký sau → nằm trên).
-    const popEscape = pushEscapeLayer(() => onClose?.())
+    const popEscape = pushEscapeLayer(() => onCloseRef.current?.())
     return () => {
       popEscape()
       document.removeEventListener('keydown', onKey, true)
@@ -155,13 +158,17 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
         inertRoot.removeAttribute('aria-hidden')
         inertRoot = null
       }
-      // Trả focus về dialog cha còn mở (sau khi dialog con đóng)
+      // StrictMode replays effects while the dialog is still mounted.
+      if (node.isConnected && !node.closest('.kit-dlg-closing')) return
       const parent = openDialogs[openDialogs.length - 1]
-      if (parent && !parent.contains(document.activeElement)) {
+      const trigger = returnFocus.current
+      if (trigger instanceof HTMLElement && trigger.isConnected && !trigger.hasAttribute('disabled') && !trigger.closest('[hidden], [inert], [aria-hidden="true"]') && (!parent || parent.contains(trigger))) {
+        trigger.focus({ preventScroll: true })
+      } else if (parent && !parent.contains(document.activeElement)) {
         parent.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')?.focus()
       }
     }
-  }, [onClose])
+  }, [])
 
   const scrimStyle = stylex.props(sx.scrim, scrim === 'strong' && sx.scrimStrong, scrimOverride)
   const dlg = stylex.props(sx.dlg, sx.box)

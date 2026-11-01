@@ -222,6 +222,8 @@ Notable behaviours:
   `label` is given.
   Full-height consumers set `height="100dvh"` and
   `--m-sheet-max-height: 100dvh` in `xstyle`; other sheets keep their size cap.
+  Their header/content also reserves `var(--m-safe-top)` so the fullscreen
+  frame does not put its title beneath the notch.
 - `ConfirmDialog` / `confirm()` — typed-phrase and hold-to-confirm variants;
   `size` sets the footer button size (default `md`); uses `useAsyncAction`
   internally, all copy via `labels.confirm`.
@@ -247,6 +249,8 @@ Notable behaviours:
   navigation alongside commands; disabled or locked destinations cannot navigate.
 - `Dialog`, `Tooltip`, `InfoPopover` share the escape-layer stack
   (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
+  `Dialog` restores the exact connected opener on close, including nested
+  dialogs; rerendering its callback does not move focus or rebuild the stack.
 
 ## Icons
 
