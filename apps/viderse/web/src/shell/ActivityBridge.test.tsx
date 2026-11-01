@@ -40,3 +40,12 @@ it('maps review-ready to a one-line work title, channels in the sub, six-second 
   expect(card).toHaveBeenCalledWith(expect.objectContaining({ title: '3 video chờ duyệt ảnh', text: 'Midnight Tales 2 · Chuyện Lạ Đêm Khuya 1', tone: 'warn', duration: 6000 }))
   expect(card.mock.calls[0]?.[0]).not.toHaveProperty('meta')
 })
+it('does not poll /api/activity on a timer — SSE events refresh it', async () => {
+  vi.useFakeTimers()
+  try {
+    root = createRoot(document.body.appendChild(document.createElement('div')))
+    await act(async () => root?.render(<ActivityBridge />))
+    await act(async () => { await vi.advanceTimersByTimeAsync(60_000) })
+    expect(fixture.refresh).not.toHaveBeenCalled()
+  } finally { vi.useRealTimers() }
+})
