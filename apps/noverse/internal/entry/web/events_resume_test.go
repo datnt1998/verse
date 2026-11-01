@@ -282,6 +282,34 @@ func TestSetWatchBackfillRespectsRefreshedPermissions(t *testing.T) {
 	}
 }
 
+// 降权回归（R3）：账号库被别的进程改过（CLI / 实例 thứ hai）后，1 秒一次的
+// 会话复检必须把新快照写进这条订阅，已打开的流不必重连就停止收到该项目的帧。
+func TestEventSessionRecheckRefreshesStoredPrincipal(t *testing.T) {
+	tg := newTestGateway(t)
+	cookie := tg.login("reader", "reader-pass")
+	hub := tg.g.events()
+	stale := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}}
+	sub, _, _ := hub.subscribe(stale, 0, nil)
+	defer hub.unsubscribe(sub)
+
+	// Chỉ ghi vào kho, không phát RefreshUser như đường xử lý trong tiến trình.
+	if _, err := tg.g.accounts.UpdateUser("reader", identity.UserPatch{Projects: &map[string]identity.ProjectRole{}}); err != nil {
+		t.Fatal(err)
+	}
+	r := httptest.NewRequest("GET", "/api/events", nil)
+	r.AddCookie(&http.Cookie{Name: fileSessionCookie, Value: cookie})
+	if !tg.g.eventSessionValid(r, sub) {
+		t.Fatal("phiên vẫn hợp lệ, recheck phải trả true")
+	}
+
+	hub.Publish(Event{Type: "story.changed", Project: "_", Story: "oldbook", Data: map[string]any{}})
+	select {
+	case ev := <-sub.C:
+		t.Fatalf("đã bị hạ quyền từ ngoài tiến trình mà vẫn nhận %+v", ev)
+	case <-time.After(100 * time.Millisecond):
+	}
+}
+
 // 时序回归（R2）：worker 的瞬时 delta 与 watch 补发并发时，客户端按帧序
 // 重建的正文必须正好是 "AB" —— 无论补发抓在 delta B 之前还是之后。
 // 两种交错都合法（B 先广播则尾巴抓成 "AB"；后广播则尾巴 "A" 再由 live B

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/comments"
+	"github.com/datnt1998/verse/platform/identity"
 	"github.com/gofrs/flock"
 )
 
@@ -78,6 +79,58 @@ func TestCommentsGatewayCRUDPermissionAndTUILock(t *testing.T) {
 	}
 	if w := tg.do("POST", path, writer, `{"text":"x","author":"admin"}`); w.Code != 400 {
 		t.Fatalf("forged author = %d", w.Code)
+	}
+}
+
+// Góp ý thuộc về người tạo: cộng tác viên không được sửa/xoá góp ý của người
+// khác; chủ dự án và quản trị viên thì được (cùng ranh giới với việc quản lý
+// dự án). Hai dạng route — …/comments/{id} và DELETE …/comments?id= — cùng một
+// luật.
+func TestCommentsGatewayOnlyAuthorOwnerAdminChange(t *testing.T) {
+	tg := newTestGateway(t)
+	if _, err := tg.g.accounts.CreateUser(identity.NewUser{
+		Username: "collab", Role: identity.RoleMember,
+		Projects: map[string]identity.ProjectRole{"_": identity.ProjectCollab}, Password: "collab-pass",
+	}); err != nil {
+		t.Fatal(err)
+	}
+	admin := tg.login("admin", "admin-pass")
+	writer := tg.login("writer", "writer-pass") // chủ dự án "_"
+	collab := tg.login("collab", "collab-pass")
+	path := "/api/projects/_/stories/oldbook/chapters/1/comments"
+
+	w := tg.do("POST", path, admin, `{"paragraph":0,"quote":"Đoạn mở đầu","text":"Góp ý của chủ máy"}`)
+	if w.Code != 201 {
+		t.Fatalf("create admin = %d: %s", w.Code, w.Body)
+	}
+	adminComment := decodeJSONBody(t, w)["id"].(string)
+	w = tg.do("POST", path, collab, `{"paragraph":0,"quote":"Đoạn mở đầu","text":"Góp ý của cộng tác"}`)
+	if w.Code != 201 {
+		t.Fatalf("create collab = %d: %s", w.Code, w.Body)
+	}
+	collabComment := decodeJSONBody(t, w)["id"].(string)
+	item := path + "/"
+
+	if w := tg.do("PATCH", item+adminComment, collab, `{"action":"resolve"}`); w.Code != 403 || !strings.Contains(w.Body.String(), "chủ dự án") {
+		t.Fatalf("cộng tác sửa góp ý người khác = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("DELETE", item+adminComment, collab, ""); w.Code != 403 {
+		t.Fatalf("cộng tác xoá góp ý người khác = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("DELETE", path+"?id="+adminComment, collab, ""); w.Code != 403 {
+		t.Fatalf("cộng tác xoá qua query = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("PATCH", item+adminComment, writer, `{"action":"resolve"}`); w.Code != 200 {
+		t.Fatalf("chủ dự án sửa góp ý người khác = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("PATCH", item+collabComment, collab, `{"action":"resolve"}`); w.Code != 200 {
+		t.Fatalf("tác giả sửa góp ý của mình = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("DELETE", item+adminComment, admin, ""); w.Code != 200 {
+		t.Fatalf("admin xoá góp ý = %d: %s", w.Code, w.Body)
+	}
+	if w := tg.do("DELETE", item+collabComment, writer, ""); w.Code != 200 {
+		t.Fatalf("chủ dự án xoá góp ý = %d: %s", w.Code, w.Body)
 	}
 }
 

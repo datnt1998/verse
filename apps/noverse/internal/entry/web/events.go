@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"maps"
 	"net/http"
 	"strings"
 	"sync"
@@ -44,6 +45,8 @@ func liveJSON(v any) json.RawMessage {
 
 // Event 是一条全局事件。可见性：User 非空 → 只发给该用户名；否则 Story 非空 →
 // 需可读 Project/Story；否则 Project 非空 → 需可读项目；都空 → 所有登录用户。
+// AdminOnly 把这最后一条收紧到管理员：việc của máy (không thuộc truyện nào,
+// như cài bộ đọc) đi qua đây để không lọt tới thành viên.
 type Event struct {
 	ID        uint64
 	Type      string
@@ -51,6 +54,7 @@ type Event struct {
 	Story     string
 	User      string
 	AdminsToo bool
+	AdminOnly bool
 	Data      any
 }
 
@@ -64,6 +68,8 @@ func (e Event) visibleTo(u identity.User) bool {
 		return u.CanRead(e.Project + "/" + e.Story)
 	case e.Project != "":
 		return u.CanReadProject(e.Project)
+	case e.AdminOnly:
+		return canControlMachineJobs(u)
 	default:
 		return true
 	}
@@ -436,6 +442,27 @@ func (h *EventHub) RefreshUser(u identity.User) {
 	})
 }
 
+// RefreshSub 只在快照真的变了时才替换这条连接的 principal（角色/项目权限/
+// 应用授权/停用）。别的进程（CLI、第二个实例）改账号库后，1 秒一次的会话复检
+// 靠它把新权限送进已打开的流，不必等客户端重连。
+func (h *EventHub) RefreshSub(sub *EventSub, u identity.User) {
+	changed := false
+	h.inner.WithSub(sub.ID, func(s *events.Sub) bool {
+		cur, _ := s.Principal().(identity.User)
+		changed = principalChanged(cur, u)
+		return true
+	})
+	if changed {
+		h.RefreshUser(u)
+	}
+}
+
+// principalChanged 比较影响可见性的字段（身份、角色、项目权限、应用授权、停用）。
+func principalChanged(a, b identity.User) bool {
+	return a.Username != b.Username || a.Role != b.Role || a.Disabled != b.Disabled ||
+		!maps.Equal(a.Projects, b.Projects) || !maps.Equal(a.Grants, b.Grants)
+}
+
 // DropUser 断开某用户的全部连接（会话吊销后）。
 func (h *EventHub) DropUser(username string) {
 	h.inner.Update(func(p any) (any, bool) {
@@ -523,10 +550,10 @@ func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user ident
 			}
 		},
 		AfterFrame: func(ev events.Event) bool {
-			return ev.Type != "session.revoked" || g.eventSessionValid(r)
+			return ev.Type != "session.revoked" || g.eventSessionValid(r, sub)
 		},
 		OnTick: func() bool {
-			if !g.eventSessionValid(r) {
+			if !g.eventSessionValid(r, sub) {
 				return false
 			}
 			g.jobsHub().prune()
@@ -538,13 +565,18 @@ func (g *Gateway) serveEvents(w http.ResponseWriter, r *http.Request, user ident
 	}
 }
 
-func (g *Gateway) eventSessionValid(r *http.Request) bool {
+// eventSessionValid 复检会话仍然有效（与请求路径同一条边界：会话还能认证，
+// 且仍带着 Noverse 授权），并把账号库里的最新快照写回这条订阅——别的进程
+// 降权/改角色后，已打开的流不必重连就按新权限过滤后续帧。
+func (g *Gateway) eventSessionValid(r *http.Request, sub *EventSub) bool {
 	cookie, err := r.Cookie(g.cookiePolicy().Name)
 	if err != nil {
 		return false
 	}
 	user, _, err := g.accounts.Authenticate(cookie.Value)
-	// The recheck enforces the same boundary as the request path: the
-	// session must still authenticate AND still carry the Noverse grant.
-	return err == nil && appAccessGranted(user.Grants)
+	if err != nil || !appAccessGranted(user.Grants) {
+		return false
+	}
+	g.events().RefreshSub(sub, user)
+	return true
 }

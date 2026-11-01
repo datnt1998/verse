@@ -28,7 +28,7 @@ export type FeedbackAction =
   | { kind: 'remove'; comment: ParagraphComment }
   | { kind: 'attach'; comment: ParagraphComment; paragraph: number; quote?: string }
 
-export function FeedbackBody({ list, chapter, relinkId, openId, onToggle, onAction, onPeekCandidate, busyId, mobile }: {
+export function FeedbackBody({ list, chapter, relinkId, openId, onToggle, onAction, onPeekCandidate, busyId, canChange, mobile }: {
   list: ParagraphComment[]
   /** Số chương sau chương đang xem — dòng ghi chú “Tự ẩn khi bạn duyệt chương N”. */
   chapter: number
@@ -40,12 +40,14 @@ export function FeedbackBody({ list, chapter, relinkId, openId, onToggle, onActi
   /** Hover vào đoạn gợi ý → làm nổi đoạn đó trong bài (máy tính). */
   onPeekCandidate?: (paragraph: number | null) => void
   busyId: string | null
+  /** Được sửa/xoá góp ý này không (người tạo · chủ dự án · quản trị viên). */
+  canChange: (comment: ParagraphComment) => boolean
   mobile?: boolean
 }) {
   if (relinkId) {
     const target = list.find((comment) => comment.id === relinkId)
     if (!target) return null
-    return <div className="fbpanel"><FeedbackCard c={target} open={false} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busy={busyId === target.id} mobile={mobile} /></div>
+    return <div className="fbpanel"><FeedbackCard c={target} open={false} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busy={busyId === target.id} editable={canChange(target)} mobile={mobile} /></div>
   }
   const groups = feedbackGroups(list, chapter + 1)
   if (groups.length === 0 && doneComments(list).length === 0) {
@@ -60,7 +62,7 @@ export function FeedbackBody({ list, chapter, relinkId, openId, onToggle, onActi
           {group.note && <span>{group.note}</span>}
         </div>
         {group.items.map((comment) => (
-          <FeedbackCard key={comment.id} c={comment} open={comment.id === openId} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busy={busyId === comment.id} mobile={mobile} />
+          <FeedbackCard key={comment.id} c={comment} open={comment.id === openId} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busy={busyId === comment.id} editable={canChange(comment)} mobile={mobile} />
         ))}
       </section>
     ))}
@@ -93,13 +95,15 @@ function StatusChip({ c }: { c: ParagraphComment }) {
   return <span className={`fchip ${STATUS_TONE[status]}`}>{status === 'sent' && <i className="fb-spin" aria-hidden="true" />}{STATUS_LABEL[status]}</span>
 }
 
-function FeedbackCard({ c, open, onToggle, onAction, onPeekCandidate, busy, mobile }: {
+function FeedbackCard({ c, open, onToggle, onAction, onPeekCandidate, busy, editable, mobile }: {
   c: ParagraphComment
   open: boolean
   onToggle: (id: string) => void
   onAction: (action: FeedbackAction) => void
   onPeekCandidate?: (paragraph: number | null) => void
   busy: boolean
+  /** Thẻ của người khác với cộng tác viên: chỉ đọc, không hiện nút sửa/xoá. */
+  editable: boolean
   mobile?: boolean
 }) {
   const cardRef = useRef<HTMLDivElement>(null)
@@ -136,7 +140,7 @@ function FeedbackCard({ c, open, onToggle, onAction, onPeekCandidate, busy, mobi
         ) : <span className="fb-note">{fixedHow(c)}</span>
       )}
 
-      {status === 'unsure' && open && candList.length > 0 && (
+      {editable && status === 'unsure' && open && candList.length > 0 && (
         <div className="candlist">
           <span className="unsure-note">{mobile ? 'Có thể là một trong các đoạn sau:' : 'Có thể là một trong các đoạn sau (đang tô viền vàng trong bài):'}</span>
           {candList.map((candidate, index) => (
@@ -151,7 +155,7 @@ function FeedbackCard({ c, open, onToggle, onAction, onPeekCandidate, busy, mobi
         </div>
       )}
 
-      {(status === 'lost' || status === 'unsure' || open) && (
+      {editable && (status === 'lost' || status === 'unsure' || open) && (
         <div className="facts">
           {status === 'lost' && <>
             <button type="button" className="fbtn pri" disabled={busy} onClick={() => onAction({ kind: 'relink', comment: c })}>Gắn lại</button>

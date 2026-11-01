@@ -4,7 +4,7 @@ import type { ParagraphComment } from '../../../api/types'
 import { BottomSheet } from '../../../mobile/primitives'
 import { FeedbackBody, FeedbackFooter, type FeedbackAction } from '../FeedbackGroups'
 
-export function FeedbackSheet({ open, onClose, list, chapter, gate, relinkId, openId, onToggle, onAction, onSend, sendBusy, busyId }: {
+export function FeedbackSheet({ open, onClose, list, chapter, gate, relinkId, openId, onToggle, onAction, onSend, sendBusy, busyId, canChange }: {
   open: boolean
   onClose: () => void
   list: ParagraphComment[]
@@ -17,6 +17,8 @@ export function FeedbackSheet({ open, onClose, list, chapter, gate, relinkId, op
   onSend: () => void
   sendBusy?: boolean
   busyId: string | null
+  /** Được sửa/xoá góp ý này không (người tạo · chủ dự án · quản trị viên). */
+  canChange: (comment: ParagraphComment) => boolean
 }) {
   const pending = list.filter((comment) => (comment.status ?? (comment.appliedAt ? 'sent' : 'pending')) === 'pending').length
   return (
@@ -24,7 +26,7 @@ export function FeedbackSheet({ open, onClose, list, chapter, gate, relinkId, op
       <div className="fbsheet">
         <h2 className="mr-sheet-title">{`Góp ý chương ${chapter}`}</h2>
         <FeedbackBody list={list} chapter={chapter} relinkId={relinkId} openId={openId}
-          onToggle={onToggle} onAction={onAction} busyId={busyId} mobile />
+          onToggle={onToggle} onAction={onAction} busyId={busyId} canChange={canChange} mobile />
       </div>
       <FeedbackFooter pending={pending} chapter={chapter} gate={gate} onSend={onSend} busy={sendBusy} />
     </BottomSheet>

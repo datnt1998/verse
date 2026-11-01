@@ -5,11 +5,12 @@ import { Button } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { Spinner } from '@noverse/ui'
 import { PARAGRAPH_COMMENT_CHIPS, type ParagraphComments, type ParagraphSelection } from './comments'
+import type { ParagraphComment } from '../../api/types'
 import { FeedbackBody, FeedbackFooter, type FeedbackAction } from './FeedbackGroups'
 import { copy } from './copy'
 import './feedback.css'
 
-export function FeedbackPanel({ comments, selection, setSelection, relinkId, openId, onToggle, onAction, onPeekCandidate, onSend, sendBusy, chapter, gate, busyId, focus, error, onRetry }: {
+export function FeedbackPanel({ comments, selection, setSelection, relinkId, openId, onToggle, onAction, onPeekCandidate, onSend, sendBusy, chapter, gate, busyId, canChange, focus, error, onRetry }: {
   comments: ParagraphComments
   selection: ParagraphSelection
   setSelection: (value: ParagraphSelection) => void
@@ -24,6 +25,8 @@ export function FeedbackPanel({ comments, selection, setSelection, relinkId, ope
   /** Chương đang xem là chương kẹt duyệt (nhãn “Duyệt & gửi …”). */
   gate: boolean
   busyId: string | null
+  /** Được sửa/xoá góp ý này không (người tạo · chủ dự án · quản trị viên). */
+  canChange: (comment: ParagraphComment) => boolean
   /** Câu 11 — mở từ Chất lượng: con trỏ đặt sẵn trong ô góp ý cả chương. */
   focus?: boolean
   error: string | null
@@ -103,7 +106,7 @@ export function FeedbackPanel({ comments, selection, setSelection, relinkId, ope
       {comments.initialLoading ? (
         <div role="status" style={{ display: 'flex', gap: 8, alignItems: 'center', color: 'var(--color-fg-4)', fontSize: 12.5 }}><Spinner size={13} />Đang tải góp ý…</div>
       ) : (
-        <FeedbackBody list={list} chapter={chapter} relinkId={relinkId} openId={openId} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busyId={busyId} />
+        <FeedbackBody list={list} chapter={chapter} relinkId={relinkId} openId={openId} onToggle={onToggle} onAction={onAction} onPeekCandidate={onPeekCandidate} busyId={busyId} canChange={canChange} />
       )}
       {error && <span role="alert" style={{ fontSize: 12.5, color: 'var(--color-danger-2)' }}>{error}</span>}
     </div>

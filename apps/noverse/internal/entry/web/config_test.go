@@ -191,6 +191,64 @@ func TestGetConfig_NonAdminProvidersStripped(t *testing.T) {
 	}
 }
 
+// 非 admin 读 lớp global（mọi thành viên đọc được）时，chỉ nhận phần UI thành
+// viên cần: language, roles, provider type/models. notify.command (lệnh đẩy
+// điện thoại, thường kèm token) và tts.endpoint (địa chỉ máy chủ nội bộ) không
+// bao giờ rời máy chủ.
+func TestGetConfig_MemberSeesNoMachineConfig(t *testing.T) {
+	tg := newConfigTestGateway(t)
+	tg.globalConfig(t, `{
+  "language": "vi",
+  "roles": {"writer": {"provider": "openai", "model": "gpt-4o"}},
+  "providers": {
+    "openai": {"type": "openai", "api_key": "sk-secret-1234567890", "base_url": "http://10.0.0.5:11434/v1",
+      "extra": {"headers": {"Authorization": "Bearer relay-secret"}}, "models": [{"name": "gpt-4o"}]}
+  },
+  "notify": {"enabled": true, "command": "curl -H 'Authorization: Bearer ntfy-SECRET' https://ntfy.sh/secret-topic"},
+  "tts": {"engine": "openai-speech", "endpoint": "http://host.docker.internal:9999", "quality": "high"}
+}`)
+	reader := tg.login("reader", "reader-pass")
+
+	w := tg.do("GET", "/api/config?scope=global", reader, "")
+	if w.Code != 200 {
+		t.Fatalf("GET -> %d: %s", w.Code, w.Body.String())
+	}
+	body := w.Body.String()
+	for _, secret := range []string{"ntfy-SECRET", "ntfy.sh", "host.docker.internal", "10.0.0.5", "relay-secret"} {
+		if strings.Contains(body, secret) {
+			t.Fatalf("thành viên đọc được cấu hình của máy: %q trong %s", secret, body)
+		}
+	}
+	resp := decodeResp(t, w)
+	eff := resp["effective"].(map[string]any)
+	if _, ok := eff["notify"]; ok {
+		t.Fatalf("notify phải bị bỏ khỏi effective cho thành viên: %v", eff["notify"])
+	}
+	tts := eff["tts"].(map[string]any)
+	if _, ok := tts["endpoint"]; ok {
+		t.Fatalf("tts.endpoint phải bị bỏ cho thành viên: %v", tts)
+	}
+	if tts["engine"] != "openai-speech" || tts["quality"] != "high" {
+		t.Fatalf("màn Giọng đọc vẫn cần engine/quality, nhận được %v", tts)
+	}
+	if eff["language"] != "vi" || eff["roles"] == nil {
+		t.Fatalf("phần cấu hình UI thành viên cần đã mất: %v", eff)
+	}
+	// Chain (doc của lớp global) và target phải bị cắt giống effective.
+	chain := resp["chain"].([]any)
+	for _, doc := range chain {
+		cfg := doc.(map[string]any)["config"].(map[string]any)
+		if _, ok := cfg["notify"]; ok {
+			t.Fatalf("chain còn notify: %v", cfg)
+		}
+		if tts, ok := cfg["tts"].(map[string]any); ok {
+			if _, leaked := tts["endpoint"]; leaked {
+				t.Fatalf("chain còn tts.endpoint: %v", tts)
+			}
+		}
+	}
+}
+
 // PUT global：api_key 缺失时保留旧 key；clear_api_key 时清除。
 func TestPutConfig_GlobalKeepsAndClearsKey(t *testing.T) {
 	tg := newConfigTestGateway(t)

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
+	"github.com/datnt1998/verse/platform/identity"
 )
 
 // testTtsEngine là bộ đọc giả: cài theo kịch bản của test, không chạm đĩa/mạng.
@@ -232,5 +233,64 @@ func TestVoiceInstallJobFailsThenRetry(t *testing.T) {
 	eng.mu.Unlock()
 	if starts != 2 {
 		t.Fatalf("engine được cài %d lượt, muốn 2 (lượt đầu hỏng + lượt thử lại)", starts)
+	}
+}
+
+// Tiến độ cài bộ đọc là trạng thái của máy chủ (đường dẫn/log cài đặt): hai
+// đường đọc nó — polling và SSE — chỉ dành cho quản trị viên, như POST cài đặt.
+func TestTtsInstallReadsAdminOnly(t *testing.T) {
+	useTtsService(t, &testTtsEngine{})
+	tg := newTestGateway(t)
+	admin := tg.login("admin", "admin-pass")
+	reader := tg.login("reader", "reader-pass")
+
+	if w := tg.do("GET", "/api/tts/install", reader, ""); w.Code != http.StatusForbidden {
+		t.Fatalf("GET /api/tts/install bằng người đọc → %d, muốn 403: %s", w.Code, w.Body.String())
+	}
+	// SSE: phải bị chặn trước khi mở luồng, nên đặt hạn cho request — nếu cổng
+	// mất, handler treo tới khi client ngắt và test thấy 200 thay vì 403.
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	events := tg.doWith("GET", "/api/tts/install/events", reader, "", func(r *http.Request) { *r = *r.WithContext(ctx) })
+	if events.Code != http.StatusForbidden {
+		t.Fatalf("GET /api/tts/install/events bằng người đọc → %d, muốn 403", events.Code)
+	}
+	if w := tg.do("GET", "/api/tts/install", admin, ""); w.Code != http.StatusOK {
+		t.Fatalf("GET /api/tts/install bằng admin → %d %s", w.Code, w.Body.String())
+	}
+}
+
+// Việc của máy (Project/Story rỗng) không thuộc truyện nào nên bộ lọc theo quyền
+// đọc không che được: khung job.* của nó chỉ được tới quản trị viên.
+func TestMachineJobFramesOnlyForAdmins(t *testing.T) {
+	tg := newTestGateway(t)
+	hub := tg.g.events()
+	admin := identity.User{Username: "admin", Role: identity.RoleAdmin}
+	member := identity.User{Username: "reader", Role: identity.RoleMember, Projects: map[string]identity.ProjectRole{"_": identity.ProjectView}}
+	asub, _, _ := hub.subscribe(admin, 0, nil)
+	defer hub.unsubscribe(asub)
+	msub, _, _ := hub.subscribe(member, 0, nil)
+	defer hub.unsubscribe(msub)
+
+	tg.g.jobsHub().apply(JobChange{Job: Job{ID: voiceInstallJobID, Kind: voiceJobsKind, Title: "Cài bộ đọc trên máy", Status: JobRunning}})
+
+	select {
+	case ev := <-asub.C:
+		if ev.Type != "job.created" {
+			t.Fatalf("khung cho admin = %s", ev.Type)
+		}
+	default:
+		t.Fatal("admin không nhận được khung việc của máy")
+	}
+	select {
+	case ev := <-msub.C:
+		t.Fatalf("thành viên nhận được khung việc của máy: %+v", ev)
+	default:
+	}
+	if !(Event{Type: "job.created", AdminOnly: true}).visibleTo(admin) {
+		t.Fatal("khung AdminOnly phải tới quản trị viên")
+	}
+	if (Event{Type: "job.created", AdminOnly: true}).visibleTo(member) {
+		t.Fatal("khung AdminOnly không được tới thành viên")
 	}
 }

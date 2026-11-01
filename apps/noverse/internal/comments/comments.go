@@ -442,6 +442,22 @@ func (s *Store) Delete(chapter int, id string) error {
 	})
 }
 
+// Author trả tên người tạo góp ý, để tầng trên quyết định ai được sửa/xoá.
+// Không thấy góp ý → ErrNotFound (cùng câu với Patch/Delete).
+func (s *Store) Author(chapter int, id string) (string, error) {
+	var author string
+	err := s.repo.Transact(chapter, func(list []Comment) ([]Comment, bool, error) {
+		for _, c := range list {
+			if c.ID == id {
+				author = c.Author
+				return list, false, nil
+			}
+		}
+		return list, false, ErrNotFound
+	})
+	return author, err
+}
+
 // Patch thực hiện các thao tác §AI trên một góp ý. Lỗi trả về là câu tiếng
 // Việt (ErrInvalid → 400, ErrNotFound → 404).
 func (s *Store) Patch(chapter int, id string, in PatchInput) (Comment, error) {

@@ -114,6 +114,9 @@ func (g *Gateway) serveComments(w http.ResponseWriter, r *http.Request, user ide
 		commentID := seg[8]
 		switch r.Method {
 		case http.MethodPatch:
+			if !commentChangeAllowed(w, store, chapter, commentID, user, st) {
+				return true
+			}
 			var in comments.PatchInput
 			if !decodeJSON(w, r, &in) {
 				return true
@@ -126,6 +129,9 @@ func (g *Gateway) serveComments(w http.ResponseWriter, r *http.Request, user ide
 			changed()
 			writeJSON(w, 200, comment)
 		case http.MethodDelete:
+			if !commentChangeAllowed(w, store, chapter, commentID, user, st) {
+				return true
+			}
 			if err := store.Delete(chapter, commentID); err != nil {
 				commentError(w, err)
 				return true
@@ -172,6 +178,9 @@ func (g *Gateway) serveComments(w http.ResponseWriter, r *http.Request, user ide
 			jsonError(w, 400, "Thiếu mã góp ý")
 			return true
 		}
+		if !commentChangeAllowed(w, store, chapter, commentID, user, st) {
+			return true
+		}
 		if err := store.Delete(chapter, commentID); err != nil {
 			commentError(w, err)
 			return true
@@ -199,6 +208,26 @@ func commentError(w http.ResponseWriter, err error) {
 	// classified by the one policy: a storage conflict here is a recoverable
 	// 409, not a 500 with the cause echoed back.
 	jsonMappedError(w, err)
+}
+
+// commentChangeForbidden 是 sửa/xoá góp ý của người khác mà không phải chủ dự án
+// hay quản trị viên. Câu tiếng Việt hiện thẳng trong toast của màn Đọc.
+const commentChangeForbidden = "Chỉ người tạo góp ý, chủ dự án hoặc quản trị viên mới sửa hoặc xoá được góp ý này"
+
+// commentChangeAllowed 校验 PATCH/DELETE một góp ý: chỉ người tạo, chủ dự án
+// hoặc quản trị viên. Ghi lỗi và trả false khi không được phép; góp ý không có
+// vẫn là 404 như cũ (không lộ danh sách cho người không sửa được).
+func commentChangeAllowed(w http.ResponseWriter, store *comments.Store, chapter int, id string, user identity.User, st library.Story) bool {
+	author, err := store.Author(chapter, id)
+	if err != nil {
+		commentError(w, err)
+		return false
+	}
+	if isAdmin(user) || user.CanManageProject(st.Project) || author == user.Username {
+		return true
+	}
+	jsonError(w, http.StatusForbidden, commentChangeForbidden)
+	return false
 }
 
 // commentStore is the worker-side comment lifecycle: the Host's backend store

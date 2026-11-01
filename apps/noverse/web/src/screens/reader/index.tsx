@@ -4,8 +4,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMediaQuery, useShellChrome } from '../../shell'
 import { navigate, paths, useRoute } from '../../router'
-import { approveWithComments, keepReviewItem, unkeepReviewItem } from '../../api/client'
-import type { ReviewDecision, ReviewItem } from '../../api/types'
+import { approveWithComments, canManageProject, keepReviewItem, unkeepReviewItem } from '../../api/client'
+import type { ParagraphComment, ReviewDecision, ReviewItem } from '../../api/types'
 import { getReaderSize, setReaderSize } from '../../api/storage'
 import { Tabs } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
@@ -26,7 +26,8 @@ import {
 } from './useReaderData'
 
 import { StaleBanner } from '@noverse/ui'
-import { useParagraphComments, type ParagraphSelection } from './comments'
+import { canChangeComment, useParagraphComments, type ParagraphSelection } from './comments'
+import { useSession } from '../../api/session'
 import { events, keys, useAction } from '../../data'
 import { attentionBadge, clipWords, commentBody, feedbackCounts, reanchoredOf, reanchorBanner, reanchorToast, type ReanchoredFrame } from './feedback'
 import { FeedbackPanel } from './FeedbackPanel'
@@ -75,6 +76,10 @@ export function ReaderScreen({ project, story, chapter }: { project: string; sto
 
   // §AI — góp ý theo đoạn của chương đang xem: ngăn Góp ý, vết gạch chân, gắn lại, banner viết lại.
   const comments = useParagraphComments(project, story, current)
+  // Thẻ góp ý của người khác: cộng tác viên chỉ đọc (nút sửa/xoá ẩn), chủ dự án
+  // và quản trị viên vẫn điều khiển được — cùng ranh giới với máy chủ.
+  const { user } = useSession()
+  const managesComments = !!user && canManageProject(user, project)
   const commentList = comments.data?.comments ?? []
   const counts = feedbackCounts(commentList)
   const outcome = counts.fixed + counts.unfixed + counts.need
@@ -305,7 +310,7 @@ export function ReaderScreen({ project, story, chapter }: { project: string; sto
                 onPeekCandidate={setPeek}
                 onSend={() => { void approve.run() }} sendBusy={approve.busy}
                 chapter={current} gate={!!currentInfo && !currentInfo.completed}
-                busyId={patching} focus={focusNote}
+                busyId={patching} canChange={(comment) => canChangeComment(comment.author, user, managesComments)} focus={focusNote}
                 error={null} onRetry={() => { void comments.refresh() }}
               />
             )}

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
-import { approveWithComments, getAddressTerms, getBrainUpTo, getSnapshot, sendInput } from '../../../api/client'
+import { approveWithComments, canManageProject, getAddressTerms, getBrainUpTo, getSnapshot, sendInput } from '../../../api/client'
 import { useAction, useConnection, useResource, useResourceValue, keys, events } from '../../../data'
 import { BottomSheet, MobilePage, useMobileToast } from '../../../mobile/primitives'
 import { useMobileRuntime, useMobileScroll } from '../../../mobile/runtime'
@@ -11,7 +11,7 @@ import { Segmented } from '@noverse/ui'
 import { ChapterContent, parseChapterText, parseInline } from '../../../lib/markdown'
 import { isGate } from '../../workspace/GateCard'
 import { useChapterContent, useChapterExtras, useChapters, useStoryAccess } from '../useReaderData'
-import { paragraphAnchor, selectionInReader, useParagraphComments, type ParagraphSelection } from '../comments'
+import { canChangeComment, paragraphAnchor, selectionInReader, useParagraphComments, type ParagraphSelection } from '../comments'
 import { attentionBadge, clipWords, commentBody, feedbackCounts, paragraphMarks, reanchoredOf, reanchorBanner, reanchorToast, type ReanchoredFrame, type ParagraphMark } from '../feedback'
 import { FeedbackBody, RelinkBar, type FeedbackAction } from '../FeedbackGroups'
 import { getDisplay, getPosition, saveDisplay, savePosition, type ReaderDisplay } from './preferences'
@@ -356,7 +356,8 @@ export function MobileReader({ project, story, chapter }: { project: string; sto
   )}
   <FeedbackSheet open={sheet === 'feedback'} onClose={closeSheet} list={visibleComments} chapter={current ?? 0} gate={pendingGate}
     relinkId={relinkId} openId={openId} onToggle={(id) => setOpenId(openId === id ? null : id)} onAction={onFeedbackAction}
-    onSend={() => { void review.run() }} sendBusy={review.busy} busyId={patching} />
+    onSend={() => { void review.run() }} sendBusy={review.busy} busyId={patching}
+    canChange={(comment) => canChangeComment(comment.author, user, !!user && canManageProject(user, project))} />
   <CommentSheet open={sheet === 'comment' && writable} onClose={closeSheet} selected={selected} chips={chips} setChips={setChips} note={note} setNote={(text) => { setNote(text); setDraft('active', text) }} onSubmit={() => { void sendComment() }} busy={comments.add.busy || rewrite.busy || queueing} error={queueError || (rewriteChapter !== null ? rewrite.error : comments.add.error)} keyboard={keyboard} rewriteChapter={rewriteChapter} offline={!connection.writable} />
   <BottomSheet open={sheet === 'font'} onClose={closeSheet} label="Hiển thị" height="auto">
     <div className="mr-sheet-content mr-font">

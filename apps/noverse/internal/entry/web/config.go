@@ -270,7 +270,13 @@ func (g *Gateway) configDisplayPath(path, scope string, admin bool) string {
 }
 
 // sanitizeConfigMap 把 api_key 替换为 api_key_set/api_key_hint；
-// 非管理员进一步裁剪 providers 到只剩 type/models（合约 §6）。
+// 非管理员只保留界面需要的字段（合约 §6）：
+//   - providers 只剩 type/models（bỏ api_key, base_url, extra/extra_body, api…）；
+//   - bỏ hẳn notify（command 是 lệnh đẩy điện thoại, thường kèm token）；
+//   - bỏ tts.endpoint (địa chỉ máy chủ nội bộ).
+//
+// Lớp global đọc được bởi mọi thành viên, nên đây là ranh giới duy nhất giữ
+// cấu hình của máy chủ khỏi người được mời vào.
 // 注意：会修改传入的 map——调用方传入的是刚解析/刚拷贝的对象。
 func sanitizeConfigMap(m map[string]any, admin bool) map[string]any {
 	if m == nil {
@@ -309,7 +315,16 @@ func sanitizeConfigMap(m map[string]any, admin bool) map[string]any {
 			if key != "" {
 				tts["api_key_hint"] = apiKeyHint(key)
 			}
+		} else {
+			// Endpoint của máy chủ TTS là địa chỉ nội bộ, không thuộc UI thành viên
+			// (màn Giọng đọc chỉ đọc engine/model/device/quality).
+			delete(tts, "endpoint")
 		}
+	}
+	if !admin {
+		// notify.command là lệnh đẩy điện thoại (thường chứa token/URL riêng);
+		// mục Báo động trong Tuỳ chỉnh vốn chỉ dành cho quản trị viên.
+		delete(m, "notify")
 	}
 	return m
 }

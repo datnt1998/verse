@@ -17,9 +17,10 @@ import (
 	"github.com/datnt1998/verse/platform/identity"
 )
 
-// Nhóm endpoint GAP-21: bộ đọc trên máy. Đây là thiết lập của máy (không thuộc
-// truyện nào), nên đọc thì mọi tài khoản đã đăng nhập đều xem được, còn cài đặt
-// (chạm vào máy chủ) chỉ admin.
+// Nhóm endpoint GAP-21: bộ đọc trên máy. Trạng thái/engine/giọng đọc thì mọi
+// tài khoản đã đăng nhập đều xem được; cài đặt và tiến độ cài (chạm vào máy chủ,
+// lộ đường dẫn/log của máy) chỉ admin — cùng quyền với hàng việc của máy trong
+// dock (Job Project/Story rỗng).
 //
 // Tiến độ cài có hai đường: SSE `tts.install` ở GET /api/tts/install/events, và
 // polling GET /api/tts/install (cùng một InstallProgress) — UI dùng SSE, tự
@@ -67,8 +68,16 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 	case path == "/api/tts/install" && post:
 		g.ttsInstall(w, r, user)
 	case path == "/api/tts/install" && get:
+		if !canControlMachineJobs(user) {
+			jsonError(w, 403, "Không có quyền")
+			return true
+		}
 		writeJSON(w, 200, ttsInstallState(ttsService().InstallState()))
 	case path == "/api/tts/install/events" && get:
+		if !canControlMachineJobs(user) {
+			jsonError(w, 403, "Không có quyền")
+			return true
+		}
 		g.ttsInstallEvents(w, r)
 	case path == "/api/tts/voices" && get:
 		g.ttsVoices(w, r)

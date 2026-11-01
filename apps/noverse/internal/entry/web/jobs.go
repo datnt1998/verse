@@ -304,7 +304,9 @@ func (h *jobsHub) pruneLocked() {
 }
 
 func (h *jobsHub) broadcastLocked(j Job, event string, data any) {
-	h.pub.Publish(Event{Type: event, Project: j.Project, Story: j.Story, Data: data})
+	// Việc của máy (Project/Story rỗng) không lọc được bằng quyền đọc truyện nên
+	// phải đánh dấu riêng: cùng quyền với GET /api/tts/install và danh sách việc.
+	h.pub.Publish(Event{Type: event, Project: j.Project, Story: j.Story, AdminOnly: jobOfMachine(j), Data: data})
 }
 
 // list 返回用户可读的任务（开始时间倒序，ID 兜底排序保证稳定）。
@@ -601,9 +603,13 @@ func (g *Gateway) controlJob(w http.ResponseWriter, r *http.Request, user identi
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
 		return
 	}
-	for i, s := range segs {
-		if v, err := url.PathUnescape(s); err == nil {
-			segs[i] = v
+	// r.URL.Path đã được net/http giải mã một lần; giải mã lần nữa biến %252F
+	// thành dấu "/" ngay trong một đoạn và làm id khác với đường dẫn được kiểm
+	// quyền. Đoạn rỗng hay ".." cũng không bao giờ là id hợp lệ.
+	for _, s := range segs {
+		if s == "" || s == "." || s == ".." || strings.Contains(s, "/") {
+			jsonError(w, http.StatusNotFound, "không tìm thấy")
+			return
 		}
 	}
 	id := strings.Join(segs[:len(segs)-1], "/")

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { addParagraphComment, deleteParagraphComment, paragraphComments, patchParagraphComment } from '../../api/client'
-import { PARAGRAPH_COMMENT_CHIPS, type ParagraphComment, type ParagraphCommentInput, type ParagraphCommentPatch, type ParagraphCommentStatus } from '../../api/types'
+import { PARAGRAPH_COMMENT_CHIPS, type ParagraphComment, type ParagraphCommentInput, type ParagraphCommentPatch, type ParagraphCommentStatus, type User } from '../../api/types'
 import { cache, keys, useAction, useResource, type Key } from '../../data'
 import { useSession } from '../../api/session'
 import { toast } from '@noverse/ui'
@@ -18,6 +18,16 @@ export function chapterParagraphs(blocks: readonly ChapterBlock[]): string[] {
 /** Trạng thái vòng đời; bản cũ thiếu `status` suy ra từ `appliedAt` (đã gửi). */
 export function commentStatus(comment: ParagraphComment): ParagraphCommentStatus {
   return comment.status ?? (comment.appliedAt ? 'sent' : 'pending')
+}
+
+/**
+ * Ai được sửa/xoá một góp ý — cùng ranh giới với máy chủ: người tạo góp ý, chủ dự
+ * án hoặc quản trị viên (`manages` = `canManageProject`, admin cũng trả true).
+ * Cộng tác viên chỉ đổi được góp ý của chính mình; thẻ của người khác là chỉ đọc.
+ */
+export function canChangeComment(author: string, user: User | null, manages: boolean): boolean {
+  if (!user) return false
+  return manages || (!!author && author === user.username)
 }
 
 /** Đoạn đã giải mà badge/gạch chân gắn vào: ưu tiên `anchor.paragraph` (máy chủ giải

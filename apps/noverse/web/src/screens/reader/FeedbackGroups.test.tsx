@@ -39,7 +39,7 @@ afterEach(async () => {
   }
 })
 const body = (list: ParagraphComment[], over: Partial<Parameters<typeof FeedbackBody>[0]> = {}) =>
-  <FeedbackBody list={list} chapter={3} relinkId={null} openId={null} onToggle={noop} onAction={noop} busyId={null} {...over} />
+  <FeedbackBody list={list} chapter={3} relinkId={null} openId={null} onToggle={noop} onAction={noop} busyId={null} canChange={() => true} {...over} />
 
 describe('§AI · chip trạng thái theo vòng đời', () => {
   it('mỗi trạng thái hiện đúng chip; Người viết chưa sửa (unfixed) vẫn là Chờ gửi', async () => {
@@ -135,7 +135,7 @@ describe('§AI · không còn nhãn “Đoạn N” trong UI góp ý', () => {
     expect(panel).not.toMatch(/Đoạn\s*\d|đoạn\s*\d/)
     const sheet = renderToStaticMarkup(
       <FeedbackSheet open onClose={noop} list={list} chapter={24} gate={false}
-        relinkId={null} openId={null} onToggle={noop} onAction={noop} onSend={noop} busyId={null} />,
+        relinkId={null} openId={null} onToggle={noop} onAction={noop} onSend={noop} busyId={null} canChange={() => true} />,
     )
     expect(sheet).not.toMatch(/Đoạn\s*\d|đoạn\s*\d/)
     expect(sheet).toContain('Góp ý chương 24')
@@ -147,5 +147,17 @@ describe('§AI · không còn nhãn “Đoạn N” trong UI góp ý', () => {
     )
     expect(sheet).toContain('Góp ý cho đoạn này')
     expect(sheet).not.toMatch(/Đoạn\s*\d|đoạn\s*\d/)
+  })
+})
+
+describe('§AI · góp ý của người khác là chỉ đọc với cộng tác viên', () => {
+  it('canChange false → thẻ không còn nút sửa/xoá; chủ dự án vẫn thấy', () => {
+    const list = [comment({ id: 'l', status: 'lost', author: 'admin' }), comment({ id: 'u', status: 'unsure', author: 'admin', candidates: [{ paragraph: 2, snippet: 'Đoạn gợi ý' }] })]
+    const readonly = renderToStaticMarkup(body(list, { canChange: () => false }))
+    expect(readonly).not.toContain('Xoá')
+    expect(readonly).not.toContain('Gắn lại')
+    const owner = renderToStaticMarkup(body(list, { canChange: () => true }))
+    expect(owner).toContain('Xoá')
+    expect(owner).toContain('Gắn lại')
   })
 })
