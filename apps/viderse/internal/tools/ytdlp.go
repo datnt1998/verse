@@ -18,6 +18,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 )
 
 const ytDlpReleases = "https://github.com/yt-dlp/yt-dlp/releases"
@@ -536,6 +538,14 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 	if opts.CookieFile != "" {
 		argv = append(argv, "--cookies", opts.CookieFile)
 	}
+	// Cổng ra của process: mọi lượt yt-dlp (kể cả lượt do thành viên gián
+	// tiếp điều khiển) đi qua proxy nội bộ đã kiểm địa chỉ, và môi trường con
+	// được đặt lại để NO_PROXY/ALL_PROXY thừa kế không mở đường vòng. Ở chế
+	// độ desktop cả hai đều rỗng — hành vi cũ giữ nguyên.
+	guard := netguard.Active()
+	if proxy := guard.YtDlpArgs(); proxy != nil {
+		argv = append(argv, proxy...)
+	}
 	argv = append(argv, args...)
 
 	logLimit := opts.LogLimit
@@ -547,6 +557,7 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 		OnLine:   opts.OnLine,
 		Log:      opts.Log,
 		LogLimit: logLimit,
+		EnvExact: guard.Env(),
 	})
 	if err != nil {
 		if errors.Is(err, ErrCancelled) {
@@ -558,14 +569,23 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 				return "", &YtDlpError{
 					Message:    fmt.Sprintf("yt-dlp hết %s timeout", timeout),
 					Code:       YtDlpFailed,
-					StderrTail: pfe.Stderr,
+					StderrTail: guard.Redact(pfe.Stderr),
 				}
 			}
-			return "", ClassifyYtDlpError(firstNonEmpty(pfe.Stderr, pfe.Message), pfe.Stderr)
+			return "", redactYtDlp(guard, ClassifyYtDlpError(firstNonEmpty(pfe.Stderr, pfe.Message), pfe.Stderr))
 		}
-		return "", ClassifyYtDlpError(err.Error(), "")
+		return "", redactYtDlp(guard, ClassifyYtDlpError(err.Error(), ""))
 	}
 	return res.Stdout, nil
+}
+
+// redactYtDlp xoá credential của proxy khỏi lỗi sắp hiện cho thành viên: URL
+// proxy đi vào argv nên có thể xuất hiện trong stderr của yt-dlp.
+func redactYtDlp(guard *netguard.Guard, err *YtDlpError) *YtDlpError {
+	if guard == nil || err == nil {
+		return err
+	}
+	return &YtDlpError{Message: guard.Redact(err.Message), Code: err.Code, StderrTail: guard.Redact(err.StderrTail)}
 }
 
 func firstNonEmpty(a, b string) string {

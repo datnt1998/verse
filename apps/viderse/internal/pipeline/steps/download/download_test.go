@@ -15,6 +15,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
+	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 )
@@ -313,6 +314,18 @@ func TestMapDownloadError(t *testing.T) {
 	failed := MapDownloadError(&tools.YtDlpError{Message: "HTTP Error 429", Code: tools.YtDlpFailed}, 1700000000000)
 	if failed.Code != domain.CloneErrQuota || failed.RetryAt == nil || failed.RetryAt.UnixMilli() <= 1700000000000 {
 		t.Fatalf("%+v", failed)
+	}
+	// Cổng ra chặn đích nội bộ: câu tiếng Việt, không kèm địa chỉ, không thử lại.
+	blocked := MapDownloadError(&tools.YtDlpError{
+		Message:    "Unable to download webpage: HTTP Error 403: viderse-egress-blocked",
+		Code:       tools.YtDlpFailed,
+		StderrTail: "ERROR: 127.0.0.1:9 refused",
+	}, 1700000000000)
+	if blocked.Code != domain.CloneErrInvalidRequest || blocked.Message != netguard.BlockedMessage || blocked.RetryAt != nil {
+		t.Fatalf("%+v", blocked)
+	}
+	if strings.Contains(blocked.Message, "127.0.0.1") {
+		t.Fatalf("thông báo lộ địa chỉ nội bộ: %q", blocked.Message)
 	}
 }
 

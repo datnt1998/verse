@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 )
 
@@ -459,6 +460,11 @@ func retryError(message, recovery string, now int64, after time.Duration) *domai
 	return e
 }
 func MapDownloadError(err *tools.YtDlpError, now int64) *domain.CloneError {
+	// Cổng ra từ chối đích nội bộ ở tầng nối; yt-dlp chỉ thấy 403 của proxy.
+	// Câu cố định, không kèm địa chỉ và không kèm stderr.
+	if netguard.IsBlockedOutput(err.Message + "\n" + err.StderrTail) {
+		return stepError(domain.CloneErrInvalidRequest, netguard.BlockedMessage, "Chỉ tải được từ địa chỉ công khai trên Internet.")
+	}
 	message := "yt-dlp: " + err.Message
 	switch err.Code {
 	case tools.YtDlpLoginRequired:

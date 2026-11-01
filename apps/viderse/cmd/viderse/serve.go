@@ -18,6 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
+	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/migrations"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
@@ -65,6 +66,14 @@ func runServe(args []string) error {
 	if err != nil {
 		return fmt.Errorf("cấu hình proxy: %w", err)
 	}
+	// Cổng ra cho tiến trình con: khi máy chủ phục vụ người khác (PUBLIC_URL),
+	// yt-dlp/ffmpeg do link của thành viên điều khiển chỉ được nối qua proxy
+	// loopback của process này — proxy kiểm địa chỉ đích và chỉ nối tới địa chỉ
+	// công khai. Chế độ desktop (app một chủ trên máy cá nhân) không đổi.
+	if _, err := netguard.Install(netguard.Options{Hosted: proxyCfg.Hosted()}); err != nil {
+		return fmt.Errorf("mở cổng ra cho tiến trình con: %w", err)
+	}
+	defer netguard.Close()
 
 	// Giữ cổng trước mọi tác dụng phụ còn lại: bản serve thứ hai (cổng đã
 	// bận) phải thoát mà không mở pool hay đụng việc nền của bản đầu.

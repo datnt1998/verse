@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"net"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
 )
 
@@ -160,7 +161,13 @@ func ytDlpMediaError(err error) error {
 			return err
 		}
 	}
-	extra := Object{"ytDlpCode": string(y.Code), "detail": y.Message}
+	guard := netguard.Active()
+	// Đích nội bộ: cổng ra từ chối ở tầng nối, yt-dlp chỉ thấy 403 của proxy.
+	// Trả câu cố định, không kèm địa chỉ và không kèm stderr.
+	if netguard.IsBlockedOutput(y.Message + "\n" + y.StderrTail) {
+		return apiError("invalid_request", netguard.BlockedMessage, Object{"ytDlpCode": string(y.Code)})
+	}
+	extra := Object{"ytDlpCode": string(y.Code), "detail": guard.Redact(y.Message)}
 	switch y.Code {
 	case tools.YtDlpLoginRequired:
 		return apiError("invalid_request", "Video này cần đăng nhập để xem (ví dụ chỉ dành cho người đăng ký) — chọn video khác", extra)
@@ -181,7 +188,14 @@ func (s *Service) runMediaYTDLP(ctx context.Context, args []string, timeout time
 	if binary == "" {
 		binary = "yt-dlp"
 	}
-	result, e := r.Run(ctx, binary, args, tools.Spec{Timeout: timeout, LogLimit: 16 << 20})
+	// Link của thành viên không được để yt-dlp tự nối: mọi lượt gọi đi qua
+	// proxy của cổng ra, và môi trường con được đặt lại để NO_PROXY/ALL_PROXY
+	// thừa kế từ service không mở đường vòng.
+	guard := netguard.Active()
+	if proxy := guard.YtDlpArgs(); proxy != nil {
+		args = append(proxy, args...)
+	}
+	result, e := r.Run(ctx, binary, args, tools.Spec{Timeout: timeout, LogLimit: 16 << 20, EnvExact: guard.Env()})
 	if e != nil {
 		return "", ytDlpMediaError(e)
 	}
@@ -390,20 +404,18 @@ func (s *Service) FetchMediaLink(ctx context.Context, opts FetchLinkMediaOptions
 
 // Playlist HTTP is pinned to a resolved public address; redirects repeat this
 // validation. No environment proxy may turn a public URL into a private hop.
-func publicMediaIP(ip net.IP) bool {
-	return ip != nil && ip.IsGlobalUnicast() && !ip.IsPrivate() && !ip.IsLoopback() && !ip.IsLinkLocalUnicast() && !ip.IsLinkLocalMulticast() && !ip.IsUnspecified()
-}
+// Quy tắc địa chỉ nội bộ nằm ở netguard — một bản duy nhất cho cả app.
 func mediaRemoteURL(raw string) (*url.URL, error) {
 	u, e := url.Parse(raw)
 	if e != nil || u == nil || u.Hostname() == "" || u.User != nil || (u.Scheme != "https" && u.Scheme != "http") {
-		return nil, apiError("invalid_request", "Unsafe media URL")
+		return nil, apiError("invalid_request", "Link không phải địa chỉ web (chỉ nhận http hoặc https)")
 	}
 	host := strings.ToLower(strings.TrimSuffix(u.Hostname(), "."))
 	if host == "localhost" || strings.HasSuffix(host, ".localhost") || strings.HasSuffix(host, ".local") || strings.HasSuffix(host, ".internal") {
-		return nil, apiError("invalid_request", "Private media host is not allowed")
+		return nil, apiError("invalid_request", netguard.BlockedMessage)
 	}
-	if ip := net.ParseIP(host); ip != nil && !publicMediaIP(ip) {
-		return nil, apiError("invalid_request", "Private media address is not allowed")
+	if ip, err := netip.ParseAddr(host); err == nil && netguard.Blocked(ip) {
+		return nil, apiError("invalid_request", netguard.BlockedMessage)
 	}
 	return u, nil
 }
@@ -411,26 +423,7 @@ func fetchMediaPlaylist(ctx context.Context, raw string) (string, error) {
 	if _, e := mediaRemoteURL(raw); e != nil {
 		return "", e
 	}
-	transport := &http.Transport{DialContext: func(ctx context.Context, network, address string) (net.Conn, error) {
-		host, port, e := net.SplitHostPort(address)
-		if e != nil {
-			return nil, e
-		}
-		ips, e := net.DefaultResolver.LookupIPAddr(ctx, host)
-		if e != nil {
-			return nil, e
-		}
-		if len(ips) == 0 {
-			return nil, apiError("invalid_request", "Media host has no public address")
-		}
-		for _, ip := range ips {
-			if !publicMediaIP(ip.IP) {
-				return nil, apiError("invalid_request", "Private media address is not allowed")
-			}
-		}
-		d := net.Dialer{Timeout: 15 * time.Second}
-		return d.DialContext(ctx, network, net.JoinHostPort(ips[0].IP.String(), port))
-	}}
+	transport := (&netguard.Dialer{}).Transport()
 	defer transport.CloseIdleConnections()
 	client := &http.Client{Transport: transport, Timeout: 30 * time.Second, CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		if len(via) >= 5 {
@@ -446,6 +439,9 @@ func fetchMediaPlaylist(ctx context.Context, raw string) (string, error) {
 	req.Header.Set("User-Agent", "viderse")
 	res, e := client.Do(req)
 	if e != nil {
+		if errors.Is(e, netguard.ErrBlocked) {
+			return "", apiError("invalid_request", netguard.BlockedMessage)
+		}
 		return "", e
 	}
 	defer res.Body.Close()
@@ -710,7 +706,15 @@ func (s *Service) fetchHLSCut(ctx context.Context, info LinkInfo, cut LinkCut, t
 	if v.VideoCodec != nil && (strings.HasPrefix(strings.ToLower(*v.VideoCodec), "avc1") || strings.HasPrefix(strings.ToLower(*v.VideoCodec), "h264")) {
 		output = "asset.mp4"
 	}
-	args := []string{"-hide_banner", "-loglevel", "error", "-protocol_whitelist", "file,http,https,tcp,tls,crypto"}
+	// Playlist nằm trên đĩa nên phải cho phép file; các URI trong đó đã được
+	// kiểm là http/https công khai (mediaRemoteURL), nên file:, concat:,
+	// subfile: của thành viên không vào được ffmpeg. httpproxy là protocol
+	// bọc mà ffmpeg dùng khi đi qua proxy cho https.
+	args := []string{"-hide_banner", "-loglevel", "error", "-protocol_whitelist", "file,http,https,tcp,tls,crypto,httpproxy"}
+	guard := netguard.Active()
+	if proxy := guard.FFmpegProxyArgs(); proxy != nil {
+		args = append(args, proxy...)
+	}
 	if video.OffsetSec > 0 {
 		args = append(args, "-ss", strconv.FormatFloat(video.OffsetSec, 'f', -1, 64))
 	}
@@ -728,10 +732,23 @@ func (s *Service) fetchHLSCut(ctx context.Context, info LinkInfo, cut LinkCut, t
 	if r == nil {
 		r = &tools.ExecRunner{}
 	}
-	if _, e = r.Run(ctx, ffmpeg, args, tools.Spec{Timeout: 10 * time.Minute}); e != nil {
-		return "", apiError("internal_error", "Không cắt được đoạn video — thử lại", Object{"detail": e.Error()})
+	if _, e = r.Run(ctx, ffmpeg, args, tools.Spec{Timeout: 10 * time.Minute, EnvExact: guard.Env()}); e != nil {
+		if netguard.IsBlockedOutput(e.Error() + processStderr(e)) {
+			return "", apiError("invalid_request", netguard.BlockedMessage)
+		}
+		return "", apiError("internal_error", "Không cắt được đoạn video — thử lại", Object{"detail": guard.Redact(e.Error())})
 	}
 	return output, nil
+}
+
+// processStderr trả đuôi stderr của một lần chạy process thất bại (rỗng nếu
+// lỗi không phải của process con).
+func processStderr(err error) string {
+	var failed *tools.ProcessFailedError
+	if errors.As(err, &failed) {
+		return failed.Stderr
+	}
+	return ""
 }
 
 func validateMediaPlaylistHosts(ctx context.Context, playlist string) error {
@@ -755,17 +772,11 @@ func validateMediaPlaylistHosts(ctx context.Context, playlist string) error {
 		if checked[host] {
 			continue
 		}
-		ips, e := net.DefaultResolver.LookupIPAddr(ctx, host)
-		if e != nil {
-			return e
-		}
-		if len(ips) == 0 {
-			return apiError("invalid_request", "Media host has no public address")
-		}
-		for _, ip := range ips {
-			if !publicMediaIP(ip.IP) {
-				return apiError("invalid_request", "Private media address is not allowed")
+		if _, e := netguard.PublicAddrs(ctx, nil, host); e != nil {
+			if errors.Is(e, netguard.ErrBlocked) {
+				return apiError("invalid_request", netguard.BlockedMessage)
 			}
+			return apiError("invalid_request", "Không phân giải được máy chủ của đoạn video")
 		}
 		checked[host] = true
 	}
