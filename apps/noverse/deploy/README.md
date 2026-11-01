@@ -187,6 +187,23 @@ toolchain → source → thư viện → mô hình — rồi mới nhận việc
 chạy `ainovel-cli voice install` bằng tay nữa. Việc đến trong lúc bộ đọc chưa
 sẵn sàng thì **nằm chờ** trong hàng đợi (không bị đánh lỗi).
 
+Hosted chapter playback is assembled automatically after a native reader ACK.
+The fenced completion transaction attaches selected WAV renders and queues an
+idempotent `audio_export` chapter-playback job. The server's existing ffmpeg
+runner merges every selected segment and its pauses into MP3, uploads immutable
+bytes, and publishes `chapter-audio:v<V>:c<C>` in the completion transaction.
+There is no manual M4B/volume-export prerequisite, and chapter GET never runs
+ffmpeg or writes a job.
+
+The runner recovers completed pre-upgrade TTS jobs on its polling loop. Restarts
+reuse the durable dispatch key and expired export leases; duplicate reader ACKs
+do not create another assembly. Script/source, cast/settings/voice, selected-take
+and latest-render-attempt fingerprints guard publication and playback reads.
+Superseded work cannot serve its old bytes as the current chapter. Existing
+volume MP3/M4B exports keep their normal queue and download paths.
+Accepting a different segment candidate likewise queues a chapter rebuild in
+the same transaction as the selection change.
+
 #### Cùng máy (mặc định)
 
 Container chỉ mở cổng worker trên loopback của host; Mac mini chạy worker nối

@@ -2,6 +2,7 @@ package audio
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -190,9 +191,8 @@ func ChapterAudioCacheKey(volume, chapter int) string {
 	return fmt.Sprintf("chapter-audio:v%d:c%d", volume, chapter)
 }
 
-// OpenChapterAudio resolves the built chapter file from the export cache
-// (kind mp3, per-chapter cache key). Chapters the export worker has not
-// produced yet answer 404 — the web process never runs ffmpeg inline.
+// OpenChapterAudio only resolves a published chapter. Assembly belongs to the
+// durable export runner; an obsolete revision is never served as current audio.
 func (s *PGService) OpenChapterAudio(ctx context.Context, volume, chapter int) (Object, error) {
 	scope, err := s.resolve(ctx)
 	if err != nil {
@@ -201,6 +201,21 @@ func (s *PGService) OpenChapterAudio(ctx context.Context, volume, chapter int) (
 	entry, err := s.deps.Cache.Get(ctx, scope, ChapterAudioCacheKey(volume, chapter), "mp3")
 	if err != nil {
 		return Object{}, pgErr(err)
+	}
+	ref, err := s.chapterRef(ctx, scope, chapter)
+	if err != nil {
+		return Object{}, err
+	}
+	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID)
+	if err != nil {
+		return Object{}, pgErr(err)
+	}
+	var manifest pgPlaybackManifest
+	if err := json.Unmarshal(entry.InputManifest, &manifest); err != nil {
+		return Object{}, err
+	}
+	if manifest.Revision != revision.Content || revision.SourceRevision != revision.CurrentRevision {
+		return Object{}, ErrNotFound
 	}
 	blob, err := s.deps.Audio.BlobByID(ctx, scope.ProjectID, entry.BlobID)
 	if err != nil {
@@ -242,10 +257,7 @@ func (s *PGService) AcceptCandidate(ctx context.Context, volume, chapter int, se
 	if err != nil {
 		return pgErr(err)
 	}
-	if _, err := s.deps.Audio.SelectRender(ctx, scope.ProjectID, ref.ID, row.RevisionNo, segID, key); err != nil {
-		return pgErr(err)
-	}
-	return nil
+	return pgErr(s.deps.Audio.SelectPlaybackRender(ctx, scope, ref.ID, row.RevisionNo, segID, key, volume, chapter))
 }
 
 // RejectCandidate drops one candidate render (the current take is untouched).

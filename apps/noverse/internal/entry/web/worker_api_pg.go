@@ -156,6 +156,7 @@ func (q *PGWorkerQueue) JobInput(ctx context.Context, workerID, jobID string) (W
 type ttsSnapshot struct {
 	ChapterID      string `json:"chapterId"`
 	ScriptRevision int32  `json:"scriptRevision"`
+	Ownership      string `json:"ownership,omitempty"`
 }
 
 // Complete validates the uploaded blobs and attaches them atomically with the
@@ -182,7 +183,7 @@ func (q *PGWorkerQueue) Complete(ctx context.Context, workerID, jobID string, fe
 
 	job, err := q.Jobs.CompleteWith(ctx, key, result, progressDone, func(ctx context.Context, tx pgx.Tx, job postgres.Job) error {
 		if len(attachments) == 0 {
-			return nil
+			return q.Audio.EnqueuePlaybackTx(ctx, tx, job)
 		}
 		if snap.ChapterID == "" || snap.ScriptRevision <= 0 {
 			return fmt.Errorf("job không có snapshot chương: %w", errWorkerBadRequest)
@@ -190,6 +191,18 @@ func (q *PGWorkerQueue) Complete(ctx context.Context, workerID, jobID string, fe
 		chapterID, err := postgres.ParseUUID(snap.ChapterID)
 		if err != nil {
 			return errWorkerBadRequest
+		}
+		scope := postgres.ScopeRef{ProjectID: job.ProjectID, StoryID: job.StoryID}
+		revision, err := q.Audio.PlaybackRevisionTx(ctx, tx, scope, chapterID)
+		if err != nil {
+			return err
+		}
+		current := revision.Revision == snap.ScriptRevision &&
+			revision.SourceRevision == revision.CurrentRevision &&
+			(!revision.LatestJob.Valid || revision.LatestJob == job.ID) &&
+			(snap.Ownership == "" || snap.Ownership == revision.Ownership)
+		if !current {
+			return nil
 		}
 		for _, att := range attachments {
 			if att.ChapterID != "" && att.ChapterID != snap.ChapterID {
@@ -225,7 +238,7 @@ func (q *PGWorkerQueue) Complete(ctx context.Context, workerID, jobID string, fe
 				}
 			}
 		}
-		return nil
+		return q.Audio.EnqueuePlaybackTx(ctx, tx, job)
 	})
 	if errors.Is(err, postgres.ErrJobLeaseLost) {
 		return WorkerJob{}, errWorkerFencedOut

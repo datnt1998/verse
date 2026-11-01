@@ -229,6 +229,9 @@ func (s *PGService) ExportInfo(ctx context.Context, volume int) (ExportInfo, err
 	out := ExportInfo{Volume: volume, Files: []ExportFile{}, ChapterFiles: []ExportFile{}}
 	var newest *pgExportManifest
 	for _, row := range rows {
+		if strings.HasPrefix(row.CacheKey, "chapter-audio:") {
+			continue
+		}
 		switch row.Kind {
 		case "mp3", "m4b", "wav", "zip":
 		default:
@@ -316,6 +319,11 @@ func NewPGExportRunner(ctx context.Context, deps PGDeps) (*PGExportRunner, error
 // completion (jobs carry their own story scope, so the runner serves the
 // whole installation). Returns true when a job ran.
 func (r *PGExportRunner) RunOnce(ctx context.Context) (bool, error) {
+	if r.deps.Audio != nil {
+		if err := r.deps.Audio.RecoverPlayback(ctx); err != nil {
+			return false, err
+		}
+	}
 	job, err := r.deps.Jobs.Claim(ctx, postgres.JobAudioExport, r.workerID, postgres.DefaultLease, pgtype.UUID{})
 	if err != nil {
 		if errors.Is(err, postgres.ErrNoClaimableJob) {
@@ -435,6 +443,13 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (res
 		return err
 	}
 
+	var playback pgPlaybackInput
+	if err := json.Unmarshal(job.Input, &playback); err != nil {
+		return err
+	}
+	if playback.Playback {
+		return s.processPlaybackJob(ctx, completionCtx, lease, job, playback, stopHeartbeat)
+	}
 	// Cache hit: identical inputs were exported before — attach nothing new,
 	// report the manifest, ffmpeg never runs.
 	if hit, files, err := s.exportCacheHit(ctx, scope, in.CacheKey, exportCacheKind(in.Options)); err == nil && hit {
@@ -452,6 +467,20 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (res
 		return err
 	}
 
+	chapterRevisions := make(map[int]postgres.PlaybackRevision)
+	chapterIDs := make(map[int]pgtype.UUID)
+	for _, source := range in.Source {
+		ref, err := s.chapterRef(ctx, scope, source.Chapter)
+		if err != nil {
+			return err
+		}
+		revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID)
+		if err != nil {
+			return err
+		}
+		chapterRevisions[source.Chapter] = revision
+		chapterIDs[source.Chapter] = ref.ID
+	}
 	// Materialize the locked inputs into a private scratch layout so the
 	// file-backend pipeline runs unchanged.
 	scratch, err := s.materializeExport(ctx, scope, in)
@@ -548,12 +577,25 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (res
 			// Chapter audio is addressed by (volume, chapter), not by the
 			// volume's content key: the play endpoint looks it up directly.
 			for _, u := range chapterAudio {
+				current, err := s.deps.Audio.PlaybackRevisionTx(ctx, tx, scope, chapterIDs[u.chapter])
+				if err != nil {
+					return err
+				}
+				if current.Content != chapterRevisions[u.chapter].Content {
+					continue
+				}
+				chapterManifest, err := json.Marshal(pgPlaybackManifest{
+					Revision: current.Content, Volume: in.Volume, Chapter: u.chapter,
+				})
+				if err != nil {
+					return err
+				}
 				ext := strings.TrimPrefix(strings.ToLower(filepath.Ext(u.file.Name)), ".")
 				if err := s.deps.Audio.PutExportCacheTx(ctx, tx, scope, postgres.ExportCacheEntry{
 					CacheKey:      ChapterAudioCacheKey(in.Volume, u.chapter),
 					Kind:          ext,
 					BlobID:        u.blob.ID,
-					InputManifest: exportFileManifestJSON(u, in.Volume),
+					InputManifest: chapterManifest,
 				}, nil); err != nil {
 					return err
 				}
@@ -672,6 +714,7 @@ func (s *PGService) materializeExport(ctx context.Context, scope postgres.ScopeR
 		}
 		for i := range script.Segments {
 			seg := &script.Segments[i]
+			seg.Rendered = nil
 			r, ok := selected[seg.ID]
 			if !ok {
 				continue

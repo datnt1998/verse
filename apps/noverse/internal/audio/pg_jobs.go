@@ -26,6 +26,7 @@ type pgTTSInput struct {
 	ChapterID      string         `json:"chapterId"`
 	ScriptRevision int32          `json:"scriptRevision"`
 	SourceRevision int32          `json:"sourceRevision"`
+	Ownership      string         `json:"ownership,omitempty"`
 	Redo           bool           `json:"redo"`
 	Quality        string         `json:"quality"`
 	UpdateEtaSec   float64        `json:"updateEtaSec,omitempty"`
@@ -99,6 +100,13 @@ func (s *PGService) queueSnapshot(ctx context.Context) ([]Job, error) {
 		switch row.Kind {
 		case postgres.JobTTS:
 		case postgres.JobAudioExport:
+			var playback pgPlaybackInput
+			if err := json.Unmarshal(row.Input, &playback); err != nil {
+				return nil, err
+			}
+			if playback.Playback {
+				continue
+			}
 		default:
 			continue
 		}
@@ -264,11 +272,16 @@ func (s *PGService) enqueueTTS(ctx context.Context, scope postgres.ScopeRef, cha
 		}
 		return active.ID, nil
 	}
+	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, chapter.ID)
+	if err != nil {
+		return "", pgErr(err)
+	}
 	input := pgTTSInput{
 		Kind: kind, Chapter: script.Chapter, Volume: script.Volume,
 		ChapterID:      postgres.UUIDString(chapter.ID),
 		ScriptRevision: script.pgRevision,
 		SourceRevision: int32(chapter.CurrentRevision),
+		Ownership:      revision.Ownership,
 		Redo:           kind == JobKindRedo,
 		Quality:        quality,
 		UpdateEtaSec:   updateEta,
