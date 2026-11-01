@@ -58,9 +58,9 @@ const styles = stylex.create({
   xl: { height: 48, paddingInline: 16, borderRadius: 13, fontSize: 15, fontWeight: 600, gap: 8 },
   /* CTA dính đáy của điện thoại chiếm trọn bề ngang (`.vv-btn--m-lg` artboard MKit). */
   block: { width: '100%' },
-  cell: { display: 'inline-grid', alignItems: 'center', justifyItems: 'center', minWidth: 0 },
-  slot: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', gap: 7 },
-  slotCenter: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  cell: { display: 'inline-grid', alignItems: 'center', justifyItems: 'center', minWidth: 0, maxWidth: '100%' },
+  slot: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', gap: 7, minWidth: 0, maxWidth: '100%' },
+  slotCenter: { gridArea: '1 / 1', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, minWidth: 0, maxWidth: '100%' },
   hidden: { visibility: 'hidden' },
   tick: {
     color: color['--color-ok'],
