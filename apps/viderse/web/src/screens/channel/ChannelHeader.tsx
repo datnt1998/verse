@@ -2,11 +2,11 @@ import * as stylex from '@stylexjs/stylex'
 import { channelStyles } from './channel.stylex'
 // Đầu trang Kênh (artboard Channel › .center đầu): avatar 64 (ảnh nhận diện
 // hoặc chữ cái), chip ngôn ngữ, tên, dòng phụ (YouTube/ngày tạo/số đối thủ),
-// "Mở YouTube" và "Video mới cho kênh". Nút video mới là việc của hàng chờ —
-// khoá kèm lý do hàng chờ, không bịa trạng thái chạy.
+// "Mở YouTube" và "Video mới cho kênh" (mở màn Video mới đã chọn sẵn kênh này).
 import { Icon } from '@noverse/ui'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/vi'
+import { navigate, paths } from '../../router'
 import type { Channel } from '../../api/channels'
 import { fmtDay } from './fmt'
 import { channelTint } from '../../lib/channelTint'
@@ -55,7 +55,7 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
         <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
           size="md"
-          lockedReason={tt.queueLock}
+          onClick={() => navigate(paths.new(channel.id))}
           icon={<Icon name="video-add" size={15} />}
         >
           {tt.page.newVideo}

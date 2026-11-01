@@ -40,8 +40,9 @@ export function keysForEvent(event: { type: string; data: unknown }): EventKeys 
   if (event.type === 'learned.rules') return [['learned-rules']]
   // Pipeline §3/§4: job/queue đổi → Hàng chờ + JobsPill (status) làm mới;
   // tiến độ step chỉ ảnh hưởng thẻ đang chạy trong Hàng chờ.
-  if (event.type.startsWith('clone.step.')) return [keys.queue()]
-  if (event.type.startsWith('clone.job.')) return [keys.queue(), keys.status()]
-  if (event.type.startsWith('queue')) return [keys.queue(), keys.status()]
+  if (event.type.startsWith('clone.step.')) return [keys.queue(), ['channels', 'jobs']]
+  // Đánh dấu đã đăng đổi job → số liệu sau đăng của kênh (Kênh › Video › Đã đăng) đọc lại.
+  if (event.type.startsWith('clone.job.')) return [keys.queue(), keys.status(), ['channels', 'performance'], ['channels', 'jobs']]
+  if (event.type.startsWith('queue')) return [keys.queue(), keys.status(), ['channels', 'jobs']]
   return []
 }

@@ -8,7 +8,7 @@ import { listChannels } from '../../api/channels'
 import { listRivalVideos } from '../../api/rivals'
 import { enqueueClone, planClone, type ClonePlan } from '../../api/clone'
 import { vi as t } from '../../i18n/vi'
-import { navigate, paths } from '../../router'
+import { navigate, paths, type Route } from '../../router'
 import { useDebounced } from '../../lib/useDebounced'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { fmtDuration, fmtScore, videoMeta } from '../explore/fmt'
@@ -20,10 +20,10 @@ import { space as s, corners as r, pipeline } from '../../styles/viderse.stylex'
 const tt = t.screens.new
 const agents: Assistant[] = ['scout', 'director', 'artist', 'qa']
 
-export function NewScreen() {
+export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> }) {
   const [text, setText] = useState('')
   const [mode, setMode] = useState<'single' | 'multi'>('single')
-  const [channelId, setChannelId] = useState('')
+  const [channelId, setChannelId] = useState(route.channel ?? '')
   const [templateId, setTemplateId] = useState('')
   const [priority, setPriority] = useState(false)
   const [plan, setPlan] = useState<ClonePlan | null>(null)

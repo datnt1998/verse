@@ -5,7 +5,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // tên, hành động), tab dưới gạch 38 px rồi nội dung tab, cột phải "Đang áp
 // dụng cho kênh" + "Lịch đăng". Điện thoại (artboard MChannel): không cột trái,
 // tab nhãn ngắn một hàng; mọi số hiện ra đều đọc từ API kênh.
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Icon, Spinner } from '@noverse/ui'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
@@ -17,12 +17,17 @@ import { getChannel, listChannels } from '../../api/channels'
 import { listRivals } from '../../api/rivals'
 import { listTemplates, listPrompts, listOverlays } from '../../api/library'
 import { listBackdropChannels, listBackdropVideos } from '../../api/backdrop'
+import { getChannelJobs } from '../../api/channelVideos'
+import { AssistantComposer } from '../../components/assistant/AssistantComposer'
+import { assistantCopy } from '../../i18n/assistant'
 import { rememberChannel } from '../../lib/lastChannel'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { ChannelSideRail } from './ChannelSideRail'
 import { ChannelAside } from './ChannelAside'
 import { ChannelHeader } from './ChannelHeader'
 import { VideosTab } from './VideosTab'
+import { VideoStats } from './VideoStats'
+import { videoStyles } from './videos.stylex'
 import { SourcesTab } from './SourcesTab'
 import { TemplatesTab } from './TemplatesTab'
 import { SettingsTab } from './SettingsTab'
@@ -45,6 +50,9 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
   const overlays = useResource(keys.overlays(), ({ signal }) => listOverlays(signal))
   const backdropChannels = useResource(keys.backdropChannels(), ({ signal }) => listBackdropChannels(signal))
   const backdropVideos = useResource(keys.backdropVideos(), ({ signal }) => listBackdropVideos(signal))
+  const jobs = useResource(keys.channelJobs(route.channelId), ({ signal }) => getChannelJobs(route.channelId, signal), { keepPrevious: true })
+  const [selecting, setSelecting] = useState(false)
+  const [dockSlot, setDockSlot] = useState<HTMLDivElement | null>(null)
 
   const list = channels.data?.channels ?? []
   const data = channel.data
@@ -79,7 +87,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
   const referenceRival = rivals.data?.rivals.find((rival) => rival.id === referenceId)
 
   const counts: Record<ChannelTab, string> = {
-    videos: '',
+    videos: jobs.data ? String(jobs.data.jobs.length) : '',
     sources: String(data.sources.length),
     templates: String(data.templates.length),
     settings: '',
@@ -105,6 +113,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
       />
       <main className={`vch-center ${stylex.props(channelStyles.center).className}`} aria-label={tt.page.title}>
         <ChannelHeader channel={data} />
+        <VideoStats channel={data} jobs={jobs} />
         <div
           role="tablist"
           aria-label={tt.page.tablist}
@@ -136,10 +145,13 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
           ))}
         </div>
 
-        {tab === 'videos' && <VideosTab channel={data} rival={referenceRival} />}
+        {tab === 'videos' && <VideosTab channel={data} rival={referenceRival} jobs={jobs} dockSlot={dockSlot} onSelecting={setSelecting} />}
         {tab === 'sources' && <SourcesTab channel={data} channels={list} />}
         {tab === 'templates' && <TemplatesTab channel={data} />}
         {tab === 'settings' && <SettingsTab channel={data} />}
+        <div ref={setDockSlot} {...stylex.props(videoStyles.dock)}>
+          {!selecting && <AssistantComposer scope={{ channelId: data.id }} label={assistantCopy.composer.channel} placeholder={assistantCopy.composer.channelPlaceholder} recipient="scout" />}
+        </div>
       </main>
       <ChannelAside channel={data} />
     </div>
