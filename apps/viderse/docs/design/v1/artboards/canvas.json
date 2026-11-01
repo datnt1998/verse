@@ -86,7 +86,7 @@
       "h": 900,
       "expand": "fill",
       "page": "desktop",
-      "title": "E1 · Duyệt — duyệt cả video bằng phím, vẽ lại có góp ý, ảnh gốc/tách nền, ảnh bị chặn · điểm ảnh của Kiểm định, gợi ý học từ góp ý (tweak: Trạng thái, Lớp ảnh, Trợ lý chủ động)",
+      "title": "E1 · Duyệt — duyệt cả video bằng phím; mỗi ảnh có phiên bản, ảnh tham chiếu và prompt đã gửi; góp ý hoặc sửa prompt rồi vẽ lại đúng ảnh; hiệu ứng đang vẽ / vẽ xong; chọn nhiều; ảnh gốc/tách nền, ảnh bị chặn · điểm ảnh, gợi ý học (tweak: Trạng thái, Prompt của ảnh, Ảnh tham chiếu, Lớp ảnh, Trợ lý chủ động)",
       "is_interactive": true
     },
     "Editor.dc.html": {
@@ -96,7 +96,7 @@
       "h": 900,
       "expand": "fill",
       "page": "desktop",
-      "title": "E2 · Editor — mở ra là sửa: bảng Cần sửa (mục chưa đạt, từng đoạn lệch, Khớp theo giọng, Đo lại), bảng phải theo thứ đang chọn (phụ đề: tiếng/chữ, dời ±0,1 s; cảnh: Vẽ lại, Thay ảnh; clip nền), thanh trái có chữ theo việc, hỏi lại khi xuất lúc chưa đạt (tweak: Trạng thái, Việc cần sửa, Bảng trái, Đang chọn)",
+      "title": "E2 · Editor — mở ra là sửa: bảng Cần sửa (mục chưa đạt, từng đoạn lệch, Khớp theo giọng, Đo lại), bảng phải theo thứ đang chọn (phụ đề: tiếng/chữ, dời ±0,1 s; cảnh: phiên bản, prompt đã gửi, vẽ lại tại chỗ rồi tự thay vào timeline, Thay ảnh; clip nền), thanh trái có chữ theo việc, hỏi lại khi xuất lúc chưa đạt (tweak: Trạng thái, Việc cần sửa, Bảng trái, Đang chọn, Ảnh cảnh đang chọn)",
       "is_interactive": true
     },
     "Channel.dc.html": {
@@ -216,7 +216,7 @@
       "expand": "fill",
       "is_interactive": true,
       "page": "mobile",
-      "title": "E1 · Duyệt — chạm đổi ảnh, góp ý vẽ lại, duyệt cả video, điểm ảnh, gợi ý học từ góp ý (tweak: Trạng thái, Trợ lý chủ động)"
+      "title": "E1 · Duyệt — chạm đổi ảnh, phiên bản, Prompt đã gửi (sheet), vẽ lại bằng góp ý hoặc sửa prompt, hiệu ứng vẽ, duyệt cả video, điểm ảnh, gợi ý học (tweak: Trạng thái, Trợ lý chủ động)"
     },
     "MChannel.dc.html": {
       "x": 2820,

@@ -198,9 +198,9 @@ Nơi khác chỉ hiển thị giá trị và link tới nhà của nó.
 - **Cửa sổ ẩn:** thông báo hệ thống cho Chờ duyệt, Cần xử lý, Sẵn sàng; số trên biểu tượng app = số Chờ bạn. Có giờ yên lặng (vẫn ghi lịch sử).
 - **Cài đặt thông báo** bật/tắt theo loại × kênh hiển thị (trong app / hệ thống).
 
-**L14 · Hai lớp ảnh: template → video.** <!-- r9-assets --> Video lấy mọi thứ từ template. Ngoại lệ duy nhất là chip **Ảnh** ở Bàn dựng: đổi prompt ảnh cảnh, prompt ảnh bìa, hoặc không tạo ảnh cho riêng video đó.
+**L14 · Ba lớp ảnh: template → video → từng ảnh.** <!-- r9-assets --> <!-- r33-img --> Video lấy mọi thứ từ template. Cả video: chip **Ảnh** ở Bàn dựng (đổi prompt ảnh cảnh, prompt ảnh bìa, hoặc không tạo ảnh). Từng ảnh: khi vẽ lại ở Duyệt hoặc Editor, sửa prompt và ảnh tham chiếu của riêng ảnh đó (đợt 33).
 - Cách ghép ảnh vào video thuộc template; muốn đổi thì đổi template (Làm lại từ đầu) hoặc sửa template.
-- Không có ngoại lệ cho từng ảnh. Vẽ lại một ảnh nhận góp ý bằng chữ, vẫn theo prompt của video.
+- Mỗi lần vẽ lưu đúng prompt đã gửi và ảnh tham chiếu (một **phiên bản**). Sửa prompt của một ảnh chỉ áp cho lần vẽ tiếp theo của ảnh đó; không đổi template, prompt thư viện hay ảnh khác. Cùng một kiểu sửa lặp lại 2 lần → gợi ý Ghi chú đã học (§9.3), không tự học.
 - Prompt được chốt lúc dùng (L9): sửa prompt trong Thư viện không đổi ảnh đã vẽ; video bắt đầu sau đó và lần vẽ lại sau đó dùng nội dung mới.
 - Đổi ngoại lệ khi đã có ảnh luôn nói trước số ảnh phải vẽ lại, hạn mức còn và có phải dựng lại không. Video còn ở Chờ lượt đổi miễn phí.
 
@@ -338,17 +338,26 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 
 - **Trợ lý chủ động** (§9): nhóm **Đề xuất** đầu cột trái, nút **Bản tin**, **Vì sao?** ở Nội dung, gợi ý **Lưu thành quy tắc** dưới ô vừa sửa, ô nhắn trả về **thẻ Kế hoạch**. Artboard `Main` · `agent=recap|suggest|plan|learn|why`; điện thoại `MMain` · `screen=recap|plan`, `agent=learn|why`. <!-- r16-agent -->
 ### W6 · Duyệt ảnh
-- **Mục tiêu:** duyệt một video trong dưới một phút, không rời bàn phím.
+- **Mục tiêu:** duyệt một video trong dưới một phút, không rời bàn phím; ảnh nào chưa ưng thì sửa đúng ảnh đó ngay tại chỗ. <!-- r33-img -->
 - **Bước:**
   - Video chờ duyệt của mọi kênh xếp từ cũ tới mới.
-  - Xem ảnh lớn và lời kể của cảnh. Ảnh chưa ưng: góp ý rồi **Vẽ lại (R)**, hoặc **Bỏ ảnh này** (cảnh dùng ảnh cảnh bên cạnh).
+  - Xem ảnh lớn và lời kể của cảnh. Ảnh chưa ưng có ba cách, nhanh tới chậm:
+    1. **Góp ý → Vẽ lại (R)**: gõ một câu; Hoạ sĩ sửa phần *Cảnh* của prompt theo góp ý rồi vẽ bản mới.
+    2. **Sửa prompt (E)**: sửa thẳng prompt đã gửi (từng phần), bỏ hoặc thêm ảnh tham chiếu, rồi **Vẽ lại với prompt này (⌘↵)**.
+    3. **Bỏ ảnh** (cảnh dùng ảnh cảnh bên cạnh).
   - Bấm **Duyệt cả video & dựng (A)**: Kiểm định bắt đầu, và màn hình tự mở video kế tiếp.
+- **Ảnh và prompt** (cột phải, 360px; 440px khi sửa; 420/520px từ 1600px): **Phiên bản** (mỗi lần vẽ là một bản, chấm xanh = bản đang dùng cho video; xem bản cũ, *Dùng bản này*) → **Ảnh tham chiếu** (ảnh gửi kèm, mỗi ảnh có vai trò: Bố cục · Nhân vật · Phong cách · Đồ vật; *Thêm* từ ảnh khác trong video, khung video gốc hoặc tải lên; tối đa theo nhà cung cấp, ChatGPT 4) → **Prompt đã gửi** (đúng văn bản gửi máy chủ, chia phần có nguồn: Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh; *Chép*, *Sửa*, *Xem nguyên văn gửi máy chủ*; bản vẽ theo góp ý hiện thay đổi so với bản trước) → dòng model · kích thước · thời gian vẽ · giờ · số ảnh tốn → Lời kể (gập).
+- **Sửa prompt:** mỗi phần là một ô sửa; phần đã đổi viền xanh + *Đã sửa · Hoàn tác*. Chỉ áp cho ảnh này: template, prompt thư viện và ảnh khác không đổi. Thanh dưới đổi thành “Đã sửa N chỗ…” · *Huỷ sửa (Esc)* · **Vẽ lại với prompt này** (nút chính duy nhất lúc đó; khoá khi chưa sửa gì).
+- **Đang vẽ:** ảnh cũ mờ đi (blur + tối), vệt sáng màu Hoạ sĩ quét chéo và hạt nhiễu nhẹ; thẻ giữa ảnh: “Hoạ sĩ đang vẽ bản 3” · thời gian · 3 bước *Gửi prompt → Đang vẽ → Tải về* · *Huỷ lần vẽ*. Nhà cung cấp gửi ảnh xem dần thì thay nền mờ bằng ảnh xem dần (bớt mờ). Bản cũ vẫn dùng cho video tới khi bản mới xong; người dùng duyệt tiếp ảnh khác được.
+- **Vẽ xong:** ảnh mới hiện ra từ mờ sang nét (≈1 giây) + viền sáng chạy một lần; dải ảnh có nhãn **MỚI**; bản mới thành bản đang dùng. *So với bản 2 (V)* để xem lại bản trước.
+- **Lỗi khi vẽ:** thẻ cam “Chưa vẽ được bản 3” nói lý do thật (hết hạn mức · bị bộ lọc chặn · mất kết nối) + hướng đi (*Vẽ bằng Grok*, *Sửa prompt*); bản cũ và prompt đã sửa được giữ.
+- **Chọn nhiều:** Shift + bấm ảnh trên dải → ô tích; thanh dưới “3 ảnh đã chọn” · góp ý chung · **Vẽ lại 3 ảnh · tốn 3 ảnh**. Mỗi ảnh giữ prompt riêng; góp ý ghép vào phần Cảnh của từng ảnh.
+- **Khung ảnh:** giữ 16:9, **không lớn hơn kích thước gốc của ảnh** (ảnh 1280×720 hiện tối đa 1280px CSS), căn giữa; màn rộng không phóng to làm mờ ảnh. Muốn soi chi tiết thì xem 100%.
 - **Khoá:** đang có ảnh vẽ lại → nút duyệt khoá với lý do.
-- Vẽ lại một ảnh hay cả bộ đều theo prompt của video; muốn ảnh khác hẳn thì góp ý bằng chữ hoặc đổi chip Ảnh ở Bàn dựng. <!-- r9-assets -->
-- **Phím:** ←/→ ảnh · J/K video · R vẽ lại · A duyệt cả video.
-- **Điện thoại:** chạm trái/phải để đổi ảnh; góp ý mở dạng sheet có gợi ý nhanh.
-- **Luật:** L7.
-- **Artboard:** `Review` · `state=review|redrawing|empty` · `MReview` · `state=review|feedback|redrawing|empty` · `Dialogs` · `dialog=redraw-all`.
+- **Phím:** ←/→ ảnh · J/K video · R vẽ lại · E sửa prompt · ⌘↵ vẽ lại với prompt đã sửa · Esc huỷ sửa / bỏ chọn · V so sánh với bản trước · A duyệt cả video.
+- **Điện thoại:** ảnh 16:9 rộng hết màn; dưới dải ảnh là **Phiên bản** và hàng **Prompt đã gửi** (dòng đầu prompt + ảnh tham chiếu tròn) mở sheet đọc đủ prompt, *Chép prompt*, **Sửa prompt rồi vẽ lại**. Sheet Vẽ lại có hai tab **Góp ý** · **Sửa prompt** (phần Cảnh + ảnh tham chiếu). Cùng hiệu ứng đang vẽ / vẽ xong.
+- **Luật:** L7, L14.
+- **Artboard:** `Review` · `state=review|redrawing|reveal|failed|batch|blocked|empty|learn`, `prompt=view|edit|raw`, `refs=view|add` · `MReview` · `state=review|prompt|feedback|edit|redrawing|reveal|empty|learn` · `Dialogs` · `dialog=redraw-all`.
 
 - **Điểm ảnh** trên từng ảnh khi kênh dùng Duyệt theo điểm hoặc khi có ảnh dưới 85; ảnh dưới ngưỡng viền cam, dòng tóm tắt trên dải ảnh có nút đi thẳng tới nó; cột phải có **Điểm của Kiểm định** + **Vì sao?**. Vẽ lại kèm góp ý lần thứ 2 với cùng prompt → gợi ý **Thêm vào Ghi chú đã học** (§9.3). Artboard `Review` / `MReview` · `score=true`, `state=learn`. <!-- r16-agent -->
 ### W7 · Xử lý sự cố
@@ -533,13 +542,13 @@ Sáu mục:
 - **Cần sửa:** điểm + vạch 90; **Chưa đạt** (mỗi mục một thẻ cam, liệt kê từng đoạn: giờ · câu · “sớm 0,6 s”, bấm để tới; **Khớp theo giọng cả N đoạn**); **Cần đo lại** (mục bị ảnh hưởng bởi thay đổi chưa đo); **Đã đạt N** (gập). Chân bảng: **Đo lại độ hoàn thiện** (khoá khi chưa đổi gì; thành nút chính khi đã sửa hết) + giờ đo lần cuối. Đang đo: Kiểm định + tiến độ. Đạt: “Đã đạt. Xuất được rồi”, chip xanh 93/100, **Xuất** thành nút chính.
 - **Bảng phải theo thứ đang chọn** (không còn tab Clip/Chuyển cảnh/Khung hình):
   - **Đoạn phụ đề:** “Đoạn lệch 2/3” + ‹ › · trạng thái (“Chữ hiện sớm 0,6 giây so với tiếng” / “Đã khớp tiếng”) · dải **Tiếng / Chữ** 3 giây quanh đoạn để thấy lệch · **Khớp theo giọng** (nút chính) · Dời cả đoạn −0,1 s / +0,1 s · Nghe lại đoạn này (L) · sửa chữ của đoạn. Khung xem có nhãn nhỏ trên phụ đề.
-  - **Cảnh:** ảnh · **Vẽ lại ảnh** (góp ý, ảnh cũ giữ tới khi duyệt) · **Thay ảnh** · Chuyển động (Đứng yên / Zoom chậm / Trôi + co giãn) · Sang cảnh sau (Cắt / Mờ 1,2 s / Trượt) · **Nâng cao** gập (vị trí, kích thước, độ trong suốt, keyframe).
+  - **Cảnh:** ảnh (16:9, có hiệu ứng đang vẽ) · **Bản** 1 · 2… (chấm xanh = đang dùng, *Dùng bản N*) · **Prompt đã gửi** (4 dòng, *Xem đủ*, *Sửa* phần Cảnh; ảnh tham chiếu thu nhỏ; *Mở ở Duyệt* để sửa đủ) · ô góp ý + **Vẽ lại** · **Thay ảnh**. Vẽ xong ảnh mới **tự thay vào timeline**, giữ chuyển động, keyframe, thời lượng; toast “Cảnh 5 đã dùng bản 2” + *Hoàn tác (⌘Z)*; ảnh mới đánh dấu cần duyệt lại và Độ hoàn thiện kiểm lại. Trong lúc vẽ vẫn chỉnh editor được; khung xem và clip trên timeline có vòng chờ. <!-- r33-img --> · Chuyển động (Đứng yên / Zoom chậm / Trôi + co giãn) · Sang cảnh sau (Cắt / Mờ 1,2 s / Trượt) · **Nâng cao** gập (vị trí, kích thước, độ trong suốt, keyframe).
   - **Clip nền:** nguồn, đoạn lấy · Đổi ngẫu nhiên · Chọn đoạn khác · Bỏ (nói trước nền sẽ lặp). Chỉ cho video này.
   - **Không chọn gì:** cách bắt đầu + khung hình 1920×1080 · 30 fps (khoá, có lý do).
 - **Bảng trái khác:** Cảnh (7 dòng ảnh + giờ), Phụ đề (tìm, đoạn lệch có nhãn), Nền & lớp phủ (độ phủ, clip của video, Đổi ngẫu nhiên tất cả, nhắc đổi cho mọi video ở Template), Âm thanh (LUFS đo được, âm lượng giọng gốc / nền / lớp phủ), Media (như cũ).
 - **Timeline:** thanh công cụ **Tách (S) · Xoá · Bắt dính** + chip **Đoạn lệch 2/3 ‹ ›** + thu phóng. Bỏ công cụ chữ “V/T” và nhãn “Vùng In–Out” (chỉ hiện khi đã đặt). Đoạn lệch cam trên thước và track; thứ đang chọn có viền 2px đỏ; đoạn đã khớp trở về màu track.
 - **Xuất khi chưa đạt:** hỏi “Xuất khi chưa đạt độ hoàn thiện?” — liệt kê mục còn lại · **Sửa tiếp** (chính) · **Vẫn xuất** (ghi lại là người dùng chọn bỏ qua; giống Vẫn xuất ở Bàn dựng).
-- **Artboard:** `Editor` · `state=editing|export-gate|exporting|export-done|conflict|narrow`, `fix=todo|partial|done|measuring|passed`, `panel=fix|scenes|subs|bg|audio|media`, `focus=caption|scene|bg|none`.
+- **Artboard:** `Editor` · `state=editing|export-gate|exporting|export-done|conflict|narrow`, `fix=todo|partial|done|measuring|passed`, `panel=fix|scenes|subs|bg|audio|media`, `focus=caption|scene|bg|none`, `img=view|edit|drawing|done` (với `focus=scene`).
 
 ## 8. Quy tắc giao diện gắn với logic
 

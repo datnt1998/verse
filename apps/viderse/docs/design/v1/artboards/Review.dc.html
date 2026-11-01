@@ -710,13 +710,68 @@ ul.vv-dialog__list { padding-left: 30px; }
 @keyframes vv-dot { from { transform: scale(0); } to { transform: scale(1); } }
 
 /* /r16-agent */
+/* r33-img: ảnh, prompt, phiên bản, hiệu ứng vẽ */
+.stagewrap{container-type:size}
+.stagebox{position:relative;width:min(100cqw,var(--nat-w,1280px),calc(100cqh * 16 / 9));aspect-ratio:16/9;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.07);background:#101012;transition:border-color .3s}
+.stagebox.is-dev{border-color:rgba(255,208,138,.45)}
+.vv-dev-base{position:absolute;inset:-24px;background-size:cover !important;filter:blur(16px) saturate(.7) brightness(.72);transition:filter .9s cubic-bezier(.2,.8,.2,1)}
+.vv-dev-base.is-partial{filter:blur(5px) saturate(.9) brightness(.85)}
+.vv-develop{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.vv-develop::before{content:"";position:absolute;inset:-60% -60%;background:linear-gradient(115deg,transparent 42%,rgba(255,208,138,.10) 48%,rgba(255,236,204,.20) 50%,rgba(255,208,138,.10) 52%,transparent 58%);animation:vvsweep 2.8s cubic-bezier(.45,0,.25,1) infinite}
+.vv-develop::after{content:"";position:absolute;inset:-10%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;animation:vvgrain .9s steps(3) infinite}
+@keyframes vvsweep{from{transform:translateX(-35%)}to{transform:translateX(35%)}}
+@keyframes vvgrain{0%{transform:translate(0,0)}33%{transform:translate(-3%,2%)}66%{transform:translate(2%,-3%)}}
+.vv-devcard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:300px;padding:14px 16px;border-radius:14px;background:rgba(11,11,13,.78);border:1px solid rgba(255,255,255,.1);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:10px}
+.vv-devstep{display:flex;align-items:center;gap:6px;font-size:12px;color:#8B8B97;white-space:nowrap}
+.vv-devstep.is-done{color:#A6EDC1}.vv-devstep.is-on{color:#FFD08A}
+.vv-devstep .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.5}
+.vv-devstep.is-on .dot{opacity:1;box-shadow:0 0 0 3px rgba(255,208,138,.2);animation:vvpulse 1.2s ease-in-out infinite}
+@keyframes vvpulse{50%{box-shadow:0 0 0 6px rgba(255,208,138,0)}}
+.vv-reveal{animation:vvreveal 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes vvreveal{from{filter:blur(14px) brightness(1.2) saturate(.7);transform:scale(1.025)}to{filter:none;transform:none}}
+.vv-glint{position:absolute;inset:0;border-radius:inherit;pointer-events:none;animation:vvglint 1.6s ease-out .25s both}
+@keyframes vvglint{0%{box-shadow:inset 0 0 0 2px rgba(255,208,138,0)}25%{box-shadow:inset 0 0 0 2px rgba(255,208,138,.95),0 0 48px rgba(255,208,138,.28)}100%{box-shadow:inset 0 0 0 2px rgba(255,208,138,0)}}
+.strip .vv-dev-base{inset:-6px;filter:blur(5px) saturate(.5) brightness(.55)}
+.vv-ring{position:absolute;right:5px;top:5px;width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,208,138,.25);border-top-color:#FFD08A;animation:vv-spin .9s linear infinite}
+.vv-imgbadge{position:absolute;height:26px;padding:0 10px;display:flex;align-items:center;gap:7px;border-radius:8px;background:rgba(11,11,13,.8);font-size:12.5px;white-space:nowrap}
+.ipanel{transition:flex-basis .35s cubic-bezier(.2,.8,.2,1),max-width .35s cubic-bezier(.2,.8,.2,1)}
+.ver{position:relative;width:64px;aspect-ratio:16/9;border-radius:7px;overflow:hidden;padding:0;border:2px solid transparent;background:#151517;flex:0 0 auto}
+.ver[aria-pressed="true"]{border-color:#FF4D63}
+.ver .n{position:absolute;left:3px;bottom:2px;font-size:10px;padding:0 4px;border-radius:4px;background:rgba(11,11,13,.78);color:#C9C9D1}
+.pseg{display:flex;flex-direction:column;gap:3px;padding:9px 0;border-top:1px solid rgba(255,255,255,.05)}
+.pseg:first-child{border-top:none;padding-top:0}
+.pseg .lab{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8B8B97}
+.pseg .lab .src{font-weight:400;letter-spacing:0;text-transform:none;color:#6E6E7A}
+.pseg .txt{font-size:12.5px;line-height:1.6;color:#C9C9D1}
+.pseg textarea{width:100%;min-height:62px;resize:vertical;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:#0F0F11;color:#EDEDEF;font:inherit;font-size:12.5px;line-height:1.55;outline:none}
+.pseg textarea:focus{border-color:rgba(255,77,99,.55);box-shadow:0 0 0 3px rgba(255,77,99,.14)}
+.pseg.is-changed textarea{border-color:rgba(166,237,193,.45)}
+ins.df{text-decoration:none;background:rgba(166,237,193,.14);color:#A6EDC1;border-radius:3px;padding:0 2px}
+del.df{color:#6E6E7A}
+.raw{margin:0;padding:10px 12px;border-radius:10px;background:#0F0F11;border:1px solid rgba(255,255,255,.06);font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.6;color:#C9C9D1;white-space:pre-wrap;word-break:break-word}
+.refc{display:flex;gap:10px;align-items:center;padding:6px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:#131315}
+.refc .th{width:84px;aspect-ratio:16/9;border-radius:6px;flex:0 0 auto;background-size:cover !important}
+.pop{position:absolute;z-index:20;width:420px;padding:12px;border-radius:14px;background:#18181A;border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 60px -12px rgba(0,0,0,.8);display:flex;flex-direction:column;gap:10px}
+.pick{position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;background-size:cover !important}
+.pick[aria-pressed="true"]{border-color:#FF4D63}
+.selbox{position:absolute;left:4px;bottom:4px;width:16px;height:16px;border-radius:5px;border:1.5px solid rgba(255,255,255,.7);background:rgba(11,11,13,.6);display:flex;align-items:center;justify-content:center}
+.selbox[aria-checked="true"]{background:#EDEDEF;border-color:#EDEDEF;color:#0B0B0D}
+@media (min-width: 1600px){.ipanel{flex-basis:420px !important;max-width:420px !important}.ipanel.is-edit{flex-basis:520px !important;max-width:520px !important}}
+@media (prefers-reduced-motion: reduce){.vv-develop::before,.vv-develop::after,.vv-ring,.vv-devstep.is-on .dot{animation:none}.vv-reveal{animation:vvfade .2s both}.vv-glint{animation:none}.vv-dev-base,.ipanel{transition:none}}
+@keyframes vvfade{from{opacity:0}to{opacity:1}}
 /* r32-wide: màn rộng hơn 1440px — 04-components › Bố cục màn rộng */
 @media (min-width: 1600px) {
-  main.center > * { width: 100%; max-width: var(--vv-wide-grid, 1760px); margin-left: auto; margin-right: auto; }
+  main.center > * { width: 100%; max-width: var(--vv-wide-content, 1280px); margin-left: auto; margin-right: auto; }
   main.center > .dock { max-width: var(--vv-wide-composer, 880px); }
   main.center .dock .vv-plan { max-width: none; }
 }
 /* /r32-wide */
+
+.i-add{-webkit-mask-image:url(../icons/add.svg);mask-image:url(../icons/add.svg)}
+.i-copy{-webkit-mask-image:url(../icons/copy.svg);mask-image:url(../icons/copy.svg)}
+.i-edit{-webkit-mask-image:url(../icons/edit.svg);mask-image:url(../icons/edit.svg)}
+.i-magicpen{-webkit-mask-image:url(../icons/magicpen.svg);mask-image:url(../icons/magicpen.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick.svg);mask-image:url(../icons/tick.svg)}
 </style>
 </helmet>
 <div class="shell" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column; background: #0B0B0D; color: #EDEDEF; font-family: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif; font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased">
@@ -781,13 +836,14 @@ ul.vv-dialog__list { padding-left: 30px; }
 <a class="ghost" href="Main.dc.html" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px">Mở Bàn dựng</a>
 </div>
 
-<div style="flex: 1; min-height: 0; display: flex; gap: 12px">
-<div style="position: relative; flex: 1; min-width: 0; border-radius: 14px; overflow: hidden; border: 1px solid {{bigBd}}; background: #101012">
-<sc-if value="{{bigIsImg}}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="position: absolute; inset: 0; background: {{bigBg}}"></div></sc-if>
+<!-- r33-img: khung ảnh giữ tỉ lệ 16:9 và không lớn hơn kích thước gốc của ảnh (--nat-w) -->
+<div class="stagewrap" style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center">
+<div class="stagebox {{stageCls}}" style="--nat-w: 1280px">
+<sc-if value="{{bigIsImg}}" hint-placeholder-val="{{ true }}"><div class="{{bigImgCls}}" aria-hidden="true" style="position: absolute; inset: 0; background: {{bigBg}}"></div></sc-if><sc-if value="{{showGlint}}" hint-placeholder-val="{{ false }}"><span class="vv-glint" aria-hidden="true"></span></sc-if>
 <sc-if value="{{bigIsCutout}}" hint-placeholder-val="{{ false }}"><div class="checker" aria-hidden="true" style="position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center"><span style="width: 22%; height: 78%; border-radius: 46% 46% 12% 12% / 30% 30% 8% 8%; background: linear-gradient(180deg, #3A4558 0%, #232B38 60%, #1A2029 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.08)"></span><span style="width: 9%; height: 14%; border-radius: 50%; background: #C9B8A6; position: absolute; bottom: 74%; left: 45.5%"></span></div></sc-if>
 <sc-if value="{{bigIsBlocked}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="position: absolute; inset: 0; background: {{blockedBg}}; opacity: 0.35"></div><div role="status" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(440px, 80%); padding: 14px 16px; border-radius: 12px; background: rgba(11,11,13,0.88); border: 1px solid rgba(255,154,92,0.35); display: flex; flex-direction: column; gap: 6px"><span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #FFC09A"><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px"></span>Bị chặn · dùng ảnh cảnh 4</span><span style="font-size: 12.5px; color: #C9C9D1; line-height: 1.55">Bộ lọc nội dung của ChatGPT chặn ảnh này 2 lần (lần 2 đã vẽ kín đáo hơn). Cảnh vẫn giữ đúng thời lượng và hiện ảnh cảnh 4; video vẫn dựng được. Muốn có ảnh riêng, góp ý rồi Vẽ lại.</span></div></sc-if>
-<sc-if value="{{bigIsDrawing}}" hint-placeholder-val="{{ false }}"><div class="skel-img" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px"><span class="orb o-artist live" aria-hidden="true" style="width: 28px; height: 28px"></span><span class="shimmer" style="font-size: 13.5px">Hoạ sĩ đang vẽ lại theo góp ý của bạn…</span><span style="font-size: 12px; color: #8B8B97">thường mất 1–2 phút · bạn duyệt tiếp ảnh khác được</span></div></sc-if>
-<span style="position: absolute; left: 12px; top: 12px; height: 26px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; background: rgba(11,11,13,0.8); font-size: 12.5px"><span class="num mono" style="color: #A0A0AB">{{curImg.key}}</span>{{curImg.label}}<span style="color: #8B8B97">· {{curImg.time}}</span></span>
+<sc-if value="{{bigIsDrawing}}" hint-placeholder-val="{{ false }}"><div class="vv-dev-base {{devBaseCls}}" aria-hidden="true" style="background: {{devBase}}"></div><div class="vv-develop" aria-hidden="true"></div><div class="vv-devcard" role="status" aria-live="polite"><div style="display: flex; align-items: center; gap: 10px"><span class="orb o-artist live" aria-hidden="true" style="width: 26px; height: 26px; flex: 0 0 auto"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px; font-weight: 600">{{devTitle}}</span><span class="num" style="font-size: 12px; color: #8B8B97">{{devSub}}</span></span><button class="ghost" type="button" onClick="{{cancelDraw}}" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #C9C9D1; font-size: 12.5px">Huỷ lần vẽ</button></div><div style="display: flex; align-items: center; gap: 10px"><sc-for list="{{devSteps}}" as="d" hint-placeholder-count="3"><span class="vv-devstep {{d.cls}}"><span class="dot" aria-hidden="true"></span>{{d.t}}</span><sc-if value="{{d.more}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 18px; height: 1px; background: rgba(255,255,255,0.14)"></span></sc-if></sc-for></div><span style="font-size: 12px; color: #8B8B97">{{devHint}}</span></div></sc-if>
+<sc-if value="{{bigIsFailed}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="position: absolute; inset: 0; background: {{bigBg}}; filter: brightness(.35) saturate(.6)"></div><div role="alert" class="vv-devcard" style="border-color: rgba(255,154,92,0.35); width: min(460px, 86%)"><span style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #FFC09A"><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px"></span>Chưa vẽ được bản 3</span><span style="font-size: 12.5px; color: #C9C9D1; line-height: 1.55">ChatGPT đã hết hạn mức ảnh hôm nay (50/50), đặt lại lúc 07:00. Bản 2 vẫn được giữ; prompt bạn sửa vẫn còn.</span><div style="display: flex; gap: 8px"><button class="vv-btn vv-btn--sm vv-btn--white" type="button" onClick="{{redrawGrok}}">Vẽ bằng Grok · còn 190 ảnh</button><button class="vv-btn vv-btn--sm" type="button" onClick="{{openEdit}}">Sửa prompt</button></div></div></sc-if><span class="vv-imgbadge" style="left: 12px; top: 12px"><span class="num mono" style="color: #A0A0AB">{{curImg.key}}</span>{{curImg.label}}<span style="color: #8B8B97">· {{curImg.time}}</span><span style="color: {{verTagFg}}">· {{verTag}}</span></span><sc-if value="{{canCmp}}" hint-placeholder-val="{{ false }}"><button class="vv-imgbadge ghost" type="button" aria-pressed="{{cmpA}}" onClick="{{tCmp}}" title="Phím V" style="left: 12px; top: 44px; border: 1px solid rgba(255,255,255,0.12); color: #EDEDEF"><span class="ic i-eye" aria-hidden="true" style="width: 14px; height: 14px"></span>{{cmpT}}</button></sc-if>
 <sc-if value="{{curImg.approved}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; right: 12px; top: 12px; height: 26px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 8px; background: rgba(11,11,13,0.8); color: #A6EDC1; font-size: 12.5px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Đã duyệt</span></sc-if>
 <sc-if value="{{hasLayer}}" hint-placeholder-val="{{ true }}"><div role="radiogroup" aria-label="Lớp ảnh" style="position: absolute; right: 12px; bottom: 12px; display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: rgba(11,11,13,0.82); border: 1px solid rgba(255,255,255,0.12); z-index: 2"><sc-for list="{{layers}}" as="l" hint-placeholder-count="2"><button type="button" role="radio" aria-checked="{{l.on}}" onClick="{{l.pick}}" style="height: 28px; padding: 0 10px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: none; background: {{l.bg}}; color: {{l.fg}}; font-size: 12.5px"><span class="ic {{l.icon}}" aria-hidden="true" style="width: 14px; height: 14px"></span>{{l.label}}</button></sc-for></div></sc-if>
 <button class="ghost" type="button" onClick="{{prev}}" aria-label="Ảnh trước" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14); background: rgba(11,11,13,0.6); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-arrow-r" aria-hidden="true" style="width: 16px; height: 16px; transform: rotate(180deg)"></span></button>
@@ -798,84 +854,71 @@ ul.vv-dialog__list { padding-left: 30px; }
 <sc-if value="{{scoreOn}}" hint-placeholder-val="{{ false }}"><div class="vv-banner" role="status" style="flex: 0 0 auto; padding: 8px 12px; align-items: center"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 16px; height: 16px"></span><span style="flex: 1; min-width: 0">Kiểm định chấm 7 ảnh: <b style="color: #EDEDEF">6 ảnh từ 85 điểm</b>, <b style="color: #FFC09A">cảnh 4 được 72</b> — xem trước khi duyệt. Midnight Tales đang ở mức Cân bằng nên vẫn hỏi bạn.</span><button class="vv-btn vv-btn--sm" type="button" onClick="{{goLow}}">Xem cảnh 4</button></div></sc-if>
 <div class="strip-row" role="listbox" aria-label="Ảnh của video" style="flex: 0 0 auto; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px">
 <sc-for list="{{strip}}" as="s" hint-placeholder-count="7">
-<button class="strip" type="button" role="option" aria-selected="{{s.sel}}" onClick="{{s.pick}}" aria-label="{{s.label}}" style="position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; border: 2px solid {{s.bd2}}; padding: 0; background: {{s.bg}}">
+<button class="strip" type="button" role="option" aria-selected="{{s.sel}}" onClick="{{s.pick}}" title="Shift + bấm để chọn nhiều ảnh" aria-label="{{s.label}}" style="position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; border: 2px solid {{s.bd2}}; padding: 0; background: {{s.bg}}">
 <span class="num mono" style="position: absolute; left: 4px; top: 3px; font-size: 10.5px; padding: 0 4px; border-radius: 4px; background: rgba(11,11,13,0.75); color: #C9C9D1">{{s.key}}</span>
 <sc-if value="{{s.hasScore}}" hint-placeholder-val="{{ false }}"><span class="vv-imgscore {{s.scoreCls}}" style="position: absolute; left: 4px; bottom: 4px; height: 17px; font-size: 10.5px">{{s.score}}</span></sc-if><sc-if value="{{s.approved}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="position: absolute; right: 4px; top: 4px; width: 14px; height: 14px; color: #A6EDC1"></span></sc-if>
-<sc-if value="{{s.drawing}}" hint-placeholder-val="{{ false }}"><span class="orb o-artist live" aria-hidden="true" style="position: absolute; right: 5px; top: 5px; width: 11px; height: 11px"></span></sc-if>
+<sc-if value="{{s.drawing}}" hint-placeholder-val="{{ false }}"><span class="vv-dev-base" aria-hidden="true" style="background: {{s.bg}}"></span><span class="vv-develop" aria-hidden="true"></span><span class="vv-ring" aria-hidden="true"></span></sc-if><sc-if value="{{s.isNew}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; right: 4px; bottom: 4px; height: 16px; padding: 0 5px; border-radius: 5px; background: rgba(11,11,13,0.8); color: #FFD08A; font-size: 10px; font-weight: 600">MỚI</span></sc-if><sc-if value="{{batch}}" hint-placeholder-val="{{ false }}"><span class="selbox" role="checkbox" aria-checked="{{s.chk}}" aria-hidden="true"><sc-if value="{{s.isChk}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" style="width: 12px; height: 12px"></span></sc-if></span></sc-if>
 <sc-if value="{{s.blocked}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; inset: 0; background: rgba(11,11,13,0.55); display: flex; align-items: center; justify-content: center"><span class="ic i-danger" style="width: 16px; height: 16px; color: #FF9A5C"></span></span></sc-if>
 </button>
 </sc-for>
 </div>
 
-<div class="card" style="flex: 0 0 auto; border-radius: 16px; padding: 8px 8px 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #18181A">
+<!-- r33-img: thanh dưới — góp ý · sửa prompt · chọn nhiều -->
+<sc-if value="{{barNormal}}" hint-placeholder-val="{{ true }}"><div class="card" style="flex: 0 0 auto; border-radius: 16px; padding: 8px 8px 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #18181A">
 <span class="ic i-gallery-edit" aria-hidden="true" style="color: #8B8B97"></span>
 <label for="redraw" class="sr-only">Góp ý để vẽ lại ảnh này</label>
-<input id="redraw" type="text" placeholder="Góp ý để vẽ lại, ví dụ: thêm tấm biển “Mall closes at 10PM”, ánh đèn xanh hơn" style="flex: 1 1 300px; min-width: 0; height: 36px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 13.5px">
-<button class="ghost" type="button" onClick="{{redraw}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; white-space: nowrap">Vẽ lại<span class="kbd">R</span></button>
-<button class="ghost" type="button" title="Cảnh này dùng ảnh của cảnh bên cạnh" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: transparent; color: #A0A0AB; font-size: 13px; white-space: nowrap">Bỏ ảnh này</button>
+<input id="redraw" type="text" placeholder="Góp ý để vẽ lại, ví dụ: thêm tấm biển “Mall closes at 10PM”, ánh đèn xanh hơn" style="flex: 1 1 140px; min-width: 0; height: 36px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 13.5px">
+<button class="ghost" type="button" onClick="{{openEdit}}" title="Sửa thẳng prompt đã gửi" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: transparent; color: #C9C9D1; font-size: 13px; white-space: nowrap"><span class="ic i-edit" aria-hidden="true" style="width: 15px; height: 15px"></span>Sửa prompt</button><button class="ghost" type="button" onClick="{{redraw}}" title="Hoạ sĩ sửa prompt theo góp ý rồi vẽ bản mới · tốn 1 ảnh · ChatGPT còn 7/50 hôm nay" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; font-size: 13px; white-space: nowrap">Vẽ lại<span class="kbd">R</span></button>
+<button class="ghost" type="button" title="Cảnh này dùng ảnh của cảnh bên cạnh" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: transparent; color: #A0A0AB; font-size: 13px; white-space: nowrap" aria-label="Bỏ ảnh này">Bỏ ảnh</button>
 <button class="primary" type="button" onClick="{{approveAll}}" aria-disabled="{{approveDisabled}}" title="{{approveTitle}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: {{approveBg}}; color: {{approveFg}}; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>Duyệt cả video & dựng<span class="kbd" style="background: rgba(127,127,127,0.12); border-color: rgba(127,127,127,0.32); color: inherit">A</span></button>
-</div>
+</div></sc-if>
+<sc-if value="{{barEdit}}" hint-placeholder-val="{{ false }}"><div class="card" style="flex: 0 0 auto; border-radius: 16px; padding: 8px 8px 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: #18181A; border-color: rgba(255,77,99,0.28)"><span class="ic i-edit" aria-hidden="true" style="color: #FF4D63"></span><span style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; line-height: 1.35"><span style="font-size: 13.5px; font-weight: 500">{{editTitle}}</span><span style="font-size: 12px; color: #8B8B97">Chỉ áp cho ảnh này · tốn 1 ảnh, ChatGPT còn 7/50 hôm nay</span></span><button class="ghost" type="button" onClick="{{cancelEdit}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: none; background: transparent; color: #C9C9D1; font-size: 13px; white-space: nowrap">Huỷ sửa<span class="kbd" style="margin-left: 7px">Esc</span></button><button class="primary" type="button" onClick="{{redraw}}" aria-disabled="{{editDis}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: {{editBg}}; color: {{editFg}}; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-magicpen" aria-hidden="true" style="width: 15px; height: 15px"></span>Vẽ lại với prompt này<span class="kbd" style="background: rgba(127,127,127,0.12); border-color: rgba(127,127,127,0.32); color: inherit">⌘↵</span></button></div></sc-if>
+<sc-if value="{{batch}}" hint-placeholder-val="{{ false }}"><div class="card" style="flex: 0 0 auto; border-radius: 16px; padding: 8px 8px 8px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: #18181A"><span class="num" style="height: 26px; padding: 0 9px; display: flex; align-items: center; border-radius: 7px; background: rgba(255,255,255,0.08); font-size: 12.5px; white-space: nowrap">{{selT}}</span><label for="redraw-b" class="sr-only">Góp ý chung cho các ảnh đã chọn</label><input id="redraw-b" type="text" placeholder="Góp ý chung, ví dụ: không có chữ trong ảnh, tông lạnh hơn" style="flex: 1 1 260px; min-width: 0; height: 36px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 13.5px"><button class="ghost" type="button" onClick="{{endBatch}}" style="height: 36px; padding: 0 12px; border-radius: 10px; border: none; background: transparent; color: #C9C9D1; font-size: 13px; white-space: nowrap">Bỏ chọn</button><button class="primary" type="button" onClick="{{redrawBatch}}" style="height: 36px; padding: 0 12px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>{{selBtn}}</button></div></sc-if>
 <sc-if value="{{learnOn}}" hint-placeholder-val="{{ false }}"><div class="vv-learn vv-learn--artist" role="status"><span class="vv-orb vv-orb--artist" aria-hidden="true" style="width: 16px; height: 16px"></span><span class="vv-learn__text">Hoạ sĩ nhận ra: góp ý “không có chữ trong ảnh” lần thứ 2 với prompt Đêm xanh rêu. Thêm vào Ghi chú đã học của prompt?</span><div class="vv-learn__actions"><button class="vv-btn vv-btn--sm vv-btn--white" type="button" onClick="{{learnSave}}">Thêm vào Ghi chú đã học</button><button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" onClick="{{learnNo}}">Không</button></div></div></sc-if>
 <sc-if value="{{learnSaved}}" hint-placeholder-val="{{ false }}"><div class="vv-banner vv-banner--ready" role="status" style="padding: 8px 12px; font-size: 12.5px"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px"></span><span style="flex: 1">Đã thêm vào Thư viện › Prompt ảnh › Đêm xanh rêu › Ghi chú đã học. Áp dụng từ ảnh vẽ tiếp theo, cho mọi template dùng prompt này.</span><button class="vv-btn vv-btn--sm vv-btn--quiet" type="button" onClick="{{learnUndo}}">Hoàn tác</button></div></sc-if>
 <div style="display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 0 6px; font-size: 12px; color: #8B8B97">
 <span style="display: flex; gap: 6px; align-items: center"><span class="kbd">← →</span>ảnh</span>
 <span style="display: flex; gap: 6px; align-items: center"><span class="kbd">J K</span>video trước / sau</span>
-<span style="display: flex; gap: 6px; align-items: center"><span class="kbd">R</span>vẽ lại</span>
+<span style="display: flex; gap: 6px; align-items: center"><span class="kbd">R</span>vẽ lại</span><span style="display: flex; gap: 6px; align-items: center"><span class="kbd">E</span>sửa prompt</span><span style="display: flex; gap: 6px; align-items: center"><span class="kbd">V</span>so sánh</span>
 <span style="display: flex; gap: 6px; align-items: center"><span class="kbd">A</span>duyệt cả video</span>
 <span style="flex: 1"></span>
-<span>Duyệt xong, video tự chuyển sang dựng và mở video kế tiếp</span>
+<span title="Duyệt xong, video tự chuyển sang dựng và mở video kế tiếp">Duyệt xong tự sang video kế</span>
 </div>
 </main>
 </sc-if>
 
 <sc-if value="{{notEmpty}}" hint-placeholder-val="{{ true }}">
-<aside class="side scroll" aria-label="Chi tiết ảnh" style="flex: 0 0 316px; max-width: 316px; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 14px; border-left: 1px solid rgba(255,255,255,0.06)">
-<div style="display: flex; flex-direction: column; gap: 4px">
-<span style="font-size: 15px; font-weight: 600">{{curImg.label}}</span>
-<span style="font-size: 12.5px; color: #8B8B97">{{curImg.caption}}</span>
-</div>
+<aside class="side scroll ipanel {{panelCls}}" aria-label="Ảnh và prompt" style="flex: 0 0 {{panelW}}; max-width: {{panelW}}; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 16px; border-left: 1px solid rgba(255,255,255,0.06)">
+<sc-if value="{{notBatch}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 600">{{curImg.label}}</span><span style="font-size: 12.5px; color: #8B8B97">{{curImg.caption}} · {{curImg.time}}</span></div>
 <sc-if value="{{scoreOn}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 8px"><span class="h3">Điểm của Kiểm định</span><span class="vv-imgscore {{curScoreCls}}">{{curScore}}</span><span style="flex: 1"></span><button type="button" class="vv-why" aria-expanded="{{whyA}}" onClick="{{tWhy}}"><span class="ic i-info" aria-hidden="true" style="width: 13px; height: 13px;"></span>Vì sao?</button></div>
 <sc-if value="{{whyOpen}}" hint-placeholder-val="{{ false }}"><div class="vv-reason" style="width: auto; --ag: var(--vv-qa-ink)"><div class="vv-reason__head"><span class="vv-orb vv-orb--qa" aria-hidden="true" style="width: 16px; height: 16px"></span><span>Kiểm định giải thích</span></div><div class="vv-reason__text">{{rs.text}}</div><div class="vv-reason__facts"><sc-for list="{{rs.facts}}" as="f" hint-placeholder-count="3"><div class="vv-reason__fact"><span>{{f.l}}</span><b>{{f.v}}</b><span class="vv-reason__src">{{f.s}}</span></div></sc-for></div></div></sc-if></div></sc-if>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="h3"><span class="ic i-doc" aria-hidden="true" style="width: 15px; height: 15px"></span>Lời kể trong cảnh</span>
-<p style="margin: 0; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.035); font-size: 13px; color: #C9C9D1; line-height: 1.65">{{curImg.text}}</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="h3"><span class="ic i-eye" aria-hidden="true" style="width: 15px; height: 15px"></span>Khung đối thủ làm mẫu</span>
-<div style="display: flex; gap: 10px; align-items: center">
-<span aria-hidden="true" style="width: 112px; aspect-ratio: 16 / 9; border-radius: 8px; flex: 0 0 auto; background: url(../img/mall_cover.jpg) center / cover no-repeat; border: 1px solid rgba(255,255,255,0.08)"></span>
-<span style="font-size: 12px; color: #8B8B97; line-height: 1.5">Giữ bố cục và góc máy; thay mặt người, bối cảnh và mọi chữ, logo.</span>
-</div>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="h3"><span class="ic i-magic" aria-hidden="true" style="width: 15px; height: 15px"></span>Mô tả Hoạ sĩ đã dùng</span>
-<p style="margin: 0; padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB; line-height: 1.6">{{curImg.prompt}}</p>
-</div>
-<div style="display: flex; flex-direction: column; gap: 6px">
-<span class="h3">Lần vẽ</span>
-<div style="display: flex; gap: 6px; flex-wrap: wrap">
-<span style="height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: #151517; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #C9C9D1">ChatGPT</span>
-<span style="height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: #151517; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #C9C9D1">{{curImg.tries}}</span>
-<span style="height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 6px; background: #151517; border: 1px solid rgba(255,255,255,0.07); font-size: 12px; color: #C9C9D1">Tách nền</span>
-</div>
-</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #8B8B97">Phiên bản · {{verN}}</span></div><div role="group" aria-label="Phiên bản của ảnh" style="display: flex; gap: 6px; flex-wrap: wrap"><sc-for list="{{vers}}" as="v" hint-placeholder-count="2"><button class="ver" type="button" aria-pressed="{{v.on}}" onClick="{{v.pick}}" aria-label="{{v.aria}}" title="{{v.aria}}"><span aria-hidden="true" style="position: absolute; inset: 0; background: {{v.bg}}"></span><sc-if value="{{v.dev}}" hint-placeholder-val="{{ false }}"><span class="vv-dev-base" aria-hidden="true" style="inset: -6px; filter: blur(4px) brightness(.5); background: {{v.bg}}"></span><span class="vv-develop" aria-hidden="true"></span><span class="vv-ring" aria-hidden="true" style="right: 3px; top: 3px; width: 11px; height: 11px"></span></sc-if><span class="n num">{{v.n}}</span><sc-if value="{{v.used}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position: absolute; right: 3px; bottom: 3px; width: 7px; height: 7px; border-radius: 50%; background: #A6EDC1; box-shadow: 0 0 0 2px rgba(11,11,13,.8)"></span></sc-if></button></sc-for></div><span style="font-size: 12px; color: #A0A0AB; line-height: 1.5">{{verNote}}</span><sc-if value="{{canUse}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--sm" type="button" onClick="{{useVer}}" style="align-self: flex-start">Dùng bản {{verSelN}} cho video</button></sc-if></div>
+<div style="position: relative; display: flex; flex-direction: column; gap: 8px"><div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #8B8B97">Ảnh tham chiếu · {{refN}}/4</span><button class="ghost" type="button" onClick="{{openRefs}}" aria-label="Thêm" title="Thêm" style="height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px" aria-haspopup="dialog" aria-expanded="{{refsA}}"><span class="ic i-add" aria-hidden="true" style="width: 14px; height: 14px"></span>Thêm</button></div><sc-for list="{{refs}}" as="r" hint-placeholder-count="2"><div class="refc"><span class="th" aria-hidden="true" style="background: {{r.bg}}"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.35"><span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px"><span class="num" style="color: #8B8B97">{{r.n}}</span><b style="font-weight: 500">{{r.role}}</b></span><span class="ell" style="font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.src}}</span></span><sc-if value="{{pEdit}}" hint-placeholder-val="{{ false }}"><button class="ghost" type="button" onClick="{{r.remove}}" aria-label="Bỏ ảnh tham chiếu {{r.n}}" style="width: 28px; height: 28px; border-radius: 7px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close" aria-hidden="true" style="width: 14px; height: 14px"></span></button></sc-if></div></sc-for><sc-if value="{{noRefs}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #8B8B97">Không dùng ảnh tham chiếu. Thêm ảnh để giữ nhân vật hoặc bố cục giống nhau giữa các cảnh.</span></sc-if><sc-if value="{{refsOpen}}" hint-placeholder-val="{{ false }}"><div class="pop" role="dialog" aria-label="Thêm ảnh tham chiếu" style="left: 0; right: 0; top: 34px; width: auto"><div style="display: flex; align-items: center; gap: 8px"><b style="flex: 1; font-size: 14px; font-weight: 600">Thêm ảnh tham chiếu</b><button class="ghost" type="button" onClick="{{closeRefs}}" aria-label="Đóng" style="width: 28px; height: 28px; border: none; background: transparent; color: #A0A0AB; display: flex; align-items: center; justify-content: center"><span class="ic i-close" aria-hidden="true" style="width: 14px; height: 14px"></span></button></div><div role="tablist" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #131315"><sc-for list="{{refTabs}}" as="t" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="flex: 1; height: 28px; border-radius: 7px; border: none; background: {{t.bg}}; color: {{t.fg}}; font-size: 12.5px">{{t.label}}</button></sc-for></div><sc-if value="{{rtGrid}}" hint-placeholder-val="{{ true }}"><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px"><sc-for list="{{cands}}" as="c" hint-placeholder-count="6"><button class="pick" type="button" aria-pressed="{{c.on}}" onClick="{{c.pick}}" aria-label="{{c.label}}" title="{{c.label}}" style="background: {{c.bg}}"><span class="num" style="position: absolute; left: 4px; bottom: 3px; font-size: 10.5px; padding: 0 4px; border-radius: 4px; background: rgba(11,11,13,0.78); color: #C9C9D1">{{c.tag}}</span></button></sc-for></div></sc-if><sc-if value="{{rtUp}}" hint-placeholder-val="{{ false }}"><div style="height: 120px; border-radius: 10px; border: 1.5px dashed rgba(255,255,255,0.16); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; color: #A0A0AB"><span class="ic i-add" aria-hidden="true"></span>Kéo ảnh vào đây, hoặc <u>chọn tệp</u><span style="font-size: 11.5px; color: #8B8B97">PNG, JPG, WebP · tối đa 20 MB</span></div></sc-if><div style="display: flex; align-items: center; gap: 8px"><span style="font-size: 12px; color: #8B8B97; white-space: nowrap">Dùng làm</span><div role="radiogroup" aria-label="Vai trò của ảnh" style="display: flex; gap: 4px; flex-wrap: wrap"><sc-for list="{{roles}}" as="o" hint-placeholder-count="4"><button type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" class="chip" style="background: {{o.bg}}; color: {{o.fg}}">{{o.t}}</button></sc-for></div></div><div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 12px; color: #8B8B97">ChatGPT nhận tối đa 4 ảnh tham chiếu</span><button class="vv-btn vv-btn--sm" type="button" onClick="{{closeRefs}}">Huỷ</button><button class="vv-btn vv-btn--sm vv-btn--white" type="button" onClick="{{addRef}}" aria-disabled="{{addDis}}">{{addT}}</button></div></div></sc-if></div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="display: flex; align-items: center; gap: 8px"><span style="flex: 1; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: #8B8B97">Prompt đã gửi</span><sc-if value="{{pView}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{copyP}}" aria-label="{{copyT}}" title="{{copyT}}" style="height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>{{copyT}}</button><button class="ghost" type="button" onClick="{{openEdit}}" aria-label="Sửa" title="Sửa" style="height: 28px; padding: 0 8px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #C9C9D1; font-size: 12px" aria-keyshortcuts="E"><span class="ic i-edit" aria-hidden="true" style="width: 14px; height: 14px"></span>Sửa</button></sc-if></div><sc-if value="{{hasDiff}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8B8B97"><span style="flex: 1; min-width: 0">{{diffNote}}</span><button class="ghost" type="button" aria-pressed="{{diffA}}" onClick="{{tDiff}}" style="height: 24px; padding: 0 6px; border: none; background: transparent; color: #C9C9D1; font-size: 12px; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px">{{diffT}}</button></div></sc-if><sc-if value="{{pView}}" hint-placeholder-val="{{ true }}"><div style="padding: 12px; border-radius: 12px; background: #131315; border: 1px solid rgba(255,255,255,0.07)"><sc-for list="{{segs}}" as="g" hint-placeholder-count="4"><div class="pseg"><span class="lab">{{g.label}}<span class="src">· {{g.src}}</span></span><span class="txt"><sc-for list="{{g.parts}}" as="q" hint-placeholder-count="1"><sc-if value="{{q.isIns}}" hint-placeholder-val="{{ false }}"><ins class="df">{{q.t}}</ins></sc-if><sc-if value="{{q.isDel}}" hint-placeholder-val="{{ false }}"><del class="df">{{q.t}}</del></sc-if><sc-if value="{{q.isTxt}}" hint-placeholder-val="{{ true }}">{{q.t}}</sc-if></sc-for></span></div></sc-for></div></sc-if><sc-if value="{{pRaw}}" hint-placeholder-val="{{ false }}"><pre class="raw">{{rawText}}</pre></sc-if><sc-if value="{{pEdit}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column"><sc-for list="{{esegs}}" as="g" hint-placeholder-count="4"><div class="pseg {{g.cls}}"><span class="lab">{{g.label}}<span class="src">· {{g.src}}</span><span style="flex: 1"></span><sc-if value="{{g.changed}}" hint-placeholder-val="{{ false }}"><span style="text-transform: none; letter-spacing: 0; font-weight: 500; color: #A6EDC1">Đã sửa</span><button class="ghost" type="button" onClick="{{g.reset}}" style="height: 22px; padding: 0 4px; border: none; background: transparent; color: #C9C9D1; font-size: 11.5px; font-weight: 400; letter-spacing: 0; text-transform: none; text-decoration: underline; text-underline-offset: 3px">Hoàn tác</button></sc-if></span><label class="sr-only" for="{{g.id}}">{{g.label}}</label><textarea id="{{g.id}}" rows="{{g.rows}}" onInput="{{g.input}}" value="{{g.text}}"></textarea></div></sc-for></div></sc-if><div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #8B8B97"><span class="num" style="flex: 1 1 auto">{{metaLine}}</span><button class="ghost" type="button" aria-pressed="{{rawA}}" onClick="{{tRaw}}" style="height: 24px; padding: 0; border: none; background: transparent; color: #A0A0AB; font-size: 12px; text-decoration: underline dotted rgba(255,255,255,.35); text-underline-offset: 3px">{{rawT}}</button></div></div>
+<details style="display: flex; flex-direction: column; gap: 6px"><summary class="h3" style="cursor: pointer; list-style: none"><span class="ic i-doc" aria-hidden="true" style="width: 15px; height: 15px"></span>Lời kể trong cảnh</summary><p style="margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.035); font-size: 13px; color: #C9C9D1; line-height: 1.65">{{curImg.text}}</p></details>
+</sc-if>
+<sc-if value="{{batch}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 4px"><span style="font-size: 15px; font-weight: 600">{{selT}}</span><span style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">Mỗi ảnh giữ prompt riêng. Góp ý chung được Hoạ sĩ ghép vào phần Cảnh của từng prompt rồi vẽ lần lượt.</span></div><sc-for list="{{selList}}" as="x" hint-placeholder-count="3"><div class="refc"><span class="th" aria-hidden="true" style="background: {{x.bg}}"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; line-height: 1.35"><b style="font-size: 12.5px; font-weight: 500">{{x.label}}</b><span style="font-size: 12px; color: #8B8B97; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden">{{x.scene}}</span></span></div></sc-for><span style="font-size: 12px; color: #8B8B97">Shift + bấm ảnh để thêm, bớt · Esc bỏ chọn</span></sc-if>
 </aside>
 </sc-if>
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["review", "redrawing", "blocked", "empty", "learn"], "default": "review", "section": "Trạng thái"}, "view": {"editor": "enum", "options": ["full", "cutout"], "default": "full", "section": "Lớp ảnh (tách nền)"}, "$preview": {"width": 1440, "height": 900}, "score": {"editor": "boolean", "default": false, "section": "Trợ lý chủ động"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"state": {"editor": "enum", "options": ["review", "redrawing", "reveal", "failed", "batch", "blocked", "empty", "learn"], "default": "review", "section": "Trạng thái"}, "view": {"editor": "enum", "options": ["full", "cutout"], "default": "full", "section": "Lớp ảnh (tách nền)"}, "$preview": {"width": 1440, "height": 900}, "score": {"editor": "boolean", "default": false, "section": "Trợ lý chủ động"}, "prompt": {"editor": "enum", "options": ["view", "edit", "raw"], "default": "view", "section": "Prompt của ảnh"}, "refs": {"editor": "enum", "options": ["view", "add"], "default": "view", "section": "Ảnh tham chiếu"}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { vid: 'mall', idx: 3, drawing: null, approved: null, state: null, view: null, why: null, learn: null };
+    this.state = { vid: 'mall', idx: 3, drawing: null, approved: null, state: null, view: null, why: null, learn: null, ver: null, phase: null, drew: false, edit: null, raw: null, refsOpen: null, rtab: 'video', role: 'char', pickI: null, cmp: false, diffOff: false, ed: {}, outRefs: {}, addedRef: false, sel: null, copied: false, failed: null };
+    this._t = [];
   }
   componentDidUpdate(prev) {
-    if (prev.state !== this.props.state || prev.view !== this.props.view || prev.score !== this.props.score) this.setState({ drawing: null, approved: null, state: null, idx: this.props.state === 'blocked' ? 5 : (this.props.state === 'learn' ? 4 : 3), view: null, why: null, learn: null });
+    if (prev.state !== this.props.state || prev.view !== this.props.view || prev.score !== this.props.score || prev.prompt !== this.props.prompt || prev.refs !== this.props.refs) this.setState({ ver: null, phase: null, drew: false, edit: null, raw: null, refsOpen: null, cmp: false, diffOff: false, ed: {}, outRefs: {}, addedRef: false, sel: null, copied: false, failed: null, pickI: null, drawing: null, approved: null, state: null, idx: this.props.state === 'blocked' ? 5 : (this.props.state === 'learn' ? 4 : 3), view: null, why: null, learn: null });
   }
+  componentWillUnmount() { (this._t || []).forEach(clearTimeout); }
+  later(f, ms) { this._t.push(setTimeout(f, ms)); }
   renderVals() {
     const st = this.state.state || this.props.state || 'review';
-    const drawing = this.state.drawing !== null ? this.state.drawing : (st === 'redrawing' ? 3 : (st === 'learn' ? 4 : -1));
+    const drawing = this.state.phase ? 3 : (this.state.drawing !== null ? this.state.drawing : (st === 'redrawing' ? 3 : (st === 'learn' ? 4 : -1)));
     const approvedSet = this.state.approved || { 0: true, 1: true, 2: true };
     const Q = [
       { id: 'mall', title: 'I Took a Job Watching an Empty Mall After Midnight', ch: 'Midnight Tales', chColor: '#D79BFF', meta: '7 ảnh · 42 phút', thumb: 'url(../img/c_mall.jpg) center / cover no-repeat' },
@@ -908,28 +951,144 @@ class Component extends DCLogic {
     const idx = (st === 'blocked' && this.state.idx === 3 && !this.state.moved) ? 5 : ((st === 'learn' && this.state.idx === 3 && !this.state.moved) ? 4 : this.state.idx);
     const view = this.state.view || this.props.view || 'full';
     // r16-agent
+
+    // r33-img: phiên bản, prompt đã gửi, ảnh tham chiếu
+    const IMGV = { v1: 'url(../img/mall_s3_v1.jpg) center / cover no-repeat', v3: 'url(../img/mall_s3_v3.jpg) center / cover no-repeat', guard: 'url(../img/ref_guard.jpg) center / cover no-repeat', rival: 'url(../img/mall_cover.jpg) center / cover no-repeat' };
+    const STYLE = 'Flat cinematic illustration, deep teal and moss-green palette, soft volumetric glow, subtle film grain, 16:9.';
+    const NOTE = 'No readable text except signs named in the scene.';
+    const AVOID = 'blurry, extra limbs, watermark, logo, distorted text';
+    const SCN = [
+      'Key art for a horror story: a night-shift security guard alone in the atrium of an empty shopping mall, green emergency lights, large hook text “CLOSED AT 10”.',
+      'An empty shopping-mall parking lot at midnight, a single security car under a yellow street lamp, light mist.',
+      'A CCTV control room with sixteen monitors, a guard seen from behind, cold blue screen light.',
+      '',
+      'A fashion store window where every mannequin has turned to face the hallway, a flashlight reflection on the glass.',
+      'A fire exit chained from the outside, a red EXIT sign, a walkie-talkie in the guard’s hand.',
+      'Dawn over an empty parking lot, one car left, the guard looking back at the building.'
+    ];
+    const S3 = [
+      { scene: 'A stopped escalator in the middle of an empty shopping mall at night. A night-shift security guard stands at the bottom of the escalator holding a flashlight. Warm amber service lights.', note: 'Lần đầu · Hoạ sĩ viết từ lời kể', when: '23:41', secs: '38 giây', img: IMGV.v1 },
+      { scene: 'A stopped escalator in the middle of an empty shopping mall at 2 AM. A lone night-shift figure stands at the top landing, backlit, looking down. Cold teal light, long shadows on the steps.', note: 'Theo góp ý “bảo vệ đứng trên đầu thang, tông lạnh hơn”', when: '23:58', secs: '44 giây', img: IMG[3] },
+      { scene: 'A stopped escalator in the middle of an empty shopping mall at 2 AM. A lone night-shift figure stands at the top landing, backlit, looking down. Brighter cyan light, long shadows on the steps. A hanging sign above the escalator reads “MALL CLOSES AT 10 PM”.', note: 'Theo góp ý “thêm tấm biển Mall closes at 10 PM, ánh đèn xanh hơn”', when: '00:12', secs: '41 giây', img: IMGV.v3,
+        diff: [['A stopped escalator in the middle of an empty shopping mall at 2 AM. A lone night-shift figure stands at the top landing, backlit, looking down. ', ''], ['Cold teal', 'del'], ['Brighter cyan', 'ins'], [' light, long shadows on the steps.', ''], [' A hanging sign above the escalator reads “MALL CLOSES AT 10 PM”.', 'ins']] }
+    ];
+    const isS3 = idx === 3;
+    const phase = this.state.phase;
+    const hasV3 = this.state.drew || st === 'reveal';
+    const failedNow = this.state.failed !== null ? this.state.failed : st === 'failed';
+    const nV = isS3 ? (hasV3 ? 3 : 2) : 1;
+    const verSel = isS3 ? Math.min(this.state.ver || nV, nV) : 1;
+    const devOn = drawing === idx;
+    const VS = isS3 ? S3.slice(0, nV) : [{ scene: SCN[idx], note: 'Lần đầu · Hoạ sĩ viết từ lời kể', when: '23:4' + idx, secs: (36 + idx) + ' giây', img: IMG[idx] }];
+    const cv = VS[verSel - 1];
+    const curUsed = nV;   // bản mới nhất là bản đang dùng, trừ khi bấm Dùng bản khác
+    const used = this.state.usedV || curUsed;
+    const vers = VS.map((v, i) => ({ n: String(i + 1), bg: v.img, on: (i + 1 === verSel && !devOn) ? 'true' : 'false', used: i + 1 === used, dev: false, aria: 'Bản ' + (i + 1) + ' · ' + v.note + (i + 1 === used ? ' · đang dùng' : ''), pick: () => this.setState({ ver: i + 1, cmp: false }) }))
+      .concat(devOn && isS3 ? [{ n: String(nV + 1), bg: VS[nV - 1].img, on: 'true', used: false, dev: true, aria: 'Bản ' + (nV + 1) + ' · đang vẽ', pick: () => {} }] : []);
+    const outRefs = this.state.outRefs;
+    const REF0 = isS3 || idx === 1 || idx === 2 ? [{ id: 'rival', role: 'Bố cục', src: 'Khung đối thủ · Nocturne Stories 14:02', bg: IMGV.rival, line: 'keep the camera angle and composition; replace people, setting details, text and logos.' }, { id: 'guard', role: 'Nhân vật', src: 'Bảo vệ · từ cảnh 1', bg: IMGV.guard, line: 'the security guard’s appearance and uniform.' }] : [{ id: 'rival', role: 'Bố cục', src: 'Khung đối thủ · Nocturne Stories', bg: IMGV.rival, line: 'keep the camera angle and composition; replace people, setting details, text and logos.' }];
+    const REFA = this.state.addedRef ? [{ id: 'add', role: 'Đồ vật', src: 'Cảnh 5 · cửa thoát hiểm', bg: IMG[5], line: 'the look of the red EXIT sign.' }] : [];
+    const refL = REF0.concat(REFA).filter((r) => !outRefs[r.id]);
+    const refs = refL.map((r, i) => Object.assign({}, r, { n: String(i + 1), remove: () => this.setState({ outRefs: Object.assign({}, outRefs, { [r.id]: true }) }) }));
+    const refText = refs.map((r) => 'Image ' + r.n + ': ' + r.line).join(' ');
+    const SEG0 = [
+      { k: 'scene', label: 'Cảnh', src: isS3 && verSel > 1 ? 'Hoạ sĩ sửa theo góp ý' : 'Hoạ sĩ viết từ lời kể', text: cv.scene },
+      { k: 'style', label: 'Phong cách', src: 'prompt “Đêm xanh rêu”', text: STYLE },
+      { k: 'ref', label: 'Tham chiếu', src: refs.length + ' ảnh bên dưới', text: refText },
+      { k: 'note', label: 'Ghi chú đã học', src: 'prompt “Đêm xanh rêu”', text: NOTE },
+      { k: 'avoid', label: 'Tránh', src: 'template Mẫu chuẩn', text: AVOID }
+    ].filter((g) => g.text);
+    const pMode = this.state.edit !== null ? (this.state.edit ? 'edit' : 'view') : (this.state.raw !== null ? (this.state.raw ? 'raw' : 'view') : (this.props.prompt || 'view'));
+    const pEdit = pMode === 'edit' && !devOn && st !== 'empty' && st !== 'batch';
+    const pRaw = pMode === 'raw' && !pEdit;
+    const diffOn = isS3 && verSel === 3 && !this.state.diffOff;
+    const PT = (t, k) => ({ t, isIns: k === 'ins', isDel: k === 'del', isTxt: !k });
+    const segs = SEG0.map((g) => ({ label: g.label, src: g.src, parts: (g.k === 'scene' && diffOn && cv.diff) ? cv.diff.map((d) => PT(d[0], d[1])) : [PT(g.text, '')] }));
+    const ed = this.state.ed;
+    const esegs = SEG0.filter((g) => g.k !== 'ref').map((g) => {
+      const preset = (this.props.prompt === 'edit' && g.k === 'scene' && isS3 && !(g.k in ed)) ? cv.scene.replace('Cold teal light', 'Cold teal light from a single skylight') : null;
+      const text = g.k in ed ? ed[g.k] : (preset || g.text);
+      const changed = text !== g.text;
+      return { id: 'p-' + g.k, label: g.label, src: g.src, text, rows: g.k === 'scene' ? 6 : 3, changed, cls: changed ? 'is-changed' : '',
+        input: (e) => this.setState({ ed: Object.assign({}, this.state.ed, { [g.k]: e.target.value }) }),
+        reset: () => { const n = Object.assign({}, this.state.ed); n[g.k] = g.text; this.setState({ ed: n }); } };
+    });
+    const nChanged = esegs.filter((g) => g.changed).length + Object.keys(outRefs).length + (this.state.addedRef ? 1 : 0);
+    const rawText = SEG0.map((g) => g.text).join('\n\n') + '\n\n— size: 1280x720 · quality: high · references: ' + refs.length;
+    const refsOpen = (this.state.refsOpen !== null ? this.state.refsOpen : this.props.refs === 'add') && st !== 'batch' && st !== 'empty';
+    const rtab = this.state.rtab;
+    const pickI = this.state.pickI !== null ? this.state.pickI : (this.props.refs === 'add' ? 5 : -1);
+    const CANV = [0, 1, 2, 4, 5, 6].map((i) => ({ i, tag: i === 0 ? 'Bìa' : 'Cảnh ' + i, bg: IMG[i] }));
+    const CANF = [['02:10', 'edc8fc993aa2f8689b8b908765367fb1'], ['08:44', '476fb701bdc9ab695e588ca3e3368db1'], ['14:02', '476fb701bdc9ab695e588ca3e3368db1'], ['21:30', 'edc8fc993aa2f8689b8b908765367fb1'], ['33:05', '476fb701bdc9ab695e588ca3e3368db1'], ['40:12', 'edc8fc993aa2f8689b8b908765367fb1']].map((f, k) => ({ i: 100 + k, tag: f[0], bg: 'url(/_blob/' + f[1] + ') center / cover no-repeat' }));
+    const cands = (rtab === 'frames' ? CANF : CANV).map((c) => ({ tag: c.tag, bg: c.bg, label: (rtab === 'frames' ? 'Khung video gốc ' : '') + c.tag, on: pickI === c.i ? 'true' : 'false', pick: () => this.setState({ pickI: pickI === c.i ? -1 : c.i }) }));
+    const role = this.state.role;
+    // chọn nhiều
+    const selSet = this.state.sel || (st === 'batch' ? { 1: true, 3: true, 5: true } : null);
+    const batch = !!selSet && st !== 'empty';
+    const selIdx = selSet ? Object.keys(selSet).filter((k) => selSet[k]).map(Number).sort() : [];
+    // hiệu ứng
+    const go = () => {
+      if (!isS3) { this.setState({ drawing: idx, edit: false }); return; }
+      this.setState({ phase: 'send', edit: false, refsOpen: false, cmp: false, ver: null, failed: false });
+      this.later(() => this.setState({ phase: 'draw' }), 1100);
+      this.later(() => this.setState({ phase: 'partial' }), 3600);
+      this.later(() => this.setState({ phase: null, drew: true, ver: 3, usedV: null, revealKey: Date.now() }), 5600);
+    };
+    const ph = phase || (devOn ? 'draw' : null);
+    const STEPS3 = [['send', 'Gửi prompt'], ['draw', 'Đang vẽ'], ['partial', 'Tải về']];
+    const pi = STEPS3.findIndex((x) => x[0] === ph);
+    const devSteps = STEPS3.map((x, k) => ({ t: k < pi ? x[1].replace('Đang vẽ', 'Đã vẽ').replace('Gửi prompt', 'Đã gửi prompt') : x[1], cls: k < pi ? 'is-done' : (k === pi ? 'is-on' : ''), more: k < 2 }));
+    const justRevealed = isS3 && verSel === 3 && (st === 'reveal' || this.state.revealKey) && !this.state.cmp;
+    const cmpOn = this.state.cmp && isS3 && verSel > 1;
+    const shownImg = cmpOn ? VS[verSel - 2].img : cv.img;
     const scoreOn = !!this.props.score && st !== 'empty';
     const SC = [92, 94, 90, 88, 72, 91, 89];
     const RI = {"text": "Cảnh 4 được 72 điểm: chữ trên biển cửa hàng bị méo.", "facts": [{"l": "Khớp mô tả cảnh", "v": "92", "s": "so với mô tả của Hoạ sĩ"}, {"l": "Chữ lạ, chi tiết méo", "v": "48", "s": "biển tên cửa hàng có chữ méo"}, {"l": "Đúng nhận diện kênh", "v": "88", "s": "tông xanh rêu · Midnight Tales"}]};
     const whyOn = this.state.why !== null ? this.state.why : idx === 4;
-    const strip = D.map((d, i) => ({ key: d.key, label: d.label + (approvedSet[i] ? ', đã duyệt' : ''), bg: IMG[i], approved: !!approvedSet[i] && drawing !== i && blockedI !== i, drawing: drawing === i, blocked: blockedI === i, sel: i === idx ? 'true' : 'false', bd: i === idx ? '#FF4D63' : (blockedI === i ? 'rgba(255,154,92,0.6)' : 'transparent'), pick: () => this.setState({ idx: i, moved: true }) }));
+    const strip = D.map((d, i) => ({ key: d.key, label: d.label + (approvedSet[i] ? ', đã duyệt' : ''), bg: i === 3 && (this.state.drew || st === 'reveal') ? 'url(../img/mall_s3_v3.jpg) center / cover no-repeat' : IMG[i], isNew: i === 3 && (this.state.drew || st === 'reveal'), approved: !!approvedSet[i] && drawing !== i && blockedI !== i, drawing: drawing === i, blocked: blockedI === i, sel: i === idx ? 'true' : 'false', bd: i === idx ? '#FF4D63' : (blockedI === i ? 'rgba(255,154,92,0.6)' : 'transparent'), pick: (e) => { if (e && e.shiftKey) { const cur = Object.assign({}, this.state.sel || (st === 'batch' ? { 1: true, 3: true, 5: true } : { [idx]: true })); cur[i] = !cur[i]; this.setState({ sel: cur }); } else this.setState({ idx: i, moved: true, ver: null, cmp: false }); } }));
     const curImg = Object.assign({}, D[idx], { approved: !!approvedSet[idx] && drawing !== idx && blockedI !== idx, tries: drawing === idx ? 'Lần 2 · đang vẽ' : (blockedI === idx ? 'Lần 2 · bị chặn' : 'Lần 1') });
     const approvedCount = Object.keys(approvedSet).filter((k) => approvedSet[k] && Number(k) !== drawing && Number(k) !== blockedI).length;
     const canApprove = drawing === -1;
-    const strip2 = strip.map((x, i) => Object.assign(x, { hasScore: scoreOn && drawing !== i, score: String(SC[i]), scoreCls: SC[i] < 85 ? 'vv-imgscore--low' : '', bd2: (scoreOn && SC[i] < 85 && drawing !== i && x.sel !== 'true') ? 'var(--vv-st-issue)' : x.bd }));
+    const selS = this.state.sel || (st === 'batch' ? { 1: true, 3: true, 5: true } : {});
+    const strip2 = strip.map((x, i) => Object.assign(x, { chk: selS[i] ? 'true' : 'false', isChk: !!selS[i],  hasScore: scoreOn && drawing !== i, score: String(SC[i]), scoreCls: SC[i] < 85 ? 'vv-imgscore--low' : '', bd2: selS[i] ? '#EDEDEF' : ((scoreOn && SC[i] < 85 && drawing !== i && x.sel !== 'true') ? 'var(--vv-st-issue)' : x.bd) }));
     const learnS = this.state.learn;
     return {
+
+      // r33-img
+      stageCls: devOn ? 'is-dev' : '', bigImgCls: justRevealed ? 'vv-reveal' : '', showGlint: !!justRevealed && !devOn,
+      devBase: ph === 'partial' ? IMGV.v3 : (isS3 ? VS[nV - 1].img : IMG[idx]), devBaseCls: ph === 'partial' ? 'is-partial' : '',
+      devTitle: 'Hoạ sĩ đang vẽ bản ' + (nV + 1), devSub: ph === 'send' ? '0:01 · đang gửi prompt và ' + refs.length + ' ảnh tham chiếu' : (ph === 'partial' ? '0:36 · đang nhận ảnh, sắp xong' : '0:24 · thường khoảng 40 giây'),
+      devSteps, devHint: 'Bạn duyệt tiếp ảnh khác được; xong sẽ báo ở đây và trên dải ảnh.', cancelDraw: () => { (this._t || []).forEach(clearTimeout); this._t = []; this.setState({ phase: null, drawing: -1, state: 'review' }); },
+      bigIsFailed: failedNow && isS3 && !devOn, redrawGrok: go,
+      verTag: devOn ? 'đang vẽ bản ' + (nV + 1) : (cmpOn ? 'bản ' + (verSel - 1) + ' (so sánh)' : 'bản ' + verSel + (verSel === used ? '' : ' · chưa dùng')), verTagFg: cmpOn ? '#FFD08A' : (verSel === used ? '#8B8B97' : '#F6CB8C'),
+      canCmp: isS3 && verSel > 1 && !devOn && !failedNow, cmpA: cmpOn ? 'true' : 'false', cmpT: cmpOn ? 'Đang xem bản ' + (verSel - 1) : 'So với bản ' + (verSel - 1), tCmp: () => this.setState({ cmp: !this.state.cmp }),
+      vers, verN: String(nV), verNote: devOn ? 'Đang vẽ bản ' + (nV + 1) + '. Bản ' + nV + ' vẫn dùng cho video tới khi bản mới xong.' : 'Bản ' + verSel + ' · ' + cv.note + ' · ' + cv.when, canUse: verSel !== used && !devOn, verSelN: String(verSel), useVer: () => this.setState({ usedV: verSel }),
+      pView: pMode === 'view' && !pEdit, pRaw, pEdit, segs, esegs, rawText, rawA: pRaw ? 'true' : 'false', rawT: pRaw ? 'Xem theo phần' : 'Xem nguyên văn gửi máy chủ', tRaw: () => this.setState({ raw: !pRaw, edit: false }),
+      copyT: this.state.copied ? 'Đã chép' : 'Chép', copyP: () => this.setState({ copied: true }),
+      hasDiff: isS3 && verSel === 3 && pMode === 'view', diffA: diffOn ? 'true' : 'false', diffT: diffOn ? 'Ẩn thay đổi' : 'Xem thay đổi', diffNote: 'So với bản 2: Hoạ sĩ đổi 2 chỗ theo góp ý của bạn.', tDiff: () => this.setState({ diffOff: !this.state.diffOff }),
+      metaLine: 'ChatGPT · gpt-image-2 · 1280×720 · vẽ ' + cv.secs + ' · ' + cv.when + ' · tốn 1 ảnh',
+      refs, refN: String(refs.length), noRefs: refs.length === 0, refsOpen, refsA: refsOpen ? 'true' : 'false', openRefs: () => this.setState({ refsOpen: !refsOpen }), closeRefs: () => this.setState({ refsOpen: false, pickI: -1 }),
+      refTabs: [['video', 'Ảnh trong video'], ['frames', 'Khung video gốc'], ['up', 'Tải lên']].map((t) => ({ label: t[1], on: rtab === t[0] ? 'true' : 'false', bg: rtab === t[0] ? '#2A2A2E' : 'transparent', fg: rtab === t[0] ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ rtab: t[0] }) })),
+      rtGrid: rtab !== 'up', rtUp: rtab === 'up', cands,
+      roles: [['char', 'Nhân vật'], ['layout', 'Bố cục'], ['style', 'Phong cách'], ['obj', 'Đồ vật']].map((o) => ({ t: o[1], on: role === o[0] ? 'true' : 'false', bg: role === o[0] ? 'rgba(255,255,255,0.1)' : '#151517', fg: role === o[0] ? '#EDEDEF' : '#8B8B97', pick: () => this.setState({ role: o[0] }) })),
+      addT: pickI >= 0 ? 'Thêm 1 ảnh' : 'Chọn ảnh để thêm', addDis: pickI >= 0 && refs.length < 4 ? 'false' : 'true', addRef: () => { if (pickI >= 0) this.setState({ addedRef: true, refsOpen: false, pickI: -1, edit: true }); },
+      openEdit: () => this.setState({ edit: true, raw: false, failed: false }), cancelEdit: () => this.setState({ edit: false, ed: {}, outRefs: {}, addedRef: false }),
+      panelW: pEdit ? '440px' : '360px', panelCls: pEdit ? 'is-edit' : '',
+      barNormal: !pEdit && !batch, barEdit: pEdit, editTitle: nChanged ? 'Đã sửa ' + nChanged + ' chỗ trong prompt ' + curImg.label.toLowerCase() : 'Sửa prompt ' + curImg.label.toLowerCase(),
+      editDis: nChanged ? 'false' : 'true', editBg: nChanged ? '#EDEDEF' : '#2A2A2E', editFg: nChanged ? '#0B0B0D' : '#8B8B97',
+      batch, notBatch: !batch, selN: String(selIdx.length), selT: selIdx.length + ' ảnh đã chọn', selBtn: 'Vẽ lại ' + selIdx.length + ' ảnh · tốn ' + selIdx.length + ' ảnh', selList: selIdx.map((i) => ({ label: D[i].label, bg: IMG[i], scene: i === 3 ? S3[1].scene : SCN[i] })),
+      endBatch: () => this.setState({ sel: {}, state: 'review' }), redrawBatch: () => this.setState({ sel: {}, state: 'review', drawing: 3 }),
       scoreOn, curScore: String(SC[idx]), curScoreCls: SC[idx] < 85 ? 'vv-imgscore--low' : '', whyOpen: scoreOn && whyOn, whyA: whyOn ? 'true' : 'false', tWhy: () => this.setState({ why: !whyOn }),
       rs: idx === 4 ? RI : { text: 'Cảnh ' + idx + ' được ' + SC[idx] + ' điểm: không có mục nào bị trừ nhiều.', facts: [{ l: 'Khớp mô tả cảnh', v: String(Math.min(99, SC[idx] + 2)), s: 'so với mô tả của Hoạ sĩ' }, { l: 'Chữ lạ, chi tiết méo', v: String(SC[idx]), s: 'không thấy chữ lạ' }, { l: 'Đúng nhận diện kênh', v: String(SC[idx] - 2), s: 'tông xanh rêu · Midnight Tales' }] },
       goLow: () => this.setState({ idx: 4, moved: true, why: true }),
       learnOn: st === 'learn' && !learnS, learnSaved: learnS === 'saved', learnSave: () => this.setState({ learn: 'saved' }), learnNo: () => this.setState({ learn: 'no' }), learnUndo: () => this.setState({ learn: null }),
       badge: empty ? '0' : '3', hasBadge: !empty, queue, empty, notEmpty: !empty, cur, strip: strip2, curImg, approvedCount,
-      bigIsImg: drawing !== idx && blockedI !== idx && !(view === 'cutout' && idx > 0), bigIsDrawing: drawing === idx, bigBg: IMG[idx],
+      bigIsImg: drawing !== idx && blockedI !== idx && !(failedNow && isS3) && !(view === 'cutout' && idx > 0), bigIsDrawing: drawing === idx, bigBg: shownImg,
       bigIsCutout: view === 'cutout' && idx > 0 && drawing !== idx && blockedI !== idx, bigIsBlocked: blockedI === idx, blockedBg: IMG[4],
       hasLayer: idx > 0 && drawing !== idx && blockedI !== idx,
       layers: [['full', 'Ảnh gốc', 'i-gallery'], ['cutout', 'Tách nền', 'i-layer']].map((l) => ({ label: l[1], icon: l[2], on: view === l[0] ? 'true' : 'false', bg: view === l[0] ? '#2A2A2E' : 'transparent', fg: view === l[0] ? '#EDEDEF' : '#A0A0AB', pick: () => this.setState({ view: l[0] }) })), bigBd: drawing === idx ? 'rgba(242,154,90,0.45)' : 'rgba(255,255,255,0.07)',
       prev: () => this.setState({ idx: (idx + 6) % 7 }), next: () => this.setState({ idx: (idx + 1) % 7 }),
-      redraw: () => this.setState({ drawing: idx }),
+      redraw: go,
       approveAll: canApprove ? () => this.setState({ state: 'empty' }) : () => {},
       approveDisabled: canApprove ? 'false' : 'true', approveBg: canApprove ? '#EDEDEF' : '#2A2A2E', approveFg: canApprove ? '#0B0B0D' : '#8B8B97',
       approveTitle: canApprove ? 'Duyệt mọi ảnh của video này rồi dựng' : 'Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ'

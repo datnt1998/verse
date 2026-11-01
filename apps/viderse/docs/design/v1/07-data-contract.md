@@ -327,7 +327,7 @@ Lúc video bắt đầu (L9), app phân giải prompt và ghi vào manifest đú
 
 ## §14 · Ngoại lệ ảnh của một video (mới, Gói V16) <a id="prompt-override"></a> <!-- r8-pm --> <!-- r9-assets -->
 
-Hai lớp: **template → video** (ia-flows L14). Không có ngoại lệ cho từng ảnh.
+Hai lớp cho cả video: **template → video** (ia-flows L14). Lớp thứ ba (đợt 33): prompt của **từng ảnh** khi vẽ lại, xem §26. <!-- r33-img -->
 
 Ngoại lệ được lưu cùng manifest ảnh của video (`images/manifest.json` và checkpoint được CAS trong PostgreSQL), không sửa snapshot template. `scenePromptSet` / `coverPromptSet` phân biệt lựa chọn của video với giá trị kế thừa; API nhận `null` để xoá lựa chọn đó và quay về template.
 
@@ -729,3 +729,44 @@ DELETE /api/platforms/:id/login
 - `success`: cookie và refresh token lưu cùng lúc (ghi một lần, hỏng thì giữ đăng nhập cũ); **xoá giờ chờ bị chặn** của nền tảng (`pausedUntil`, `failureCount`) nên `GET /api/platforms` trả `state: "ready"` ngay. Không kiểm tra được tên tài khoản vì mạng: vẫn lưu, `account` trống, `refreshError` = “Đã nhận đăng nhập; chưa kiểm tra được tài khoản do kết nối Bilibili…”.
 - Tự gia hạn: trước mỗi lần quét kênh, tối đa một lần mỗi 24 giờ (`ensureFresh`); lỗi gia hạn không chặn lần quét (quét bằng cookie đang có). Thất bại → `refreshError`, `PlatformStatus.state = "needs_login"`.
 - Một khoá chung cho đăng nhập, hỏi mã và gia hạn (không chạy song song). Cookie và trạng thái lưu tệp quyền 600 trên máy chạy app; API chỉ trả giá trị đã che.
+
+## §26 · Ảnh, phiên bản và prompt đã gửi (mới, Gói V29) <a id="image-versions"></a> <!-- r33-img -->
+
+Mỗi lần vẽ một ảnh (cảnh hoặc bìa) là một **phiên bản**. Máy chủ lưu đúng văn bản đã gửi nhà cung cấp và ảnh tham chiếu đã gửi kèm, để giao diện hiện lại và vẽ lại từ đó.
+
+```ts
+type PromptPartKind = "scene" | "style" | "refs" | "learned" | "avoid";
+interface PromptPart { kind: PromptPartKind; text: string; source: { type: "artist" | "artist_feedback" | "image_prompt" | "template" | "user"; id?: string; label: string } }
+interface ImageRef { id: string; role: "layout" | "character" | "style" | "object"; url: string; source: { type: "rival_frame" | "video_image" | "upload"; label: string; videoId?: string; atSec?: number; imageId?: string } }
+interface ImageVersion {
+  n: number;                              // 1, 2, 3…
+  state: "drawing" | "ready" | "failed" | "cancelled";
+  url: string | null; previewUrl: string | null;   // previewUrl: ảnh xem dần khi nhà cung cấp gửi
+  width: number; height: number;          // kích thước gốc → giới hạn khung hiển thị
+  parts: PromptPart[];                    // theo thứ tự ghép
+  sentText: string;                       // nguyên văn đã gửi (các phần nối bằng "\n\n")
+  refs: ImageRef[];
+  provider: "chatgpt" | "grok" | "gemini" | string; model: string; params: { size: string; quality?: string };
+  feedback: string | null;                // góp ý sinh ra bản này
+  diffFromPrev: Array<[string, "" | "ins" | "del"]> | null;   // chỉ phần scene
+  startedAt: string; finishedAt: string | null; durationSec: number | null; costImages: number;
+  error: { reason: "quota" | "filter" | "network" | "provider"; retryAt?: string; message: string } | null;
+}
+GET  /api/clone/:jobId/images → { images: Array<{ id; kind: "scene" | "cover"; index; label; usedVersion: number; versions: ImageVersion[]; refLimit: number }> }
+POST /api/clone/:jobId/images/redraw {
+  imageIds: string[];                     // 1 ảnh, hoặc nhiều ảnh (chọn nhiều, Vẽ lại cả N)
+  feedback?: string;                      // Hoạ sĩ sửa phần scene của từng ảnh
+  parts?: Partial<Record<PromptPartKind, string>>;   // sửa tay, chỉ khi imageIds.length === 1
+  refs?: Array<{ id?: string; upload?: string; videoImageId?: string; rivalFrame?: { videoId: string; atSec: number }; role: ImageRef["role"] }>;
+  provider?: string;
+} → { versions: Array<{ imageId; n }> }
+POST /api/clone/:jobId/images/:imageId/use { n } → bản đang dùng (cập nhật manifest + project editor nếu đã dựng)
+POST /api/clone/:jobId/images/:imageId/versions/:n/cancel
+SSE  image.progress { jobId, imageId, n, phase: "sending" | "drawing" | "receiving" | "done" | "failed", previewUrl?, elapsedSec }
+```
+
+- **Không sửa template:** `parts` chỉ áp cho ảnh đó. Lần vẽ sau (kể cả *Vẽ lại cả N ảnh*) của ảnh đó dùng prompt của **bản đang dùng**.
+- `refLimit` theo nhà cung cấp (ChatGPT 4). Quá giới hạn → 422 `{ code: "too_many_refs", limit }`.
+- Vẽ xong: bản mới thành `usedVersion` (trừ khi người dùng đã chọn bản khác trong lúc vẽ). Video đã duyệt/dựng: ảnh mới đánh dấu `needsReview`, editor thay media của clip đó (giữ chuyển động, keyframe, thời lượng) và ghi vào lịch sử hoàn tác; Độ hoàn thiện đo lại mục ảnh.
+- Lỗi giữ nguyên `parts`, `refs` đã gửi để *Sửa prompt* mở lại đúng nội dung.
+- Ghi chú đã học (§19) vẫn chỉ ghi khi người dùng bấm lưu; `parts.learned` hiển thị nhưng sửa ở đây không đổi Ghi chú đã học.

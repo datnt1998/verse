@@ -1,5 +1,14 @@
 # Viderse — Lịch sử thiết kế
 
+## Đợt 33 (01/11/2026) — Gói V29: ảnh có prompt đã gửi, sửa prompt và vẽ lại đúng ảnh <!-- r33-img -->
+
+- `Review`: cột phải mới — Phiên bản (bản đang dùng, Dùng bản này), Ảnh tham chiếu (vai trò, Thêm từ ảnh trong video / khung video gốc / tải lên), Prompt đã gửi (theo phần, thay đổi so với bản trước, nguyên văn); Sửa prompt (E) với thanh dưới riêng; hiệu ứng đang vẽ (ảnh cũ mờ, vệt sáng, hạt, 3 bước, ảnh xem dần) và lộ ảnh + viền sáng; lỗi có lý do và hướng đi; chọn nhiều để vẽ lại N ảnh. Khung ảnh không phóng quá kích thước gốc (màn rộng không mờ).
+- `MReview`: hàng Prompt đã gửi mở sheet; sheet Vẽ lại có tab Góp ý · Sửa prompt; Phiên bản; cùng hiệu ứng.
+- `Editor` (`img`): vẽ lại ngay trong bảng Cảnh; ảnh mới tự thay vào timeline, toast + Hoàn tác.
+- `Main`: ô Phòng vẽ đang vẽ dùng cùng hiệu ứng.
+- Luật L14 thêm lớp “từng ảnh”. Tài liệu: ia-flows W6, W15, L14; components › Ảnh, prompt và phiên bản; copy › Ảnh, prompt và vẽ lại; data-contract §26; dev-prompt Gói V29; hỏi đáp #77.
+- Canvas phiên bản 60.
+
 ## Đợt 32 (01/11/2026) — Màn rộng và chốt hỏi đáp <!-- r32 -->
 
 - Bố cục màn rộng (≥ 1600px): cột giữa căn giữa, tối đa 1280 (bàn làm việc, bảng) · 1760 (lưới, xem ảnh) · 880 (form); ô Nhắn trợ lý 880. Áp ở `Main`, `Activity`, `Dialogs`, `System`, `Queue`, `Channel`, `Explore`, `Library`, `Review`, `Settings`, `Template`. Token `--vv-wide-*`, components › Bố cục màn rộng.

@@ -299,3 +299,23 @@ Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Vi
 | Ô Nhắn trợ lý (#74) | đang đọc: “Đang đọc câu của bạn…” · chưa có model: “Chưa có model viết. Thêm ở Cài đặt › Kết nối AI.” · mất kết nối: “Mất kết nối · gửi lại khi có kết nối” · kế hoạch hết hạn: “Kế hoạch đã cũ vì video vừa đổi. Gửi lại câu để lập kế hoạch mới.” · nút *Thử lại*, *Sửa câu* · bước: Đang chờ · Đang làm · Xong |
 | Đề xuất, quy tắc (#75) | theo hỏi đáp #75 (đã đồng ý): “Đang tải đề xuất…” · “Không tải được đề xuất.” · “Mất kết nối · đề xuất cập nhật lại khi có kết nối” · “Tốn N ảnh. Máy sẽ xếp việc này vào hàng chờ ngay sau khi bạn bấm.” |
 | Đánh dấu đã đăng (#76) | “Đánh dấu đã đăng?” · ô “Link YouTube (không bắt buộc)” · link sai: “Đây không phải link video YouTube.” |
+
+## Ảnh, prompt và vẽ lại <a id="copy-image"></a> <!-- r33-img -->
+
+| Chỗ | Câu |
+|---|---|
+| Nhóm ở cột phải | Phiên bản · N · Ảnh tham chiếu · N/4 · Prompt đã gửi · Lời kể trong cảnh |
+| Phiên bản | “Bản 2 · Theo góp ý “bảo vệ đứng trên đầu thang, tông lạnh hơn” · 23:58” · “Lần đầu · Hoạ sĩ viết từ lời kể” · *Dùng bản 1 cho video* · huy hiệu ảnh “bản 2” / “bản 1 · chưa dùng” |
+| Phần của prompt | Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh; nguồn: “Hoạ sĩ viết từ lời kể” · “Hoạ sĩ sửa theo góp ý” · “prompt “Đêm xanh rêu”” · “template Mẫu chuẩn” · “2 ảnh bên dưới” |
+| Dòng dưới prompt | “ChatGPT · gpt-image-2 · 1280×720 · vẽ 44 giây · 23:58 · tốn 1 ảnh” · *Xem nguyên văn gửi máy chủ* / *Xem theo phần* · *Chép* → “Đã chép” |
+| Thay đổi | “So với bản 2: Hoạ sĩ đổi 2 chỗ theo góp ý của bạn.” · *Xem thay đổi* / *Ẩn thay đổi* |
+| Sửa prompt | thanh dưới “Đã sửa 1 chỗ trong prompt cảnh 3” · “Chỉ áp cho ảnh này · tốn 1 ảnh, ChatGPT còn 7/50 hôm nay” · *Huỷ sửa* · **Vẽ lại với prompt này** · phần đổi: “Đã sửa · Hoàn tác” |
+| Ảnh tham chiếu | vai trò Bố cục · Nhân vật · Phong cách · Đồ vật · “Khung đối thủ · Nocturne Stories 14:02” · “Bảo vệ · từ cảnh 1” · trống: “Không dùng ảnh tham chiếu. Thêm ảnh để giữ nhân vật hoặc bố cục giống nhau giữa các cảnh.” · popover: Thêm ảnh tham chiếu · Ảnh trong video · Khung video gốc · Tải lên · “Kéo ảnh vào đây, hoặc chọn tệp” · “PNG, JPG, WebP · tối đa 20 MB” · Dùng làm · “ChatGPT nhận tối đa 4 ảnh tham chiếu” · *Thêm 1 ảnh* / “Chọn ảnh để thêm” |
+| Đang vẽ | “Hoạ sĩ đang vẽ bản 3” · “0:24 · thường khoảng 40 giây” · bước Gửi prompt → Đang vẽ → Tải về (xong: “Đã gửi prompt”, “Đã vẽ”) · “Bạn duyệt tiếp ảnh khác được; xong sẽ báo ở đây và trên dải ảnh.” · *Huỷ lần vẽ* · bản: “Đang vẽ bản 3. Bản 2 vẫn dùng cho video tới khi bản mới xong.” |
+| Vẽ xong | nhãn dải ảnh “MỚI” · *So với bản 2* / “Đang xem bản 2” |
+| Lỗi | “Chưa vẽ được bản 3” + lý do thật: “ChatGPT đã hết hạn mức ảnh hôm nay (50/50), đặt lại lúc 07:00. Bản 2 vẫn được giữ; prompt bạn sửa vẫn còn.” · *Vẽ bằng Grok · còn 190 ảnh* · *Sửa prompt* |
+| Chọn nhiều | “3 ảnh đã chọn” · “Góp ý chung, ví dụ: không có chữ trong ảnh, tông lạnh hơn” · *Bỏ chọn* · **Vẽ lại 3 ảnh · tốn 3 ảnh** · “Mỗi ảnh giữ prompt riêng. Góp ý chung được Hoạ sĩ ghép vào phần Cảnh của từng prompt rồi vẽ lần lượt.” · “Shift + bấm ảnh để thêm, bớt · Esc bỏ chọn” |
+| Editor | “Hoạ sĩ đang vẽ bản 2” · “Đang vẽ lại ảnh cảnh 5 · bạn chỉnh tiếp được” · toast “Cảnh 5 đã dùng bản 2 · chuyển động, keyframe giữ nguyên” · *Hoàn tác ⌘Z* · trạng thái “Bản mới · cần duyệt lại” · “Ảnh mới chưa duyệt: Độ hoàn thiện kiểm lại ảnh này trước khi xuất. ⌘Z để quay lại bản 1.” · “4 phần còn lại (Phong cách, Tham chiếu, Ghi chú đã học, Tránh) giữ nguyên · sửa đủ ở Duyệt” |
+| Điện thoại | tab Góp ý · Sửa prompt · “Hoạ sĩ sửa phần Cảnh của prompt theo góp ý rồi vẽ; xem lại thay đổi ở Prompt đã gửi.” · *Gửi cho Hoạ sĩ* / **Vẽ lại với prompt này** · sheet Prompt đã gửi: *Chép prompt* · **Sửa prompt rồi vẽ lại** |
+
+Prompt hiện **đúng văn bản đã gửi**, giữ ngôn ngữ gốc (thường là tiếng Anh); không dịch, không rút gọn. Mọi nhãn quanh nó là tiếng Việt.

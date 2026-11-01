@@ -542,3 +542,12 @@ Mẫu:
 - **Kênh › Video** (bảng, bộ lọc, Chọn nhiều): board chỉ vẽ nút của hàng; menu ⋯ thêm Làm lại từ đầu / Dừng hẳn / Xoá video dùng chung với Bàn dựng; dòng phụ thẻ số liệu (từ ngày tạo kênh, gần nhất) suy từ dữ liệu thật.
 - Hỏi design: xác nhận các điểm trên hay vẽ lại.
 - Trả lời (design, 01/11/2026): Duyệt tất cả như app đang làm (ô Link YouTube không bắt buộc trong hộp Đánh dấu đã đăng, thẻ YouTube Data API cùng nhịp thẻ nhà cung cấp, thanh dài nhất 90%, Kênh › Video). Link sai: “Đây không phải link video YouTube.” <!-- r32 -->
+
+### #77 · Gói V29: prompt đã gửi, ảnh tham chiếu và ảnh xem dần — Mở <!-- r33-img -->
+- Artboard: `Review` · `prompt=view|raw`, `state=redrawing|reveal`; data-contract §26.
+- Hỏi dev:
+  1. Pipeline ảnh hiện ghép prompt ở đâu? Lưu được **nguyên văn đã gửi** theo từng phần (Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh) cho mỗi lần vẽ không, hay chỉ ghép tại chỗ rồi bỏ?
+  2. Ảnh tham chiếu đang gửi kèm gồm những gì (khung đối thủ, ảnh nhân vật…)? Có lưu được nguồn (video, giây, ảnh nào) để hiện lại không?
+  3. Nguồn vẽ nào trả **ảnh xem dần** (ví dụ `partial_images` của gpt-image)? Nếu không có thì giao diện chỉ dùng ảnh cũ mờ + vệt sáng, không vẽ ảnh xem dần giả.
+  4. Huỷ lần vẽ khi nhà cung cấp đã nhận yêu cầu: có bị tính hạn mức không? Câu “Huỷ lần vẽ” cần nói trước nếu có.
+  5. Giữ ảnh của mọi phiên bản cũ có ảnh hưởng dọn dữ liệu (GC media) không? Đề xuất giữ tới khi video được xoá hoặc dọn MP4.

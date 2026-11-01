@@ -481,7 +481,7 @@ Nguồn sự thật:
 - PromptMenu hai tab Ảnh cảnh / Ảnh bìa; tab Ảnh cảnh có dòng cuối “Không tạo ảnh cho video này”. Chọn khác thì gọi `plan` và hiện giá; nút chính ghi đúng việc; Huỷ bỏ lựa chọn.
 - Bỏ khỏi menu ⋯ dòng “Không tạo ảnh cho video này” (đã nằm trong chip Ảnh).
 - Hộp thoại Vẽ lại cả bộ ghi prompt đang dùng + link “Đổi ở Bàn dựng”.
-- **Không làm:** chip ảnh ở Video mới, prompt riêng cho từng ảnh ở Duyệt.
+- **Không làm:** chip ảnh ở Video mới. (Prompt riêng cho từng ảnh ở Duyệt: chuyển sang làm ở Gói V29, đợt 33.) <!-- r33-img -->
 
 ### Việc backend
 - Data-contract §14. `resolveJobRecipe` đè `scenePromptId` / `coverPromptId` / `no_images` của job lên recipe template, rồi phân giải như V15.
@@ -807,6 +807,38 @@ Nguồn sự thật:
 - Thanh trên: badge Duyệt nền vàng nhạt, chữ vàng, khớp `Main`.
 - Ghi “Gói V28” vào `10-gap-closure.md`.
 
+## Gói V29 — Ảnh có prompt đã gửi, sửa prompt và vẽ lại đúng ảnh (P1, phụ thuộc V2, V6, V13) <!-- r33-img --> <a id="goi-v29"></a>
+
+**Vì sao:** người dùng chỉ thấy một câu tóm tắt tiếng Việt về ảnh, không biết Hoạ sĩ đã gửi gì và kèm ảnh tham chiếu nào, nên góp ý mò mẫm. Sau khi vẽ không sửa được prompt của đúng một ảnh, và trong editor muốn vẽ lại phải quay về Duyệt. Ảnh lớn ở màn rộng còn bị phóng quá kích thước gốc nên mờ.
+- Artboard: `Review` (`state=review|redrawing|reveal|failed|batch`, `prompt=view|edit|raw`, `refs=view|add`) · `MReview` (`state=prompt|feedback|edit|redrawing|reveal`) · `Editor` (`focus=scene`, `img=view|edit|drawing|done`) · `Main` (ô Phòng vẽ đang vẽ).
+- Spec: ia-flows W6, W15, L14; components › Ảnh, prompt và phiên bản; copy › Ảnh, prompt và vẽ lại; data-contract §26.
+
+### Việc FE
+- Cột phải Duyệt: Phiên bản → Ảnh tham chiếu → Prompt đã gửi (theo phần, có thay đổi so với bản trước, nguyên văn) → meta → Lời kể. 360px; 440px khi sửa; 420/520px từ 1600px.
+- **Sửa prompt** (E): textarea từng phần, *Hoàn tác* từng phần, thêm/bỏ ảnh tham chiếu, thanh dưới chế độ sửa với **Vẽ lại với prompt này** (⌘↵). Esc huỷ.
+- **Góp ý → Vẽ lại** (R) giữ như cũ; bản mới ghi `feedback` và hiện thay đổi.
+- **Hiệu ứng** theo components › DevelopEffect: đang vẽ (ảnh cũ mờ + vệt sáng + hạt + 3 bước), xem dần khi có `previewUrl`, lộ ảnh + viền sáng khi xong, nhãn MỚI trên dải ảnh; giảm chuyển động thì tắt.
+- **Khung ảnh không phóng quá `width` gốc**; căn giữa; dùng container query, không `object-fit: cover` phóng to.
+- Chọn nhiều (Shift + bấm) → Vẽ lại N ảnh với góp ý chung.
+- **Editor:** bảng phải của Cảnh có ảnh 16:9, Bản, Prompt đã gửi (4 dòng, Xem đủ, Sửa phần Cảnh), ảnh tham chiếu thu nhỏ, góp ý + Vẽ lại, Thay ảnh. Vẽ xong tự thay media của clip (giữ chuyển động/keyframe/thời lượng), toast + Hoàn tác ⌘Z, ảnh đánh dấu cần duyệt lại.
+- Điện thoại: hàng Prompt đã gửi mở sheet; sheet Vẽ lại hai tab Góp ý · Sửa prompt.
+- Bàn dựng › Phòng vẽ: ô đang vẽ dùng cùng hiệu ứng.
+
+### Việc backend
+- Lưu `ImageVersion` cho mỗi lần vẽ (`parts`, `sentText`, `refs`, `provider`, `model`, `params`, thời gian, `costImages`, `error`), giữ mọi bản (ảnh của bản cũ không bị GC khi còn trong lịch sử của video).
+- `POST …/images/redraw` nhận `feedback`, `parts`, `refs`, `provider`; `…/use`; `…/cancel`; SSE `image.progress` (có `previewUrl` khi nhà cung cấp hỗ trợ ảnh xem dần).
+- Editor: đổi bản đang dùng → cập nhật binding media của clip trong project, ghi vào lịch sử hoàn tác.
+
+### Nghiệm thu
+- Duyệt cảnh 3: cột phải hiện đúng nguyên văn đã gửi (so với log máy chủ) và 2 ảnh tham chiếu đã gửi.
+- Sửa phần Cảnh, bỏ ảnh tham chiếu 2 → Vẽ lại → bản 3 dùng đúng prompt đã sửa, chỉ 1 ảnh tham chiếu; template và prompt Đêm xanh rêu không đổi; ảnh khác không đổi.
+- Góp ý “thêm biển…” → bản mới hiện thay đổi (thêm xanh, bỏ gạch) so với bản trước.
+- Trong lúc vẽ: duyệt ảnh khác được; Huỷ lần vẽ → bản cũ giữ nguyên, không tốn ảnh nếu nhà cung cấp chưa nhận.
+- Hết hạn mức → thẻ lỗi có giờ đặt lại thật, *Vẽ bằng Grok* chạy đúng prompt đã sửa.
+- Màn 2560 × 1440: ảnh 1280×720 hiện đúng 1280px, không phóng to.
+- Editor: vẽ lại cảnh 5 trong lúc kéo phụ đề → không mất thao tác; xong ảnh thay vào timeline, ⌘Z quay lại bản 1.
+- Ghi “Gói V29” vào `10-gap-closure.md`.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -837,6 +869,7 @@ Nguồn sự thật:
 | V26 | `apps: AppLink[]` trong `GET /api/me` và 403 `app_access_denied`; 401 `session_ended` có `reason`, `app` | <!-- r30-sso -->
 | V27 | Không API mới; dùng `pausedAt`, `waitReason`, `PATCH /api/queue` v2 (#52) và phiên thiết bị `GET /api/me/sessions` | <!-- r31-v27 -->
 | V28 | Không API mới; `/api/events` (SSE) đã có (#8) | <!-- r32 -->
+| V29 | `ImageVersion` (prompt đã gửi theo phần, refs, provider, thời gian), `POST …/images/redraw` (`feedback`, `parts`, `refs`), `…/use`, `…/cancel`, SSE `image.progress` | <!-- r33-img -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->
