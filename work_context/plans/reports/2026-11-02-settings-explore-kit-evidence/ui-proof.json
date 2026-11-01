@@ -1,0 +1,13 @@
+{
+  "results": [
+    {
+      "name": "desktop-1440-explore",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "safeTop": "0px",
+      "safeBottom": "0px",
+      "reduced": true
+    }
+  ],
+  "errors": []
+}

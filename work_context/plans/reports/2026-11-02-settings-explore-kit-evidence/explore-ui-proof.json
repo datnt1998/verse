@@ -1,0 +1,25 @@
+{
+  "status": "partial",
+  "source": { "consumers": "8537035a", "button": "0d9508db", "selects": "2ff65cea" },
+  "boundary": "The read-only 8047 fixture switched to first-run onboarding (5/6 complete; ChatGPT login required) before the final mobile and label captures. No further browser run was authorized or performed.",
+  "notExercised": ["Final post-Selects native option-label proof", "Populated Explore 390/360 native captures", "Protocol-authenticated provider connection and catalogue"],
+  "results": [
+    {
+      "behavior": "filter-immediate-and-real-query",
+      "width": 1440,
+      "label": "7 ngày",
+      "immediate": "Đăng trong\n7 ngày",
+      "query": "?sort=outlier&within=7&limit=200",
+      "status": 200
+    },
+    {
+      "behavior": "filter-immediate-and-real-query",
+      "width": 1440,
+      "label": "Tất cả",
+      "immediate": "Đăng trong\nTất cả",
+      "query": "?sort=outlier&limit=200",
+      "status": 200
+    }
+  ],
+  "errors": []
+}

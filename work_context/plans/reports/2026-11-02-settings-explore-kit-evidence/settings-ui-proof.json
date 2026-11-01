@@ -1,0 +1,153 @@
+{
+  "status": "partial",
+  "sourceAtCapture": { "consumers": "8537035a", "button": "0d9508db", "selects": "before 2ff65cea" },
+  "notes": [
+    "Only one eligible stored model was available; no browser model change or provider connection is claimed.",
+    "The native after captures prove the sheet inset, last-option reachability, page width and ordinary CTA geometry before the final ellipsis-only Selects repair.",
+    "Empty row samples from a premature locator were removed. Mounted row geometry is not claimed."
+  ],
+  "results": [
+    {
+      "behavior": "model-picker",
+      "stored": "gpt-6.1-sol",
+      "available": [
+        "gpt-6.1-solchữ · đọc ảnh · 272K ngữ cảnhChữ · đọc ảnh"
+      ],
+      "boundary": "No alternative eligible stored model on the approved fixture"
+    },
+    {
+      "behavior": "desktop-ordinary-primary-cta",
+      "width": 156.46875,
+      "height": 32,
+      "centered": 0,
+      "groupWidth": 130.46875
+    },
+    {
+      "width": 358,
+      "behavior": "mobile-ordinary-primary-cta",
+      "height": 48,
+      "centered": 0.0078125,
+      "groupWidth": 150.546875
+    },
+    {
+      "width": 390,
+      "behavior": "provider-form-guard",
+      "disabled": true
+    },
+    {
+      "width": 390,
+      "behavior": "last-model-choice-reachable",
+      "bottom": 630.5,
+      "bodyBottom": 784
+    },
+    {
+      "name": "mobile-390-safe59-34-agents-after",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      },
+      "dialog": {
+        "left": 0,
+        "top": 244.203125,
+        "right": 390,
+        "bottom": 844,
+        "width": 390,
+        "height": 599.796875
+      },
+      "body": {
+        "left": 0,
+        "top": 340,
+        "right": 390,
+        "bottom": 784,
+        "width": 390,
+        "height": 444
+      },
+      "input": {
+        "left": 50,
+        "top": 362,
+        "right": 333,
+        "bottom": 388,
+        "width": 283,
+        "height": 26
+      },
+      "list": {
+        "left": 23,
+        "top": 407,
+        "right": 367,
+        "bottom": 630.5,
+        "width": 344,
+        "height": 223.5
+      },
+      "bodyPadding": "16px",
+      "bodyOverflow": "auto",
+      "safeTop": "59px",
+      "safeBottom": "34px",
+      "reduced": true
+    },
+    {
+      "width": 328,
+      "behavior": "mobile-ordinary-primary-cta",
+      "height": 48,
+      "centered": 0.0078125,
+      "groupWidth": 150.546875
+    },
+    {
+      "width": 360,
+      "behavior": "provider-form-guard",
+      "disabled": true
+    },
+    {
+      "width": 360,
+      "behavior": "last-model-choice-reachable",
+      "bottom": 584.5,
+      "bodyBottom": 720
+    },
+    {
+      "name": "mobile-360-safe59-34-agents-after",
+      "viewport": {
+        "width": 360,
+        "height": 780,
+        "scrollWidth": 360
+      },
+      "dialog": {
+        "left": 0,
+        "top": 180.203125,
+        "right": 360,
+        "bottom": 780,
+        "width": 360,
+        "height": 599.796875
+      },
+      "body": {
+        "left": 0,
+        "top": 276,
+        "right": 360,
+        "bottom": 720,
+        "width": 360,
+        "height": 444
+      },
+      "input": {
+        "left": 50,
+        "top": 298,
+        "right": 303,
+        "bottom": 324,
+        "width": 253,
+        "height": 26
+      },
+      "list": {
+        "left": 23,
+        "top": 343,
+        "right": 337,
+        "bottom": 584.5,
+        "width": 314,
+        "height": 241.5
+      },
+      "bodyPadding": "16px",
+      "bodyOverflow": "auto",
+      "safeTop": "59px",
+      "safeBottom": "34px",
+      "reduced": true
+    }
+  ],
+  "errors": []
+}
