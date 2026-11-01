@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -403,5 +404,161 @@ func TestInstallRunsProvisionPipeline(t *testing.T) {
 		if !found {
 			t.Fatalf("thiếu bước %q trong %v", step, steps)
 		}
+	}
+}
+
+// fakeUV đặt một binary uv giả vào đúng chỗ app quản (<home>/bin/uv). Nhờ vậy
+// Provision thấy "đã cài uv" nên không chạm mạng, còn các bước chạy uv thì
+// chạy đúng script này — bài test đi qua đường báo lỗi thật của adapter.
+func fakeUV(t *testing.T, home, script string) string {
+	t.Helper()
+	root := filepath.Join(home, "bin", "uv")
+	version := "v-" + toolchain.UvPin().Version
+	dir := filepath.Join(root, version)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	exe := filepath.Join(dir, toolchain.UvBinaryName())
+	if err := os.WriteFile(exe, []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "current"), []byte(version+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return exe
+}
+
+// Lỗi của uv mang đường dẫn, URL và traceback; chúng chỉ được nằm ở LogTail
+// (Nâng cao), không bao giờ bị ghép vào Message mà thành viên đọc thấy.
+func TestProvisionKeepsUVDiagnosticsOutOfPublicMessage(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("script uv giả dùng sh")
+	}
+	e := testEngine(t)
+	fakeUV(t, e.cfg.Home, `#!/bin/sh
+case "$1" in
+  python) exit 0 ;;
+esac
+cat >&2 <<'OUT'
+Resolved 42 packages in 0.12s
+error: Failed to download torch==2.4.0 from https://files.pythonhosted.org/packages/torch.whl
+  at /opt/ainovel/voice/vieneu/src/.venv/lib/python3.12/site-packages/torch
+Traceback (most recent call last):
+OUT
+exit 1
+`)
+	deps := noopDeps()
+	deps.ensureTools = (*provisionRun).ensureTools
+	deps.syncDeps = (*provisionRun).syncDeps
+	e.prov = deps
+	log := &stateLog{}
+
+	err := e.Provision(context.Background(), log.report)
+	pe := provisionError(t, err)
+	if pe.Code != voice.ProvisionErrDepsFailed {
+		t.Fatalf("code = %q, muốn %q", pe.Code, voice.ProvisionErrDepsFailed)
+	}
+	for _, leak := range []string{"/opt/ainovel", "https://files.pythonhosted.org", "Traceback"} {
+		if strings.Contains(pe.Message, leak) {
+			t.Fatalf("message rò chẩn đoán %q: %q", leak, pe.Message)
+		}
+	}
+	for _, want := range []string{"files.pythonhosted.org", "/opt/ainovel", "Traceback"} {
+		if !strings.Contains(pe.LogTail, want) {
+			t.Fatalf("logTail thiếu %q: %q", want, pe.LogTail)
+		}
+	}
+	last := log.last()
+	if last.State != voice.ProvisionStateError || last.Error == nil {
+		t.Fatalf("mốc cuối = %+v, muốn error", last)
+	}
+	if strings.Contains(last.Message, "Traceback") {
+		t.Fatalf("state.Message rò traceback: %q", last.Message)
+	}
+	if !strings.Contains(last.Error.LogTail, "files.pythonhosted.org") {
+		t.Fatalf("state.Error.LogTail thiếu chẩn đoán: %q", last.Error.LogTail)
+	}
+}
+
+// uv không cho biết tổng số việc của `sync`, nên mỗi dòng output không phải
+// một phần trăm: bước thư viện phải luôn là "không đo được" dù output dài.
+func TestProvisionDepsProgressIsNeverFabricated(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("script uv giả dùng sh")
+	}
+	e := testEngine(t)
+	fakeUV(t, e.cfg.Home, `#!/bin/sh
+case "$1" in
+  python) exit 0 ;;
+esac
+i=0
+while [ $i -lt 40 ]; do
+  echo "Downloading package-$i (https://files.pythonhosted.org/p/$i.whl)"
+  i=$((i+1))
+done
+exit 0
+`)
+	deps := noopDeps()
+	deps.ensureTools = (*provisionRun).ensureTools
+	deps.syncDeps = (*provisionRun).syncDeps
+	e.prov = deps
+	log := &stateLog{}
+
+	if err := e.Provision(context.Background(), log.report); err != nil {
+		t.Fatalf("Provision: %v", err)
+	}
+	var depsStates int
+	for _, st := range log.all() {
+		if st.State != voice.ProvisionStateProvisioning || st.Step != voice.ProvisionStepDeps {
+			continue
+		}
+		depsStates++
+		if st.Percent != voice.ProvisionPercentUnknown {
+			t.Fatalf("bước thư viện bịa %% từ số dòng output: %+v", st)
+		}
+	}
+	if depsStates < 40 {
+		t.Fatalf("chỉ thấy %d mốc bước thư viện, muốn ≥ 40 (output thật phải được báo)", depsStates)
+	}
+	if last := log.last(); last.State != voice.ProvisionStateReady || last.Percent != 100 {
+		t.Fatalf("mốc cuối = %+v, muốn ready/100", last)
+	}
+}
+
+// Lệch hash của uv phải giữ phân loại hash_mismatch qua chính Provision: worker
+// chỉ dừng tự thử lại khi thấy mã này (install_test của toolchain chỉ thử
+// Installer, không thử adapter).
+func TestProvisionToolsChecksumMapsToHashMismatch(t *testing.T) {
+	e := testEngine(t)
+	assetPath := filepath.Join(t.TempDir(), "uv.tar.gz")
+	if err := os.WriteFile(assetPath, []byte("không phải uv ghim"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	old := uvInstallSpec
+	uvInstallSpec = func(toolchain.UvProber) toolchain.InstallSpec {
+		spec := toolchain.UvInstallSpec(nil)
+		spec.Pin.Assets = map[toolchain.PlatformKey][]toolchain.PinnedAsset{
+			toolchain.CurrentPlatformKey(): {
+				{Name: "uv", URL: "file://" + assetPath, SHA256: strings.Repeat("f", 64),
+					Kind: toolchain.AssetFile, Executable: true},
+			},
+		}
+		return spec
+	}
+	defer func() { uvInstallSpec = old }()
+
+	deps := noopDeps()
+	deps.ensureTools = (*provisionRun).ensureTools
+	e.prov = deps
+	log := &stateLog{}
+
+	err := e.Provision(context.Background(), log.report)
+	pe := provisionError(t, err)
+	if pe.Code != voice.ProvisionErrHashMismatch {
+		t.Fatalf("code = %q, muốn %q (lệch hash không được thành uv_failed)", pe.Code, voice.ProvisionErrHashMismatch)
+	}
+	last := log.last()
+	if last.State != voice.ProvisionStateError || last.Error == nil || last.Error.Code != voice.ProvisionErrHashMismatch {
+		t.Fatalf("mốc cuối = %+v, muốn error/hash_mismatch", last)
 	}
 }

@@ -34,6 +34,11 @@ const provisionLockFile = ".install.lock"
 // provisionPythonVersion là bản Python mà VieNeu v3.8.3 khoá trong uv.lock.
 const provisionPythonVersion = "3.12"
 
+// uvInstallSpec là điểm tiêm cho test: lượt chạy thật cài uv ghim từ GitHub,
+// test thay bằng spec trỏ vào tệp cục bộ để thử lệch hash qua đúng pipeline
+// của toolchain mà không chạm mạng.
+var uvInstallSpec = toolchain.UvInstallSpec
+
 // installState là nội dung install-state.json.
 type installState struct {
 	Tag           string    `json:"tag"`
@@ -142,7 +147,7 @@ func (r *provisionRun) run(ctx context.Context) error {
 
 	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "Đang chuẩn bị công cụ tải (uv)…")
 	if err := r.deps.ensureTools(r, ctx); err != nil {
-		return r.fail(ctx, voice.ProvisionErrUVFailed, err)
+		return r.fail(ctx, checksumCode(err, voice.ProvisionErrUVFailed), err)
 	}
 
 	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Đang chuẩn bị Python "+provisionPythonVersion+"…")
@@ -155,13 +160,13 @@ func (r *provisionRun) run(ctx context.Context) error {
 		if err := r.deps.syncSource(r, ctx); err != nil {
 			return r.fail(ctx, sourceErrorCode(err), err)
 		}
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 25, "Đang cài thư viện Python (lần đầu vài phút)…")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, voice.ProvisionPercentUnknown, "Đang cài thư viện Python (lần đầu vài phút)…")
 		if err := r.deps.syncDeps(r, ctx); err != nil {
 			return r.fail(ctx, voice.ProvisionErrDepsFailed, err)
 		}
 	} else {
 		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Mã nguồn đã đúng bản ghim")
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 65, "Thư viện Python đã sẵn sàng")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, voice.ProvisionPercentUnknown, "Thư viện Python đã sẵn sàng")
 	}
 
 	if !modelReady {
@@ -196,11 +201,18 @@ func (r *provisionRun) run(ctx context.Context) error {
 // sourceErrorCode phân biệt lệch hash (dấu hiệu bảo mật, không thử lại) với
 // lỗi mạng thường.
 func sourceErrorCode(err error) string {
+	return checksumCode(err, voice.ProvisionErrDownloadFailed)
+}
+
+// checksumCode giữ nguyên phân loại lệch hash của toolchain cho mọi bước tải
+// (mã nguồn, uv): worker dừng tự thử lại khi thấy hash_mismatch, nên lỗi lệch
+// hash không được gộp thành lỗi tải thường.
+func checksumCode(err error, fallback string) string {
 	var ce *toolchain.ChecksumError
 	if errors.As(err, &ce) {
 		return voice.ProvisionErrHashMismatch
 	}
-	return voice.ProvisionErrDownloadFailed
+	return fallback
 }
 
 // emit phát một mốc trạng thái. Phần trăm là phần trăm CỦA BƯỚC đang chạy
@@ -284,7 +296,7 @@ func (r *provisionRun) ensureTools(ctx context.Context) error {
 		r.uv = exe
 		return nil
 	}
-	spec := toolchain.UvInstallSpec(nil)
+	spec := uvInstallSpec(nil)
 	selfCheck := spec.SelfCheck
 	spec.SelfCheck = func(ctx context.Context, ic *toolchain.InstallContext, staging string) (string, error) {
 		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "Đang cài uv (bộ tải Python)…")
@@ -311,7 +323,7 @@ func (r *provisionRun) ensurePython(ctx context.Context) error {
 	}
 	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Đang tải Python "+provisionPythonVersion+"…")
 	if err := r.runUV(ctx, home, nil, "python", "install", provisionPythonVersion); err != nil {
-		return fmt.Errorf("cài Python %s thất bại: %w · %s", provisionPythonVersion, err, r.e.logTail(4))
+		return fmt.Errorf("cài Python %s thất bại: %w", provisionPythonVersion, err)
 	}
 	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Python "+provisionPythonVersion+" đã sẵn sàng")
 	return nil
@@ -420,17 +432,16 @@ func (r *provisionRun) syncDeps(ctx context.Context) error {
 	if err := os.MkdirAll(src, 0o755); err != nil {
 		return err
 	}
-	pct := 25
 	err := r.runUV(ctx, src, func(line string) {
-		if pct < 63 {
-			pct += 2
-		}
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, pct, "Đang cài thư viện: "+clip(line, 90))
+		// uv không cho tổng số việc của `sync` (mỗi dòng là một gói, không phải
+		// phần trăm), nên bước này luôn không đo được: UI hiện vòng xoay + một
+		// dòng, không bao giờ thấy một con số bịa từ số dòng output.
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, voice.ProvisionPercentUnknown, "Đang cài thư viện: "+clip(line, 90))
 	}, "sync", "--frozen", "--python", provisionPythonVersion)
 	if err != nil {
-		return fmt.Errorf("cài thư viện Python thất bại: %w · %s", err, r.e.logTail(4))
+		return fmt.Errorf("cài thư viện Python thất bại: %w", err)
 	}
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 65, "Đã cài xong thư viện Python")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, voice.ProvisionPercentUnknown, "Đã cài xong thư viện Python")
 	return nil
 }
 
@@ -442,7 +453,7 @@ func (r *provisionRun) startModel(ctx context.Context) error {
 		r.emitModel(bytes, modelBytes)
 	})
 	if err != nil {
-		return fmt.Errorf("khởi động bộ đọc thất bại: %w · %s", err, r.e.logTail(6))
+		return fmt.Errorf("khởi động bộ đọc thất bại: %w", err)
 	}
 	return nil
 }
