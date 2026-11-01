@@ -53,6 +53,8 @@ export type CloneJobView = {
   generation: number
   supersededAt?: string | null
   templateId: string
+  /** Tên template lúc tạo job (library.Snapshot.templateName). */
+  templateName?: string
   status: string
   stageGroup: string
   activeStep: string | null
@@ -164,6 +166,7 @@ export const readCloneJob = (value: unknown, path: string): CloneJobView => {
     generation: num(o.generation, `${path}.generation`),
     ...(supersededAt === undefined ? {} : { supersededAt }),
     templateId: str(o.templateId, `${path}.templateId`),
+    ...(o.templateSnapshot == null ? {} : { templateName: maybe(record(o.templateSnapshot, `${path}.templateSnapshot`).templateName, str, `${path}.templateSnapshot.templateName`) }),
     status: str(o.status, `${path}.status`),
     stageGroup: str(o.stageGroup, `${path}.stageGroup`),
     activeStep: nullableStr(o.activeStep, `${path}.activeStep`),
@@ -265,6 +268,8 @@ export type JobImage = {
   reviewVersion: number | null
   versions: { version: number; originalUrl?: string; prompt?: string }[] | null
   sceneId?: string
+  startSec?: number
+  endSec?: number
   narration?: string
   prompt?: string
 }
@@ -293,6 +298,8 @@ const readImage = (value: unknown, path: string): JobImage => {
       }
     }, `${path}.versions`),
     ...(o.sceneId == null ? {} : { sceneId: str(o.sceneId, `${path}.sceneId`) }),
+    ...(o.startSec == null ? {} : { startSec: num(o.startSec, `${path}.startSec`) }),
+    ...(o.endSec == null ? {} : { endSec: num(o.endSec, `${path}.endSec`) }),
     ...(o.narration == null ? {} : { narration: str(o.narration, `${path}.narration`) }),
     ...(o.prompt == null ? {} : { prompt: str(o.prompt, `${path}.prompt`) }),
   }
@@ -318,6 +325,7 @@ const readImageList = (value: unknown): JobImageList => {
 
 export const getJobImages = async (id: string, signal?: AbortSignal) => readImageList(await request<unknown>(`/api/clone/${encodeURIComponent(id)}/images`, { signal }))
 export const redrawAll = (id: string, expectedRevision: number, confirmCount: number, feedback: string) => mutate('POST', `/api/clone/${encodeURIComponent(id)}/images`, { op: 'regenerateAll', expectedRevision, confirmCount, feedback })
+export const redrawImage = (id: string, imageId: string, expectedRevision: number, prompt: string) => mutate('POST', `/api/clone/${encodeURIComponent(id)}/images/${encodeURIComponent(imageId)}`, { op: 'regenerate', expectedRevision, ...(prompt ? { prompt } : {}) })
 export async function uploadCover(id: string, revision: number, file: File) {
   const response = await fetch(`/api/clone/${encodeURIComponent(id)}/cover?expectedRevision=${revision}`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file })
   if (!response.ok) {

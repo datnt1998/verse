@@ -8,6 +8,15 @@ export function metadataCounts(title: string, description: string, tags: string[
   return { title: [...title].length, description: [...description].length + [...footer].length, tags: tags.length, tagCharacters: [...tags.join(',')].length }
 }
 
+export function metadataDescriptionBody(description: string, footer?: string | null): string {
+  const suffix = footer ? `\n\n${footer}` : ''
+  return suffix && description.endsWith(suffix) ? description.slice(0, -suffix.length) : description
+}
+
+export function metadataDescriptionWithFooter(description: string, footer?: string | null): string {
+  return metadataDescriptionBody(description, footer) + (footer ? `\n\n${footer}` : '')
+}
+
 export function coverageAfterRemoval(coverage: { fixedSec: number; channelSec: number; videoSec: number | null }, removedSeconds: number) {
   const covered = Math.max(0, coverage.fixedSec + coverage.channelSec - removedSeconds)
   return { covered, total: coverage.videoSec, short: coverage.videoSec !== null && covered < coverage.videoSec }

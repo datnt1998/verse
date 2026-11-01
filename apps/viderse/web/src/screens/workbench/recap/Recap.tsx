@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { Button } from '@noverse/ui'
 import { space as s, corners as r } from '../../../styles/viderse.stylex'
 import type { RecapData } from '../../../api/workbench'
 import { AssistantComposer } from '../../../components/assistant/AssistantComposer'
@@ -28,8 +29,8 @@ const time = (value: string) => {
 export function Recap({ data, loading, error, waitingCount, readyCount, channelNames, onRetry, onEnter, onSelectJob }: Props) {
   const online = useOnline()
   return <div {...stylex.props(styles.layout)}><div role="region" aria-label="Bản tin" {...stylex.props(styles.scroll)}><div {...stylex.props(styles.root)}>
-    <header {...stylex.props(styles.header)}><div {...stylex.props(styles.heading)}><span {...stylex.props(styles.when)}>Bản tin · mọi kênh{data && ` · từ ${time(data.from)} tới ${time(data.to)}`}</span>{data && <p {...stylex.props(styles.lead)}>{recapLead(waitingCount, readyCount)}</p>}</div><button type="button" {...stylex.props(styles.quiet)} onClick={onEnter}>Vào việc ›</button></header>
-    {loading ? <p role="status">Đang tải Bản tin…</p> : !data && error ? <p role="alert">Không tải được Bản tin. <button type="button" onClick={onRetry}>Thử lại</button></p> : data && <>
+    <header {...stylex.props(styles.header)}><div {...stylex.props(styles.heading)}><span {...stylex.props(styles.when)}>Bản tin · mọi kênh{data && ` · từ ${time(data.from)} tới ${time(data.to)}`}</span>{data && <p {...stylex.props(styles.lead)}>{recapLead(waitingCount, readyCount)}</p>}</div><Button variant="quiet" size="compact" xstyle={styles.quiet} onClick={onEnter}>Vào việc ›</Button></header>
+    {loading ? <p role="status">Đang tải Bản tin…</p> : !data && error ? <p role="alert">Không tải được Bản tin. <Button variant="quiet" size="sm" xstyle={styles.inlineButton} onClick={onRetry}>Thử lại</Button></p> : data && <>
       <section aria-label="Cần bạn" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Cần bạn · {data.needsYou?.length || 0}</span><div {...stylex.props(styles.card)}>{data.needsYou?.length ? data.needsYou.map(item => <button key={item.jobId} type="button" {...stylex.props(styles.row)} onClick={() => onSelectJob(item.jobId)}><span {...stylex.props(styles.rowText)} title={item.label}>{item.label}</span><span>{item.state === 'review' ? 'Chờ duyệt' : 'Cần xử lý'} ›</span></button>) : <div {...stylex.props(styles.empty)}>Không có video cần bạn.</div>}</div>{data.needsYou?.some(item => item.state === 'review') && <a href="#/review" onClick={onEnter} {...stylex.props(styles.primary)}>Duyệt {data.needsYou.filter(item => item.state === 'review').length} video</a>}</section>
       {!!data.auto?.length && <section aria-label="Máy đã tự làm" {...stylex.props(styles.section)}><span {...stylex.props(styles.group)}>Máy đã tự làm</span>{data.auto.map((item, index) => <RecapAutoLine key={`${item.kind}-${index}`} item={item} offline={!online} />)}</section>}
       <RecapSuggestions />
@@ -61,6 +62,7 @@ const styles = stylex.create({
   tag: { fontSize: 11, color: 'var(--color-fg-4)' },
   tiles: { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: s['--vv-s-8'] },
   tile: { padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-1)', display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'], fontSize: 12, color: 'var(--color-fg-3)' },
-  quiet: { border: 0, backgroundColor: 'transparent', color: 'var(--color-fg-2)', padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, cursor: 'pointer', whiteSpace: 'nowrap' },
+  quiet: { height: 'auto', borderWidth: 0, padding: `${s['--vv-s-6']} ${s['--vv-s-10']}` },
+  inlineButton: { height: 'auto', borderWidth: 0, padding: 0 },
   primary: { alignSelf: 'flex-start', padding: `${s['--vv-s-7']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-8'], backgroundColor: 'var(--color-fg)', color: 'var(--color-surface-1)', textDecoration: 'none', fontSize: 13 },
 })

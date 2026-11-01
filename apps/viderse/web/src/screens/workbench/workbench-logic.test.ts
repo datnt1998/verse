@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { followAdmitted, groupJobs, readScope, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, groupJobs, imageTime, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
   it('đi theo job mới khi mục hàng chờ đang chọn được nhận', () => {
@@ -20,6 +20,12 @@ describe('Bàn dựng', () => {
     expect(readScope(new URLSearchParams('scope=all'), 'b')).toBe('all')
     expect(readScope(new URLSearchParams(), 'b')).toBe('b')
     expect(readScope(new URLSearchParams(), null)).toBe('all')
+  })
+  it('hiện đủ hai mốc thời gian thực, giữ mốc 0 và bỏ qua mốc chưa có', () => {
+    expect(imageTime({ startSec: 0, endSec: 3 })).toBe('0:00–0:03')
+    expect(imageTime({ startSec: 61.5, endSec: 90 })).toBe('1:01–1:30')
+    expect(imageTime({ startSec: 0 })).toBe('')
+    expect(imageTime({})).toBe('')
   })
   it('khôi phục phạm vi sau chuẩn hoá route mà không ghi đè điều hướng mới', async () => {
     let hash = '#/'

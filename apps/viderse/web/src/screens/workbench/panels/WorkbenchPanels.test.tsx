@@ -5,6 +5,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { CloneJobView } from '../../../api/workbench'
 import { WorkbenchPanels } from './WorkbenchPanels'
 
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+
 const job = { id: 'job', channelId: 'channel', activeStep: 'images', stageGroup: 'images', version: 1, source: { title: 'Nguồn', url: 'https://youtube.com', channelTitle: 'Kênh', thumbnailUrl: null, durationSec: 100 }, agentView: [], steps: [] } as unknown as CloneJobView
 const metadata = { status: 'ai', revision: 3, metadata: { title: 'Bản hiện tại', description: 'Mô tả', tags: ['a'] } }
 const clip = { id: 'clip', channelId: 'c', videoId: 'v', kind: 'clip', url: 'https://example.test', platform: 'twitch', title: 'Nền', thumbnailUrl: null, channelTitle: 'Kênh nền', channelHandle: null, videoDurationSec: null, startSec: 0, endSec: 30, source: 'random', status: 'ready', mediaId: 'm', error: null }

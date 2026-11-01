@@ -1,8 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { applyPrompt, jobAction, jobBulkAction, planPrompt, previewRestart, restartJob } from './workbench'
+import { applyPrompt, getJobImages, jobAction, jobBulkAction, planPrompt, previewRestart, readCloneJob, restartJob } from './workbench'
 
 afterEach(() => vi.unstubAllGlobals())
 describe('hợp đồng Bàn dựng', () => {
+  it('đọc tên từ library Snapshot thật và cho phép snapshot cũ chưa lưu tên', () => {
+    const job = { id: 'j', channelId: 'c', source: { id: 's', url: 'https://example.test', title: 'Nguồn', channelId: null, channelTitle: null, thumbnailUrl: null, durationSec: null }, sourceKey: 's', generation: 1, templateId: 't', status: 'waiting', stageGroup: 'review', activeStep: 'images', version: 1, noImages: false, subline: '' }
+    expect(readCloneJob({ ...job, templateSnapshot: { templateName: 'Mẫu thực', revision: 3 } }, 'job').templateName).toBe('Mẫu thực')
+    expect(readCloneJob({ ...job, templateSnapshot: { revision: 1 } }, 'job').templateName).toBeUndefined()
+    expect(() => readCloneJob({ ...job, templateSnapshot: { templateName: 7 } }, 'job')).toThrow()
+  })
   it('gửi thao tác job tới endpoint gốc', async () => {
     const fetcher = vi.fn(() => Promise.resolve(Response.json({})))
     vi.stubGlobal('fetch', fetcher)
@@ -40,6 +46,14 @@ describe('hợp đồng Bàn dựng', () => {
     const [path, init] = fetcher.mock.calls[1] as unknown as [string, RequestInit]
     expect(path).toBe('/api/clone/j/prompts')
     expect(JSON.parse(init.body as string)).toEqual({ ...choice, expectedRevision: 7, confirmCount: 4 })
+  })
+  it('giữ mốc cảnh bắt đầu từ 0 và không bịa khoảng thời gian khi DTO không có', async () => {
+    const item = { id: 'scene', kind: 'scene', status: 'review', currentVersion: null, reviewVersion: null, versions: [] }
+    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(Response.json({ manifest: null, items: [{ ...item, startSec: 0, endSec: 3 }, item] }))))
+    const images = await getJobImages('job')
+    expect(images.items?.[0]).toMatchObject({ startSec: 0, endSec: 3 })
+    expect(images.items?.[1]).not.toHaveProperty('startSec')
+    expect(images.items?.[1]).not.toHaveProperty('endSec')
   })
   it('không báo thành công khi server trả lỗi từng video', async () => {
     vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(Response.json({ results: [{ ok: false, error: 'Không còn file' }] }))))

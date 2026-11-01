@@ -55,6 +55,7 @@ export function AppShell({ route, user, children }: {
       color: { bg: channelTint(channel.id), ring: channelTint(channel.id) },
       pace: summary ? `Hôm nay ${summary.today.done}/${summary.today.cap}` : undefined,
       waiting: (summary?.waitingYou ?? 0) > 0,
+      waitingYou: summary?.waitingYou ?? 0,
     }
   })
 

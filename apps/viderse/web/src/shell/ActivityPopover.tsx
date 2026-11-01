@@ -1,6 +1,6 @@
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useId, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Icon } from '@noverse/ui'
+import { Button, Icon, Tabs } from '@noverse/ui'
 import type { Activity, BackgroundTask } from '../api/activity'
 import { getQueue } from '../api/clone'
 import { listChannels } from '../api/channels'
@@ -16,15 +16,13 @@ const NotificationSettings = lazy(() => import('../screens/settings/Notification
 const s = stylex.create({
   pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 66px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--kit-surface-15)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)' },
   head: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', height: 68, boxSizing: 'border-box', flexShrink: 0, padding: 'var(--vv-s-14) var(--vv-s-12) var(--vv-s-10) var(--vv-s-16)', borderBottom: '1px solid var(--line-1)', fontSize: 15, fontWeight: 600 },
-  headButton: { width: 30, height: 30, borderWidth: 0, borderRadius: 'var(--vv-r-8)', backgroundColor: 'transparent', color: 'var(--color-fg-3)', display: 'grid', placeItems: 'center', flexShrink: 0, cursor: 'pointer' },
+  headButton: { width: 30, height: 30, flexShrink: 0 },
   tabs: { display: 'flex', gap: 'var(--vv-s-2)', height: 40, boxSizing: 'border-box', padding: 'var(--vv-s-8) var(--vv-s-12) 0' },
-  tab: { height: 32, borderWidth: 0, borderRadius: 'var(--vv-r-8)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-7)', padding: '0 var(--vv-s-12)', fontSize: 13, whiteSpace: 'nowrap', backgroundColor: 'transparent', color: 'var(--color-fg-3)', cursor: 'pointer' },
-  active: { backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg)', fontWeight: 600 },
   tabCount: { minWidth: 18, height: 18, padding: '0 var(--vv-s-5)', borderRadius: 'var(--vv-r-pill)', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg-3)', fontSize: 11, fontWeight: 600 },
   activeCount: { backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)' },
   scroll: { overflowY: 'auto', minHeight: 100, paddingBottom: 'var(--vv-s-6)' },
   group: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 'var(--vv-s-12) var(--vv-s-16) var(--vv-s-6)', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--color-fg-3)' },
-  markRead: { height: 26, padding: '0 var(--vv-s-8)', display: 'inline-flex', alignItems: 'center', borderWidth: 0, borderRadius: 'var(--vv-r-7)', backgroundColor: 'transparent', color: 'var(--color-fg-3)', cursor: 'pointer', fontSize: 12 },
+  markRead: { height: 26 },
   row: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-10) var(--vv-s-16)' },
   content: { minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-4)' },
   title: { fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' },
@@ -33,7 +31,6 @@ const s = stylex.create({
   dot: { width: 7, height: 7, borderRadius: '50%', marginTop: 'var(--vv-s-6)', flexShrink: 0, backgroundColor: 'var(--color-warn)' },
   taskIcon: { width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', backgroundColor: 'var(--color-surface-6)', color: 'var(--color-fg-3)', flexShrink: 0 },
   button: { borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'transparent', color: 'var(--color-fg)', borderRadius: 'var(--vv-r-8)', padding: 'var(--vv-s-6) var(--vv-s-9)', fontSize: 12, cursor: 'pointer', textDecoration: 'none', whiteSpace: 'nowrap' },
-  plain: { border: 0, backgroundColor: 'transparent', color: 'var(--color-fg-3)', cursor: 'pointer', fontSize: 12 },
   progress: { width: '100%', height: 4, accentColor: 'var(--color-accent)' },
   noteRow: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-10) var(--vv-s-16) var(--vv-s-10) var(--vv-s-12)' },
   noteContent: { gap: 'var(--vv-s-2)' },
@@ -108,12 +105,14 @@ function Task({ task, refresh }: { task: BackgroundTask; refresh: () => void }) 
       </>}
       {error && <span role="alert" {...stylex.props(s.sub)}>{error}</span>}
     </div>
-    {task.action.href ? <a {...stylex.props(s.button)} href={task.action.href}>{task.action.label}</a> : task.action.op ? <button {...stylex.props(s.button)} onClick={() => void act()}>{task.action.label}</button> : null}
+    {task.action.href ? <a {...stylex.props(s.button)} href={task.action.href}>{task.action.label}</a> : task.action.op ? <Button size="sm" variant="ghost" onClick={() => void act()}>{task.action.label}</Button> : null}
   </div>
 }
 
 export function ActivityPopover({ activity, error, retry, close }: { activity?: Activity; error?: unknown; retry: () => void; close: () => void }) {
   const [tab, setTab] = useState<'running' | 'inbox' | 'settings'>('running')
+  const tabsId = useId()
+  const panelId = `${tabsId}-panel`
   const inbox = useNotificationInbox(tab === 'inbox' || (tab === 'running' && !!activity && activity.running.length === 0 && activity.queued === 0))
   const { history, rows, groups, more, paging, pageError, loadMore, mark, refresh } = inbox
   const queue = useResource(keys.queue(), ({ signal }) => getQueue(signal), { enabled: tab === 'running' && !!activity?.queued })
@@ -122,20 +121,20 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
   const tasks = activity?.running ?? []
   const nextQueued = queue.data?.items[0]
   const nextChannel = channels.data?.channels.find((channel) => channel.id === nextQueued?.channelId)
-  if (!activity) return <section {...stylex.props(s.pop)} aria-label="Việc nền và thông báo"><div {...stylex.props(s.head)}>Việc nền & thông báo</div><div role={error ? 'alert' : 'status'} {...stylex.props(s.empty)}>{error ? <>Không tải được việc nền. <button {...stylex.props(s.plain)} onClick={retry}>Thử lại</button></> : 'Đang tải…'}</div></section>
+  if (!activity) return <section {...stylex.props(s.pop)} aria-label="Việc nền và thông báo"><div {...stylex.props(s.head)}>Việc nền & thông báo</div><div role={error ? 'alert' : 'status'} {...stylex.props(s.empty)}>{error ? <>Không tải được việc nền. <Button size="sm" variant="quiet" onClick={retry}>Thử lại</Button></> : 'Đang tải…'}</div></section>
   return (
     <section {...stylex.props(s.pop)} role="dialog" aria-label="Việc nền">
       <div {...stylex.props(s.head)}>
-        {tab === 'settings' && <button type="button" aria-label="Quay lại Việc nền" {...stylex.props(s.headButton)} onClick={() => setTab('running')}><Icon name="arrow-left-2" size={16} /></button>}
+        {tab === 'settings' && <Button variant="icon" size="sm" aria-label="Quay lại Việc nền" xstyle={s.headButton} onClick={() => setTab('running')}><Icon name="arrow-left-2" size={16} /></Button>}
         <div {...stylex.props(s.content)}>{tab === 'settings' ? 'Cài đặt thông báo' : 'Việc nền'}<span {...stylex.props(s.sub)}>{tab === 'settings' ? 'Chọn việc nào được báo và báo ở đâu' : tasks.length ? `Máy chạy ${activity.videoJobs} video · ${activity.queued} chờ lượt · ${tasks.filter((task) => task.kind !== 'video').length} việc khác` : `Máy rảnh · ${activity.queued} chờ lượt`}</span></div>
-        {tab !== 'settings' && <button type="button" aria-label="Cài đặt thông báo" {...stylex.props(s.headButton)} onClick={() => setTab('settings')}><Icon name="setting" size={16} /></button>}
-        <button type="button" aria-label="Đóng (Esc)" {...stylex.props(s.headButton)} onClick={close}><Icon name="close" size={16} /></button>
+        {tab !== 'settings' && <Button variant="icon" size="sm" aria-label="Cài đặt thông báo" xstyle={s.headButton} onClick={() => setTab('settings')}><Icon name="setting" size={16} /></Button>}
+        <Button variant="icon" size="sm" aria-label="Đóng (Esc)" xstyle={s.headButton} onClick={close}><Icon name="close" size={16} /></Button>
       </div>
-      {tab !== 'settings' && <div role="tablist" aria-label="Việc nền" {...stylex.props(s.tabs)}>
-        <button role="tab" aria-selected={tab === 'running'} {...stylex.props(s.tab, tab === 'running' && s.active)} onClick={() => setTab('running')}>Đang chạy<span {...stylex.props(s.tabCount, tab === 'running' && s.activeCount)}>{tasks.length}</span></button>
-        <button role="tab" aria-selected={tab === 'inbox'} {...stylex.props(s.tab, tab === 'inbox' && s.active)} onClick={() => setTab('inbox')}>Thông báo<span {...stylex.props(s.tabCount, tab === 'inbox' && s.activeCount)}>{activity.unread.length}</span></button>
-      </div>}
-      <div {...stylex.props(s.scroll)}>
+      {tab !== 'settings' && <div {...stylex.props(s.tabs)}><Tabs label="Việc nền" value={tab} onChange={(id) => setTab(id as 'running' | 'inbox')} variant="bar" tabs={{ id: tabsId, panel: panelId }} items={[
+        { id: 'running', label: 'Đang chạy', dot: <span {...stylex.props(s.tabCount, tab === 'running' && s.activeCount)}>{tasks.length}</span> },
+        { id: 'inbox', label: 'Thông báo', dot: <span {...stylex.props(s.tabCount, tab === 'inbox' && s.activeCount)}>{activity.unread.length}</span> },
+      ]} /></div>}
+      <div id={panelId} role={tab === 'settings' ? undefined : 'tabpanel'} aria-labelledby={tab === 'settings' ? undefined : `${tabsId}-${tab}`} {...stylex.props(s.scroll)}>
         {tab === 'settings' ? <Suspense fallback={null}><NotificationSettings embedded /></Suspense> : tab === 'running' ? tasks.length || activity.queued ? <>
           {(['video', 'other'] as const).map((group) => {
             const selected = tasks.filter((task) => group === 'video' ? task.kind === 'video' : task.kind !== 'video')
@@ -149,15 +148,15 @@ export function ActivityPopover({ activity, error, retry, close }: { activity?: 
           </div>
           {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <NotificationRow key={n.id} n={n} showDot={false} onOpen={close} />)}</>}
         </>
-          : history.error ? <div role="alert" {...stylex.props(s.empty)}>Không tải được thông báo. <button {...stylex.props(s.plain)} onClick={() => void history.refresh()}>Thử lại</button></div>
+          : history.error ? <div role="alert" {...stylex.props(s.empty)}>Không tải được thông báo. <Button size="sm" variant="quiet" onClick={() => void history.refresh()}>Thử lại</Button></div>
           : history.initialLoading ? <div {...stylex.props(s.empty)}>Đang tải…</div>
           : rows.length ? groups.map((group) => group.rows.length ? <div key={group.label}>
-            <div {...stylex.props(s.group)}>{group.label}{group.label === 'Hôm nay' && <button {...stylex.props(s.markRead)} onClick={() => void mark('all')}>Đánh dấu đã đọc</button>}</div>
+            <div {...stylex.props(s.group)}>{group.label}{group.label === 'Hôm nay' && <Button size="sm" variant="quiet" xstyle={s.markRead} onClick={() => void mark('all')}>Đánh dấu đã đọc</Button>}</div>
             {group.rows.map((n) => <NotificationRow key={n.id} n={n} onOpen={close} />)}
           </div> : null) : <div {...stylex.props(s.empty)}>Chưa có thông báo.</div>}
-        {tab === 'inbox' && more ? <div {...stylex.props(s.row)}><button type="button" {...stylex.props(s.button)} disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
+        {tab === 'inbox' && more ? <div {...stylex.props(s.row)}><Button size="sm" variant="ghost" disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</Button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
       </div>
-      {tab !== 'settings' && <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button, s.footerAction)} href={`#${paths.queue()}`} onClick={close}><Icon name="video-play" size={15} />Mở Hàng chờ</a><button type="button" {...stylex.props(s.button, s.footerAction)} onClick={() => setTab('settings')}><Icon name="setting" size={15} />Cài đặt thông báo</button></footer>}
+      {tab !== 'settings' && <footer {...stylex.props(s.footer)}><a {...stylex.props(s.button, s.footerAction)} href={`#${paths.queue()}`} onClick={close}><Icon name="video-play" size={15} />Mở Hàng chờ</a><Button size="sm" variant="ghost" xstyle={s.footerAction} onClick={() => setTab('settings')}><Icon name="setting" size={15} />Cài đặt thông báo</Button></footer>}
     </section>
   )
 }

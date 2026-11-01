@@ -35,7 +35,7 @@ const posts = (suffix: string) => calls.filter((call) => call.method === 'POST' 
 describe('LearnSlot', () => {
   it('không có `learn` → không vẽ gì', async () => {
     reply = () => json({})
-    const el = await mount(<LearnSlot learn={null} />)
+    const el = await mount(<LearnSlot ownerKey="test" learn={null} />)
     expect(el.textContent).toBe('')
   })
 
@@ -48,7 +48,7 @@ describe('LearnSlot', () => {
       const [learn, setLearn] = useState<Suggestion | null>(null)
       return <>
         <button type="button" onClick={() => setLearn(learnSuggestion('l1') as unknown as Suggestion)}>sửa lần 3</button>
-        <LearnSlot learn={learn} />
+        <LearnSlot ownerKey="test" learn={learn} />
       </>
     }
     const el = await mount(<Harness />)
@@ -67,14 +67,14 @@ describe('LearnSlot', () => {
   it('banner Hoạ sĩ lưu xong nêu tên prompt', async () => {
     reply = () => json({ ok: true, summary: 'Đã lưu', ruleId: 'r2', undo: { op: 'remove_rule', params: { id: 'r2' } } })
     const learn = learnSuggestion('l2', { agent: 'artist', banner: 'Hoạ sĩ nhận ra: góp ý lần thứ 2.', primary: { label: 'Thêm vào Ghi chú đã học', op: 'add_rule', params: { promptName: 'Đêm xanh rêu', learnedFrom: { examples: [] } } } }) as unknown as Suggestion
-    const el = await mount(<LearnSlot learn={learn} />)
+    const el = await mount(<LearnSlot ownerKey="test" learn={learn} />)
     await click(button(el, 'Thêm vào Ghi chú đã học'))
     expect(el.textContent).toContain('Thư viện › Prompt ảnh › Đêm xanh rêu › Ghi chú đã học')
   })
 
   it('Không → dismiss rồi banner biến mất, không toast', async () => {
     reply = () => json({ ok: true })
-    const el = await mount(<LearnSlot learn={learnSuggestion('l3') as unknown as Suggestion} />)
+    const el = await mount(<LearnSlot ownerKey="test" learn={learnSuggestion('l3') as unknown as Suggestion} />)
     await click(button(el, 'Không'))
     expect(posts('/dismiss')).toHaveLength(1)
     expect(el.textContent).toBe('')
@@ -83,7 +83,7 @@ describe('LearnSlot', () => {
 
   it('Xem 3 lần sửa mở danh sách Trước/Sau tại chỗ', async () => {
     reply = () => json({ ok: true })
-    const el = await mount(<LearnSlot learn={learnSuggestion('l4') as unknown as Suggestion} />)
+    const el = await mount(<LearnSlot ownerKey="test" learn={learnSuggestion('l4') as unknown as Suggestion} />)
     expect(el.querySelector('li')).toBeNull()
     await click(button(el, 'Xem 3 lần sửa'))
     expect([...el.querySelectorAll('li')].map((li) => li.textContent)).toEqual(['TrướcA (1)SauA', 'TrướcB (2)SauB', 'TrướcC (3)SauC'])
@@ -91,10 +91,45 @@ describe('LearnSlot', () => {
 
   it('lưu lỗi → báo ngay trong banner, banner còn để thử lại', async () => {
     reply = () => json({ error: 'đã đủ 20 quy tắc', code: 'limit' }, 409)
-    const el = await mount(<LearnSlot learn={learnSuggestion('l5') as unknown as Suggestion} />)
+    const el = await mount(<LearnSlot ownerKey="test" learn={learnSuggestion('l5') as unknown as Suggestion} />)
     await click(button(el, 'Lưu quy tắc'))
     expect(el.textContent).toContain('Đạo diễn nhận ra')
     expect(el.querySelector('[role="alert"]')).toBeTruthy()
+  })
+
+  it('giữ Hoàn tác cho hành động vừa lưu khi đề xuất kế tiếp đến, rồi mới hiện đề xuất mới sau hoàn tác', async () => {
+    reply = call => call.url.endsWith('/accept')
+      ? json({ ok: true, summary: 'Đã lưu', ruleId: 'r-saved', undo: { op: 'remove_rule', params: { id: 'r-saved' } } })
+      : json({ ok: true })
+    const Harness = () => {
+      const [learn, setLearn] = useState<Suggestion | null>(learnSuggestion('first') as unknown as Suggestion)
+      return <><button onClick={() => setLearn(null)}>máy hết đề xuất</button><button onClick={() => setLearn(learnSuggestion('next', { banner: 'Đề xuất tiếp theo' }) as unknown as Suggestion)}>máy gửi tiếp</button><LearnSlot ownerKey="job-one" learn={learn} /></>
+    }
+    const el = await mount(<Harness />)
+    await click(button(el, 'Lưu quy tắc'))
+    await click(button(el, 'máy hết đề xuất'))
+    expect(el.textContent).toContain('Hoàn tác')
+    await click(button(el, 'máy gửi tiếp'))
+    expect(el.textContent).toContain('Đã lưu vào Hồ sơ kênh')
+    expect(el.textContent).not.toContain('Đề xuất tiếp theo')
+    await click(button(el, 'Hoàn tác'))
+    expect(posts('/api/undo').map(call => call.body)).toEqual([{ op: 'remove_rule', params: { id: 'r-saved' } }])
+    expect(el.textContent).toContain('Đề xuất tiếp theo')
+  })
+
+  it('không mang xác nhận hoặc Hoàn tác của video/kênh trước sang chủ sở hữu mới', async () => {
+    reply = () => json({ ok: true, summary: 'Đã lưu', ruleId: 'r-old', undo: { op: 'remove_rule', params: { id: 'r-old' } } })
+    const Harness = () => {
+      const [other, setOther] = useState(false)
+      const learn = learnSuggestion(other ? 'other' : 'original', { channelId: other ? 'channel-two' : 'channel-one', banner: other ? 'Quy tắc của kênh mới' : 'Quy tắc của kênh cũ' }) as unknown as Suggestion
+      return <><button onClick={() => setOther(true)}>đổi video</button><LearnSlot ownerKey={other ? 'channel-two:job-two' : 'channel-one:job-one'} learn={learn} /></>
+    }
+    const el = await mount(<Harness />)
+    await click(button(el, 'Lưu quy tắc'))
+    await click(button(el, 'đổi video'))
+    expect(el.textContent).not.toContain('Đã lưu vào Hồ sơ kênh')
+    expect(el.textContent).not.toContain('Hoàn tác')
+    expect(el.textContent).toContain('Quy tắc của kênh mới')
   })
 })
 

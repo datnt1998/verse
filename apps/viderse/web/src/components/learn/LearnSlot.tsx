@@ -17,19 +17,24 @@ import { learnExamples, refreshLearned } from './learnedRules'
 
 const c = t.learn.learn
 
-export function LearnSlot({ learn }: { learn: Suggestion | null | undefined }) {
+/** Mỗi chủ sở hữu (kênh/video/ảnh) có vòng đời xác nhận riêng. */
+export function LearnSlot({ learn, ownerKey }: { learn: Suggestion | null | undefined; ownerKey: string }) {
+  return <OwnedLearnSlot key={ownerKey} learn={learn} />
+}
+
+function OwnedLearnSlot({ learn }: { learn: Suggestion | null | undefined }) {
   const [shown, setShown] = useState<Suggestion | null>(learn ?? null)
   const [saved, setSaved] = useState<AcceptResult | null>(null)
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const online = useOnline()
-  // Một đề xuất `learn` chỉ được nhận vào slot một lần: sau Không/Hoàn tác, prop cũ còn đó
-  // (chờ làm mới) không được hiện lại; đề xuất mới (id khác) mới thay.
+  // Giữ xác nhận và quyền hoàn tác của hành động vừa lưu, kể cả khi máy gửi đề xuất tiếp.
+  // Sau Không/Hoàn tác, id cũ không hiện lại; đề xuất mới được nhận khi chưa có xác nhận.
   const [seenId, setSeenId] = useState(learn?.id ?? '')
   useEffect(() => {
-    if (learn && learn.id !== seenId) { setSeenId(learn.id); setShown(learn); setSaved(null); setOpen(false); setError('') }
-  }, [learn, seenId])
+    if (!saved && learn && learn.id !== seenId) { setSeenId(learn.id); setShown(learn); setOpen(false); setError('') }
+  }, [learn, seenId, saved])
   if (!shown) return null
   const artist = shown.agent === 'artist'
   const examples = learnExamples(shown)
@@ -49,7 +54,7 @@ export function LearnSlot({ learn }: { learn: Suggestion | null | undefined }) {
     const op = saved?.undo
     if (!op) { setShown(null); setSaved(null); return }
     setBusy(true); setError('')
-    try { await undoOp(op); setSaved(null); refreshLearned() } catch (cause) { fail(cause) } finally { setBusy(false) }
+    try { await undoOp(op); setSaved(null); setShown(null); setOpen(false); refreshLearned() } catch (cause) { fail(cause) } finally { setBusy(false) }
   }
   if (saved) {
     const promptName = typeof shown.primary.params.promptName === 'string' ? shown.primary.params.promptName : ''

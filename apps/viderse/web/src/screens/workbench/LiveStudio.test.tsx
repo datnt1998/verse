@@ -1,0 +1,42 @@
+// @vitest-environment happy-dom
+import { act } from 'react'
+import { createRoot, type Root } from 'react-dom/client'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import type { CloneJobView, JobImageList } from '../../api/workbench'
+import { LiveStudio } from './LiveStudio'
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+const state = vi.hoisted(() => ({ images: undefined as JobImageList | undefined, refresh: vi.fn() }))
+vi.mock('../../data/useResource', () => ({ useResource: (key: string[]) => ({ data: key[1] === 'images' ? state.images : undefined, refresh: state.refresh, initialLoading: false }) }))
+vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {} }))
+const job = { id: 'job', channelId: 'channel', activeStep: 'images', stageGroup: 'working', source: { title: 'Nguồn' }, steps: [] } as unknown as CloneJobView
+let root: Root, host: HTMLDivElement
+beforeEach(() => {
+  state.images = { manifest: { revision: 7, scenePrompt: { id: 's', name: 'Cảnh', overridden: false }, coverPrompt: { id: 'c', name: 'Bìa', overridden: false } }, items: [{ id: 'scene-one', kind: 'scene', status: 'review', currentVersion: 1, reviewVersion: 2, versions: [{ version: 1, originalUrl: '/old.webp' }, { version: 2, originalUrl: '/review.webp' }], narration: 'Lời kể của cảnh' }] }
+  state.refresh.mockClear()
+  host = document.createElement('div'); document.body.append(host); root = createRoot(host)
+})
+afterEach(async () => { await act(async () => root.unmount()); host.remove(); vi.unstubAllGlobals() })
+it.each(['running', 'pending', 'queued'])('shows the real %s redraw over the retained version instead of a finished tile', async status => {
+  state.images!.items![0].status = status
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  expect(host.querySelector('[role="status"]')?.textContent).toContain(status === 'running' ? 'Hoạ sĩ đang vẽ…' : 'Chờ lượt vẽ')
+  expect(host.querySelector('img')?.getAttribute('src')).toBe('/review.webp')
+  expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('0')
+  expect(host.querySelector('[aria-label="Vẽ lại cảnh 1"]')).toBeNull()
+})
+it('confirms a single tile redraw with its real manifest revision without redrawing other tiles', async () => {
+  const fetcher = vi.fn(async () => Response.json({ revision: 8 }))
+  vi.stubGlobal('fetch', fetcher)
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Vẽ lại cảnh 1"]')!.click())
+  const dialog = document.querySelector('[role="dialog"]')!
+  expect(dialog.textContent).toContain('Dùng 1 ảnh trong hạn mức hôm nay')
+  const submit = [...dialog.querySelectorAll('button')].find(button => button.textContent === 'Vẽ lại cảnh 1')!
+  await act(async () => submit.click())
+  expect(fetcher).toHaveBeenCalledTimes(1)
+  const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit]
+  expect(url).toBe('/api/clone/job/images/scene-one')
+  expect(JSON.parse(String(init.body))).toEqual({ op: 'regenerate', expectedRevision: 7 })
+  expect(state.refresh).toHaveBeenCalledOnce()
+})

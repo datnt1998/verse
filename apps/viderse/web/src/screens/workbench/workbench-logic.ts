@@ -28,3 +28,10 @@ export function followAdmitted<T extends { id: string; sourceKey: string; genera
   if (!followed?.sourceKey || jobs.some(job => job.id === followed.id)) return undefined
   return jobs.filter(job => job.sourceKey === followed.sourceKey).sort((a, b) => b.generation - a.generation)[0]?.id
 }
+
+/** Chỉ hiện khoảng cảnh khi máy chủ đã chiếu đủ hai mốc; 0 là mốc hợp lệ. */
+export function imageTime(image: { startSec?: number; endSec?: number }): string {
+  if (image.startSec == null || image.endSec == null) return ''
+  const time = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+  return `${time(image.startSec)}–${time(image.endSec)}`
+}

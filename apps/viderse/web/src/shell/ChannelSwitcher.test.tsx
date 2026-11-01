@@ -46,7 +46,7 @@ const CHANNELS: SwitcherChannel[] = [
   { id: 'cl', name: 'Chuyện Lạ Đêm Khuya', initials: 'CL', color: { bg: 'rgb(48,36,24)', ring: 'rgb(246,203,140)' } },
   { id: 'qh', name: 'Quiet Hours', initials: 'QH', color: { bg: 'rgb(31,44,39)', ring: 'rgb(166,237,193)' } },
 ]
-const entry = (c: HTMLElement) => c.querySelector('.vv-switcher') as HTMLElement
+const entry = (c: HTMLElement) => c.querySelector('.vv-switcher, button[aria-haspopup="menu"]') as HTMLElement
 const stacked = (c: HTMLElement) => {
   const holder = entry(c).querySelector('[aria-hidden="true"]') as HTMLElement
   return [...holder.children] as HTMLElement[]
@@ -100,7 +100,7 @@ describe('Bộ đổi kênh · Mọi kênh', () => {
   it('một kênh vẫn là bộ đổi kênh (menu có Tạo kênh)', async () => {
     const c = await render(<ChannelSwitcher channels={CHANNELS.slice(0, 1)} mobileBar onPick={() => {}} />)
     expect(entry(c).tagName).toBe('BUTTON')
-    expect(entry(c).getAttribute('aria-haspopup')).toBe('menu')
+    expect(entry(c).getAttribute('aria-haspopup')).toBe('dialog')
   })
 })
 
@@ -128,7 +128,7 @@ describe('Bộ đổi kênh · menu', () => {
   it('dòng Mọi kênh trong menu dùng avatar 16px hai chữ cái', async () => {
     const c = await render(<ChannelSwitcher channels={CHANNELS} sub="Hôm nay 4/7" onPick={() => {}} />)
     await act(async () => { entry(c).click() })
-    const first = c.querySelector('[role="menuitemradio"]') as HTMLElement
+    const first = document.querySelector('[role="menuitemradio"]') as HTMLElement
     expect(first.textContent).toContain(t.nav.allChannels)
     const avatars = [...first.querySelectorAll('[role="img"]')] as HTMLElement[]
     expect(avatars.map((a) => a.textContent)).toEqual(['MT', 'CL', 'QH'])
@@ -136,13 +136,24 @@ describe('Bộ đổi kênh · menu', () => {
     expect(hasAtoms(avatars[1], contract.overlapMenu)).toBe(true)
   })
 
+  it('điện thoại: pointerdown trong sheet portal không đóng trước khi chọn kênh', async () => {
+    const picked: (string | undefined)[] = []
+    const c = await render(<ChannelSwitcher channels={CHANNELS} mobileBar onPick={id => picked.push(id)} />)
+    await act(async () => entry(c).click())
+    const row = [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent?.includes('Chuyện Lạ Đêm Khuya'))!
+    await act(async () => row.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))
+    expect(row.isConnected).toBe(true)
+    await act(async () => row.click())
+    expect(picked).toEqual(['cl'])
+    expect(document.querySelector('[role="dialog"]')).toBeNull()
+  })
   it('bấm một kênh trong menu gọi onPick rồi đóng menu', async () => {
     const picked: (string | undefined)[] = []
     const c = await render(<ChannelSwitcher channels={CHANNELS} onPick={(id) => picked.push(id)} />)
     await act(async () => { entry(c).click() })
-    const rows = [...c.querySelectorAll('[role="menuitemradio"]')] as HTMLElement[]
+    const rows = [...document.querySelectorAll('[role="menuitemradio"]')] as HTMLElement[]
     await act(async () => { rows[2].click() })
     expect(picked).toEqual(['cl'])
-    expect(c.querySelector('[role="menu"]')).toBeNull()
+    expect(document.querySelector('[role="menu"]')).toBeNull()
   })
 })

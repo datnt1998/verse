@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { coverageAfterRemoval, metadataCounts, togglePart } from './panelLogic'
+import { coverageAfterRemoval, metadataCounts, metadataDescriptionBody, metadataDescriptionWithFooter, togglePart } from './panelLogic'
 
 describe('panel logic', () => {
   it('counts editable text and always-added footer and tags', () => {
@@ -7,6 +7,12 @@ describe('panel logic', () => {
   })
   it('counts Unicode code points the same way as the metadata API', () => {
     expect(metadataCounts('🙂a', '🙂', ['🙂'], '')).toEqual({ title: 2, description: 1, tags: 1, tagCharacters: 1 })
+  })
+  it('keeps the locked channel footer exactly once while editing or pasting a package', () => {
+    expect(metadataDescriptionBody('Nội dung\n\nTheo dõi kênh', 'Theo dõi kênh')).toBe('Nội dung')
+    expect(metadataDescriptionWithFooter('Đã sửa', 'Theo dõi kênh')).toBe('Đã sửa\n\nTheo dõi kênh')
+    expect(metadataDescriptionWithFooter('Đã sửa\n\nTheo dõi kênh', 'Theo dõi kênh')).toBe('Đã sửa\n\nTheo dõi kênh')
+    expect(metadataDescriptionWithFooter('Theo dõi kênh là nội dung', null)).toBe('Theo dõi kênh là nội dung')
   })
   it('toggles only the requested rewrite part', () => {
     expect(togglePart(['title'], 'description')).toEqual(['title', 'description'])

@@ -8,6 +8,7 @@
 // ở Bàn dựng; bản `compact` chỉ giữ nền mờ + vệt sáng + vòng chờ như dải ảnh.
 import { Fragment, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
+import { Button } from '@noverse/ui'
 import { useMediaQuery } from '../lib/useMediaQuery'
 import { Orb } from './Orb'
 import { sx } from './develop.stylex'
@@ -85,7 +86,7 @@ export function DevelopEffect({
               </span>
             ))}
           </span>
-          {onCancel && <button type="button" onClick={onCancel} {...stylex.props(sx.cancel)}>Huỷ lần vẽ</button>}
+          {onCancel && <Button variant="quiet" size="sm" onClick={onCancel} xstyle={sx.cancel}>Huỷ lần vẽ</Button>}
         </div>
       )}
       {showCard && !inline && (
@@ -96,7 +97,7 @@ export function DevelopEffect({
               <span {...stylex.props(sx.cardTitle)}>{title}</span>
               {detail && <span {...stylex.props(sx.cardSub)}>{detail}</span>}
             </span>
-            {onCancel && <button type="button" onClick={onCancel} {...stylex.props(sx.cancel)}>Huỷ lần vẽ</button>}
+            {onCancel && <Button variant="quiet" size="sm" onClick={onCancel} xstyle={sx.cancel}>Huỷ lần vẽ</Button>}
           </div>
           <div {...stylex.props(sx.steps)}>
             {STEPS.map((item, index) => (

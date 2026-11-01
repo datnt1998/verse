@@ -396,7 +396,7 @@ function DesktopReviewScreen() {
               <ActionButton variant="primary" lockedReason={hasDrawing || pipelineBusy || !online ? 'Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ' : undefined} onClick={approve} icon={<Icon name="tick-b" size={15} />} kbd="A">Duyệt cả video &amp; dựng</ActionButton>
             </div>
           )}
-          <LearnSlot learn={images?.learn} />
+          <LearnSlot ownerKey={`${job.channelId}:${job.id}:${item.id}`} learn={images?.learn} />
           <div {...stylex.props(sx.hints)}>
             <span {...stylex.props(sx.keyHint)}><Kbd>← →</Kbd>ảnh</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>J K</Kbd>video trước / sau</span>

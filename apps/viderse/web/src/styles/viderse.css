@@ -111,6 +111,18 @@
   --vv-director-notice-fill: rgba(184, 156, 255, .07);
   --vv-director-notice-line: rgba(184, 156, 255, .22);
   --vv-artist-ink: #FFD08A;
+  /* Main › Phòng vẽ trực tiếp: thanh tiến độ Hoạ sĩ. */
+  --vv-grad-artist-progress: linear-gradient(90deg, #F6CB8C, #EC9548 60%, #E25E36);
+  /* DevelopEffect (Review/Editor/Main): màu và hạt nhiễu theo artboard. */
+  --vv-develop-clear: rgba(255, 208, 138, 0);
+  --vv-develop-glint: rgba(255, 208, 138, .95);
+  --vv-develop-glow: rgba(255, 208, 138, .28);
+  --vv-develop-pulse: rgba(255, 208, 138, .2);
+  --vv-develop-ring: rgba(255, 208, 138, .25);
+  --vv-develop-sweep: linear-gradient(115deg, transparent 42%, rgba(255, 208, 138, .10) 48%, rgba(255, 236, 204, .20) 50%, rgba(255, 208, 138, .10) 52%, transparent 58%);
+  --vv-develop-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --vv-draw-tile-bg: radial-gradient(120% 90% at 50% 40%, #1C2224 0%, #111416 60%, #0C0D0F 100%);
+  --vv-draw-tile-line: rgba(242, 154, 90, .45);
   --vv-qa-ink: #9DECC9;
 
   /* Chấm trạng thái trung lập: Chờ lượt · Tạm dừng · Đã đăng (--vv-st-queued/posted) */

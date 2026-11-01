@@ -6,6 +6,8 @@ export const assistantCopy = {
   composer: {
     workbench: 'Nhắn cho trợ lý',
     placeholders: {
+      scout: 'Nhắn cho Trinh sát',
+      director: 'Nhắn cho Đạo diễn',
       artist: 'Nhắn cho Hoạ sĩ, ví dụ: cảnh 5 cho y tá cầm đèn pin, tông lạnh hơn',
       artistPaused: 'Nhắn cho Hoạ sĩ trước khi chạy tiếp, ví dụ: cảnh 5 cho y tá cầm đèn pin',
       review: 'Góp ý để vẽ lại, ví dụ: cảnh 3 cho cửa phòng cũ hơn, có số 214',

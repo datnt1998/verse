@@ -317,7 +317,7 @@ export function MReviewScreen() {
         <Icon name="arrow-r" size={16} />
       </button>}
 
-      {item && <LearnSlot learn={images?.learn} />}
+      {item && <LearnSlot ownerKey={`${job.channelId}:${job.id}:${item.id}`} learn={images?.learn} />}
       {metaLine && <span {...stylex.props(ms.meta)}>{metaLine}</span>}
     </main>
 
