@@ -15,8 +15,10 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
   const tt = t.channels
   const name = channel.name || tt.page.noName
   const lang = tt.page.language[channel.language]
+  const ytFull = channel.youtubeUrl?.replace(/^https?:\/\/(www\.)?/, '')
+  // Artboard: dòng phụ ghi tay kênh (@midnighttales.stories), tooltip ghi cả youtube.com/@…
   const parts = [
-    channel.youtubeUrl ? channel.youtubeUrl.replace(/^https?:\/\/(www\.)?/, '') : tt.page.noYouTube,
+    ytFull ? ytFull.replace(/^youtube\.com\//, '') : tt.page.noYouTube,
     tt.page.created(fmtDay(channel.createdAt)),
     tt.page.linkedRivals(channel.sources.length),
   ]
@@ -37,7 +39,7 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
           )}
         </div>
         <h1 className={`vch-title ${stylex.props(channelStyles.title).className}`}>{name}</h1>
-        <span className={`vch-sub ${stylex.props(channelStyles.sub).className}`} title={parts.join(' · ')}>{parts.join(' · ')}</span>
+        <span className={`vch-sub ${stylex.props(channelStyles.sub).className}`} title={[ytFull ?? tt.page.noYouTube, ...parts.slice(1)].join(' · ')}>{parts.join(' · ')}</span>
       </div>
       <div className={`vch-head__actions ${stylex.props(channelStyles.headActions).className}`}>
         {channel.youtubeUrl ? (
@@ -54,7 +56,7 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
         <ActionButton className={stylex.props(channelStyles.touchTarget).className}
           variant="primary"
           size="compact"
-          xstyle={[channelStyles.headBtn]}
+          xstyle={[channelStyles.headBtn, channelStyles.headBtnPrimary]}
           onClick={() => navigate(paths.new(channel.id))}
           icon={<Icon name="video-add" size={15} />}
         >

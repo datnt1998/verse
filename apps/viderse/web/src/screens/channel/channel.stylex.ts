@@ -186,7 +186,8 @@ export const channelStyles = stylex.create({
   linkpopHint: { fontSize: channelLayout.linkpopHintFontSize, color: "var(--vv-fg-note)", lineHeight: 1.45 },
   linkpopFoot: { flex: "0 0 auto", display: "flex", alignItems: "center", gap: space["--vv-s-8"], padding: "var(--vv-s-6) var(--vv-s-8) var(--vv-s-4)", borderTopWidth: space['--vv-s-1'], borderTopStyle: "solid", borderTopColor: line["--line-1"], marginTop: space["--vv-s-2"] },
   linkpopMore: { flex: "1 1 auto", minWidth: 0, display: "inline-flex", alignItems: "center", gap: space["--vv-s-4"], fontSize: channelLayout.linkpopMoreFontSize, color: { "default": color["--color-fg-3"], ":hover": color["--color-fg"] }, textDecorationLine: "none", minHeight: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": { "default": null, [stylex.when.ancestor(':is(*)', channelRootMarker)]: space["--vv-s-44"] } } },
-  headBtn: { height: space["--vv-s-34"], fontWeight: 600 },
+  headBtn: { height: space["--vv-s-34"] },
+  headBtnPrimary: { fontWeight: 600, borderWidth: 0 },
   touchTarget: { minHeight: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": { "default": null, [stylex.when.ancestor(':is(*)', channelRootMarker)]: space["--vv-s-44"] } } },
   touchButtonWidth: { minWidth: { "default": null, "@media (max-width: 767px) and (pointer: coarse)": { "default": null, [stylex.when.ancestor(':is(*)', channelRootMarker)]: space["--vv-s-44"] } } },
 })

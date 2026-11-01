@@ -59,7 +59,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
   const counts = countByFilter(list ?? [])
   const rows = list ? filterJobs(list, filter) : []
   const [limit, setLimit] = useState(PAGE)
-  const sentinel = useRef<HTMLDivElement>(null)
+  const sentinel = useRef<HTMLSpanElement>(null)
   useEffect(() => setLimit(PAGE), [filter, channelId])
   const shown = rows.slice(0, limit)
   const hasMore = rows.length > shown.length
@@ -158,8 +158,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
           )}
         </div>
       </div>
-      {hasMore && <div ref={sentinel} />}
-      {data !== undefined && rows.length > 0 && hasMore && <span {...stylex.props(sx.footnote)}>{tt.windowed(shown.length, rows.length)}</span>}
+      {data !== undefined && rows.length > 0 && hasMore && <span ref={sentinel} {...stylex.props(sx.footnote)}>{tt.windowed(shown.length, rows.length)}</span>}
     </section>
   )
 }
