@@ -64,9 +64,10 @@ export function useReview() {
       setImages(old => ({ ...old, [job]: { ...view, items: view.items.map(i => (item ? i.id === item.id : true) ? { ...i, status: op === 'skip' ? 'skipped' : 'running' } : i) } }))
     }
     try {
-      const result = await request<{ manifest?: { revision: number }; revision?: number; learn?: Suggestion | null }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
+      const result = await request<{ manifest?: { revision: number }; revision?: number; learn?: Suggestion | null; generation?: { learn?: Suggestion | null } | null }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
       const nextRevision = result.manifest?.revision ?? result.revision
-      if (nextRevision || result.learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { revision: nextRevision } } : {}), ...(result.learn ? { learn: result.learn } : {}) } } : old })
+      const learn = result.generation?.learn ?? result.learn
+      if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
       else void loadImages(job)
       return true

@@ -33,11 +33,10 @@ function RuleRow({ rule, offline, onChanged }: { rule: LearnedRule; offline: boo
     </button>
     <span {...stylex.props(s.ruleText)}>{rule.text}</span>
     <span {...stylex.props(s.ruleActions)}>
+      {examples.length > 0 && <ActionButton variant="quiet" size="sm" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? c.hideExample : c.viewExample}</ActionButton>}
       <ActionButton variant="quiet" size="sm" type="button" disabled={busy || offline} aria-label={c.remove(rule.text)} onClick={() => void remove()}><Icon name="trash" size={14} /></ActionButton>
     </span>
-    <span {...stylex.props(s.ruleSrc)}>{rule.source}{!rule.enabled && ` · ${c.off}`}
-      {examples.length > 0 && <> · <button type="button" aria-expanded={open} {...stylex.props(s.linkBtn)} onClick={() => setOpen(!open)}>{open ? c.hideExample : c.viewExample}</button></>}
-    </span>
+    <span {...stylex.props(s.ruleSrc)}>{rule.source}{!rule.enabled && ` · ${c.off}`}</span>
     {open && <div {...stylex.props(s.ruleExamples)}><RuleExamples examples={examples} /></div>}
   </li>
 }
@@ -54,8 +53,8 @@ export function LearnedRulesList({ scope, title = c.title, help = c.help, empty 
   return <section aria-label={title} {...stylex.props(s.rules)}>
     <div {...stylex.props(s.rulesHead)}>
       <span {...stylex.props(s.rulesTitle)}>{title}</span>
-      {data && <span {...stylex.props(s.counter)}>{c.counter(data.rules.length, data.limit)}</span>}
       <span {...stylex.props(s.rulesHelp)}>{help}</span>
+      {data && <span {...stylex.props(s.counter)}>{c.counter(data.rules.length, data.limit)}</span>}
     </div>
     {initialLoading ? <p role="status" {...stylex.props(s.state)}>{c.loading}</p>
       : error && !data ? <div role="alert" {...stylex.props(s.state)}>{errorText}<ActionButton variant="quiet" size="sm" type="button" className={stylex.props(s.stateAction).className} onClick={() => void refresh()}>{c.retry}</ActionButton></div>

@@ -1,7 +1,7 @@
 // Kiểu banner học (.vv-learn, .vv-banner--ready) và dòng quy tắc (.vv-rule) — số đo từ
 // getComputedStyle của artboard Main `agent=learn`, Review `state=learn`, Channel `tab=settings`.
 import * as stylex from '@stylexjs/stylex'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { color } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
@@ -37,11 +37,11 @@ export const learnStyles = stylex.create({
 
   // Khối Quy tắc đã học (Kênh › Cài đặt) / Ghi chú đã học (Thư viện › Prompt ảnh)
   rules: {
-    display: 'flex', flexDirection: 'column', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'], paddingTop: s['--vv-s-10'],
+    display: 'flex', flexDirection: 'column', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--vv-hairline)', paddingTop: s['--vv-s-10'],
   },
   rulesHead: { display: 'flex', alignItems: 'baseline', gap: s['--vv-s-8'], flexWrap: 'wrap', paddingBottom: s['--vv-s-4'] },
   rulesTitle: { fontSize: 12.5, color: color['--color-fg-2'] },
-  rulesHelp: { flex: '1 1 0', fontSize: 12, lineHeight: 1.5, color: color['--color-fg-3'] },
+  rulesHelp: { flex: '1 1 0', fontSize: 11.5, lineHeight: 1.5, color: color['--color-fg-3'] },
   counter: { fontSize: 11, color: color['--color-fg-3'], fontVariantNumeric: 'tabular-nums' },
   rule: {
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr) auto', gap: `${s['--vv-s-2']} ${s['--vv-s-12']}`, alignItems: 'start',
@@ -57,10 +57,6 @@ export const learnStyles = stylex.create({
   knob: {
     position: 'absolute', top: s['--vv-s-3'], left: s['--vv-s-3'], width: 16, height: 16, borderRadius: '50%', backgroundColor: color['--color-fg'],
     boxShadow: 'var(--vv-knob-shadow)', transition: { default: 'left .3s ease', [NO_MOTION]: 'none' },
-  },
-  linkBtn: {
-    borderWidth: 0, padding: 0, backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 'inherit',
-    textDecorationLine: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: 3, cursor: 'pointer',
   },
   knobOn: { left: 17 },
   ruleText: { fontSize: 13.5, lineHeight: 1.45, color: color['--color-fg'], overflowWrap: 'anywhere' },
