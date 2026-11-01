@@ -3,7 +3,7 @@
    - Safari / PWA kiểu cũ: webview nằm DƯỚI thanh trạng thái, env() = 0 → chỉ chừa 8px, không thêm 40px nữa;
    - PWA black-translucent: webview phủ dưới thanh trạng thái, env() = chiều cao thanh → dùng đúng env().
    Không cộng dồn, không có sàn 40px (sàn 40px làm thanh trên thấp ~40pt trên iPhone). */
-/* Vùng an toàn khai báo MỘT lần ở platform/ui/src/kit.css (:root --m-safe-*/--m-top/--m-edge).
+/* Vùng an toàn khai báo MỘT lần ở platform/ui/src/kit.css (:root --m-safe-top, --m-safe-bottom, --m-top, --m-edge).
    Ở đây chỉ đặt nhịp riêng của Noverse: khe 20px dưới thanh tab và chừa 112px cuối danh sách
    (thanh tab 64 + 28 + khe), giữ đúng khoảng thở cũ của artboard. */
 :root{--m-tabbar-gap:20px;--m-scroll-pad:calc(var(--m-tabbar-bottom) + 92px)}

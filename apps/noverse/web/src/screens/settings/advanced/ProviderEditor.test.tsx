@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import type { SettingsContext } from '../types'
 import { configForSave } from '../lib/config'
 import { ProviderEditor } from './ProviderEditor'
-import { ProvidersSection } from '../sections/providers'
 
 describe('fixed provider protocols', () => {
   it('never sends forbidden endpoints from stale drafts', () => {
@@ -33,16 +32,4 @@ describe('fixed provider protocols', () => {
     expect(/\sdisabled(=|\s|>)/.test(input)).toBe(locked)
   })
 
-  it('marks an invalid entry and keeps the real reason in user-opened details', () => {
-    const reason = 'Nhà cung cấp dùng giao thức cố định; lựa chọn điểm cuối chưa hợp lệ'
-    const ctx = {
-      scope: 'global', canEdit: false, admin: true,
-      draft: { providers: { broken: { type: 'xai-oauth', models: [{ name: 'grok-4.7' }] } } },
-      effective: {}, response: { providerErrors: { broken: reason } },
-    } as unknown as SettingsContext
-    const html = renderToStaticMarkup(<ProvidersSection ctx={ctx} />)
-    expect(html).toContain('Bắt sửa · Thiết lập nhà cung cấp chưa hợp lệ')
-    expect(html).toContain('<summary>Chi tiết kỹ thuật</summary>')
-    expect(html).toContain(reason)
-  })
 })

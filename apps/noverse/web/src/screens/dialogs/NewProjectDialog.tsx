@@ -75,7 +75,7 @@ export const newProjectContents = (shared: boolean, source: { ruleCount?: number
   { icon: 'edit-2', name: 'Quy tắc viết', note: source ? `chép ${source.ruleCount} quy tắc` : 'trống', color: color['--color-ok'] },
   { icon: 'brush-2', name: 'Văn phong', note: projectStyleName(source?.style, presets), color: color['--color-accent'] },
   { icon: 'cpu', name: 'Trợ lý AI', note: 'dùng chung cho cả app', color: color['--color-fg-3'] },
-  { icon: 'coin', name: 'Ngân sách', note: shared ? 'theo “Mọi truyện”' : 'bản riêng', color: color['--color-fg-3'] },
+  { icon: 'coin-1', name: 'Ngân sách', note: shared ? 'theo “Mọi truyện”' : 'bản riêng', color: color['--color-fg-3'] },
 ]
 
 export function NewProjectDialog({ onClose }: { onClose: () => void }) {
