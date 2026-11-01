@@ -7,7 +7,7 @@
  * `full` anchor on a video that cannot loop is rejected with the engine's own
  * message.
  */
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import type { TimelineItem } from "@editor/types/timeline";
 import { executeCommands } from "@editor/commands";
 import { useTimelineStore } from "@editor/features/timeline/stores/timeline-store";

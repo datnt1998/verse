@@ -26,3 +26,31 @@ it('closes the newest toast on Escape', async () => {
   expect(host.textContent).toContain('Một')
   expect(host.textContent).not.toContain('Hai')
 })
+it('drops every older pill once the host renders', async () => {
+  await act(async () => { toast('Cũ', 'ok', undefined, { duration: 60000 }); toast('Mới nhất', 'ok', undefined, { duration: 60000 }) })
+  await act(async () => { vi.advanceTimersByTime(600) })
+  await act(async () => {})
+  expect(host.textContent).not.toContain('Cũ')
+  expect(host.textContent).toContain('Mới nhất')
+})
+it('shows two job cards and recedes the older one until hovered', async () => {
+  await act(async () => {
+    toast.card({ title: 'Thẻ một', tone: 'warn', action: { label: 'Mở', onClick: () => {} }, duration: 60000 })
+    toast.card({ title: 'Thẻ hai', tone: 'ok', action: { label: 'Mở', onClick: () => {} }, duration: 60000 })
+    vi.advanceTimersByTime(20)
+  })
+  expect(host.textContent).toContain('Thẻ một')
+  expect(host.textContent).toContain('Thẻ hai')
+})
+it('drops the oldest non-attention card beyond two', async () => {
+  await act(async () => {
+    toast.card({ title: 'Thẻ cũ', tone: 'warn', action: { label: 'Mở', onClick: () => {} }, duration: 60000 })
+    toast.card({ title: 'Cần xử lý', tone: 'err', action: { label: 'Mở', onClick: () => {} }, duration: 60000 })
+    toast.card({ title: 'Thẻ mới', tone: 'ok', action: { label: 'Mở', onClick: () => {} }, duration: 60000 })
+  })
+  await act(async () => { vi.advanceTimersByTime(600) })
+  await act(async () => {})
+  expect(host.textContent).not.toContain('Thẻ cũ')
+  expect(host.textContent).toContain('Cần xử lý')
+  expect(host.textContent).toContain('Thẻ mới')
+})

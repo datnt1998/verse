@@ -13,6 +13,7 @@ import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
 import { navigate, routePath, useRoute, type Route } from './router'
 import { AdminReadOnly } from './components/AdminReadOnly'
+import { ToastAnchor } from './shell/toastAnchor'
 
 // Cổng phiên (thiết lập, đăng nhập, đổi mật khẩu, bị chặn, mất máy chủ) chỉ mở
 // một màn một lúc: để riêng chunk, người đã đăng nhập không tải mã của chúng.
@@ -124,6 +125,7 @@ export default function App() {
     <SessionProvider>
       <Root />
       <ToastHost activity />
+      <ToastAnchor />
     </SessionProvider>
   )
 }

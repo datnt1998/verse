@@ -14,6 +14,7 @@ export const KIT_LABELS_VI: KitLabels = {
     actionFailed: 'Không thực hiện được thao tác',
     autoDismissAfter: (sec) => `Tự đóng sau ${sec} giây`,
     pausedAutoDismiss: 'Đã dừng tự đóng',
+    staysUntilDismissed: 'Ở lại tới khi bạn đóng',
   },
   controls: { busyChanging: 'Đang thay đổi', done: 'Đã xong' },
   inputs: {

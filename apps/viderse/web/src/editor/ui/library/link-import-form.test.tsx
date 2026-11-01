@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@editor/storage/storage-backend', () => ({ getEditorStorage: () => ({ importMediaFromLink: mocks.importMediaFromLink }) }))
 vi.mock('@/editor/ui/shell/announcer', () => ({ announce: mocks.announce }))
-vi.mock('sonner', () => ({ toast: { error: mocks.toastError, success: vi.fn(), warning: vi.fn() } }))
+vi.mock('@/editor/ui/toast', () => ({ toast: { error: mocks.toastError, success: vi.fn(), warning: vi.fn() } }))
 vi.mock('@editor/features/media-library/stores/media-library-store', () => ({
   useMediaLibraryStore: { getState: () => ({ loadMediaItems: mocks.loadMediaItems, selectMedia: mocks.selectMedia }) },
 }))

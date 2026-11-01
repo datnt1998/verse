@@ -1,5 +1,5 @@
 import type { TimelineItem } from '@editor/types/timeline'
-import { toast } from 'sonner'
+import { toast } from '@editor/shared/ui/toast'
 import { useTimelineSettingsStore } from '../../timeline-settings-store'
 import { useSelectionStore } from '@editor/shared/state/selection'
 import { emitUiSound } from '@editor/shared/ui/ui-sound'

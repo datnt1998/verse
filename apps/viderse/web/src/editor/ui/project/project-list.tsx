@@ -3,7 +3,7 @@
 import Link, { useRouter } from "../../bridge/navigation";
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import { Clapperboard, Copy, Pencil, Plus, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { IconButton } from "@/components/icon-tip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

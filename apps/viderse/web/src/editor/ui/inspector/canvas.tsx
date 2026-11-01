@@ -1,6 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { executeCommands } from "@editor/commands";
 import { useProjectStore } from "@editor/features/projects/stores/project-store";
 import { NumberField, ColorField, PropertyRow, SectionHeader } from "@/editor/ui/controls";

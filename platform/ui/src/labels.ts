@@ -16,6 +16,8 @@ export type KitLabels = {
     actionFailed: string
     autoDismissAfter: (sec: number) => string
     pausedAutoDismiss: string
+    /** toast không hẹn giờ: ở lại tới khi bạn đóng */
+    staysUntilDismissed: string
   }
   /** controls */
   controls: { busyChanging: string; done: string }
@@ -111,6 +113,7 @@ const DEFAULTS: KitLabels = {
     actionFailed: 'Action failed',
     autoDismissAfter: (sec) => `Auto-dismiss in ${sec} seconds`,
     pausedAutoDismiss: 'Auto-dismiss paused',
+    staysUntilDismissed: 'Stays until you dismiss it',
   },
   controls: { busyChanging: 'Updating', done: 'Done' },
   inputs: {

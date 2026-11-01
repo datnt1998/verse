@@ -44,7 +44,7 @@ export type AppNotification = {
   createdAt: string
   readAt: string | null
   objectRef?: ObjectRef
-  detail?: { channels?: { channelId: string; name: string; count: number }[]; cause?: string; mp4?: { durationSec?: number; bytes?: number } }
+  detail?: { channels?: { channelId: string; name: string; count: number }[]; cause?: string; recovery?: { label: string; href: string }; mp4?: { durationSec?: number; bytes?: number } }
   systemAllowed?: boolean
 }
 
@@ -75,7 +75,7 @@ const notificationSchema = z.object({
   id: z.string(), kind: z.enum(kinds), count: z.number(), text: z.string(),
   actions: z.array(z.object({ label: z.string(), href: z.string() })), createdAt: z.string(), readAt: z.string().nullable(),
   objectRef: z.object({ type: z.string(), id: z.string(), label: z.string() }).optional(),
-  detail: z.object({ channels: z.array(z.object({ channelId: z.string(), name: z.string(), count: z.number() })).optional(), cause: z.string().optional(), mp4: z.object({ durationSec: z.number().optional(), bytes: z.number().optional() }).optional() }).optional(),
+  detail: z.object({ channels: z.array(z.object({ channelId: z.string(), name: z.string(), count: z.number() })).optional(), cause: z.string().optional(), recovery: z.object({ label: z.string(), href: z.string() }).optional(), mp4: z.object({ durationSec: z.number().optional(), bytes: z.number().optional() }).optional() }).optional(),
   systemAllowed: z.boolean().optional(),
 })
 const activitySchema = z.object({

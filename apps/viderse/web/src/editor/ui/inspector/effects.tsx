@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type KeyboardEvent } from "react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Pipette, Plus, Sparkles, Trash2 } from "lucide-react";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";

@@ -274,6 +274,37 @@
   --vv-why-line: rgba(255, 255, 255, .35);
   --vv-knob-shadow: 0 1px 3px rgba(0, 0, 0, .4);
   --vv-qa-tint: rgba(157, 236, 201, .08);
+  /* Toast r35 (kit activity): nền kính, vệt loang và vòng đếm ngược. --vv-qa-tint
+     ở trên là tint chip gợi ý (.08); tint thẻ trợ lý QA của artboard là .16. */
+  --vv-toast: #1C1C1F;
+  --vv-toast-glass: linear-gradient(180deg, rgba(30, 30, 33, .93), rgba(20, 20, 22, .96));
+  --vv-toast-border: rgba(255, 255, 255, .09);
+  --vv-toast-shadow: 0 22px 60px -14px rgba(0, 0, 0, .85), 0 2px 6px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .07);
+  --vv-toast-ring: rgba(255, 255, 255, .07);
+  --vv-st-ready: #A6EDC1;
+  --vv-st-review: #F6CB8C;
+  --vv-danger: #FF9A5C;
+  --vv-st-ready-bg: rgba(166, 237, 193, .12);
+  --vv-st-ready-28: rgba(166, 237, 193, .28);
+  --vv-st-review-bg: rgba(246, 203, 140, .12);
+  --vv-st-review-border: rgba(246, 203, 140, .2);
+  --vv-danger-soft: rgba(255, 154, 92, .12);
+  --vv-danger-border: rgba(255, 154, 92, .3);
+  --vv-scout-tint: rgba(127, 163, 255, .16);
+  --vv-scout-arc: #7FA3FF;
+  --vv-director-tint: rgba(176, 138, 247, .16);
+  --vv-director-arc: #B08AF7;
+  --vv-artist-tint: rgba(255, 190, 102, .16);
+  --vv-artist-arc: #FFBE66;
+  --vv-qa-tint-strong: rgba(93, 221, 176, .16);
+  --vv-qa-arc: #5DDDB0;
+  /* Chữ mức artboard 03-tokens: chữ phụ toast (--vv-text-3 = --color-fg-3) và
+     nút đóng mờ (--vv-text-hint = --kit-fg-icon). */
+  --vv-text-3: #A0A0AB;
+  --vv-text-hint: #8E8E99;
+  --vv-primary: #EDEDEF;
+  --vv-primary-hover: #FFFFFF;
+  --vv-primary-fg: #0B0B0D;
   /* Sheet “Đổi thư mục lưu” của mục Lưu trữ: nền đậm hơn sheet kit (#141416
      theo MSettings · store=pick), nút đi tiếp sáng phẳng của artboard. */
   --vv-sheet-bg: #141416;

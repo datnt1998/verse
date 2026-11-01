@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
-import { color, font, kit, radius } from '@noverse/ui/tokens.stylex'
+import { color, font, radius } from '@noverse/ui/tokens.stylex'
 import { v13 } from './editor-tokens.stylex'
 
 export const metrics = stylex.defineVars({
@@ -13,7 +13,6 @@ export const metrics = stylex.defineVars({
 const measureSweep = stylex.keyframes({ from: { transform: 'translateX(-100%)' }, to: { transform: 'translateX(300%)' } })
 export const sx = stylex.create({
   root: { height: '100dvh', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', backgroundColor: color['--color-bg'], color: color['--color-fg'], fontFamily: font['--font-sans'], fontSize: 13, lineHeight: 1.5 },
-  toast: { display: 'inline-flex', alignItems: 'center', gap: metrics['--ed-space-10'], height: 40, paddingBlock: 0, paddingLeft: metrics['--ed-space-14'], paddingRight: metrics['--ed-space-8'], borderRadius: v13.toastRadius, borderWidth: 1, borderStyle: 'solid', borderColor: v13.fieldBorder, backgroundColor: kit['--kit-surface-toast'], color: color['--color-fg'], boxShadow: kit['--kit-shadow-toast'], fontFamily: font['--font-sans'], fontSize: 13, whiteSpace: 'nowrap' },
   wide: { display: { default: 'flex', '@media (max-width: 1023px)': 'none' }, flex: 1, minHeight: 0, flexDirection: 'column' },
   narrow: { display: { default: 'none', '@media (max-width: 1023px)': 'flex' }, flex: 1, flexDirection: 'column' },
   narrowHead: { height: 48, display: 'flex', alignItems: 'center', paddingInline: metrics['--ed-space-10'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)' },

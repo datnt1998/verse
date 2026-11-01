@@ -4,7 +4,7 @@ import { invalidate } from '@noverse/ui/data'
 import { getActivity, getNotificationSettings, type AppNotification, type NotificationSettings } from '../api/activity'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
-import { notificationDetail } from './activityText'
+import { notificationSub, notificationTitle } from './activityText'
 
 export function isQuiet(settings: NotificationSettings, now = new Date()) {
   if (!settings.doNotDisturb.enabled) return false
@@ -55,9 +55,10 @@ export function ActivityBridge() {
       const secondaryAction = second ? { label: second.label, onClick: () => openNotification(second.href) } : undefined
       if (config.inApp) {
         if (action) {
-          const persistent = n.kind === 'needs_attention' || n.kind === 'review_ready'
-          toast.card({ key: `activity:${n.id}`, title: n.text, text: notificationDetail(n) || undefined, meta: n.count > 1 ? `Gộp ${n.count} thông báo trong 10 giây` : persistent ? 'Giữ tới khi bạn đóng' : 'Tự đóng sau 5 giây…', action, secondaryAction, tone: n.kind === 'needs_attention' ? 'err' : n.kind === 'review_ready' ? 'warn' : 'ok', duration: persistent ? undefined : 5000 })
-        } else toast(n.text, 'ok', undefined, { key: `activity:${n.id}`, duration: 5000 })
+          // Copy Toast r35: thẻ việc nền — tiêu đề là việc, tên video ở câu phụ;
+          // Cần xử lý ở lại tới khi đóng, thẻ khác 6 giây. Viên = kết quả thao tác.
+          toast.card({ key: `activity:${n.id}`, title: notificationTitle(n), text: notificationSub(n) || undefined, action, secondaryAction, tone: n.kind === 'needs_attention' ? 'err' : n.kind === 'review_ready' ? 'warn' : 'ok', duration: n.kind === 'needs_attention' ? undefined : 6000 })
+        } else toast(n.text, n.kind === 'needs_attention' ? 'err' : n.kind === 'review_ready' ? 'warn' : 'ok', undefined, { key: `activity:${n.id}`, duration: 6000 })
       }
       if (!previous.has(n.id) && document.hidden && n.systemAllowed !== false && config.system && ['review_ready', 'needs_attention', 'ready_to_post'].includes(n.kind) && 'Notification' in window && Notification.permission === 'granted') {
         void showSystemNotification(n)

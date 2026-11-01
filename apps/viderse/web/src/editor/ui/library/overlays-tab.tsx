@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Layers, Link2, Plus, Trash2, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { Button } from "@/components/ui/button";
 import { EditorIconButton } from "@/editor/ui/controls";
 import { announce } from "@/editor/ui/shell/announcer";

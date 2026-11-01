@@ -29,3 +29,14 @@ it('passes both persisted recovery actions to a single attention toast', async (
   expect(card).toHaveBeenCalledOnce()
   expect(card).toHaveBeenCalledWith(expect.objectContaining({ action: expect.objectContaining({ label: 'Đăng nhập lại' }), secondaryAction: expect.objectContaining({ label: 'Mở video' }) }))
 })
+it('maps review-ready to a one-line work title, channels in the sub, six-second card', async () => {
+  fixture.activity = { running: [], videoJobs: 0, queued: 0, unread: [], badge: 0 }
+  fixture.settings.kinds = { review_ready: { inApp: true, system: false } }
+  root = createRoot(document.body.appendChild(document.createElement('div')))
+  await act(async () => root?.render(<ActivityBridge />))
+  fixture.activity = { ...fixture.activity, unread: [{ id: 'review', kind: 'review_ready', count: 3, text: '3 video chờ duyệt', actions: [{ label: 'Duyệt ảnh', href: '#/review' }], createdAt: '2026-11-01T12:00:00Z', readAt: null, detail: { channels: [{ channelId: 'a', name: 'Midnight Tales', count: 2 }, { channelId: 'b', name: 'Chuyện Lạ Đêm Khuya', count: 1 }] } }] }
+  await act(async () => root?.render(<ActivityBridge />))
+  const card = vi.mocked(toast.card)
+  expect(card).toHaveBeenCalledWith(expect.objectContaining({ title: '3 video chờ duyệt ảnh', text: 'Midnight Tales 2 · Chuyện Lạ Đêm Khuya 1', tone: 'warn', duration: 6000 }))
+  expect(card.mock.calls[0]?.[0]).not.toHaveProperty('meta')
+})

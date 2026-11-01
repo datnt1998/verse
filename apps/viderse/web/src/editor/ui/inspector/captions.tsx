@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type KeyboardEvent } from "react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { ChevronLeft, ChevronRight, FileUp, Trash2 } from "lucide-react";
 import type { SubtitleSegmentItem, TextItem, TimelineItem } from "@editor/types/timeline";
 import { executeCommands } from "@editor/commands";

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Film, Image, Minus, Plus, Scissors, Sparkles, Subtitles, Trash2, Volume2, VolumeX } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '@/editor/ui/toast'
 import { executeCommands } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'

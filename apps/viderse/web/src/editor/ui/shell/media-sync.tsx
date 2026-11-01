@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/editor/ui/toast';
 import { getCommandExecutor, executeCommands, captureProjectState } from '@editor/commands';
 import { startMediaMetadataSync } from '@editor/features/media-library/services/media-metadata-sync';
 import { createMediaSourceSync } from '@editor/features/media-library/services/media-source-sync';
