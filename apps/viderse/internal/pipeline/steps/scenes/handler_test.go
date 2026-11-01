@@ -66,3 +66,42 @@ func TestSceneSplitKeepsStableIDAndMarksOutOfSpanKeyframe(t *testing.T) {
 		t.Fatal("mutated input")
 	}
 }
+
+// Design V3 has no scene-review screen: the analysis must be accepted when it
+// is produced, otherwise `build` refuses every job forever (awaiting_review)
+// and nothing can reach score/export.
+func TestScenesPublishAcceptedAnalysisWithoutPendingReview(t *testing.T) {
+	job := stepstest.Job("scenes-accepted")
+	job.TemplateSnapshot = json.RawMessage(`{"style":"full","images":{"mode":"fixed","count":1},"thumbnail":"clean"}`)
+	s, m := stepstest.Ctx(t, domain.CloneScenes, job)
+	m.Put("download/source.mp4", []byte("source"))
+	m.Put("transcript/captions.json", []byte(`{"cues":[{"id":"a","startMs":0,"endMs":2000,"text":"opening"}]}`))
+	h := Handler{Deps: Deps{Probe: func(context.Context, *pipeline.StepContext, string) (Probe, error) {
+		return Probe{DurationSec: 2.0, Width: 1280, Height: 720}, nil
+	}, Detect: func(context.Context, *pipeline.StepContext, string, float64) ([]DetectFrame, error) {
+		return nil, nil
+	}, Extract: func(_ context.Context, _ *pipeline.StepContext, _, out string, start, end int, at float64) (float64, error) {
+		return at, os.WriteFile(out, []byte("jpeg"), 0644)
+	}}}
+	result, err := h.Run(context.Background(), s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, artifact := range result.Artifacts {
+		if artifact.Path != "scenes/manifest.json" {
+			continue
+		}
+		doc, err := steps.DecodeJSONFile[Manifest](artifact.File, "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if doc.Pending != nil {
+			t.Fatalf("scene analysis left pending: build would wait for a review screen that does not exist")
+		}
+		if doc.Approval == nil || doc.Approval.Fingerprint != AnalysisFingerprint(doc) {
+			t.Fatalf("scene analysis not accepted: %+v", doc.Approval)
+		}
+		return
+	}
+	t.Fatal("no scene manifest published")
+}
