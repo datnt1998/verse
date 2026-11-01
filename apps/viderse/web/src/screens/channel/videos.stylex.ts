@@ -139,7 +139,7 @@ export const videoStyles = stylex.create({
     backgroundColor: { default: 'transparent', ':hover:not([aria-disabled="true"])': 'var(--vv-hover)' }, color: color['--color-fg'],
   },
   bulkBtnOff: { color: 'var(--vv-fg-note)', cursor: 'not-allowed' },
-  bulkMore: { width: space['--vv-s-34'], height: space['--vv-s-34'], borderRadius: corners['--vv-r-9'], color: color['--color-fg-3'] },
+  bulkMore: { width: space['--vv-s-28'], height: space['--vv-s-28'], borderRadius: corners['--vv-r-9'], color: color['--color-fg-3'] },
   bulkExit: {
     height: space['--vv-s-36'], padding: '0 var(--vv-s-12)', borderRadius: corners['--vv-r-10'], display: 'flex', alignItems: 'center', gap: space['--vv-s-6'],
     borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', backgroundColor: { default: 'transparent', ':hover': 'var(--vv-hover)' },
