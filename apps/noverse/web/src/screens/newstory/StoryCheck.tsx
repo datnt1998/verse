@@ -27,6 +27,8 @@ const styles = stylex.create({
   ok: { color: color['--color-ok'], backgroundColor: kit['--kit-ok-12'] },
   dot: { width: 6, height: 6, borderRadius: '50%', backgroundColor: 'currentColor' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: 6 },
+  // M11 (điện thoại): 5 trục xếp 2 cột cho chữ còn đọc được ở 390 px.
+  gridTwo: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 },
   cell: { minWidth: 0, padding: '7px 9px', borderRadius: 10, backgroundColor: line['--line-1'], display: 'flex', flexDirection: 'column', gap: 1 },
   duplicateCell: { backgroundColor: 'color-mix(in srgb, var(--color-err) 8%, transparent)', color: kit['--kit-err-soft'], boxShadow: 'inset 0 0 0 1px var(--kit-errf-55)' },
   overusedCell: { backgroundColor: 'color-mix(in srgb, var(--color-warn) 8%, transparent)', color: kit['--kit-warn-soft'], boxShadow: 'inset 0 0 0 1px var(--kit-warn-35)' },
@@ -50,7 +52,7 @@ const styles = stylex.create({
   compactLink: { marginLeft: 0, fontSize: 12, color: kit['--kit-fg-icon'] },
 })
 
-export function StoryCheckBlock({ project, gate, compact = false, onEdit }: { project: string; gate: StoryCheck; compact?: boolean; onEdit?: () => void }) {
+export function StoryCheckBlock({ project, gate, compact = false, columns = 5, onEdit }: { project: string; gate: StoryCheck; compact?: boolean; columns?: 2 | 5; onEdit?: () => void }) {
   const action = useAction(gate.suggest)
   if (!gate.state) return null
   const { result, changed = [], previous } = gate.state
@@ -69,9 +71,9 @@ export function StoryCheckBlock({ project, gate, compact = false, onEdit }: { pr
       </div>
       <span {...stylex.props(styles.pill, compact && styles.compactPill, tone)}>{!compact && <span aria-hidden="true" {...stylex.props(styles.dot)} />}{pill}</span>
     </div>
-    {gate.checking && (compact ? <span {...stylex.props(styles.detail)}>{copy.checkingDetail}</span> : <div {...stylex.props(styles.grid)}>{Array.from({ length: 10 }, (_, n) => <Skeleton key={n} height={46} radius={10} />)}</div>)}
+    {gate.checking && (compact ? <span {...stylex.props(styles.detail)}>{copy.checkingDetail}</span> : <div {...stylex.props(styles.grid, columns === 2 && styles.gridTwo)}>{Array.from({ length: 10 }, (_, n) => <Skeleton key={n} height={46} radius={10} />)}</div>)}
     {result && <>
-      {!compact && result.axes.length > 0 && <div {...stylex.props(styles.grid)}>{result.axes.map((axis, index) => {
+      {!compact && result.axes.length > 0 && <div {...stylex.props(styles.grid, columns === 2 && styles.gridTwo)}>{result.axes.map((axis, index) => {
         const value = result.values[index] ?? '—'
         const modified = changed.includes(axis.n) && !!previous
         const duplicate = result.checks.some((check) => check.level === 'error' && check.axes.includes(axis.n))

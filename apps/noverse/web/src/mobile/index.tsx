@@ -18,6 +18,7 @@ import { getPosition } from '../screens/reader/mobile/preferences'
 import { MobileWorkspace } from '../screens/workspace/mobile'
 import { RunHistory } from '../screens/workspace/RunHistory'
 import { MobileMore, MobileFirstPassword } from '../screens/more/mobile'
+import { MobileNewStory } from '../screens/newstory/mobile'
 import { MobileActivity } from '../screens/activity/mobile'
 import { NotifyPage } from '../screens/notify/NotifyPage'
 import { MOBILE_QUERY, TABLET_QUERY, showReviewDot, toastBottomFor, type LayoutMode } from './logic'
@@ -89,7 +90,8 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   const selectReviewDot = useCallback((snapshot: Snapshot | undefined) => showReviewDot(snapshot ?? null, user, `${project ?? ''}/${story ?? ''}`), [user, project, story])
   const needYou = useResourceValue(keys.story(project ?? '', story ?? '', 'snapshot'), ({ signal }) => getSnapshot(project ?? '', story ?? '', signal), selectReviewDot, { enabled: !!project && !!story })
   const firstPassword = Boolean(user?.mustChangePassword && !passwordSkipped)
-  const subpage = route.name === 'activity' || route.name === 'projbrain' || route.name === 'notifications' || (route.name === 'settings' && route.section === 'notify')
+  // M11 · Truyện mới là màn đẩy: không thanh tab, ‹ về nơi mở.
+  const subpage = route.name === 'activity' || route.name === 'projbrain' || route.name === 'notifications' || route.name === 'newstory' || (route.name === 'settings' && route.section === 'notify')
   useTabMode(firstPassword || subpage ? 'hide' : undefined)
   useToastBottom(toastBottomFor(route.name === 'settings' && route.section === 'notify' ? 'notifications' : route.name))
   const tab = route.name === 'reader' ? 'read' : route.name === 'audio' ? 'audio' : ['workspace', 'activity', 'story'].includes(route.name) ? 'work' : 'more'
@@ -149,6 +151,7 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   else if (route.name === 'brain') screen = <MobileBrain key={`${route.project}/${route.story}`} project={route.project} story={route.story} chapter={Number.parseInt(parsed.search.get('ch') ?? '', 10) || null} person={parsed.search.get('person')} />
   else if (route.name === 'story' && parsed.search.has('tab')) screen = <MobileOutline key={`${route.project}/${route.story}`} project={route.project} story={route.story} initialTab={parsed.search.get('tab')} />
   else if (route.name === 'projbrain') screen = <ProjectBrainScreen key={route.project} project={route.project} />
+  else if (route.name === 'newstory') screen = <MobileNewStory key={route.project} project={route.project} />
   else if (route.name === 'notifications' || (route.name === 'settings' && route.section === 'notify')) screen = <NotifyPage initialView={parsed.search.get('view') ?? undefined} onBack={() => navigate(current ? paths.workspace(current.project, current.story) : '/')} />
   // Không còn nhánh “Trên máy tính”: mọi route đều thuộc một pane (paneKeyOf) hoặc là màn riêng
   // có `screen` ở trên, nên màn hình dự phòng chỉ còn là đường lộ ra khi thanh tab đã bấm.

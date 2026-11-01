@@ -2,9 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { ApiError, abortStory, getChapter, getLiveHistory, getOutline, getReviews, nextChapter, postCommand, resumeStory, sendInput } from '../../../api/client'
 import type { ExportConflict } from '../../../api/types'
 import { useSession } from '../../../api/session'
+import { useLibrary } from '../../../api/library'
+import { newStoryEntry } from '../../newstory/entry'
 import { useStoryEvents } from '../../../api/useStoryEvents'
 import { invalidate, keys, useAction, useResource } from '../../../data'
 import { translateHost } from '../../../i18n/hostStrings'
+import { t } from '../../../i18n/vi'
 import { toolLabel, saneChapter } from '../../../lib/labels'
 import { activityText, deduplicateUserEvents, isInternalEvent, isUserEvent, userEventActor } from '../../../lib/activity'
 import { latestRunProse, mergeRunEvents } from '../../../lib/runHistoryMerge'
@@ -60,7 +63,11 @@ export function MobileWorkspace(props: { project: string; story: string; tablet?
 
 function EmptyWorkspace() {
   const { data } = useNotificationInbox()
-  return <section className="m-page mw-workspace"><header className="m-topbar"><button type="button" className="mw-story-link" onClick={() => navigate(moreHref('projects'))}><span className="mw-brand-orbs" aria-hidden="true"><span className="m-orb architect" /><span className="m-orb writer" /><span className="m-orb editor" /></span><span className="mw-story-copy"><strong>Noverse</strong><small>Chưa mở truyện nào</small></span><Icon name="arrow-down-2" size={15} /></button><button type="button" className="m-icon-button mw-bell" onClick={() => navigate('/notifications')} aria-label="Thông báo"><Icon name="notification" size={21} />{!!data?.unread && <i />}</button></header><main className="m-scroll"><div className="mw-empty"><div className="mw-empty-orbs" aria-hidden="true">{ROLES.map((role) => <span key={role.key} className={`m-orb ${role.key}`} />)}</div><h1>Chưa có truyện nào</h1><p>Tạo truyện mới hoặc nhập truyện có sẵn trên máy tính. Khi truyện bắt đầu, bạn theo dõi và duyệt ngay tại đây.</p><div className="mw-empty-actions"><button type="button" className="m-button" onClick={() => navigate(moreHref('projects'))}>Mở truyện có sẵn</button><button type="button" className="m-button secondary" onClick={() => navigate('/notifications')}>Báo tôi khi có truyện mới</button></div></div></main></section>
+  const { library } = useLibrary()
+  const { user } = useSession()
+  // M11 · Truyện mới mở với dự án điền sẵn; chưa có dự án nào ghi được thì về Dự án & truyện.
+  const createHref = newStoryEntry(library?.projects ?? [], user)
+  return <section className="m-page mw-workspace"><header className="m-topbar"><button type="button" className="mw-story-link" onClick={() => navigate(moreHref('projects'))}><span className="mw-brand-orbs" aria-hidden="true"><span className="m-orb architect" /><span className="m-orb writer" /><span className="m-orb editor" /></span><span className="mw-story-copy"><strong>Noverse</strong><small>Chưa mở truyện nào</small></span><Icon name="arrow-down-2" size={15} /></button><button type="button" className="m-icon-button mw-bell" onClick={() => navigate('/notifications')} aria-label="Thông báo"><Icon name="notification" size={21} />{!!data?.unread && <i />}</button></header><main className="m-scroll"><div className="mw-empty"><div className="mw-empty-orbs" aria-hidden="true">{ROLES.map((role) => <span key={role.key} className={`m-orb ${role.key}`} />)}</div><h1>Chưa có truyện nào</h1><p>Tạo truyện mới ngay tại đây, hoặc mở truyện có sẵn. Khi truyện bắt đầu, bạn theo dõi và duyệt ở màn này.</p><div className="mw-empty-actions"><button type="button" className="m-button" onClick={() => navigate(createHref)}><Icon name="add-square" size={19} />{t.newStory.createNew}</button><button type="button" className="m-button secondary" onClick={() => navigate(moreHref('projects'))}>{t.newStory.openExisting}</button><button type="button" className="mw-empty-link" onClick={() => navigate('/notifications')}>{t.newStory.notifyNew}</button></div></div></main></section>
 }
 
 function StoryWorkspace({ project, story, tablet = false }: { project: string; story: string; tablet?: boolean }) {

@@ -112,6 +112,7 @@
 .mw-empty p{color:#A0A0AB;font-size:15px}
 .mw-empty-actions{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:8px}
 .mw-empty .m-button{width:100%}
+.mw-empty-link{align-self:center;min-height:44px;display:flex;align-items:center;padding:0 8px;border:0;background:none;font-size:14.5px;color:var(--color-fg-3)}
 .mw-empty-orbs{width:120px;height:90px;position:relative;animation:mw-celebrate 2.4s ease-in-out infinite}
 .mw-empty-orbs .m-orb{position:absolute}
 .mw-empty-orbs .architect{left:6px;top:34px;width:34px;height:34px}

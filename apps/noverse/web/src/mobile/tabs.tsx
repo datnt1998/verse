@@ -38,13 +38,15 @@ export function paneKeyOf(parsed: Parsed): string | null {
     case 'activity':
     case 'brain':
     case 'projbrain':
-    case 'notifications': return null
+    case 'notifications':
+    // M11 · Truyện mới: màn đẩy không tab bar, pane bên dưới giữ nguyên.
+    case 'newstory': return null
     case 'settings': {
       if (route.section === 'notify') return null
       const page = search.get('page') ?? ''
       return route.section === 'rules' ? `more:rules:${page}` : route.section === 'storage' ? 'more:storage' : `more:mobile:${page}`
     }
-    // Route chỉ có ở bản máy tính (Chất lượng, Não dự án, Truyện mới, Não hệ thống, 404…):
+    // Route chỉ có ở bản máy tính (Chất lượng, Não dự án, Não hệ thống, 404…):
     // vẫn thuộc tab Thêm; `phoneRedirect` thay URL ngay sau khung hình đầu.
     default: return 'more:mobile:'
   }
@@ -65,7 +67,6 @@ export function phoneRedirect(parsed: Parsed): string | null {
     }
     // Chất lượng truyện có nghĩa nhất khi quay về màn Viết của chính truyện đó.
     case 'quality': return paths.workspace(route.project, route.story)
-    case 'newstory':
     case 'sysbrain':
     case 'missing': return PHONE_MORE
     default: return null

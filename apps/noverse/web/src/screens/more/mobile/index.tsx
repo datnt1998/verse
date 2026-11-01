@@ -1,6 +1,6 @@
 // M4 · Thêm — các trang độc lập trên điện thoại (18-mobile.md / MMore.dc.html).
 import { useEffect, useState } from 'react'
-import { canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, mySessions, revokeSession } from '../../../api/client'
+import { canCreateStory, canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, mySessions, revokeSession } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import type { ModelRoleKey, ProjectSummary, Session, StorySummary } from '../../../api/types'
 import { cache, invalidate } from '@noverse/ui/data'
@@ -25,13 +25,14 @@ import { useCommands } from '../../../commands/store'
 import { AccountsSheet, AccountAvatar, RoleBadge } from './Accounts'
 import { MobilePassword } from './Password'
 import { MobileGuide, desktopCommand } from './Guide'
+import { newStoryEntry } from '../../newstory/entry'
 import { useTabMode } from '../../../mobile/runtime'
 import { styleDisplayName } from '../../settings/sections/style'
 import { usd } from './storySetLogic'
 export { MobileFirstPassword } from './Password'
 import './more.css'
 import { projectLabel, storyLabel } from '../../../shell/labels'
-import { storageCopy } from '../../../i18n/vi'
+import { storageCopy, t } from '../../../i18n/vi'
 import { StorageSection } from '../../settings/storage'
 import { StorageNavSummary } from '../../settings/storage/indicators'
 import { AppSwitcher } from '../../../shell/AppSwitcher'
@@ -66,7 +67,13 @@ function ProjectStories({ project, currentProject, currentStory, onChoose, offli
         <span className="mm-copy"><span>{storyLabel(item)}</span><span className={`mm-sub${selected ? ' mm-selected' : ''}`}>{STATUS[item.status]} · {item.completedChapters}{item.totalChapters > 0 ? `/${item.totalChapters}` : ''} chương{item.locked ? ' · Đang khoá' : ''}</span></span>
         {selected && <Icon name="tick-circle" size={20} className="mm-check" />}
       </button>
-    })}{!stories.length && <p className="mm-empty">Chưa có truyện bạn có thể mở.</p>}</div>}
+    })}{!stories.length && <p className="mm-empty">Chưa có truyện bạn có thể mở.</p>}
+      {/* Gói AR — M4 › Dự án & truyện: lối vào M11 với dự án này điền sẵn. */}
+      {!!user && canCreateStory(user, project.id) && <button className="mm-row mm-row-new" type="button" disabled={offline}
+        onClick={() => navigate(paths.newstory(project.id))}>
+        <Icon name="add-square" size={20} className="mm-new-icon" />
+        <span className="mm-copy">{t.nav.newStory}</span>
+      </button>}</div>}
   </section>
 }
 
@@ -210,7 +217,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
         {page === 'rules' && <MobileRules project={project} story={story} online={online} toast={toast} />}
         {page === 'storage' && user?.role === 'admin' && <StorageSection mobile />}
         {page === 'storyset' && <MobileStorySet project={project} story={story} nextChapter={(currentStory?.completedChapters ?? 0) + 1} online={online} toast={toast} onModel={() => push('model')} writerModel={modelLabel} />}
-        {(page === 'guide' || page === 'guideCmd') && <MobileGuide command={page === 'guideCmd' ? command : null} onPick={(name) => { setCommand(name); setCommandHistory((old) => [...old, name]); push('guideCmd') }} onUse={useCommand} />}
+        {(page === 'guide' || page === 'guideCmd') && <MobileGuide command={page === 'guideCmd' ? command : null} onPick={(name) => { setCommand(name); setCommandHistory((old) => [...old, name]); push('guideCmd') }} onUse={useCommand} onOpenNewStory={() => navigate(newStoryEntry(library.data?.projects ?? [], user, project))} />}
         {page === 'projects' && <>
           <ResourceNotice resource={library} label="dự án" />
           {library.data?.projects.filter((item) => user && canReadProject(user, item.id)).map((item) => <ProjectStories key={item.id} project={item} currentProject={project} currentStory={story} onChoose={choose} offline={!online} />)}

@@ -20,7 +20,8 @@ export type Tag = { label: string; background: string; color: string }
 // Màu theo đúng bảng ROLE của artboard; vai ngoài bảng dùng màu “Phụ chức năng”.
 const PURPLE = { background: 'rgba(201,166,245,0.12)', color: '#D9CCF7' }
 const RED = { background: 'rgba(255,154,162,0.1)', color: '#FF9AA2' }
-const RED_SOFT = { background: 'rgba(255,154,162,0.06)', color: '#E8A3AA' }
+// Đồng phạm dùng token `--role-accomplice-*` (cùng màu với MOutline) — không viết cứng mã màu.
+const RED_SOFT = { background: 'var(--role-accomplice-bg)', color: 'var(--role-accomplice-fg)' }
 const AMBER = { background: 'rgba(246,203,140,0.1)', color: '#F6CB8C' }
 const BLUE = { background: 'rgba(185,208,247,0.1)', color: '#B9D0F7' }
 const NEUTRAL = { background: 'rgba(255,255,255,0.06)', color: '#A0A0AB' }

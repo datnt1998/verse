@@ -9,6 +9,10 @@
 .mm-group{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
 .mm-row{display:flex;align-items:center;gap:12px;min-height:54px;padding:8px 14px;border:0;background:transparent;color:#EDEDEF;font-size:15px;text-align:left;width:100%;text-decoration:none}
 .mm-row+.mm-row{border-top:1px solid rgba(255,255,255,.06)}
+.mm-row-new{color:var(--color-accent)}
+.mm-guide-open{margin:16px 16px 0}
+.mm-guide-open .m-button{width:100%}
+.mm-new-icon{margin:0 1px;flex:0 0 auto}
 button.mm-row:not([role=radio]),a.mm-row{cursor:pointer;transition:transform .12s ease,background .15s,opacity .15s}
 button.mm-row:active:not(:disabled):not([role=radio]),a.mm-row:active{background:rgba(255,255,255,.06);transform:scale(.96)}
 button.mm-row[role=radio]:active:not(:disabled){background:var(--line-1)!important}

@@ -964,3 +964,11 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 | AQ-lệch 3 | M9 `found=partial`: API chỉ báo thiếu mục bắt buộc của tier | **Xác nhận** — danh sách mục thiếu lấy từ API; board chỉ minh hoạ. Chiều cao khác board là đúng. | `MOutline` |
 | AQ-lệch 4 | Màu vai Đồng phạm chưa có token | **Chốt tên** `--role-accomplice-fg: #E8A3AA`, `--role-accomplice-bg: rgba(255,154,162,.06)` (đã thêm `tokens.css`). Board M9 sửa nền 0,08 → 0,06 cho khớp máy tính. | `MOutline`, `Outline` |
 | Máy tính · Mô phỏng văn phong | Nút tạo truyện rồi chạy học văn phong khi chưa có văn mẫu → lỗi | **Đổi**: dán văn mẫu trước (hộp thoại máy tính = ngăn M11). | `MNewStory` `sheet=samples` |
+
+### Gói AR — đã làm (01/11/2026)
+
+- M11 `MNewStory` ≤ 640 px (`screens/newstory/mobile/`): Bắt đầu nhanh (ô 16 px, ngăn Văn phong/Người viết, nút đáy dính kèm `disabledReason` chung với `QuickMode`, nâng theo `visualViewport` như ô chat M1, lỗi → *Thử lại*, mất mạng, mở từ ý tưởng), So với truyện trước 2 cột, Đồng sáng tác toàn màn với thẻ *Bản nháp yêu cầu* (bản nháp giữ qua tải lại), ba cách khác (tệp thiết lập gõ tên, bản thảo → import, ngăn dán văn mẫu). Điện thoại không còn thu hẹp `QuickMode` máy tính (đóng AM-7).
+- Lối vào: M1 trống có *Tạo truyện mới*; M4 › Dự án & truyện có hàng *Truyện mới* cuối mỗi dự án; Hướng dẫn lệnh › `/start` “Dùng ở Truyện mới” + *Mở Truyện mới*.
+- Máy tính › *Mô phỏng văn phong*: mở hộp thoại dán văn mẫu (cùng nội dung ngăn M11) → tạo truyện → gửi từng đoạn → học văn phong; lỗi giữa chừng *Thử lại* không tạo truyện thứ hai. **GAP:** hộp thoại máy tính chưa có artboard — dùng Dialog có sẵn với nội dung ngăn `sheet=samples`.
+- Token `--role-accomplice-fg/bg` dùng ở Nhân vật (máy tính) và M9; huy hiệu Quản trị trên M4 dùng `--members-admin-*`.
+- Chưa kiểm trên bàn phím ảo thật (chỉ DOM + test); GAP-AR1 (danh sách tệp thiết lập) chưa làm — không bắt buộc.
