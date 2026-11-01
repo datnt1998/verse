@@ -34,7 +34,7 @@ function RuleRow({ rule, offline, onChanged }: { rule: LearnedRule; offline: boo
     <span {...stylex.props(s.ruleText)}>{rule.text}</span>
     <span {...stylex.props(s.ruleActions)}>
       {examples.length > 0 && <ActionButton variant="quiet" size="sm" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? c.hideExample : c.viewExample}</ActionButton>}
-      <ActionButton variant="quiet" size="sm" type="button" disabled={busy || offline} aria-label={c.remove(rule.text)} onClick={() => void remove()}><Icon name="trash" size={14} /></ActionButton>
+      <ActionButton variant="quiet" size="sm" type="button" xstyle={s.ruleTrash} disabled={busy || offline} aria-label={c.remove(rule.text)} onClick={() => void remove()}><Icon name="trash" size={14} /></ActionButton>
     </span>
     <span {...stylex.props(s.ruleSrc)}>{rule.source}{!rule.enabled && ` · ${c.off}`}</span>
     {open && <div {...stylex.props(s.ruleExamples)}><RuleExamples examples={examples} /></div>}
