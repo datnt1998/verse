@@ -33,7 +33,7 @@ func TestSSOLocalBindRequiresLoopback(t *testing.T) {
 		{"[::]:18790", false},
 		{":18790", false},
 		{"192.168.1.5:18790", false},
-		{"100.64.0.1:18790", false}, // Tailscale range is still not loopback
+		{"100.64.0.1:18790", false}, // 100.64.0.0/10 (carrier-grade NAT) is still not loopback
 	} {
 		if got := ssoLoopbackOnly(tc.addr); got != tc.ok {
 			t.Fatalf("ssoLoopbackOnly(%q) = %v, want %v", tc.addr, got, tc.ok)

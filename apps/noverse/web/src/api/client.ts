@@ -138,9 +138,6 @@ export const getAdminAudit = (query: { type?: string; actor?: string; before?: s
 }
 export const userSessions = (username: string) => request<{ sessions: Session[] }>(`/api/users/${encodeURIComponent(username)}/sessions`)
 export const userPairing = (username: string) => request<Pairing>(`/api/users/${encodeURIComponent(username)}/pairings`, { body: {} })
-// Mở/đóng truy cập từ Wi-Fi nhà (chỉ gọi được ngay trên máy chủ); khi mở trả về liên kết QR cho chính người gọi.
-export const setLanAccess = (lan: boolean) =>
-  request<{ lan: boolean; links: Pairing['links']; code?: string; expiresAt?: string }>('/api/system/network', { method: 'PUT', body: { lan } })
 
 // Mã khôi phục quản trị (GAP-33): hiện một lần; 409 = còn mã chưa dùng → dùng rotate.
 export const getRecovery = () => request<{ createdAt: string | null; used: boolean; mask?: string }>('/api/me/recovery')

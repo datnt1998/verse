@@ -39,7 +39,7 @@ export function Scanner({ onClose, onPassword, onCode, onBlocked }: {
   const [torchable, setTorchable] = useState(false)
 
   useEffect(() => {
-    // Trang http qua Wi-Fi nhà: xin quyền cũng vô ích → đi thẳng cameraBlocked.
+    // Trang http (không bảo mật): xin quyền cũng vô ích → đi thẳng cameraBlocked.
     const Detector = window.BarcodeDetector
     if (!window.isSecureContext || !Detector) { onBlocked(); return }
     let cancelled = false

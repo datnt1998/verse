@@ -1867,7 +1867,5 @@ func (g *Gateway) serveSystem(w http.ResponseWriter, r *http.Request, user ident
 		"defaultContextWindow": bootstrap.DefaultContextWindow,
 		// Only administrators connected directly from loopback may open server folders.
 		"canReveal": g.libRepo == nil && isAdmin(user) && isDirectLoopback(r),
-		// Điện thoại có vào được không (listener mạng nội bộ đang mở); đổi bằng PUT /api/system/network.
-		"lan": g.lanEnabled(),
 	})
 }

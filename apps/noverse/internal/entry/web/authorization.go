@@ -18,7 +18,7 @@ func routePermission(r *http.Request) (project string, minimum identity.ProjectR
 	if strings.HasPrefix(path, "api/jobs/"+voiceInstallJobID+"/") {
 		return "", "", true
 	}
-	if strings.HasPrefix(path, "api/admin/") || path == "api/users" || strings.HasPrefix(path, "api/users/") || strings.HasPrefix(path, "api/fs/") || path == "api/system/network" || path == "api/system/pick-folder" || path == "api/tts/install" {
+	if strings.HasPrefix(path, "api/admin/") || path == "api/users" || strings.HasPrefix(path, "api/users/") || strings.HasPrefix(path, "api/fs/") || path == "api/system/pick-folder" || path == "api/tts/install" {
 		return "", "", true
 	}
 	if path == "api/projects" || path == "api/projects/adopt" {

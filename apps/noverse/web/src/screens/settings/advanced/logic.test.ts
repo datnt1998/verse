@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  commandValue, configPathValue, contextWindowValue, dirsValue, humanDuration, idleSummary, importModelsValue, importRoleModel, isDuration, lanView,
+  commandValue, configPathValue, contextWindowValue, dirsValue, humanDuration, idleSummary, importModelsValue, importRoleModel, isDuration,
   parseContextWindow, recoveryFile, recoveryValue, rulesPathValue, shortDate, slugWordsValue,
 } from './logic'
 
@@ -30,12 +30,6 @@ describe('Nâng cao › Truy cập & khôi phục', () => {
     expect(recoveryValue({ createdAt: iso(10, 24), used: false })).toBe('Đã tạo 24/10 · chưa dùng')
     expect(recoveryValue({ createdAt: iso(10, 24), used: true })).toBe('Đã tạo 24/10 · đã dùng')
     expect(recoveryValue({ createdAt: null, used: false })).toBe('Chưa tạo mã')
-  })
-
-  it('lanView: nhãn nút theo trạng thái, chỉ khoá (kèm lý do) khi không bật tắt được', () => {
-    expect(lanView(true, true)).toEqual({ value: 'Đang bật', action: 'Tắt', disabledReason: '' })
-    expect(lanView(false, true)).toEqual({ value: 'Đang tắt', action: 'Bật', disabledReason: '' })
-    expect(lanView(true, false).disabledReason).toBe('Chỉ bật hoặc tắt được khi dùng ngay trên máy chủ')
   })
 
   it('recoveryFile: tệp .txt chứa đúng mã, không chứa dòng lệnh', () => {

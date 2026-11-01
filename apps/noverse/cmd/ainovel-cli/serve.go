@@ -41,9 +41,8 @@ func runServe(args []string) error {
 	flags.SetOutput(os.Stderr)
 	root := flags.String("root", "", "Thư mục sách (mặc định: ~/.ainovel/serve.json, rồi ~/Truyen nếu đã có; không có thì chọn trên web)")
 	addr := flags.String("addr", "", "Địa chỉ lắng nghe")
-	lan := flags.Bool("lan", false, "Cho phép điện thoại trong mạng LAN")
 	flags.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Cách dùng: ainovel-cli serve [--root DIR] [--addr HOST:PORT] [--lan]")
+		fmt.Fprintln(os.Stderr, "Cách dùng: ainovel-cli serve [--root DIR] [--addr HOST:PORT]")
 		flags.PrintDefaults()
 		fmt.Fprint(os.Stderr, serveEnvUsage)
 	}
@@ -89,8 +88,8 @@ func runServe(args []string) error {
 	defer closeAccounts()
 	// GAP-41：还没有账号时不再在终端里问名字/密码；serve 启动后打印设置码，在网页上创建管理员。
 	// 默认只监听本机；hosted（容器）通过 HTTP_ADDR=0.0.0.0:8080 指定 —— Traefik
-	// 是唯一的公开入口，容器端口不直接发布。--lan 与 serve.json 的 lan 通过
-	// Network 另开局域网监听，之后可在网页里开关。
+	// 是唯一的公开入口，容器端口不直接发布。成员打开 PUBLIC_URL; không có PUBLIC_URL
+	// thì mở đúng địa chỉ request đến (Host), không dò card mạng.
 	if *addr == "" {
 		*addr = strings.TrimSpace(os.Getenv("HTTP_ADDR"))
 	}
@@ -116,7 +115,7 @@ func runServe(args []string) error {
 	defer listener.Close()
 	// Local SSO shares a host-only cookie across loopback ports, so a LAN or
 	// wildcard bind would hand it to untrusted neighbours. Require loopback
-	// before the network listeners can open.
+	// before the server can accept a connection.
 	if proxyCfg.LocalSSO() && !ssoLoopbackOnly(listener.Addr().String()) {
 		_ = listener.Close()
 		return fmt.Errorf("VERSE_APP_ORIGINS local yêu cầu bind loopback (HTTP_ADDR=%q bị từ chối)", *addr)
@@ -191,8 +190,9 @@ func runServe(args []string) error {
 			},
 		})
 		// Worker API listener: a separate bind (WORKER_LISTEN_ADDR, e.g. the
-		// Tailscale IP) so worker tokens never share the UI listener's ACLs.
-		// Unset means the API stays off — no implicit exposure.
+		// private address the worker reaches) so worker tokens never share the
+		// UI listener's ACLs. Unset means the API stays off — no implicit
+		// exposure.
 		if addr := strings.TrimSpace(os.Getenv("WORKER_LISTEN_ADDR")); addr != "" {
 			if err := runWorkerListener(addr, pool, blobs, keys); err != nil {
 				return fmt.Errorf("worker listener: %w", err)
@@ -241,49 +241,29 @@ func runServe(args []string) error {
 	if ip.IsLoopback() || ip.IsUnspecified() {
 		fmt.Printf("Mở trên máy này: %s\n", base("127.0.0.1"))
 	}
-	var phoneURLs []string
-	switch {
-	case ip.IsLoopback():
-		// Local SSO never opens the LAN listener: the shared cookie travels
-		// to every port on the host, and a phone on Wi-Fi is an untrusted
-		// neighbour under that contract.
-		if !proxyCfg.LocalSSO() {
-			network := gateway.EnableNetwork(web.NetworkOptions{Port: port})
-			saved, _ := library.LoadServeConfig()
-			if *lan || saved.LAN {
-				if err := network.Set(true); err != nil {
-					fmt.Printf("Không mở được kết nối cho điện thoại: %v\n", err)
-				}
-			}
-			phoneURLs = network.URLs()
-		}
-		if *lan && proxyCfg.LocalSSO() {
-			fmt.Println("Bỏ qua --lan: local SSO chỉ phục vụ trên loopback.")
-		}
-	case ip.IsUnspecified():
-		for _, address := range web.LANAddresses() {
-			gateway.PublicURLs = append(gateway.PublicURLs, base(address))
-		}
-		phoneURLs = gateway.PublicURLs
-	default:
-		gateway.PublicURLs = []string{base(bound)}
-		phoneURLs = gateway.PublicURLs
+	// Địa chỉ để mở: PUBLIC_URL khi chạy sau proxy (hosted), ngược lại địa chỉ
+	// bind thật. 0.0.0.0 không phải địa chỉ ai mở được từ ngoài.
+	openURL := ""
+	if proxyCfg.PublicURL != nil {
+		openURL = proxyCfg.PublicURL.Scheme + "://" + proxyCfg.PublicURL.Host
+	} else if !ip.IsLoopback() && !ip.IsUnspecified() {
+		openURL = base(bound)
 	}
 	// GAP-41：还没有账号 → 打印打开地址与设置码。码只在这一处出现（SetupCodeOnce 之后清空）。
 	if code := gateway.SetupCodeOnce(); code != "" {
 		target := base("127.0.0.1")
-		if !ip.IsLoopback() && len(phoneURLs) > 0 {
-			target = phoneURLs[0]
+		if openURL != "" {
+			target = openURL
 		}
 		fmt.Printf("Mở trình duyệt để thiết lập: %s\n", target)
 		fmt.Printf("Mã thiết lập: %s (hết hạn sau %d phút)\n", code, int(identity.SetupCodeTTL.Minutes()))
 	}
-	for _, u := range phoneURLs {
-		fmt.Printf("Điện thoại / mạng khác: %s\n", u)
-	}
-	if len(phoneURLs) > 0 {
+	if openURL != "" {
+		fmt.Printf("Địa chỉ để mở Noverse: %s\n", openURL)
 		fmt.Println("Đăng nhập điện thoại: mở trang trên máy tính → Tài khoản → \"Đăng nhập điện thoại bằng QR\".")
-		fmt.Println("Cảnh báo: kết nối là HTTP không mã hoá; ngoài mạng nhà hãy truy cập qua Tailscale.")
+		if strings.HasPrefix(openURL, "http://") {
+			fmt.Println("Cảnh báo: kết nối là HTTP không mã hoá; khi mở ra Internet hãy đặt PUBLIC_URL https.")
+		}
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -518,9 +498,9 @@ func runServeUser(args []string) error {
 }
 
 // runWorkerListener serves the private worker API on its own bind address
-// (WORKER_LISTEN_ADDR — typically the server's Tailscale IP). Tokens are
-// checked against the durable jobs table; hosted workers claim PG jobs only,
-// so the file-dir claim path is a no-op here.
+// (WORKER_LISTEN_ADDR — typically a private-network address the worker can
+// reach). Tokens are checked against the durable jobs table; hosted workers
+// claim PG jobs only, so the file-dir claim path is a no-op here.
 func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobStore, keys blobkey.Keys) error {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -546,8 +526,7 @@ func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobSto
 
 // ssoLoopbackOnly reports whether a resolved listen address stays inside
 // loopback. Under local SSO the shared cookie travels to every port on the
-// host, so wildcard (0.0.0.0, [::]) and LAN binds are refused outright —
-// the same reason --lan is suppressed in runServe.
+// host, so wildcard (0.0.0.0, [::]) and LAN binds are refused outright.
 func ssoLoopbackOnly(addr string) bool {
 	host, _, err := net.SplitHostPort(addr)
 	if err != nil {

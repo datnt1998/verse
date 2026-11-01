@@ -1,6 +1,6 @@
 // Mảnh dùng chung cho A1/A2 (09-auth-onboard.md §4): AuthShell, OrbHero, ô nhập 40px,
 // nhãn thiết bị, định dạng ngày và mô tả route quay lại.
-import { forwardRef, useMemo, type ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { getLibrary } from '../../api/client'
 import { useSession } from '../../api/session'
 import { keys, useResource } from '../../data'
@@ -174,25 +174,6 @@ export function HintLine({ icon, children, tone }: { icon: string; children: Rea
       <Icon name={icon} size={15} style={{ color: 'var(--color-fg-4)' }} />{children}
     </span>
   )
-}
-
-/** Chip máy chủ trên màn điện thoại: đoán Wi-Fi nhà / Tailscale từ hostname. */
-export function useServerKind(): { kind: 'wifi' | 'tailscale'; label: string } {
-  return useMemo(() => {
-    const host = typeof location === 'undefined' ? '' : location.hostname
-    const tailscale = /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(host)
-    return tailscale ? { kind: 'tailscale', label: 'Tailscale' } : { kind: 'wifi', label: 'Wi-Fi nhà' }
-  }, [])
-}
-
-/** Loại địa chỉ từ link server trả: label Tailscale hoặc host 100.64.0.0/10 → Tailscale. */
-export function linkKind(link: { label: string; url: string }): { kind: 'wifi' | 'tailscale'; kindLabel: string; sub: string } {
-  let host = ''
-  try { host = new URL(link.url).hostname } catch { host = link.label }
-  const tailscale = /tailscale/i.test(link.label) || /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(host)
-  return tailscale
-    ? { kind: 'tailscale', kindLabel: 'Tailscale', sub: 'khi ra ngoài' }
-    : { kind: 'wifi', kindLabel: 'Wi-Fi nhà', sub: 'khi ở nhà' }
 }
 
 /** SVG do server trả — chỉ cần cho nó lấp đầy khung trắng (đủ quiet zone). */

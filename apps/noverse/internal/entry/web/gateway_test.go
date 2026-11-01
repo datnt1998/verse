@@ -588,8 +588,13 @@ func TestGatewayLockedBookIsConflict(t *testing.T) {
 }
 
 func TestGatewayQRPairing(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "http://192.168.1.15:8686")
+	cfg, err := webguard.ConfigFromEnv()
+	if err != nil {
+		t.Fatal(err)
+	}
 	tg := newTestGateway(t)
-	tg.g.PublicURLs = []string{"http://192.168.1.15:8686"}
+	tg.g.SetProxyConfig(cfg)
 	admin := tg.login("admin", "admin-pass")
 	w := tg.do("POST", "/api/users/reader/pairings", admin, `{}`)
 	var p struct {

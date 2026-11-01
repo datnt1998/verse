@@ -939,3 +939,17 @@ Kiểm tra: TypeScript và vitest chọn lọc; lỗi trước sửa cho thông 
 - Huy hiệu Quản trị trên `MMore` còn tím (`rgb(220,200,248)` / `rgba(201,166,245,.14)`); app dùng `--members-admin-fg` / `--members-admin-bg` theo mục 5 của Gói AQ cho mọi huy hiệu, kể cả điện thoại. Nhờ design sửa board cho thống nhất.
 - M9 `found=partial`: board minh hoạ 2 mục thiếu trong 10 mục, gồm cả “Tính phù hợp với truyện ngắn”. Với fixture tier thực tế, API chỉ báo thiếu “Vùng cấm sáng tác” trong 9 mục; mục còn lại không thuộc danh sách bắt buộc của tier. App giữ danh sách từ API, không tự thêm mục hay tạo lời nhờ cho mục không được máy chủ yêu cầu. Khối tiền đề do đó cao 936,875 px thay vì 1.068,75 px của board ở 390 px. Thanh trạng thái 40 px của board là minh hoạ; app dùng safe-area thật theo mục 8.
 - Màu vai Đồng phạm trên M9 chưa có token trong `tokens.css`. Dev thêm `--role-accomplice-fg: #E8A3AA` và `--role-accomplice-bg: rgba(255,154,162,.06)` theo board `MOutline`; nhờ design xác nhận tên token.
+
+## Bỏ truy cập “cùng Wi-Fi / Tailscale” (01/11/2026) <!-- no-lan -->
+
+Quyết định của chủ sản phẩm (01/11/2026): bỏ hẳn tuỳ chọn cũ “cùng mạng LAN / Wi-Fi nhà / Tailscale”. Thành viên vào bằng địa chỉ Noverse mà quản trị viên gửi, từ bất kỳ máy nào có Internet. App **cố ý lệch** các artboard sau; không sửa artboard.
+
+| Artboard | Phần bị bỏ | App làm |
+|---|---|---|
+| `Login` / `LoginQR` | trạng thái `qrNoLan`, tab “Wi-Fi nhà / Tailscale”, nút “Cho phép thiết bị cùng Wi-Fi” | Một liên kết duy nhất (`PUBLIC_URL`, hoặc địa chỉ trang đang mở); không còn tab và không còn trạng thái “chưa vào được” |
+| `Members` | dòng thứ ba “Mở Noverse: Cùng Wi-Fi nhà, hoặc quét QR” | Dòng “Mở Noverse” hiện địa chỉ thật (`location.origin`); “Chép lời nhắn” chép đủ tên đăng nhập, mật khẩu tạm và địa chỉ |
+| `Settings` › Nâng cao | hàng “Cho phép thiết bị cùng Wi-Fi” và “Truy cập khi ra ngoài (Tailscale)” | Nhóm còn một hàng “Mã khôi phục quản trị” (đổi tên nhóm thành “Khôi phục quản trị”) |
+| `Onboard` | tab “Ở nhà / Ra ngoài” ở bước điện thoại | Một mã QR, không tab |
+| `Phone` | chip mạng “Wi-Fi nhà” / “Tailscale” ở đầu màn | Bỏ chip; lời giải thích camera chỉ nói trình duyệt cần kết nối https |
+
+Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` trong `serve.json` (tệp cũ còn khoá này vẫn đọc được) và trường `lan` của `GET /api/system`; `POST /api/me/pairings` và `POST /api/users/:u/pairings` trả đúng một liên kết, không dò card mạng. Giới hạn loopback của local SSO giữ nguyên.

@@ -202,15 +202,12 @@ Giao diện web thường dùng hoàn toàn bằng chuột; các lệnh dưới 
 # Mở giao diện web, chỉ máy này vào được (127.0.0.1:8686)
 ainovel-cli serve
 
-# Cho điện thoại cùng Wi-Fi vào được ngay từ lúc khởi động
-ainovel-cli serve --lan
-
 # Đặt lại mật khẩu của một tài khoản (đăng xuất mọi thiết bị của tài khoản đó)
 ainovel-cli serve user passwd <tên>
 ```
 
 Khi có màn hình, không cần các lệnh trên:
-- **Cho thiết bị cùng Wi-Fi vào**: quản trị viên bật trong giao diện (nút *Cho phép thiết bị cùng Wi-Fi*, chỉ bấm được ngay trên máy chủ). Lựa chọn được ghi nhớ cho lần khởi động sau; cờ `--lan` vẫn dùng được và luôn bật lại khi chạy.
+- **Thành viên vào bằng địa chỉ nào**: quản trị viên gửi địa chỉ Noverse (hộp tạo tài khoản đã ghi sẵn “Mở Noverse: <địa chỉ>”, nút *Chép lời nhắn* chép luôn dòng này). Thành viên chỉ cần Internet, không cần chung mạng với máy chủ.
 - **Quên mật khẩu quản trị**: dùng *mã khôi phục* đã tạo ở bước Hoàn tất của thiết lập lần đầu (hoặc tạo mã mới trong *Tuỳ chỉnh › Nâng cao*). Mỗi mã chỉ dùng một lần; dùng xong hãy tạo mã mới.
 
 ---

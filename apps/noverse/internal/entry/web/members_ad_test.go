@@ -153,7 +153,7 @@ func TestADRouteAuthorizationMatrix(t *testing.T) {
 			admin        bool
 		}{tc.method, tc.path, identity.ProjectOwner, false})
 	}
-	for _, tc := range []struct{ method, path string }{{"POST", "/api/jobs/" + voiceInstallJobID + "/retry"}, {"GET", "/api/users"}, {"POST", "/api/users"}, {"POST", "/api/users/u"}, {"POST", "/api/users/u/delete"}, {"GET", "/api/users/u/sessions"}, {"POST", "/api/users/u/sessions/revoke-all"}, {"POST", "/api/users/u/pairings"}, {"GET", "/api/admin/audit"}, {"PUT", "/api/config"}, {"PUT", "/api/library"}, {"POST", "/api/projects"}, {"POST", "/api/projects/adopt"}, {"GET", "/api/fs/places"}, {"PUT", "/api/system/network"}, {"POST", "/api/tts/install"}} {
+	for _, tc := range []struct{ method, path string }{{"POST", "/api/jobs/" + voiceInstallJobID + "/retry"}, {"GET", "/api/users"}, {"POST", "/api/users"}, {"POST", "/api/users/u"}, {"POST", "/api/users/u/delete"}, {"GET", "/api/users/u/sessions"}, {"POST", "/api/users/u/sessions/revoke-all"}, {"POST", "/api/users/u/pairings"}, {"GET", "/api/admin/audit"}, {"PUT", "/api/config"}, {"PUT", "/api/library"}, {"POST", "/api/projects"}, {"POST", "/api/projects/adopt"}, {"GET", "/api/fs/places"}, {"POST", "/api/tts/install"}} {
 		cases = append(cases, struct {
 			method, path string
 			level        identity.ProjectRole

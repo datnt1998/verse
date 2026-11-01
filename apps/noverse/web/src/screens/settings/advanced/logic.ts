@@ -18,22 +18,6 @@ export function recoveryValue(status: RecoveryStatus): string {
   return date ? t.adv.access.recoveryCreated(date, status.used) : t.adv.access.recoveryNone
 }
 
-export type LanView = {
-  value: string
-  action: string
-  /** Lý do khoá nút; rỗng = bấm được. */
-  disabledReason: string
-}
-
-/** Hàng “Cho phép thiết bị cùng Wi-Fi”: chỉ quản trị ngay trên máy chủ (canReveal) mới đổi được. */
-export function lanView(lan: boolean, canToggle: boolean): LanView {
-  return {
-    value: lan ? t.adv.access.lanOn : t.adv.access.lanOff,
-    action: lan ? t.adv.access.lanTurnOff : t.adv.access.lanTurnOn,
-    disabledReason: canToggle ? '' : t.adv.access.lanNeedServer,
-  }
-}
-
 export const recoveryFile = (code: string) => ({ name: t.adv.recovery.fileName, text: t.adv.recovery.fileText(code) })
 
 // ─── Nhóm “Tinh chỉnh model” & “Tên thư mục & tên tệp xuất” ──────────────────────────────────────

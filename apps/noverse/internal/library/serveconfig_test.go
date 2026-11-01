@@ -30,6 +30,28 @@ func TestServeRootRoundTrip(t *testing.T) {
 	}
 }
 
+// serve.json của bản cũ còn khoá `lan`: trường lạ bị bỏ qua, root vẫn đọc được.
+func TestServeConfigIgnoresLegacyLANField(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+	dir := filepath.Join(home, "thu-vien")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(home, ".ainovel", "serve.json")
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte(`{"root":"`+dir+`","lan":true}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	root, err := LoadServeRoot()
+	if err != nil || root != dir {
+		t.Fatalf("legacy serve.json: %q %v", root, err)
+	}
+}
+
 func TestCheckRootValidation(t *testing.T) {
 	base := t.TempDir()
 	good := filepath.Join(base, "good")

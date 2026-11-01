@@ -13,10 +13,10 @@ import (
 var ErrInvalidRoot = errors.New("thư mục thư viện không hợp lệ")
 
 // ServeConfig 对应 ~/.ainovel/serve.json：只在 web serve 里使用、不随书库走的设置。
-// root：PUT /api/library 换 thư viện lúc chạy；lan：PUT /api/system/network 开关局域网监听。
+// root：PUT /api/library 换 thư viện lúc chạy。Tệp cũ còn khoá `lan` vẫn đọc được —
+// trường lạ bị bỏ qua, không phải lỗi.
 type ServeConfig struct {
 	Root string `json:"root,omitempty"`
-	LAN  bool   `json:"lan"`
 }
 
 // ServeConfigPath 返回 ~/.ainovel/serve.json 的绝对路径。
@@ -54,7 +54,7 @@ func LoadServeRoot() (string, error) {
 	return cfg.Root, nil
 }
 
-// SaveServeRoot 把书库根写入 ~/.ainovel/serve.json（原子替换），保留其它字段。
+// SaveServeRoot 把书库根写入 ~/.ainovel/serve.json（原子替换）。
 func SaveServeRoot(root string) error {
 	path, err := ServeConfigPath()
 	if err != nil {
@@ -62,17 +62,6 @@ func SaveServeRoot(root string) error {
 	}
 	cfg, _ := LoadServeConfig()
 	cfg.Root = root
-	return writeJSONFile(path, cfg)
-}
-
-// SaveServeLAN 把局域网开关写入 ~/.ainovel/serve.json（原子替换），保留其它字段。
-func SaveServeLAN(lan bool) error {
-	path, err := ServeConfigPath()
-	if err != nil {
-		return err
-	}
-	cfg, _ := LoadServeConfig()
-	cfg.LAN = lan
 	return writeJSONFile(path, cfg)
 }
 

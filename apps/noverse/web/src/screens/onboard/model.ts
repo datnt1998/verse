@@ -435,10 +435,6 @@ export type OnboardModel = {
   invited: { username: string; password: string } | null
   /** Truyện của mọi dự án — để chọn “Được viết” theo tên (chỉ quản trị). */
   inviteStories: { project: ProjectSummary; story: StorySummary }[]
-  /** “Cho phép thiết bị cùng Wi-Fi” khi chưa có địa chỉ nào cho điện thoại (A1 › qrNoLan). */
-  enableLan: () => void
-  lanBusy: boolean
-  lanError: string
   // truyện được giao (writer/reader)
   assigned: { project: ProjectSummary; story: StorySummary }[]
   assignedLoading: boolean
@@ -670,7 +666,7 @@ export function buildPreview(input: PreviewInput): Preview {
     b.key(1, 'code', '••••••')
     b.key(1, 'username', input.user.username)
     b.open(1, 'links', '[')
-    b.line(2, [{ text: input.paired ? '{ "label": "Wi-Fi nhà", "url", "svg" }' : '[]', color: COLORS.string }])
+    b.line(2, [{ text: input.paired ? '{ "label": "nov.example.com", "url", "svg" }' : '[]', color: COLORS.string }])
     b.close(1, ']')
     b.close(0, '}')
     if (input.inviteUsername) {

@@ -1,5 +1,5 @@
 /**
- * Chép chữ vào clipboard, chạy được cả khi trang mở qua HTTP thường (điện thoại vào máy nhà qua LAN/Tailscale):
+ * Chép chữ vào clipboard, chạy được cả khi trang mở qua HTTP thường (ví dụ điện thoại mở bản tự chạy không có https):
  * ở ngữ cảnh không bảo mật Safari/Chrome không có `navigator.clipboard`, nên dùng ô văn bản ẩn + `execCommand('copy')`
  * ngay trong cử chỉ bấm. Thất bại → lỗi tiếng Việt, không lộ lỗi thô của trình duyệt.
  */

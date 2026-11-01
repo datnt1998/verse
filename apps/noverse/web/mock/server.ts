@@ -136,9 +136,6 @@ const pairings = new Map<string, { code: string; username: string; expiresAt: nu
 // seq tiếp nối số lớn nhất trong id/token của phiên còn sống để id không trùng sau khi nạp lại.
 let seq = Math.max(0, ...[...sessions.values()].flatMap((s) => [Number(s.id.slice(2)), Number(s.token.split('-')[1])]).filter(Number.isFinite))
 let loginFails = 0
-// AINOVEL_MOCK_NO_LAN=1 → phiên ghép máy không có địa chỉ dùng được (A1 › qrNoLan)
-// Cho phép/đóng Wi-Fi nhà: PUT /api/system/network {lan} đổi cờ này (A1 › qrNoLan → qr).
-let lanOpen = process.env.AINOVEL_MOCK_NO_LAN !== '1'
 // D1 — có bản mới: `POST /__mock/update {on:true}` bật banner + badge “Có bản mới” + hộp “Có gì mới”.
 // Mặc định tắt (artboard `update=none`); AINOVEL_MOCK_UPDATE=1 để bật sẵn.
 let mockHasUpdate = process.env.AINOVEL_MOCK_UPDATE === '1'
@@ -1268,7 +1265,7 @@ export function mockApiPlugin(): Plugin {
               const link = (label: string, h: string) => ({ label, url: `http://${h}/p/${code}`, svg: qrSvg(`http://${h}/p/${code}`) })
               return json(res, 200, {
                 code, username: user.username, expiresAt: iso(pairing.expiresAt),
-                links: !lanOpen ? [] : [link('Wi-Fi nhà', host), link('Tailscale', `100.x.x.x:${(req.headers.host ?? ':8686').split(':')[1] ?? '8686'}`)],
+                links: [link(host, host)],
               })
             }
             return fail(res, 404, 'Not found')
@@ -1348,7 +1345,7 @@ export function mockApiPlugin(): Plugin {
               const pairing = { code, username: target.user.username, expiresAt: Date.now() + 5 * 60_000 }
               pairings.set(code, pairing)
               const host = req.headers.host ?? 'localhost:5173'
-              return json(res, 200, { code, username: target.user.username, expiresAt: iso(pairing.expiresAt), links: !lanOpen ? [] : [{ label: 'Wi-Fi nhà', url: `http://${host}/p/${code}`, svg: qrSvg(`http://${host}/p/${code}`) }] })
+              return json(res, 200, { code, username: target.user.username, expiresAt: iso(pairing.expiresAt), links: [{ label: host, url: `http://${host}/p/${code}`, svg: qrSvg(`http://${host}/p/${code}`) }] })
             }
             if (seg[2] === 'delete' && req.method === 'POST') {
               const admins = users.filter((u) => u.user.role === 'admin' && !u.user.disabled)
@@ -3104,18 +3101,6 @@ export function mockApiPlugin(): Plugin {
         }
         /** D12: `nao-*` chỉ trả `{ok}`/`{canReveal}` — không đường dẫn (invariant #7). */
         const isNaoTarget = (target: string) => target === 'nao-story' || target === 'nao-project'
-        if (seg[0] === 'system' && seg[1] === 'network' && req.method === 'PUT') {
-          if (user!.role !== 'admin') return fail(res, 403, 'Không có quyền')
-          const body = await readBody(req)
-          await sleep(1500)
-          lanOpen = body.lan === true
-          if (!lanOpen) return json(res, 200, { lan: false, links: [] })
-          const code = crypto.randomUUID().replaceAll('-', '')
-          const expires = Date.now() + 5 * 60_000
-          pairings.set(code, { code, username: user!.username, expiresAt: expires })
-          const host = req.headers.host ?? 'localhost:5173'
-          return json(res, 200, { lan: true, code, expiresAt: iso(expires), links: [{ label: 'Wi-Fi nhà', url: `http://${host}/p/${code}`, svg: qrSvg(`http://${host}/p/${code}`) }] })
-        }
         // D15 · GAP-46 — Não hệ thống, chỉ quản trị (serve thật: internal/entry/web/lessons_api.go).
         if (seg[0] === 'system' && (seg[1] === 'lessons' || seg[1] === 'violations')) {
           if (user!.role !== 'admin') return fail(res, 403, 'Chỉ quản trị viên xem Não hệ thống')
@@ -3144,7 +3129,7 @@ export function mockApiPlugin(): Plugin {
             version: 'v0.9.3', commit: 'a41c9e2f4d8b7c6a5e4d3c2b1a09f8e7d6c5b4a3', built: '2026-10-24T14:02:00+07:00',
             root: admin ? mockLibraryRoot() : '', rootDisplay: mockDisplay(mockLibraryRoot()), retries: 7, deadlock: [3, 5],
             compactThreshold: 0.85, promptCache: true, outputDir: './output/novel', defaultContextWindow: 200000,
-            canReveal: admin, lan: lanOpen,
+            canReveal: admin,
             latestVersion: mockHasUpdate ? 'v0.9.4' : 'v0.9.3', hasUpdate: mockHasUpdate,
             // D1 — “Có gì mới”: bản mới trước (khi có), rồi bản đang chạy; `notes` là markdown nguyên văn.
             releases: mockReleases(mockHasUpdate),

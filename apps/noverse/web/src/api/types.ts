@@ -596,8 +596,6 @@ export type SystemInfo = {
   compactThreshold: number; promptCache: boolean; outputDir: string; defaultContextWindow: number
   /** G1: máy chủ chạy ngay trên máy người dùng (loopback) → UI hiện “Mở thư mục”. */
   canReveal: boolean
-  /** Đang mở cho thiết bị cùng Wi-Fi (GET /api/system.lan). */
-  lan?: boolean
   /** D1 — mã build (commit) và thời điểm build do máy chủ trả; rỗng khi bản dev không có. */
   commit?: string; built?: string
   /** D1 — bản mới nhất đã biết (rỗng khi chưa kiểm tra xong) + có bản mới hay không. */
