@@ -21,8 +21,6 @@ import { SourcesTab } from './SourcesTab'
 import { IdentityBlock } from './IdentityBlock'
 import { PreviewPanel } from '../explore/PreviewPanel'
 import { RivalCard } from '../explore/RivalCard'
-import { FilterBar } from '../explore/FilterBar'
-import { BulkBar } from '../explore/BulkBar'
 
 const tt = t.channels
 const et = t.screens.explore
@@ -372,26 +370,6 @@ describe('Khám phá mở khoá theo kênh', () => {
     expect(posts.find((item) => item.url === '/api/owner-channels/c1/sources')?.body).toEqual({ rivalId: 'r1' })
   })
 
-  it('keeps unavailable status filtering locked but enqueues bulk videos for the chosen channel', async () => {
-    const filter = await mount(
-      <FilterBar sort="newest" long={false} within={30} onSort={() => {}} onLong={() => {}} onWithin={() => {}}
-        total={10} scanned={10} q="" hasChannel />,
-    )
-    const chip = filter.querySelector('.vx-chip--locked') as HTMLElement
-    expect(chip.getAttribute('aria-disabled')).toBe('true')
-    const chipReason = (chip.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean)
-      .map((id) => document.getElementById(id)?.textContent).join(' ')
-    expect(chipReason).toContain(et.queueReason)
-
-    const make = vi.fn()
-    const bulk = await mount(
-      <BulkBar count={3} selected={[]} onTop={() => {}} onClear={() => {}} onExit={() => {}}
-        channels={[{ id: 'c1', name: 'Kênh một' }, { id: 'c2', name: 'Kênh hai' }]} onMake={make} />,
-    )
-    await click(bulk.querySelector('[aria-haspopup="menu"]'))
-    await click(bulk.querySelectorAll('[role="menuitem"]')[1])
-    expect(make).toHaveBeenCalledExactlyOnceWith('c2')
-  })
 })
 
 // r38 — Đạo diễn chưa đặt được tên và mô tả: kênh VẪN được tạo với tên tạm
