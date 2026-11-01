@@ -10,6 +10,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func TestParseChromeVersion(t *testing.T) {
@@ -40,12 +42,12 @@ func TestParseProbeDomExtractsCaps(t *testing.T) {
 // có bản ghim thì bỏ qua test.
 func installManagedChrome(t *testing.T, base string) string {
 	t.Helper()
-	key := CurrentPlatformKey()
+	key := toolchain.CurrentPlatformKey()
 	assets := ChromePin().Assets[key]
 	if len(assets) == 0 {
 		t.Skip("nền tảng chưa có bản Chrome for Testing ghim")
 	}
-	verDir := ToolVersionDir(base, chromeToolID, ChromePin().Version)
+	verDir := toolchain.ToolVersionDir(base, chromeToolID, ChromePin().Version)
 	exe := filepath.Join(verDir, assets[0].Name, filepath.FromSlash(managedChromeExecutable))
 	if err := os.MkdirAll(filepath.Dir(exe), 0o755); err != nil {
 		t.Fatal(err)
@@ -53,7 +55,7 @@ func installManagedChrome(t *testing.T, base string) string {
 	if err := os.WriteFile(exe, []byte("x"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(ToolRoot(base, chromeToolID), "current"), []byte("v-"+ChromePin().Version), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(toolchain.ToolRoot(base, chromeToolID), "current"), []byte("v-"+ChromePin().Version), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return exe
@@ -282,10 +284,10 @@ func TestStaleProbeDirsAreSweptOnlyWhenOld(t *testing.T) {
 		t.Fatalf("stale = %v", stale)
 	}
 	SweepStaleTempDirs(root, []string{ChromeProbePrefix}, staleProbeAge)
-	if fileExists(old) {
+	if toolchain.FileExists(old) {
 		t.Fatal("dir cũ còn sót")
 	}
-	if !fileExists(fresh) || !fileExists(other) {
+	if !toolchain.FileExists(fresh) || !toolchain.FileExists(other) {
 		t.Fatal("dir tươi hoặc dir lạ bị xoá")
 	}
 }
@@ -333,7 +335,7 @@ func TestCDPSpawnTracksThenForgetsGroupInRegistry(t *testing.T) {
 	if pidAlive(pgid) {
 		t.Fatalf("nhóm %d còn sống sau probe", pgid)
 	}
-	if fileExists(filepath.Join(base, "process-groups", fmt.Sprintf("%d.json", os.Getpid()))) {
+	if toolchain.FileExists(filepath.Join(base, "process-groups", fmt.Sprintf("%d.json", os.Getpid()))) {
 		data, _ := os.ReadFile(filepath.Join(base, "process-groups", fmt.Sprintf("%d.json", os.Getpid())))
 		if strings.Contains(string(data), fmt.Sprintf("%d", pgid)) {
 			t.Fatalf("nhóm %d vẫn còn trong sổ: %s", pgid, data)

@@ -2791,7 +2791,7 @@ export function mockApiPlugin(): Plugin {
           if (seg[1] === 'install' && req.method === 'GET') return json(res, 200, ttsInstallProgress())
           if (seg[1] === 'install' && req.method === 'POST') {
             if (user!.role !== 'admin') return fail(res, 403, 'Chỉ quản trị viên cài bộ đọc')
-            if (ttsStatus().state === 'installing') return fail(res, 409, 'Đang cài bộ đọc, chờ lượt này xong')
+            if (ttsStatus().state === 'provisioning') return fail(res, 409, 'Đang cài bộ đọc, chờ lượt này xong')
             if (ttsStatus().state !== 'missing') return json(res, 200, { job: '', state: 'done', message: 'Bộ đọc trên máy đã có sẵn' })
             installTts()
             return json(res, 202, { job: 'voice/install', state: 'running' })

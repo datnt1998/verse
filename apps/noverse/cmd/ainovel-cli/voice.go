@@ -128,10 +128,13 @@ func voiceInstallCommand(args []string, out, errw io.Writer) int {
 
 func installLine(p voice.InstallProgress) string {
 	msg := p.Message
-	if p.Bytes > 0 {
-		msg = fmt.Sprintf("%s (%.0f MB)", msg, float64(p.Bytes)/(1<<20))
+	if p.BytesDone > 0 {
+		msg = fmt.Sprintf("%s (%.0f MB)", msg, float64(p.BytesDone)/(1<<20))
 	}
-	return fmt.Sprintf("[%3d%%] %s", p.Percent, msg)
+	if p.Percent == nil {
+		return fmt.Sprintf("[ ---] %s", msg)
+	}
+	return fmt.Sprintf("[%3d%%] %s", *p.Percent, msg)
 }
 
 func voiceStatusCommand(args []string, out, errw io.Writer) int {

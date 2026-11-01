@@ -179,13 +179,23 @@ Dokploy không có job primitive riêng; dùng application thứ hai cùng image
 
 Kiểm tra: `storage migrate version` phải bằng `schemaVersion` trong `/readyz`.
 
-### 3.4. Worker Mac (Tailscale)
+### 3.4. Worker TTS: Mac cùng máy chủ (mặc định) hoặc Mac từ xa
 
-1. VPS cài Tailscale; app publish port `8081` bind **chỉ** IP Tailscale:
-   `ports: ["100.x.y.z:8081:8081"]`, `WORKER_LISTEN_ADDR=0.0.0.0:8081`.
-2. Firewall host/Dokploy: chỉ mở 80/443 công khai; 8081 chỉ trên `tailscale0`;
-   không mở 5432/8080.
-3. Cấp credential worker bằng CLI **trên máy chủ** (cùng `STORE_DRIVER=postgres`
+Máy chủ **không tự đọc**: bộ đọc chạy native trên macOS (vieneu + Python do uv
+quản lý, ffmpeg của Homebrew). Worker **tự chuẩn bị bộ đọc khi thiếu** — tải
+toolchain → source → thư viện → mô hình — rồi mới nhận việc, nên không phải
+chạy `ainovel-cli voice install` bằng tay nữa. Việc đến trong lúc bộ đọc chưa
+sẵn sàng thì **nằm chờ** trong hàng đợi (không bị đánh lỗi).
+
+#### Cùng máy (mặc định)
+
+Container chỉ mở cổng worker trên loopback của host; Mac mini chạy worker nối
+vào `127.0.0.1:8081`. Không mở cổng nào ra LAN/Internet, không cần Tailscale.
+
+1. Dokploy: `ports: ["127.0.0.1:8081:8081"]` và `WORKER_LISTEN_ADDR=0.0.0.0:8081`.
+   Bind `0.0.0.0` là **bên trong** container; phần publish mới là thứ giữ cổng
+   trong loopback của host. Không thêm 8081 vào firewall.
+2. Cấp credential worker bằng CLI **trên máy chủ** (cùng `STORE_DRIVER=postgres`
    và `DATABASE_URL`; không có màn UI nào cấp token):
    ```sh
    ainovel-cli worker token create --cap tts mac-mini   # in token đúng một lần
@@ -195,12 +205,66 @@ Kiểm tra: `storage migrate version` phải bằng `schemaVersion` trong `/read
    Cờ phải đứng **trước** tên máy (Go flag dừng ở tham số vị trí đầu tiên; CLI
    từ chối cờ nằm sau tên thay vì gộp vào tên). Schema hiện chỉ cho phép
    capability `tts` — `--cap` khác bị từ chối ngay.
-4. Mac: cài Tailscale + `ainovel-cli worker tts` với
-   `TTS_WORKER_TOKEN=…` và `TTS_WORKER_API_URL=http://100.x.y.z:8081`
-   (hoặc `--api`; cờ thắng env). Mac không có DSN Postgres/bucket secret.
+3. Mac: chạy worker qua launchd để nó sống lại sau reboot/sleep:
+   `~/Library/LaunchAgents/com.verse.tts-worker.plist`
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <plist version="1.0"><dict>
+     <key>Label</key><string>com.verse.tts-worker</string>
+     <key>ProgramArguments</key><array>
+       <string>/Users/dat/Projects/verse/bin/noverse</string>
+       <string>worker</string><string>tts</string>
+     </array>
+     <key>EnvironmentVariables</key><dict>
+       <key>TTS_WORKER_API_URL</key><string>http://127.0.0.1:8081</string>
+       <key>TTS_WORKER_TOKEN</key><string>…</string>
+       <key>PATH</key><string>/Users/dat/.local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+     </dict>
+     <key>RunAtLoad</key><true/>
+     <key>KeepAlive</key><true/>
+     <key>StandardOutPath</key><string>/Users/dat/Library/Logs/tts-worker.log</string>
+     <key>StandardErrorPath</key><string>/Users/dat/Library/Logs/tts-worker.log</string>
+   </dict></plist>
+   ```
+   Binary là `bin/noverse` (build từ `apps/noverse/cmd/ainovel-cli`:
+   `go build -o bin/noverse ./apps/noverse/cmd/ainovel-cli`); subcommand là
+   `worker tts`, không phải `ainovel-cli worker tts` khi đã build tên này.
+   ```sh
+   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.verse.tts-worker.plist
+   launchctl kickstart -k gui/$(id -u)/com.verse.tts-worker   # sau khi đổi token
+   ```
+   PATH phải có `~/.local/bin` (uv) và `/opt/homebrew/bin` (ffmpeg); worker tự
+   tải uv vào `~/.local/bin` nếu thiếu nhưng ffmpeg phải cài sẵn
+   (`brew install ffmpeg`). Mac không có DSN Postgres/bucket secret.
    `--lease` là **yêu cầu** phía client; máy chủ kẹp trong 30s–10m nên một Mac
    chết không giữ việc quá lâu.
-5. Kiểm chứng từ mạng thật: `curl -X POST http://<tailscale-ip>:8081/internal/worker/claim`
+4. Theo dõi từ web: `GET /api/tts/status` báo `engine:"remote"` và trạng thái
+   của máy (`missing | installing | starting | ready | error | offline`),
+   `GET /api/tts/install` (hoặc SSE `/api/tts/install/events`) là tiến độ từng
+   bước, hàng **Cài bộ đọc trên máy** trong dock lấy đúng nguồn đó. `offline`
+   do máy chủ suy ra: `last_seen_at` cũ hơn lease + 2 nhịp tim.
+   Nút cài trong UI không chạm vào máy Mac: nó tăng `command_seq` của credential,
+   worker poll `GET /internal/worker/command` mỗi 2 s và chạy lệnh đúng **một
+   lần** cho mỗi seq.
+5. Worker đẩy trạng thái qua `POST /internal/worker/state` (Bearer token `tts`,
+   204); nhịp tim của việc đang chạy cũng mang trạng thái nên máy chủ không báo
+   cũ khi một chương đọc lâu.
+6. `--no-provision` cho máy dùng chung hoặc khi cần đo: worker chỉ báo trạng
+   thái và chỉ nhận việc khi bộ đọc đã sẵn sàng; không tự tải gì.
+7. Kiểm chứng: `curl -X POST http://127.0.0.1:8081/internal/worker/claim` trả
+   `401` khi không token; từ máy khác trong LAN phải **connection refused**.
+
+#### Biến thể: Mac từ xa qua Tailscale
+
+Cùng các bước trên, chỉ đổi chỗ publish và địa chỉ:
+
+1. VPS cài Tailscale; app publish port `8081` bind **chỉ** IP Tailscale:
+   `ports: ["100.x.y.z:8081:8081"]`, `WORKER_LISTEN_ADDR=0.0.0.0:8081`.
+2. Firewall host/Dokploy: chỉ mở 80/443 công khai; 8081 chỉ trên `tailscale0`;
+   không mở 5432/8080.
+3. Mac dùng `TTS_WORKER_API_URL=http://100.x.y.z:8081` (hoặc `--api`; cờ thắng
+   env) và cài Tailscale.
+4. Kiểm chứng từ mạng thật: `curl -X POST http://<tailscale-ip>:8081/internal/worker/claim`
    trả `401` khi không token; từ Internet/LAN thường phải **connection refused**.
 
 ## 4. Tham chiếu env đầy đủ

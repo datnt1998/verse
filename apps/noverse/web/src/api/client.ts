@@ -693,6 +693,13 @@ export const getTtsInstall = (signal?: AbortSignal) => request<TtsInstallProgres
 export const getTtsVoices = (signal?: AbortSignal) =>
   request<{ voices: AudioVoice[] }>('/api/tts/voices', { signal }).then((r) => r.voices ?? [])
 
+/** §AT — Thử lại hàng Chuẩn bị bộ đọc trong dock (jobs API, row id cố định). */
+export const retryTtsInstall = () => request<{ ok: true }>('/api/jobs/voice/install/retry', { body: {} })
+/** §AT — Huỷ hàng Chuẩn bị bộ đọc đang lỗi (bỏ khỏi danh sách). */
+export const cancelTtsInstall = () => request<{ ok: true }>('/api/jobs/voice/install/cancel', { body: {} })
+/** §AT §8.5 — Thu hồi quyền máy đọc đang phục vụ (Nâng cao, một bước). */
+export const revokeTtsMachine = () => request<{ ok: true; machine: string }>('/api/tts/machine/revoke', { body: {} })
+
 /** Nghe thử giọng — trả blob URL để phát bằng HTMLAudioElement. */
 export async function previewTtsVoice(voiceId: string, text: string, tone?: string): Promise<string> {
   let response: Response

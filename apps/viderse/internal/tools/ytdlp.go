@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const ytDlpReleases = "https://github.com/yt-dlp/yt-dlp/releases"
@@ -189,7 +190,7 @@ func (y *YtDlp) ConfiguredPath() string { return y.d.configuredPath("tools:yt-dl
 // ManagedPath trả binary app quản khi đã cài; "" khi chưa.
 func (y *YtDlp) ManagedPath() string {
 	exe := y.exePath()
-	if exe != "" && fileExists(exe) {
+	if exe != "" && toolchain.FileExists(exe) {
 		return exe
 	}
 	return ""
@@ -252,7 +253,7 @@ func (y *YtDlp) readVersion(ctx context.Context, exe string) (string, error) {
 		}
 		return strings.TrimSpace(res.Stdout), nil
 	}
-	if y.verified != nil && fileExists(exe) {
+	if y.verified != nil && toolchain.FileExists(exe) {
 		return y.verified.Check(exe, verify, ctx)
 	}
 	return verify(ctx)
@@ -398,7 +399,7 @@ func (y *YtDlp) install(ctx context.Context) (YtDlpInstallResult, error) {
 	if err != nil {
 		return YtDlpInstallResult{}, err
 	}
-	expected := ParseSha256Sums(string(sumsText))[asset.name]
+	expected := toolchain.ParseSha256Sums(string(sumsText))[asset.name]
 	if expected == "" {
 		return YtDlpInstallResult{}, fmt.Errorf("không có checksum cho %s trong yt-dlp %s", asset.name, version)
 	}
@@ -420,10 +421,10 @@ func (y *YtDlp) install(ctx context.Context) (YtDlpInstallResult, error) {
 		return YtDlpInstallResult{}, err
 	}
 	if !strings.EqualFold(actual, expected) {
-		return YtDlpInstallResult{}, &ChecksumError{Asset: asset.name, Expected: expected, Actual: actual}
+		return YtDlpInstallResult{}, &toolchain.ChecksumError{Asset: asset.name, Expected: expected, Actual: actual}
 	}
 	if asset.zip {
-		if err := extractArchive(AssetZip, archive, outDir, ""); err != nil {
+		if err := toolchain.ExtractArchive(toolchain.AssetZip, archive, outDir, ""); err != nil {
 			return YtDlpInstallResult{}, err
 		}
 		_ = os.Chmod(filepath.Join(outDir, asset.exe), 0o755)
@@ -453,7 +454,7 @@ func (y *YtDlp) install(ctx context.Context) (YtDlpInstallResult, error) {
 // caller chỉ rút chờ của caller đó.
 func (y *YtDlp) Install(ctx context.Context) (YtDlpInstallResult, error) {
 	if err := ctx.Err(); err != nil {
-		return YtDlpInstallResult{}, cancelledErr(ctx)
+		return YtDlpInstallResult{}, toolchain.CancelledErr(ctx)
 	}
 	y.mu.Lock()
 	if y.installFlight == nil {
@@ -475,7 +476,7 @@ func (y *YtDlp) Install(ctx context.Context) (YtDlpInstallResult, error) {
 	case <-flight.done:
 		return flight.result, flight.err
 	case <-ctx.Done():
-		return YtDlpInstallResult{}, cancelledErr(ctx)
+		return YtDlpInstallResult{}, toolchain.CancelledErr(ctx)
 	}
 }
 
@@ -521,8 +522,8 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 	exe := y.Resolve()
 	if exe == "" {
 		if _, err := y.Install(ctx); err != nil {
-			if errors.Is(err, ErrCancelled) || ctx.Err() != nil {
-				return "", cancelledErr(ctx)
+			if errors.Is(err, toolchain.ErrCancelled) || ctx.Err() != nil {
+				return "", toolchain.CancelledErr(ctx)
 			}
 			return "", &YtDlpError{Message: err.Error(), Code: YtDlpFailed}
 		}
@@ -563,7 +564,7 @@ func (y *YtDlp) Run(ctx context.Context, args []string, opts RunYtDlpOptions) (s
 		EnvExact: guard.Env(),
 	})
 	if err != nil {
-		if errors.Is(err, ErrCancelled) {
+		if errors.Is(err, toolchain.ErrCancelled) {
 			return "", err
 		}
 		var pfe *ProcessFailedError

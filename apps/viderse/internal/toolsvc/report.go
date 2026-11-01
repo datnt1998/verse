@@ -6,6 +6,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // StepChecks là đánh giá sáu bước Chuẩn bị máy theo nhu cầu của bản cũ:
@@ -52,7 +53,7 @@ func (s *Service) RequiredBytes(id ToolID) int64 {
 	case ToolYtDlp:
 		return tools.YtDlpRequiredBytes
 	case ToolFfmpeg:
-		return tools.FfmpegPin().RequiredBytes
+		return toolchain.FfmpegPin().RequiredBytes
 	case ToolTranscription:
 		return tools.PythonEnvRequiredBytes
 	case ToolChrome:
@@ -71,7 +72,7 @@ func (s *Service) ApproxBytes(id ToolID) int64 {
 	case ToolYtDlp:
 		return tools.YtDlpApproxBytes
 	case ToolFfmpeg:
-		return tools.FfmpegPin().ApproxBytes
+		return toolchain.FfmpegPin().ApproxBytes
 	case ToolTranscription:
 		return tools.PythonEnvApproxBytes
 	case ToolChrome:
@@ -88,7 +89,7 @@ func (s *Service) installedSizeBytes(id ToolID) int64 {
 	if s.dataDir == "" {
 		return 0
 	}
-	return tools.ReadInstalledSize(s.dataDir, string(id))
+	return toolchain.ReadInstalledSize(s.dataDir, string(id))
 }
 
 // sizeForRow chọn dung lượng của một hàng theo trạng thái:
@@ -117,21 +118,21 @@ func (s *Service) measureInstalled(id ToolID) int64 {
 	var total int64
 	switch id {
 	case ToolYtDlp:
-		total = tools.DirSizeBytes(filepath.Join(s.dataDir, "bin", "yt-dlp"))
+		total = toolchain.DirSizeBytes(filepath.Join(s.dataDir, "bin", "yt-dlp"))
 	case ToolFfmpeg, ToolChrome, ToolCodex:
-		total = tools.DirSizeBytes(tools.ActiveVersionDir(s.dataDir, string(id)))
+		total = toolchain.DirSizeBytes(toolchain.ActiveVersionDir(s.dataDir, string(id)))
 	case ToolTranscription:
 		// env + models HF + interpreter quản lý; bỏ cache/uv (cache, không
 		// phải phần cài). Đo cả thư mục python/ (gồm transcript-requirements
 		// vài KB, không đáng kể) thay vì đoán tên cpython-*.
-		total += tools.DirSizeBytes(filepath.Join(s.dataDir, "envs", "transcription"))
-		total += tools.DirSizeBytes(filepath.Join(s.dataDir, "models", "hf"))
-		total += tools.DirSizeBytes(filepath.Join(s.dataDir, "python"))
+		total += toolchain.DirSizeBytes(filepath.Join(s.dataDir, "envs", "transcription"))
+		total += toolchain.DirSizeBytes(filepath.Join(s.dataDir, "models", "hf"))
+		total += toolchain.DirSizeBytes(filepath.Join(s.dataDir, "python"))
 	default:
 		return 0
 	}
 	if total > 0 {
-		if err := tools.WriteInstalledSize(s.dataDir, string(id), total); err != nil {
+		if err := toolchain.WriteInstalledSize(s.dataDir, string(id), total); err != nil {
 			s.logf(id, "warn", "ghi số đo dung lượng: %v", err)
 		}
 	}

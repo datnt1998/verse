@@ -12,13 +12,12 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
-)
 
-const uvToolID = "uv"
+	"github.com/datnt1998/verse/platform/toolchain"
+)
 
 // UvSettingKey là key PathStore của uv.
 const UvSettingKey = "tools:uv"
@@ -54,26 +53,16 @@ type UvStatus struct {
 	Error    string
 }
 
-var uvVersionRe = regexp.MustCompile(`uv\s+(\d+\.\d+\.\d+)`)
-
-// ParseUvVersion đọc `uv X.Y.Z`.
-func ParseUvVersion(stdout string) string {
-	if m := uvVersionRe.FindStringSubmatch(stdout); m != nil {
-		return m[1]
-	}
-	return ""
-}
-
 // Probe chạy `uv --version`; nil khi binary không chạy hoặc không đọc được.
 func (u *Uv) Probe(ctx context.Context, exe string) *UvDetected {
-	if !fileExists(exe) {
+	if !toolchain.FileExists(exe) {
 		return nil
 	}
 	res, err := u.d.Runner.Run(ctx, exe, []string{"--version"}, Spec{Timeout: 15 * time.Second})
 	if err != nil {
 		return nil
 	}
-	version := ParseUvVersion(res.Stdout)
+	version := toolchain.ParseUvVersion(res.Stdout)
 	if version == "" {
 		return nil
 	}
@@ -104,21 +93,7 @@ func (u *Uv) SetConfiguredPath(exe string) error {
 }
 
 // ManagedPath trả uv trong bản cài app quản; "" khi chưa cài.
-func (u *Uv) ManagedPath() string {
-	dir := ActiveVersionDir(u.d.BaseDir, uvToolID)
-	if dir == "" {
-		return ""
-	}
-	name := "uv"
-	if runtime.GOOS == "windows" {
-		name = "uv.exe"
-	}
-	exe := filepath.Join(dir, name)
-	if fileExists(exe) {
-		return exe
-	}
-	return ""
-}
+func (u *Uv) ManagedPath() string { return toolchain.UvPath(u.d.BaseDir) }
 
 // Resolve trả binary uv pipeline nên chạy, theo thứ tự chọn; "" khi không có.
 func (u *Uv) Resolve(ctx context.Context) string {
@@ -151,39 +126,18 @@ func (u *Uv) Status(ctx context.Context) UvStatus {
 }
 
 // InstallSpec trả pipeline cài bản uv ghim vào bin/uv.
-func (u *Uv) InstallSpec() InstallSpec {
-	return InstallSpec{
-		ToolID: uvToolID,
-		Pin:    UvPin(),
-		SelfCheck: func(ctx context.Context, ic *InstallContext, staging string) (string, error) {
-			name := "uv"
-			if runtime.GOOS == "windows" {
-				name = "uv.exe"
-			}
-			exe := filepath.Join(staging, name)
-			probe := u.Probe(ctx, exe)
-			if probe == nil {
-				return "", fmt.Errorf("uv tải về không chạy được")
-			}
-			if probe.Version != UvPin().Version {
-				return "", fmt.Errorf("uv tự kiểm lệch phiên bản: %s != %s", probe.Version, UvPin().Version)
-			}
-			return probe.Version, nil
-		},
-	}
+func (u *Uv) InstallSpec() toolchain.InstallSpec {
+	return toolchain.UvInstallSpec(func(ctx context.Context, exe string) (string, bool) {
+		probe := u.Probe(ctx, exe)
+		if probe == nil {
+			return "", false
+		}
+		return probe.Version, true
+	})
 }
 
 // Env là môi trường app-owned để uv không đụng home hay cache của người dùng.
-func (u *Uv) Env() map[string]string {
-	root := u.d.BaseDir
-	return map[string]string{
-		"UV_INSTALL_DIR":        filepath.Join(root, "bin", "uv-tools"),
-		"UV_PYTHON_INSTALL_DIR": filepath.Join(root, "python"),
-		"UV_CACHE_DIR":          filepath.Join(root, "cache", "uv"),
-		"UV_TOOL_DIR":           filepath.Join(root, "bin", "uv-tools"),
-		"UV_NO_CONFIG":          "1",
-	}
-}
+func (u *Uv) Env() map[string]string { return toolchain.UvEnv(u.d.BaseDir) }
 
 // PythonDir là nơi `uv python install` đặt interpreter của app.
 func (u *Uv) PythonDir() string {
@@ -198,7 +152,7 @@ func (u *Uv) EnvFingerprint(requirementsFile, extra string) (string, error) {
 		return "", err
 	}
 	h := sha256.New()
-	fmt.Fprintf(h, "uv:%s\npython:%s\nplatform:%s/%s\n%s\n", UvPin().Version, UvPython, runtime.GOOS, runtime.GOARCH, extra)
+	fmt.Fprintf(h, "uv:%s\npython:%s\nplatform:%s/%s\n%s\n", toolchain.UvPin().Version, UvPython, runtime.GOOS, runtime.GOARCH, extra)
 	h.Write(content)
 	return hex.EncodeToString(h.Sum(nil))[:24], nil
 }
@@ -242,7 +196,7 @@ func (u *Uv) EnvBuiltFingerprint(info PythonEnvInfo) string {
 	if err := json.Unmarshal(data, &meta); err != nil || meta.Fingerprint != info.Fingerprint {
 		return ""
 	}
-	if !fileExists(info.Python) {
+	if !toolchain.FileExists(info.Python) {
 		return ""
 	}
 	return meta.Fingerprint
@@ -308,13 +262,13 @@ func (u *Uv) EnsurePythonEnv(ctx context.Context, uvBin, envDir, requirementsFil
 		return PythonEnvInfo{}, err
 	}
 	backup := fmt.Sprintf("%s.old-%d", envDir, time.Now().UnixMilli())
-	if fileExists(envDir) {
+	if toolchain.FileExists(envDir) {
 		if err := os.Rename(envDir, backup); err != nil {
 			return PythonEnvInfo{}, err
 		}
 	}
 	if err := os.Rename(staging, envDir); err != nil {
-		if fileExists(backup) {
+		if toolchain.FileExists(backup) {
 			_ = os.Rename(backup, envDir)
 		}
 		return PythonEnvInfo{}, err
@@ -339,7 +293,7 @@ func (u *Uv) findInstalledPython(ctx context.Context, uvBin string) (string, err
 	if len(lines) > 0 {
 		exe = strings.TrimSpace(lines[len(lines)-1])
 	}
-	if exe == "" || !fileExists(exe) {
+	if exe == "" || !toolchain.FileExists(exe) {
 		return "", fmt.Errorf("uv python find không trả interpreter: %s", strings.TrimSpace(res.Stdout))
 	}
 	return exe, nil

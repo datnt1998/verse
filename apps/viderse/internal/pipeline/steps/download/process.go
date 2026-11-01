@@ -13,6 +13,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // runnerFunc adapts the fenced step's process-group runner without bypassing
@@ -133,7 +134,7 @@ func (h *Handler) transcode(ctx context.Context, job TranscodeJob) error {
 		return callbackErr
 	}
 	if ctx.Err() != nil {
-		return fmt.Errorf("%w: %w", tools.ErrCancelled, ctx.Err())
+		return fmt.Errorf("%w: %w", toolchain.ErrCancelled, ctx.Err())
 	}
 	if g.why() != "" {
 		return retryError("Transcode nguồn bị timeout", "Chạy lại bước tải; video dài có thể cần tăng YTF_CLONE_TRANSCODE_MAX_MS", h.now(), 10*time.Minute)

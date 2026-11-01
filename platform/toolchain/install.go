@@ -8,7 +8,7 @@
 //
 // Một lần cài một lúc trong process qua khóa in-flight; ctx và tệp sentinel
 // là hai đường huỷ. Lượt bị huỷ/thất bại không đụng vào phiên bản đang dùng.
-package tools
+package toolchain
 
 import (
 	"archive/tar"
@@ -31,6 +31,22 @@ import (
 	"sync"
 	"time"
 )
+
+// ErrCancelled đánh dấu mọi lỗi do huỷ (ctx của caller hoặc sentinel cài đặt);
+// dùng errors.Is. Bộ cài và bộ chạy process con của các app cùng dùng một
+// sentinel để tầng trên nhận ra lượt bị huỷ.
+var ErrCancelled = errors.New("cancelled")
+
+// CancelledErr dựng lỗi huỷ mang theo nguyên nhân của ctx (nếu có).
+func CancelledErr(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return fmt.Errorf("%w: %w", ErrCancelled, err)
+	}
+	return ErrCancelled
+}
+
+// cancelledErr là dạng nội bộ của CancelledErr trong gói này.
+func cancelledErr(ctx context.Context) error { return CancelledErr(ctx) }
 
 // InstallPhase là một giai đoạn của tiến trình cài, ghi vào install-state.json.
 type InstallPhase string
@@ -509,6 +525,14 @@ func unpackAsset(asset PinnedAsset, archive, staging string) error {
 	return nil
 }
 
+// ExtractArchive bung archive KindTarGZ/KindZip vào dest; member khác rỗng thì
+// chỉ trích đúng member đó. Đây là phần dùng chung cho các app tự quản mã
+// nguồn (Noverse tải tarball của bộ đọc) nên phải đi qua đúng đường kiểm
+// ZipSlip như bộ cài.
+func ExtractArchive(kind AssetKind, archive, dest, member string) error {
+	return extractArchive(kind, archive, dest, member)
+}
+
 // extractArchive bung archive KindTarGZ/KindZip vào dest. Toàn bộ trích xuất
 // đi qua os.Root nên member với ".." hay symlink thoát khỏi dest bị từ chối
 // (ZipSlip), kể cả trường hợp symlink trước/file sau trong cùng một archive.
@@ -752,6 +776,17 @@ func (i *Installer) InstallInProgress(toolID string) bool {
 	defer i.mu.Unlock()
 	_, ok := i.inFlight[toolID]
 	return ok
+}
+
+// FlightWaiters đếm số caller đang chờ lượt cài của toolID (0 khi không có
+// lượt). Dùng để quan sát việc gộp lời gọi đồng thời.
+func (i *Installer) FlightWaiters(toolID string) int {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+	if f := i.inFlight[toolID]; f != nil {
+		return f.waiters
+	}
+	return 0
 }
 
 func (i *Installer) runInstall(ctx context.Context, spec InstallSpec) (InstallResult, error) {
@@ -1059,6 +1094,13 @@ func (i *Installer) runLifecycle(ctx context.Context, toolID, version string, ru
 	}
 	state(PhaseDone, "", "")
 	return nil
+}
+
+// FileExists đúng khi path tồn tại (tệp hoặc thư mục). Dùng chung cho mọi
+// app: tầng trên cần cùng một định nghĩa "đã có" với bộ cài.
+func FileExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 func fileExists(path string) bool {

@@ -116,6 +116,11 @@ type WorkerLease struct {
 }
 
 // Worker is a least-privilege service credential (today: 'tts' only).
+//
+// State/StateUpdatedAt carry the reader's latest published provision state and
+// CommandSeq/Command the operator's queued command (the only way the server can
+// press a button on the Mac). Both are opaque JSON: the server reads the fields
+// the API exposes and stores the rest verbatim.
 type Worker struct {
 	ID           pgtype.UUID
 	Name         string
@@ -123,6 +128,12 @@ type Worker struct {
 	RevokedAt    *time.Time
 	LastSeenAt   *time.Time
 	CreatedAt    time.Time
+	// State is the worker's last voice.ProvisionState ({} before the first post).
+	State          json.RawMessage
+	StateUpdatedAt *time.Time
+	// CommandSeq is monotonic per credential; Command is {op: install|reinstall}.
+	CommandSeq int64
+	Command    json.RawMessage
 }
 
 // Jobs is the durable job/worker/event repository.
@@ -277,6 +288,16 @@ func (j *Jobs) List(ctx context.Context, scope ScopeRef) ([]Job, error) {
 // Claim takes the oldest claimable job of the given kind for one worker.
 // projectFilter may be zero to claim across the whole installation (the TTS
 // worker does this); any other value limits the claim to that project.
+// CountQueued đếm việc của một loại đang xếp hàng trên toàn máy chủ: số chương
+// tạo giọng đang chờ máy đọc (trường `queueWaiting` của GET /api/tts/status).
+func (j *Jobs) CountQueued(ctx context.Context, kind JobKind) (int, error) {
+	n, err := gen.New(j.pool).CountQueuedJobs(ctx, string(kind))
+	if err != nil {
+		return 0, fmt.Errorf("đếm việc xếp hàng: %w", err)
+	}
+	return int(n), nil
+}
+
 func (j *Jobs) Claim(ctx context.Context, kind JobKind, workerID pgtype.UUID, lease time.Duration, projectFilter pgtype.UUID) (Job, error) {
 	if lease <= 0 {
 		lease = DefaultLease
@@ -680,14 +701,64 @@ func (j *Jobs) ListWorkers(ctx context.Context) ([]Worker, error) {
 	return out, nil
 }
 
+// WorkerByID resolves one credential row (state + queued command included).
+func (j *Jobs) WorkerByID(ctx context.Context, id pgtype.UUID) (Worker, error) {
+	row, err := gen.New(j.pool).GetWorker(ctx, id)
+	if err != nil {
+		if noRows(err) {
+			return Worker{}, ErrJobNotFound
+		}
+		return Worker{}, sanitizeErr(err)
+	}
+	return workerFromRow(&row), nil
+}
+
+// SetWorkerState records the reader's latest provision state (a JSON object from
+// the shared voice.ProvisionState contract). A revoked credential matches no row
+// and reports ErrJobNotFound, so a stolen token cannot keep a machine "fresh".
+func (j *Jobs) SetWorkerState(ctx context.Context, id pgtype.UUID, state []byte) error {
+	if len(state) == 0 {
+		state = []byte(`{}`)
+	}
+	n, err := gen.New(j.pool).SetWorkerState(ctx, gen.SetWorkerStateParams{ID: id, State: state})
+	if err != nil {
+		return sanitizeErr(err)
+	}
+	if n == 0 {
+		return ErrJobNotFound
+	}
+	return nil
+}
+
+// BumpWorkerCommand queues one operator command (install|reinstall) for the
+// worker and returns the row with its new, monotonic seq.
+func (j *Jobs) BumpWorkerCommand(ctx context.Context, id pgtype.UUID, op string) (Worker, error) {
+	command, err := json.Marshal(map[string]string{"op": op})
+	if err != nil {
+		return Worker{}, fmt.Errorf("worker command: %w", errInvalidJobInput)
+	}
+	row, err := gen.New(j.pool).BumpWorkerCommand(ctx, gen.BumpWorkerCommandParams{ID: id, Command: command})
+	if err != nil {
+		if noRows(err) {
+			return Worker{}, ErrJobNotFound
+		}
+		return Worker{}, sanitizeErr(err)
+	}
+	return workerFromRow(&row), nil
+}
+
 func workerFromRow(r *gen.Worker) Worker {
 	return Worker{
-		ID:           r.ID,
-		Name:         r.Name,
-		Capabilities: r.Capabilities,
-		RevokedAt:    timePtr(r.RevokedAt),
-		LastSeenAt:   timePtr(r.LastSeenAt),
-		CreatedAt:    r.CreatedAt.Time.UTC(),
+		ID:             r.ID,
+		Name:           r.Name,
+		Capabilities:   r.Capabilities,
+		RevokedAt:      timePtr(r.RevokedAt),
+		LastSeenAt:     timePtr(r.LastSeenAt),
+		CreatedAt:      r.CreatedAt.Time.UTC(),
+		State:          append(json.RawMessage(nil), r.State...),
+		StateUpdatedAt: timePtr(r.StateUpdatedAt),
+		CommandSeq:     r.CommandSeq,
+		Command:        append(json.RawMessage(nil), r.Command...),
 	}
 }
 

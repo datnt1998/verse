@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/uploadlimit"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const chromeToolID = "chrome"
@@ -144,7 +145,7 @@ func (c *Chrome) Candidates() []string {
 	}
 	var existing []string
 	for _, p := range dedupeStrings(out) {
-		if fileExists(p) {
+		if toolchain.FileExists(p) {
 			existing = append(existing, p)
 		}
 	}
@@ -166,14 +167,14 @@ const managedChromeExecutable = "Google Chrome for Testing.app/Contents/MacOS/Go
 // chromeExecutableIn trả executable trong một bản cài đã bung (dir = thư mục
 // phiên bản hoặc staging); "" khi vắng.
 func chromeExecutableIn(dir string) string {
-	key := CurrentPlatformKey()
+	key := toolchain.CurrentPlatformKey()
 	assets := ChromePin().Assets[key]
 	if len(assets) == 0 {
 		return ""
 	}
 	// Tên asset ghim cũng là thư mục trên cùng của archive (chrome-mac-arm64).
 	exe := filepath.Join(dir, assets[0].Name, filepath.FromSlash(managedChromeExecutable))
-	if fileExists(exe) {
+	if toolchain.FileExists(exe) {
 		return exe
 	}
 	return ""
@@ -181,7 +182,7 @@ func chromeExecutableIn(dir string) string {
 
 // ManagedPath trả Chrome for Testing do app cài; "" khi chưa có bản active.
 func (c *Chrome) ManagedPath() string {
-	dir := ActiveVersionDir(c.d.BaseDir, chromeToolID)
+	dir := toolchain.ActiveVersionDir(c.d.BaseDir, chromeToolID)
 	if dir == "" {
 		return ""
 	}
@@ -215,11 +216,11 @@ func (c *Chrome) Resolve() *ChromeResolution {
 }
 
 // InstallSpec trả pipeline cài Chrome for Testing ghim vào bin/chrome.
-func (c *Chrome) InstallSpec() InstallSpec {
-	return InstallSpec{
+func (c *Chrome) InstallSpec() toolchain.InstallSpec {
+	return toolchain.InstallSpec{
 		ToolID: chromeToolID,
 		Pin:    ChromePin(),
-		SelfCheck: func(ctx context.Context, ic *InstallContext, staging string) (string, error) {
+		SelfCheck: func(ctx context.Context, ic *toolchain.InstallContext, staging string) (string, error) {
 			exe := chromeExecutableIn(staging)
 			if exe == "" {
 				return "", fmt.Errorf("Chrome tải về thiếu executable")

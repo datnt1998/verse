@@ -2,8 +2,6 @@ package vieneu
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -17,102 +15,40 @@ import (
 // modelBytes là dung lượng mô hình ước tính để quy ra phần trăm tải (đo thật: ~581 MB).
 const modelBytes = 600 << 20
 
-// Install cài bộ đọc vào <home>/vieneu: mã nguồn đúng tag đã ghim, môi trường uv,
-// rồi nạp thử để tải sẵn mô hình và xác nhận chạy được.
+// Install là đường cài của desktop/CLI và nút "Cài bộ đọc trên máy": cùng một
+// pipeline với Provision (uv ghim → Python → mã nguồn → thư viện → mô hình),
+// chỉ dịch ProvisionState sang InstallProgress mà Service/CLI đang dùng.
 func (e *Engine) Install(ctx context.Context, report func(voice.InstallProgress)) error {
 	if report == nil {
 		report = func(voice.InstallProgress) {}
 	}
-	if e.Installed() {
-		report(voice.InstallProgress{Step: "done", Percent: 100, Message: "Bộ đọc trên máy đã có sẵn"})
-		return nil
-	}
-	uv, err := findUV()
-	if err != nil {
-		return err
-	}
-	if _, err := exec.LookPath("git"); err != nil {
-		return errors.New("cần git để cài bộ đọc (macOS: chạy `xcode-select --install`)")
-	}
-	if err := os.MkdirAll(e.dir, 0o755); err != nil {
-		return err
-	}
-
-	report(voice.InstallProgress{Step: "source", Percent: 5, Message: "Đang tải mã nguồn VieNeu-TTS…"})
-	if err := e.syncSource(ctx); err != nil {
-		return err
-	}
-
-	report(voice.InstallProgress{Step: "deps", Percent: 25, Message: "Đang cài thư viện Python (lần đầu vài phút)…"})
-	err = runStreaming(ctx, e.srcDir(), uv, []string{"sync", "--frozen", "--python", "3.12"}, e.logPath(),
-		func(line string) {
-			report(voice.InstallProgress{Step: "deps", Percent: 40, Message: "Đang cài thư viện: " + clip(line, 90)})
-		})
-	if err != nil {
-		return fmt.Errorf("cài thư viện Python thất bại: %w · %s", err, e.logTail(4))
-	}
-
-	report(voice.InstallProgress{Step: "model", Percent: 65, Message: "Đang tải mô hình giọng đọc (~600 MB)…"})
-	_, err = e.ensureStarted(ctx, e.cfg.Quality, func(bytes int64) {
-		pct := 65 + int(min(bytes*30/modelBytes, 30))
+	err := e.Provision(ctx, func(st voice.ProvisionState) {
 		report(voice.InstallProgress{
-			Step:    "model",
-			Percent: pct,
-			Message: "Đang tải mô hình giọng đọc…",
-			Bytes:   bytes,
+			State:      "running",
+			Step:       st.Step,
+			Percent:    installPercent(st.Percent),
+			BytesDone:  st.BytesDone,
+			BytesTotal: st.BytesTotal,
+			EtaSec:     st.EtaSec,
+			Version:    st.Version,
+			Message:    st.Message,
+			Updated:    st.UpdatedAt,
 		})
 	})
 	if err != nil {
 		return err
 	}
-
-	report(voice.InstallProgress{Step: "done", Percent: 100, Message: "Đã cài xong bộ đọc trên máy"})
+	report(voice.InstallProgress{State: "done", Step: "done", Percent: new(100), Message: "Đã cài xong bộ đọc trên máy"})
 	return nil
 }
 
-// syncSource bảo đảm <home>/vieneu/src đúng tag đã ghim.
-func (e *Engine) syncSource(ctx context.Context) error {
-	src := e.srcDir()
-	if _, err := os.Stat(filepath.Join(src, ".git")); err == nil {
-		if err := runQuiet(ctx, src, e.logPath(), "git", "fetch", "--depth", "1", "origin", "refs/tags/"+pinnedTag); err == nil {
-			if err := runQuiet(ctx, src, e.logPath(), "git", "checkout", "-f", "FETCH_HEAD"); err == nil {
-				return nil
-			}
-		}
-		if err := os.RemoveAll(src); err != nil {
-			return err
-		}
+// installPercent đổi sentinel "không đo được" của ProvisionState thành nil: UI
+// hiện vòng xoay thay vì một con số bịa.
+func installPercent(v int) *int {
+	if v < 0 {
+		return nil
 	}
-	if err := os.MkdirAll(filepath.Dir(src), 0o755); err != nil {
-		return err
-	}
-	err := runQuiet(ctx, filepath.Dir(src), e.logPath(), "git",
-		"clone", "--depth", "1", "--branch", pinnedTag, repoURL, src)
-	if err != nil {
-		return fmt.Errorf("tải mã nguồn VieNeu-TTS thất bại: %w", err)
-	}
-	return nil
-}
-
-// findUV tìm uv theo PATH rồi các vị trí cài phổ biến.
-func findUV() (string, error) {
-	if p, err := exec.LookPath("uv"); err == nil {
-		return p, nil
-	}
-	var candidates []string
-	if home, err := os.UserHomeDir(); err == nil {
-		candidates = append(candidates,
-			filepath.Join(home, ".local", "bin", "uv"),
-			filepath.Join(home, ".cargo", "bin", "uv"),
-		)
-	}
-	candidates = append(candidates, "/opt/homebrew/bin/uv", "/usr/local/bin/uv", "/usr/bin/uv")
-	for _, c := range candidates {
-		if st, err := os.Stat(c); err == nil && !st.IsDir() {
-			return c, nil
-		}
-	}
-	return "", errors.New("chưa có uv trên máy — cài bằng `brew install uv` (hoặc xem https://docs.astral.sh/uv/) rồi thử lại")
+	return &v
 }
 
 // runQuiet chạy lệnh, ghi toàn bộ output vào log của bộ đọc.
@@ -131,6 +67,12 @@ func runQuiet(ctx context.Context, dir, logPath, name string, args ...string) er
 
 // runStreaming chạy lệnh và đẩy từng dòng output ra onLine (để CLI/SSE thấy tiến độ thật).
 func runStreaming(ctx context.Context, dir, name string, args []string, logPath string, onLine func(string)) error {
+	return runStreamingEnv(ctx, dir, name, args, logPath, nil, onLine)
+}
+
+// runStreamingEnv như runStreaming nhưng đặt thêm biến môi trường (env nil =
+// thừa hưởng môi trường process).
+func runStreamingEnv(ctx context.Context, dir, name string, args []string, logPath string, env []string, onLine func(string)) error {
 	f, err := openAppend(logPath)
 	if err != nil {
 		return err
@@ -139,6 +81,9 @@ func runStreaming(ctx context.Context, dir, name string, args []string, logPath 
 	sink := &lineSink{file: f, onLine: onLine}
 	cmd := exec.CommandContext(ctx, name, args...)
 	cmd.Dir = dir
+	if env != nil {
+		cmd.Env = env
+	}
 	cmd.Stdout = sink
 	cmd.Stderr = sink
 	return cmd.Run()

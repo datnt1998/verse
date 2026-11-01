@@ -144,8 +144,8 @@ func waitJobWhere(t *testing.T, tg *testGateway, cookie, id string, ok func(*Job
 func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 	eng := &testTtsEngine{
 		steps: []voice.InstallProgress{
-			{Step: "source", Percent: 5, Message: "Đang tải mã nguồn VieNeu-TTS…"},
-			{Step: "deps", Percent: 40, Message: "Đang cài thư viện Python…"},
+			{Step: "source", Percent: new(5), Message: "Đang tải mã nguồn VieNeu-TTS…"},
+			{Step: "deps", Percent: new(40), Message: "Đang cài thư viện Python…"},
 		},
 		gate: make(chan struct{}),
 	}
@@ -170,7 +170,7 @@ func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 	// nên chờ theo trạng thái thuần có thể bắt hàng chưa kịp báo bước.
 	running := waitJobWhere(t, tg, admin, voiceInstallJobID,
 		func(j *Job) bool {
-			return j.Status == JobRunning && j.Progress != nil && *j.Progress == 0.4 && j.Step == "Đang cài thư viện Python…"
+			return j.Status == JobRunning && j.Progress != nil && *j.Progress == 0.4 && j.Step == "Bước 4/6 · Cài thư viện"
 		}, "running · 40% · đang cài thư viện")
 	if running.Kind != voiceJobsKind || running.Title == "" || running.Href != voiceSettingsRoute {
 		t.Fatalf("hàng cài bộ đọc = %+v", running)
@@ -197,7 +197,7 @@ func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 // Lượt cài hỏng phải hiện lỗi + cho Thử lại; thử lại chạy tiếp và xong.
 func TestVoiceInstallJobFailsThenRetry(t *testing.T) {
 	eng := &testTtsEngine{
-		steps: []voice.InstallProgress{{Step: "source", Percent: 5, Message: "Đang tải mã nguồn VieNeu-TTS…"}},
+		steps: []voice.InstallProgress{{Step: "source", Percent: new(5), Message: "Đang tải mã nguồn VieNeu-TTS…"}},
 		fail:  errors.New("chưa có uv trên máy"),
 	}
 	useTtsService(t, eng)

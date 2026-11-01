@@ -21,6 +21,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const codexToolID = "codex"
@@ -166,7 +168,7 @@ func describeSpawnError(exe string, err error) string {
 }
 
 func (c *Codex) probe(ctx context.Context, exe string, source ToolSource) (*CodexBinaryInfo, *CodexBrokenProbe) {
-	if !fileExists(exe) {
+	if !toolchain.FileExists(exe) {
 		return nil, &CodexBrokenProbe{Path: exe, Error: "binary không tồn tại ở đường dẫn này"}
 	}
 	res, err := c.d.Runner.Run(ctx, exe, []string{"--version"}, Spec{Timeout: 30 * time.Second})
@@ -186,7 +188,7 @@ func (c *Codex) probe(ctx context.Context, exe string, source ToolSource) (*Code
 
 // ManagedDir trả thư mục phiên bản đang dùng của bản cài app quản.
 func (c *Codex) ManagedDir() string {
-	return ActiveVersionDir(c.d.BaseDir, codexToolID)
+	return toolchain.ActiveVersionDir(c.d.BaseDir, codexToolID)
 }
 
 // ManagedPath trả binary codex app quản; "" khi chưa cài.
@@ -200,7 +202,7 @@ func (c *Codex) ManagedPath() string {
 		name = "codex.exe"
 	}
 	exe := filepath.Join(dir, name)
-	if fileExists(exe) {
+	if toolchain.FileExists(exe) {
 		return exe
 	}
 	return ""
@@ -340,11 +342,11 @@ func (c *Codex) Isolation(ctx context.Context, exe string) CodexIsolation {
 }
 
 // InstallSpec trả pipeline cài cặp codex (CLI + code-mode host) ghim.
-func (c *Codex) InstallSpec() InstallSpec {
-	return InstallSpec{
+func (c *Codex) InstallSpec() toolchain.InstallSpec {
+	return toolchain.InstallSpec{
 		ToolID: codexToolID,
 		Pin:    CodexPin(),
-		SelfCheck: func(ctx context.Context, ic *InstallContext, staging string) (string, error) {
+		SelfCheck: func(ctx context.Context, ic *toolchain.InstallContext, staging string) (string, error) {
 			name := "codex"
 			host := "codex-code-mode-host"
 			if runtime.GOOS == "windows" {
@@ -358,7 +360,7 @@ func (c *Codex) InstallSpec() InstallSpec {
 			if CompareVersions(info.Version, CodexMinVersion) < 0 {
 				return "", fmt.Errorf("codex tải về %s cũ hơn yêu cầu %s", info.Version, CodexMinVersion)
 			}
-			if !fileExists(filepath.Join(staging, host)) {
+			if !toolchain.FileExists(filepath.Join(staging, host)) {
 				return "", fmt.Errorf("codex-code-mode-host thiếu trong bản cài")
 			}
 			return info.Version, nil

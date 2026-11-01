@@ -30,6 +30,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // IsolationState là trạng thái chứng minh cô lập.
@@ -838,7 +840,7 @@ func (c *Codex) IsolationPreflight(ctx context.Context, exe string) (CodexIsolat
 		if err != nil {
 			checks = append(checks, CodexIsolationCheck{Name: "writes-denied", OK: false, Detail: err.Error()})
 		} else {
-			denied := !fileExists(target)
+			denied := !toolchain.FileExists(target)
 			_ = os.Remove(target)
 			detail := "write attempt blocked"
 			if !denied {

@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -24,17 +25,35 @@ const (
 )
 
 // voiceJobsProvider đưa lượt cài bộ đọc trên máy vào chung danh sách việc chạy nền.
-type voiceJobsProvider struct{}
+//
+// Nguồn tiến độ phụ thuộc chế độ: bản file/desktop đọc service cục bộ, bản
+// hosted đọc trạng thái máy đọc trong Postgres (cùng voice.InstallProgress, nên
+// dock không phải biết gì thêm).
+type voiceJobsProvider struct{ g *Gateway }
 
 var _ JobsProvider = voiceJobsProvider{}
 
-func newVoiceJobsProvider() JobsProvider { return voiceJobsProvider{} }
+func newVoiceJobsProvider(g *Gateway) JobsProvider { return voiceJobsProvider{g: g} }
 
 func (voiceJobsProvider) Kind() string { return voiceJobsKind }
 
+// hosted báo tiến độ đến từ trạng thái máy đọc trong cơ sở dữ liệu.
+func (p voiceJobsProvider) hosted() bool { return p.g != nil && p.g.pgAudio != nil }
+
+func (p voiceJobsProvider) progress() voice.InstallProgress {
+	if p.hosted() {
+		// The provider interface has no request context; a dock row must never
+		// wait on a slow database.
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		return p.g.hostedTTSInstallState(ctx)
+	}
+	return ttsService().InstallState()
+}
+
 // Jobs trả hàng hiện tại, hoặc rỗng khi chưa từng cài.
-func (voiceJobsProvider) Jobs() []Job {
-	if row, ok := voiceInstallRow(ttsService().InstallState()); ok {
+func (p voiceJobsProvider) Jobs() []Job {
+	if row, ok := voiceInstallRow(p.progress()); ok {
 		return []Job{row}
 	}
 	return nil
@@ -42,23 +61,111 @@ func (voiceJobsProvider) Jobs() []Job {
 
 // Watch phát mỗi mốc tiến độ; lượt cài biến mất thì phát Removed.
 func (p voiceJobsProvider) Watch(ctx context.Context, emit func(JobChange)) {
+	if p.hosted() {
+		p.watchHosted(ctx, emit)
+		return
+	}
 	unsub := ttsService().SubscribeInstall(func(progress voice.InstallProgress) {
-		row, ok := voiceInstallRow(progress)
-		if !ok {
-			emit(JobChange{Job: Job{ID: voiceInstallJobID}, Removed: true})
-			return
-		}
-		emit(JobChange{Job: row})
+		emitVoiceInstall(emit, progress)
 	})
 	defer unsub()
 	<-ctx.Done()
 }
 
+// watchHosted hỏi trạng thái máy đọc mỗi giây: máy Mac công bố qua worker
+// listener, không có kênh đẩy nào tới tiến trình web.
+func (p voiceJobsProvider) watchHosted(ctx context.Context, emit func(JobChange)) {
+	tick := time.NewTicker(time.Second)
+	defer tick.Stop()
+	var last voice.InstallProgress
+	have := false
+	for {
+		progress := p.progress()
+		if !have || !progress.Same(last) {
+			emitVoiceInstall(emit, progress)
+			last, have = progress, true
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-tick.C:
+		}
+	}
+}
+
+func emitVoiceInstall(emit func(JobChange), progress voice.InstallProgress) {
+	row, ok := voiceInstallRow(progress)
+	if !ok {
+		emit(JobChange{Job: Job{ID: voiceInstallJobID}, Removed: true})
+		return
+	}
+	emit(JobChange{Job: row})
+}
+
+// voiceStepIndex là số thứ tự bước chuẩn bị trên thẻ Máy đọc (Bước i/6):
+// tools · python · source · deps · model · start.
+func voiceStepIndex(step string) (idx, total int) {
+	total = len(voice.ProvisionSteps)
+	for i, s := range voice.ProvisionSteps {
+		if s == step {
+			return i + 1, total
+		}
+	}
+	return 0, total
+}
+
+// voiceInstallStepText là dòng bước của hàng dock: "Bước 3/6 · Tải bộ đọc…" ở
+// bước không đo được, "Bước 5/6 · Tải mẫu giọng · 299/581 MB" ở bước mẫu giọng.
+func voiceInstallStepText(p voice.InstallProgress) string {
+	idx, total := voiceStepIndex(p.Step)
+	label := voiceStepLabel(p.Step)
+	if label == "" {
+		return p.Message
+	}
+	step := fmt.Sprintf("Bước %d/%d · %s", idx, total, label)
+	if p.Step == voice.ProvisionStepModel && p.BytesDone > 0 && p.BytesTotal > 0 {
+		return fmt.Sprintf("%s · %s", step, audioHumanBytes(p.BytesDone)+"/"+audioHumanBytes(p.BytesTotal))
+	}
+	return step
+}
+
+// voiceStepLabel là nhãn một bước chuẩn bị; đây là câu hiển thị, không phải mã,
+// nên giữ tiếng Việt ngay đây (UI chỉ hiển thị).
+func voiceStepLabel(step string) string {
+	switch step {
+	case voice.ProvisionStepTools:
+		return "Tải công cụ cài đặt"
+	case voice.ProvisionStepPython:
+		return "Chuẩn bị môi trường chạy"
+	case voice.ProvisionStepSource:
+		return "Tải bộ đọc"
+	case voice.ProvisionStepDeps:
+		return "Cài thư viện"
+	case voice.ProvisionStepModel:
+		return "Tải mẫu giọng"
+	case voice.ProvisionStepStart:
+		return "Khởi động bộ đọc"
+	default:
+		return ""
+	}
+}
+
+// audioHumanBytes in một dung lượng gọn như "299 MB" cho dòng bước của dock.
+func audioHumanBytes(v int64) string {
+	if v >= 1<<30 {
+		return fmt.Sprintf("%.0f GB", float64(v)/(1<<30))
+	}
+	return fmt.Sprintf("%.0f MB", float64(v)/(1<<20))
+}
+
 // Control: retry chạy lại lượt cài, cancel dừng lượt đang chạy.
 // Tạm dừng không có nghĩa với việc một lần chạy của lệnh cài.
-func (voiceJobsProvider) Control(_ context.Context, id, op string) error {
+func (p voiceJobsProvider) Control(ctx context.Context, id, op string) error {
 	if id != voiceInstallJobID {
 		return errJobNotFound
+	}
+	if p.hosted() {
+		return p.controlHosted(ctx, op)
 	}
 	svc := ttsService()
 	switch op {
@@ -85,22 +192,46 @@ func (voiceJobsProvider) Control(_ context.Context, id, op string) error {
 	}
 }
 
-// voiceInstallRow đổi một mốc tiến độ thành hàng của dock. state rỗng/idle = chưa
-// từng cài nên không có hàng nào (ok=false).
+// controlHosted đẩy lệnh sang máy đọc: retry = xếp lệnh install, cancel không
+// có nghĩa vì lượt cài chạy trên máy khác và không có kênh dừng.
+func (p voiceJobsProvider) controlHosted(ctx context.Context, op string) error {
+	snap := p.g.workerSnapshot(ctx)
+	switch op {
+	case "retry":
+		if !snap.Found {
+			return errors.New("Chưa có máy đọc nào kết nối")
+		}
+		if snap.State.State == voice.ProvisionStateReady {
+			return errors.New("Bộ đọc trên máy đã cài xong")
+		}
+		_, err := p.g.pgAudio.Jobs.BumpWorkerCommand(ctx, snap.ID, "install")
+		return err
+	case "cancel":
+		return errJobUnsupported
+	default:
+		return errJobUnsupported
+	}
+}
+
+// voiceInstallRow đổi một mốc tiến độ thành hàng của dock (hàng prepErr của
+// 10-audio.md §8.6: "Đang chuẩn bị máy đọc" + bước i/6 + % khi bước đo được,
+// vòng xoay thôi khi không). state rỗng/idle = chưa từng cài nên không có hàng.
 func voiceInstallRow(p voice.InstallProgress) (Job, bool) {
 	job := Job{
 		ID:        voiceInstallJobID,
 		Kind:      voiceJobsKind,
-		Title:     "Cài bộ đọc trên máy",
+		Title:     "Đang chuẩn bị máy đọc",
 		Href:      voiceSettingsRoute,
 		StartedAt: p.Updated,
 	}
 	switch p.State {
 	case "running":
 		job.Status = JobRunning
-		percent := float64(p.Percent) / 100
-		job.Progress = &percent
-		job.Step = strings.TrimSpace(p.Message)
+		if p.Percent != nil {
+			percent := float64(*p.Percent) / 100
+			job.Progress = &percent
+		}
+		job.Step = strings.TrimSpace(voiceInstallStepText(p))
 	case "done":
 		finished := p.Updated
 		job.Status = JobDoneS
@@ -110,9 +241,15 @@ func voiceInstallRow(p voice.InstallProgress) (Job, bool) {
 	case "error":
 		job.Status = JobFailed
 		job.Step = strings.TrimSpace(p.Message)
-		job.Error = strings.TrimSpace(p.Error)
-		if job.Error == "" || job.Error == nil {
-			job.Error = job.Step
+		errText := strings.TrimSpace(p.Error)
+		if errText == "" {
+			errText = job.Step
+		}
+		// Mã lỗi 8.2 giúp FE chọn đúng câu và giữ nút Thử lại/Huỷ (prepErr).
+		if p.ErrorCode != "" {
+			job.Error = JobErrorInfo{Message: errText, Cause: p.ErrorCode}
+		} else {
+			job.Error = errText
 		}
 	default:
 		return Job{}, false

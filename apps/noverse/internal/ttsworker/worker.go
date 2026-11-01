@@ -24,6 +24,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os/exec"
 	"strings"
 	"sync"
 	"time"
@@ -56,6 +57,22 @@ type Config struct {
 	Poll time.Duration
 	// HTTP is optional; a bounded default client is built when nil.
 	HTTP *http.Client
+	// Provisioner installs the reader when it is missing. Nil (--no-provision)
+	// keeps the worker from installing anything: it still reports the state and
+	// claims only once the engine is ready.
+	Provisioner Provisioner
+	// ProvisionBackoff is the wait before each retry of a failed provision; the
+	// number of delays + 1 bounds the attempts of one start.
+	ProvisionBackoff []time.Duration
+	// Preview advertises whether the server may ask this machine for an
+	// on-demand voice preview (`capabilities.preview`). The Mac build leaves it
+	// false until the server has a reverse preview path: the UI then hides
+	// Nghe thử instead of offering a button that cannot work (10-audio.md §8.4).
+	Preview bool
+	// StateEvery throttles percent-only state posts (default 2 s).
+	StateEvery time.Duration
+	// Now is the clock; tests replace it.
+	Now func() time.Time
 }
 
 // Worker is the claim → synthesize → upload → ACK loop.
@@ -63,6 +80,20 @@ type Worker struct {
 	cfg    Config
 	base   *url.URL
 	client *http.Client
+	ffmpeg bool
+
+	// mu guards the provision state the run loop publishes and the operator
+	// command sequence it has already executed.
+	mu          sync.Mutex
+	state       voice.ProvisionState
+	ready       bool
+	attempts    int
+	exhausted   bool
+	nextAttempt time.Time
+	sent        voice.ProvisionState
+	sentAt      time.Time
+	sentOnce    bool
+	lastSeq     int64
 }
 
 // New validates the configuration and returns a worker.
@@ -93,11 +124,26 @@ func New(cfg Config) (*Worker, error) {
 	if cfg.Poll <= 0 {
 		cfg.Poll = 2 * time.Second
 	}
+	if cfg.StateEvery <= 0 {
+		cfg.StateEvery = 2 * time.Second
+	}
+	if cfg.ProvisionBackoff == nil {
+		cfg.ProvisionBackoff = defaultProvisionBackoff
+	}
+	if cfg.Now == nil {
+		cfg.Now = time.Now
+	}
 	client := cfg.HTTP
 	if client == nil {
 		client = &http.Client{Timeout: 10 * time.Minute}
 	}
-	return &Worker{cfg: cfg, base: base, client: client}, nil
+	_, ffmpegErr := exec.LookPath("ffmpeg")
+	w := &Worker{cfg: cfg, base: base, client: client, ffmpeg: ffmpegErr == nil}
+	w.state = voice.ProvisionState{
+		State: voice.ProvisionStateMissing, Percent: voice.ProvisionPercentUnknown,
+		Engine: cfg.Engine.Name(),
+	}
+	return w, nil
 }
 
 // protocol shapes (wire contract with internal/entry/web/worker_api.go)
@@ -155,22 +201,46 @@ type attachment struct {
 	Select         bool            `json:"select"`
 }
 
-// Run claims and processes jobs until ctx is cancelled. An empty queue backs
-// off by cfg.Poll instead of spinning.
+// Run claims and processes jobs until ctx is cancelled. It only claims while
+// the reader is ready: a worker whose engine is still being prepared leaves the
+// work queued (never failed) and keeps the server informed instead. An empty
+// queue backs off by cfg.Poll.
 func (w *Worker) Run(ctx context.Context) error {
 	for {
 		if err := ctx.Err(); err != nil {
 			return nil
 		}
+		if !w.Ready() {
+			w.prepare(ctx)
+			if ctx.Err() != nil {
+				return nil
+			}
+			if !w.Ready() {
+				if !sleepCtx(ctx, w.cfg.Poll) {
+					return nil
+				}
+				continue
+			}
+			continue
+		}
+		// An operator's install command must be seen even while we are busy
+		// claiming; a command re-provisions before the next claim.
+		_ = w.pollCommand(ctx)
+		if !w.Ready() {
+			continue
+		}
 		processed, err := w.RunOnce(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {
+			// A cancelled run surfaces as a transport error mid-request; that is
+			// a shutdown (launchd/SIGTERM), not a failure to report.
+			if ctx.Err() != nil {
+				return nil
+			}
 			return err
 		}
 		if !processed {
-			select {
-			case <-ctx.Done():
+			if !sleepCtx(ctx, w.cfg.Poll) {
 				return nil
-			case <-time.After(w.cfg.Poll):
 			}
 		}
 	}
@@ -368,6 +438,9 @@ func (w *Worker) heartbeat(ctx context.Context, j job, fenced func()) func() {
 			case <-ticker.C:
 				body, _ := json.Marshal(map[string]any{
 					"fence": j.Fence, "leaseSec": int(w.cfg.Lease / time.Second),
+					// A long job must not let the reader's state go stale: the
+					// heartbeat is the only traffic while a job runs.
+					"state": w.State(),
 				})
 				// A heartbeat failure that is not a fence answer is transient:
 				// the lease still covers us until the next tick.

@@ -16,6 +16,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func infoJSON(t *testing.T) string {
@@ -149,7 +150,7 @@ func TestHandlerResumesCheckpointWithoutRefetchingMetadata(t *testing.T) {
 		mediaRuns++
 		if mediaRuns == 1 {
 			writeStaging(t, dir, "source.mp4.part", "saved")
-			return "", tools.ErrCancelled
+			return "", toolchain.ErrCancelled
 		}
 		part, err := os.ReadFile(filepath.Join(dir, "source.mp4.part"))
 		if err != nil || string(part) != "saved" {
@@ -161,7 +162,7 @@ func TestHandlerResumesCheckpointWithoutRefetchingMetadata(t *testing.T) {
 	}}
 	deps := fakeDeps(func(d *Deps) { d.Tools.Runner = runner })
 	_, err := New(deps).Run(context.Background(), step)
-	if !errors.Is(err, tools.ErrCancelled) {
+	if !errors.Is(err, toolchain.ErrCancelled) {
 		t.Fatalf("first error = %v", err)
 	}
 	step.Checkpoint = append(json.RawMessage(nil), saved...)
@@ -212,7 +213,7 @@ func TestHandlerPauseSavesCheckpointAndKeepsPart(t *testing.T) {
 		}
 		writeStaging(t, dir, "source.mp4.part", "partial")
 		paused.Store(true)
-		return "", tools.ErrCancelled
+		return "", toolchain.ErrCancelled
 	}}
 	deps := fakeDeps(func(d *Deps) { d.Tools.Runner = runner })
 	result, err := New(deps).Run(context.Background(), step)
@@ -396,7 +397,7 @@ func TestHandlerStopsStalledDownloadWithRetryTime(t *testing.T) {
 			return tools.Result{Stdout: infoJSON(t)}, nil
 		}
 		<-ctx.Done()
-		return tools.Result{}, tools.ErrCancelled
+		return tools.Result{}, toolchain.ErrCancelled
 	}
 	deps := fakeDeps(func(d *Deps) {
 		limits := DownloadLimits(map[string]string{})

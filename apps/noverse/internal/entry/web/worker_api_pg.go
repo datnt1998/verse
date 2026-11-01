@@ -255,6 +255,51 @@ func (q *PGWorkerQueue) Release(ctx context.Context, workerID, jobID string, fen
 	return workerJob(job), nil
 }
 
+// ── provision state / operator command ───────────────────────────────────────
+
+// SaveWorkerState stores the reader's published provision state.
+func (q *PGWorkerQueue) SaveWorkerState(ctx context.Context, workerID string, state []byte) error {
+	if err := q.mustJobs(); err != nil {
+		return err
+	}
+	id, err := postgres.ParseUUID(workerID)
+	if err != nil {
+		return errWorkerBadRequest
+	}
+	if err := q.Jobs.SetWorkerState(ctx, id, state); err != nil {
+		if errors.Is(err, postgres.ErrJobNotFound) {
+			return errWorkerNotFound
+		}
+		return err
+	}
+	return nil
+}
+
+// WorkerCommand returns the operator's queued command and its monotonic seq.
+func (q *PGWorkerQueue) WorkerCommand(ctx context.Context, workerID string) (int64, string, error) {
+	if err := q.mustJobs(); err != nil {
+		return 0, "", err
+	}
+	id, err := postgres.ParseUUID(workerID)
+	if err != nil {
+		return 0, "", errWorkerBadRequest
+	}
+	w, err := q.Jobs.WorkerByID(ctx, id)
+	if errors.Is(err, postgres.ErrJobNotFound) {
+		return 0, "", errWorkerNotFound
+	}
+	if err != nil {
+		return 0, "", err
+	}
+	var command struct {
+		Op string `json:"op"`
+	}
+	if len(w.Command) > 0 {
+		_ = json.Unmarshal(w.Command, &command)
+	}
+	return w.CommandSeq, command.Op, nil
+}
+
 // Fail records a terminal failure for the claimed job.
 func (q *PGWorkerQueue) Fail(ctx context.Context, workerID, jobID string, fence int64, cause any) (WorkerJob, error) {
 	_, key, err := q.resolve(ctx, workerID, jobID)

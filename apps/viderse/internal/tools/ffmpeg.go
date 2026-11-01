@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const ffmpegToolID = "ffmpeg"
@@ -164,7 +166,7 @@ func MissingFfmpegCaps(caps FfmpegCaps) []string {
 func (f *Ffmpeg) Probe(ctx context.Context, exe string) *FfmpegProbe {
 	// Đường dẫn không tồn tại không thể là binary; chặn trước khi spawn để
 	// ứng viên hỏng không che ứng viên sau.
-	if !fileExists(exe) {
+	if !toolchain.FileExists(exe) {
 		return nil
 	}
 	run := func(args ...string) (Result, error) {
@@ -221,7 +223,7 @@ func (f *Ffmpeg) SetConfiguredPath(exe string) error {
 
 // ManagedPath trả ffmpeg trong bản cài app quản; "" khi chưa cài.
 func (f *Ffmpeg) ManagedPath() string {
-	dir := ActiveVersionDir(f.d.BaseDir, ffmpegToolID)
+	dir := toolchain.ActiveVersionDir(f.d.BaseDir, ffmpegToolID)
 	if dir == "" {
 		return ""
 	}
@@ -230,7 +232,7 @@ func (f *Ffmpeg) ManagedPath() string {
 		name = "ffmpeg.exe"
 	}
 	exe := filepath.Join(dir, name)
-	if fileExists(exe) {
+	if toolchain.FileExists(exe) {
 		return exe
 	}
 	return ""
@@ -268,7 +270,7 @@ func (f *Ffmpeg) ffprobeSibling(ffmpegPath string) string {
 		name = "ffprobe.exe"
 	}
 	sibling := filepath.Join(filepath.Dir(ffmpegPath), name)
-	if fileExists(sibling) {
+	if toolchain.FileExists(sibling) {
 		return sibling
 	}
 	return FindOnPath(name, f.d.pathEnv())
@@ -319,11 +321,11 @@ func (f *Ffmpeg) Status(ctx context.Context) FfmpegStatus {
 }
 
 // InstallSpec trả pipeline cài cặp ffmpeg+ffprobe ghim vào bin/ffmpeg.
-func (f *Ffmpeg) InstallSpec() InstallSpec {
-	return InstallSpec{
+func (f *Ffmpeg) InstallSpec() toolchain.InstallSpec {
+	return toolchain.InstallSpec{
 		ToolID: ffmpegToolID,
-		Pin:    FfmpegPin(),
-		SelfCheck: func(ctx context.Context, ic *InstallContext, staging string) (string, error) {
+		Pin:    toolchain.FfmpegPin(),
+		SelfCheck: func(ctx context.Context, ic *toolchain.InstallContext, staging string) (string, error) {
 			name := "ffmpeg"
 			if runtime.GOOS == "windows" {
 				name = "ffmpeg.exe"

@@ -17,19 +17,34 @@ const seedStatus = (): TtsStatus => {
     engine: 'vieneu',
     model: 'VieNeu v3 Turbo',
     device: 'cpu',
+    quality: 'standard',
+    cloning: true,
+    qualities: ['fast', 'standard', 'high'],
     state: 'ready',
-    error: '',
+    error: null,
     rtf: 0.68,
     sampleRate: 48000,
     ffmpeg: FFMPEG,
     installedBytes: 1_536_000_000,
-    install: null,
+    mode: 'local',
+    step: '',
+    percent: null,
+    bytesDone: 0,
+    bytesTotal: 0,
+    etaSec: 0,
+    lastSeenAt: null,
+    machine: null,
+    version: '',
+    diskBytes: 1_536_000_000,
+    capabilities: { preview: true },
+    queueWaiting: 0,
+    installed: true,
   }
   if (ENV_TTS === 'missing' || FAIL_INSTALL) return { ...base, ready: false, state: 'missing', rtf: null, installedBytes: 0 }
   if (ENV_TTS === 'error') {
-    return { ...base, ready: false, state: 'error', error: 'Không khởi động được bộ đọc trên máy', rtf: null }
+    return { ...base, ready: false, state: 'error', error: { code: 'start_failed', message: 'Không khởi động được bộ đọc trên máy' }, rtf: null }
   }
-  if (ENV_TTS === 'installing') return { ...base, ready: false, state: 'installing', rtf: null, install: { percent: 18, message: 'Đang tải VieNeu v3 Turbo…' } }
+  if (ENV_TTS === 'installing') return { ...base, ready: false, state: 'provisioning', rtf: null, step: 'model', percent: 18, installed: false }
   return base
 }
 
@@ -46,13 +61,15 @@ export const VOICE_INSTALL_JOB = 'voice/install'
 export const ttsInstallProgress = (): TtsInstallProgress => ({
   state: installState,
   step: installState === 'running' ? 'download' : installState,
-  percent: installState === 'done' ? 100 : installState === 'idle' ? 0 : status.install?.percent ?? 0,
+  percent: installState === 'done' ? 100 : installState === 'idle' ? null : status.percent,
   message: installState === 'error'
     ? 'Cài bộ đọc thất bại'
     : installState === 'done'
       ? 'Đã cài xong bộ đọc'
-      : status.install?.message ?? '',
-  bytes: 0,
+      : status.step === 'model' ? 'Đang tải mẫu giọng…' : '',
+  bytesDone: 0,
+  bytesTotal: 0,
+  etaSec: 0,
   ...(installError ? { error: installError } : {}),
   updated: installUpdatedAt,
 })
@@ -65,11 +82,11 @@ const publish = () => {
 }
 
 const step = () => {
-  const percent = Math.min(100, (status.install?.percent ?? 0) + 9)
+  const percent = Math.min(100, (status.percent ?? 0) + 9)
   if (FAIL_INSTALL && percent >= 40) {
     installState = 'error'
     installError = 'Không tải được mô hình đọc — kiểm tra mạng rồi thử lại'
-    status = { ...status, state: 'missing', ready: false, install: { percent, message: 'Cài bộ đọc thất bại' } }
+    status = { ...status, state: 'missing', ready: false, percent, step: 'model' }
     clearInterval(timer ?? undefined)
     timer = null
     publish()
@@ -78,7 +95,7 @@ const step = () => {
   if (percent >= 100) {
     status = {
       ...status, ready: true, state: 'ready', rtf: 0.68, installedBytes: 1_536_000_000,
-      install: { percent: 100, message: 'Đã cài xong' },
+      percent: 100, step: 'model',
     }
     installState = 'done'
     installError = ''
@@ -89,7 +106,7 @@ const step = () => {
   }
   status = {
     ...status,
-    install: { percent, message: percent < 55 ? 'Đang tải mô hình đọc…' : percent < 90 ? 'Đang chuẩn bị giọng đọc…' : 'Đang kiểm tra lần đầu…' },
+    percent, step: 'model',
   }
   publish()
 }
@@ -97,7 +114,7 @@ const step = () => {
 /** POST /api/tts/install — cài vào ~/.ainovel/voice/vieneu (mock: tiến dần trong ~6 giây). */
 export const installTts = () => {
   if (installState === 'running' || status.ready) return
-  status = { ...status, state: 'installing', ready: false, error: '', install: { percent: 0, message: 'Đang tải VieNeu v3 Turbo…' } }
+  status = { ...status, state: 'provisioning', ready: false, error: null, percent: 0, step: 'model' }
   installState = 'running'
   installError = ''
   clearInterval(timer ?? undefined)

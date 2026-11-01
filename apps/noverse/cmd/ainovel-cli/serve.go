@@ -513,6 +513,7 @@ func runWorkerListener(addr string, pool *postgres.Pool, blobs blobstore.BlobSto
 		Queue: queue, Blobs: blobs, Registry: &web.PGAudioBlobs{Audio: postgres.NewAudio(pool)},
 		BlobDriver: blobstore.DriverName(blobs),
 		Keys:       keys,
+		States:     queue,
 	}
 	server := &http.Server{Handler: api.Handler()}
 	fmt.Printf("Worker API: http://%s/worker/...\n", listener.Addr().String())

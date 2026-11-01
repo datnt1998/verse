@@ -10,6 +10,8 @@ import (
 	"context"
 	"fmt"
 	"sync"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // ManagedToolID là id của một công cụ do app quản.
@@ -41,26 +43,26 @@ func IsManagedToolID(id string) bool {
 // managedEntry là một dòng của sổ: đường cài và key PathStore của binary
 // ngoài do người dùng chọn ("" = không có).
 type managedEntry struct {
-	spec       *InstallSpec // cài theo pipeline ghim; nil → lifecycle map
+	spec       *toolchain.InstallSpec // cài theo pipeline ghim; nil → lifecycle map
 	settingKey string
 }
 
-// Managed sổ công cụ trên một bộ Deps + Installer.
+// Managed sổ công cụ trên một bộ Deps + bộ cài dùng chung (platform/toolchain).
 type Managed struct {
 	d         Deps
-	installer *Installer
+	installer *toolchain.Installer
 	entries   map[ManagedToolID]managedEntry
 
 	mu         sync.Mutex
-	lifecycles map[ManagedToolID]func(ctx context.Context, lc *LifecycleContext) error
+	lifecycles map[ManagedToolID]func(ctx context.Context, lc *toolchain.LifecycleContext) error
 }
 
-// NewManaged dựng sổ công cụ; installer nil → một Installer trên d.BaseDir.
-func NewManaged(d Deps, installer *Installer, t *Tools) *Managed {
+// NewManaged dựng sổ công cụ; installer nil → một bộ cài trên d.BaseDir.
+func NewManaged(d Deps, installer *toolchain.Installer, t *Tools) *Managed {
 	if installer == nil {
-		installer = &Installer{Client: d.Client, BaseDir: d.BaseDir}
+		installer = &toolchain.Installer{Client: d.Client, BaseDir: d.BaseDir}
 	}
-	m := &Managed{d: d, installer: installer, lifecycles: map[ManagedToolID]func(ctx context.Context, lc *LifecycleContext) error{}}
+	m := &Managed{d: d, installer: installer, lifecycles: map[ManagedToolID]func(ctx context.Context, lc *toolchain.LifecycleContext) error{}}
 	m.entries = map[ManagedToolID]managedEntry{
 		ManagedFfmpeg:        {spec: new(t.Ffmpeg.InstallSpec()), settingKey: FfmpegSettingKey},
 		ManagedUv:            {spec: new(t.Uv.InstallSpec()), settingKey: UvSettingKey},
@@ -74,16 +76,16 @@ func NewManaged(d Deps, installer *Installer, t *Tools) *Managed {
 // RegisterLifecycle cắm thân cài cho một công cụ kiểu lifecycle
 // (transcription đăng ký từ gói của nó khi được thêm). runCtx là context của
 // lượt chia sẻ: hủy khi caller cuối rút đi, không phải ctx của một caller.
-func (m *Managed) RegisterLifecycle(id ManagedToolID, run func(ctx context.Context, lc *LifecycleContext) error) {
+func (m *Managed) RegisterLifecycle(id ManagedToolID, run func(ctx context.Context, lc *toolchain.LifecycleContext) error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.lifecycles[id] = run
 }
 
 // Install cài hoặc sửa một công cụ; lời gọi đồng thời gộp vào lượt đang chạy.
-func (m *Managed) Install(ctx context.Context, id ManagedToolID) (InstallResult, error) {
+func (m *Managed) Install(ctx context.Context, id ManagedToolID) (toolchain.InstallResult, error) {
 	if !IsManagedToolID(string(id)) {
-		return InstallResult{}, fmt.Errorf("công cụ không được quản lý: %q", id)
+		return toolchain.InstallResult{}, fmt.Errorf("công cụ không được quản lý: %q", id)
 	}
 	entry := m.entries[id]
 	if entry.spec != nil {
@@ -93,18 +95,18 @@ func (m *Managed) Install(ctx context.Context, id ManagedToolID) (InstallResult,
 	run := m.lifecycles[id]
 	m.mu.Unlock()
 	if run == nil {
-		return InstallResult{}, fmt.Errorf("công cụ %q chưa đăng ký lifecycle", id)
+		return toolchain.InstallResult{}, fmt.Errorf("công cụ %q chưa đăng ký lifecycle", id)
 	}
-	if err := m.installer.RunLifecycle(ctx, string(id), "managed", func(runCtx context.Context, lc *LifecycleContext) error {
+	if err := m.installer.RunLifecycle(ctx, string(id), "managed", func(runCtx context.Context, lc *toolchain.LifecycleContext) error {
 		if err := lc.Check(); err != nil {
 			return err
 		}
-		lc.State(PhaseInstalling, "", "")
+		lc.State(toolchain.PhaseInstalling, "", "")
 		return run(runCtx, lc)
 	}); err != nil {
-		return InstallResult{}, err
+		return toolchain.InstallResult{}, err
 	}
-	return InstallResult{ToolID: string(id), State: "installed"}, nil
+	return toolchain.InstallResult{ToolID: string(id), State: "installed"}, nil
 }
 
 // Cancel yêu cầu lượt cài đang chạy (mọi process) dừng; quan sát trong ~1s.
@@ -118,7 +120,7 @@ func (m *Managed) Cancel(id ManagedToolID) error {
 
 // State trả tiến độ trực tiếp cho thẻ poll trong lúc cài, hoặc trạng thái
 // cuối đã ghi; nil khi chưa từng cài.
-func (m *Managed) State(id ManagedToolID) (*InstallState, error) {
+func (m *Managed) State(id ManagedToolID) (*toolchain.InstallState, error) {
 	if !IsManagedToolID(string(id)) {
 		return nil, fmt.Errorf("công cụ không được quản lý: %q", id)
 	}

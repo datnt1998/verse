@@ -52,7 +52,13 @@ type Job struct {
 	Agent      string     `json:"agent,omitempty"`
 	StartedAt  time.Time  `json:"startedAt"`
 	FinishedAt *time.Time `json:"finishedAt,omitempty"`
+	// WaitingMachine đúng khi một việc tạo giọng đang xếp hàng vì chưa có máy
+	// đọc nào sẵn sàng (10-audio.md §8.3): UI ghi “đang chờ máy đọc”.
+	WaitingMachine bool `json:"waitingMachine,omitempty"`
 }
+
+// WaitingMachine đúng khi một việc tạo giọng đang xếp hàng vì chưa có máy
+// đọc nào sẵn sàng (10-audio.md §8.3): UI ghi “đang chờ máy đọc”.
 
 // JobErrorInfo 是 §AE 的错误结构：export 任务用它带 chapter/cause/retryable；
 // 其它任务保持 error 为字符串（FE 两种都认）。
@@ -661,6 +667,13 @@ func (g *Gateway) controlJob(w http.ResponseWriter, r *http.Request, user identi
 		case !machine:
 			_ = g.forwardJobControl(r.Context(), storyID, strings.Join(segs[2:len(segs)-1], "/"), op)
 		}
+		hub.dismiss(job)
+		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
+		return
+	}
+	// Hàng việc hỏng của máy đọc (prepErr §8.6): Huỷ = bỏ khỏi danh sách. Việc
+	// đã chết nên không cần gọi provider — hàng là việc duy nhất còn lại.
+	if known && machine && job.Status == JobFailed && op == "cancel" {
 		hub.dismiss(job)
 		writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 		return

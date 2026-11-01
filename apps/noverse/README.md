@@ -473,9 +473,9 @@ ainovel-cli serve --root DIR --addr 127.0.0.1:9000
 
 - **Góp ý theo đoạn**: chọn một đoạn khi đọc (điện thoại: nhấn giữ) để góp ý; khi bấm "Duyệt & viết tiếp" các góp ý được gửi cho Người viết rồi đánh dấu đã áp dụng.
 - **Chưa có cấu hình mô hình** vẫn đọc, duyệt, xuất bình thường; các thao tác cần AI báo "Chưa có cấu hình mô hình" kèm đường tới Cài đặt › Nhà cung cấp.
-- **Audio / sách nói** (`docs/design/v1/10-audio.md`, `15-audio-impl.md`): dựng kịch bản đọc theo vai, tạo giọng bằng [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) chạy cục bộ, nghe trong trình duyệt và xuất M4B (có mốc chương) / MP3 / WAV + phụ đề `.srt`, chuẩn hoá −16 LUFS; "Xuất khi xong" tự xuất khi chương cuối có giọng. Cần `ffmpeg` và [`uv`](https://docs.astral.sh/uv/). Bộ đọc dùng chung qua gói `internal/voice` (API tương thích OpenAI `/v1/audio/speech`), module khác gọi lại được; cũng trỏ được tới một máy chủ VieNeu/OpenAI-speech có sẵn ở Cài đặt › Giọng đọc.
+- **Audio / sách nói** (`docs/design/v1/10-audio.md`, `15-audio-impl.md`): dựng kịch bản đọc theo vai, tạo giọng bằng [VieNeu-TTS](https://github.com/pnnbao97/VieNeu-TTS) chạy cục bộ, nghe trong trình duyệt và xuất M4B (có mốc chương) / MP3 / WAV + phụ đề `.srt`, chuẩn hoá −16 LUFS; "Xuất khi xong" tự xuất khi chương cuối có giọng. Cần mạng và ≥4 GiB trống cho lần cài đầu; `uv`, Python 3.12, mã nguồn VieNeu và mô hình được tự tải vào `~/.ainovel/voice` (không cần `brew install uv`). `ffmpeg` vẫn cần cho việc xuất âm thanh. Bộ đọc dùng chung qua gói `internal/voice` (API tương thích OpenAI `/v1/audio/speech`), module khác gọi lại được; cũng trỏ được tới một máy chủ VieNeu/OpenAI-speech có sẵn ở Cài đặt › Giọng đọc.
   ```bash
-  ainovel-cli voice install        # tải VieNeu-TTS vào ~/.ainovel/voice/vieneu (uv sync, model HF)
+  ainovel-cli voice install        # tải uv ghim + Python 3.12 + mã nguồn ghim sha256 + model HF vào ~/.ainovel/voice
   ainovel-cli voice status         # đã cài chưa, đang chạy, tốc độ tạo
   ainovel-cli voice voices         # danh sách giọng có sẵn
   ainovel-cli voice say "Xin chào" --voice "Hải Đăng" -o thu.wav

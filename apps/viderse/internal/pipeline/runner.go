@@ -17,6 +17,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // LeaseTTL là hạn gia hạn job lease; heartbeat mỗi HeartbeatEvery.
@@ -424,7 +425,7 @@ func (r *Runner) settleAttemptError(ctx context.Context, jobID string, claimed *
 	}
 	var cerr *domain.CloneError
 	switch {
-	case errors.Is(err, context.Canceled) || errors.Is(err, tools.ErrCancelled):
+	case errors.Is(err, context.Canceled) || errors.Is(err, toolchain.ErrCancelled):
 		cerr = &domain.CloneError{Code: domain.CloneErrCancelled, Message: "bước bị huỷ"}
 	case errors.As(err, &cerr):
 		// đã là CloneError — giữ code/recovery/retryAt
