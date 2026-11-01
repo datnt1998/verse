@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" data-brand="viderse">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -12,8 +12,16 @@
     <meta name="description" content="Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <!-- Hai tệp chữ của lần vẽ đầu (400 = chữ thường, 600 = tiêu đề/nút): nạp
+         song song với CSS thay vì chờ CSS parse xong mới phát hiện @font-face.
+         Font luôn được tải bằng CORS nên phải có crossorigin. -->
+    <link rel="preload" href="/fonts/be-vietnam-pro-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/be-vietnam-pro-600.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/icons/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <!-- iOS cũ không có media display-mode:standalone; đặt cờ trước khi vẽ để --m-edge (kit.css)
+         cộng dải 40px đúng như app đã cài. Cùng mẫu với index.html của Noverse. -->
+    <script>if (navigator.standalone === true) document.documentElement.setAttribute('data-standalone', '')</script>
     <!-- Thứ tự layer phải có trong HTML tĩnh, trước mọi stylesheet do JS nạp.
          StyleX chèn `virtual:stylex.css` (mở đầu `@layer priority1; …`) bằng một <style>
          tạo lúc chạy, tức là stylesheet ĐẦU TIÊN của trang; nếu chỉ khai báo trong
@@ -29,8 +37,8 @@
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <script type="module" crossorigin src="/assets/index-D0P3TuAj.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DE76znCa.css">
+    <script type="module" crossorigin src="/assets/index-9ZyA7gxg.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BdbkCI52.css">
   </head>
   <body>
     <div id="root"></div>
