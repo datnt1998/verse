@@ -15,7 +15,7 @@ export const mobileQueueStyles = stylex.create({
   undoBanner: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-12'], backgroundColor: color['--color-surface-4'], fontSize: '13px', color: color['--color-fg-2'] },
   undoButton: { minHeight: '44px', marginBlock: `calc(-1 * ${s['--vv-s-10']})`, padding: `0 ${s['--vv-s-4']}`, border: 0, backgroundColor: 'transparent', color: color['--color-fg'], fontSize: '13px', fontWeight: 500 },
   sub: { fontSize: '12.5px', color: 'var(--vv-fg-note)', fontWeight: 400, lineHeight: 1.5 },
-  content: { flex: 1, minHeight: 0, overflowY: 'auto', scrollbarWidth: 'none', padding: `${s['--vv-s-4']} ${s['--vv-s-16']} ${s['--vv-s-28']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-18'] },
+  content: { flex: 1, minHeight: 0, overflowY: 'auto', scrollbarWidth: 'none', padding: `${s['--vv-s-4']} ${s['--vv-s-16']} max(${s['--vv-s-28']}, var(--m-safe-bottom))`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-18'] },
   group: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
   section: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: 0, fontSize: '12px', fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--vv-fg-note)' },
   count: { letterSpacing: 0, fontWeight: 500 },
