@@ -89,3 +89,39 @@ Sửa tối thiểu đề xuất: coi lỗi inventory ở boot là **không nghi
 
 ## 7. Dọn dẹp
 `serve.sh drop` (DB `p10_p10stab_*`), tắt `stub.py` (:18915), `hdiutil detach /Volumes/P10Proj` + xoá `/tmp/p10proj.dmg`, xoá `/tmp/p10-stab`, `/tmp/p10-data-P10Stab`, `/tmp/p10-build-P10Stab*`, `/tmp/p10-P10Stab-viderse`. Không đụng `verse-live`, `verse-port`, 8790.
+
+## 8. Lượt chạy 3 (P10Recovery): sửa gốc §5.2/§5.3, ma trận chạy được một phần
+
+### 8.1 Gốc §5.3 — vì sao `kill -9` giữa publish làm serve không mở lại được
+
+`media.Publish` ghi **đường dẫn cuối** (`publishLocal` → `Link`) **bên trong** transaction công bố, rồi mới `Bind` + commit. Kill giữa hai bước ⇒ tệp bền vững tồn tại mà không có hàng `blob_refs`/`clone_artifacts` nào; lần khởi động sau `ImportExisting → Inventory → RequireKnown` gặp tệp đó và **trả lỗi ⇒ `runServe` thoát**. Đây không phải "hỏng dữ liệu" mà là **byte chưa cam kết**.
+
+Sửa (commit `1ac9ad36`):
+- `internal/media/media.go`: byte ghi vào `<đường-dẫn>.part` (inventory đã bỏ qua `*.part`), **chỉ link vào đường dẫn cuối sau khi commit**; rollback thì xoá `.part`; thêm khoá advisory theo `path/` để hai lần công bố cùng đường dẫn không đè nhau.
+- `media.RepairLocalPublications` (gọi ở đầu `adoptRoots`): hoàn tất link cho tham chiếu đã commit mà thiếu byte (chỉ khi digest khớp), xoá `.part` không có tham chiếu, giữ lại `.part` lệch digest và báo `Skipped`.
+- `serverstorage.BootImport` (khởi động) ≠ `ImportExisting` (chuyển kho/CLI): boot **vẫn nhận root đã biết**, còn tệp không có adapter thì **không thoát** — `storageimport.UnknownPathsError` được trả về, `serve.go` ghi thông báo `needs_attention` ("Cần xử lý: N tệp trong kho dữ liệu chưa thuộc tham chiếu nào (…)" → `#/settings?section=storage`). `Migrate` vẫn fail closed.
+
+### 8.2 Gốc §5.2 — `createdAt` phi tất định
+
+`build/handler.go` không còn ghi `createdAt` (đồng hồ của job) vào `editor/media/media-<sha>/metadata.json`; media địa chỉ-theo-nội-dung nên cùng sha ⇒ cùng byte. Người đọc: `retention/media.go` đã chịu thiếu mốc (rơi về mtime thư mục), `editor/media_gc.go` giữ media qua `held` (snapshot job/template/manifest), UI media lấy `createdAt` từ `project.json` (theo từng job, không đổi). Giữ `pickArtifact` của `749bb8bc` vì dữ liệu **đã công bố trước bản sửa** vẫn có digest khác nhau cho cùng alias.
+
+Test hỏng-trước:
+- `TestPublishHidesLogicalPathUntilReferenceCommits` (media) — trước: `logical path exists before the reference committed`.
+- `TestBuildMediaMetadataIsContentAddressedAcrossJobs` (build) — trước: hai job khác đồng hồ ⇒ metadata khác nhau.
+- `TestBootImportReportsUnreferencedFileAndStillAdoptsRoots`, `TestBootImportCompletesInterruptedLocalPublication`, `TestRepairLocalPublications*` (serverstorage/media, PG).
+
+### 8.3 Ma trận (scenario → kỳ vọng → quan sát → kết luận → bằng chứng)
+
+| # | Kịch bản | Kỳ vọng | Quan sát | Kết luận | Bằng chứng |
+|---|---|---|---|---|---|
+| A | Khởi động lại sau `kill -9` giữa publish (trạng thái crash dựng đúng như §5.3) | app mở lại được, tệp lạ hiện "Cần xử lý" | bản **trước sửa**: `exit=1`, `Lỗi: chưa xác định được tham chiếu bền vững cho clone/9c2b5d30…/editor/media/media-6d228769/metadata.json; giữ nguyên kho cũ`, `/healthz=000`. Bản **sau sửa** trên **cùng DB + cùng HOME**: `/healthz=200`, thông báo `needs_attention` "Cần xử lý: 1 tệp trong kho dữ liệu chưa thuộc tham chiếu nào (clone/9c2b5d30…/metadata.json)" | **PASS** | log `/tmp/p10rec/old-restart.log` vs `new-restart.log`; `GET /api/activity` |
+| B | `kill -9` từng bước `download…export` (9 bước, job riêng) | chạy tiếp từ checkpoint, không mồ côi, không lặp phiếu/artifact | **CHƯA CHẠY** — bộ harness (stub provider + yt-dlp/uv giả + seed) của lượt 2 đã bị xoá và chưa dựng lại xong trong lượt này | **CHƯA CHẠY** | — |
+| C | Mất Postgres 30 s qua proxy riêng | "Cần xử lý"/offline rồi tự chạy tiếp | **CHƯA CHẠY** (phụ thuộc B) | **CHƯA CHẠY** | proxy đã viết: `/tmp/p10rec/pgproxy.py` (đã xoá khi dọn) |
+| D | Rút ổ thư mục dự án (disk image) | "Cần xử lý" ≤ 10 s, không hỏng video, cắm lại chạy tiếp | **CHƯA CHẠY** (phụ thuộc B). Ghi chú: watcher thư mục dự án là `storage.Service` với `DefaultWatchEvery = 2 s` (`internal/storage/service.go:19`, có test chặn >10 s) — mốc ≤10 s **không** phụ thuộc `serverstorage/health.go` (50/60 s chỉ là sức khoẻ kho blob) | **CHƯA CHẠY** | `internal/storage/watch_test.go:18` |
+| E | `score` > 5 phút trên job 1 cảnh | xác định kẹt hay chi phí thật | **CHƯA ĐO** (phụ thuộc B) | **CHƯA ĐO** | — |
+| F | Ngắt mạng khi vẽ ảnh | không vẽ lặp, chờ hạn mức | vẫn cần lượt vẽ trả phí thật | **BLOCKED** | — |
+
+### 8.4 Lệnh chạy nốt (cho người sau)
+
+Harness cần dựng lại: `stub.py` (OpenAI-compatible `chat/completions` trả `{title,description,tags}` cho metadata và `{cast,shots[{id,prompt}]}` cho `clone.story`; `images/generations` trả `b64_json` PNG thật), `yt-dlp` giả (`-J` + `BuildDownloadArgs` → chép MP4 6 s), venv transcription giả (`tools.Transcription` ready; "python" ghi report VAD/ASR theo `internal/pipeline/steps/transcript/speech.go`), `POST /api/tools/ffmpeg/install` + `POST /api/tools/chrome/install`, seed `owner_channels` (pace_per_day ≥ 10) + `rival_videos` bằng SQL, provider `openai_compat` qua `POST /api/ai/providers`.
+Serve: `/tmp/p10rec/serve.sh setup|resume|run|drop <Name> <port>` (giữ HOME khi resume; `P10_BIN` ghim binary; `P10_EXTRA_PATH` chèn fake vào PATH; `P10_DB_ADDR` đẩy traffic app qua proxy). Ma trận: mỗi bước một job riêng, đợi `clone_steps.status='running'` của **đúng job đó** rồi `kill -9`, `resume`, `POST /api/clone/{id} {action:"run"}`, đọc `RESULT step=… status=… receipts_before/after=… duplicate_artifacts=… children_after_kill/orphans_after_restart`.
