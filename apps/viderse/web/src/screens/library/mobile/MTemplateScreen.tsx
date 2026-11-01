@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Button, ConfirmSheet, Dialog, Icon, ListRow, MobilePage, MobilePageAction,
+  ActionSheet, Button, ConfirmSheet, Dialog, Icon, MobilePage, MobilePageAction,
   TextField, toast, useTabMode, type IconName, type MobileSheetAction,
 } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
@@ -143,13 +143,14 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
     const label = t.library.template.sections[section].label
     return (
       <MobilePage
-        title={label}
-        subtitle={styleName}
+        title={<span {...stylex.props(mtpl.headerTitle)} title={label}>{label}</span>}
+        subtitle={<span title={styleName}>{styleName}</span>}
         onBack={() => navigate(paths.template(detail.id))}
         actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={() => setMore(true)} />}
+        footStyle={mtpl.footer}
         footer={(
           <div className={stylex.props(mtpl.saveBar).className} role="status">
-            <Icon name="tick" size={16} />
+            <Icon name="tick-b" size={14} xstyle={mtpl.tick} />
             <span {...stylex.props(mtpl.saveText)}>{draft.saving ? copy.savingBar : copy.saveBar(clock(detail.savedAt ?? detail.updatedAt), stalePreview ? copy.previewStaleNote : null)}</span>
             <Button size="sm" onClick={() => navigate(paths.template(detail.id))}>{copy.previewAction}</Button>
           </div>
@@ -186,8 +187,8 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   // ── Danh sách ────────────────────────────────────────────────────────────
   return (
     <MobilePage
-      title={copy.editTemplate}
-      subtitle={styleName}
+      title={<span {...stylex.props(mtpl.headerTitle)} title={styleName}>{styleName}</span>}
+      subtitle={<span title={subtitle}>{subtitle}</span>}
       onBack={() => navigate(paths.library('templates'))}
       actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={() => setMore(true)} />}
     >
@@ -197,40 +198,51 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
             <span {...stylex.props(mtpl.frameArt)} aria-hidden="true" />
           </div>
           <div className={stylex.props(mtpl.body).className}>
-            <span {...stylex.props(mtpl.stateRow)}>
-              <span {...stylex.props(mtpl.dot, stalePreview && mtpl.dotWarn)} aria-hidden="true" />
-              {previewStateText} · {detail.preview?.builtAt ? t.library.template.preview.builtAt(clock(detail.preview.builtAt)) : t.library.template.preview.never}
-            </span>
-            <p {...stylex.props(mtpl.help)}>{t.library.template.preview.effect}</p>
-            <div className={stylex.props(mtpl.actions).className}>
-              <Button size="sm" variant="ghost" aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
-                {stalePreview ? t.library.template.preview.rebuildStale : t.library.template.preview.rebuild}
-              </Button>
+            <div {...stylex.props(mtpl.stateRow)}>
+              <span {...stylex.props(mtpl.previewState, stalePreview && mtpl.previewWarn)}>
+                <span {...stylex.props(mtpl.dot, stalePreview && mtpl.dotWarn)} aria-hidden="true" />
+                {previewStateText}
+              </span>
+              <span {...stylex.props(mtpl.builtAt)}>
+                {detail.preview.builtAt ? t.library.template.preview.builtAt(clock(detail.preview.builtAt)) : t.library.template.preview.never}
+              </span>
             </div>
+            <Button variant="ghost" xstyle={mtpl.rebuild} aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
+              <Icon name="refresh" size={16} />
+              {t.library.template.preview.rebuild}
+            </Button>
+            <p {...stylex.props(mtpl.help)}>{t.library.template.preview.effect}</p>
           </div>
         </div>
 
-        <h2 {...stylex.props(mtpl.sectionTitle)}>{copy.settingsTitle}</h2>
-        <div className={stylex.props(mtpl.navCard).className}>
-          <div className={stylex.props(mtpl.navRows).className}>
+        <section {...stylex.props(mtpl.settings)} aria-label={copy.settingsTitle}>
+          <h2 {...stylex.props(mtpl.sectionTitle)}>{copy.settingsTitle}</h2>
+          <div {...stylex.props(mtpl.navRows)}>
             {sectionMeta.map((item) => (
-              <ListRow key={item.id} icon={item.icon} title={item.label} hint={item.sub} chevron divider
-                onClick={() => navigate(paths.template(detail.id, item.id))} />
+              <button key={item.id} type="button" {...stylex.props(mtpl.navRow)}
+                onClick={() => navigate(paths.template(detail.id, item.id))}>
+                <span {...stylex.props(mtpl.navIcon)} aria-hidden="true"><Icon name={item.icon} size={18} /></span>
+                <span {...stylex.props(mtpl.navText)}>
+                  <span {...stylex.props(mtpl.navLabel)} title={item.label}>{item.label}</span>
+                  <span {...stylex.props(mtpl.navHint)} title={item.sub}>{item.sub}</span>
+                </span>
+                <Icon name="arrow-r" size={16} xstyle={mtpl.navChevron} />
+              </button>
             ))}
           </div>
-        </div>
+        </section>
 
         <div className={stylex.props(mtpl.ready).className}>
           <span {...stylex.props(mtpl.readyTitle)}>{copy.readiness.title}</span>
           <span {...stylex.props(mtpl.readyItem)}>
-            <Icon name="tick" size={14} xstyle={mtpl.tick} />
+            <Icon name="tick-b" size={15} xstyle={mtpl.tick} />
             {backdropSources ? `${backdropSources} · ${t.library.template.health.pool(copy.readiness.poolLinked(linkedIds.size, bd?.fixedVideoIds.length ?? 0), String(poolVideos)).split('· ').pop()}` : t.library.template.health.noBackdrop}
           </span>
-          <span {...stylex.props(mtpl.readyItem)}><Icon name="tick" size={14} xstyle={mtpl.tick} />{t.library.template.health.subtitles}</span>
-          <span {...stylex.props(mtpl.readyItem)}><Icon name="tick" size={14} xstyle={mtpl.tick} />{t.library.template.health.loudness}</span>
+          <span {...stylex.props(mtpl.readyItem)}><Icon name="tick-b" size={15} xstyle={mtpl.tick} />{t.library.template.health.subtitles}</span>
+          <span {...stylex.props(mtpl.readyItem)}><Icon name="tick-b" size={15} xstyle={mtpl.tick} />{t.library.template.health.loudness}</span>
         </div>
 
-        <p {...stylex.props(mtpl.help)}>{t.library.template.preview.whenTitle}: {t.library.template.preview.whenBody}</p>
+        <p {...stylex.props(mtpl.help)}>{t.library.template.preview.whenBody}</p>
       </div>
 
       <ActionSheet open={more} onClose={() => setMore(false)} title={styleName} actions={moreItems} />

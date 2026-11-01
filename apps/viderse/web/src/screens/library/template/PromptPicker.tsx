@@ -8,11 +8,12 @@ import { Icon } from '@noverse/ui'
 import { t } from '../../../i18n/library'
 import type { ImagePrompt } from '../../../api/library'
 
-export function PromptPicker({ prompts, value, onSelect, usedLabel }: {
+export function PromptPicker({ prompts, value, onSelect, usedLabel, mobileLayout = false }: {
   prompts: ImagePrompt[]
   value: string
   onSelect: (id: string) => void
   usedLabel: (count: number) => string
+  mobileLayout?: boolean
 }) {
   const copy = t.library.template
   const selected = prompts.find((prompt) => prompt.id === value)
@@ -26,19 +27,19 @@ export function PromptPicker({ prompts, value, onSelect, usedLabel }: {
             role="radio"
             aria-checked={prompt.id === value}
             aria-label={prompt.name}
-            className={`vt-pick ${stylex.props(sx.pick, ((prompt.id === value) === true) && sx.pickAriaCheckedTrue).className}`}
+            className={`vt-pick ${stylex.props(sx.pick, mobileLayout && sx.mobilePick, ((prompt.id === value) === true) && sx.pickAriaCheckedTrue).className}`}
             data-kind={prompt.kind}
             onClick={() => onSelect(prompt.id)}
           >
-            <span className={`vt-pick-art ${stylex.props(sx.pickArt, ((prompt.kind) === "cover") && sx.pickArtDataKindCover).className}`} data-kind={prompt.kind} aria-hidden="true">
-              <span className={`vt-pick-glyph ${stylex.props(sx.pickGlyph).className}`} />
-              {prompt.builtIn && <span className={`vt-pick-chip ${stylex.props(sx.pickChip).className}`}>{t.library.prompts.builtChip}</span>}
+            <span className={`vt-pick-art ${stylex.props(sx.pickArt, mobileLayout && sx.mobileArt, ((prompt.kind) === "cover") && sx.pickArtDataKindCover).className}`} data-kind={prompt.kind} aria-hidden="true">
+              <span className={`vt-pick-glyph ${stylex.props(sx.pickGlyph, mobileLayout && sx.mobileHidden).className}`} />
+              {prompt.builtIn && <span className={`vt-pick-chip ${stylex.props(sx.pickChip, mobileLayout && sx.mobileHidden).className}`}>{t.library.prompts.builtChip}</span>}
             </span>
-            <span className={`vt-pick-name ${stylex.props(sx.pickName).className}`}>{prompt.name}</span>
-            {prompt.id === value && <span className={`vt-pick-check ${stylex.props(sx.pickCheck).className}`} aria-hidden="true"><Icon name="tick" size={12} /></span>}
+            <span className={`vt-pick-name ${stylex.props(sx.pickName, mobileLayout && sx.mobileName).className}`} title={prompt.name}>{prompt.name}</span>
+            {prompt.id === value && <span className={`vt-pick-check ${stylex.props(sx.pickCheck, mobileLayout && sx.mobileCheck).className}`} aria-hidden="true"><Icon name="tick" size={12} /></span>}
           </button>
         ))}
-        <a className={`vt-pick vt-pick--new ${stylex.props(sx.pickPickNew).className}`} href="#/library?tab=prompts&prompt=new">
+        <a className={`vt-pick vt-pick--new ${stylex.props(sx.pickPickNew, mobileLayout && sx.mobileHidden).className}`} href="#/library?tab=prompts&prompt=new">
           <span className={`vt-pick-plus ${stylex.props(sx.pickPlus).className}`} aria-hidden="true"><Icon name="add" size={16} /></span>
           <span className={`vt-pick-name ${stylex.props(sx.pickName).className}`}>{copy.images.promptNew}</span>
           <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.images.promptNewHint}</span>
@@ -62,6 +63,42 @@ export function PromptPicker({ prompts, value, onSelect, usedLabel }: {
 }
 
 const sx = stylex.create({
+  mobilePick: {
+    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
+    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
+    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
+    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
+    rowGap: { default: null, '@media (max-width: 767px)': 0 },
+    overflow: { default: null, '@media (max-width: 767px)': 'hidden' },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 'var(--vv-r-12)' },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 'var(--vv-r-12)' },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 'var(--vv-r-12)' },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 'var(--vv-r-12)' },
+    borderTopWidth: { default: null, '@media (max-width: 767px)': 'calc(var(--vv-s-3) / 2)' },
+    borderRightWidth: { default: null, '@media (max-width: 767px)': 'calc(var(--vv-s-3) / 2)' },
+    borderBottomWidth: { default: null, '@media (max-width: 767px)': 'calc(var(--vv-s-3) / 2)' },
+    borderLeftWidth: { default: null, '@media (max-width: 767px)': 'calc(var(--vv-s-3) / 2)' },
+    backgroundColor: { default: null, '@media (max-width: 767px)': color['--color-surface-1'] },
+  },
+  mobileArt: {
+    height: { default: null, '@media (max-width: 767px)': 'auto' },
+    aspectRatio: { default: null, '@media (max-width: 767px)': '16 / 9' },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+  },
+  mobileHidden: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  mobileName: {
+    padding: { default: null, '@media (max-width: 767px)': 'var(--vv-s-7) var(--vv-s-9) var(--vv-s-8)' },
+    fontSize: { default: null, '@media (max-width: 767px)': 'var(--vv-s-13)' },
+  },
+  mobileCheck: {
+    width: { default: null, '@media (max-width: 767px)': 'var(--vv-s-20)' },
+    height: { default: null, '@media (max-width: 767px)': 'var(--vv-s-20)' },
+    top: { default: null, '@media (max-width: 767px)': 'var(--vv-s-6)' },
+    right: { default: null, '@media (max-width: 767px)': 'var(--vv-s-6)' },
+  },
   picks: { display: "grid", gridTemplateColumns: { default: libraryVars.templatePromptPickerPicksGridTemplateColumns, "@media (max-width: 1099px)": libraryVars.promptEditorSamplesGridTemplateColumns }, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   pick: { position: "relative", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-6)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: { default: line["--line-3"], ":hover": line["--line-4"] }, borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: { default: line["--line-3"], ":hover": line["--line-4"] }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: { default: line["--line-3"], ":hover": line["--line-4"] }, borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: { default: line["--line-3"], ":hover": line["--line-4"] }, borderTopLeftRadius: "var(--vv-r-10)", borderTopRightRadius: "var(--vv-r-10)", borderBottomRightRadius: "var(--vv-r-10)", borderBottomLeftRadius: "var(--vv-r-10)", backgroundColor: color["--color-surface-1"], backgroundImage: "none", color: color["--color-fg-2"], fontFamily: "inherit", fontSize: "var(--vv-s-12)", fontStyle: "inherit", fontWeight: "inherit", fontStretch: "inherit", fontVariant: "inherit", lineHeight: "inherit", textAlign: "left", cursor: "pointer", minWidth: 0, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, outlineWidth: { default: null, ":focus-visible": "var(--vv-s-2)" }, outlineStyle: { default: null, ":focus-visible": "solid" }, outlineColor: { default: null, ":focus-visible": color["--color-accent"] }, outlineOffset: { default: null, ":focus-visible": "var(--vv-s-1)" } },
   pickAriaCheckedTrue: { borderTopColor: color["--color-accent"], borderRightColor: color["--color-accent"], borderBottomColor: color["--color-accent"], borderLeftColor: color["--color-accent"], color: color["--color-fg"] },

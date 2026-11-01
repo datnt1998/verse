@@ -1,23 +1,36 @@
 // Nhịp khung MTemplate (artboard MTemplate.dc.html, đợt 38): danh sách mục,
 // thẻ xem thử, danh sách sẵn sàng, thanh "Đã lưu". Chỉ token.
 import * as stylex from '@stylexjs/stylex'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { color, kit, surface as kitSurface, line } from '@noverse/ui/tokens.stylex'
 import { corners, space as s } from '../../../styles/viderse.stylex'
+import { libraryVars } from '../libraryTokens.stylex'
 
 export const mtpl = stylex.create({
+  headerTitle: {
+    display: 'block',
+    fontSize: s['--vv-s-14'],
+    lineHeight: 1.3,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
   scroll: {
     display: 'flex',
     flexDirection: 'column',
-    gap: s['--vv-s-12'],
+    gap: s['--vv-s-18'],
+    paddingTop: s['--vv-s-4'],
     paddingInline: s['--vv-s-16'],
-    paddingBottom: s['--vv-s-24'],
+    paddingBottom: s['--vv-s-28'],
+    lineHeight: 1.55,
   },
   sectionTitle: {
     margin: 0,
-    color: color['--color-fg-4'],
-    fontSize: s['--vv-s-11'],
+    color: kit['--kit-fg-sub'],
+    paddingTop: s['--vv-s-4'],
+    paddingBottom: s['--vv-s-6'],
+    fontSize: s['--vv-s-12'],
     fontWeight: 600,
-    letterSpacing: '.04em',
+    letterSpacing: '.06em',
     textTransform: 'uppercase',
   },
 
@@ -30,7 +43,8 @@ export const mtpl = stylex.create({
     borderStyle: 'solid',
     borderColor: line['--line-2'],
     borderRadius: corners['--vv-r-16'],
-    backgroundColor: color['--color-card'],
+    backgroundImage: kitSurface['--card-bg'],
+    boxShadow: kitSurface['--card-shadow'],
   },
   frame: {
     position: 'relative',
@@ -48,31 +62,36 @@ export const mtpl = stylex.create({
     backgroundColor: 'var(--vv-thumb-veil)',
     opacity: .35,
   },
-  frameState: {
-    position: 'absolute',
-    left: s['--vv-s-10'],
-    bottom: s['--vv-s-10'],
-    paddingInline: s['--vv-s-8'],
-    paddingBlock: s['--vv-s-3'],
-    borderRadius: corners['--vv-r-pill'],
-    backgroundColor: 'var(--vv-thumb-veil)',
-    color: color['--color-fg'],
-    fontSize: s['--vv-s-11'],
-  },
   body: {
     display: 'flex',
     flexDirection: 'column',
     gap: s['--vv-s-8'],
-    padding: s['--vv-s-12'],
+    paddingTop: s['--vv-s-10'],
+    paddingInline: s['--vv-s-12'],
+    paddingBottom: s['--vv-s-12'],
   },
   stateRow: {
     display: 'flex',
     alignItems: 'center',
+    gap: s['--vv-s-8'],
+    color: kit['--kit-fg-sub'],
+    fontSize: libraryVars.bodySmallFontSize,
+  },
+  previewState: {
+    display: 'inline-flex',
+    alignItems: 'center',
     gap: s['--vv-s-6'],
-    color: color['--color-fg-3'],
-    fontSize: s['--vv-s-12'],
+    color: color['--color-ok'],
+    minWidth: 0,
+  },
+  previewWarn: { color: color['--color-warn'] },
+  builtAt: {
+    marginInlineStart: 'auto',
+    flexShrink: 0,
+    fontVariantNumeric: 'tabular-nums',
   },
   dot: {
+    flexShrink: 0,
     width: s['--vv-s-7'],
     height: s['--vv-s-7'],
     borderRadius: '50%',
@@ -83,61 +102,114 @@ export const mtpl = stylex.create({
   },
   help: {
     margin: 0,
-    color: color['--color-fg-3'],
-    fontSize: s['--vv-s-12'],
+    color: kit['--kit-fg-sub'],
+    fontSize: libraryVars.captionFontSize,
     lineHeight: 1.5,
   },
-  actions: {
-    display: 'flex',
-    gap: s['--vv-s-8'],
+  rebuild: {
+    width: '100%',
+    minHeight: s['--vv-s-44'],
+    borderRadius: corners['--vv-r-12'],
+    fontSize: s['--vv-s-14'],
   },
 
   // ── Danh sách mục ───────────────────────────────────────────────────────
-  navCard: {
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: line['--line-2'],
-    borderRadius: corners['--vv-r-16'],
-    backgroundColor: color['--color-card'],
-  },
-  navHead: {
-    paddingInline: s['--vv-s-12'],
-    paddingTop: s['--vv-s-10'],
-    paddingBottom: s['--vv-s-4'],
+  settings: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   navRows: {
     display: 'flex',
     flexDirection: 'column',
   },
+  navRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: s['--vv-s-12'],
+    width: '100%',
+    minHeight: s['--vv-s-56'],
+    paddingBlock: s['--vv-s-8'],
+    paddingInline: s['--vv-s-2'],
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderBottomColor: kit['--kit-wash-5'],
+    borderRadius: 0,
+    backgroundColor: 'transparent',
+    color: color['--color-fg'],
+    fontFamily: 'inherit',
+    lineHeight: 1.55,
+    textAlign: 'start',
+    cursor: 'pointer',
+    ':hover': { backgroundColor: 'var(--vv-hover-row)' },
+    ':focus-visible': {
+      outlineWidth: 2,
+      outlineStyle: 'solid',
+      outlineColor: line['--line-focus'],
+      outlineOffset: -2,
+    },
+  },
+  navIcon: {
+    flexShrink: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: s['--vv-s-36'],
+    height: s['--vv-s-36'],
+    borderRadius: corners['--vv-r-10'],
+    backgroundColor: color['--color-surface-4'],
+    color: color['--color-fg-2'],
+  },
+  navText: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  navLabel: {
+    fontSize: s['--vv-s-15'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  navHint: {
+    fontSize: libraryVars.bodySmallFontSize,
+    color: kit['--kit-fg-sub'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  navChevron: { flexShrink: 0, color: kit['--kit-fg-sub'] },
 
   // ── Danh sách sẵn sàng ──────────────────────────────────────────────────
   ready: {
     display: 'flex',
     flexDirection: 'column',
-    gap: s['--vv-s-8'],
-    padding: s['--vv-s-12'],
+    gap: s['--vv-s-6'],
+    paddingBlock: s['--vv-s-12'],
+    paddingInline: s['--vv-s-14'],
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: line['--line-2'],
-    borderRadius: corners['--vv-r-16'],
-    backgroundColor: color['--color-card'],
+    borderRadius: corners['--vv-r-14'],
+    backgroundImage: kitSurface['--card-bg'],
+    boxShadow: kitSurface['--card-shadow'],
   },
   readyTitle: {
     display: 'flex',
     alignItems: 'center',
     gap: s['--vv-s-8'],
-    color: color['--color-fg'],
-    fontSize: s['--vv-s-14'],
+    color: color['--color-ok'],
+    fontSize: libraryVars.controlFontSize,
     fontWeight: 600,
   },
   readyItem: {
     display: 'flex',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: s['--vv-s-8'],
-    color: color['--color-fg-3'],
-    fontSize: s['--vv-s-12'],
-    lineHeight: 1.45,
+    color: color['--color-fg-2'],
+    fontSize: s['--vv-s-13'],
+    lineHeight: 1.55,
   },
   tick: {
     flexShrink: 0,
@@ -145,12 +217,22 @@ export const mtpl = stylex.create({
   },
 
   // ── Thanh lưu ───────────────────────────────────────────────────────────
+  footer: {
+    paddingInline: 0,
+    paddingTop: 0,
+    backgroundImage: 'none',
+  },
   saveBar: {
     display: 'flex',
     alignItems: 'center',
     gap: s['--vv-s-8'],
+    paddingBlock: s['--vv-s-8'],
+    paddingInline: s['--vv-s-16'],
+    borderTopWidth: 1,
+    borderTopStyle: 'solid',
+    borderTopColor: line['--line-2'],
     color: color['--color-fg-3'],
-    fontSize: s['--vv-s-12'],
+    fontSize: libraryVars.bodySmallFontSize,
     lineHeight: 1.4,
   },
   saveText: {
@@ -160,8 +242,9 @@ export const mtpl = stylex.create({
 
   // ── Màn con ─────────────────────────────────────────────────────────────
   section: {
+    paddingTop: s['--vv-s-4'],
     paddingInline: s['--vv-s-16'],
-    paddingBottom: s['--vv-s-24'],
+    paddingBottom: s['--vv-s-28'],
   },
 
   // ── Hộp đổi tên ─────────────────────────────────────────────────────────

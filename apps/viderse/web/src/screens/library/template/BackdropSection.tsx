@@ -43,9 +43,10 @@ const deg = (v: number) => (v === 0 ? '0°' : `+${Math.round(v)}°`)
 
 /* ── Hàng nguồn đã gắn ── */
 
-function ChannelRow({ link, channel, onEdit, onRemove }: {
+function ChannelRow({ link, channel, onEdit, onRemove, mobileLayout }: {
   link: RecipeBackdrop['channels'][number]
   channel: BackdropChannel | undefined
+  mobileLayout?: boolean
   onEdit: () => void
   onRemove: () => void
 }) {
@@ -54,7 +55,7 @@ function ChannelRow({ link, channel, onEdit, onRemove }: {
   const pick = link.pinned.length > 0
   const kinds = link.kinds.length ? link.kinds.map(kindName).join(', ') : copy.howRandom
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, (Boolean((channel ? undefined : ''))) && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((channel ? undefined : ''))) && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
       {channel?.avatarUrl
         ? <img className={`vbd-av ${stylex.props(sx.av).className}`} src={channel.avatarUrl} alt="" width={30} height={30} style={{ borderRadius: '50%' }} />
         : <span className={`vbd-av ${stylex.props(sx.av).className}`} aria-hidden="true" style={{ width: 30, height: 30, background: channelTint(link.channelId) }}>{initials(name)}</span>}
@@ -74,15 +75,16 @@ function ChannelRow({ link, channel, onEdit, onRemove }: {
   )
 }
 
-function FixedVideoRow({ video, missing, onRemove }: {
+function FixedVideoRow({ video, missing, onRemove, mobileLayout }: {
   video: BackdropVideo | undefined
   missing: boolean
+  mobileLayout?: boolean
   onRemove: () => void
 }) {
   const copy = t.backdrop.template
   const name = video?.title ?? '—'
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, (Boolean((missing ? '' : undefined))) && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((missing ? '' : undefined))) && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
       {video?.state === 'ready' && video.file
         ? <span className={`vbd-av vbd-av--rect ${stylex.props(sx.avAvRect).className}`} style={{ width: 54, height: 30 }}>
             <video {...stylex.props(sx.vbdAvVideo)} src={backdropVideoFileHref(video.id)} muted playsInline preload="metadata" />
@@ -237,26 +239,26 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
   const manual = backdrop.clipCount !== null
 
   return (
-    <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-backdrop-title" aria-busy={saving || undefined}>
+    <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? t.library.template.sections.backdrop.label : undefined} aria-labelledby={hideTitle ? undefined : 'vt-backdrop-title'} aria-busy={saving || undefined}>
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
         {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-backdrop-title">{t.library.template.sections.backdrop.label}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
       {/* Lấy nền từ */}
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fromLabel}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="primary" onClick={() => setPicker({})}>{copy.attach}</Button>
         </div>
         <div className={`vbd-srcs ${stylex.props(sx.srcs).className}`} role="list" aria-label={copy.sourceListAria}>
           {backdrop.channels.map((link) => (
-            <ChannelRow key={link.channelId} link={link} channel={channelById.get(link.channelId)}
+            <ChannelRow key={link.channelId} link={link} channel={channelById.get(link.channelId)} mobileLayout={hideTitle}
               onEdit={() => setPicker({ edit: link.channelId })}
               onRemove={() => removeChannel(link.channelId)} />
           ))}
           {backdrop.fixedVideoIds.map((id) => (
-            <FixedVideoRow key={id} video={videoById.get(id)} missing={!videoById.get(id)}
+            <FixedVideoRow key={id} video={videoById.get(id)} missing={!videoById.get(id)} mobileLayout={hideTitle}
               onRemove={() => removeVideo(id)} />
           ))}
           {backdrop.channels.length === 0 && backdrop.fixedVideoIds.length === 0 && (
@@ -272,7 +274,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 
       {/* Nền của một video + Cách cắt clip */}
       {(backdrop.channels.length > 0 || backdrop.fixedVideoIds.length > 0) && (
-        <div className={`vt-card ${stylex.props(sx.card).className}`}>
+        <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.mixLabel} · {copy.mixExample}</span>
           <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []}
             onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />
@@ -315,7 +317,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       )}
 
       {/* Chỉnh nền */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard, hideTitle && sx.mobileAdvanced).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.adjustTitle}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" onClick={() => void onSave({ appearance: { ...APPEARANCE_DEFAULT } })}>{copy.adjustReset}</Button>
@@ -345,7 +347,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Lớp hiệu ứng */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.overlayTitle}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" disabled={overlayCandidates.length === 0}
@@ -417,6 +419,34 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 }
 
 const sx = stylex.create({
+  mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
+  mobileAdvanced: { order: { default: null, '@media (max-width: 767px)': 1 } },
+  mobileCard: {
+    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
+    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
+    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
+    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
+  },
+  mobileSource: {
+    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
+    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+  },
   srcrow: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", width: libraryVars.fullExtent, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-10)", borderTopRightRadius: "var(--vv-r-10)", borderBottomRightRadius: "var(--vv-r-10)", borderBottomLeftRadius: "var(--vv-r-10)", paddingTop: "var(--vv-s-8)", paddingRight: "var(--vv-s-10)", paddingBottom: "var(--vv-s-8)", paddingLeft: "var(--vv-s-10)", backgroundColor: color["--color-bg"], backgroundImage: "none" },
   srcrowDataMissing: { borderTopColor: color["--color-err"], borderRightColor: color["--color-err"], borderBottomColor: color["--color-err"], borderLeftColor: color["--color-err"] },
   av: { borderTopLeftRadius: "50%", borderTopRightRadius: "50%", borderBottomRightRadius: "50%", borderBottomLeftRadius: "50%", flexShrink: 0, overflowX: "hidden", overflowY: "hidden", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "var(--vv-s-12)", fontWeight: libraryVars.headingWeight, color: color["--color-fg"], objectFit: "cover" },
@@ -449,7 +479,13 @@ const sx = stylex.create({
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
   card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
   cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  label: { fontSize: "var(--vv-s-14)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
+  label: {
+    fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
+    fontWeight: { default: libraryVars.labelWeight, '@media (max-width: 767px)': 600 },
+    color: { default: color['--color-fg'], '@media (max-width: 767px)': 'var(--kit-fg-sub)' },
+    letterSpacing: { default: null, '@media (max-width: 767px)': '.06em' },
+    textTransform: { default: null, '@media (max-width: 767px)': 'uppercase' },
+  },
   vtCardHeadButton: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   srcs: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)" },
   srcempty: { textAlign: "center", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-10)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-10)", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", alignItems: "center" },

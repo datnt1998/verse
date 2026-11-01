@@ -217,7 +217,14 @@ describe('sửa template — điện thoại', () => {
     expect(page.querySelector('.m-footer')!.textContent).toContain(`Đã lưu · ${clock('2026-10-31T04:05:00Z')}`)
   })
 
-  it('màn con ẩn tiêu đề mục để không lặp với thanh trên', async () => {
+  it('thanh trên dùng tên và metadata thật; màn con không lặp tiêu đề mục', async () => {
+    const list = await render(<TemplateScreen route={{ name: 'template', templateId: 't1' }} />)
+    const header = list.querySelector('[role="banner"]')!
+    expect(header.querySelector('.m-title')?.textContent).toContain('Truyện kể đêm · Tách nền')
+    expect(header.textContent).toContain(`Ổn · dùng ở 1 kênh · đã lưu ${clock(detailBody.savedAt)}`)
+    expect(header.textContent).not.toContain('Sửa template')
+    expect(list.textContent).toContain('Chưa có bản xem thử')
+    expect(list.textContent).toContain('Chưa dựng lần nào')
     const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'images' }} />)
     expect(page.querySelector('.m-page')).toBeTruthy()
     expect(page.querySelector('h2')).toBeFalsy()

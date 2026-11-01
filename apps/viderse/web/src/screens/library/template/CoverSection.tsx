@@ -24,13 +24,13 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
   const ordered = [...prompts.filter((prompt) => prompt.builtIn), ...prompts.filter((prompt) => !prompt.builtIn)]
 
   return (
-    <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-cover-title">
+    <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? copy.title : undefined} aria-labelledby={hideTitle ? undefined : 'vt-cover-title'}>
       <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
         {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-cover-title">{copy.title}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.promptTitle}</span>
           <span className={`vt-links ${stylex.props(sx.links).className}`}>
@@ -38,6 +38,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
           </span>
         </div>
         <PromptPicker
+          mobileLayout={hideTitle}
           prompts={ordered}
           value={scenes.coverPromptId}
           onSelect={(id) => setScenes({ coverPromptId: id })}
@@ -46,7 +47,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
         {errors['scenes.coverPromptId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.coverPromptId']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.sourceLabel}</span>
         <div role="radiogroup" aria-label={copy.sourceLabel} className={`vt-sources ${stylex.props(sx.sources).className}`}>
           <RadioCard xstyle={[sx.vtSourcesRadioCard]} checked={scenes.coverSource === 'ai'} onChange={() => setScenes({ coverSource: 'ai' })}
@@ -56,7 +57,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
         </div>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.trialTitle}</span>
           <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialKeep}</span>
@@ -68,7 +69,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
         </div>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.defaultTitle}</span>
         <div className={`vt-cover-default ${stylex.props(sx.coverDefault).className}`}>
           <span className={`vt-cover-thumb ${stylex.props(sx.coverThumb).className}`} aria-hidden="true" />
@@ -86,13 +87,35 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
 }
 
 const sx = stylex.create({
+  mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
+  mobileCard: {
+    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
+    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
+    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
+    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
+  },
   sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
   secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
   vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
   card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
   cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  label: { fontSize: "var(--vv-s-14)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
+  label: {
+    fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
+    fontWeight: { default: libraryVars.labelWeight, '@media (max-width: 767px)': 600 },
+    color: { default: color['--color-fg'], '@media (max-width: 767px)': 'var(--kit-fg-sub)' },
+    letterSpacing: { default: null, '@media (max-width: 767px)': '.06em' },
+    textTransform: { default: null, '@media (max-width: 767px)': 'uppercase' },
+  },
   links: { display: "inline-flex", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)" },
   link: { color: color["--color-link"], fontSize: "var(--vv-s-12)", textDecoration: { default: "none", ":hover": "underline" }, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   fielderr: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-err"] },

@@ -4,7 +4,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // Mục Ảnh cảnh (Template.dc.html › lib=images): cách ghép ảnh, prompt ảnh cảnh,
 // số ảnh + giá, chuyển động, độ trong suốt, ảnh đối thủ. Mọi điều khiển lưu
 // ngay qua `onSave` với khối `scenes` đầy đủ (PATCH thay cả recipe).
-import { NumberStepper, RadioCard, Switch } from '@noverse/ui'
+import { Icon, NumberStepper, RadioCard, Switch } from '@noverse/ui'
 import { Segmented } from '../../../components/Segmented'
 import { t } from '../../../i18n/library'
 import { num, usd } from '../fmt'
@@ -40,31 +40,31 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
         : copy.priceKnown(num(scenes.images.count), usd(price.totalUSD))
 
   return (
-    <section className={`vt-sec ${stylex.props(sx.sec).className}`} aria-labelledby="vt-images-title">
-      <div className={`vt-sec-head ${stylex.props(sx.secHead).className}`}>
+    <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? copy.title : undefined} aria-labelledby={hideTitle ? undefined : 'vt-images-title'}>
+      <div className={`vt-sec-head ${stylex.props(sx.secHead, hideTitle && sx.mobileIntroHidden).className}`}>
         {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)} id="vt-images-title">{copy.title}</h2>}
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.placeTitle}</span>
         <div role="radiogroup" aria-label={copy.placeAria} className={`vt-places ${stylex.props(sx.places).className}`}>
           {(['full', 'cutout', 'close'] as const).map((place) => (
-            <RadioCard xstyle={[sx.vtPlacesRadioCard]}
+            <RadioCard xstyle={[hideTitle && sx.vtPlacesRadioCard, hideTitle && placement === place && sx.placeSelected]} labelStyle={hideTitle ? sx.placeCopy : undefined} dotStyle={hideTitle ? sx.placeDot : undefined} descriptionStyle={hideTitle ? sx.placeDescription : undefined}
               key={place}
               checked={placement === place}
               onChange={() => setScenes({ style: place === 'full' ? 'full' : 'cutout', framing: place === 'close' ? 'close' : '' })}
-              label={<span className={`vt-place ${stylex.props(sx.place).className}`} data-place={place}><span className={`vt-place-art ${stylex.props(sx.placeArt, ((place) === "cutout") && sx.placeArtDataPlaceCutout, ((place) === "close") && sx.placeArtDataPlaceClose).className}`} aria-hidden="true" /><span>{copy.places[place]}</span></span>}
+              label={<span className={`vt-place ${stylex.props(sx.place).className}`} data-place={place}><span className={`vt-place-art ${stylex.props(sx.placeArt, ((place) === "cutout") && sx.placeArtDataPlaceCutout, ((place) === "close") && sx.placeArtDataPlaceClose).className}`} aria-hidden="true">{placement === place && <span {...stylex.props(sx.placeTick)}><Icon name="tick" size={12} /></span>}</span><span {...stylex.props(sx.placeName)} title={copy.places[place]}>{copy.places[place]}</span></span>}
               description={copy.placeHelp[place]}
             />
           ))}
         </div>
-        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.placeHelpTail}</p>
+        <p className={`vt-hint ${stylex.props(sx.hint).className}`}><span {...stylex.props(sx.desktopHint)}>{copy.placeHelpTail}</span><span {...stylex.props(sx.mobileHint)}>{copy.placeHelp[placement]}</span></p>
         {errors['scenes.style'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.style']}</p>}
         {errors['scenes.framing'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.framing']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.promptTitle}</span>
           <span className={`vt-links ${stylex.props(sx.links).className}`}>
@@ -72,6 +72,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
           </span>
         </div>
         <PromptPicker
+          mobileLayout={hideTitle}
           prompts={prompts}
           value={scenes.scenePromptId}
           onSelect={(id) => setScenes({ scenePromptId: id })}
@@ -80,7 +81,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
         {errors['scenes.scenePromptId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.scenePromptId']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`} id="vt-count">{copy.countTitle}</span>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.countAria}
@@ -116,7 +117,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
         {errors['scenes.images.minutes'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.images.minutes']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, hideTitle && sx.mobileSliderInsets).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.motionTitle}</span>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.motionAria}
@@ -149,7 +150,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
         {errors['scenes.motion'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.motion']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, hideTitle && sx.mobileSliderInsets).className}`}>
         <SliderField
           label={copy.opacityTitle}
           value={scenes.sceneOpacity}
@@ -163,13 +164,13 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
         {errors['scenes.sceneOpacity'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.sceneOpacity']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-switch-row ${stylex.props(sx.switchRow).className}`}>
           <div>
             <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.referenceTitle}</span>
             <p className={`vt-help vt-help--small ${stylex.props(sx.help).className}`}>{copy.referenceHelp}</p>
           </div>
-          <Switch xstyle={[sx.vtPlacesRadioCard]} label={copy.referenceTitle} checked={scenes.referenceImages}
+          <Switch xstyle={[sx.touchTarget]} label={copy.referenceTitle} checked={scenes.referenceImages}
             onChange={(on) => setScenes({ referenceImages: on })} />
         </div>
       </div>
@@ -178,16 +179,68 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
 }
 
 const sx = stylex.create({
+  mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
+  mobileIntroHidden: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  mobileSliderInsets: {
+    paddingLeft: { default: null, '@media (max-width: 767px)': 'var(--vv-s-14)' },
+    paddingRight: { default: null, '@media (max-width: 767px)': 'var(--vv-s-14)' },
+  },
+  mobileCard: {
+    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
+    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
+    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
+    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
+    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
+    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
+  },
+  placeCopy: { width: { default: null, '@media (max-width: 767px)': '100%' } },
+  placeDot: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  placeDescription: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  placeSelected: { borderColor: { default: null, '@media (max-width: 767px)': color['--color-accent'] } },
+  placeName: {
+    padding: { default: null, '@media (max-width: 767px)': 'var(--vv-s-7) var(--vv-s-9) var(--vv-s-8)' },
+    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+  },
+  placeTick: {
+    display: { default: 'none', '@media (max-width: 767px)': 'flex' },
+    position: 'absolute', top: 'var(--vv-s-6)', right: 'var(--vv-s-6)',
+    width: 'var(--vv-s-20)', height: 'var(--vv-s-20)', borderRadius: '50%',
+    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: color['--color-accent'], color: color['--color-accent-fg'],
+  },
+  desktopHint: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  mobileHint: { display: { default: 'none', '@media (max-width: 767px)': 'inline' } },
   sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
   secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
   vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
   card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
-  label: { fontSize: "var(--vv-s-14)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
-  places: { display: "grid", gridTemplateColumns: { default: libraryVars.templateImagesSectionPlacesGridTemplateColumns, "@media (max-width: 767px)": libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns3 }, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
-  vtPlacesRadioCard: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  place: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: libraryVars.bodySmallFontSize },
-  placeArt: { display: "block", height: libraryVars.templateCoverSectionCoverThumbWidth, borderTopLeftRadius: "var(--vv-r-6)", borderTopRightRadius: "var(--vv-r-6)", borderBottomRightRadius: "var(--vv-r-6)", borderBottomLeftRadius: "var(--vv-r-6)", backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
+  label: {
+    fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
+    fontWeight: { default: libraryVars.labelWeight, '@media (max-width: 767px)': 600 },
+    color: { default: color['--color-fg'], '@media (max-width: 767px)': 'var(--kit-fg-sub)' },
+    letterSpacing: { default: null, '@media (max-width: 767px)': '.06em' },
+    textTransform: { default: null, '@media (max-width: 767px)': 'uppercase' },
+  },
+  places: { display: "grid", gridTemplateColumns: libraryVars.templateImagesSectionPlacesGridTemplateColumns, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
+  vtPlacesRadioCard: {
+    minWidth: 0,
+    padding: { default: null, '@media (max-width: 767px)': 0 },
+    overflow: { default: null, '@media (max-width: 767px)': 'hidden' },
+    borderRadius: { default: null, '@media (max-width: 767px)': 'var(--vv-r-12)' },
+    borderWidth: { default: null, '@media (max-width: 767px)': 'calc(var(--vv-s-3) / 2)' },
+    backgroundColor: { default: null, '@media (max-width: 767px)': color['--color-surface-1'] },
+    minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" },
+  },
+  place: { display: "flex", flexDirection: "column", gap: { default: 'var(--vv-s-6)', '@media (max-width: 767px)': 0 }, fontSize: libraryVars.bodySmallFontSize },
+  placeArt: { position: 'relative', display: "block", height: { default: libraryVars.templateCoverSectionCoverThumbWidth, '@media (max-width: 767px)': 'auto' }, aspectRatio: { default: null, '@media (max-width: 767px)': '4 / 5' }, borderRadius: { default: 'var(--vv-r-6)', '@media (max-width: 767px)': 0 }, backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
   placeArtDataPlaceCutout: { backgroundColor: "transparent", backgroundImage: libraryVars.templateImagesSectionPlaceArtDataPlaceCutoutBackgroundImage },
   placeArtDataPlaceClose: { backgroundColor: "transparent", backgroundImage: libraryVars.templateImagesSectionPlaceArtDataPlaceCloseBackgroundImage },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
