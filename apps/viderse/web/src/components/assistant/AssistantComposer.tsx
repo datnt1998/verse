@@ -93,7 +93,7 @@ export function AssistantComposer({ scope, label, placeholder, recipient, hints,
     </div>}
     <form aria-label={label} onSubmit={submit} {...stylex.props(styles.form)}>
       <Icon name="msg" size={18} xstyle={styles.formIcon} />
-      <label htmlFor={inputId} className="sr-only">{copy.composer.workbench}</label>
+      <label htmlFor={inputId} className="sr-only">{label}</label>
       <input ref={input} id={inputId} type="text" autoComplete="off" placeholder={placeholder} value={draft} aria-invalid={tooLong || undefined}
         onChange={(event) => setDraft(event.target.value)} {...stylex.props(styles.input)} />
       {recipient && <span {...stylex.props(styles.consult)}><Orb of={recipient} size={12} />{copy.composer.consult(assistantName(recipient))}</span>}
