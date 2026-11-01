@@ -1,7 +1,7 @@
 ---
 phase: 8
 title: "Nhắn trợ lý, Đề xuất, Quy tắc đã học, Mức tự chủ, Hiệu quả sau đăng"
-status: pending
+status: in-progress
 priority: P2
 effort: 40h
 dependsOn: [7]
