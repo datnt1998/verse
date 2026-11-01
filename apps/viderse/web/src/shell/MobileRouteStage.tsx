@@ -59,9 +59,11 @@ const PaneView = memo(function PaneView({ pane, renderScreen }: { pane: PaneSnap
   // Video mới là trang con có thanh riêng, không thanh tab dưới → không cần đệm đáy.
   const noPad = pane.route.name === 'new'
   return <div {...stylex.props(stageStyles.scroll, noPad && stageStyles.noPad)}>
-    <PaneStaleContext.Provider value={PANE_STALE_MS}>
-      <Suspense fallback={null}>{renderScreen(pane.route)}</Suspense>
-    </PaneStaleContext.Provider>
+    <div {...stylex.props(stageStyles.paneBody)}>
+      <PaneStaleContext.Provider value={PANE_STALE_MS}>
+        <Suspense fallback={null}>{renderScreen(pane.route)}</Suspense>
+      </PaneStaleContext.Provider>
+    </div>
   </div>
 })
 
@@ -113,7 +115,9 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
       />
     </div>
     {pushed && <div {...stylex.props(stageStyles.push, SELF_SCROLL[route.name] && stageStyles.fullBleed)}>
-      <Suspense fallback={null}>{renderScreen(route)}</Suspense>
+      <div {...stylex.props(stageStyles.paneBody, SELF_SCROLL[route.name] && stageStyles.paneBodyFill)}>
+        <Suspense fallback={null}>{renderScreen(route)}</Suspense>
+      </div>
     </div>}
   </div>
 }
