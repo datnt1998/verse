@@ -8,6 +8,7 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { exploreStyles } from './explore.stylex'
+import { shellChrome } from '../../shell/shell.stylex'
 
 export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onMake, busy = false }: {
   count: number
@@ -47,8 +48,8 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
             {channels[0] ? tt.bulkMakeFor(count, channels[0].name) : tt.bulkMake(count)}
             <Icon name="arrow-d" size={13} aria-hidden />
           </ActionButton>
-          {open && <div role="menu" aria-label={tt.makeChannel} className="vv-switcher__menu vx-bulk__menu">
-            {channels.map((channel) => <button type="button" role="menuitem" className={`vv-switcher__item ${stylex.props(exploreStyles.touchTarget).className}`} key={channel.id}
+          {open && <div role="menu" aria-label={tt.makeChannel} className={`vx-bulk__menu ${stylex.props(shellChrome.menu).className}`}>
+            {channels.map((channel) => <button type="button" role="menuitem" {...stylex.props(shellChrome.item, exploreStyles.touchTarget)} key={channel.id}
               onClick={() => { setOpen(false); onMake(channel.id) }}>
               {tt.bulkMakeFor(count, channel.name)}
             </button>)}

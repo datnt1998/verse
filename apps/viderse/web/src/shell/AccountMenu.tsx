@@ -22,6 +22,22 @@ const sx = stylex.create({
   actionText: { lineHeight: 1.3 },
   logout: { color: 'var(--vv-warn-ink)' },
   trigger: { color: color['--color-fg'], backgroundColor: color['--color-surface-6'], padding: 'var(--vv-s-1) var(--vv-s-6)', borderColor: line['--line-3'] },
+  /* Vòng chữ cái đầu của tài khoản ở cuối AppHeader (trước ở .vv-avatar). */
+  avatar: {
+    width: 'var(--vv-hit)',
+    height: 'var(--vv-hit)',
+    borderRadius: '50%',
+    flex: '0 0 auto',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 12,
+    fontWeight: 600,
+    borderWidth: 'var(--vv-s-1)',
+    borderStyle: 'solid',
+    borderColor: line['--line-1'],
+    textDecoration: 'none',
+  },
   triggerOpen: { borderColor: 'var(--vv-check-ring)', boxShadow: '0 0 0 3px var(--line-3)' },
   muted: { color: color['--color-fg-3'] },
 })
@@ -50,7 +66,7 @@ export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
   const memberHref = membersUrl(apps)
   const name = user?.name || user?.username || fallbackName || t.account.title
   return <div ref={ref} {...stylex.props(sx.anchor)}>
-    <button ref={trigger} type="button" className={`vv-avatar ${stylex.props(sx.trigger, open && sx.triggerOpen).className}`} title={t.account.menuLabel} aria-label={t.account.menuLabel}
+    <button ref={trigger} type="button" className={`vv-avatar ${stylex.props(sx.trigger, open && sx.triggerOpen, sx.avatar).className}`} title={t.account.menuLabel} aria-label={t.account.menuLabel}
       aria-haspopup={mobile ? undefined : 'menu'} aria-expanded={mobile ? undefined : open}
       onClick={() => mobile ? navigate(paths.account()) : setOpen(!open)}>{name.trim()[0]?.toLocaleUpperCase('vi')}</button>
     {open && user && <div role="menu" aria-label={t.account.title} {...stylex.props(sx.menu)} onKeyDown={(event) => {

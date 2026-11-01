@@ -10,6 +10,7 @@ import { authStyles as sx } from './auth.stylex'
 import { Avatar } from '@noverse/ui'
 import type { User } from '../../api/types'
 import { useMediaQuery } from '../../lib/useMediaQuery'
+import { box } from '../../styles/shared.stylex'
 
 /** Khung trang auth: brand trên cùng · nội dung căn giữa · chip máy chủ. Không có nav.
  *  Chip theo lần kiểm phiên gần nhất: chỉ báo "đang hoạt động" khi máy chủ đã trả lời. */
@@ -62,7 +63,7 @@ export function HintLine({ icon, children, style }: { icon: string; children: Re
 
 export function AuthUser({ user }: { user: User }) {
   const mobile = useMediaQuery('(max-width: 767px)')
-  return <div className={`card ${stylex.props(sx.row).className}`}>
+  return <div {...stylex.props(sx.row, box.card)}>
     <Avatar name={user.name || user.username} size={mobile ? 40 : 38} style={{ fontSize: mobile ? 15 : 14, border: '1px solid var(--kit-wash-10)' }} />
     <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
       <span style={{ fontSize: mobile ? 15 : 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }} title={user.name}>{user.name || user.username}</span>

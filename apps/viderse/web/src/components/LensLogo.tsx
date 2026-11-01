@@ -1,7 +1,20 @@
 // Logo ống kính (12-brand / artboard Brand): cầu đỏ + 4 cung màu trợ lý,
 // mỗi cung ~19% vòng lệch nhau 25%. Bản nhỏ (≤30px) cung dày hơn, không vòng kính.
-// Xoay 9s khi `spinning` (có job chạy); prefers-reduced-motion tắt qua base.css.
+// Xoay 9s khi `spinning` (có job chạy); prefers-reduced-motion tắt ở styles/viderse.css.
 import { useId } from 'react'
+import * as stylex from '@stylexjs/stylex'
+
+const lensRot = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
+const sx = stylex.create({
+  spinning: {
+    transformBox: 'fill-box',
+    transformOrigin: 'center',
+    animationName: lensRot,
+    animationDuration: '9s',
+    animationTimingFunction: 'linear',
+    animationIterationCount: 'infinite',
+  },
+})
 
 const ARCS: { color: string; offset: number }[] = [
   { color: '#7FA3FF', offset: 0 },    // Trinh sát
@@ -47,7 +60,7 @@ export function LensLogo({ size = 26, spinning = false, light = false, halo = fa
         )}
       </defs>
       {!small && !hero && <circle cx="32" cy="32" r="21.5" fill={light ? `url(#lnGlass-${id})` : '#141417'} stroke={light ? '#D9D9E0' : `url(#lnGlass-${id})`} strokeWidth=".8" />}
-      <g className={spinning ? 'vv-lens-run' : undefined}>
+      <g {...stylex.props(spinning && sx.spinning)}>
         <g transform="rotate(-80 32 32)" fill="none" strokeWidth={stroke} strokeLinecap="round">
           {arcColors.map((color, i) => (
             <circle key={color} cx="32" cy="32" r={arcR} pathLength={100} stroke={color} strokeDasharray={dash} strokeDashoffset={ARCS[i].offset} />

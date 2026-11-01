@@ -52,11 +52,11 @@ export function VideosFresh({ channel, rival }: {
               <div {...stylex.props(channelStyles.leadRow)}>
                 <span aria-hidden="true" {...stylex.props(channelStyles.leadThumb)}>
                   {video.thumbnailUrl ? <img src={video.thumbnailUrl} alt="" loading="lazy" {...stylex.props(channelStyles.leadThumbImg)} /> : null}
-                  <span className="num mono" {...stylex.props(channelStyles.leadDur)}>{fmtDuration(video.durationSec)}</span>
+                  <span className={`num mono ${stylex.props(channelStyles.leadDur).className}`}>{fmtDuration(video.durationSec)}</span>
                 </span>
                 <span {...stylex.props(channelStyles.leadTexts)}>
                   <span {...stylex.props(channelStyles.leadTitle)} title={video.title}>{video.title}</span>
-                  <span className="num" {...stylex.props(channelStyles.leadMeta)}>{meta}</span>
+                  <span className={`num ${stylex.props(channelStyles.leadMeta).className}`}>{meta}</span>
                 </span>
               </div>
               <ActionButton className={stylex.props(channelStyles.touchTarget, channelStyles.leadMake).className}
@@ -89,7 +89,7 @@ export function VideosFresh({ channel, rival }: {
               {channel.autoPick ? tt.videos.autoOn : tt.videos.autoOff}
             </span>
           </div>
-          <span className="num" {...stylex.props(channelStyles.leadSplit)}>
+          <span className={`num ${stylex.props(channelStyles.leadSplit).className}`}>
             <span>{hasSources ? (seen ? tt.videos.paceSeen(channel.pacePerDay, seen) : tt.videos.pace(channel.pacePerDay)) : tt.videos.noRivals}</span>
             <button type="button" {...stylex.props(channelStyles.leadLink)} onClick={() => navigate(paths.channel(channel.id, 'sources'))}>{tt.videos.paceLink}</button>
           </span>

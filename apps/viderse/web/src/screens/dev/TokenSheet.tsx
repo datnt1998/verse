@@ -2,7 +2,10 @@
 // trị ngay cạnh ô màu để đối chiếu với artboard Kit › Màu / Bo góc / Chữ.
 // Nhóm màu của brand (nhấn, trạng thái, trợ lý) đổi theo brand nên phải đọc
 // lúc chạy — không chép lại hex vào tài liệu.
+// Kiểu khung ô: devkit.stylex.ts (trước ở .vv-dev__grid/.vv-dev__cell).
 import { useEffect, useState } from 'react'
+import * as stylex from '@stylexjs/stylex'
+import { devkit } from './devkit.stylex'
 
 type Swatch = { label: string; token: string }
 type Group = { title: string; note?: string; kind: 'color' | 'radius' | 'size' | 'font'; swatches: Swatch[] }
@@ -118,10 +121,10 @@ const ALL = GROUPS.flatMap((group) => group.swatches.map((swatch) => swatch.toke
 export function TokenSheet() {
   const values = useTokenValues(ALL)
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       {GROUPS.map((group) => (
-        <div key={group.title} className="vv-dev__cell vv-dev__cell--wide">
-          <span className="vv-dev__cell-head">
+        <div key={group.title} {...stylex.props(devkit.cell, devkit.cellWide)}>
+          <span {...stylex.props(devkit.cellHead)}>
             {group.title}
             {group.note && <span style={{ textTransform: 'none', letterSpacing: 0, fontWeight: 400, marginLeft: 'var(--vv-s-8)' }}>· {group.note}</span>}
           </span>
@@ -137,8 +140,8 @@ export function TokenSheet() {
           </div>
         </div>
       ))}
-      <div className="vv-dev__cell vv-dev__cell--wide">
-        <span className="vv-dev__cell-head">Thang chữ (giá trị đo từ mẫu đang hiển thị)</span>
+      <div {...stylex.props(devkit.cell, devkit.cellWide)}>
+        <span {...stylex.props(devkit.cellHead)}>Thang chữ (giá trị đo từ mẫu đang hiển thị)</span>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
           {[
             { size: 30, label: 'Tiêu đề lớn', weight: 700 },

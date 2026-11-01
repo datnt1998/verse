@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { box } from '../../../styles/shared.stylex'
 import { styles as settingsStyles, toolsListMarker, toolsAdvMarker, toolsIboxMarker, isWarnMarker } from '../settings.stylex'
 // Cài đặt › Công cụ trên máy — Settings.dc.html (tools=ok|update|failed|
 // installing) và MSettings.dc.html (screen=tools). Thẻ tổng “Máy sẵn sàng …”
@@ -286,8 +287,8 @@ export default function ToolsSection() {
   if (res.status === 'error' && !res.data) {
     return (
       <section className={`vv-tools__card ${stylex.props(settingsStyles.card, settingsStyles.toolsCard).className}`}>
-        <span className="vv-errline">
-          <span className="vv-grow">{(res.error as Error | undefined)?.message ?? ''}</span>
+        <span {...stylex.props(box.errline)}>
+          <span {...stylex.props(box.grow)}>{(res.error as Error | undefined)?.message ?? ''}</span>
           <ActionButton variant="outline" size={mobile ? 'lg' : 'compact'} onClick={() => void res.refresh()}>{t.common.retry}</ActionButton>
         </span>
       </section>

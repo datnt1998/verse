@@ -3,6 +3,7 @@
 // chỉ các bước còn tích. Esc/Huỷ đóng thẻ không chạy gì; Sửa câu trả câu vào ô.
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../styles/shared.stylex'
 import { Icon } from '@noverse/ui'
 import type { AssistantScope } from '../../api/assistant'
 import { useOnline } from '../../data/status'
@@ -93,7 +94,7 @@ export function AssistantComposer({ scope, label, placeholder, recipient, hints,
     </div>}
     <form aria-label={label} onSubmit={submit} {...stylex.props(styles.form)}>
       <Icon name="msg" size={18} xstyle={styles.formIcon} />
-      <label htmlFor={inputId} className="sr-only">{label}</label>
+      <label htmlFor={inputId} {...stylex.props(text.srOnly)}>{label}</label>
       <input ref={input} id={inputId} type="text" autoComplete="off" placeholder={placeholder} value={draft} aria-invalid={tooLong || undefined}
         onChange={(event) => setDraft(event.target.value)} {...stylex.props(styles.input)} />
       {recipient && <span {...stylex.props(styles.consult)}><Orb of={recipient} size={12} />{copy.composer.consult(assistantName(recipient))}</span>}

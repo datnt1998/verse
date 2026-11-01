@@ -93,6 +93,15 @@ describe('luật thiết kế trong src/', () => {
     }
     expect(offenders).toEqual([])
   })
+  it('className đứng trước {...stylex.props()} sẽ bị ghi đè — ghép vào chuỗi className', () => {
+    const offenders: string[] = []
+    for (const file of files) {
+      if (!file.endsWith('.tsx')) continue
+      const text = readFileSync(file, 'utf8')
+      if (/className=(?:"[^"]*"|\{[^{}]*\})\s+\{\.\.\.stylex\.props\(/.test(text)) offenders.push(file.replace(`${SRC}/`, ''))
+    }
+    expect(offenders).toEqual([])
+  })
   it('mọi var(--token) không có giá trị dự phòng đều được khai báo', () => {
     // Token chưa khai báo làm cả khai báo CSS bị bỏ qua mà không báo lỗi
     // (hover mất nền, min-height mất tác dụng). Token khai báo ở CSS của app,
@@ -137,10 +146,11 @@ describe('luật thiết kế trong src/', () => {
   it('prefers-reduced-motion: mọi hoạ hình đứng yên (cung logo, orb, chấm đỏ)', () => {
     // V0 acceptance: reduced-motion thì vòng cung của logo đầu trang, AgentOrb
     // (kit ai-breathe) và chấm đỏ nhấp đều phải đứng yên. Hoạ hình sống trong
-    // CSS nên guard đọc stylesheet — base.css phải có luật phủ toàn cục.
-    const base = readFileSync(join(SRC, 'styles/base.css'), 'utf8')
+    // CSS nên guard đọc stylesheet toàn cục duy nhất — viderse.css phải có luật
+    // phủ toàn cục.
+    const base = readFileSync(join(SRC, 'styles/viderse.css'), 'utf8')
     const block = base.match(/@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\}\s*\}/)
-    expect(block, 'base.css thiếu luật @media (prefers-reduced-motion: reduce) phủ toàn cục').toBeTruthy()
+    expect(block, 'styles/viderse.css thiếu luật @media (prefers-reduced-motion: reduce) phủ toàn cục').toBeTruthy()
     expect(block![0]).toContain('animation')
     expect(block![0]).toContain('!important')
     // Các hoạ hình riêng của app phải được phủ bởi luật đó (không né bằng
@@ -154,7 +164,7 @@ describe('luật thiết kế trong src/', () => {
 describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () => {
   const settingsSource = readFileSync(join(SRC, 'screens/settings/settings.stylex.ts'), 'utf8')
   const settingsMetrics = readFileSync(join(SRC, 'screens/settings/settingsVars.stylex.ts'), 'utf8')
-  const componentsCss = readFileSync(join(SRC, 'styles/components.css'), 'utf8')
+  const headerSource = readFileSync(join(SRC, 'shell/AppHeader.tsx'), 'utf8')
 
   it('nhãn nhóm sidebar 11.5px — artboard Settings .grp, không phải 11px', () => {
     expect(settingsSource.match(/^  setGrp:.*$/m)?.[0]).toContain('fontSize: settingsVars.setGrpfontSize')
@@ -162,9 +172,9 @@ describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () =
   })
 
   it('header không co khi cột dưới thiếu chỗ (artboard top cao cố định)', () => {
-    const header = componentsCss.match(/\.vv-header\s*\{[^}]*\}/)
+    const header = headerSource.match(/^  header: \{[\s\S]*?\n  \},$/m)
     expect(header).toBeTruthy()
-    expect(header![0]).toContain('flex-shrink: 0')
+    expect(header![0]).toContain('flexShrink: 0')
   })
 
   it('mục Công cụ › câu lỗi hàng cam (.vv-tools__hint.is-err)', () => {

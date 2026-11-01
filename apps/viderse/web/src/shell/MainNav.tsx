@@ -1,18 +1,63 @@
 // MainNav — 5 mục giữa thanh đầu: Bàn dựng · Duyệt (badge vàng đếm chờ duyệt) ·
 // Kênh · Khám phá · Video mới. Cuộn ngang khi chỗ nhìn hẹp (04-components §32;
 // (04-components › AppHeader): scrollbar ẩn, mục co lại icon + chữ.
-// Kiểu: styles/components.css .vv-nav*.
+// Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-nav*).
 import type { MouseEvent } from 'react'
-import { navSection, paths, type Route } from '../router'
+import { navSection, paths, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { Icon, type IconName } from '@noverse/ui'
 import * as stylex from '@stylexjs/stylex'
+import { color, line, radius } from '@noverse/ui/tokens.stylex'
 const sx = stylex.create({
-  item: { paddingLeft: 'var(--vv-s-10)', paddingRight: 'var(--vv-s-12)', gap: 'var(--vv-s-8)' },
+  nav: {
+    display: 'flex',
+    gap: 'var(--vv-s-2)',
+    flex: '0 0 auto',
+    padding: 'var(--vv-s-3)',
+    borderRadius: 'var(--vv-r-10)',
+    backgroundColor: color['--color-surface-1'],
+    borderWidth: 'var(--vv-s-1)',
+    borderStyle: 'solid',
+    borderColor: line['--line-1'],
+    overflowX: 'auto',
+    scrollbarWidth: 'none',
+    whiteSpace: 'nowrap',
+  },
+  item: {
+    position: 'relative',
+    display: 'inline-flex',
+    alignItems: 'center',
+    height: 30,
+    borderRadius: 'var(--vv-r-7)',
+    fontSize: 13,
+    textDecoration: 'none',
+    color: { default: color['--color-fg-3'], ':hover': color['--color-fg'] },
+    paddingLeft: 'var(--vv-s-10)',
+    paddingRight: 'var(--vv-s-12)',
+    gap: 'var(--vv-s-8)',
+  },
+  itemActive: {
+    fontWeight: 500,
+    color: { default: color['--color-fg'], ':hover': color['--color-fg'] },
+    backgroundColor: color['--color-surface-6'],
+  },
   review: { paddingRight: 'var(--vv-s-10)' },
+  badge: {
+    minWidth: 18,
+    height: 18,
+    paddingInline: 'var(--vv-s-5)',
+    borderRadius: radius['--radius-button'],
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 11,
+    fontWeight: 600,
+    backgroundColor: color['--color-warn'],
+    color: 'var(--vv-badge-ink)',
+  },
 })
 
-const ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; path: string; badge?: 'review' }[] = [
+const ITEMS: { key: NavKey; label: string; icon: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', path: paths.workbench() },
   { key: 'review', label: t.nav.review, icon: 'gallery', path: paths.review(), badge: 'review' },
   { key: 'channels', label: t.nav.channels, icon: 'channel', path: paths.channelNew() },
@@ -30,7 +75,7 @@ export function MainNav({ route, reviewCount, channelHref, onNavigate }: {
 }) {
   const section = navSection(route) // null ở trang ngoài nav → không mục nào sáng
   return (
-    <nav role="navigation" aria-label={t.nav.main} className="vv-nav">
+    <nav role="navigation" aria-label={t.nav.main} {...stylex.props(sx.nav)}>
       {ITEMS.map((item) => {
         const active = item.key === section
         const path = item.key === 'channels' ? channelHref ?? item.path : item.path
@@ -40,12 +85,12 @@ export function MainNav({ route, reviewCount, channelHref, onNavigate }: {
             href={`#${path}`}
             aria-current={active ? 'page' : undefined}
             onClick={onNavigate ? (e) => onNavigate(path, e) : undefined}
-            className={`${active ? 'vv-nav__item vv-nav__item--active' : 'vv-nav__item'} ${stylex.props(sx.item, item.badge === 'review' && sx.review).className}`}
+            {...stylex.props(sx.item, item.badge === 'review' && sx.review, active && sx.itemActive)}
           >
             <Icon name={item.icon} size={16} />
             {item.label}
             {item.badge === 'review' && reviewCount > 0 && (
-              <span className="vv-nav__badge num" aria-label={`${reviewCount}`}>
+              <span className={`vv-nav__badge num ${stylex.props(sx.badge).className}`} aria-label={`${reviewCount}`}>
                 {reviewCount > 99 ? '99+' : reviewCount}
               </span>
             )}

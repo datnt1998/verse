@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { text } from '../../../styles/shared.stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
 // Hộp "Gắn kênh hoặc video" của mục Nền & hiệu ứng (Template.dc.html › picker):
@@ -314,7 +315,7 @@ export function BackdropPicker({ template, onSave, onClose, initial }: {
       <div className={`vbd-dlg-body ${stylex.props(sx.dlgBody).className}`}>
         <div className={`vbd-dlg-rail ${stylex.props(sx.dlgRail).className}`}>
           <form className={`vbd-dlg-add ${stylex.props(sx.dlgAdd).className}`} onSubmit={(event) => void addByLink(event)}>
-            <label htmlFor="vbd-pick-link" className="sr-only">{copy.linkLabel}</label>
+            <label htmlFor="vbd-pick-link" {...stylex.props(text.srOnly)}>{copy.linkLabel}</label>
             <TextField inputStyle={[sx.vbdDlgAddTextField]} id="vbd-pick-link" value={link} placeholder={copy.linkPlaceholder}
               onChange={(value) => setLink(value)} disabled={addBusy} />
             <Button xstyle={[sx.vbdModesRadioCard]} size="sm" type="submit" pending={addBusy} disabled={!link.trim()}>{copy.add}</Button>

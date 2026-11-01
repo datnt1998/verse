@@ -3,7 +3,7 @@
 // Thanh dưới 64px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
 // mục đang mở nền pill đỏ nhạt, mục thường icon xám. Nội dung pad-bottom 110px.
 import { useState, type ReactNode } from 'react'
-import { navigate, paths, pickChannelRoute, routePath, navSection, type Route } from '../router'
+import { navigate, paths, pickChannelRoute, routePath, navSection, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
 import { Icon, type IconName } from '@noverse/ui'
@@ -15,7 +15,7 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
 
-const TAB_ITEMS: { key: ReturnType<typeof navSection>; label: string; icon: IconName; iconActive: IconName; path: string; badge?: 'review' }[] = [
+const TAB_ITEMS: { key: NavKey; label: string; icon: IconName; iconActive: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', iconActive: 'workbench-b', path: paths.workbench() },
   { key: 'review', label: t.nav.review, icon: 'gallery', iconActive: 'gallery-b', path: paths.review(), badge: 'review' },
   { key: 'new', label: '', icon: 'add', iconActive: 'add', path: paths.new() }, // nút + tròn giữa

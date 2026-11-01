@@ -12,6 +12,7 @@ import { t } from '../../i18n/vi'
 import { ChangePasswordForm } from '../auth/ChangePasswordScreen'
 import { Devices } from './Devices'
 import { navigate, paths } from '../../router'
+import { box } from '../../styles/shared.stylex'
 const MOBILE = '@media (max-width: 767px)'
 const sx = stylex.create({
   card: { borderRadius: { default: 14, [MOBILE]: 16 }, padding: { default: 16, [MOBILE]: 14 }, display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-12)' },
@@ -45,12 +46,12 @@ export function AccountScreen() {
     setBusy(true); setError('')
     try { await signOut() } catch { setError(t.account.logoutFailed) } finally { setBusy(false) }
   }
-  const card = stylex.props(sx.card)
+  const card = stylex.props(sx.card, box.card)
   return <div {...stylex.props(layout.page)}>
     {mobile && <header {...stylex.props(layout.header)}><Button variant="quiet" aria-label={t.account.back} onClick={() => navigate(paths.workbench())} {...stylex.props(layout.back)} style={{ padding: 0, gap: 0, fontWeight: 400, color: 'var(--color-fg-2)' }}><Icon name="arrow-r" size={18} style={{ transform: 'rotate(180deg)' }} /></Button><h1 {...stylex.props(layout.mobileTitle)}>{t.account.title}</h1></header>}
     <main {...stylex.props(layout.main)}><div {...stylex.props(layout.column)}>
     {!mobile && <div><h1 {...stylex.props(sx.title)}>{t.account.title}</h1><p {...stylex.props(sx.body)}>{t.account.subtitle}</p></div>}
-    <section className={`card ${stylex.props(sx.card, sx.user).className}`} aria-label={t.account.title}>
+    <section {...stylex.props(sx.card, sx.user, box.card)} aria-label={t.account.title}>
       <Avatar name={name} size={mobile ? 48 : 52} style={{ fontSize: mobile ? 18 : 19, border: '1px solid var(--kit-wash-10)' }} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)' }}><b title={name} style={{ fontSize: 16, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</b><span {...stylex.props(accountStyles.tag)}>{t.role[user.role]}</span></span>
         <span style={{ fontSize: mobile ? 12.5 : 13, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
@@ -60,14 +61,14 @@ export function AccountScreen() {
     {(mobile ? apps.some((app) => app.id !== 'viderse') : apps.length > 0) && (mobile ? <>
       <span {...stylex.props(layout.mobileLabel)}>{t.account.apps}</span>
       <div {...stylex.props(layout.mobileCard)}><AppLinks apps={apps} /></div>
-    </> : <section className={`card ${card.className}`} aria-label={t.account.yourApps}>
+    </> : <section {...card} aria-label={t.account.yourApps}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}><h2 {...stylex.props(sx.heading)}>{t.account.yourApps}</h2>
       <span {...stylex.props(accountStyles.fieldHelp)}>{user.role === 'admin' ? t.account.adminApps : apps.some((app) => app.id !== 'viderse') ? t.account.memberApps : t.account.noOtherApp}</span></div>
       <div style={{ margin: '0 calc(-1 * var(--vv-s-10))' }}><AppLinks apps={apps} /></div>
     </section>)}
     {user.role === 'admin' && memberHref && (mobile ?
       <a href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(layout.row, layout.mobileCard)}><Icon name="crown" size={19} style={{ color: 'var(--color-warn)' }} /><span {...stylex.props(layout.rowText)}>{t.account.manageMembers}<span {...stylex.props(layout.secondary)}>{t.account.membersHintMobile}</span></span><ExternalIcon /></a>
-      : <section className={`card ${card.className}`} aria-label={t.account.members} style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-14)' }}>
+      : <section {...card} aria-label={t.account.members} style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-14)' }}>
         <Icon name="crown" size={20} style={{ color: 'var(--color-warn)' }} />
         <span style={{ flex: '1 1 340px', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}><h2 {...stylex.props(sx.heading)}>{t.account.members}</h2><span {...stylex.props(accountStyles.help)}>{t.account.membersBody}</span></span>
         <a href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(accountStyles.button)}>{t.account.manageMembers}<ExternalIcon /></a>
@@ -86,8 +87,8 @@ export function AccountScreen() {
         </div>
       </Sheet>
     </> : <>
-      <section className={`card ${card.className}`} aria-label={t.account.passwordTitle}><div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}><h2 {...stylex.props(sx.heading)}>{t.account.passwordTitle}</h2><span {...stylex.props(accountStyles.fieldHelp)}>{t.auth.passwordForm.reauthNote}</span></div><ChangePasswordForm horizontal /></section>
-      <section className={`card ${card.className}`} aria-label={t.account.devices}><Devices /></section>
+      <section {...card} aria-label={t.account.passwordTitle}><div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}><h2 {...stylex.props(sx.heading)}>{t.account.passwordTitle}</h2><span {...stylex.props(accountStyles.fieldHelp)}>{t.auth.passwordForm.reauthNote}</span></div><ChangePasswordForm horizontal /></section>
+      <section {...card} aria-label={t.account.devices}><Devices /></section>
     </>}
     {error && <FieldError>{error}</FieldError>}
     <section className={mobile ? undefined : `card ${card.className}`} aria-label={t.account.logout} style={mobile ? { display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' } : { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 'var(--vv-s-14)' }}>

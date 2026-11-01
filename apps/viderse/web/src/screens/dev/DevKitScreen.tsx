@@ -20,11 +20,12 @@ import {
 import { AppHeader } from '../../shell/AppHeader'
 import { JobsPill } from '../../shell/JobsPill'
 import { ChannelSwitcher } from '../../shell/ChannelSwitcher'
-import { OfflineStrip } from '../../shell/OfflineStrip'
+import { OfflineStrip, offlineStyles } from '../../shell/OfflineStrip'
 import { MobileTabBar, mobileShellStyles } from '../../shell/MobileShell'
 import { useOnline } from '../../data/status'
 import type { Status } from '../../api/status'
 import { TokenSheet } from './TokenSheet'
+import { devkit } from './devkit.stylex'
 
 const KIT_SECTIONS = ['foundation', 'confirm', 'menus', 'select', 'inputs', 'overlays', 'video', 'agent'] as const
 const MKIT_SECTIONS = ['bars', 'controls', 'lists', 'sheets', 'agent'] as const
@@ -45,9 +46,9 @@ export function DevKitScreen({ route }: { route: Extract<Route, { name: 'devkit'
   const mkitSections = MKIT_SECTIONS.map((id) => ({ id, label: t.devkit.groups[id] }))
 
   return (
-    <div className="vv-dev">
-      <div className="vv-dev__head">
-        <h1 className="vv-dev__title">{t.devkit.title}</h1>
+    <div {...stylex.props(devkit.page)}>
+      <div {...stylex.props(devkit.head)}>
+        <h1 {...stylex.props(devkit.title)}>{t.devkit.title}</h1>
         <Segmented label="Bảng" options={boardItems.map((b) => ({ id: b.id, label: b.label }))} value={board} onChange={(id) => go({ board: id as DevKitBoard, section: undefined })} />
         <Segmented
           label="Nhóm"
@@ -64,12 +65,12 @@ export function DevKitScreen({ route }: { route: Extract<Route, { name: 'devkit'
 }
 
 const Cell = ({ title, wide, children }: { title: string; wide?: boolean; children: ReactNode }) => (
-  <div className={wide ? 'vv-dev__cell vv-dev__cell--wide' : 'vv-dev__cell'}>
-    <span className="vv-dev__cell-head">{title}</span>
+  <div {...stylex.props(devkit.cell, wide && devkit.cellWide)}>
+    <span {...stylex.props(devkit.cellHead)}>{title}</span>
     {children}
   </div>
 )
-const Row = ({ children }: { children: ReactNode }) => <div className="vv-dev__row">{children}</div>
+const Row = ({ children }: { children: ReactNode }) => <div {...stylex.props(devkit.row)}>{children}</div>
 
 // Trạng thái đầu trang mẫu cho các khung demo.
 const DEMO_STATUS: Status = {
@@ -97,7 +98,7 @@ function KitBoard({ section }: { section: KitSection }) {
 
 function MKitBoard({ section }: { section: MKitSection }) {
   return (
-    <div className="vv-dev__mobile">
+    <div {...stylex.props(devkit.mobile)}>
       {section === 'bars' && <MBars />}
       {section === 'controls' && <MControls />}
       {section === 'lists' && <MLists />}
@@ -114,7 +115,7 @@ function KitFoundation() {
   return (
     <>
       <TokenSheet />
-      <div className="vv-dev__grid" style={{ marginTop: 'var(--vv-s-14)' }}>
+      <div {...stylex.props(devkit.grid)} style={{ marginTop: 'var(--vv-s-14)' }}>
       <Cell title="Logo ống kính">
         <Row>
           <LensLogo size={26} />
@@ -230,7 +231,7 @@ function KitConfirm() {
   ]
 
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       {cases.map((c) => (
         <Cell key={c.id} title={c.label}>
           <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{c.sub}</span>
@@ -260,7 +261,7 @@ function KitMenus() {
     { id: 'delete', label: 'Xoá video', danger: true, onSelect: () => toast.ok('Xoá video') },
   ]
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       <Cell title="ActionMenu">
         <Row>
           <ActionMenu label="Thao tác" items={[...items]} trigger={<ActionButton variant="outline" icon={<Icon name="more" />}>Thao tác</ActionButton>} />
@@ -289,7 +290,7 @@ function KitSelects() {
   const [sel, setSel] = useState('balanced')
   const [combo, setCombo] = useState('all')
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       <Cell title="KitSelect">
         <KitSelect
           label="Template ảnh cảnh"
@@ -326,7 +327,7 @@ function KitInputs() {
   const [on, setOn] = useState(true)
   const online = useOnline()
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       <Cell title="ActionButton (kit Button)">
         <Row>
           <ActionButton variant="primary">Làm video</ActionButton>
@@ -376,7 +377,7 @@ function KitInputs() {
 
 function KitOverlays() {
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       <Cell title="Trống & 404">
         <EmptyState variant="frame" icon="flag" title="Đã duyệt hết" hint="Video mới cần duyệt sẽ hiện ở đây." />
         <EmptyState icon="search-normal-1" title="Không tìm thấy video này" hint="Video có thể đã bị xoá." />
@@ -399,14 +400,14 @@ function DemoOfflineStrip() {
   const [details, setDetails] = useState(false)
   return (
     <div style={{ border: '1px solid var(--line-1)', borderRadius: 'var(--radius-row)', overflow: 'hidden' }}>
-      <div role="alert" className="vv-offline" style={{ borderBottom: 'none' }}>
-        <span aria-hidden="true" className="vv-offline__dot" />
+      <div role="alert" {...stylex.props(offlineStyles.strip)} style={{ borderBottom: 'none' }}>
+        <span aria-hidden="true" {...stylex.props(offlineStyles.dot)} />
         <strong style={{ fontWeight: 600 }}>{t.offline.title}</strong>
         <span style={{ color: 'var(--color-fg-4)', fontSize: 12.5 }}>· {t.offline.retryingIn(4)}</span>
         <span style={{ flex: 1 }} />
-        <button type="button" aria-expanded={details} onClick={() => setDetails((v) => !v)} className="vv-offline__btn">{t.common.details}</button>
-        <button type="button" className="vv-offline__btn">{t.common.retryNow}</button>
-        {details && <div className="vv-offline__more">{t.offline.body}</div>}
+        <button type="button" aria-expanded={details} onClick={() => setDetails((v) => !v)} {...stylex.props(offlineStyles.btn)}>{t.common.details}</button>
+        <button type="button" {...stylex.props(offlineStyles.btn)}>{t.common.retryNow}</button>
+        {details && <div {...stylex.props(offlineStyles.more)}>{t.offline.body}</div>}
       </div>
     </div>
   )
@@ -416,7 +417,7 @@ function DemoOfflineStrip() {
 
 function KitVideo() {
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       <Cell title="JobsPill">
         <Row>
           <JobsPill status={DEMO_STATUS} online />
@@ -448,7 +449,7 @@ function KitVideo() {
 
 function KitAgents() {
   return (
-    <div className="vv-dev__grid">
+    <div {...stylex.props(devkit.grid)}>
       {ASSISTANTS.map((a) => (
         <Cell key={a} title={assistantName(a)}>
           <Row>
@@ -482,7 +483,7 @@ function MBars() {
   return (
     <>
       <MHeader title={t.nav.workbench} />
-      <div className="vv-dev__mobile-body" style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
         <Cell title="MobileAppBar">
           <ChannelSwitcher channels={DEMO_CHANNELS} sub="Hôm nay 4/7" onPick={() => {}} />
         </Cell>
@@ -508,7 +509,7 @@ function MControls() {
   return (
     <>
       <MHeader title={t.devkit.groups.controls} />
-      <div className="vv-dev__mobile-body" style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-14)' }}>
         <Cell title="Nút">
           <ActionButton variant="primary" style={{ width: '100%' }}>Làm video</ActionButton>
           <Row>
@@ -533,7 +534,7 @@ function MLists() {
   return (
     <>
       <MHeader title={t.devkit.groups.lists} />
-      <div className="vv-dev__mobile-body" style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
         {(['working', 'review', 'queued', 'ready'] as const).map((s, i) => (
           <div key={s} style={{ display: 'flex', gap: 'var(--vv-s-10)', padding: 'var(--vv-s-12)', borderRadius: 'var(--radius-tile)', border: '1px solid var(--line-1)', background: 'var(--color-surface-1)' }}>
             <div style={{ width: 96, borderRadius: 'var(--radius-control)', aspectRatio: '16/9', background: 'linear-gradient(140deg, rgba(230,0,46,.22), rgba(127,163,255,.16))', flex: '0 0 auto' }} />
@@ -553,7 +554,7 @@ function MSheets() {
   return (
     <>
       <MHeader title={t.devkit.groups.sheets} />
-      <div className="vv-dev__mobile-body" style={{ padding: 'var(--vv-s-14)' }}>
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)' }}>
         <ActionButton variant="outline" onClick={() => setOpen(true)}>Mở sheet</ActionButton>
         <Sheet open={open} onClose={() => setOpen(false)} title="Thao tác video">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-10)' }}>
@@ -571,7 +572,7 @@ function MAgents() {
   return (
     <>
       <MHeader title={t.devkit.groups.agent} />
-      <div className="vv-dev__mobile-body" style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-10)' }}>
+      <div {...stylex.props(devkit.mobileBody)} style={{ padding: 'var(--vv-s-14)', display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-10)' }}>
         {ASSISTANTS.map((a) => (
           <Banner key={a} tone="agent" agent={ASSISTANT_ORB_MAP[a]} title={assistantName(a)} action={{ label: 'Xem', onClick: () => {} }}>
             {t.agents[a].role}

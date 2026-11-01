@@ -13,6 +13,7 @@ import { AuthError, AuthLabel, AuthPassword, AuthShell } from './parts'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
+import { box } from '../../styles/shared.stylex'
 
 const USERNAME_RE = /^[a-z0-9._-]{2,32}$/
 const MIN_PASSWORD = 8
@@ -179,7 +180,7 @@ export function SetupScreen() {
           <Banner tone="success" title={`${t.setup.recoveryTitle} ${name}.${mobile ? '' : ` ${t.setup.signedIn}`}`} icon="tick-b" iconSize={16} titleStyle={sx.recoveryTitle} />
           {recovery !== null ? <div style={{ display: mobile ? 'contents' : 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)' }}>
             {!mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
-            <div className="card" style={{ borderRadius: mobile ? 'var(--vv-r-14)' : 'var(--vv-r-12)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', gap: mobile ? 10 : 12 }}>
+            <div {...stylex.props(box.card)} style={{ borderRadius: mobile ? 'var(--vv-r-14)' : 'var(--vv-r-12)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', gap: mobile ? 10 : 12 }}>
               {mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
               <span className="mono num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', userSelect: 'all', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
               <Button size={mobile ? 'md' : 'sm'} style={{ height: mobile ? 44 : 30, ...(mobile ? { fontSize: 14, borderRadius: 'var(--vv-r-12)', paddingInline: 16 } : {}) }} onClick={() => {

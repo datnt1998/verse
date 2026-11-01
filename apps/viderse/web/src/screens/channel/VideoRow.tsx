@@ -85,7 +85,7 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
       <a role="cell" href={workbenchHref(job)} {...stylex.props(sx.video)}>
         <span aria-hidden="true" {...stylex.props(sx.thumb)}>
           {job.source.thumbnailUrl ? <img src={job.source.thumbnailUrl} alt="" loading="lazy" {...stylex.props(sx.thumbImg)} /> : null}
-          {job.source.durationSec != null && <span className="num mono" {...stylex.props(sx.duration)}>{fmtDuration(job.source.durationSec)}</span>}
+          {job.source.durationSec != null && <span className={`num mono ${stylex.props(sx.duration).className}`}>{fmtDuration(job.source.durationSec)}</span>}
         </span>
         <span {...stylex.props(sx.titles)}>
           <span title={title} {...stylex.props(sx.title)}>{title}</span>

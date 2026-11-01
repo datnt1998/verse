@@ -39,7 +39,7 @@ export function VideoBulkBar({ count, counts, busy, onRetry, onApprove, onBundle
   ]
   return (
     <div role="toolbar" aria-label={tt.toolbar} {...stylex.props(sx.bulk)}>
-      <span className="num" {...stylex.props(sx.bulkCount)}>{tt.chosen(count)}</span>
+      <span className={`num ${stylex.props(sx.bulkCount).className}`}>{tt.chosen(count)}</span>
       {buttons.map((button) => {
         const off = button.n === 0 || busy
         return (
@@ -53,7 +53,7 @@ export function VideoBulkBar({ count, counts, busy, onRetry, onApprove, onBundle
           >
             <Icon name={button.icon} size={15} />
             {button.label}
-            <span className="num" {...stylex.props(sx.chipCount)}>{button.n}</span>
+            <span className={`num ${stylex.props(sx.chipCount).className}`}>{button.n}</span>
           </button>
         )
       })}
@@ -61,7 +61,7 @@ export function VideoBulkBar({ count, counts, busy, onRetry, onApprove, onBundle
       <span {...stylex.props(sx.spacer)} />
       <button type="button" onClick={onExit} {...stylex.props(sx.bulkExit)}>
         {tt.exit}
-        <kbd className="mono" {...stylex.props(sx.kbd)}>Esc</kbd>
+        <kbd className={`mono ${stylex.props(sx.kbd).className}`}>Esc</kbd>
       </button>
     </div>
   )

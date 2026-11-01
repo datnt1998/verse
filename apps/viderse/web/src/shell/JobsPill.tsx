@@ -55,7 +55,7 @@ export function JobsPill({ status, online, unread = false, compact = false, mobi
     >
       {kind === 'paused' || kind === 'offline'
         ? <Icon aria-hidden name={kind === 'paused' ? 'pause' : 'danger'} size={compact ? 13 : 14} xstyle={kind === 'paused' ? styles.pausedIcon : styles.offlineIcon} />
-        : <span aria-hidden="true" className={`${spinning ? 'vv-jobs__dot vv-rec' : 'vv-jobs__dot'} ${stylex.props(styles.dot, kind === 'run' ? styles.runningDot : styles.idleDot, mobileBar && styles.mobileDot).className}`} />}
+        : <span aria-hidden="true" className={`vv-jobs__dot ${stylex.props(styles.dot, kind === 'run' ? styles.runningDot : styles.idleDot, mobileBar && styles.mobileDot, spinning && styles.rec).className}`} />}
       <span className={`num ${stylex.props(mobileBar && styles.mobileText).className ?? ''}`}>{visible}</span>
       {unread && <span role="img" aria-label={t.shell.jobsUnread} className={`vv-jobs__unread ${stylex.props(styles.unread).className}`} />}
       {mobileBar && <span aria-hidden="true" {...stylex.props(styles.touchHalo)} />}
@@ -63,11 +63,14 @@ export function JobsPill({ status, online, unread = false, compact = false, mobi
   )
 }
 
+const recPulse = stylex.keyframes({ '50%': { opacity: '.35' } })
 const MOBILE = '@media (max-width: 767px)'
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 const styles = stylex.create({
   root: { position: 'relative', height: 30, padding: `0 ${s['--vv-s-10']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], borderRadius: radius['--radius-control'], borderWidth: 0, borderStyle: "none", borderColor: { default: null, ':hover': line['--line-1'] }, backgroundColor: { default: "transparent", ':hover': color['--color-surface-1'] }, color: color['--color-fg-3'], fontSize: 12.5, whiteSpace: 'nowrap', textDecoration: 'none' },
   dot: { width: 8, height: 8, borderRadius: '50%' },
+  /* Chấm đỏ nhấp khi có job chạy (trước ở .vv-rec/@keyframes vv-rec). */
+  rec: { animationName: recPulse, animationDuration: '1.6s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
   runningDot: { backgroundColor: "var(--vv-red)", boxShadow: '0 0 0 3px var(--vv-red-18)' },
   idleDot: { backgroundColor: color['--ring-paused'], boxShadow: `0 0 0 3px ${line['--line-3']}` },
   idle: { color: 'var(--vv-fg-note)' },

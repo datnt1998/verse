@@ -1,4 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
+import { box } from '../../../styles/shared.stylex'
 import { styles as settingsStyles, stoHeadMRowMarker, stoLocActMarker, stoPickMMarker, stoModeListMarker, stoDrivesMarker, stoPickBodyMarker, stoJobsMarker, stoPickMarker, stoBrowMarker, stoConfirmMarker, driveMarker, checksMarker, checkMarker, isFailMarker, isWarnMarker, moveMMarker, moveGroupsMarker, usageBarMarker, usageLegendMarker, stoBannerFixMarker, cleanlistMarker, pillMarker } from '../settings.stylex'
 // Cài đặt › Lưu trữ (V22 + MSettings store=*): thẻ thư mục dự án (ổ, đường dẫn
 // mono cắt giữa, Mở trong Finder, Đổi thư mục), khối chọn tại chỗ (store=pick:
@@ -155,7 +156,7 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
           </ActionButton>
         </div>
       ) : null}
-      {res.status === 'error' ? <span className="vv-errline">{(res.error as Error | undefined)?.message}</span> : null}
+      {res.status === 'error' ? <span {...stylex.props(box.errline)}>{(res.error as Error | undefined)?.message}</span> : null}
       <div className={`vv-sto__end ${stylex.props(settingsStyles.stoEnd).className}`}>
         <ActionButton variant="outline" size="sm" disabled={!data?.path} onClick={() => data && onPick(`use:${data.path}`)}>
           {t.storage.picker.useThis}
@@ -619,7 +620,7 @@ function LocalStorageSection() {
   if (res.status === 'error' && !res.data) {
     return (
       <section className={`vv-sto__card ${stylex.props(settingsStyles.card, settingsStyles.stoCard).className}`}>
-        <span className="vv-errline">
+        <span {...stylex.props(box.errline)}>
           <span className={`vv-sto__grow ${stylex.props(settingsStyles.stoGrow).className}`}>{(res.error as Error | undefined)?.message ?? ''}</span>
           <ActionButton variant="outline" size="sm" onClick={() => void res.refresh()}>{t.common.retry}</ActionButton>
         </span>

@@ -28,6 +28,7 @@ import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
 import { membersUrl } from '../../api/sso'
 import { MembersLink } from '../../components/AppLinks'
+import { box } from '../../styles/shared.stylex'
 
 const ToolsSection = lazy(() => import('./tools/ToolsSection'))
 const StorageSection = lazy(() => import('./storage/StorageSection'))
@@ -322,7 +323,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
             <span className={`vv-mset__sum-sub ${stylex.props(settingsStyles.msetSumSub).className}`}>{summarySub}</span>
           </span>
         </div>
-        <nav className={`vv-mset__list card ${stylex.props(settingsStyles.msetList).className}`} aria-label={t.shell.settings}>
+        <nav className={`vv-mset__list ${stylex.props(settingsStyles.msetList, box.card).className}`} aria-label={t.shell.settings}>
           {rows.map((r) => (
             <button
               key={r.id}

@@ -83,7 +83,7 @@ function ListBody({ channelId, jobs, filter, onFilter, selection, onToggleSelect
             <button key={id} type="button" role="radio" aria-checked={filter === id} onClick={() => onFilter(id)} {...stylex.props(sx.chip, filter === id && sx.chipOn)}>
               <span aria-hidden="true" {...stylex.props(sx.chipDot(DOT[id]))} />
               {tt.filters[id]}
-              {list && <span className="num" {...stylex.props(sx.chipCount)}>{counts[id]}</span>}
+              {list && <span className={`num ${stylex.props(sx.chipCount).className}`}>{counts[id]}</span>}
             </button>
           ))}
         </div>
