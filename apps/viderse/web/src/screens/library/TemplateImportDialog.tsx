@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Banner, Button, Dialog, Dropzone, FileRow, Icon, type FileRowStatus } from '@noverse/ui'
 import { color } from '@noverse/ui/tokens.stylex'
+import { corners } from '../../styles/viderse.stylex'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { importTemplates, type TemplateImportItem } from '../../api/library'
@@ -235,7 +236,7 @@ function metaFor(row: Row, phase: Phase) {
 const sx = stylex.create({
   headIcon: {
     width: 30, height: 30, flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 9, backgroundColor: color['--color-surface-4'], color: color['--color-fg-3'],
+    borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-4'], color: color['--color-fg-3'],
   },
   headOk: { backgroundColor: 'var(--tint-ok)', color: color['--color-ok'] },
   headWarn: { backgroundColor: 'var(--tint-warn)', color: color['--color-warn'] },
