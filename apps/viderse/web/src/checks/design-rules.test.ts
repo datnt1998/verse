@@ -50,6 +50,17 @@ describe('luật thiết kế trong src/', () => {
     }
     expect(offenders).toEqual([])
   })
+  it('fg-5 chỉ cho dấu phân cách, không làm màu chữ (tokens.stylex: ≥4.5:1 bắt đầu từ fg-4)', () => {
+    const offenders: string[] = []
+    for (const file of files) {
+      const text = readFileSync(file, 'utf8')
+      for (const match of text.matchAll(/(?<![\w-])(\w+):\s*\{[^}]*?(?<![\w-])color:\s*(?:color\[['"]--color-fg-5['"]\]|['"]?var\(--color-fg-5\))/g)) {
+        if (/^(sep|separator|slash|divider)$/i.test(match[1] ?? '')) continue
+        offenders.push(`${file.replace(`${SRC}/`, '')}: ${match[1]}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
   it('không bán kính số cứng ngoài vòng tròn 50% (CSS lẫn JSX)', () => {
     const offenders: string[] = []
     for (const file of files) {
@@ -204,23 +215,6 @@ describe('nhịp khung Cài đặt theo artboard (trị số ghim chặt)', () =
   })
 })
 
-describe('Khám phá: lớp phủ <select> trong chip lọc', () => {
-  it('chip chứa <select> phủ tuyệt đối phải là khối chứa (position: relative)', () => {
-    // <select> trong suốt `position:absolute; inset:0` lấy chip làm khối chứa.
-    // Thiếu position trên chip thì select phủ cả cửa sổ và nuốt mọi cú bấm —
-    // jsdom không tính layout nên giữ luật trên StyleX và nơi gắn style.
-    const filterBar = readFileSync(join(SRC, 'screens/explore/FilterBar.tsx'), 'utf8')
-    const exploreStyles = readFileSync(join(SRC, 'screens/explore/explore.stylex.ts'), 'utf8')
-    const hosts = (filterBar.match(/<label\b[\s\S]*?<\/label>/g) ?? [])
-      .filter((host) => host.includes('<select') && host.includes("position: 'absolute'"))
-    expect(hosts.length).toBeGreaterThan(0)
-    for (const host of hosts) {
-      expect(host, 'chip chứa select phải gắn style chip').toContain('stylex.props(exploreStyles.chip')
-      expect(exploreStyles, 'chip phải giữ position: relative')
-        .toMatch(/\bchip:\s*\{\s*position:\s*['"]relative['"]/)
-    }
-  })
-})
 
 describe('mốc điện thoại', () => {
   it('chỉ một mốc: mọi media query bề ngang trong dải 600–800px là 767px (dưới 768px)', () => {

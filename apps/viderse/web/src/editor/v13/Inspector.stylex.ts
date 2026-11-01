@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line, tint } from '@noverse/ui/tokens.stylex'
+import { visualRoles } from '../../styles/viderse.stylex'
 
 export const inspectorStyles = stylex.create({
   panel: { width: 316, flex: '0 0 316px', minHeight: 0, overflowY: 'auto', borderLeftWidth: 1, borderLeftStyle: 'solid', borderLeftColor: line['--line-1'], color: color['--color-fg'], fontSize: 13 },
@@ -12,11 +13,13 @@ export const inspectorStyles = stylex.create({
   grow: { flex: 1, minWidth: 0 },
   meta: { fontSize: 12, color: color['--color-fg-4'], fontVariantNumeric: 'tabular-nums', lineHeight: 1.5 },
   muted: { color: color['--color-fg-3'], fontSize: 12.5, lineHeight: 1.5 },
-  help: { margin: 0, fontSize: 11.5, lineHeight: 1.5, color: color['--color-fg-4'] },
+  help: { margin: 0, fontSize: 11.5, lineHeight: 1.5, color: visualRoles.noteInk },
   captionIcon: { color: color['--color-round-star'], flexShrink: 0 },
   sceneIcon: { color: color['--color-accent'], flexShrink: 0 },
   bgIcon: { color: color['--color-info'], flexShrink: 0 },
   ok: { color: color['--color-ok'] },
+  warn: { color: color['--color-warn'] },
+  srOnly: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' },
   status: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 10, fontSize: 12.5, backgroundColor: tint['--tint-warn'], color: color['--color-warn'] },
   statusOk: { backgroundColor: tint['--tint-ok'], color: color['--color-ok'] },
   error: { margin: 0, padding: '8px 10px', borderRadius: 8, backgroundColor: tint['--tint-err'], color: color['--color-err'], fontSize: 12, lineHeight: 1.5, overflowWrap: 'anywhere' },
@@ -42,4 +45,37 @@ export const inspectorStyles = stylex.create({
   slider: { minWidth: 0, flex: 1, accentColor: color['--color-fg-2'] },
   dialog: { display: 'flex', flexDirection: 'column', gap: 12, padding: 18 },
   noBorder: { borderBottomWidth: 0 },
+
+  /* ── Gói V29: ảnh của cảnh (artboard Editor › focus=scene) ──────────────── */
+  ipBox: { position: 'relative', width: '100%', aspectRatio: '16 / 9', borderRadius: 10, overflow: 'hidden', backgroundColor: color['--color-surface-0'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'], transitionProperty: 'border-color', transitionDuration: '.3s' },
+  ipBoxDev: { borderColor: 'var(--vv-artist-line)' },
+  ipMedia: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  ipBadge: { position: 'absolute', left: 8, top: 8, zIndex: 2, height: 22, paddingInline: 8, display: 'flex', alignItems: 'center', borderRadius: 8, backgroundColor: 'var(--vv-img-badge)', fontSize: 11.5, color: color['--color-fg-2'], whiteSpace: 'nowrap' },
+  ipBadgeWarn: { color: color['--color-warn'] },
+  verStrip: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 },
+  verLead: { fontSize: 12, color: color['--color-fg-4'], marginRight: 2, flexShrink: 0 },
+  verTile: { position: 'relative', width: 52, aspectRatio: '16 / 9', flex: '0 0 auto', padding: 0, overflow: 'hidden', borderRadius: 7, borderWidth: 2, borderStyle: 'solid', borderColor: 'transparent', backgroundColor: color['--color-surface-1'], cursor: 'pointer' },
+  verTileOn: { borderColor: 'var(--vv-red-line)' },
+  verNum: { position: 'absolute', left: 3, bottom: 2, paddingInline: 4, borderRadius: 4, backgroundColor: 'var(--vv-img-badge)', color: color['--color-fg-2'], fontSize: 10, fontVariantNumeric: 'tabular-nums' },
+  verUsed: { position: 'absolute', right: 3, bottom: 3, width: 7, height: 7, borderRadius: '50%', backgroundColor: color['--color-ok'], boxShadow: '0 0 0 2px rgba(11, 11, 13, .8)' },
+  promptCard: { display: 'flex', flexDirection: 'column', gap: 6, padding: 10, borderRadius: 10, backgroundColor: color['--color-surface-1'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'] },
+  promptHead: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 },
+  promptTitle: { flex: 1, minWidth: 0, fontSize: 10.5, fontWeight: 600, letterSpacing: '.07em', textTransform: 'uppercase', color: color['--color-fg-4'] },
+  promptText: { fontSize: 12, lineHeight: 1.6, color: color['--color-fg-2'], overflowWrap: 'anywhere' },
+  promptClamp: { display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 4, overflow: 'hidden' },
+  promptRefs: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: color['--color-fg-4'], minWidth: 0 },
+  refThumb: { width: 36, aspectRatio: '16 / 9', flex: '0 0 auto', borderRadius: 4, backgroundColor: color['--color-surface-2'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], objectFit: 'cover', display: 'block' },
+  promptLink: { color: color['--color-fg-3'], textDecorationLine: 'underline', textDecorationStyle: 'dotted', textDecorationColor: 'var(--vv-why-line)', textUnderlineOffset: 3, whiteSpace: 'nowrap' },
+  /* Artboard .pseg: padding 9px 0 với padding-top 0 → chỉ đáy 9. */
+  pseg: { display: 'flex', flexDirection: 'column', gap: 3, paddingBottom: 9 },
+  psegHead: { display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, fontSize: 10.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: visualRoles.noteInk },
+  /* Artboard .src mờ hơn nhãn; fg-4 là nấc chữ thấp nhất được phép (fg-5 chỉ cho dấu phân cách). */
+  psegSrc: { fontWeight: 400, letterSpacing: 0, textTransform: 'none', color: color['--color-fg-4'] },
+  psegLink: { color: color['--color-fg-2'], textDecorationLine: 'underline', textUnderlineOffset: 3, whiteSpace: 'nowrap' },
+  psegChanged: { textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: color['--color-ok'] },
+  psegArea: { width: '100%', minWidth: 0, minHeight: 62, boxSizing: 'border-box', paddingBlock: 8, paddingInline: 10, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: color['--color-surface-0'], color: color['--color-fg'], fontFamily: 'inherit', fontSize: 12.5, lineHeight: 1.55, resize: 'vertical', outlineColor: color['--color-accent'] },
+  psegAreaChanged: { borderColor: 'var(--vv-qa-tint)' },
+  compose: { display: 'flex', flexDirection: 'column', gap: 8 },
+  composeField: { width: '100%', boxSizing: 'border-box', height: 36, paddingInline: 10, borderRadius: 8, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'], backgroundColor: color['--color-surface-0'], color: color['--color-fg'], fontFamily: 'inherit', fontSize: 13, outlineColor: color['--color-accent'] },
+  editFooter: { display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 8 },
 })

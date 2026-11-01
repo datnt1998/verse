@@ -5,6 +5,8 @@ import { acceptExport, getJobImages, getScoreArtifact, jobBulkAction, redrawAll,
 import { useResource } from '../../data/useResource'
 import { subscribeEvents } from '../../data/events'
 import { requestMarkPosted } from '../../components/performance'
+import { DevelopEffect } from '../../components'
+import { Orb } from '../../components/Orb'
 import { editorProjectId } from './workbench-actions'
 
 export function LiveStudio({ job, onChangePrompt, onRefresh }: { job: CloneJobView; onChangePrompt: () => void; onRefresh: () => void }) {
@@ -41,16 +43,22 @@ export function LiveStudio({ job, onChangePrompt, onRefresh }: { job: CloneJobVi
     <div {...stylex.props(styles.header)}><h2 {...stylex.props(styles.title)}>{job.agentView?.find(a => a.state === 'running')?.now || job.subline}</h2>{items.length > 0 && <button type="button" {...stylex.props(styles.button)} onClick={() => setDialog(true)}>Vẽ lại tất cả</button>}</div>
     {images.error ? <p role="alert">Không tải được bộ ảnh. <button onClick={() => void images.refresh()}>Thử lại</button></p> : <div {...stylex.props(styles.grid)}>{items.map((item, index) => {
       const image = item.versions?.find(v => v.version === (item.reviewVersion ?? item.currentVersion))?.originalUrl
-      return <div key={item.id} {...stylex.props(styles.tile)}><div {...stylex.props(styles.preview)}>{image ? <img src={image} alt={item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${index + 1}`} {...stylex.props(styles.image)} /> : <span>{item.status === 'running' ? 'Hoạ sĩ đang vẽ…' : 'Chờ lượt vẽ'}</span>}</div><span>{item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${index + 1}`}</span></div>
+      const drawing = !image && item.status === 'running'
+      return <div key={item.id} {...stylex.props(styles.tile)}><div {...stylex.props(styles.preview, drawing && styles.previewDrawing)}>{image ? <img src={image} alt={item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${index + 1}`} {...stylex.props(styles.image)} /> : drawing ? <><DevelopEffect state="drawing" compact /><span role="status" {...stylex.props(styles.drawingStatus)}><Orb of="artist" size={18} live /><span {...stylex.props(styles.shimmer)}>Hoạ sĩ đang vẽ…</span></span></> : <span>Chờ lượt vẽ</span>}</div><span>{item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${index + 1}`}</span></div>
     })}</div>}
     {dialog && <div {...stylex.props(styles.overlay)}><section role="dialog" aria-modal="true" aria-labelledby="redraw-title" {...stylex.props(styles.dialog)}><h2 id="redraw-title">Vẽ lại cả {items.length} ảnh?</h2><p>{job.source.title}</p><p>Dùng {items.length} ảnh trong hạn mức hôm nay</p>{images.data?.manifest && <p>Ảnh cảnh vẽ theo <b>{images.data.manifest.scenePrompt.name}</b>, ảnh bìa theo <b>{images.data.manifest.coverPrompt.name}</b>, theo prompt của video này. <button type="button" onClick={() => { setDialog(false); onChangePrompt() }}>Đổi ở Bàn dựng</button></p>}<p>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</p><label>Góp ý chung cho cả bộ (tuỳ chọn)<textarea value={feedback} onChange={event => setFeedback(event.target.value)} {...stylex.props(styles.textarea)} /></label>{error && <p role="alert">{error}</p>}<div {...stylex.props(styles.actions)}><button type="button" {...stylex.props(styles.button)} onClick={() => setDialog(false)}>Huỷ</button><button type="button" {...stylex.props(styles.button)} disabled={busy || !images.data?.manifest} onClick={() => void submit()}>Vẽ lại {items.length} ảnh</button></div></section></div>}
   </section>
 }
+const shimmerFrames = stylex.keyframes({ from: { backgroundPosition: '100% 0' }, to: { backgroundPosition: '-150% 0' } })
 const styles = stylex.create({
   root: { flex: 1, minHeight: 0, overflowY: 'auto', padding: `${s['--vv-s-10']} ${s['--vv-s-14']}`, border: '1px solid var(--line-1)', borderRadius: r['--vv-r-14'], backgroundColor: 'var(--color-surface-1)' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: s['--vv-s-8'] }, title: { margin: `0 0 ${s['--vv-s-8']}`, fontSize: 13, fontWeight: 500, color: 'var(--color-fg-3)' },
   video: { display: 'block', width: '100%', maxHeight: 360, backgroundColor: 'var(--color-surface-2)', borderRadius: r['--vv-r-10'] },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: s['--vv-s-10'] }, tile: { minWidth: 0, color: 'var(--color-fg-3)', fontSize: 12 }, preview: { aspectRatio: '16 / 9', overflow: 'hidden', borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-2)', display: 'grid', placeItems: 'center' }, image: { width: '100%', height: '100%', objectFit: 'cover' },
+  grid: { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: s['--vv-s-10'] }, tile: { minWidth: 0, color: 'var(--color-fg-3)', fontSize: 12 }, preview: { position: 'relative', aspectRatio: '16 / 9', overflow: 'hidden', borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-2)', display: 'grid', placeItems: 'center' },
+  /* Phòng vẽ: ô đang vẽ dùng chung hiệu ứng thu nhỏ (artboard Main › isDrawing). */
+  previewDrawing: { backgroundImage: 'var(--vv-draw-tile-bg)', border: `1px solid var(--vv-draw-tile-line)` },
+  drawingStatus: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-8'] },
+  shimmer: { fontSize: 12, backgroundImage: 'linear-gradient(90deg, rgba(138,138,150,1) 0%, rgba(138,138,150,1) 30%, rgba(255,255,255,1) 45%, rgba(255,255,255,1) 55%, rgba(138,138,150,1) 70%, rgba(138,138,150,1) 100%)', backgroundSize: '250% 100%', backgroundClip: 'text', color: 'transparent', animationName: shimmerFrames, animationDuration: '2.2s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' }, image: { width: '100%', height: '100%', objectFit: 'cover' },
   button: { padding: `${s['--vv-s-6']} ${s['--vv-s-10']}`, border: '1px solid var(--line-2)', borderRadius: r['--vv-r-8'], color: 'var(--color-fg)', backgroundColor: 'var(--color-surface-2)', cursor: 'pointer' },
   overlay: { position: 'fixed', inset: 0, zIndex: 100, display: 'grid', placeItems: 'center', backgroundColor: 'var(--kit-scrim)' }, dialog: { width: 'min(540px, calc(100vw - 32px))', padding: s['--vv-s-20'], border: '1px solid var(--line-2)', borderRadius: r['--vv-r-16'], backgroundColor: 'var(--color-surface-3)', color: 'var(--color-fg)' }, textarea: { display: 'block', width: '100%', minHeight: 80, marginTop: s['--vv-s-6'], backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg)', border: '1px solid var(--line-2)', borderRadius: r['--vv-r-8'] }, actions: { display: 'flex', justifyContent: 'flex-end', gap: s['--vv-s-8'], marginTop: s['--vv-s-14'] },
 })

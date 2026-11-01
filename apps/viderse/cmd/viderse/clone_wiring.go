@@ -3,14 +3,17 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/activity"
 	"github.com/datnt1998/verse/apps/viderse/internal/backdrop"
+	cloneimages "github.com/datnt1998/verse/apps/viderse/internal/clone/images"
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
@@ -192,6 +195,55 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		}
 		return owner.Name, nil
 	}
+	// Huỷ lần vẽ ảnh: tầng API và worker dùng chung một sổ trong tiến trình.
+	cancels := images.NewCancelRegistry()
+	binder := &cloneimages.ProjectBinder{Edits: edits, Editor: editorService, Measure: func(ctx context.Context, jobID string) error {
+		_, _, err := renderRuntime.Measure(ctx, jobID)
+		return err
+	}}
+	imageRebind := func(ctx context.Context, job domain.CloneJob, req images.RebindRequest) error {
+		_, err := binder.Rebind(ctx, cloneimages.RebindRequest{JobID: job.ID, ImageID: req.ImageID, SceneID: req.SceneID, Kind: req.Kind, Version: req.Version, Path: req.Path, SHA256: req.SHA256, Mime: req.Mime, Width: req.Width, Height: req.Height, Cutout: req.Cutout, ApplyProject: req.ApplyProject})
+		return err
+	}
+	imageBuilt := func(ctx context.Context, job domain.CloneJob) (string, bool, error) {
+		snapshot, err := edits.Read(ctx, job.ID, domain.CloneBuild)
+		if err != nil {
+			var cloneErr *domain.CloneError
+			if errors.As(err, &cloneErr) && cloneErr.Code == domain.CloneErrNotFound {
+				return "", false, nil
+			}
+			return "", false, err
+		}
+		if snapshot.Step.Status != domain.CloneSucceeded || snapshot.Step.Output == nil {
+			return "", false, nil
+		}
+		projectID, _ := snapshot.Step.Output.Data["projectId"].(string)
+		return projectID, projectID != "", nil
+	}
+	imagePromptSource := func(ctx context.Context, job domain.CloneJob, overrides *images.Overrides, kind string) images.PromptPartSource {
+		id := ""
+		if overrides != nil {
+			if kind == "thumbnail" {
+				id = overrides.CoverPromptID
+			} else {
+				id = overrides.ScenePromptID
+			}
+		}
+		label := "Prompt ảnh cảnh"
+		if kind == "thumbnail" {
+			label = "Prompt ảnh bìa"
+		}
+		source := images.PromptPartSource{Type: "image_prompt", ID: id, Label: label}
+		if id == "" {
+			source.Type = "template"
+			source.Label = "Prompt mặc định của template"
+			return source
+		}
+		if prompt, err := librarySvc.GetPrompt(ctx, id); err == nil && prompt != nil && prompt.Name != "" {
+			source.Label = "prompt \"" + prompt.Name + "\""
+		}
+		return source
+	}
 	tr := tools.NewTranscription(toolDeps, toolKit.Uv, nil)
 	metadataRun := func(ctx context.Context, s *pipeline.StepContext, parts []string, direction string) (pipeline.StepResult, error) {
 		model, err := generator(s)
@@ -262,17 +314,54 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 				chain = append(chain, refs.Artist.DrawFallback...)
 			}
 			chain = withVideoDrawSource(ctx, edits, s.Job, chain)
-			providers, _ := ai.Executors.imageProviders(ctx, chain)
 			limit := ai.Executors.limit
 			fallback := refs.Artist.FallbackOn
-			drawer := imagegen.NewService(imagegen.Options{Providers: providers, Fallback: &fallback, Journal: ai.Executors.journal, DailyPaidImageLimit: &limit})
-			return (images.Handler{Deps: images.Deps{Notes: seams.Learn.ImageNotes, Drawer: drawer, Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
-				owner, err := queueStore.Owner(ctx, job.ChannelID)
-				if err != nil || owner == nil {
-					return "", err
+			drawerFor := func(ctx context.Context, chain []domain.ModelRef) images.Drawer {
+				providers, _ := ai.Executors.imageProviders(ctx, chain)
+				return imagegen.NewService(imagegen.Options{Providers: providers, Fallback: &fallback, Journal: ai.Executors.journal, DailyPaidImageLimit: &limit})
+			}
+			providerLimit := func(ctx context.Context, job domain.CloneJob, provider string) int {
+				if provider == "" {
+					return imagegen.RefLimit(chain[0].Provider)
 				}
-				return owner.Branding.Look, nil
-			}}}).Run(ctx, s)
+				return imagegen.RefLimit(provider)
+			}
+			return (images.Handler{Deps: images.Deps{Notes: seams.Learn.ImageNotes, Drawer: drawerFor(ctx, chain), Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Cancels: cancels,
+				RefLimit: providerLimit, PromptSource: imagePromptSource, Built: imageBuilt, Rebind: imageRebind,
+				// Prompt viết cho nguồn sẽ vẽ: nguồn riêng của ảnh, không có thì
+				// đầu chuỗi — chỉ Codex có chỉ dẫn công cụ đi kèm.
+				PromptProvider: func(ctx context.Context, job domain.CloneJob, provider string) string {
+					if provider != "" {
+						return provider
+					}
+					return chain[0].Provider
+				},
+				AcquireUpload: func(ctx context.Context, id string) (string, func(), error) {
+					handle, err := editorService.AcquireMedia(ctx, id)
+					if err != nil {
+						return "", nil, err
+					}
+					return handle.Path, handle.Release, nil
+				},
+				DrawerFor: func(ctx context.Context, job domain.CloneJob, provider string) (images.Drawer, error) {
+					selected := []domain.ModelRef{}
+					for _, ref := range chain {
+						if strings.EqualFold(ref.Provider, provider) {
+							selected = append(selected, ref)
+						}
+					}
+					if len(selected) == 0 {
+						selected = append(selected, domain.ModelRef{Provider: provider})
+					}
+					return drawerFor(ctx, selected), nil
+				},
+				Look: func(ctx context.Context, job domain.CloneJob) (string, error) {
+					owner, err := queueStore.Owner(ctx, job.ChannelID)
+					if err != nil || owner == nil {
+						return "", err
+					}
+					return owner.Branding.Look, nil
+				}}}).Run(ctx, s)
 		}),
 		domain.CloneBuild: cloneHandler(func(ctx context.Context, s *pipeline.StepContext) (pipeline.StepResult, error) {
 			resolved, err := ff(ctx)
@@ -305,7 +394,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 				if n == 0 {
 					role = "main"
 				}
-				quota := domain.QueueImageQuota{Provider: p.Name(), Period: "day", Role: role}
+				quota := domain.QueueImageQuota{Provider: p.Name(), Label: imagegen.DisplayLabel(p), Period: "day", Role: role}
 				if p.Paid() {
 					limit := int64(ai.Executors.limit)
 					quota.Limit = &limit
@@ -378,7 +467,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	seams.Quality = qualityGate{svc: renderRuntime}
 	seams.Learn.Queue = q
 	seams.Learn.BindAutonomy(autonomySvc)
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, seams)
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, seams, binder, cancels)
 	workerCtx, stop := context.WithCancel(ctx)
 	performanceSvc, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
 	seams.Posted = performanceSvc

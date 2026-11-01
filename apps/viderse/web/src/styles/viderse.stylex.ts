@@ -349,4 +349,6 @@ export const visualRoles = stylex.defineVars({
   queueWarningBackground: 'color-mix(in srgb, var(--color-err) 8%, transparent)',
   queueWarningBorder: 'color-mix(in srgb, var(--color-err) 25%, transparent)',
   jobsOfflineBorder: 'color-mix(in srgb, var(--color-err) 30%, transparent)',
+  /** Chú thích nhỏ dưới nút của artboard (giữa fg-3 và fg-4), xem viderse.css. */
+  noteInk: 'var(--vv-fg-note)',
 })

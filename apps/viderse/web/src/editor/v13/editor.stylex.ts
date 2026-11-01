@@ -55,6 +55,12 @@ export const sx = stylex.create({
   measureTrack: { overflow: 'hidden' },
   measureSweep: { position: 'absolute', top: 0, bottom: 0, width: '35%', backgroundColor: color['--color-ok'], animationName: measureSweep, animationDuration: '1.4s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' },
   spread: { flex: 1, minWidth: 0 },
+  /* Vẽ lại ảnh tại chỗ: nhãn trong khung xem và thông báo đã thay ảnh (artboard Editor). */
+  drawBadge: { position: 'absolute', left: 12, top: 12, zIndex: 3, display: 'inline-flex', alignItems: 'center', gap: metrics['--ed-space-6'], height: 26, paddingInline: metrics['--ed-space-10'], borderRadius: radius['--radius-control'], backgroundColor: 'var(--vv-img-badge)', color: 'var(--vv-artist-ink)', fontSize: 11.5, whiteSpace: 'nowrap' },
+  swapToast: { position: 'absolute', left: '50%', bottom: 14, transform: 'translateX(-50%)', zIndex: 4, display: 'inline-flex', alignItems: 'center', gap: metrics['--ed-space-10'], height: 34, paddingLeft: metrics['--ed-space-12'], paddingRight: metrics['--ed-space-6'], borderRadius: 'var(--vv-r-pill)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-artist-line)', backgroundColor: 'var(--vv-img-badge)', color: color['--color-fg'], fontSize: 12.5, whiteSpace: 'nowrap', boxShadow: 'var(--kit-shadow-toast)' },
+  swapToastOk: { color: color['--color-ok'] },
+  swapToastAction: { display: 'inline-flex', alignItems: 'center', gap: metrics['--ed-space-4'], height: 24, paddingInline: metrics['--ed-space-8'], borderRadius: radius['--radius-control'], borderWidth: 1, borderStyle: 'solid', borderColor: v13.fieldBorder, backgroundColor: 'transparent', color: color['--color-fg-2'], fontFamily: 'inherit', fontSize: 12, cursor: 'pointer' },
+  swapError: { position: 'absolute', left: '50%', bottom: 14, transform: 'translateX(-50%)', zIndex: 4, maxWidth: 520, paddingBlock: metrics['--ed-space-8'], paddingInline: metrics['--ed-space-12'], borderRadius: radius['--radius-control'], backgroundColor: 'var(--vv-img-badge)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--vv-err-35)', color: v13.dangerText, fontSize: 12.5 },
   score: { fontSize: 22, fontWeight: 600, fontVariantNumeric: 'tabular-nums' },
   secondary: { color: color['--color-fg-3'], fontSize: 12.5 },
   group: { margin: 0, fontSize: 11, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: v13.muted, display: 'flex', alignItems: 'center', gap: metrics['--ed-space-6'] },

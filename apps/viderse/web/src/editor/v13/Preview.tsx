@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { ArrowLeft, ArrowRight, Eye, Pause, Play, Volume2, VolumeX } from 'lucide-react'
 import { HeadlessPlayer, type PlayerRef } from '@editor/runtime/player/Player'
@@ -72,7 +72,7 @@ function Transport({ fps, duration, safe, toggleSafe }: { fps: number; duration:
   </div>
 }
 
-export function Preview() {
+export function Preview({ overlay }: { overlay?: ReactNode } = {}) {
   const { items, fps, width, height, duration, resolved, transitions, keyframes, backgroundColor, composition } = usePreviewComposition()
   const quality = usePlaybackStore(state => state.previewQuality)
   const loop = usePlaybackStore(state => state.loop)
@@ -94,6 +94,7 @@ export function Preview() {
         <CanvasPreview composition={composition} quality={quality} />
         {!items.length && <div {...stylex.props(s.empty)}>Nhập media, rồi thêm vào timeline.</div>}
         {safe && <><span aria-hidden {...stylex.props(s.outerSafe)} /><span aria-hidden {...stylex.props(s.innerSafe)} /></>}
+        {overlay}
       </div>
     </div>
     <Transport fps={fps} duration={duration} safe={safe} toggleSafe={() => setSafe(value => !value)} />

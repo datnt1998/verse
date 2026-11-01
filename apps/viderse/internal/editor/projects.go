@@ -172,10 +172,14 @@ func (s Store) Create(ctx context.Context, p Project) (string, error) {
 	} else if !errors.Is(err, os.ErrNotExist) && !errors.Is(err, blobstore.ErrNotFound) {
 		return "", err
 	}
-	return s.publishProject(ctx, id, p, "")
+	return s.publishProject(ctx, id, p, "", nil)
 }
 
 func (s Store) Write(ctx context.Context, id string, p Project, expected string) (string, error) {
+	return s.write(ctx, id, p, expected, nil)
+}
+
+func (s Store) write(ctx context.Context, id string, p Project, expected string, retain func(context.Context) ([]Resource, error)) (string, error) {
 	path, err := Path(id)
 	if err != nil {
 		return "", err
@@ -226,12 +230,19 @@ func (s Store) Write(ctx context.Context, id string, p Project, expected string)
 		updatedAt = int64(previous) + 1
 	}
 	next["updatedAt"] = updatedAt
-	return s.publishProject(ctx, id, next, expected)
+	var resources []Resource
+	if retain != nil {
+		resources, err = retain(ctx)
+		if err != nil {
+			return "", err
+		}
+	}
+	return s.publishProject(ctx, id, next, expected, resources)
 }
 
 // Stage deliberately retains the phase-05 build path. Interactive writes use a
 // unique path instead: media publication never overwrites local/S3 objects.
-func (s Store) publishProject(ctx context.Context, id string, p Project, expected string) (string, error) {
+func (s Store) publishProject(ctx context.Context, id string, p Project, expected string, resources []Resource) (string, error) {
 	data, err := Marshal(p)
 	if err != nil {
 		return "", err
@@ -267,6 +278,11 @@ func (s Store) publishProject(ctx context.Context, id string, p Project, expecte
 	}
 	artifact := media.Artifact{Path: path, File: file.Name(), ContentType: "application/json"}
 	if err = s.Media.Publish(ctx, []media.Artifact{artifact}, func(txctx context.Context) error {
+		for _, resource := range resources {
+			if err := s.Repository.CAS(txctx, resource.Key, resource.Revision, resource); err != nil {
+				return err
+			}
+		}
 		return s.Repository.CAS(txctx, next.Key, expected, next)
 	}); err != nil {
 		return "", err

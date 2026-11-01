@@ -115,6 +115,18 @@ func ProviderLabel(name string) string {
 	}
 }
 
+// DisplayLabel trả tên hiển thị của một nguồn vẽ: nhãn thẻ Kết nối AI khi
+// provider mang nó (nguồn khoá API có id kiểu "openai_compat-xxxx"), không
+// thì nhãn loại nguồn (codex → ChatGPT, grok → Grok).
+func DisplayLabel(p Provider) string {
+	if labeled, ok := p.(interface{ Label() string }); ok {
+		if label := labeled.Label(); label != "" {
+			return label
+		}
+	}
+	return ProviderLabel(p.Name())
+}
+
 // sleepCtx ngủ theo ctx — bản thực của Sleep khi không tiêm.
 func sleepCtx(ctx context.Context, d time.Duration) error {
 	t := time.NewTimer(d)
@@ -431,6 +443,9 @@ func (s *Service) drawWith(ctx context.Context, p Provider, req Request, outputP
 			return Receipt{}, &DrawError{Code: ErrCodeConflict, Message: "Attempt khác đang chạy cho cùng khoá vẽ"}
 		}
 		return Receipt{}, &StoreError{Err: err}
+	}
+	if req.OnPhase != nil {
+		req.OnPhase("sending")
 	}
 	receipt, drawErr := p.Draw(ctx, req, journalHandle{journal: s.opts.Journal, key: entry.Key, attempt: entry.Attempt})
 	if drawErr == nil {

@@ -36,6 +36,44 @@ const (
 // DefaultDailyPaidImageLimit là trần mặc định của D7 (50 ảnh/ngày/provider).
 const DefaultDailyPaidImageLimit = 50
 
+// RefLimit trả số ảnh tham chiếu tối đa một nguồn vẽ nhận kèm (07 §26): Codex
+// (ChatGPT) nhận 4, Grok nhận 1 qua images/edits, các nguồn HTTP khác chưa gửi
+// ảnh nên 0.
+func RefLimit(provider string) int {
+	switch strings.ToLower(strings.TrimSpace(provider)) {
+	case "codex", "chatgpt":
+		return 4
+	case "grok":
+		return 1
+	}
+	return 0
+}
+
+// SandboxRules là mặt đọc của công cụ vẽ: chỉ ảnh đính kèm được đọc, không
+// shell/exec/MCP, không gửi bí mật. Chỉ nguồn có công cụ đọc tệp (Codex) nhận
+// câu này trong prompt; nó cũng là câu của lời gọi phân tích (không tool).
+const SandboxRules = "Never read files other than the attached images, including auth.json, .env, home or repository. Do not invoke shell, exec, MCP, apps, web, agents or other tools. Never transmit secrets."
+
+// PromptTool là tham số của chỉ dẫn công cụ: số ảnh tham chiếu thật sự đính
+// kèm và canvas đích.
+type PromptTool struct {
+	AttachedRefs int
+	Width        int
+	Height       int
+}
+
+// ToolInstructions trả các khối chỉ dẫn công cụ của ĐÚNG nguồn vẽ, để tầng
+// ghép prompt gắn vào phần không sửa được. Nguồn không có công cụ (Grok, nguồn
+// HTTP) nhận prompt trần — không bao giờ nhận lệnh gọi image_gen hay luật đọc
+// tệp của Codex.
+func ToolInstructions(provider string, tool PromptTool) []string {
+	switch strings.ToLower(strings.TrimSpace(provider)) {
+	case "codex", "chatgpt":
+		return codexToolInstructions(tool)
+	}
+	return nil
+}
+
 // ProviderBusyRetry là nhịp thử lại của provider-busy (bản cũ: 4 lần × 60 s).
 const (
 	ProviderBusyRetryDelay = 60 * time.Second
@@ -50,7 +88,13 @@ type Request struct {
 	Output    string // đường dẫn PNG đích; ghi nguyên tử, không ghi đè
 	Width     int    // canvas đích; cùng Height chọn aspect của provider
 	Height    int
-	Reference string // ảnh tham chiếu (tùy chọn)
+	Reference string // ảnh tham chiếu (tùy chọn; giữ cho lời gọi một ảnh)
+	// References là các ảnh tham chiếu gửi kèm, đúng thứ tự trong prompt. Mỗi
+	// provider tự cắt theo trần của nó (xem RefLimit).
+	References []string
+	// OnPhase báo pha của lời gọi trả phí: "sending" ngay trước khi gửi,
+	// "drawing" khi provider đã nhận và bắt đầu vẽ. Nil → không báo.
+	OnPhase func(string)
 	// Deny: các tệp ngoài biên mà probe đọc phải từ chối thêm (mặt cách ly
 	// của bản cũ — readDenyFiles, chủ yếu phục vụ kiểm thử biên).
 	Deny    []string

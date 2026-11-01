@@ -392,6 +392,7 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 		},
 		IsPaused: isPaused,
 	}
+	sctx.PublishEvent = func(name string, data any) { r.publish(name, data) }
 	if store, ok := r.Store.(interface {
 		DrainImageIntents(context.Context, string, int64, int, json.RawMessage) (json.RawMessage, error)
 	}); ok && claimed.Step.Step == domain.CloneImages {

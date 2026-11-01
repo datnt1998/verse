@@ -1,0 +1,1861 @@
+{
+  "fixture": {
+    "jobId": "6eb429d9-fa97-4dc6-8123-80c4a67751b7",
+    "projectId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4",
+    "channelId": "d0d0d0d0-1111-4000-8000-d0d0d0d0d0d0",
+    "sourceCommit": "38499e47",
+    "externalServiceBoundary": "Deterministic local OpenAI-compatible image upstream on 7896; production image pipeline, media publication, editor persistence and SSE are real. No external-auth assertion."
+  },
+  "states": {
+    "baseline": {
+      "clip": {
+        "durationInFrames": 225,
+        "from": 0,
+        "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+        "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+        "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+        "motionModifiers": [
+          {
+            "amplitude": 0.3,
+            "channelGains": {
+              "rotation": 0.25,
+              "x": 0.8
+            },
+            "enabled": true,
+            "frequency": 0.08,
+            "id": "v29-drift",
+            "phaseFrames": 7,
+            "seed": 42,
+            "type": "float-drift"
+          }
+        ],
+        "sourceDuration": 0,
+        "sourceFps": 30,
+        "sourceHeight": 1080,
+        "sourceWidth": 1920,
+        "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+        "trackId": "standard-scenes",
+        "transform": {
+          "anchorX": 0.5,
+          "anchorY": 0.5,
+          "aspectRatioLocked": true,
+          "cornerRadius": 12,
+          "flipHorizontal": false,
+          "flipVertical": false,
+          "height": 1134,
+          "opacity": 0.92,
+          "rotation": 3,
+          "width": 2016,
+          "x": 32,
+          "y": 18
+        },
+        "type": "image"
+      },
+      "keyframes": [
+        {
+          "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "properties": [
+            {
+              "keyframes": [
+                {
+                  "easing": "linear",
+                  "frame": 0,
+                  "id": "v29-x-start",
+                  "value": 32
+                },
+                {
+                  "easing": "ease-in-out",
+                  "frame": 224,
+                  "id": "v29-x-end",
+                  "value": 96
+                }
+              ],
+              "property": "x"
+            },
+            {
+              "keyframes": [
+                {
+                  "easing": "linear",
+                  "frame": 0,
+                  "id": "v29-r-start",
+                  "value": 3
+                },
+                {
+                  "easing": "ease-in-out",
+                  "frame": 224,
+                  "id": "v29-r-end",
+                  "value": 9
+                }
+              ],
+              "property": "rotation"
+            }
+          ]
+        }
+      ],
+      "mediaIds": [
+        "media-0033e49fa8498bcfe883adcf76b171d9",
+        "media-9a9086304bbad53b2dc1920dd44cca81",
+        "media-f2121cb1307ff5708eb65bdd4c81a973",
+        "media-eead054216ca7a4deefbf2b83d191ac2",
+        "media-8153116c5fe4ba98132976ee4a18391a",
+        "media-0b2b7141101fc3df223eda844348699f",
+        "media-e700604e033190808417909a570b18bb",
+        "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+        "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+        "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+        "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+        "43712b0a-099f-4281-946a-331349ebb280"
+      ]
+    }
+  },
+  "baselineMediaReads": [
+    {
+      "id": "media-0033e49fa8498bcfe883adcf76b171d9",
+      "status": 200,
+      "contentType": "audio/mp4",
+      "signature": "0000001c667479704d344120"
+    },
+    {
+      "id": "media-9a9086304bbad53b2dc1920dd44cca81",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "5249464688ef000057454250"
+    },
+    {
+      "id": "media-f2121cb1307ff5708eb65bdd4c81a973",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "524946463efa000057454250"
+    },
+    {
+      "id": "media-eead054216ca7a4deefbf2b83d191ac2",
+      "status": 200,
+      "contentType": "video/mp4",
+      "signature": "000000206674797069736f6d"
+    },
+    {
+      "id": "media-8153116c5fe4ba98132976ee4a18391a",
+      "status": 200,
+      "contentType": "audio/wav",
+      "signature": "524946462494110057415645"
+    },
+    {
+      "id": "media-0b2b7141101fc3df223eda844348699f",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "524946465a14000057454250"
+    },
+    {
+      "id": "media-e700604e033190808417909a570b18bb",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "52494646d813000057454250"
+    },
+    {
+      "id": "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "52494646ac0a000057454250"
+    },
+    {
+      "id": "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "524946460c16000057454250"
+    },
+    {
+      "id": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "524946465a14000057454250"
+    },
+    {
+      "id": "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "524946465a16000057454250"
+    },
+    {
+      "id": "43712b0a-099f-4281-946a-331349ebb280",
+      "status": 200,
+      "contentType": "image/webp",
+      "signature": "52494646aa16000057454250"
+    }
+  ],
+  "finalPersisted": {
+    "clip": {
+      "durationInFrames": 225,
+      "from": 0,
+      "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+      "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+      "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+      "motionModifiers": [
+        {
+          "amplitude": 0.3,
+          "channelGains": {
+            "rotation": 0.25,
+            "x": 0.8
+          },
+          "enabled": true,
+          "frequency": 0.08,
+          "id": "v29-drift",
+          "phaseFrames": 7,
+          "seed": 42,
+          "type": "float-drift"
+        }
+      ],
+      "sourceDuration": 0,
+      "sourceFps": 30,
+      "sourceHeight": 1080,
+      "sourceWidth": 1920,
+      "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+      "trackId": "standard-scenes",
+      "transform": {
+        "anchorX": 0.5,
+        "anchorY": 0.5,
+        "aspectRatioLocked": true,
+        "cornerRadius": 12,
+        "flipHorizontal": false,
+        "flipVertical": false,
+        "height": 1134,
+        "opacity": 0.88,
+        "rotation": 3,
+        "width": 2016,
+        "x": 32,
+        "y": 18
+      },
+      "type": "image"
+    },
+    "keyframes": [
+      {
+        "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+        "properties": [
+          {
+            "keyframes": [
+              {
+                "easing": "linear",
+                "frame": 0,
+                "id": "v29-x-start",
+                "value": 32
+              },
+              {
+                "easing": "ease-in-out",
+                "frame": 224,
+                "id": "v29-x-end",
+                "value": 96
+              }
+            ],
+            "property": "x"
+          },
+          {
+            "keyframes": [
+              {
+                "easing": "linear",
+                "frame": 0,
+                "id": "v29-r-start",
+                "value": 3
+              },
+              {
+                "easing": "ease-in-out",
+                "frame": 224,
+                "id": "v29-r-end",
+                "value": 9
+              }
+            ],
+            "property": "rotation"
+          }
+        ]
+      }
+    ],
+    "mediaIds": [
+      "media-0033e49fa8498bcfe883adcf76b171d9",
+      "media-9a9086304bbad53b2dc1920dd44cca81",
+      "media-f2121cb1307ff5708eb65bdd4c81a973",
+      "media-eead054216ca7a4deefbf2b83d191ac2",
+      "media-8153116c5fe4ba98132976ee4a18391a",
+      "media-0b2b7141101fc3df223eda844348699f",
+      "media-e700604e033190808417909a570b18bb",
+      "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+      "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+      "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+      "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+      "43712b0a-099f-4281-946a-331349ebb280"
+    ]
+  },
+  "allHistoricalMediaAfterTwoRedraws": [
+    {
+      "id": "media-0033e49fa8498bcfe883adcf76b171d9",
+      "status": 200,
+      "contentType": "audio/mp4"
+    },
+    {
+      "id": "media-9a9086304bbad53b2dc1920dd44cca81",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "media-f2121cb1307ff5708eb65bdd4c81a973",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "media-eead054216ca7a4deefbf2b83d191ac2",
+      "status": 200,
+      "contentType": "video/mp4"
+    },
+    {
+      "id": "media-8153116c5fe4ba98132976ee4a18391a",
+      "status": 200,
+      "contentType": "audio/wav"
+    },
+    {
+      "id": "media-0b2b7141101fc3df223eda844348699f",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "media-e700604e033190808417909a570b18bb",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+      "status": 200,
+      "contentType": "image/webp"
+    },
+    {
+      "id": "43712b0a-099f-4281-946a-331349ebb280",
+      "status": 200,
+      "contentType": "image/webp"
+    }
+  ],
+  "browser": {
+    "states": {
+      "baseline": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu"
+        ]
+      },
+      "swap": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/46bd85e2-d4d9-4f98-b243-0e1a9f40d389?v=sha256%3Ac1671c380630c1693514b1eb9f3a4f4f5d7ddd1ecd2f27e20f481007e343901b",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/46bd85e2-d4d9-4f98-b243-0e1a9f40d389?v=sha256%3Ac1671c380630c1693514b1eb9f3a4f4f5d7ddd1ecd2f27e20f481007e343901b",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu",
+          "Cảnh 1 đã dùng bản 2 · chuyển động, keyframe giữ nguyênHoàn tác ⌘Z"
+        ]
+      },
+      "swapUndo": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.92,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu",
+          "Kiểm định đang đo lại"
+        ]
+      },
+      "redraw1": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1e8af095-8413-4a37-8060-3b03af5fe194",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1e8af095-8413-4a37-8060-3b03af5fe194?v=sha256%3A5451d24aa6d3ec3a08b4f5d7b5d1f39e680870b0f2e40bc7109518455eab192b",
+          "trackId": "standard-scenes",
+          "transform": {
+            "x": 32,
+            "y": 18,
+            "width": 2016,
+            "height": 1134,
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "rotation": 3,
+            "opacity": 0.88,
+            "cornerRadius": 12,
+            "aspectRatioLocked": true,
+            "flipHorizontal": false,
+            "flipVertical": false
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1e8af095-8413-4a37-8060-3b03af5fe194",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1e8af095-8413-4a37-8060-3b03af5fe194?v=sha256%3A5451d24aa6d3ec3a08b4f5d7b5d1f39e680870b0f2e40bc7109518455eab192b",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.88,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu",
+          "Cảnh 1 đã dùng bản 5 · chuyển động, keyframe giữ nguyênHoàn tác ⌘Z"
+        ]
+      },
+      "redraw1Undo": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "x": 32,
+            "y": 18,
+            "width": 2016,
+            "height": 1134,
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "rotation": 3,
+            "opacity": 0.88,
+            "cornerRadius": 12,
+            "aspectRatioLocked": true,
+            "flipHorizontal": false,
+            "flipVertical": false
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.88,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu"
+        ]
+      },
+      "redraw2": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "5ebe10b6-cacb-4651-9f0f-ff8300889574",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/5ebe10b6-cacb-4651-9f0f-ff8300889574?v=sha256%3A5c91f152a1e2a605237ce3f1f6836802417a48c7f53745317394991617c2d6c8",
+          "trackId": "standard-scenes",
+          "transform": {
+            "x": 32,
+            "y": 18,
+            "width": 2016,
+            "height": 1134,
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "rotation": 3,
+            "opacity": 0.88,
+            "cornerRadius": 12,
+            "aspectRatioLocked": true,
+            "flipHorizontal": false,
+            "flipVertical": false
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "5ebe10b6-cacb-4651-9f0f-ff8300889574",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/5ebe10b6-cacb-4651-9f0f-ff8300889574?v=sha256%3A5c91f152a1e2a605237ce3f1f6836802417a48c7f53745317394991617c2d6c8",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.88,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu",
+          "Cảnh 1 đã dùng bản 6 · chuyển động, keyframe giữ nguyênHoàn tác ⌘Z"
+        ]
+      },
+      "redraw2Undo": {
+        "localClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "x": 32,
+            "y": 18,
+            "width": 2016,
+            "height": 1134,
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "rotation": 3,
+            "opacity": 0.88,
+            "cornerRadius": 12,
+            "aspectRatioLocked": true,
+            "flipHorizontal": false,
+            "flipVertical": false
+          },
+          "type": "image"
+        },
+        "localKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "persistedClip": {
+          "durationInFrames": 225,
+          "from": 0,
+          "id": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+          "label": "Đêm đầu tiên ở Hội An, Lan theo ông Bảy ra bến sông, nước lên cao, đèn lồng hai bên bờ.",
+          "mediaId": "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "motionModifiers": [
+            {
+              "amplitude": 0.3,
+              "channelGains": {
+                "rotation": 0.25,
+                "x": 0.8
+              },
+              "enabled": true,
+              "frequency": 0.08,
+              "id": "v29-drift",
+              "phaseFrames": 7,
+              "seed": 42,
+              "type": "float-drift"
+            }
+          ],
+          "sourceDuration": 0,
+          "sourceFps": 30,
+          "sourceHeight": 1080,
+          "sourceWidth": 1920,
+          "src": "/api/editor/media/1ac4a636-9fd4-4d51-9407-e4f9a435ff11?v=sha256%3A0b2b7141101fc3df223eda844348699f2d49c7fdc659b5193548ff88eaf8d63e",
+          "trackId": "standard-scenes",
+          "transform": {
+            "anchorX": 0.5,
+            "anchorY": 0.5,
+            "aspectRatioLocked": true,
+            "cornerRadius": 12,
+            "flipHorizontal": false,
+            "flipVertical": false,
+            "height": 1134,
+            "opacity": 0.88,
+            "rotation": 3,
+            "width": 2016,
+            "x": 32,
+            "y": 18
+          },
+          "type": "image"
+        },
+        "persistedKeyframes": [
+          {
+            "itemId": "clone-6eb429d9-fa97-4dc6-8123-80c4a67751b7-g4-scene-s1",
+            "properties": [
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-x-start",
+                    "value": 32
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-x-end",
+                    "value": 96
+                  }
+                ],
+                "property": "x"
+              },
+              {
+                "keyframes": [
+                  {
+                    "easing": "linear",
+                    "frame": 0,
+                    "id": "v29-r-start",
+                    "value": 3
+                  },
+                  {
+                    "easing": "ease-in-out",
+                    "frame": 224,
+                    "id": "v29-r-end",
+                    "value": 9
+                  }
+                ],
+                "property": "rotation"
+              }
+            ]
+          }
+        ],
+        "mediaIds": [
+          "media-0033e49fa8498bcfe883adcf76b171d9",
+          "media-9a9086304bbad53b2dc1920dd44cca81",
+          "media-f2121cb1307ff5708eb65bdd4c81a973",
+          "media-eead054216ca7a4deefbf2b83d191ac2",
+          "media-8153116c5fe4ba98132976ee4a18391a",
+          "media-0b2b7141101fc3df223eda844348699f",
+          "media-e700604e033190808417909a570b18bb",
+          "media-6fb72572ebfd60c0df3c4a7c052e1d37",
+          "46bd85e2-d4d9-4f98-b243-0e1a9f40d389",
+          "1ac4a636-9fd4-4d51-9407-e4f9a435ff11",
+          "f89a59c2-dba3-4e27-9aec-7b02ad446365",
+          "43712b0a-099f-4281-946a-331349ebb280"
+        ],
+        "status": [
+          "Đã lưu"
+        ]
+      }
+    },
+    "assertions": {
+      "allSevenLocalClipsEqualPersisted": true,
+      "allFourKeyframesUnchanged": true,
+      "allMotionTimingAndTransformPreserved": true,
+      "intentionalOpacityEdit": {
+        "before": 0.92,
+        "after": 0.88
+      },
+      "swapUndoRestoresVersion1": true,
+      "twoRedrawUndoRestoreVersion1": true,
+      "usedBadgeVersion1": true,
+      "noBusyToast": true
+    },
+    "shots": {
+      "before": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd89f5a4382ecb.png",
+      "swap": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd89f7ca782ecc.png",
+      "undoAndEditing": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd89fdfcb82ecd.png",
+      "redraw1": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd8a0c75f82ece.png",
+      "redrawing2": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd8a159cb82ecf.png",
+      "redraw2": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd8a2424782ed0.png",
+      "finalUndo": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd8a2ee5382ed1.png",
+      "finalUndoKeyframes": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/omp-sshots-15bd8a36c0782ed2.png"
+    },
+    "errors": {
+      "entries": [
+        {
+          "seq": 14,
+          "ts": 1793567383253,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 18,
+          "ts": 1793567383266,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        },
+        {
+          "seq": 24,
+          "ts": 1793567394585,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 30,
+          "ts": 1793567394663,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        },
+        {
+          "seq": 39,
+          "ts": 1793567400788,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        },
+        {
+          "seq": 44,
+          "ts": 1793567401619,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 47,
+          "ts": 1793567401699,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 49,
+          "ts": 1793567402530,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 50,
+          "ts": 1793567411426,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 51,
+          "ts": 1793567411526,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 56,
+          "ts": 1793567413272,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 61,
+          "ts": 1793567413377,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        },
+        {
+          "seq": 72,
+          "ts": 1793567423530,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        },
+        {
+          "seq": 74,
+          "ts": 1793567426045,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 75,
+          "ts": 1793567426115,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 76,
+          "ts": 1793567435211,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 81,
+          "ts": 1793567437323,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/clone/6eb429d9-fa97-4dc6-8123-80c4a67751b7/backdrop"
+        },
+        {
+          "seq": 95,
+          "ts": 1793567441322,
+          "type": "requestfailed",
+          "level": "error",
+          "text": "GET http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937: net::ERR_ABORTED",
+          "location": "http://v29.localhost:8054/api/editor/media/media-eead054216ca7a4deefbf2b83d191ac2?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+        }
+      ],
+      "nextSeq": 95,
+      "dropped": 0
+    }
+  },
+  "screenshots": {
+    "before": "05-final-before.png",
+    "swap": "06-final-swap.png",
+    "undoAndEditing": "07-final-command-z-edit.png",
+    "redraw1": "08-final-redraw-1.png",
+    "redrawing2": "09-final-redrawing-2.png",
+    "redraw2": "10-final-redraw-2.png",
+    "finalUndo": "11-final-undo-used-badge.png",
+    "finalUndoKeyframes": "12-final-undo-keyframes.png",
+    "main": "13-desktop-main.png",
+    "mainArtboard": "14-canonical-main.png"
+  },
+  "checks": {
+    "go": {
+      "clone/images": "PASS 0.648s",
+      "clone/jobedit": "no test files",
+      "pipeline/steps/images": "PASS 2.842s",
+      "persistence/postgres": "PASS 143.851s, required real PostgreSQL",
+      "editor": "PASS 45.467s"
+    },
+    "web": "PASS 11 scene-images +17 design-rules; typecheck PASS",
+    "gofmt": "clone_edit.go and new concurrency regression formatted; original touched Go/wrapper formatted before earlier commits",
+    "build": "actual serve binary compiled from 38499e47 source before formatting-only test addition"
+  }
+}

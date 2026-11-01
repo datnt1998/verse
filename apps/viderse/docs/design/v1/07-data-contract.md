@@ -744,7 +744,8 @@ interface ImageVersion {
   url: string | null; previewUrl: string | null;   // previewUrl: ảnh xem dần khi nhà cung cấp gửi
   width: number; height: number;          // kích thước gốc → giới hạn khung hiển thị
   parts: PromptPart[];                    // theo thứ tự ghép
-  sentText: string;                       // nguyên văn đã gửi (các phần nối bằng "\n\n")
+  wrapper?: { guard: string[]; tool?: string[]; provider?: string };  // trường thêm của dev (xem 10-gap-closure › Gói V29): phần không sửa được — hàng rào an toàn và chỉ dẫn công cụ của đúng nguồn vẽ
+  sentText: string;                       // nguyên văn đã gửi: wrapper.guard + các phần + wrapper.tool, mỗi khối cách nhau "\n\n"
   refs: ImageRef[];
   provider: "chatgpt" | "grok" | "gemini" | string; model: string; params: { size: string; quality?: string };
   feedback: string | null;                // góp ý sinh ra bản này
@@ -755,18 +756,24 @@ interface ImageVersion {
 GET  /api/clone/:jobId/images → { images: Array<{ id; kind: "scene" | "cover"; index; label; usedVersion: number; versions: ImageVersion[]; refLimit: number }> }
 POST /api/clone/:jobId/images/redraw {
   imageIds: string[];                     // 1 ảnh, hoặc nhiều ảnh (chọn nhiều, Vẽ lại cả N)
+  project?: boolean;                     // Editor gửi false: tự thay ảnh và giữ lịch sử hoàn tác; bỏ qua = máy chủ thay project
   feedback?: string;                      // Hoạ sĩ sửa phần scene của từng ảnh
   parts?: Partial<Record<PromptPartKind, string>>;   // sửa tay, chỉ khi imageIds.length === 1
   refs?: Array<{ id?: string; upload?: string; videoImageId?: string; rivalFrame?: { videoId: string; atSec: number }; role: ImageRef["role"] }>;
   provider?: string;
 } → { versions: Array<{ imageId; n }> }
-POST /api/clone/:jobId/images/:imageId/use { n } → bản đang dùng (cập nhật manifest + project editor nếu đã dựng)
+POST /api/clone/:jobId/images/:imageId/use { n, project?: boolean } → bản đang dùng (project:false chỉ cập nhật manifest/import media; mặc định cập nhật cả project đã dựng)
 POST /api/clone/:jobId/images/:imageId/versions/:n/cancel
 SSE  image.progress { jobId, imageId, n, phase: "sending" | "drawing" | "receiving" | "done" | "failed", previewUrl?, elapsedSec }
 ```
 
+- **Phần không sửa được:** hàng rào an toàn (dữ liệu cảnh/nhân vật/ảnh tham chiếu viết từ nguồn không tin được) và chỉ dẫn công cụ của nguồn vẽ nằm trong `wrapper`, không nằm trong `parts`; sửa `parts` không bao giờ chạm tới chúng. Chỉ Codex nhận chỉ dẫn công cụ; Grok và nguồn HTTP nhận hàng rào nhưng không nhận lệnh gọi `image_gen` hay luật đọc tệp.
 - **Không sửa template:** `parts` chỉ áp cho ảnh đó. Lần vẽ sau (kể cả *Vẽ lại cả N ảnh*) của ảnh đó dùng prompt của **bản đang dùng**.
 - `refLimit` theo nhà cung cấp (ChatGPT 4). Quá giới hạn → 422 `{ code: "too_many_refs", limit }`.
 - Vẽ xong: bản mới thành `usedVersion` (trừ khi người dùng đã chọn bản khác trong lúc vẽ). Video đã duyệt/dựng: ảnh mới đánh dấu `needsReview`, editor thay media của clip đó (giữ chuyển động, keyframe, thời lượng) và ghi vào lịch sử hoàn tác; Độ hoàn thiện đo lại mục ảnh.
+- **Một nơi ghi project:** Editor gửi `project:false` khi vẽ lại và khi dùng bản ảnh; cờ này được giữ từ draft qua chuyến vẽ tới phiên bản, kể cả worker khởi động lại. Worker vẫn lưu ảnh và cập nhật manifest dựng nhưng không ghi đè project đang sửa. Editor áp một lệnh đổi media có hoàn tác rồi lưu bằng `If-Match` đã tải; không tự nhận revision mới để bỏ qua xung đột. Duyệt/Bàn dựng không gửi cờ nên vẫn thay project ở máy chủ.
+- **Giữ media đã dùng:** lưu project và lệnh Editor giữ binding metadata, nguồn ảnh và liên kết media cùng giao dịch CAS với project. Đổi bản dựng về sau không làm mất ảnh cũ của project đã lưu hoặc bản có thể hoàn tác.
+- **Đổi bản khi lượt vẽ còn giữ lease:** chọn một bản đã sẵn sàng chỉ đổi lựa chọn ảnh, không đánh dấu build/score/export cũ. Quy tắc giống nhau khi `images` còn chạy và ngay sau khi bước đã xong nhưng lease chưa nhả; worker vẫn là nơi ghi checkpoint đang chạy. Nhận bản mới từ SSE không được tự dựng lại project đang sửa. Hoàn tác đọc lại danh sách sau khi đồng bộ để nhãn “đang dùng” khớp canvas.
+- **Hai bên nhận cùng bản ảnh:** rebind của worker và Editor dùng CAS của chính bước build, vẫn kiểm generation/hủy/fence/attempt/trạng thái. Worker chuyển bước không tự làm hỏng lượt đổi ảnh của chủ kênh. Chỉ coi xuất bản lặp là đã xong khi checkpoint JSONB đúng hệt nội dung cần ghi và mọi artifact có đúng ID, đường dẫn, digest, bước và metadata đã lưu; payload khác hoặc artifact ngoài video vẫn bị từ chối.
 - Lỗi giữ nguyên `parts`, `refs` đã gửi để *Sửa prompt* mở lại đúng nội dung.
 - Ghi chú đã học (§19) vẫn chỉ ghi khi người dùng bấm lưu; `parts.learned` hiển thị nhưng sửa ở đây không đổi Ghi chú đã học.

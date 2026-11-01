@@ -421,7 +421,9 @@ func (s *Service) SaveProject(ctx context.Context, id string, p Project, expecte
 	if expected == "" {
 		return "", apiError("invalid_request", "If-Match revision is required")
 	}
-	return s.projectStore().Write(ctx, id, p, expected)
+	return s.projectStore().write(ctx, id, p, expected, func(ctx context.Context) ([]Resource, error) {
+		return s.projectMediaResources(ctx, id, p)
+	})
 }
 func (s *Service) RenameProject(ctx context.Context, id, name, expected string) (string, error) {
 	if strings.TrimSpace(name) == "" {

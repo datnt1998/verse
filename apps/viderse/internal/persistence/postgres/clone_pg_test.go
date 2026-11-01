@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
@@ -213,5 +214,64 @@ func TestCloneInterruptedRunningJobResumesPersistedStepCheckpoint(t *testing.T) 
 	var saved map[string]int
 	if err = json.Unmarshal(got.Checkpoint, &saved); err != nil || saved["nextScene"] != 3 {
 		t.Fatalf("checkpoint lost: %s %v", got.Checkpoint, err)
+	}
+}
+
+// TestCloneImageRedrawRerunsImagesAndWakesJob pins the review-screen redraw:
+// the images step has already settled (the job sits in review waiting for the
+// owner), so asking for a new version must put images back in the queue and
+// make the job claimable again — otherwise the planned version is never drawn.
+// Only the images step reruns: the built project and its later steps stay.
+func TestCloneImageRedrawRerunsImagesAndWakesJob(t *testing.T) {
+	pool := provision(t)
+	if _, err := pool.Exec(context.Background(), `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
+		t.Fatal(err)
+	}
+	store := postgres.NewCloneStore(pool)
+	ctx := context.Background()
+	job := cloneTestJob(t, store, "redraw")
+	manifest := `{"version":1,"revision":8,"items":[{"id":"s1","kind":"scene","status":"pending","versions":[]}]}`
+	if _, err := pool.Exec(ctx, `UPDATE clone_steps SET status='succeeded', checkpoint=$2::jsonb, output_manifest='{"artifacts":[],"data":{}}'::jsonb WHERE job_id=$1 AND step='images'`, job.ID, manifest); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `UPDATE clone_jobs SET status='waiting', stage_group='review' WHERE id=$1`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := pool.Exec(ctx, `UPDATE clone_steps SET status='waiting' WHERE job_id=$1 AND step='build'`, job.ID); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, err := store.Read(ctx, job.ID, domain.CloneImages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	edits := &jobedit.Service{Store: store}
+	woke := 0
+	edits.Wake = func() { woke++ }
+	if err := edits.CommitImageRedraw(ctx, snapshot, json.RawMessage(manifest), []string{"s1"}); err != nil {
+		t.Fatal(err)
+	}
+	step, err := store.GetStep(ctx, job.ID, domain.CloneImages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if step.Status != domain.ClonePending {
+		t.Fatalf("images step not queued for the redraw: %s", step.Status)
+	}
+	reloaded, err := store.GetJob(ctx, job.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reloaded.Status != domain.ClonePending {
+		t.Fatalf("job not claimable after a redraw: %s", reloaded.Status)
+	}
+	build, err := store.GetStep(ctx, job.ID, domain.CloneBuild)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if build.Status == domain.ClonePending {
+		t.Fatalf("redraw must not invalidate the build step: %s", build.Status)
+	}
+	if woke != 1 {
+		t.Fatalf("worker not woken: %d", woke)
 	}
 }

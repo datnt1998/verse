@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button, Dialog, Icon, radioGroupKeys } from '@noverse/ui'
-import { z } from 'zod'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'
 import { useTransitionsStore } from '@editor/features/timeline/stores/transitions-store'
@@ -14,10 +13,11 @@ import { computeInitialTransform } from '@editor/features/timeline/utils/transfo
 import type { CaptionWord, ImageItem, SubtitleSegmentItem, TextItem, TimelineItem, VideoItem } from '@editor/types/timeline'
 import type { SerializedCommand } from '@editor/commands'
 import type { TransformProperties } from '@editor/types/transform'
-import { request } from '../../api/request'
-import { subscribeEvents } from '../../data/events'
+import type { ImageProgress, ImageQuota, JobImage } from '../../api/images'
 import { useShortcutAction } from '../ui/shortcuts'
-import { MediaAsset, MediaPicker, backdropItemFor, editorCommand, isCaption, matchesCloneEvent, panelError, panelTime, useBackdropActions, type BackdropActions } from './ContentPanels'
+import { MediaAsset, backdropItemFor, editorCommand, isCaption, panelError, panelTime, useBackdropActions, type BackdropActions } from './ContentPanels'
+import { sceneImageFor } from './scene-images'
+import { SceneImagePanel } from './SceneImagePanel'
 import { inspectorStyles as sx } from './Inspector.stylex'
 
 export interface InspectorRange {
@@ -35,23 +35,18 @@ export interface InspectorProps {
   onAlign: () => Promise<void>
   aligning: boolean
   jobId?: string
+  /** Ảnh + phiên bản của video (§26), đọc một lần ở Editor và truyền xuống. */
+  images?: readonly JobImage[]
+  imageProgress?: Record<string, ImageProgress>
+  imageQuota?: ImageQuota
   captionAlignmentPassed?: boolean
   beforeMutation?: () => Promise<boolean>
   onProjectChanged?: () => void | Promise<void>
+  /** Vẽ lại xong: đọc lại danh sách ảnh + bản đang dùng. */
+  onRedrawn?: () => void | Promise<void>
 }
 
 type CaptionItem = TextItem | SubtitleSegmentItem
-const reviewItemSchema = z.object({
-  id: z.string(), kind: z.enum(['scene', 'thumbnail']), sceneId: z.string().optional(),
-  // Go omits a zero startFrame and omits scene timing entirely for the cover.
-  startFrame: z.number().nonnegative().default(0),
-  endFrame: z.number().nonnegative().optional(),
-  status: z.string(), prompt: z.string(), direction: z.string().optional(),
-  currentVersion: z.number().nullable(), reviewVersion: z.number().nullable(),
-}).passthrough()
-const reviewListSchema = z.object({ items: z.array(reviewItemSchema) }).passthrough()
-const reviewDetailSchema = z.object({ item: reviewItemSchema, revision: z.number().int().nonnegative(), approved: z.boolean() }).passthrough()
-type ReviewDetail = z.infer<typeof reviewDetailSchema>
 
 function CaptionTiming({ item, startFrame, fps }: { item: CaptionItem; startFrame: number; fps: number }) {
   const items = useItemsStore(state => state.items)
@@ -226,7 +221,7 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
   </>
 }
 
-function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'jobId' | 'beforeMutation' | 'onProjectChanged'> & { item: ImageItem }) {
+function SceneInspector({ item, jobId, images, imageProgress, imageQuota, beforeMutation, onRedrawn }: Pick<InspectorProps, 'jobId' | 'images' | 'imageProgress' | 'imageQuota' | 'beforeMutation' | 'onProjectChanged'> & { item: ImageItem; onRedrawn?: () => void | Promise<void> }) {
   const items = useItemsStore(state => state.items)
   const fps = useTimelineSettingsStore(state => state.fps)
   const metadata = useProjectStore(state => state.currentProject?.metadata)
@@ -234,12 +229,8 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
   const transitions = useTransitionsStore(state => state.transitions)
   const keyframes = useKeyframesStore(state => state.keyframes.find(entry => entry.itemId === item.id))
   const [advanced, setAdvanced] = useState(false)
-  const [picker, setPicker] = useState(false)
-  const [redraw, setRedraw] = useState(false)
-  const [feedback, setFeedback] = useState('')
   const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [review, setReview] = useState<ReviewDetail | null>(null)
+  const image = images ? sceneImageFor(images, item, projectId) : undefined
   const sceneItems = items.filter(entry => entry.trackId === item.trackId && entry.type === 'image').toSorted((a, b) => a.from - b.from)
   const number = sceneItems.findIndex(entry => entry.id === item.id) + 1
   const next = sceneItems.find(entry => entry.from === item.from + item.durationInFrames)
@@ -254,37 +245,6 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
       ? 'zoom'
       : !modifiers.length && !animated.length && !item.motionLayers?.some(entry => entry.enabled) && !keyframes?.vectorProperties?.some(lane => lane.keyframes.length > 1)
         ? 'none' : 'custom'
-  useEffect(() => {
-    if (!jobId) return
-    const controller = new AbortController()
-    let imageId: string | undefined
-    let loading = false
-    let queued = false
-    const load = async () => {
-      if (loading) { queued = true; return }
-      loading = true
-      try {
-        do {
-          queued = false
-          if (!imageId) {
-            const list = reviewListSchema.parse(await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/images`, { signal: controller.signal }))
-            const exact = list.items.filter(entry => entry.kind === 'scene' && (entry.id === item.id || item.id === `${projectId}-scene-${entry.sceneId ?? entry.id}`))
-            const matches = exact.length ? exact : list.items.filter(entry => entry.kind === 'scene' && entry.startFrame === item.from && entry.endFrame === item.from + item.durationInFrames)
-            if (matches.length !== 1) { if (!controller.signal.aborted) setReview(null); return }
-            imageId = matches[0]!.id
-          }
-          const detail = reviewDetailSchema.parse(await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/images/${encodeURIComponent(imageId)}`, { signal: controller.signal }))
-          if (!controller.signal.aborted) { setReview(detail); setError('') }
-        } while (queued && !controller.signal.aborted)
-      } catch (error) { if (!controller.signal.aborted) setError(panelError(error)) }
-      finally { loading = false }
-    }
-    void load()
-    const unsubscribe = subscribeEvents(['clone.job.updated', 'reset'], data => {
-      if (matchesCloneEvent(data, jobId)) void load()
-    })
-    return () => { controller.abort(); unsubscribe() }
-  }, [jobId, projectId, item.id, item.from, item.durationInFrames])
   const run = (commands: SerializedCommand[]) => { try { editorCommand(commands); setError('') } catch (error) { setError(panelError(error)) } }
   const setMotion = (value: 'none' | 'zoom' | 'drift') => {
     const commands: SerializedCommand[] = [{ type: 'item.update', params: { id: item.id, updates: { motionModifiers: [], motionLayers: [] } } }, ...(['x', 'y', 'width', 'height', 'rotation'] as const).map(property => ({ type: 'keyframe.removeForProperty', params: { itemId: item.id, property } }))]
@@ -311,37 +271,18 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
     run([transition ? { type: 'transition.update', params: { id: transition.id, updates: { presentation: value, durationInFrames, ...(value === 'slide' ? { direction: 'from-left' } : {}) } } } : { type: 'transition.add', params: { leftClipId: item.id, rightClipId: next.id, type: 'crossfade', presentation: value, durationInFrames, ...(value === 'slide' ? { direction: 'from-left' } : {}) } }])
   }
   const updateTransform = (patch: Partial<TransformProperties>) => { if (Object.values(patch).some(value => typeof value === 'number' && !Number.isFinite(value))) { setError('Giá trị phải là số hợp lệ.'); return }; run([{ type: 'item.updateTransform', params: { id: item.id, transform: patch } }]) }
-  const regenerate = async () => {
-    if (busy || !jobId || !review) return
-    if (!feedback.trim()) { setError('Hãy góp ý một câu cho ảnh mới.'); return }
-    setBusy(true); setError('')
-    try {
-      if (beforeMutation && !await beforeMutation()) throw new Error('Chưa lưu được video. Hãy lưu trước khi vẽ lại ảnh.')
-      await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/images/${encodeURIComponent(review.item.id)}`, { body: { op: 'regenerate', prompt: feedback.trim(), expectedRevision: review.revision } })
-      setRedraw(false); setFeedback('')
-      setReview(reviewDetailSchema.parse(await request<unknown>(`/api/clone/${encodeURIComponent(jobId)}/images/${encodeURIComponent(review.item.id)}`)))
-    } catch (error) { setError(panelError(error)) }
-    finally { setBusy(false) }
-  }
   const scalarKeys = keyframes?.properties.flatMap(property => property.keyframes.map(keyframe => ({ property: property.property, ...keyframe }))) ?? []
   return <>
-    <section {...stylex.props(sx.section, sx.spacious)}>
-      <h2 {...stylex.props(sx.heading)}>
-        <span {...stylex.props(sx.sceneIcon)}><Icon name="gallery" size={15} /></span>
-        <span {...stylex.props(sx.headingText)} title={item.label}>Cảnh {number} · {item.label}</span>
-      </h2>
-      <span {...stylex.props(sx.meta)}>
-        {panelTime(item.from / fps)}–{panelTime((item.from + item.durationInFrames) / fps)} · dài {panelTime(item.durationInFrames / fps)}
-        {review && <> · <span {...stylex.props(review.approved && sx.ok)}>{review.approved ? 'Đã duyệt' : review.item.status === 'generating' ? 'Đang vẽ' : 'Chờ duyệt'}</span></>}
-      </span>
-      <div {...stylex.props(sx.thumbnail)}><MediaAsset mediaId={item.mediaId} src={item.src} label={item.label} /></div>
-      <div {...stylex.props(sx.twoColumns)}>
-        <Button disabled={!jobId || !review || busy || review.item.status === 'generating'} onClick={() => { setError(''); setRedraw(true) }} icon={<Icon name="gallery-edit" size={15} />}>Vẽ lại ảnh</Button>
-        <Button disabled={busy} onClick={() => setPicker(true)} icon={<Icon name="gallery" size={15} />}>Thay ảnh</Button>
-      </div>
-      <p {...stylex.props(sx.help)}>Vẽ lại: góp ý một câu, Hoạ sĩ vẽ ảnh mới, ảnh cũ giữ tới khi bạn duyệt. Thay ảnh: chọn ảnh khác trong Media.</p>
-      {error && !redraw && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
-    </section>
+    <SceneImagePanel
+      item={item}
+      number={number}
+      jobId={jobId}
+      image={image}
+      progress={image ? imageProgress?.[image.id] : undefined}
+      quota={imageQuota}
+      beforeMutation={beforeMutation}
+      onRedrawn={onRedrawn}
+    />
     <section {...stylex.props(sx.section)}>
       <h3 {...stylex.props(sx.subheading)}>Chuyển động</h3>
       <div role="radiogroup" aria-label="Chuyển động của ảnh" {...stylex.props(sx.segments)}>
@@ -398,18 +339,6 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
         </label>)}
       </>}
     </section>
-    {picker && <MediaPicker item={item} onClose={() => setPicker(false)} />}
-    {redraw && <Dialog title="Vẽ lại ảnh" padBody={false} onClose={busy ? undefined : () => setRedraw(false)} footer={<>
-      <Button disabled={busy} onClick={() => setRedraw(false)}>Huỷ</Button>
-      <Button variant="primary" pending={busy} disabled={!feedback.trim()} onClick={() => { void regenerate() }}>Vẽ lại ảnh</Button>
-    </>}>
-      <div {...stylex.props(sx.dialog)}>
-        <label htmlFor="v13-redraw-feedback">Góp ý cho ảnh mới</label>
-        <textarea id="v13-redraw-feedback" rows={3} {...stylex.props(sx.input)} value={feedback} onChange={event => setFeedback(event.target.value)} />
-        <p {...stylex.props(sx.help)}>Ảnh cũ giữ tới khi bạn duyệt.</p>
-        {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
-      </div>
-    </Dialog>}
   </>
 }
 
@@ -497,6 +426,6 @@ export function Inspector(props: InspectorProps) {
   }, [selectedId, props.selectedRange])
   return <aside ref={inspectorElement} {...stylex.props(sx.panel)} aria-label={item && isCaption(item) ? 'Phụ đề' : item?.type === 'image' ? 'Cảnh' : background ? 'Clip nền' : 'Video'} data-shortcut-scope="inspector">
     {backdropActions.error && <p role="alert" {...stylex.props(sx.error)}>{backdropActions.error}</p>}
-    {item && isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} /> : item?.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} /> : item?.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} /> : <><section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên timeline để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section><section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section></>}
+    {item && isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} /> : item?.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} images={props.images} imageProgress={props.imageProgress} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} onRedrawn={props.onRedrawn} /> : item?.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} /> : <><section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên timeline để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section><section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section></>}
   </aside>
 }

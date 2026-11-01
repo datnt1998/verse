@@ -12,7 +12,9 @@ import (
 	"unicode/utf8"
 )
 
-const PromptVersion = 4
+// PromptVersion 5: prompt ghép theo phần (Cảnh · Phong cách · Tham chiếu · Ghi
+// chú đã học · Tránh), các phần nối bằng một dòng trống.
+const PromptVersion = 5
 const HookTextMax = 40
 
 type Cast struct {
@@ -28,6 +30,8 @@ type Story struct {
 	ThumbnailText string            `json:"thumbnailText,omitempty"`
 }
 type Version struct {
+	// False leaves project writes to the requesting Editor, including after restart.
+	Project           *bool             `json:"project,omitempty"`
 	Version           int               `json:"version"`
 	GenerationID      string            `json:"generationId"`
 	CreatedAt         string            `json:"createdAt"`
@@ -46,14 +50,45 @@ type Version struct {
 	Cutout            *scenes.FileRef   `json:"cutout,omitempty"`
 	// Score là điểm Kiểm định của ảnh này (07 §20); nil khi chưa chấm được.
 	Score *domain.ImageScore `json:"score,omitempty"`
+
+	// Các trường của 07 §26: đúng những gì đã gửi nhà cung cấp cho lần vẽ này.
+	// Bản cũ không có chúng; Prompt khi đó chính là nguyên văn đã gửi.
+	StateName    string        `json:"state,omitempty"`
+	Parts        PromptParts   `json:"parts,omitempty"`
+	Wrapper      PromptWrapper `json:"wrapper,omitempty"`
+	Refs         []ImageRef    `json:"refs,omitempty"`
+	Provider     string        `json:"provider,omitempty"`
+	Model        string        `json:"model,omitempty"`
+	Params       *PromptParams `json:"params,omitempty"`
+	Feedback     *string       `json:"feedback,omitempty"`
+	DiffFromPrev [][2]string   `json:"diffFromPrev,omitempty"`
+	StartedAt    string        `json:"startedAt,omitempty"`
+	FinishedAt   *string       `json:"finishedAt,omitempty"`
+	DurationSec  *float64      `json:"durationSec,omitempty"`
+	CostImages   int           `json:"costImages,omitempty"`
+	VersionError *VersionError `json:"error,omitempty"`
 }
 type Flight struct {
+	Project           *bool  `json:"project,omitempty"`
 	GenerationID      string `json:"generationId"`
 	Version           int    `json:"version"`
 	Prompt            string `json:"prompt"`
 	PromptVersion     int    `json:"promptVersion"`
 	SourceFingerprint string `json:"sourceFingerprint"`
 	PNG               string `json:"png"`
+	// Những gì chuyến vẽ này sẽ gửi: phần prompt, ảnh tham chiếu, góp ý và
+	// bản đang dùng lúc bắt đầu (để bản mới chỉ thay bản đang dùng khi người
+	// dùng chưa chọn bản khác trong lúc vẽ).
+	Parts    PromptParts   `json:"parts,omitempty"`
+	Wrapper  PromptWrapper `json:"wrapper,omitempty"`
+	Refs     []ImageRef    `json:"refs,omitempty"`
+	Feedback *string       `json:"feedback,omitempty"`
+	// Provider là nguồn vẽ của chuyến vẽ (nguồn riêng của ảnh, không có thì
+	// nguồn đầu chuỗi) — dòng `drawing` ghi đúng nguồn này.
+	Provider    string `json:"provider,omitempty"`
+	StartedAt   string `json:"startedAt,omitempty"`
+	BaseVersion *int   `json:"baseVersion,omitempty"`
+	BaseStatus  string `json:"baseStatus,omitempty"`
 }
 type Item struct {
 	ID             string              `json:"id"`
@@ -61,6 +96,7 @@ type Item struct {
 	SceneID        string              `json:"sceneId,omitempty"`
 	StartFrame     int                 `json:"startFrame,omitempty"`
 	EndFrame       int                 `json:"endFrame,omitempty"`
+	KeyframeSec    float64             `json:"keyframeSec,omitempty"`
 	Width          int                 `json:"width"`
 	Height         int                 `json:"height"`
 	Reference      scenes.FileRef      `json:"reference"`
@@ -77,6 +113,84 @@ type Item struct {
 	SkipReason     string              `json:"skipReason,omitempty"`
 	Error          string              `json:"error,omitempty"`
 	Context        *scenes.TextContext `json:"context"`
+	// Draft là prompt/ảnh tham chiếu chủ kênh sửa cho lần vẽ kế tiếp của đúng
+	// ảnh này (07 §26). Áp xong thì xoá; template và prompt thư viện không đổi.
+	Draft *PromptDraft `json:"draft,omitempty"`
+	// NeedsReview: bản mới đã thay vào video đã duyệt/dựng nhưng chưa được
+	// duyệt lại (07 §26).
+	NeedsReview bool `json:"needsReview,omitempty"`
+	// RebindError ghi lần thay media vào project đã dựng bị lỗi, để lần "Dùng
+	// bản này" sau sửa lại.
+	RebindError string `json:"rebindError,omitempty"`
+}
+
+// PromptDraft là phần chủ kênh sửa tay cho một ảnh: chỉ áp cho lần vẽ kế tiếp
+// của đúng ảnh đó.
+type PromptDraft struct {
+	Project  *bool         `json:"project,omitempty"`
+	Parts    PartOverrides `json:"parts,omitempty"`
+	Refs     *[]ImageRef   `json:"refs,omitempty"`
+	Feedback string        `json:"feedback,omitempty"`
+	Provider string        `json:"provider,omitempty"`
+	// BaseStatus là trạng thái ảnh trước khi vẽ lại, để huỷ trả ảnh về đúng
+	// trạng thái cũ.
+	BaseStatus string `json:"baseStatus,omitempty"`
+}
+
+// NextVersion trả số bản kế tiếp của một ảnh.
+func NextVersion(i Item) int {
+	next := 1
+	for _, v := range i.Versions {
+		if v.Version >= next {
+			next = v.Version + 1
+		}
+	}
+	return next
+}
+
+// promptBase trả bản mà lần vẽ sau của ảnh này tiếp nối: bản đang dùng; ảnh
+// chưa duyệt thì bản đang hiện (bản chờ duyệt).
+func promptBase(i Item) *Version {
+	if v := Current(i); v != nil {
+		return v
+	}
+	return Displayed(i)
+}
+
+// UsedParts trả các phần prompt của bản đang dùng — lần vẽ sau của ảnh này
+// dùng đúng prompt đó (07 §26). Bản cũ chưa tách phần thì cả prompt là phần
+// Cảnh.
+func UsedParts(i Item) PromptParts {
+	v := promptBase(i)
+	if v == nil {
+		return nil
+	}
+	if len(v.Parts) > 0 {
+		return append(PromptParts(nil), v.Parts...)
+	}
+	if v.Prompt == "" {
+		return nil
+	}
+	return PromptParts{{Kind: PartScene, Text: v.Prompt, Source: PromptPartSource{Type: "artist", Label: "Bản cũ"}}}
+}
+
+// UsedRefs trả ảnh tham chiếu của bản đang dùng.
+func UsedRefs(i Item) []ImageRef {
+	v := promptBase(i)
+	if v == nil {
+		return nil
+	}
+	return append([]ImageRef(nil), v.Refs...)
+}
+
+// FindItem trả bản sao của ảnh theo id.
+func FindItem(m Manifest, id string) (Item, bool) {
+	for _, i := range m.Items {
+		if i.ID == id {
+			return i, true
+		}
+	}
+	return Item{}, false
 }
 
 // Overrides records video-level selections; absent selections follow the template.
@@ -121,7 +235,7 @@ func CreateManifest(m scenes.Manifest, thumbnail scenes.FileRef, title string) M
 	}
 	if m.Recipe.ImagesMode != "none" {
 		for _, s := range m.Scenes {
-			out.Items = append(out.Items, Item{ID: s.SceneID, Kind: "scene", SceneID: s.SceneID, StartFrame: s.StartFrame, EndFrame: s.EndFrame, Width: 1920, Height: 1080, Reference: s.Keyframe, Narration: s.Text, Context: s.Context, PromptVersion: PromptVersion, Status: "pending", Versions: []Version{}})
+			out.Items = append(out.Items, Item{ID: s.SceneID, Kind: "scene", SceneID: s.SceneID, StartFrame: s.StartFrame, EndFrame: s.EndFrame, KeyframeSec: s.KeyframePTS, Width: 1920, Height: 1080, Reference: s.Keyframe, Narration: s.Text, Context: s.Context, PromptVersion: PromptVersion, Status: "pending", Versions: []Version{}})
 		}
 	}
 	out.Items = append(out.Items, Item{ID: "thumbnail", Kind: "thumbnail", Width: 1280, Height: 720, Reference: thumbnail, Narration: title, PromptVersion: 1, Status: "pending", Versions: []Version{}})

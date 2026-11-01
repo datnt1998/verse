@@ -94,6 +94,9 @@ type QueuePace struct {
 // nil khi nhà cung cấp không báo; UI ghi "N ảnh hôm nay", không bịa "/50".
 type QueueImageQuota struct {
 	Provider string     `json:"provider"`
+	// Label là tên hiển thị của thẻ Kết nối AI (Kết nối AI §); rỗng → UI tự
+	// suy từ Provider.
+	Label    string     `json:"label,omitempty"`
 	Used     int64      `json:"used"`
 	Limit    *int64     `json:"limit"`
 	Period   string     `json:"period"` // "day" | "week"

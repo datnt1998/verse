@@ -19,8 +19,13 @@ applyViderseLabels()
 setPhoneMax(PHONE_MAX_VIDERSE)
 if ('serviceWorker' in navigator) void navigator.serviceWorker.register('/sw.js')
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const start = () =>
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+// Chỉ dev: `#/review?fixture=1` nạp dữ liệu mẫu của màn Duyệt (ảnh, prompt,
+// phiên bản) để xem giao diện khi máy chủ chưa có ảnh thật. Bản build bỏ nhánh này.
+if (import.meta.env.DEV && window.location.hash.includes('fixture=1')) void import('./dev/reviewFixture').then(start)
+else start()

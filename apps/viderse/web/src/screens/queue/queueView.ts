@@ -92,6 +92,6 @@ export const quotaText = (q: QueueImageQuota): string =>
       ? tt.rules.quotaLimit
       : `${Math.max(0, q.limit - q.used)} ${tt.rules.quotaFree}`
 
-/** Tên nguồn vẽ thân thiện. */
+/** Tên nguồn vẽ thân thiện: nhãn thẻ Kết nối AI từ server, sau đó tên loại nguồn. */
 export const quotaName = (q: QueueImageQuota): string =>
-  (tt.rules.quotaSourceNames as Record<string, string>)[q.provider] ?? q.provider
+  q.label || (tt.rules.quotaSourceNames as Record<string, string>)[q.provider] || q.provider

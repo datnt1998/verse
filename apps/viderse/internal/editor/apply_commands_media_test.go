@@ -48,6 +48,7 @@ func (r *commandTestRepository) CAS(_ context.Context, key, expected string, nex
 	if (!ok && expected != "") || (ok && current.Revision != expected) {
 		return ErrConflict
 	}
+	next.Version = current.Version + 1
 	r.values[key] = next
 	return nil
 }

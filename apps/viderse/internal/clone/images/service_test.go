@@ -57,6 +57,9 @@ func (s *editStore) Commit(_ context.Context, _ jobedit.Snapshot, c jobedit.Chan
 	s.commits++
 	s.change = c
 	s.artifacts = append(s.artifacts, c.Artifacts...)
+	// Ghi đè cả manifest: json.Unmarshal giữ nguyên trường vắng mặt, nên phải
+	// xoá trước để "không có draft/needsReview" đọc ra đúng là không có.
+	s.m = model.Manifest{}
 	return json.Unmarshal(c.Checkpoint, &s.m)
 }
 func testService() (*Service, *editStore) {

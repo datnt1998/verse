@@ -219,6 +219,85 @@ Nhánh này thay Editor bằng thông báo màn hình hẹp; không giả lập 
 Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp/p06-editor-app-states.json`, `/tmp/p06-editor-{board,app}-1000-final.json`, `/tmp/p06-editor-{board,app}-toast.json`, `/tmp/p06-editor-gate-controls-final.json`, `/tmp/p06-editor-actual-alignment-diff.json`, `/tmp/p06-editor-cmd-z-final.json`, `/tmp/p06-editor-all-aligned-final.json`, `/tmp/p06-editor-conflict-{continue,reload,copy}.json`, `/tmp/p06-editor-finalization-polls.json`, `/tmp/p06-editor-final-export-evidence.json`. MP4 cuối được giữ tại `/tmp/p06-render-smoke-finalized.mp4`.
 
 
+## Gói V29 — ảnh có prompt đã gửi, sửa prompt và vẽ lại đúng ảnh
+
+Kiểm bằng Viderse serve thật (binary của nhánh, DB ném đi trên cluster vs3) + Vite dev tại 5182 trỏ vào API đó, agent-browser 1440 × 900 / 2560 × 1440 / 390 × 844. Không tốn quota: nhà cung cấp OpenAI-compatible nội bộ (`/v1/models`, `/v1/chat/completions`, `/v1/images/generations`) đăng ký qua đúng màn Kết nối AI nên `Paid()` = false; bước `scenes` được seed (manifest + keyframe + thumbnail là blob thật), từ đó bước `images` chạy thật: gọi máy chủ vẽ, ffmpeg mã hoá WebP, publish artifact, ghi manifest §26. Phiên bản 1–4 đều do pipeline vẽ; `use`, `redraw`, `cancel` gọi đúng endpoint của app.
+
+### Đã giao
+
+- Backend: manifest ảnh có `parts`/`wrapper`/`sentText`/`refs`/`provider`/`costImages`/timing, `revision` chống ghi đè, endpoint `redraw` (kèm `feedback`), `use`, `cancel`, `batch`, `refs` add/remove, upload bìa thành phiên bản ready; `providerLimit` theo từng nhà cung cấp; `image.progress` cho pha gửi/nhận.
+- Duyệt (desktop): khung ảnh + dải phiên bản + panel "Prompt đã gửi" theo phần, `so với bản N` (ins/del), Sửa prompt theo phần, Góp ý + Vẽ lại, Dùng bản N, Vẽ lại cả N ảnh.
+- Điện thoại: `MobileReview` cùng dữ liệu, sheet phiên bản, góp ý/vẽ lại, huỷ lần vẽ.
+- Editor: panel cảnh đổi ảnh tại chỗ + ⌘Z; Bàn dựng có ô Phòng vẽ.
+- Prompt tách đúng nghĩa: năm phần sửa được theo board (Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh); hàng rào an toàn và chỉ dẫn công cụ nằm ở `wrapper`, chỉ hiện ở "nguyên văn", không nằm trong phần sửa được và không gửi cho Grok/HTTP (`imagegen.ToolInstructions`).
+- Dòng phiên bản `drawing` ghi ngay lúc bắt đầu chuyến vẽ (phần prompt, refs, nguồn vẽ, `startedAt`, `n`), thay bằng ready/failed/cancelled khi xong; lần thử lại dùng lại đúng `n`. Dòng mồ côi (mất `InFlight`) thành `failed` lý do `provider` khi bước chạy lại; huỷ được từ UI với `costImages` 0.
+
+### Sửa trong lúc tích hợp (lỗi thật, có test)
+
+| Lỗi | Tác động | Sửa |
+|---|---|---|
+| `CommitImageRedraw` trên bước `images` đã đỗ chỉ ghi manifest, không xếp lại bước, không đánh thức worker | "Vẽ lại" ở màn Duyệt (và ở panel cảnh) treo vĩnh viễn: bản mới nằm trong manifest nhưng không ai vẽ, lần bấm sau báo 409 "Ảnh đang tạo" | `jobedit.CommitImageRedraw` đi nhánh `InvalidateFrom=images, Rerun, ImageRedraw` + `Wake`; store chỉ vô hiệu bước `images` (giữ project và bước sau) — `TestCloneImageRedrawRerunsImagesAndWakesJob` |
+| `splitWords` lặp theo `range` rune nhưng vẫn tiến theo từ nên mỗi từ bị phát nhiều lần | Panel "So với bản N" hiện chữ nhân đôi ("Thehee shothototot andndd") | quét theo byte, mỗi từ (kèm khoảng trắng trước) đúng một lần — `TestSplitWordsKeepsEveryWordOnce`, `TestDiffTextDoesNotDuplicateUnchangedWords` |
+| `MobileReview` GET lại `/images` chỉ để lấy `manifest.revision` | thêm một vòng mạng mỗi lần duyệt/bỏ ảnh, dễ lệch revision | dùng `revision` đã có trong payload của `useJobImages` |
+| Hàng rào an toàn và chỉ dẫn công cụ Codex nằm trong phần Cảnh/Phong cách | panel "Prompt đã gửi" hiện `<shot_json>` + "Call image_gen.imagegen exactly ONCE … auth.json" như văn bản Hoạ sĩ viết; chủ kênh sửa phần Cảnh là xoá mất hàng rào, và prompt gửi Grok vẫn mang lệnh gọi tool của Codex | `BuildPrompt` trả `(parts, wrapper)`: guard + `<character_sheet_json>`/`<hook_text_json>` + câu refs vào `wrapper.guard` (mọi nguồn vẽ nhận), lệnh gọi `image_gen.imagegen`/luật đọc tệp/đường dẫn PNG vào `wrapper.tool` chỉ khi nguồn là Codex (`imagegen.ToolInstructions`); `sentText = JoinPrompt(wrapper, parts)` — `TestPartsCarryNoToolOrGuardText`, `TestGrokPromptKeepsGuardWithoutCodexToolInstructions`, `TestPartEditsCannotReachTheWrapper`, `TestWrapperAndPartsJoinToSentText` |
+| Chuyến vẽ không có dòng `versions[]` | "Đang vẽ bản N" và **Huỷ lần vẽ** không hiện được ở Duyệt, điện thoại, panel cảnh và Phòng vẽ; `VersionDrawing` là mã chết | ghi dòng `drawing` trong checkpoint lúc bắt đầu (`recordDrawing`), thay khi xong; dọn dòng mồ côi (`recoverDrawings`), huỷ dòng mồ côi ở `CancelVersion`; `sent` chỉ bật ở pha `sending` nên huỷ trước khi gửi tốn 0 ảnh — `TestDrawingVersionIsWrittenWhileTheDrawRuns`, `TestOrphanedDrawingVersionBecomesFailed`, `TestDrawingVersionResumesAfterRestart`, `TestCancelBeforeProviderSendCostsNoImage`, `TestCancelVersionClearsOrphanedDrawingRow` |
+| `withDirection` ghép câu "Owner visual direction" vào cuối phần Cảnh | `prompt=view` hiện câu hướng/tool trong phần Cảnh như văn bản Hoạ sĩ viết, dù góp ý đã có trường riêng của bản | câu hướng đi vào `wrapper.guard` (phần không sửa được): vẫn trong `sentText` ngay sau hàng rào, phần Cảnh chỉ giữ lời Hoạ sĩ — `TestDirectionLivesInWrapperNotParts`; `stripDirection` giữ cho prompt cũ chưa tách |
+| Nguồn vẽ khoá API ghi `provider` là id thẻ (`openai_compat-61ed93e9`) | dòng meta, dòng hạn mức và footer ô refs ở Duyệt/điện thoại/Hàng chờ hiện id nội bộ thay nhãn thẻ | `imagegen.DisplayLabel` (nhãn thẻ qua `APIDeps.Label` ← `domain.Provider.Label`, fallback nhãn loại); `quota.providers[].label` và `QueueImageQuota.label` gửi nhãn thật; màn Duyệt resolve `version.provider` qua `/api/ai/providers` như Trợ lý AI — `TestDisplayLabelUsesCardLabel`, test `providerName`/`versionMeta` |
+| Tab ô Thêm ảnh tham chiếu xuống hai dòng trong popover 327px | lệch artboard Review (nhãn một dòng) | `sx.tab` `whiteSpace:'nowrap'` + `paddingInline` |
+
+### Kiểm lại trên serve thật sau sửa (2560 × 1440 / 390 × 844 / 360)
+
+Cụm kiểm thử riêng (port 7851, DB `bili_v29fix2_*`, fake provider `openai_compat-c463b225` "Tương thích OpenAI" ở 7859, vite dev 5199, serve build từ worktree đã commit). Mặt Duyệt đã đo:
+
+- 2560 × 1440: khung ảnh giữ `min(100cqw, --nat-w, 100cqh×16/9)` — `--nat-w=1920px`, khung 1758 × 988, ảnh 1920 × 1080 **không phóng**; nhãn tab ô Thêm ảnh tham chiếu một dòng.
+- `prompt=view` sau Vẽ lại có góp ý: Cảnh chỉ còn lời Hoạ sĩ (nguồn "Hoạ sĩ sửa theo góp ý"); câu "Owner visual direction" chỉ nằm ở `wrapper` trong nguyên văn, đứng sau hàng rào; dòng "Bản 2 · Theo góp ý "…"" đọc đúng trường `feedback`.
+- `prompt=raw`: `sentText` đầy đủ guard + direction + parts; meta "Tương thích OpenAI · fake-image · 1920 × 1080 · tốn 1 ảnh" thay id thẻ; footer ô refs "Tương thích OpenAI nhận tối đa 0 ảnh tham chiếu"; quota `{"provider":"openai_compat-c463b225","label":"Tương thích OpenAI"}`.
+- Vẽ lại trên job đã đỗ ở cổng duyệt (images `succeeded`, build `awaiting_review`): bước `images` requeue (attempt 2), dòng `drawing` hiện rồi bản 2 `ready` gắn feedback — lỗi "redraw treo" của lần kiểm trước không tái hiện.
+- MReview 390 × 844: thẻ ảnh + dải phiên bản + "Prompt đã gửi" (Cảnh sạch, meta nhãn thẻ) + nút Vẽ lại / Bỏ ảnh / Duyệt cả video khớp `MReview.dc.html`; scrollWidth = clientWidth ở 360 (không tràn ngang). Editor / Bàn dựng do V29Shots đo riêng.
+
+| Thành phần | Board | App |
+|---|---:|---:|
+| Khung ảnh 2560 (1920 gốc) | giữ kích thước gốc | 1758 × 988 ≤ 1920, không phóng |
+| MReview prompt sheet | phần Cảnh sạch, meta nhãn | khớp (Cảnh một đoạn, "Tương thích OpenAI") |
+
+### Khoá ảnh khi đưa bản mới vào Editor — 02/11/2026
+
+Lần chạy pipeline ảnh thật trên DB ném đi phát hiện `ProjectBinder.Rebind` giữ
+khoá đọc của blob rồi gọi `ImportFileOnce`, trong khi import cần khoá xuất bản
+độc quyền trên chính digest đó. PostgreSQL chờ khoá của cùng tiến trình; không
+phải lỗi đăng nhập nhà cung cấp. Binder nay chép luồng vào tệp riêng, thả khoá
+đọc trước import, giữ tên/định dạng gốc và xoá tệp riêng ở mọi đường thoát.
+
+`TestCloneRebindReleasesReadLeaseBeforeEditorPublication` dùng media/editor
+thật cùng PostgreSQL: giữ khoá cũ gây lỗi deadline 5 giây; thả khoá trước import
+thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi timeout.
+
+
+
+### Lệch hợp đồng §26 (giữ nguyên, có chủ đích)
+
+- Ảnh tham chiếu theo nhà cung cấp: chatgpt 4, grok 1, còn lại 0 — nhà cung cấp không nhận ref thì `refs` rỗng và nút Thêm báo `too_many_refs` với `limit`.
+- Không nhà cung cấp nào stream ảnh dở nên `previewUrl` luôn `null`; tiến trình chỉ có pha qua `image.progress`.
+- `wrapper` là trường thêm (chưa có trong §26 gốc): `{guard: string[], tool?: string[], provider?: string}`. `sentText` vẫn là toàn bộ nguyên văn gửi nhà cung cấp và là chuỗi ghép `guard + parts + tool` bằng dòng trống.
+- "Xem nguyên văn gửi máy chủ" hiện đúng `sentText` từng byte; dòng tham số (`size · quality · references`) là chú thích riêng dưới khối, không chen vào prompt (board vẽ tham số trong cùng khối) — xem GAP nhãn bên dưới.
+
+### GAP
+
+- **Nhãn cho phần không sửa được.** "Nguyên văn" giờ có thêm khối hàng rào an toàn và chỉ dẫn công cụ mà board không vẽ; chưa có nhãn tiếng Việt cho chúng (đề xuất: một dòng chú thích dưới khối "Phần đầu và phần cuối là hàng rào an toàn và chỉ dẫn công cụ — không sửa được", và badge "chỉ Codex" cho khối tool). Chờ design chốt cách gọi trước khi thêm vào panel.
+- Ô chọn ảnh tham chiếu trên điện thoại chưa có thiết kế (Thêm ref ở desktop có).
+- Endpoint seed/dev cho job có ảnh chưa giao; muốn dựng lại cảnh kiểm thử phải seed tay (channel + job + bước `scenes` + blob).
+- Chưa đo được `Editor` (focus=scene, ảnh đang vẽ/xong) và ô **Phòng vẽ** ở Bàn dựng trên serve thật: job kiểm thử chưa có project đã dựng (bước `build` cần template + video nguồn thật), nên hai mặt này mới có test đơn vị của slice — phần này do V29Shots chốt. Mặt Duyệt/MReview đã chụp lại đầy đủ sau sửa (xem "Kiểm lại trên serve thật sau sửa" ở trên).
+- Trạng thái đang vẽ dùng `status === 'running'` của danh sách legacy ở ô Phòng vẽ, không đọc dòng `drawing` của §26; hai nguồn có thể lệch nhau khi bước `images` đỗ vì hạn mức.
+
+### Số đo tại 1440 × 900 (Duyệt)
+
+| Thành phần | Board | App |
+|---|---:|---:|
+| Khung ảnh (content) | 1280 × 720 | 1278 × 718 (viền 1px) |
+| Rail phải | 355 | 355 |
+| Ảnh ở 2560 × 1440 | 1280 × 720, không phóng | 1278 × 718, không phóng |
+| Dải phiên bản | ô 60 × 34, bản đang xem viền đỏ | ô 60 × 34, bản đang xem viền đỏ |
+
 ## Tiêu đề tab, favicon và ảnh chia sẻ — 01/11/2026
 
 **Đã làm**

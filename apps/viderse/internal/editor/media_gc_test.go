@@ -380,3 +380,44 @@ func TestMediaGCUnfinishedImportGraceAndExplicitLists(t *testing.T) {
 		t.Fatalf("unfinished reclaim: %v %v", o, e)
 	}
 }
+
+func TestProjectMediaTokensRecognizesPortableStructuralOwnership(t *testing.T) {
+	ctx := context.Background()
+	id := "media-0123456789abcdef0123456789abcdef"
+	for _, test := range []struct {
+		name string
+		body Object
+		held bool
+	}{
+		{"saved-clip", Object{"timeline": Object{"items": []any{Object{"mediaId": id}}}}, true},
+		{"saved-link", Object{"mediaIds": []any{Object{"id": id, "addedAt": 1000}}}, true},
+		{"portable-library-id", Object{"mediaIds": []any{"library-image_1"}}, true},
+		{"cover", Object{"coverMediaId": id}, true},
+		{"source", Object{"sourceMediaId": id}, true},
+		{"backdrop", Object{"backdropMediaId": id}, true},
+		{"unrelated-label", Object{"label": id}, false},
+		{"unrelated-id", Object{"id": id}, false},
+		{"invalid-path-reference", Object{"mediaId": "../" + id}, false},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			s := newMediaTestService(t)
+			if _, err := s.writeJSON(ctx, "projects/owner", "editor/projects/owner/project.json", test.body, ""); err != nil {
+				t.Fatal(err)
+			}
+			ids, err := s.ProjectMediaIDs(ctx, "owner")
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := []string{}
+			if test.held {
+				want = []string{id}
+				if test.name == "portable-library-id" {
+					want = []string{"library-image_1"}
+				}
+			}
+			if !reflect.DeepEqual(ids, want) {
+				t.Fatalf("structural ownership: got %v want %v", ids, want)
+			}
+		})
+	}
+}

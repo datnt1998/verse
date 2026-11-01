@@ -543,7 +543,7 @@ Mẫu:
 - Hỏi design: xác nhận các điểm trên hay vẽ lại.
 - Trả lời (design, 01/11/2026): Duyệt tất cả như app đang làm (ô Link YouTube không bắt buộc trong hộp Đánh dấu đã đăng, thẻ YouTube Data API cùng nhịp thẻ nhà cung cấp, thanh dài nhất 90%, Kênh › Video). Link sai: “Đây không phải link video YouTube.” <!-- r32 -->
 
-### #77 · Gói V29: prompt đã gửi, ảnh tham chiếu và ảnh xem dần — Mở <!-- r33-img -->
+### #77 · Gói V29: prompt đã gửi, ảnh tham chiếu và ảnh xem dần — Đã trả lời (dev, 01/11) <!-- r33-img -->
 - Artboard: `Review` · `prompt=view|raw`, `state=redrawing|reveal`; data-contract §26.
 - Hỏi dev:
   1. Pipeline ảnh hiện ghép prompt ở đâu? Lưu được **nguyên văn đã gửi** theo từng phần (Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh) cho mỗi lần vẽ không, hay chỉ ghép tại chỗ rồi bỏ?
@@ -551,6 +551,13 @@ Mẫu:
   3. Nguồn vẽ nào trả **ảnh xem dần** (ví dụ `partial_images` của gpt-image)? Nếu không có thì giao diện chỉ dùng ảnh cũ mờ + vệt sáng, không vẽ ảnh xem dần giả.
   4. Huỷ lần vẽ khi nhà cung cấp đã nhận yêu cầu: có bị tính hạn mức không? Câu “Huỷ lần vẽ” cần nói trước nếu có.
   5. Giữ ảnh của mọi phiên bản cũ có ảnh hưởng dọn dữ liệu (GC media) không? Đề xuất giữ tới khi video được xoá hoặc dọn MP4.
+- Trả lời (dev, 01/11/2026):
+  1. Prompt ghép ở `internal/pipeline/steps/images/prompt.go` (`BuildParts`), lúc chốt mỗi lần vẽ trong handler bước images. Giờ **lưu đủ**: `Version.Parts` (đúng năm phần Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh, mỗi phần kèm nguồn `artist|artist_feedback|image_prompt|template|user` + id + nhãn), `Version.Prompt` là **nguyên văn đã gửi** và bằng đúng chuỗi nhà cung cấp nhận (`parts` ghép bằng một dòng trống ra đúng `sentText`; có test đối chiếu với yêu cầu mà nguồn vẽ giả nhận được). Provider không bọc lại prompt: Codex nhận prompt thành một đối số, Grok và nguồn HTTP nhận nguyên `prompt` trong body.
+  2. Mặc định mỗi ảnh cảnh gửi **hai** ảnh tham chiếu: khung nguồn của chính cảnh đó (vai trò `layout`, nguồn `rival_frame` kèm `videoId` + `atSec`) và ảnh đang dùng của cảnh đầu (vai trò `character`, nguồn `video_image` kèm `imageId`); ảnh bìa mặc định không gửi kèm. Chủ kênh thêm/bớt được (khung video gốc, ảnh trong video, tệp tải lên). Mỗi ảnh lưu `Version.Refs` với đúng nguồn (`rival_frame` videoId+atSec, `video_image` imageId, `upload`) và đường dẫn artifact để hiện lại ảnh thu nhỏ. Trần theo nguồn vẽ: Codex/ChatGPT 4, Grok 1 (một ảnh mỗi lời gọi `images/edits`), nguồn HTTP khác 0 — quá trần trả 422 `too_many_refs` kèm `limit`.
+  3. **Không nguồn nào trả ảnh xem dần.** Codex CLI chỉ trả tệp PNG khi xong; Grok và các nguồn HTTP trả một ảnh cuối. Vì vậy `previewUrl` luôn `null` và giao diện dùng ảnh cũ mờ + vệt sáng như phương án đã chốt — không có ảnh xem dần giả.
+  4. Huỷ **trước khi gửi** nhà cung cấp: không tốn ảnh nào (`costImages: 0`, phiên bản `cancelled`, bản đang dùng giữ nguyên). Huỷ **sau khi đã gửi**: yêu cầu đã rời máy, nhà cung cấp có thể vẫn tính — lần vẽ đó vẫn bị tính vào hạn mức ngày (`costImages: 1`) và phiên bản ghi `cancelled`. Nên câu xác nhận “Huỷ lần vẽ” nói trước: “Huỷ khi nhà cung cấp đã nhận yêu cầu vẫn có thể bị tính ảnh.”
+  5. Không ảnh hưởng dọn dữ liệu: mọi tệp của mọi phiên bản đều được công bố thành artifact của video và nằm trong gốc giữ của GC (`storage_live_refs` gồm toàn bộ `clone_artifacts`), nên tệp của bản cũ **được giữ** chừng nào video còn; xoá video thì giải phóng theo artifact, dọn MP4 (chính sách dọn tệp nguồn) không đụng tới ảnh. Đúng đề xuất “giữ tới khi video được xoá hoặc dọn MP4”.
+- Ghi chú migrate: bản ghi cũ không có `parts` nhưng **có** `prompt` — chính là nguyên văn đã gửi, nên `sentText` của bản cũ đọc lại đúng, không mất dữ liệu. Phần prompt của bản cũ chưa từng tách nên trả về một phần Cảnh duy nhất kèm cờ `partsLegacy: true` (giao diện hiện nguyên văn, không mở sửa theo phần); không cần đánh dấu riêng cho `sentText`.
 
 ### #78 · Lưu trữ: in đường dẫn dạng ~/… — Đã chốt <!-- r34 -->
 - Hiện trạng: artboard `Settings` · `store=here` in `~/Library/Application Support/Viderse/data/projects`. Dev đã thêm `displayPath` vào API (thay thư mục nhà bằng `~`); UI in `displayPath`, đường dài thì cắt ở giữa.

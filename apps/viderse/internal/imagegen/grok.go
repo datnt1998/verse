@@ -321,8 +321,13 @@ func (p *GrokProvider) Draw(ctx context.Context, req Request, journal JournalHan
 		base = grokDefaultBaseURL
 	}
 	url := base + "/images/generations"
-	if req.Reference != "" {
-		uri, err := referenceDataURI(req.Reference)
+	// images/edits nhận đúng một ảnh: dùng ảnh tham chiếu đầu tiên.
+	reference := req.Reference
+	if len(req.References) > 0 {
+		reference = req.References[0]
+	}
+	if reference != "" {
+		uri, err := referenceDataURI(reference)
 		if err != nil {
 			return Receipt{}, MarkUnpaid(err)
 		}

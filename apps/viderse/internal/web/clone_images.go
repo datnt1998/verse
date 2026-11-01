@@ -30,6 +30,9 @@ type CloneImageOperations interface {
 	ApplyOverrides(context.Context, string, cloneimages.OverrideInput) (cloneimages.OverridePlan, error)
 	UploadCover(context.Context, string, string, cloneimages.RevisionInput) (cloneimages.CoverResult, error)
 	DisplayedCutout(context.Context, string, string) (string, error)
+	RedrawVersions(context.Context, string, cloneimages.RedrawVersionsInput) (cloneimages.RedrawVersionsResult, error)
+	UseVersion(context.Context, string, string, cloneimages.UseVersionInput) (cloneimages.UseVersionResult, error)
+	CancelVersion(context.Context, string, string, int) (cloneimages.CancelVersionResult, error)
 }
 type CloneBackdropOperations interface {
 	Read(context.Context, string) (*clonebackdrop.EvidenceView, error)
@@ -167,11 +170,14 @@ func (ops CloneOperations) route(g *Gateway, w http.ResponseWriter, r *http.Requ
 	return true
 }
 func cloneOperationJSON(w http.ResponseWriter, result any, err error) {
+	cloneOperationJSONStatus(w, http.StatusAccepted, result, err)
+}
+func cloneOperationJSONStatus(w http.ResponseWriter, status int, result any, err error) {
 	if err != nil {
 		WriteCloneError(w, err)
 		return
 	}
-	webapp.WriteJSON(w, http.StatusAccepted, result)
+	webapp.WriteJSON(w, status, result)
 }
 func validBackdropEdit(input clonebackdrop.EditRequest) bool {
 	if input.ItemID != "" && !cloneSegment(input.ItemID) {
@@ -228,6 +234,43 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 		default:
 			invalidClone(w, "Thao tác ảnh không hợp lệ.")
 		}
+		return
+	}
+	if len(parts) == 1 && parts[0] == "redraw" && r.Method == http.MethodPost {
+		var input cloneimages.RedrawVersionsInput
+		if !webapp.DecodeJSONCode(w, r, &input, domain.CloneErrInvalidRequest) {
+			return
+		}
+		result, err := ops.Images.RedrawVersions(r.Context(), id, input)
+		var tooMany *cloneimages.TooManyRefsError
+		if errors.As(err, &tooMany) {
+			webapp.WriteJSON(w, http.StatusUnprocessableEntity, map[string]any{"code": "too_many_refs", "limit": tooMany.Limit})
+			return
+		}
+		cloneOperationJSONStatus(w, http.StatusAccepted, result, err)
+		return
+	}
+	if len(parts) == 2 && cloneSegment(parts[0]) && parts[1] == "use" && r.Method == http.MethodPost {
+		var input cloneimages.UseVersionInput
+		if !webapp.DecodeJSONCode(w, r, &input, domain.CloneErrInvalidRequest) {
+			return
+		}
+		if input.N < 1 {
+			invalidClone(w, "Phiên bản ảnh không hợp lệ.")
+			return
+		}
+		result, err := ops.Images.UseVersion(r.Context(), id, parts[0], input)
+		cloneOperationJSONStatus(w, http.StatusOK, result, err)
+		return
+	}
+	if len(parts) == 4 && cloneSegment(parts[0]) && parts[1] == "versions" && parts[3] == "cancel" && r.Method == http.MethodPost {
+		n, err := strconv.Atoi(parts[2])
+		if err != nil || n < 1 {
+			invalidClone(w, "Phiên bản ảnh không hợp lệ.")
+			return
+		}
+		result, err := ops.Images.CancelVersion(r.Context(), id, parts[0], n)
+		cloneOperationJSONStatus(w, http.StatusOK, result, err)
 		return
 	}
 	if len(parts) != 1 || !cloneSegment(parts[0]) {

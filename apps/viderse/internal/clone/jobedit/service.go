@@ -31,11 +31,18 @@ type Change struct {
 	Checkpoint     json.RawMessage
 	InvalidateFrom domain.CloneStep
 	Rerun          bool
-	Artifacts      []domain.CloneArtifact
-	ApproveExport  bool
-	ImageReview    bool
-	ImageIDs       []string
-	ImageOverride  bool
+	// ImageRedraw: vẽ lại ảnh của một video đã dựng — chỉ bước images chạy
+	// lại, bước sau giữ nguyên (media của clip được thay tại chỗ).
+	ImageRedraw   bool
+	Artifacts     []domain.CloneArtifact
+	ApproveExport bool
+	ImageReview   bool
+	// ImageRebind: lượt thay media của clip trong project đã dựng (07 §26) —
+	// ghi manifest bước build được phép trong lúc job lease còn sống vì lượt
+	// vẽ lại ảnh vẫn đang chạy.
+	ImageRebind   bool
+	ImageIDs      []string
+	ImageOverride bool
 }
 type Store interface {
 	Read(context.Context, string, domain.CloneStep) (Snapshot, error)
@@ -158,10 +165,17 @@ func (s *Service) Acquire(ctx context.Context, snapshot Snapshot, path string) (
 }
 
 func (s *Service) Commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact) error {
-	return s.commit(ctx, before, checkpoint, from, rerun, artifacts, false, nil)
+	return s.commit(ctx, before, checkpoint, from, rerun, artifacts, false, nil, false)
+}
+
+// CommitBuildMedia ghi manifest bước build sau khi thay media của clip: lượt
+// vẽ lại ảnh (bước images) vẫn giữ job lease nên commit phải đi qua — CAS của
+// bước build vẫn chặn mọi thay đổi khác.
+func (s *Service) CommitBuildMedia(ctx context.Context, before Snapshot, checkpoint any, artifacts []media.Artifact) error {
+	return s.commit(ctx, before, checkpoint, "", false, artifacts, false, nil, true)
 }
 func (s *Service) CommitOwnerApproval(ctx context.Context, before Snapshot, checkpoint any) error {
-	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true, nil)
+	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true, nil, false)
 }
 func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, imageIDs []string) error {
 	if before.Step.Status == domain.CloneRunning {
@@ -180,8 +194,43 @@ func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkp
 		}
 		return nil
 	}
-	return s.commit(ctx, before, checkpoint, from, rerun, nil, false, imageIDs)
+	return s.commit(ctx, before, checkpoint, from, rerun, nil, false, imageIDs, false)
 }
+
+// CommitImageRedraw ghi yêu cầu vẽ lại ảnh và chỉ đánh dấu bước images chạy
+// lại: video đã dựng giữ nguyên project, media của clip được thay tại chỗ.
+func (s *Service) CommitImageRedraw(ctx context.Context, before Snapshot, checkpoint any, imageIDs []string) error {
+	raw, err := json.Marshal(checkpoint)
+	if err != nil {
+		return err
+	}
+	if before.Step.Status == domain.CloneRunning {
+		if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, Rerun: true, ImageRedraw: true, ImageIDs: imageIDs}); err != nil {
+			return err
+		}
+		if s.Publish != nil {
+			s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+		}
+		if s.Wake != nil {
+			s.Wake()
+		}
+		return nil
+	}
+	// Step đã đỗ (video đang chờ duyệt): yêu cầu vẽ lại phải xếp lại đúng bước
+	// images và đánh thức worker — nếu không bản mới chỉ nằm trong manifest mà
+	// không ai vẽ. Chỉ bước images chạy lại; project và bước sau giữ nguyên.
+	if err := s.Store.Commit(ctx, before, Change{Checkpoint: raw, InvalidateFrom: domain.CloneImages, Rerun: true, ImageRedraw: true, ImageIDs: imageIDs}); err != nil {
+		return err
+	}
+	if s.Publish != nil {
+		s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": before.Job.ID, "step": before.Step.Step})
+	}
+	if s.Wake != nil {
+		s.Wake()
+	}
+	return nil
+}
+
 func (s *Service) CommitImageOverride(ctx context.Context, before Snapshot, checkpoint any) error {
 	raw, err := json.Marshal(checkpoint)
 	if err != nil {
@@ -198,7 +247,7 @@ func (s *Service) CommitImageOverride(ctx context.Context, before Snapshot, chec
 	}
 	return nil
 }
-func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool, imageIDs []string) error {
+func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, artifacts []media.Artifact, approveExport bool, imageIDs []string, imageRebind bool) error {
 	raw, err := json.Marshal(checkpoint)
 	if err != nil {
 		return err
@@ -256,7 +305,7 @@ func (s *Service) commit(ctx context.Context, before Snapshot, checkpoint any, f
 		published = append(published, artifact)
 	}
 	err = s.Media.Publish(ctx, published, func(txctx context.Context) error {
-		return s.Store.Commit(txctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, Artifacts: entries, ApproveExport: approveExport, ImageReview: imageIDs != nil, ImageIDs: imageIDs})
+		return s.Store.Commit(txctx, before, Change{Checkpoint: raw, InvalidateFrom: from, Rerun: rerun, Artifacts: entries, ApproveExport: approveExport, ImageReview: imageIDs != nil, ImageRebind: imageRebind, ImageIDs: imageIDs})
 	})
 	if err != nil {
 		return err

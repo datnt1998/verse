@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/autonomy"
@@ -48,6 +49,25 @@ type Deps struct {
 	// Notes trả "Ghi chú đã học" của prompt cảnh và prompt bìa đang dùng cho
 	// video này; nối vào cuối prompt lúc chốt mỗi lần vẽ. Nil → không có ghi chú.
 	Notes func(context.Context, domain.CloneJob, *Overrides) (LearnedNotes, error)
+	// RefLimit trả số ảnh tham chiếu nguồn vẽ nhận cho một ảnh (07 §26).
+	RefLimit func(context.Context, domain.CloneJob, string) int
+	// PromptProvider trả nguồn vẽ mà prompt được viết cho (nguồn riêng của
+	// ảnh; không có thì nguồn đầu chuỗi của video) — quyết định chỉ dẫn công
+	// cụ nào đi kèm phần không sửa được của prompt.
+	PromptProvider func(context.Context, domain.CloneJob, string) string
+	// PromptSource ghi nguồn của phần Phong cách (prompt thư viện/template).
+	PromptSource func(context.Context, domain.CloneJob, *Overrides, string) PromptPartSource
+	// AcquireUpload pins an editor upload until release is called after copying.
+	AcquireUpload func(context.Context, string) (path string, release func(), err error)
+	// DrawerFor dựng nguồn vẽ cho nguồn riêng của một ảnh ("" = chuỗi chung).
+	DrawerFor func(context.Context, domain.CloneJob, string) (Drawer, error)
+	// Built báo video đã có project editor đã dựng chưa (project id).
+	Built func(context.Context, domain.CloneJob) (string, bool, error)
+	// Rebind thay media của clip trong project đã dựng khi bản mới thành bản
+	// đang dùng, rồi đo lại Độ hoàn thiện.
+	Rebind func(context.Context, domain.CloneJob, RebindRequest) error
+	// Cancels là sổ huỷ lần vẽ dùng chung với tầng API; nil → không huỷ được.
+	Cancels *CancelRegistry
 }
 type Handler struct{ Deps Deps }
 
@@ -113,6 +133,13 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		}
 		if m.SceneRevision != doc.Revision {
 			m = Reconcile(m, fresh)
+		}
+	}
+	// Dòng `drawing` mồ côi thành failed trước khi làm bất cứ việc gì: chuyến vẽ
+	// còn sống (InFlight) được chạy tiếp, dòng đó sẽ được thay khi xong.
+	if recoverDrawings(&m, h.now()) {
+		if err := s.SaveCheckpoint(ctx, m); err != nil {
+			return pipeline.StepResult{}, err
 		}
 	}
 	if _, err = drainIntents(ctx, s, &m); err != nil {
@@ -245,6 +272,14 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	return result, nil
 }
 
+// now trả đồng hồ của handler (test tiêm bản giả).
+func (h Handler) now() time.Time {
+	if h.Deps.Now != nil {
+		return h.Deps.Now()
+	}
+	return time.Now()
+}
+
 func drainIntents(ctx context.Context, s *pipeline.StepContext, m *Manifest) (bool, error) {
 	if s.DrainImageIntents == nil {
 		return false, nil
@@ -296,6 +331,14 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 	if scorer == nil && h.Deps.Model != nil {
 		scorer = autonomy.NewVisionScorer(h.Deps.Model)
 	}
+	builtProject := ""
+	if h.Deps.Built != nil {
+		if projectID, built, err := h.Deps.Built(ctx, s.Job); err != nil {
+			return err
+		} else if built {
+			builtProject = projectID
+		}
+	}
 	var drawn []string // PNG vừa vẽ trong lượt này, để chấm mục "trùng ảnh"
 	var mu sync.Mutex
 	var first error
@@ -346,57 +389,157 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				item := &m.Items[index]
 				beforeFlight := *item
 				previousRevision := m.Revision
+				started := now()
+				var refArtifacts []media.Artifact
 				if item.InFlight == nil {
-					prompt, err := BuildManifestImagePrompt(notes.Apply(*m), *item)
+					plan, err := h.plan(ctx, s, m, notes, *item)
 					if err != nil {
 						mu.Unlock()
 						return err
 					}
-					version := 1
-					for _, v := range item.Versions {
-						version = max(version, v.Version+1)
+					refArtifacts = plan.RefArtifacts
+					version := NextVersion(*item)
+					generation := steps.FingerprintHex(map[string]any{"job": s.Job.ID, "generation": s.Job.Generation, "id": item.ID, "version": version, "promptVersion": item.PromptVersion, "source": SourceFingerprint(*item), "prompt": plan.SentText, "refs": plan.Refs})[:24]
+					item.InFlight = &Flight{GenerationID: generation, Version: version, Prompt: plan.SentText, PromptVersion: item.PromptVersion, SourceFingerprint: SourceFingerprint(*item), PNG: filepath.ToSlash(filepath.Join("images", "flights", item.ID, generation+".png")), Parts: plan.Parts, Wrapper: plan.Wrapper, Refs: plan.Refs, Feedback: plan.Feedback, Provider: plan.Provider, StartedAt: started.UTC().Format(time.RFC3339Nano), BaseVersion: item.CurrentVersion, BaseStatus: item.Status}
+					if item.Draft != nil {
+						item.InFlight.Project = item.Draft.Project
 					}
-					generation := steps.FingerprintHex(map[string]any{"job": s.Job.ID, "generation": s.Job.Generation, "id": item.ID, "version": version, "promptVersion": item.PromptVersion, "source": SourceFingerprint(*item), "prompt": prompt})[:24]
-					item.InFlight = &Flight{GenerationID: generation, Version: version, Prompt: prompt, PromptVersion: item.PromptVersion, SourceFingerprint: SourceFingerprint(*item), PNG: filepath.ToSlash(filepath.Join("images", "flights", item.ID, generation+".png"))}
 				}
 				item.Status = "running"
 				item.Error = ""
-				if err := save(); err != nil {
+				// Dòng `drawing` vào manifest cùng lúc với con trỏ InFlight: màn
+				// Duyệt, dải ảnh và Phòng vẽ thấy "Đang vẽ bản N" (và huỷ được)
+				// ngay từ lúc gửi, không đợi ảnh xong.
+				recordDrawing(item, *item.InFlight)
+				m.Revision++
+				var checkpointErr error
+				if len(refArtifacts) > 0 {
+					checkpointErr = s.Publish(ctx, refArtifacts, func(txctx context.Context) error {
+						return s.SaveCheckpoint(txctx, *m)
+					})
+				} else {
+					checkpointErr = s.SaveCheckpoint(ctx, *m)
+				}
+				if checkpointErr != nil {
 					*item = beforeFlight
 					m.Revision = previousRevision
 					mu.Unlock()
-					return err
+					return checkpointErr
 				}
 				flight := *item.InFlight
 				localItem := *item
 				mu.Unlock()
+				cancelKey := DrawKey(s.Job.ID, localItem.ID, flight.Version)
+				if h.Deps.Cancels.Cancelled(cancelKey) {
+					// Huỷ trước khi gửi nhà cung cấp: không tốn ảnh nào.
+					mu.Lock()
+					defer mu.Unlock()
+					item = &m.Items[index]
+					recordCancelled(item, flight, started, now)
+					item.InFlight = nil
+					item.Draft = nil
+					item.Status = restoredStatus(flight)
+					item.Error = ""
+					m.Revision++
+					h.Deps.Cancels.Clear(cancelKey)
+					if e := save(); e != nil {
+						return e
+					}
+					publishPhase(s, localItem.ID, flight.Version, "failed", started)
+					return nil
+				}
 				png := filepath.Join(s.StagingDir, filepath.FromSlash(flight.PNG))
 				if err := os.MkdirAll(filepath.Dir(png), 0755); err != nil {
 					return err
 				}
+				drawer, err := h.drawer(ctx, s.Job, flightProvider(localItem))
+				if err != nil {
+					return err
+				}
+				stagedRefs, refFiles, refArtifacts, err := h.stageRefs(ctx, s, m, localItem, flight.Refs, h.refLimit(ctx, s.Job, flightProvider(localItem)))
+				if err != nil {
+					return err
+				}
+				// Older checkpoints may still contain unresolved uploads/frames.
+				// Freeze and publish their exact bytes before sending paid work.
+				if len(refArtifacts) > 0 {
+					mu.Lock()
+					previous := m.Items[index]
+					previousRevision := m.Revision
+					flight.Refs = stagedRefs
+					updated := *m.Items[index].InFlight
+					updated.Refs = stagedRefs
+					m.Items[index].InFlight = &updated
+					recordDrawing(&m.Items[index], updated)
+					m.Revision++
+					err = s.Publish(ctx, refArtifacts, func(txctx context.Context) error {
+						return s.SaveCheckpoint(txctx, *m)
+					})
+					if err != nil {
+						m.Items[index] = previous
+						m.Revision = previousRevision
+					}
+					mu.Unlock()
+					if err != nil {
+						return err
+					}
+				}
 				key := fmt.Sprintf("%s:%d:%s:%s", s.Job.ID, s.Job.Generation, localItem.ID, flight.GenerationID)
-				receipt, err := h.Deps.Drawer.Draw(slotctx, imagegen.Request{Key: key, Prompt: flight.Prompt, Output: png, Width: localItem.Width, Height: localItem.Height})
+				drawCtx, releaseDraw := h.Deps.Cancels.Register(cancelKey, slotctx)
+				// sent bật khi nhà cung cấp đã nhận yêu cầu: huỷ/lỗi trước mốc đó
+				// không tốn ảnh nào (07 §26).
+				var sent atomic.Bool
+				phase := func(name string) {
+					if name == "sending" {
+						sent.Store(true)
+					}
+					publishPhase(s, localItem.ID, flight.Version, name, started)
+				}
+				request := imagegen.Request{Key: key, Prompt: flight.Prompt, Output: png, Width: localItem.Width, Height: localItem.Height, References: refFiles, OnPhase: phase}
+				receipt, err := drawer.Draw(drawCtx, request)
 				if imagegen.IsImageRefused(err) && !localItem.Modest {
 					mu.Lock()
 					m.Items[index].Modest = true
 					localItem.Modest = true
-					flight.Prompt, err = BuildManifestImagePrompt(notes.Apply(*m), localItem)
-					if err != nil {
-						mu.Unlock()
-						return err
+					draft := PromptDraft{}
+					if localItem.Draft != nil {
+						draft = *localItem.Draft
 					}
-					m.Items[index].InFlight.Prompt = flight.Prompt
+					draft.Refs = &flight.Refs
+					localItem.Draft = &draft
+					plan, planErr := h.plan(ctx, s, m, notes, localItem)
+					if planErr != nil {
+						mu.Unlock()
+						releaseDraw()
+						return planErr
+					}
+					flight.Prompt = plan.SentText
+					flight.Parts = plan.Parts
+					flight.Wrapper = plan.Wrapper
+					flight.Refs = plan.Refs
+					m.Items[index].InFlight.Prompt = plan.SentText
+					m.Items[index].InFlight.Parts = plan.Parts
+					m.Items[index].InFlight.Wrapper = plan.Wrapper
+					m.Items[index].InFlight.Refs = plan.Refs
+					recordDrawing(&m.Items[index], *m.Items[index].InFlight)
 					if e := save(); e != nil {
 						mu.Unlock()
+						releaseDraw()
 						return e
 					}
 					mu.Unlock()
-					receipt, err = h.Deps.Drawer.Draw(slotctx, imagegen.Request{Key: key, Prompt: flight.Prompt, Output: png, Width: localItem.Width, Height: localItem.Height})
+					request.Prompt = flight.Prompt
+					request.References = plan.RefFiles
+					receipt, err = drawer.Draw(drawCtx, request)
 				}
+				releaseDraw()
+				cancelledByOwner := h.Deps.Cancels.Cancelled(cancelKey)
+				h.Deps.Cancels.Clear(cancelKey)
 				if err != nil {
 					mu.Lock()
-					defer mu.Unlock()
 					item = &m.Items[index]
+					failed := versionFailure(flight, receipt, err, started, now, cancelledByOwner, sent.Load())
+					setVersion(item, failed)
 					if imagegen.IsImageRefused(err) {
 						remaining := 0
 						for _, i := range m.Items {
@@ -407,22 +550,29 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 						if Current(*item) != nil {
 							item.Status = "approved"
 							item.InFlight = nil
-							return save()
-						}
-						if item.Kind == "scene" && remaining > 1 {
+						} else if item.Kind == "scene" && remaining > 1 {
 							item.Status = "skipped"
 							item.SkipReason = "refused"
 							item.InFlight = nil
-							return save()
+						} else {
+							item.Status = "failed"
+							item.InFlight = nil
 						}
-						item.Status = "failed"
+					} else if cancelledByOwner || !imagegen.IsUnpaid(err) {
+						item.Status = restoredStatus(flight)
 						item.InFlight = nil
 					} else {
-						item.Status = "pending"
-					} // flight survives quota/crash/encode recovery
+						item.Status = "pending" // flight survives quota/crash/encode recovery
+					}
 					item.Error = err.Error()
 					if e := save(); e != nil {
+						mu.Unlock()
 						return e
+					}
+					mu.Unlock()
+					publishPhase(s, localItem.ID, flight.Version, "failed", started)
+					if cancelledByOwner {
+						return nil
 					}
 					return err
 				}
@@ -431,11 +581,18 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				if err = os.MkdirAll(filepath.Dir(webp), 0755); err != nil {
 					return err
 				}
+				phase("receiving")
 				encoded, err := encode(slotctx, s, png, webp, localItem.Width, localItem.Height)
 				if err != nil {
 					return err
 				}
-				version := Version{Version: flight.Version, GenerationID: flight.GenerationID, CreatedAt: now().UTC().Format(time.RFC3339Nano), Prompt: flight.Prompt, PromptVersion: flight.PromptVersion, RefHash: localItem.Reference.SHA256, SourceFingerprint: flight.SourceFingerprint, Path: relative, SHA256: encoded.SHA256, Width: encoded.Width, Height: encoded.Height, Bytes: encoded.Bytes, Mime: "image/webp", Receipt: &receipt}
+				finished := now()
+				version := Version{Version: flight.Version, GenerationID: flight.GenerationID, CreatedAt: finished.UTC().Format(time.RFC3339Nano), Prompt: flight.Prompt, PromptVersion: flight.PromptVersion, RefHash: localItem.Reference.SHA256, SourceFingerprint: flight.SourceFingerprint, Path: relative, SHA256: encoded.SHA256, Width: encoded.Width, Height: encoded.Height, Bytes: encoded.Bytes, Mime: "image/webp", Receipt: &receipt,
+					StateName: VersionReady, Parts: flight.Parts, Wrapper: flight.Wrapper, Refs: flight.Refs, Provider: receipt.Provider, Model: receipt.Model,
+					Params: &PromptParams{Size: fmt.Sprintf("%dx%d", encoded.Width, encoded.Height)}, Feedback: flight.Feedback,
+					StartedAt: flight.StartedAt, FinishedAt: ptrString(finished.UTC().Format(time.RFC3339Nano)), DurationSec: ptrFloat(finished.Sub(started).Seconds()), CostImages: 1}
+				version.Project = flight.Project
+				version.DiffFromPrev = sceneDiff(*item, flight.Version, flight.Parts.Get(PartScene))
 				artifacts := []media.Artifact{{Path: relative, File: webp, ContentType: "image/webp"}, {Path: flight.PNG, File: png, ContentType: "image/png"}}
 				if localItem.Kind == "scene" && strings.HasPrefix(m.Style, "cutout") {
 					cut := strings.TrimSuffix(relative, ".webp") + ".cutout.png"
@@ -460,21 +617,37 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					}
 				}
 				mu.Lock()
-				defer mu.Unlock()
 				drawn = append(drawn, png)
 				// Publish and manifest checkpoint share the media transaction. A crash
 				// cannot expose a selected version without its immutable bytes.
 				previous := m.Items[index]
 				item = &m.Items[index]
-				item.Versions = append(item.Versions, version)
+				setVersion(item, version)
 				n := version.Version
-				item.ReviewVersion = &n
-				item.Status = "review"
-				item.InFlight = nil
 				item.Prompt = flight.Prompt
+				item.InFlight = nil
+				item.Draft = nil
+				item.Error = ""
+				rebind := builtProject != "" && item.Kind == "scene"
+				if builtProject != "" {
+					// Video đã dựng: bản mới thay bản đang dùng (trừ khi chủ kênh
+					// chọn bản khác trong lúc vẽ) và ảnh được đánh dấu cần duyệt lại.
+					if usedVersionFor(*item, flight) {
+						item.CurrentVersion = &n
+					}
+					item.ReviewVersion = nil
+					item.NeedsReview = true
+					if item.Status == "pending" || item.Status == "running" || item.Status == "review" {
+						item.Status = "approved"
+					}
+				} else {
+					item.ReviewVersion = &n
+					item.Status = "review"
+				}
 				m.Revision++
 				if err = s.Publish(slotctx, artifacts, func(txctx context.Context) error { return s.SaveCheckpoint(txctx, *m) }); err != nil {
 					m.Items[index] = previous
+					mu.Unlock()
 					return err
 				}
 				done := int64(0)
@@ -484,7 +657,27 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					}
 				}
 				total := int64(len(m.Items))
-				return s.Progress(ctx, domain.CloneProgress{UnitsDone: done, UnitsTotal: &total, Phase: "images"})
+				progressErr := s.Progress(ctx, domain.CloneProgress{UnitsDone: done, UnitsTotal: &total, Phase: "images"})
+				mu.Unlock()
+				publishPhase(s, localItem.ID, n, "done", started)
+				if rebind && h.Deps.Rebind != nil {
+					// Thay media của clip trong project đã dựng, giữ chuyển động,
+					// keyframe và thời lượng; lỗi được ghi lại để "Dùng bản này"
+					// sửa tiếp, không làm hỏng lần vẽ.
+					rebindErr := h.Deps.Rebind(ctx, s.Job, RebindRequest{JobID: s.Job.ID, ImageID: localItem.ID, Kind: localItem.Kind, SceneID: localItem.SceneID, Version: version.Version, Path: version.Path, SHA256: version.SHA256, Mime: version.Mime, Width: version.Width, Height: version.Height, Cutout: version.Cutout, ApplyProject: version.Project == nil || *version.Project})
+					mu.Lock()
+					if rebindErr != nil {
+						m.Items[index].RebindError = rebindErr.Error()
+					} else {
+						m.Items[index].RebindError = ""
+					}
+					if e := save(); e != nil {
+						mu.Unlock()
+						return e
+					}
+					mu.Unlock()
+				}
+				return progressErr
 			})
 			if err != nil {
 				mu.Lock()

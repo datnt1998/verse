@@ -82,8 +82,8 @@ func (s Service) RunCommands(ctx context.Context, id string, commands []Command,
 }
 
 func (s Service) runCommandBatch(ctx context.Context, id string, commands []Command, options ApplyCommandsOptions) (Object, []commandMetadataChange, error) {
-	// Serialize command batches without holding Store's project lock. Store.Write
-	// still performs the authoritative CAS against browser/pipeline saves.
+	// Serialize command batches without holding Store's project lock. SaveProject
+	// retains consumed media and performs the authoritative project CAS.
 	lock := resourceLock("command-batches/" + id)
 	lock.Lock()
 	defer lock.Unlock()
@@ -127,7 +127,7 @@ func (s Service) runCommandBatch(ctx context.Context, id string, commands []Comm
 	}
 	revision := base
 	if !options.DryRun && len(commands) > 0 {
-		revision, err = s.Store.Write(ctx, id, next, base)
+		revision, err = s.SaveProject(ctx, id, next, base)
 		if err != nil {
 			return nil, nil, err
 		}

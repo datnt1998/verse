@@ -53,6 +53,42 @@ func addMediaTokens(b []byte, held map[string]bool) error {
 	for _, id := range mediaUUIDToken.FindAllString(string(b), -1) {
 		held[strings.ToLower(id)] = true
 	}
+	// Generated clone media uses portable IDs (media-<digest>), not UUIDs.
+	// Only structural references confer ownership; a media head or an arbitrary
+	// string mentioning an ID is not a permanent GC root.
+	var visit func(any)
+	add := func(value any) {
+		if id, ok := value.(string); ok && portableID.MatchString(id) {
+			held[strings.ToLower(id)] = true
+		}
+	}
+	visit = func(value any) {
+		switch value := value.(type) {
+		case map[string]any:
+			for key, child := range value {
+				switch key {
+				case "mediaId", "coverMediaId", "sourceMediaId", "backdropMediaId":
+					add(child)
+				case "mediaIds":
+					if entries, ok := child.([]any); ok {
+						for _, entry := range entries {
+							if link, ok := entry.(map[string]any); ok {
+								add(link["id"])
+							} else {
+								add(entry)
+							}
+						}
+					}
+				}
+				visit(child)
+			}
+		case []any:
+			for _, child := range value {
+				visit(child)
+			}
+		}
+	}
+	visit(value)
 	return nil
 }
 func (s *Service) projectMediaTokens(ctx context.Context, pid string) (map[string]bool, error) {

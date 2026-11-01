@@ -91,6 +91,23 @@ func (p *CodexProvider) Name() string  { return "codex" }
 func (p *CodexProvider) Model() string { return CodexImageModel }
 func (p *CodexProvider) Paid() bool    { return true }
 
+// codexToolInstructions là chỉ dẫn công cụ của Codex CLI — phần KHÔNG sửa được
+// của prompt, chỉ nguồn Codex nhận: gọi đúng một lần image_gen.imagegen, đọc
+// đúng ảnh đính kèm, trả đúng đường dẫn PNG của tool. Grok và nguồn HTTP nhận
+// ảnh từ API nên không có chỉ dẫn này.
+func codexToolInstructions(tool PromptTool) []string {
+	read := "No image is attached and none is needed: do not read any file. " + SandboxRules
+	if tool.AttachedRefs > 0 {
+		read = fmt.Sprintf("%d reference image(s) are attached and are the only readable files; do not read any other file. ", tool.AttachedRefs) + SandboxRules
+	}
+	return []string{
+		"Call image_gen.imagegen exactly ONCE to create a newly generated image using " + CodexImageModel + ". Do not merely describe an image.",
+		fmt.Sprintf("Compose a landscape 16:9 image for an exact %dx%d output canvas.", tool.Width, tool.Height),
+		read,
+		"After generating, report the EXACT original generated PNG path supplied by the image tool; do not move/copy it or create other files. Stop after one image. Do not claim success without an image.",
+	}
+}
+
 // status đọc trạng thái codex (StatusFunc khi test tiêm).
 func (p *CodexProvider) status(ctx context.Context) (tools.CodexStatus, error) {
 	if p.d.StatusFunc != nil {
@@ -321,8 +338,13 @@ func (p *CodexProvider) Draw(ctx context.Context, req Request, journal JournalHa
 	}
 
 	var files []string
-	if req.Reference != "" {
+	if len(req.References) > 0 {
+		files = append(files, req.References...)
+	} else if req.Reference != "" {
 		files = []string{req.Reference}
+	}
+	if len(files) > RefLimit(p.Name()) {
+		files = files[:RefLimit(p.Name())]
 	}
 	home, modelCatalog, env, attached, err := p.prepareIsolatedCall(ctx, exe, work, refs, files, req.Deny)
 	if err != nil {
@@ -374,6 +396,9 @@ func (p *CodexProvider) Draw(ctx context.Context, req Request, journal JournalHa
 		} else {
 			auditTail = ""
 		}
+	}
+	if req.OnPhase != nil {
+		req.OnPhase("drawing")
 	}
 	args := tools.CodexExecArgs(refs, modelCatalog, attached, "", req.Prompt)
 	timeout := req.Timeout

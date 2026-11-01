@@ -15,6 +15,7 @@ import (
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
+	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
@@ -76,7 +77,7 @@ func withVideoDrawSource(ctx context.Context, edits *jobedit.Service, job domain
 	return out
 }
 
-func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service, seams *assistantSeams) func(context.Context) error {
+func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service, seams *assistantSeams, binder *cloneimages.ProjectBinder, cancels *images.CancelRegistry) func(context.Context) error {
 	images := &cloneimages.Service{Edits: edits, Prompts: librarySvc, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, QuotaLeft: func(ctx context.Context) (int, error) {
 		artist, err := ai.Service.ResolveArtist(ctx)
 		if err != nil {
@@ -103,6 +104,45 @@ func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedi
 		}
 		return left, nil
 	}}
+	images.Quotas = func(ctx context.Context) ([]cloneimages.ProviderQuota, error) {
+		artist, err := ai.Service.ResolveArtist(ctx)
+		if err != nil {
+			return nil, err
+		}
+		providers, _ := ai.Executors.imageProviders(ctx, artist.DrawChain)
+		now := time.Now()
+		day := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		seen := map[string]bool{}
+		out := make([]cloneimages.ProviderQuota, 0, len(providers))
+		for _, provider := range providers {
+			if seen[provider.Name()] {
+				continue
+			}
+			seen[provider.Name()] = true
+			quota := cloneimages.ProviderQuota{Provider: cloneimages.ProviderID(provider.Name()), Label: imagegen.DisplayLabel(provider), Total: ai.Executors.limit, Paid: provider.Paid()}
+			if provider.Paid() {
+				charged, err := ai.Executors.journal.Charged(ctx, provider.Name(), day)
+				if err != nil {
+					return nil, err
+				}
+				quota.Left = max(0, ai.Executors.limit-int(charged))
+			}
+			out = append(out, quota)
+		}
+		return out, nil
+	}
+	images.RefLimits = func(ctx context.Context, provider string) (int, bool) {
+		if provider != "" {
+			return imagegen.RefLimit(provider), true
+		}
+		artist, err := ai.Service.ResolveArtist(ctx)
+		if err != nil || len(artist.DrawChain) == 0 {
+			return imagegen.RefLimit(""), err == nil
+		}
+		return imagegen.RefLimit(artist.DrawChain[0].Provider), true
+	}
+	images.Binder = binder
+	images.Cancels = cancels
 	// Mức tự chủ duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
 	images.Autonomy = autonomySvc.Store
 	autonomySvc.Reviewer = cloneimages.AutoReviewer{Service: images}

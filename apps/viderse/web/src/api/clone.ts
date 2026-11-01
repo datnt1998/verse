@@ -125,6 +125,8 @@ export type QueuePace = { channelId: string; used: number; limit: number }
 
 export type QueueImageQuota = {
   provider: 'gpt' | 'gemini' | 'local' | string
+  /** Tên hiển thị của thẻ Kết nối AI (server gửi); rỗng → suy từ provider. */
+  label?: string
   used: number
   limit: number | null
   period: 'day' | 'week' | string

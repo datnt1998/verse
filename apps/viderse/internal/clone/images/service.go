@@ -194,6 +194,8 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	}
 	m := l.manifest
 	out := View{Manifest: &ManifestView{Revision: m.Revision, SceneRevision: m.SceneRevision, SceneGeneration: m.SceneGeneration, Waiting: m.Waiting}, Items: make([]ItemView, 0, len(m.Items)), Approved: model.ImagesApproved(m)}
+	out.Images = s.imagesView(ctx, l, s.refLimitFor(ctx, ""))
+	out.Quota = s.quotaView(ctx)
 	out.ApprovedToday, err = s.approvedToday(ctx)
 	if err != nil {
 		return View{}, err

@@ -40,6 +40,8 @@ const (
 type APIDeps struct {
 	// Name là tên provider trong biên nhận/trần ngày — id thẻ Kết nối AI.
 	Name string
+	// Label là tên hiển thị của thẻ Kết nối AI (kindTable); rỗng → hiện Name.
+	Label string
 	// Model là id model được chọn (gpt-image-1.5, grok-2-image, …).
 	Model string
 	Style APIStyle
@@ -75,6 +77,7 @@ func NewAPIProvider(d APIDeps) *APIProvider {
 }
 
 func (p *APIProvider) Name() string  { return p.d.Name }
+func (p *APIProvider) Label() string { return p.d.Label }
 func (p *APIProvider) Model() string { return p.d.Model }
 func (p *APIProvider) Paid() bool    { return p.d.Paid }
 
@@ -113,6 +116,9 @@ func (p *APIProvider) Draw(ctx context.Context, req Request, journal JournalHand
 	callCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
+	if req.OnPhase != nil {
+		req.OnPhase("drawing")
+	}
 	var raw []byte
 	var requestID string
 	switch p.d.Style {

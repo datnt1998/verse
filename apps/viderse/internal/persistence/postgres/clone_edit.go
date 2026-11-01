@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -144,7 +146,13 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 		if !found {
 			return ErrNotFound
 		}
-		if (change.ImageReview || change.ImageOverride) && before.Step.Step == domain.CloneImages && current.Step.Status == domain.CloneRunning {
+		for _, artifact := range change.Artifacts {
+			if !strings.HasPrefix(artifact.Path, "clone/"+before.Job.ID+"/") || artifact.Step != before.Step.Step {
+				return &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Tệp không thuộc video này"}
+			}
+		}
+		imageSelection := change.ImageReview && !change.Rerun && change.InvalidateFrom == ""
+		if (change.ImageReview || change.ImageOverride || change.ImageRedraw) && before.Step.Step == domain.CloneImages && current.Step.Status == domain.CloneRunning {
 			if job.Fence != before.Job.Fence || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
 				return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
 			}
@@ -191,8 +199,14 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 				}
 			}
 			names := make([]string, 0)
-			for _, step := range domain.DependentsOf(domain.CloneImages) {
-				names = append(names, string(step))
+			if change.ImageRedraw {
+				// Vẽ lại ảnh của video đã dựng: bước sau giữ nguyên, media của
+				// clip được thay tại chỗ (07 §26).
+				names = append(names, string(domain.CloneImages))
+			} else if !imageSelection {
+				for _, step := range domain.DependentsOf(domain.CloneImages) {
+					names = append(names, string(step))
+				}
 			}
 			if _, err := q.InvalidateStepRange(txctx, gen.InvalidateStepRangeParams{JobID: u, Column2: names, Column3: nowTz()}); err != nil {
 				return err
@@ -204,10 +218,54 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			return s.refreshDerived(txctx, u, &active)
 		}
 		leaseActive := row.LeaseExpiresAt.Valid && row.LeaseExpiresAt.Time.After(time.Now())
-		if (leaseActive && before.Step.Step != domain.CloneMetadata) || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
+		// ImageRebind (manifest bước build) và ImageReview không chạy lại/đánh dấu
+		// lại bước nào (đổi bản đang dùng) là ghi do chủ kênh/worker yêu cầu trong
+		// lúc lượt vẽ lại còn giữ lease — CAS của chính bước vẫn chặn ghi lệch.
+		// Không có nó, "Dùng bản N"/thay media sau khi vẽ xong đụng lease còn
+		// sống và báo "đang xử lý" mãi trên khung xem.
+		ownerWrite := (change.ImageRebind && before.Step.Step == domain.CloneBuild) || (imageSelection && before.Step.Step == domain.CloneImages)
+		leaseBlocks := leaseActive && before.Step.Step != domain.CloneMetadata && !ownerWrite
+		if leaseBlocks || jobedit.Busy(current, before.Step.Step) || jobedit.Busy(current, change.InvalidateFrom) {
 			return jobedit.Conflict("Video đang xử lý — chờ xong rồi thử lại")
 		}
-		if (before.Step.Step != domain.CloneMetadata && job.Fence != before.Job.Fence) || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || current.Step.Status != before.Step.Status || !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) {
+		if (!ownerWrite && before.Step.Step != domain.CloneMetadata && job.Fence != before.Job.Fence) || current.Step.Fence != before.Step.Fence || current.Step.Attempt != before.Step.Attempt || current.Step.Status != before.Step.Status {
+			return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
+		}
+		rebind := change.ImageRebind && before.Step.Step == domain.CloneBuild
+		if !bytes.Equal(current.Step.Checkpoint, before.Step.Checkpoint) || rebind && !reflect.DeepEqual(current.Step.Output, before.Step.Output) {
+			// ProjectBinder keeps the build checkpoint while replacing its
+			// manifest. Fence the complete mutable output as well, under the
+			// existing job/step locks, before allowing an exact publication retry.
+			if rebind && len(change.Artifacts) > 0 && current.Step.Output != nil {
+				var same bool
+				if err := tx.QueryRow(txctx, `SELECT COALESCE(checkpoint=$3::jsonb,FALSE) FROM clone_steps WHERE job_id=$1 AND step=$2`, u, string(before.Step.Step), change.Checkpoint).Scan(&same); err != nil {
+					return err
+				}
+				if same {
+					// Reconstruct the desired artifact set from the original
+					// snapshot, including unchanged outputs. A subset match must
+					// not acknowledge a publication superseded by another edit.
+					desired := domain.CloneStepOutput{Data: map[string]any{"manifest": "build/manifest.json"}}
+					if before.Step.Output != nil {
+						desired.Artifacts = slices.Clone(before.Step.Output.Artifacts)
+						for key, value := range before.Step.Output.Data {
+							if key != "manifest" {
+								desired.Data[key] = value
+							}
+						}
+					}
+					for _, wanted := range change.Artifacts {
+						relative := relativeCloneArtifact(wanted.Path)
+						desired.Artifacts = slices.DeleteFunc(desired.Artifacts, func(old domain.CloneArtifact) bool {
+							return relativeCloneArtifact(old.Path) == relative
+						})
+						desired.Artifacts = append(desired.Artifacts, wanted)
+					}
+					if reflect.DeepEqual(current.Step.Output, &desired) {
+						return nil
+					}
+				}
+			}
 			return jobedit.Conflict("Nội dung đã thay đổi — tải lại rồi thử lại")
 		}
 		output := domain.CloneStepOutput{Artifacts: []domain.CloneArtifact{}, Data: map[string]any{}}
@@ -220,9 +278,6 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			}
 		}
 		for _, artifact := range change.Artifacts {
-			if !strings.HasPrefix(artifact.Path, "clone/"+before.Job.ID+"/") || artifact.Step != before.Step.Step {
-				return &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Tệp không thuộc video này"}
-			}
 			if err := s.insertArtifact(txctx, u, before.Step.Step, artifact); err != nil {
 				return err
 			}
@@ -308,7 +363,13 @@ func (s *CloneStore) Commit(ctx context.Context, before jobedit.Snapshot, change
 			return s.refreshDerived(txctx, u, nil)
 		}
 		invalidated := []domain.CloneStep{change.InvalidateFrom}
-		invalidated = append(invalidated, domain.DependentsOf(change.InvalidateFrom)...)
+		if change.ImageRedraw {
+			// Vẽ lại ảnh của video đã dựng: chỉ bước images chạy lại, project và
+			// media của clip được thay tại chỗ (07 §26) — bước sau giữ nguyên.
+			invalidated = []domain.CloneStep{domain.CloneImages}
+		} else {
+			invalidated = append(invalidated, domain.DependentsOf(change.InvalidateFrom)...)
+		}
 		names := make([]string, 0, len(invalidated))
 		for _, step := range invalidated {
 			if step != before.Step.Step || change.Rerun {

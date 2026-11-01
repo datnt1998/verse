@@ -133,6 +133,13 @@
   /* Đỏ nhấn: tô nền bước/tile “cần bạn” của ChatGPT (setup-focus). */
   --vv-red-4: rgba(255, 0, 51, .04);
   --vv-red-14: rgba(255, 77, 99, .14);
+  /* Viền bản đang chọn của dải ảnh (Review, Editor › Bản) — artboard .ver[aria-pressed]. */
+  --vv-red-line: #FF4D63;
+  /* Gói V29 — ảnh của cảnh trong Editor và ô đang vẽ ở Phòng vẽ. */
+  --vv-artist-line: rgba(255, 208, 138, .45);
+  --vv-img-badge: rgba(11, 11, 13, .8);
+  --vv-draw-tile-bg: radial-gradient(120% 90% at 50% 40%, #1C2224 0%, #111416 60%, #0C0D0F 100%);
+  --vv-draw-tile-line: rgba(242, 154, 90, .45);
   /* Thanh tiến độ tổng của Chuẩn bị máy (artboard Onboard: đỏ → hồng). */
   --vv-grad-progress: linear-gradient(90deg, #FF0033, #FF4D63);
   /* Dải xanh trượt của thanh tiến độ từng bước đang cài (artboard .bar-run). */

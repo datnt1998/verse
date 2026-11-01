@@ -666,6 +666,18 @@ func (s *Service) AcquireMedia(ctx context.Context, id string) (*media.Handle, e
 	if e != nil {
 		return nil, e
 	}
+	if repo := s.repository(); repo != nil {
+		source, err := repo.Get(ctx, "media/"+id+"/source")
+		if err == nil {
+			if source.Revision != m.ContentHash {
+				return nil, ErrConflict
+			}
+			return s.acquire(ctx, source.Path)
+		}
+		if !mediaMissing(err) {
+			return nil, err
+		}
+	}
 	source, e := s.mediaSourcePath(ctx, id, m)
 	if e != nil {
 		return nil, e

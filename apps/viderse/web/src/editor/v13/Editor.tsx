@@ -25,6 +25,7 @@ import { Preview } from './Preview'
 import { Timeline } from './Timeline'
 import { Inspector } from './Inspector'
 import { ContentPanels, matchesCloneEvent } from './ContentPanels'
+import { clipIdFor, drawingVersionOf, sceneNumber, undoSceneSwap, useSceneRedraws, useSceneSwapStore } from './scene-images'
 import { sx } from './editor.stylex'
 
 type Panel = 'fix' | 'scenes' | 'subs' | 'bg' | 'audio' | 'media'
@@ -59,6 +60,9 @@ function EditorBody({ projectId }: { projectId: string }) {
   const [task, setTask] = useState<TaskAccepted>()
   const [taskResult, setTaskResult] = useState<TaskResult>()
   const [measureTask, setMeasureTask] = useState<TaskAccepted>()
+  const redraws = useSceneRedraws(quality?.jobId)
+  const swapNotice = useSceneSwapStore(state => state.notices[0])
+  const swapError = useSceneSwapStore(state => state.error)
   const { search } = useRoute()
   const openedAt = useRef(false)
   const fps = project?.metadata.fps ?? 30
@@ -145,6 +149,11 @@ function EditorBody({ projectId }: { projectId: string }) {
     return () => window.removeEventListener('beforeunload', beforeUnload)
   }, [session.dirty, session.saving, session.conflict])
   useEffect(() => { if (project) document.title = documentTitle({ name: 'editor', projectId }, { project: project.name }) }, [project?.name, projectId])
+  useEffect(() => {
+    if (!swapNotice) return
+    const timer = window.setTimeout(() => useSceneSwapStore.getState().dismiss(swapNotice.id), 8000)
+    return () => window.clearTimeout(timer)
+  }, [swapNotice])
   const undo = () => { getCommandExecutor().undo() }
   const redo = () => { getCommandExecutor().redo() }
   useShortcutAction({ id: 'undo', label: 'Hoàn tác', scope: 'global', enabled: canUndo && !aligning && dialog !== 'exporting', run: undo })
@@ -212,6 +221,8 @@ function EditorBody({ projectId }: { projectId: string }) {
   }
   const seconds = items.reduce((end, item) => Math.max(end, item.from + item.durationInFrames), 0) / fps
   const sceneCount = items.filter((item) => tracks.find((track) => track.id === item.trackId)?.templateSlot === 'scenes').length
+  const drawingImage = redraws.images.find(image => drawingVersionOf(image))
+  const drawingScene = drawingImage ? sceneNumber(clipIdFor(projectId, drawingImage) ?? '') ?? undefined : undefined
   const progress = taskResult?.request.progress
   const download = taskResult?.export ? getEditorStorage().exportUrl(projectId, taskResult.export.id) : undefined
   const conflictOpen = session.conflict && dismissedConflict !== session.conflict.timestamp
@@ -224,8 +235,18 @@ function EditorBody({ projectId }: { projectId: string }) {
         <div {...stylex.props(sx.body)} inert={dialog === 'exporting' ? true : undefined}>
           <nav role="tablist" aria-label="Bảng bên trái" aria-orientation="vertical" {...stylex.props(sx.rail)}>{panels.map((entry, index) => <button key={entry.id} id={`editor-tab-${entry.id}`} type="button" role="tab" aria-selected={entry.id === panel} aria-controls="ed-left" tabIndex={entry.id === panel ? 0 : -1} {...stylex.props(sx.railButton, entry.id === panel && sx.railSelected)} onKeyDown={(event) => railKey(event, index)} onClick={() => setPanel(entry.id)}><span {...stylex.props(sx.railIcon)}><Icon name={entry.id === 'fix' && passed ? 'tick-b' : entry.icon} size={19} />{entry.id === 'fix' && issueCount > 0 && !passed && <span aria-label={`${issueCount} việc`} {...stylex.props(sx.badge)}>{issueCount}</span>}</span><span {...stylex.props(sx.railLabel)}>{entry.label}</span></button>)}</nav>
           <aside id="ed-left" role="tabpanel" aria-labelledby={`editor-tab-${panel}`} {...stylex.props(sx.left)}><div {...stylex.props(sx.panelHead)}><><h2 {...stylex.props(sx.panelTitle)}>{panel === 'bg' ? 'Nền & lớp phủ' : panels.find((entry) => entry.id === panel)?.label}</h2><span id="editor-panel-actions" /></><span {...stylex.props(sx.panelMeta)}>{panel === 'fix' ? passed ? 'đạt' : left ? `${left} đoạn` : issueCount ? `${issueCount} mục` : 'đo lại' : ''}</span></div>{panel === 'fix' ? displayQuality ? <FixPanel quality={displayQuality} ranges={ranges} selectedRange={selectedRange} fixedIds={fixedIds} onSelectRange={selectRange} onAlignAll={() => align(true)} onMeasure={measure} aligning={aligning} /> : <div {...stylex.props(sx.fixBody)}><Spinner size={16} /></div> : <ContentPanels panel={panel} jobId={quality?.jobId} beforeMutation={session.save} onProjectChanged={session.reloadProject} measurement={{evidence:displayQuality?.items.find(item=>item.id==='loudness')?.evidence,measuredAt:displayQuality?.measuredAt,stale:displayQuality?.items.find(item=>item.id==='loudness')?.stale}} />}</aside>
-          <div data-shell-preview data-shortcut-scope="preview" tabIndex={-1} {...stylex.props(sx.spread, sx.stack)}><Preview /></div>
-          <Inspector ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} onAlign={() => align(false)} aligning={aligning} jobId={quality?.jobId} captionAlignmentPassed={!session.dirty && quality?.items.some(item => item.id === 'captionAlignment' && item.status === 'pass' && !item.stale)} beforeMutation={session.save} onProjectChanged={session.reloadProject} />
+          <div data-shell-preview data-shortcut-scope="preview" tabIndex={-1} {...stylex.props(sx.spread, sx.stack)}>
+            <Preview overlay={<>
+              {drawingScene && <span role="status" {...stylex.props(sx.drawBadge)}><Icon name="magicpen" size={13} />Đang vẽ lại ảnh cảnh {drawingScene} · bạn chỉnh tiếp được</span>}
+              {swapNotice && <div role="status" {...stylex.props(sx.swapToast)}>
+                <Icon name="tick-b" size={14} {...stylex.props(sx.swapToastOk)} />
+                <span>{swapNotice.label} đã dùng bản {swapNotice.n} · chuyển động, keyframe giữ nguyên</span>
+                <button type="button" {...stylex.props(sx.swapToastAction)} onClick={() => undoSceneSwap(swapNotice)}>Hoàn tác ⌘Z</button>
+              </div>}
+              {swapError && <div role="alert" {...stylex.props(sx.swapError)}>{swapError}</div>}
+            </>} />
+          </div>
+          <Inspector ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} onAlign={() => align(false)} aligning={aligning} jobId={quality?.jobId} images={redraws.images} imageProgress={redraws.progress} imageQuota={redraws.quota} onRedrawn={redraws.reload} captionAlignmentPassed={!session.dirty && quality?.items.some(item => item.id === 'captionAlignment' && item.status === 'pass' && !item.stale)} beforeMutation={session.save} onProjectChanged={session.reloadProject} />
         </div><div data-shortcut-scope="timeline" inert={dialog === 'exporting' ? true : undefined}><Timeline ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} /></div><MediaMetadataSync />
       </>}
     </div>

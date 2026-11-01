@@ -225,26 +225,37 @@ export function MediaAsset({ mediaId, src, label = '' }: { mediaId?: string; src
   return <img {...stylex.props(sx.image)} src={url} alt={label} loading="lazy" onError={() => setResolved({ key, url: '', error: true })} />
 }
 
-/** Replaces one clip, never the source shared by the other clips using that media. */
-export async function replaceItemMedia(itemId: string, media: MediaMetadata): Promise<void> {
-  const state = useItemsStore.getState()
-  const item = state.itemById[itemId]
-  const projectId = useProjectStore.getState().currentProject?.id
-  if (!item || !projectId) throw new Error('Mục đang chọn không còn trong video.')
-  const expected = item.type === 'image' ? 'image/' : item.type === 'video' ? 'video/' : null
-  if (!expected || !media.mimeType.startsWith(expected) || !media.contentHash) throw new Error('Chọn media đúng loại cho mục này.')
+/**
+ * Points one clip at another media asset — exactly one undoable command, so the
+ * clip keeps its position, length, motion and keyframes (Gói V29: a redrawn
+ * scene swaps the picture only). Callers own linking the media to the project.
+ */
+export function applyItemMedia(itemId: string, media: MediaMetadata): void {
+  const item = useItemsStore.getState().itemById[itemId]
+  if (!item) throw new Error('Mục đang chọn không còn trong video.')
+  if (!media.contentHash) throw new Error('Chọn media đúng loại cho mục này.')
   const fps = useTimelineSettingsStore.getState().fps
   const sourceFps = media.fps || fps
   const sourceDuration = Math.round(media.duration * sourceFps)
   const requiredFrames = Math.ceil(item.durationInFrames / fps * sourceFps * (item.speed ?? 1))
   if (item.type === 'video' && sourceDuration < requiredFrames) throw new Error('Clip mới ngắn hơn đoạn đang thay. Hãy chọn clip dài hơn.')
-  await getEditorStorage().linkMedia(projectId, media.id)
-  if (useProjectStore.getState().currentProject?.id !== projectId || useItemsStore.getState().itemById[itemId] !== item) throw new Error('Video đã thay đổi. Hãy chọn lại mục cần thay.')
   editorCommand([{ type: 'item.update', params: { id: itemId, updates: {
     mediaId: media.id, src: getEditorStorage().mediaUrl(media.id, media.contentHash),
     sourceWidth: media.width, sourceHeight: media.height,
     ...(item.type === 'video' ? { sourceFps, sourceDuration, sourceStart: 0, sourceEnd: requiredFrames, embeddedAudioMuted: true, loop: false, isReversed: false } : {}),
   }, clearFields: ['thumbnailUrl', 'trimStart', 'trimEnd', 'reverseConformSrc', 'reverseConformPath', 'reverseConformKey', 'reverseConformPreviewSrc', 'reverseConformPreviewPath', 'reverseConformPreviewKey', 'reverseConformStatus', 'reverseConformLocalStart'] } }])
+}
+
+/** Replaces one clip, never the source shared by the other clips using that media. */
+export async function replaceItemMedia(itemId: string, media: MediaMetadata): Promise<void> {
+  const item = useItemsStore.getState().itemById[itemId]
+  const projectId = useProjectStore.getState().currentProject?.id
+  if (!item || !projectId) throw new Error('Mục đang chọn không còn trong video.')
+  const expected = item.type === 'image' ? 'image/' : item.type === 'video' ? 'video/' : null
+  if (!expected || !media.mimeType.startsWith(expected) || !media.contentHash) throw new Error('Chọn media đúng loại cho mục này.')
+  await getEditorStorage().linkMedia(projectId, media.id)
+  if (useProjectStore.getState().currentProject?.id !== projectId || useItemsStore.getState().itemById[itemId] !== item) throw new Error('Video đã thay đổi. Hãy chọn lại mục cần thay.')
+  applyItemMedia(itemId, media)
 }
 
 export function MediaPicker({ item, onClose }: { item: TimelineItem; onClose: () => void }) {

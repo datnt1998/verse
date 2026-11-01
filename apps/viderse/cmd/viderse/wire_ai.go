@@ -258,7 +258,7 @@ func (e *aiExecutors) imageProvider(ctx context.Context, ref domain.ModelRef) (i
 // apiDeps điền phần chung của provider vẽ HTTP.
 func (e *aiExecutors) apiDeps(p domain.Provider, ref domain.ModelRef, style imagegen.APIStyle, key func(context.Context) (string, error)) imagegen.APIDeps {
 	return imagegen.APIDeps{
-		Name: p.ID, Model: ref.Model, Style: style, Client: e.http,
+		Name: p.ID, Label: p.Label, Model: ref.Model, Style: style, Client: e.http,
 		BaseURL: p.BaseURL, APIKey: key,
 		ResolveFfmpeg: func(ctx context.Context) (string, error) { return resolveFfmpeg(ctx, e.toolKit) },
 		Runner:        e.runner,

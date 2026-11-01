@@ -60,9 +60,11 @@ type StepContext struct {
 	ReportProgress    func(context.Context, domain.CloneProgress) error
 	WriteCheckpoint   func(context.Context, json.RawMessage) error
 	DrainImageIntents func(context.Context, json.RawMessage) (json.RawMessage, error)
-	ProcessRunner     ProcessRunner
-	ImageSlot         func(context.Context, func(context.Context) error) error
-	IsPaused          func() bool
+	// PublishEvent phát một sự kiện của app lên luồng SSE (vd. image.progress).
+	PublishEvent  func(string, any)
+	ProcessRunner ProcessRunner
+	ImageSlot     func(context.Context, func(context.Context) error) error
+	IsPaused      func() bool
 }
 
 func (s *StepContext) Progress(ctx context.Context, p domain.CloneProgress) error {
