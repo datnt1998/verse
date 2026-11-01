@@ -57,7 +57,7 @@
 | `Checkbox` · `Radio` | `.vv-check` · `.vv-radio` (`--m`) · `.vv-checkrow` | bật, `mixed`, vô hiệu | `role=checkbox/radio` | Kit, MKit |
 | `ChoiceRow` | `.vv-choice` (`--lg` trong hộp thoại) · `__text/__label/__note` | đang chọn: viền + nền màu nhấn | `role=radio` | Kit, MKit › Hàng |
 | `Switch` | `.vv-switch` (`--m`) | bật (đỏ), đang bật (spinner cạnh), vô hiệu | `role=switch`, `aria-checked` | Kit, MKit |
-| `Segmented` | `.vv-seg` (`--thumb` + `.vv-seg__thumb` trượt · `--bar` thanh tab đầu trang · `--sm` · `--m` · `--fill` chia đều, đợt 34) — mục co theo nhãn, không cắt “…”, hẹp thì cuộn ngang <!-- r34 --> | | `role=radiogroup` hoặc `tablist` | Kit (› Ô nhập & nút › Nhóm chọn), MKit |
+| `Segmented` | `.vv-seg` (mọi nhóm có viên trượt `.is-glide` đo theo mục thật — đợt 37 <!-- r37 --> · `--thumb` + `.vv-seg__thumb` trượt · `--bar` thanh tab đầu trang · `--sm` · `--m` · `--fill` chia đều, đợt 34) — mục co theo nhãn, không cắt “…”, hẹp thì cuộn ngang <!-- r34 --> | | `role=radiogroup` hoặc `tablist` | Kit (› Ô nhập & nút › Nhóm chọn), MKit |
 | `Tooltip` | `.vv-tipwrap` > `.vv-tip` (`--below`, `--wrap`) | hiện sau 0,4s, kèm phím | `role=tooltip` | Kit › Gợi ý & trạng thái |
 | `ExplainPopover` | `.vv-pop--float.vv-pop--note` | bấm để mở, có link `.vv-link` | `role=dialog` | Kit › Gợi ý & trạng thái |
 | `Badge` · `Chip` · `Kbd` | `.vv-tag` + `.vv-tag__dot` (`--working/--ok/--review/--issue/--muted/--accent`) · `.vv-chip` · `.vv-kbd` | | | Kit › Gợi ý & trạng thái |
@@ -75,7 +75,7 @@
 | `Tag` (riêng Viderse) | `.vv-tag--ref/--next/--auto` | | | Kit › Video & thẻ |
 | `Count` · `Score` | `.vv-count` (`--solid/--info`) · `.vv-score` (`--low`) | | | Kit › Video & thẻ |
 | `Progress` · `WaitTile` | `.vv-progress` (`--working/--artist/--ready/--issue`) · `.vv-wait` | mặc định màu nhấn | `role=progressbar` | Kit › Video & thẻ |
-| `ChipSelect` | `.vv-chip` | `aria-expanded`, `.is-custom` (nhãn “riêng”), chỉ hiển thị | `aria-haspopup` | Kit › Video & thẻ |
+| `ChipSelect` | `.vv-chip` | `aria-expanded` (mũi tên lật, đợt 37), hover, nhấn thu .98, `.is-custom` (nhãn “riêng”) | `aria-haspopup` | Kit › Video & thẻ |
 | `FilterPill` · `Tabs` | `.vv-pill` · `__dot` · `.vv-tabs` · `.vv-tab` · `__n` | gạch tab màu nhấn | `role=radio` · `tab` | Kit › Video & thẻ, MKit |
 | `Row` · `Avatar` · `Thumb` | `.vv-row` (`--m` 56px, `.is-on`) · `.vv-avatar` (`--s`, `--bg`, `--ring`, `--fg`) · `.vv-thumb` (`__bl`, `__br`, `__dur`) | nhãn ảnh chỉ ở cạnh dưới | `aria-current` | Kit › Video & thẻ |
 | `VideoCard` · `VideoRow` · `ChannelRow` · `ChannelSwitcher` · `AgentCard` · `StatTile` | ghép từ các lớp trên | xem board | | Kit › Video & thẻ |
@@ -125,6 +125,8 @@ Từ đợt 20, cả 23 artboard màn hình đã vẽ theo kit mới. Bảng nà
 - **Vùng bấm:**
   - Máy tính ≥ 24px (nút 30–36px).
   - Điện thoại ≥ 44px; hàng 56px; nút lớn 48px.
+
+- **`button.vv-row`** <!-- r38 -->: hàng danh sách là một nút (mở màn con, mở sheet) — kit đặt lại nền, viền, font, căn trái, rộng 100%; không tự style lại.
 
 ## Khi thêm thành phần mới
 

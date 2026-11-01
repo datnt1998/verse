@@ -530,6 +530,45 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
 .vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); border-radius: 12px; }
 .vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+/* r37: viên trượt cho mọi nhóm chọn (đo bằng script nhỏ trong board, như Noverse đo bằng JS) */
+.vv-seg.is-glide::before { content: ""; position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: var(--gw, 0px); transform: translateX(var(--gx, 0px)); border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); transition: transform .32s cubic-bezier(.3,.7,.2,1), width .32s cubic-bezier(.3,.7,.2,1); pointer-events: none; }
+.vv-seg.is-glide > button[aria-checked="true"], .vv-seg.is-glide > button[aria-selected="true"] { background: transparent; }
+.vv-seg.is-glide.no-anim::before { transition: none; }
+.vv-seg--bar.is-glide::before { background: var(--vv-selected); border-radius: 8px; }
+.vv-seg--sm.is-glide::before { border-radius: 6px; }
+.vv-seg--m.is-glide::before { border-radius: 9px; }
+.vv-seg > button { transition: color var(--vv-dur), background-color var(--vv-dur), transform 80ms; }
+.vv-seg > button:active { transform: scale(.97); }
+/* r37: chip chọn và nút có mũi tên — hover, nhấn, mũi tên lật khi mở */
+.vv-chip { cursor: pointer; transition: background-color var(--vv-dur), border-color var(--vv-dur), transform 80ms; }
+.vv-chip:hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-chip:active { transform: scale(.98); }
+.vv-chip > .i-arrow-d:last-child, .vv-btn > .i-arrow-d:last-child { width: 13px; height: 13px; color: var(--vv-text-hint); transition: transform .18s var(--vv-ease); }
+.vv-chip[aria-expanded="true"] > .i-arrow-d:last-child, .vv-btn[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+.vv-tab { transition: color var(--vv-dur), border-color .24s var(--vv-ease); }
+.vv-select > .i-arrow-d:last-child { width: 15px; height: 15px; margin-left: auto; color: var(--vv-muted); transition: transform .18s var(--vv-ease); }
+.vv-select[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+/* r37: vùng thả tệp + dòng tệp (Nhập template, Nhập prompt, Thêm hiệu ứng) */
+.vv-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 168px; padding: 20px; border-radius: var(--vv-r-tile); border: 1.5px dashed rgba(255,255,255,.14); background: rgba(255,255,255,.015); color: var(--vv-text-2); text-align: center; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .2s var(--vv-ease); }
+.vv-drop > .ic { width: 22px; height: 22px; color: var(--vv-text-3); margin-bottom: 2px; }
+.vv-drop__title { font-size: 14px; font-weight: 500; color: var(--vv-text); }
+.vv-drop__hint { font-size: 12px; color: var(--vv-text-hint); }
+.vv-drop .vv-btn { margin-top: 8px; }
+.vv-drop:hover { border-color: rgba(255,255,255,.24); }
+.vv-drop.is-drag { border-color: var(--vv-accent-focus); background: var(--vv-accent-bg); transform: scale(1.01); }
+.vv-drop.is-drag > .ic { color: var(--vv-accent); }
+.vv-filerow { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--vv-r-opt); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); }
+.vv-filerow__ic { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.05); color: var(--vv-text-3); }
+.vv-filerow__ic > .ic { width: 15px; height: 15px; }
+.vv-filerow__ic--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-filerow__ic--fail { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-filerow__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vv-filerow__name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-filerow__meta { font-size: 12px; color: var(--vv-text-hint); }
+.vv-filerow__meta.is-fail { color: var(--vv-danger-text); }
+.vv-filerow--wait { opacity: .6; }
+.vv-dialog__actions--end { justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { .vv-seg.is-glide::before, .vv-seg > button, .vv-chip, .vv-tab, .vv-drop { transition: none; } }
 .vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
 .vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
 .vv-tab:hover { color: var(--vv-text); }
@@ -688,6 +727,7 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
 @media (hover: none) { .vv-row__more { opacity: 1; } }
 .vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+button.vv-row { -webkit-appearance: none; appearance: none; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }   /* r38: hàng là nút */
 .vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
 .vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
 .vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
@@ -940,7 +980,7 @@ del.df{color:#6E6E7A}
 <button class="vv-btn {{exportCls}}" type="button" onClick="{{startExport}}" title="Xuất MP4 (⌘E)"><span class="ic i-export" aria-hidden="true" style="width: 15px; height: 15px"></span>Xuất</button>
 </header>
 <div style="flex: 1; min-height: 0; display: flex">
-<nav class="erail" aria-label="Bảng bên trái" role="tablist" aria-orientation="vertical">
+<nav class="erail vv-seg" aria-label="Bảng bên trái" role="tablist" aria-orientation="vertical">
 <sc-for list="{{rail}}" as="r" hint-placeholder-count="6"><button class="erb" type="button" role="tab" aria-selected="{{r.on}}" aria-controls="ed-left" onClick="{{r.pick}}" title="{{r.tip}}"><span style="position: relative; display: flex"><span class="ic {{r.icon}}" aria-hidden="true" style="width: 19px; height: 19px; color: {{r.ic}}"></span><sc-if value="{{r.hasBadge}}" hint-placeholder-val="{{ false }}"><span class="num" aria-label="{{r.badge}} việc" style="position: absolute; right: -9px; top: -6px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: #FF9A5C; color: #0B0B0D; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">{{r.badge}}</span></sc-if></span><span class="erb-l">{{r.label}}</span></button></sc-for>
 </nav>
 <aside id="ed-left" class="scroll" aria-label="{{panelTitle}}" style="width: 316px; flex: 0 0 316px; min-height: 0; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column">
@@ -1051,11 +1091,11 @@ del.df{color:#6E6E7A}
 </div>
 <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 4px">
 <button class="ib" type="button" aria-label="Về đầu" title="Về đầu (Home)"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; transform: rotate(180deg)"></span></button>
-<button class="ib" type="button" aria-label="Phát" title="Phát / tạm dừng (Space)" style="width: 34px; height: 34px; border-radius: 50%; background: #EDEDEF; color: #0B0B0D"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
+<button class="ib vv-btn vv-btn--primary vv-btn--icon" type="button" aria-label="Phát" title="Phát / tạm dừng (Space)" style="--h: 34px; border-radius: 50%"><span class="ic i-play" aria-hidden="true" style="width: 16px; height: 16px"></span></button>
 <button class="ib" type="button" aria-label="Tới cuối" title="Tới cuối (End)"><span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px"></span></button>
 <span class="num mono" style="margin-left: 8px; font-size: 12.5px; white-space: nowrap"><span style="color: #EDEDEF">00:30:12:08</span><span style="color: #8B8B97"> / 00:42:10:00</span></span>
 <span style="flex: 1"></span>
-<button class="ghost" type="button" onClick="{{toggleSafe}}" aria-pressed="{{safeAttr}}" title="Khung an toàn" style="height: 28px; padding: 0 9px; display: flex; align-items: center; gap: 6px; border-radius: 7px; border: 1px solid {{safeBd}}; background: transparent; color: #C9C9D1; font-size: 12px; white-space: nowrap"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span><span class="sf-l">Khung an toàn</span></button>
+<button class="vv-btn vv-btn--sm" type="button" onClick="{{toggleSafe}}" aria-pressed="{{safeAttr}}" title="Khung an toàn" style="--h: 28px; border: 1px solid {{safeBd}}"><span class="ic i-eye" aria-hidden="true" style="width: 13px; height: 13px"></span><span class="sf-l">Khung an toàn</span></button>
 <span class="fld q-only" title="Chất lượng xem trước"><b>Xem</b>1/2</span>
 <span class="fld z-only" title="Thu phóng khung xem"><b>Zoom</b>Vừa khung</span>
 <button class="ib" type="button" aria-label="Âm lượng xem trước" title="Âm lượng xem trước"><span class="ic i-volume" aria-hidden="true" style="width: 15px; height: 15px"></span></button>
@@ -1180,13 +1220,13 @@ del.df{color:#6E6E7A}
 </div>
 </sc-if>
 <sc-if value="{{isNarrow}}" hint-placeholder-val="{{ false }}"><div style="flex: 1; display: flex; flex-direction: column">
-<header style="flex: 0 0 auto; height: 48px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06)"><a class="ghost" href="Main.dc.html" style="height: 44px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 6px; border-radius: 8px; color: #A0A0AB; font-size: 13px"><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; transform: rotate(180deg)"></span>Bàn dựng</a></header>
+<header style="flex: 0 0 auto; height: 48px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06)"><a class="vv-btn vv-btn--quiet" href="Main.dc.html" style="--h: 44px"><span class="ic i-arrow-r" aria-hidden="true" style="width: 15px; height: 15px; transform: rotate(180deg)"></span>Bàn dựng</a></header>
 <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px">
 <div role="status" style="max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center">
 <span class="ic i-workbench" aria-hidden="true" style="width: 30px; height: 30px; color: #8B8B97"></span>
 <span style="font-size: 17px; font-weight: 600">Cần màn hình rộng ≥ 1024px</span>
 <span style="font-size: 13.5px; color: #A0A0AB; line-height: 1.6">Editor cần chỗ cho khung xem, timeline và bảng thuộc tính. Kéo rộng cửa sổ hoặc mở trên máy tính. Duyệt ảnh và theo dõi video vẫn làm được ở Bàn dựng.</span>
-<a class="ghost" href="Main.dc.html" style="height: 44px; padding: 0 16px; display: flex; align-items: center; border-radius: 11px; border: 1px solid rgba(255,255,255,0.12); font-size: 13.5px">Quay lại Bàn dựng</a>
+<a class="vv-btn" href="Main.dc.html" style="--h: 44px">Quay lại Bàn dựng</a>
 </div></div></div></sc-if>
 <sc-if value="{{isGate}}" hint-placeholder-val="{{ false }}">
 <div class="vv-scrim vv-scrim--center vv-scrim-in" style="position: fixed; z-index: 60"><section class="vv-dialog" role="alertdialog" aria-modal="true" aria-labelledby="gt-t" aria-describedby="gt-d">
@@ -1206,7 +1246,7 @@ del.df{color:#6E6E7A}
 <div class="stp" style="color: #8B8B97"><span aria-hidden="true" style="width: 16px; height: 16px; display: flex; align-items: center; justify-content: center">·</span><span style="flex: 1">Lưu lên máy và kiểm tra tệp</span></div>
 </div>
 <div style="padding: 10px 12px; border-radius: 10px; background: #111113; border: 1px solid rgba(255,255,255,0.06); font-size: 12.5px; color: #A0A0AB; line-height: 1.55">Giữ tab này mở cho tới khi xong: video được dựng ngay trong trình duyệt. Bạn vẫn xem được timeline nhưng không sửa được.</div>
-<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="ghost" type="button" onClick="{{backEdit}}" style="height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(255,154,92,0.35); background: transparent; color: #FFC09A; font-size: 13px">Huỷ xuất</button></div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="vv-btn" type="button" onClick="{{backEdit}}" style="color: #FFC09A">Huỷ xuất</button></div>
 </div></div>
 </sc-if>
 <sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
@@ -1214,7 +1254,7 @@ del.df{color:#6E6E7A}
 <div style="display: flex; align-items: center; gap: 10px"><span class="ic i-tick-b" aria-hidden="true" style="width: 22px; height: 22px; color: #A6EDC1"></span><h2 id="dn-t" style="margin: 0; flex: 1; font-size: 16px; font-weight: 600">Đã xuất MP4</h2><span class="num" style="font-size: 12.5px; color: #8B8B97">42:10 · 1,2 GB</span></div>
 <div style="position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: url(../img/ed_frame.jpg) center / cover no-repeat"><button type="button" aria-label="Phát bản vừa xuất" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); background: rgba(11,11,13,0.55); color: #EDEDEF; display: flex; align-items: center; justify-content: center"><span class="ic i-play" aria-hidden="true" style="width: 20px; height: 20px"></span></button><span class="num mono" style="position: absolute; right: 8px; bottom: 7px; padding: 0 5px; border-radius: 4px; background: rgba(0,0,0,0.75); font-size: 11px">42:10</span></div>
 <div style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; background: rgba(157,236,201,0.05); border: 1px solid rgba(157,236,201,0.2); font-size: 12.5px; color: #C9C9D1; line-height: 1.55"><span class="orb o-qa" aria-hidden="true" style="width: 16px; height: 16px; margin-top: 2px"></span><span>Quay lại Bàn dựng, Kiểm định sẽ đo lại độ hoàn thiện cho bản này. Đạt từ 90 thì video chuyển sang Sẵn sàng.</span></div>
-<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="ghost" type="button" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); background: transparent; color: #EDEDEF; font-size: 13px"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Tải MP4</button><a class="primary" href="Main.dc.html" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Quay lại Bàn dựng</a></div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="vv-btn" type="button"><span class="ic i-download" aria-hidden="true" style="width: 15px; height: 15px"></span>Tải MP4</button><a class="vv-btn vv-btn--primary" href="Main.dc.html">Quay lại Bàn dựng</a></div>
 </div></div>
 </sc-if>
 <sc-if value="{{isConflict}}" hint-placeholder-val="{{ false }}">
@@ -1225,7 +1265,7 @@ del.df{color:#6E6E7A}
 <button class="ghost" type="button" onClick="{{backEdit}}" style="text-align: left; padding: 10px 12px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; flex-direction: column; gap: 2px; white-space: normal"><span style="font-size: 13.5px; font-weight: 500">Tải lại bản mới</span><span style="font-size: 12px; color: #8B8B97">Bỏ 2 thay đổi chưa lưu của bạn</span></button>
 <button class="ghost" type="button" onClick="{{backEdit}}" style="text-align: left; padding: 10px 12px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #EDEDEF; display: flex; flex-direction: column; gap: 2px; white-space: normal"><span style="font-size: 13.5px; font-weight: 500">Tiếp tục ở đây, tạm tắt tự lưu</span><span style="font-size: 12px; color: #8B8B97">Bạn tự quyết sau; không ghi đè bản mới</span></button>
 </div>
-<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="primary" type="button" onClick="{{backEdit}}" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 7px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Lưu thay đổi thành bản sao</button></div>
+<div style="display: flex; justify-content: flex-end; gap: 8px"><button class="vv-btn vv-btn--primary" type="button" onClick="{{backEdit}}"><span class="ic i-copy" aria-hidden="true" style="width: 15px; height: 15px"></span>Lưu thay đổi thành bản sao</button></div>
 </div></div>
 </sc-if>
 </div>
@@ -1360,5 +1400,6 @@ class Component extends DCLogic {
   }
 }
 </script>
+<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts)document.fonts.ready.then(q);q();})();</script>
 </body>
 </html>

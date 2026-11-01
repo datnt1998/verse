@@ -469,6 +469,45 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
 .vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); border-radius: 12px; }
 .vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+/* r37: viên trượt cho mọi nhóm chọn (đo bằng script nhỏ trong board, như Noverse đo bằng JS) */
+.vv-seg.is-glide::before { content: ""; position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: var(--gw, 0px); transform: translateX(var(--gx, 0px)); border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); transition: transform .32s cubic-bezier(.3,.7,.2,1), width .32s cubic-bezier(.3,.7,.2,1); pointer-events: none; }
+.vv-seg.is-glide > button[aria-checked="true"], .vv-seg.is-glide > button[aria-selected="true"] { background: transparent; }
+.vv-seg.is-glide.no-anim::before { transition: none; }
+.vv-seg--bar.is-glide::before { background: var(--vv-selected); border-radius: 8px; }
+.vv-seg--sm.is-glide::before { border-radius: 6px; }
+.vv-seg--m.is-glide::before { border-radius: 9px; }
+.vv-seg > button { transition: color var(--vv-dur), background-color var(--vv-dur), transform 80ms; }
+.vv-seg > button:active { transform: scale(.97); }
+/* r37: chip chọn và nút có mũi tên — hover, nhấn, mũi tên lật khi mở */
+.vv-chip { cursor: pointer; transition: background-color var(--vv-dur), border-color var(--vv-dur), transform 80ms; }
+.vv-chip:hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-chip:active { transform: scale(.98); }
+.vv-chip > .i-arrow-d:last-child, .vv-btn > .i-arrow-d:last-child { width: 13px; height: 13px; color: var(--vv-text-hint); transition: transform .18s var(--vv-ease); }
+.vv-chip[aria-expanded="true"] > .i-arrow-d:last-child, .vv-btn[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+.vv-tab { transition: color var(--vv-dur), border-color .24s var(--vv-ease); }
+.vv-select > .i-arrow-d:last-child { width: 15px; height: 15px; margin-left: auto; color: var(--vv-muted); transition: transform .18s var(--vv-ease); }
+.vv-select[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+/* r37: vùng thả tệp + dòng tệp (Nhập template, Nhập prompt, Thêm hiệu ứng) */
+.vv-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 168px; padding: 20px; border-radius: var(--vv-r-tile); border: 1.5px dashed rgba(255,255,255,.14); background: rgba(255,255,255,.015); color: var(--vv-text-2); text-align: center; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .2s var(--vv-ease); }
+.vv-drop > .ic { width: 22px; height: 22px; color: var(--vv-text-3); margin-bottom: 2px; }
+.vv-drop__title { font-size: 14px; font-weight: 500; color: var(--vv-text); }
+.vv-drop__hint { font-size: 12px; color: var(--vv-text-hint); }
+.vv-drop .vv-btn { margin-top: 8px; }
+.vv-drop:hover { border-color: rgba(255,255,255,.24); }
+.vv-drop.is-drag { border-color: var(--vv-accent-focus); background: var(--vv-accent-bg); transform: scale(1.01); }
+.vv-drop.is-drag > .ic { color: var(--vv-accent); }
+.vv-filerow { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--vv-r-opt); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); }
+.vv-filerow__ic { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.05); color: var(--vv-text-3); }
+.vv-filerow__ic > .ic { width: 15px; height: 15px; }
+.vv-filerow__ic--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-filerow__ic--fail { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-filerow__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vv-filerow__name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-filerow__meta { font-size: 12px; color: var(--vv-text-hint); }
+.vv-filerow__meta.is-fail { color: var(--vv-danger-text); }
+.vv-filerow--wait { opacity: .6; }
+.vv-dialog__actions--end { justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { .vv-seg.is-glide::before, .vv-seg > button, .vv-chip, .vv-tab, .vv-drop { transition: none; } }
 .vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
 .vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
 .vv-tab:hover { color: var(--vv-text); }
@@ -627,6 +666,7 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
 @media (hover: none) { .vv-row__more { opacity: 1; } }
 .vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+button.vv-row { -webkit-appearance: none; appearance: none; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }   /* r38: hàng là nút */
 .vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
 .vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
 .vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
@@ -860,7 +900,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <a class="navl" href="NewVideo.dc.html" style="height: 30px; padding: 0 12px 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 7px; color: #A0A0AB; font-size: 13px"><span class="ic i-video-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Video mới</a>
 </nav>
 <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex: 1 1 260px">
-<a class="ghost" href="Activity.dc.html" title="Máy đang chạy 2/2 luồng · 12 video chờ lượt" style="height: 30px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 8px; color: #A0A0AB; font-size: 12.5px; white-space: nowrap"><span class="rec" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 đang chạy · 12 chờ lượt</span></a>
+<a class="vv-btn vv-btn--quiet vv-btn--sm" href="Activity.dc.html" title="Máy đang chạy 2/2 luồng · 12 video chờ lượt"><span class="rec" aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: #FF0033; box-shadow: 0 0 0 3px rgba(255,0,51,0.18)"></span><span class="num">2 đang chạy · 12 chờ lượt</span></a>
 <a href="Settings.dc.html" aria-current="page" aria-label="Cài đặt · 1 việc cần xem" title="Cài đặt · tài khoản ChatGPT sắp hết hạn mức ảnh" style="position: relative; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #222225; color: #EDEDEF"><span class="ic i-setting" aria-hidden="true"></span><span aria-hidden="true" style="position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: #FF4D63; box-shadow: 0 0 0 2px #0B0B0D"></span></a>
 <div aria-label="Tài khoản: Dat" style="width: 30px; height: 30px; border-radius: 50%; background: #222225; border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600">D</div>
 </div>
@@ -882,7 +922,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <div class="grp" style="padding-top: 16px">Ở trang khác</div>
 <a class="nav-it" href="Queue.dc.html"><span class="ic i-routing" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1">Luồng chạy · hàng chờ</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></a>
 <a class="nav-it" href="Channel.dc.html"><span class="ic i-channel" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1">Giới hạn từng kênh</span><span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></a>
-<!-- r30-sso: chỉ quản trị viên --><a class="nav-it" href="Auth.dc.html" title="Mở Noverse › Thành viên ở thẻ mới"><span class="ic i-user" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1; display: flex; flex-direction: column; line-height: 1.3"><span>Thành viên</span><span style="font-size: 11.5px; color: #8B8B97">ở Noverse · cấp quyền hai app</span></span><span class="ic i-external" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></a>
+<!-- r30-sso: chỉ quản trị viên --><a class="nav-it" href="Auth.dc.html" title="Mở Noverse › Thành viên ở thẻ mới" style="height: auto; min-height: 44px; padding: 6px 10px"><span class="ic i-user" aria-hidden="true" style="width: 17px; height: 17px"></span><span style="flex: 1; display: flex; flex-direction: column; line-height: 1.3"><span>Thành viên</span><span style="font-size: 11.5px; color: #8B8B97">ở Noverse · cấp quyền hai app</span></span><span class="ic i-external" aria-hidden="true" style="width: 13px; height: 13px; color: #8B8B97"></span></a>
 <div style="margin-top: auto; padding: 14px 10px 2px; font-size: 12px; color: #8B8B97; line-height: 1.6">Mọi cài đặt ở đây áp dụng cho cả máy, mọi kênh dùng chung.<br><span class="num" style="color: #8B8B97">Viderse 1.4.0</span></div>
 </aside>
 
@@ -900,7 +940,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <span style="font-size: 14px; font-weight: 600; color: {{tHeadInk}}">{{tHead}}</span>
 <span style="font-size: 12.5px; color: #A0A0AB">{{tSub}}</span>
 </div>
-<button class="ghost btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra lại</button>
+<button class="vv-btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra lại</button>
 </div>
 <div class="card" role="list" aria-label="Công cụ" style="border-radius: 14px; overflow: hidden">
 <sc-for list="{{tools}}" as="t" hint-placeholder-count="6">
@@ -918,7 +958,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </div>
 <div style="display: flex; align-items: center; gap: 8px; justify-content: flex-end">
 <span class="pill" style="background: {{t.pillBg}}; color: {{t.pillFg}}"><sc-if value="{{t.spin}}" hint-placeholder-val="{{ false }}"><span class="spinner" aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(185,208,247,0.3); border-top-color: #B9D0F7; animation: spin 0.9s linear infinite"></span></sc-if>{{t.pill}}</span>
-<sc-if value="{{t.hasAct}}" hint-placeholder-val="{{ false }}"><button class="ghost btn {{t.actCls}}" type="button">{{t.act}}</button></sc-if>
+<sc-if value="{{t.hasAct}}" hint-placeholder-val="{{ false }}"><button class="{{t.actCls}} vv-btn" type="button">{{t.act}}</button></sc-if>
 </div>
 </div>
 </sc-for>
@@ -938,7 +978,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 
 <sc-if value="{{isConnect}}" hint-placeholder-val="{{ false }}">
 <sc-if value="{{dirty}}" hint-placeholder-val="{{ false }}">
-<div role="region" aria-label="Thay đổi chưa lưu" style="position: sticky; top: -26px; z-index: 5; padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; background: #1E1E21; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 12px 32px rgba(0,0,0,0.5); font-size: 13px; color: #C9C9D1"><span class="ic i-info" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C"></span><span style="flex: 1">1 thay đổi chưa lưu ở Kết nối AI · dùng cho cả máy này</span><button class="ghost btn" type="button" style="border-color: transparent">Huỷ</button><button type="button" style="height: 32px; padding: 0 14px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Lưu</button></div>
+<div role="region" aria-label="Thay đổi chưa lưu" style="position: sticky; top: -26px; z-index: 5; padding: 8px 8px 8px 14px; display: flex; align-items: center; gap: 12px; border-radius: 12px; background: #1E1E21; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 12px 32px rgba(0,0,0,0.5); font-size: 13px; color: #C9C9D1"><span class="ic i-info" aria-hidden="true" style="width: 15px; height: 15px; color: #F6CB8C"></span><span style="flex: 1">1 thay đổi chưa lưu ở Kết nối AI · dùng cho cả máy này</span><button class="vv-btn" type="button">Huỷ</button><button class="vv-btn vv-btn--primary vv-btn--sm" type="button" style="--h: 32px">Lưu</button></div>
 </sc-if>
 <div role="list" aria-label="Nhà cung cấp AI đã kết nối" style="display: flex; flex-direction: column; gap: 10px">
 <sc-for list="{{provs}}" as="p" hint-placeholder-count="4">
@@ -950,10 +990,10 @@ ul.vv-dialog__list { padding-left: 30px; }
 <span style="font-size: 12.5px; color: {{p.subFg}}; line-height: 1.5">{{p.sub}}</span>
 </div>
 <div style="display: flex; align-items: center; gap: 6px; flex: 0 0 auto">
-<sc-if value="{{p.hasModels}}" hint-placeholder-val="{{ true }}"><button class="ghost btn" type="button" aria-expanded="{{p.openA}}" onClick="{{p.toggle}}" style="background: {{p.mBg}}; border-color: {{p.mBd}}">{{p.mLabel}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; transform: {{p.rot}}"></span></button></sc-if>
-<sc-if value="{{p.hasTest}}" hint-placeholder-val="{{ true }}"><button class="ghost btn" type="button" title="{{p.testTip}}">Thử kết nối</button></sc-if>
-<sc-if value="{{p.hasSec}}" hint-placeholder-val="{{ true }}"><button class="ghost btn" type="button" onClick="{{p.secGo}}" style="border-color: transparent; color: #A0A0AB">{{p.sec}}</button></sc-if>
-<sc-if value="{{p.hasPri}}" hint-placeholder-val="{{ false }}"><button class="primary" type="button" onClick="{{p.priGo}}" style="height: 32px; padding: 0 13px; display: inline-flex; align-items: center; gap: 7px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap">{{p.pri}}</button></sc-if>
+<sc-if value="{{p.hasModels}}" hint-placeholder-val="{{ true }}"><button class="vv-btn" type="button" aria-expanded="{{p.openA}}" onClick="{{p.toggle}}" style="background: {{p.mBg}}; border-color: {{p.mBd}}">{{p.mLabel}}<span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; transform: {{p.rot}}"></span></button></sc-if>
+<sc-if value="{{p.hasTest}}" hint-placeholder-val="{{ true }}"><button class="vv-btn" type="button" title="{{p.testTip}}">Thử kết nối</button></sc-if>
+<sc-if value="{{p.hasSec}}" hint-placeholder-val="{{ true }}"><button class="vv-btn" type="button" onClick="{{p.secGo}}">{{p.sec}}</button></sc-if>
+<sc-if value="{{p.hasPri}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--primary vv-btn--sm" type="button" onClick="{{p.priGo}}" style="--h: 32px">{{p.pri}}</button></sc-if>
 </div>
 </div>
 <sc-if value="{{p.hasQuota}}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #8B8B97"><span class="bar" style="flex: 0 0 160px"><span style="width: {{p.pct}}; background: #C9C9D1"></span></span><span class="num" style="color: #C9C9D1">{{p.used}}</span><span class="num">{{p.reset}}</span></div></sc-if>
@@ -961,22 +1001,22 @@ ul.vv-dialog__list { padding-left: 30px; }
 <span style="font-size: 12.5px; color: #A0A0AB">Mở trang xAI, đăng nhập tài khoản có SuperGrok hoặc X Premium, rồi nhập mã:</span>
 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
 <span class="mono num" aria-label="Mã đăng nhập Q K 7 M, 2 P X D" style="font-size: 24px; font-weight: 500; letter-spacing: 0.14em">QK7M-2PXD</span>
-<button class="ghost btn" type="button" style="height: 30px"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Chép mã</button>
+<button class="vv-btn vv-btn--sm" type="button"><span class="ic i-copy" aria-hidden="true" style="width: 14px; height: 14px"></span>Chép mã</button>
 </div>
 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
-<button class="primary" type="button" style="height: 32px; padding: 0 13px; display: inline-flex; align-items: center; gap: 7px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap"><span class="ic i-link" aria-hidden="true" style="width: 14px; height: 14px"></span>Mở trang xAI</button>
-<button class="ghost btn" type="button" onClick="{{gCancel}}" style="border-color: transparent; color: #A0A0AB">Huỷ</button>
+<button class="vv-btn vv-btn--primary vv-btn--sm" type="button" style="--h: 32px"><span class="ic i-link" aria-hidden="true" style="width: 14px; height: 14px"></span>Mở trang xAI</button>
+<button class="vv-btn" type="button" onClick="{{gCancel}}">Huỷ</button>
 <span style="flex: 1"></span>
 <span class="num" role="status" style="display: flex; align-items: center; gap: 7px; font-size: 12px; color: #8B8B97"><span aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.15); border-top-color: #C9C9D1; animation: spin 0.9s linear infinite"></span>Đang chờ bạn xác nhận · mã hết hạn sau 9:41</span>
 </div>
 </div></sc-if>
 <sc-if value="{{p.hasNote}}" hint-placeholder-val="{{ false }}"><div role="status" style="padding: 10px 12px; border-radius: 12px; background: rgba(246,203,140,0.07); border: 1px solid rgba(246,203,140,0.28); font-size: 12.5px; color: #F3D9AE; line-height: 1.55">{{p.note}}</div></sc-if>
-<sc-if value="{{p.hasErr}}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 12px; border-radius: 12px; background: rgba(255,154,92,0.07); border: 1px solid rgba(255,154,92,0.3); display: flex; flex-direction: column; gap: 10px"><span style="font-size: 12.5px; color: #FFC09A; line-height: 1.55"><b style="font-weight: 600">Không lấy được danh sách model.</b> OpenRouter từ chối khoá API này (401). Kiểm tra lại khoá, hoặc thêm model theo tên nếu bạn biết chắc tên model.</span><span style="display: flex; gap: 8px"><button class="ghost btn btn-warn" type="button">Đổi khoá</button><button class="ghost btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Thử lại</button><button class="ghost btn" type="button" style="border-color: transparent; color: #A0A0AB">Thêm theo tên</button></span></div></sc-if>
+<sc-if value="{{p.hasErr}}" hint-placeholder-val="{{ false }}"><div role="alert" style="padding: 10px 12px; border-radius: 12px; background: rgba(255,154,92,0.07); border: 1px solid rgba(255,154,92,0.3); display: flex; flex-direction: column; gap: 10px"><span style="font-size: 12.5px; color: #FFC09A; line-height: 1.55"><b style="font-weight: 600">Không lấy được danh sách model.</b> OpenRouter từ chối khoá API này (401). Kiểm tra lại khoá, hoặc thêm model theo tên nếu bạn biết chắc tên model.</span><span style="display: flex; gap: 8px"><button class="btn-warn vv-btn" type="button">Đổi khoá</button><button class="vv-btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 14px; height: 14px"></span>Thử lại</button><button class="vv-btn" type="button">Thêm theo tên</button></span></div></sc-if>
 <sc-if value="{{p.isOpen}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 10px; padding: 12px; border-radius: 12px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.07)">
 <div style="display: flex; align-items: center; gap: 8px">
 <label style="flex: 1; min-width: 0; height: 34px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 9px; background: #131315; border: 1px solid rgba(255,255,255,0.1)"><span class="ic i-search" aria-hidden="true" style="width: 14px; height: 14px; color: #8B8B97"></span><span class="sr-only">Tìm model</span><input type="search" placeholder="{{mp.search}}" style="flex: 1; min-width: 0; height: 32px; border: none; outline: none; background: transparent; color: #EDEDEF; font-size: 13px"></label>
-<div role="radiogroup" aria-label="Lọc model" style="display: flex; gap: 2px; padding: 3px; border-radius: 9px; background: #131315; border: 1px solid rgba(255,255,255,0.06)">
-<sc-for list="{{mp.filters}}" as="f" hint-placeholder-count="3"><button class="ghost" type="button" role="radio" aria-checked="{{f.on}}" onClick="{{f.pick}}" style="height: 26px; padding: 0 10px; border: none; border-radius: 6px; font-size: 12px; white-space: nowrap; background: {{f.bg}}; color: {{f.fg}}">{{f.label}}</button></sc-for>
+<div class="vv-seg vv-seg--sm" role="radiogroup" aria-label="Lọc model">
+<sc-for list="{{mp.filters}}" as="f" hint-placeholder-count="3"><button type="button" role="radio" aria-checked="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
 </div>
 </div>
 <div role="list" aria-label="Model của nhà cung cấp" style="display: flex; flex-direction: column">
@@ -992,14 +1032,14 @@ ul.vv-dialog__list { padding-left: 30px; }
 <span class="num" style="font-size: 11.5px; color: #8B8B97">{{mp.foot}}</span>
 <sc-if value="{{mp.manual}}" hint-placeholder-val="{{ false }}">
 <div style="display: flex; flex-direction: column; gap: 8px">
-<div style="display: flex; gap: 8px"><label style="flex: 1; min-width: 0"><span class="sr-only">Tên model</span><input class="mono" type="text" value="deepseek/deepseek-v3.2" style="width: 100%; height: 34px; padding: 0 10px; border-radius: 9px; background: #131315; border: 1px solid rgba(255,255,255,0.14); outline: none; color: #EDEDEF; font-size: 12.5px"></label><button class="ghost btn" type="button">Kiểm tra &amp; thêm</button><button class="ghost btn" type="button" onClick="{{mp.closeManual}}" style="border-color: transparent; color: #A0A0AB">Đóng</button></div>
+<div style="display: flex; gap: 8px"><label style="flex: 1; min-width: 0"><span class="sr-only">Tên model</span><input class="mono" type="text" value="deepseek/deepseek-v3.2" style="width: 100%; height: 34px; padding: 0 10px; border-radius: 9px; background: #131315; border: 1px solid rgba(255,255,255,0.14); outline: none; color: #EDEDEF; font-size: 12.5px"></label><button class="vv-btn" type="button">Kiểm tra &amp; thêm</button><button class="vv-btn" type="button" onClick="{{mp.closeManual}}">Đóng</button></div>
 <span role="status" style="padding: 8px 10px; border-radius: 9px; background: rgba(166,237,193,0.07); border: 1px solid rgba(166,237,193,0.2); font-size: 12px; color: #A6EDC1"><span class="mono">deepseek/deepseek-v3.2</span> trả lời được · 640 ms · ngữ cảnh 164K (tự nhận) · chỉ chữ. Đã thêm và chọn.</span>
 </div>
 </sc-if>
-<sc-if value="{{mp.noManual}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{mp.openManual}}" style="align-self: flex-start; height: 28px; padding: 0; border: none; background: transparent; color: #FF4D63; font-size: 12.5px">Không thấy model? Thêm theo tên</button></sc-if>
+<sc-if value="{{mp.noManual}}" hint-placeholder-val="{{ true }}"><button class="vv-btn vv-btn--quiet vv-btn--sm" type="button" onClick="{{mp.openManual}}" style="--h: 28px; align-self: flex-start; color: #FF4D63">Không thấy model? Thêm theo tên</button></sc-if>
 <div style="display: flex; align-items: center; gap: 10px; padding-top: 2px">
 <span style="flex: 1; min-width: 0; font-size: 12.5px; color: {{mp.sumFg}}; line-height: 1.5">{{mp.sum}}</span>
-<sc-if value="{{mp.canAssign}}" hint-placeholder-val="{{ false }}"><button class="ghost btn" type="button" onClick="{{goAgents}}">Gán cho trợ lý<span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></button></sc-if>
+<sc-if value="{{mp.canAssign}}" hint-placeholder-val="{{ false }}"><button class="vv-btn" type="button" onClick="{{goAgents}}">Gán cho trợ lý<span class="ic i-arrow-r" aria-hidden="true" style="width: 13px; height: 13px"></span></button></sc-if>
 </div>
 </div></sc-if>
 </section>
@@ -1007,7 +1047,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </div>
 <sc-if value="{{addOpen}}" hint-placeholder-val="{{ false }}">
 <section class="card" aria-labelledby="h-add" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px">
-<div style="display: flex; align-items: center; gap: 10px"><h2 id="h-add" style="margin: 0; flex: 1; font-size: 14px; font-weight: 600">Thêm nhà cung cấp</h2><button class="ghost" type="button" aria-label="Đóng" onClick="{{closeAdd}}" style="width: 28px; height: 28px; border: none; border-radius: 7px; background: transparent; color: #8B8B97; display: flex; align-items: center; justify-content: center"><span class="ic i-close" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div>
+<div style="display: flex; align-items: center; gap: 10px"><h2 id="h-add" style="margin: 0; flex: 1; font-size: 14px; font-weight: 600">Thêm nhà cung cấp</h2><button class="vv-btn vv-btn--icon vv-btn--sm" type="button" aria-label="Đóng" onClick="{{closeAdd}}" style="--h: 28px"><span class="ic i-close" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div>
 <div role="radiogroup" aria-labelledby="h-add" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
 <sc-for list="{{addList}}" as="a" hint-placeholder-count="8">
 <button class="ghost" type="button" role="radio" aria-checked="{{a.on}}" aria-disabled="{{a.dis}}" onClick="{{a.pick}}" title="{{a.tip}}" style="min-height: 64px; padding: 10px; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; border-radius: 11px; border: 1.5px solid {{a.bd}}; background: {{a.bg}}; color: #EDEDEF; text-align: left; opacity: {{a.op}}; white-space: normal"><span style="font-size: 13px; font-weight: 600">{{a.name}}</span><span style="font-size: 11.5px; color: #8B8B97; line-height: 1.4">{{a.sub}}</span></button>
@@ -1015,12 +1055,35 @@ ul.vv-dialog__list { padding-left: 30px; }
 </div>
 <div style="display: flex; flex-direction: column; gap: 6px">
 <label for="ak" style="font-size: 13px; color: #C9C9D1">{{addKeyLabel}}</label>
-<div style="display: flex; gap: 8px"><input id="ak" class="mono" type="password" value="sk-or-v1-0000000000000000abcd" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.14); outline: none; color: #EDEDEF; font-size: 13px"><button class="primary" type="button" onClick="{{connectAdd}}" style="height: 32px; padding: 0 13px; display: inline-flex; align-items: center; gap: 7px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600; white-space: nowrap; height: 36px">Kết nối và lấy model</button></div>
+<div style="display: flex; gap: 8px"><input id="ak" class="mono" type="password" value="sk-or-v1-0000000000000000abcd" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.14); outline: none; color: #EDEDEF; font-size: 13px"><button class="vv-btn vv-btn--primary vv-btn--sm" type="button" onClick="{{connectAdd}}" style="--h: 32px">Kết nối và lấy model</button></div>
 <span style="display: flex; gap: 7px; font-size: 12px; color: #8B8B97; line-height: 1.5"><span class="ic i-key" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px"></span>Khoá chỉ lưu trên máy này và luôn hiện dạng che. Viderse gọi thử một lần để lấy danh mục model, không tốn tiền.</span>
 </div>
 </section>
 </sc-if>
-<sc-if value="{{addClosed}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" onClick="{{openAdd}}" style="height: 46px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.16); background: transparent; color: #C9C9D1; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Thêm nhà cung cấp — OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Ollama…</button></sc-if>
+<sc-if value="{{addClosed}}" hint-placeholder-val="{{ true }}"><button class="vv-btn" type="button" onClick="{{openAdd}}" style="--h: 46px"><span class="ic i-add" aria-hidden="true" style="width: 15px; height: 15px"></span>Thêm nhà cung cấp — OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Ollama…</button></sc-if>
+
+<!-- r38 ytkey: YouTube Data API -->
+<div role="group" aria-labelledby="h-ytd" style="display: flex; flex-direction: column; gap: 8px; margin-top: 12px">
+<div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 0 2px"><h2 id="h-ytd" style="margin: 0; font-size: 13px; font-weight: 600; color: #C9C9D1">Số liệu YouTube</h2><span style="font-size: 12px; color: #8B8B97">Không phải AI · Trinh sát dùng để đọc số liệu video đã đăng</span></div>
+<section class="card" aria-label="YouTube Data API" style="border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; border-color: {{yk.bd}}">
+<div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+<span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: #E4E4E8; color: #16161A; font-size: 13px; font-weight: 700">YT</span>
+<div style="flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap"><span style="font-size: 14px; font-weight: 600">YouTube Data API</span><span class="pill" style="height: 20px; padding: 0 7px; font-size: 11px; background: #1E1E21; color: #A0A0AB">Khoá API</span><span class="pill" style="height: 20px; padding: 0 7px; font-size: 11px; background: #1E1E21; color: #A0A0AB">Không bắt buộc</span></span>
+<span role="{{yk.role}}" style="font-size: 12.5px; color: {{yk.subFg}}; line-height: 1.5">{{yk.sub}}</span>
+</div>
+<sc-if value="{{yk.hasActs}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 6px; flex: 0 0 auto">
+<sc-for list="{{yk.acts}}" as="a" hint-placeholder-count="2"><button class="vv-btn {{a.cls}}" type="button" aria-disabled="{{a.dis}}" onClick="{{a.run}}"><sc-if value="{{a.hasIc}}" hint-placeholder-val="{{ false }}"><span class="ic {{a.ic}}" aria-hidden="true" style="width: 14px; height: 14px"></span></sc-if>{{a.label}}</button></sc-for>
+</div></sc-if>
+</div>
+<sc-if value="{{yk.edit}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 8px; align-items: center"><label for="ytdk" class="sr-only">Khoá API</label><input id="ytdk" class="mono" type="password" placeholder="Khoá API" value="{{yk.val}}" aria-invalid="{{yk.inv}}" aria-describedby="ytdk-h" style="flex: 1; min-width: 0; height: 36px; padding: 0 12px; border-radius: 9px; background: #0F0F11; border: 1px solid {{yk.inBd}}; outline: none; color: #EDEDEF; font-size: 13px">
+<button class="vv-btn vv-btn--primary vv-btn--sm" type="button" aria-disabled="{{yk.saveDis}}" onClick="{{yk.save}}" style="--h: 32px">Lưu khoá</button><button class="vv-btn vv-btn--quiet vv-btn--sm" type="button" onClick="{{yk.cancel}}" style="--h: 32px">Huỷ</button></div>
+<sc-if value="{{yk.rej}}" hint-placeholder-val="{{ false }}"><div role="alert" style="display: flex; gap: 8px; padding: 9px 12px; border-radius: 10px; background: rgba(255,154,92,.07); border: 1px solid rgba(255,154,92,.22); font-size: 12.5px; color: var(--vv-danger-text-2); line-height: 1.5"><span class="ic i-danger" aria-hidden="true" style="width: 15px; height: 15px; flex: 0 0 auto; margin-top: 2px; color: var(--vv-danger)"></span>Google không nhận khoá này — kiểm tra lại khoá và bật YouTube Data API v3.</div></sc-if>
+<span id="ytdk-h" style="display: flex; gap: 7px; font-size: 12px; color: #8B8B97; line-height: 1.5"><span class="ic i-key" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: 0 0 auto"></span>Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.</span>
+</div></sc-if>
+</section>
+</div>
 
 </sc-if>
 
@@ -1030,7 +1093,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <div role="listitem" style="padding: 16px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.06)"><div style="display: flex; align-items: center; gap: 10px"><span class="orb o-director" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="font-size: 14.5px; font-weight: 600">Đạo diễn</span><span style="flex: 1; min-width: 0; font-size: 12.5px; color: #8B8B97">Chia cảnh, viết tiêu đề, mô tả và chữ trên ảnh bìa</span></div>
 <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: end">
 <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><span style="font-size: 12px; color: #8B8B97">Model</span><div style="position: relative">
-<button class="ghost" type="button" aria-haspopup="dialog" aria-expanded="{{pkDirA}}" aria-label="Model của Đạo diễn" onClick="{{openDir}}" style="width: 100%; height: 36px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: #0F0F11; color: #EDEDEF; text-align: left"><span class="mono" style="font-size: 12.5px; white-space: nowrap">{{dirId}}</span><span style="flex: 1; min-width: 0; font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dirProv}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; color: #8B8B97"></span></button>
+<button class="vv-select" type="button" aria-haspopup="dialog" aria-expanded="{{pkDirA}}" aria-label="Model của Đạo diễn" onClick="{{openDir}}" style="width: 100%; background: #0F0F11; text-align: left"><span class="mono" style="font-size: 12.5px; white-space: nowrap">{{dirId}}</span><span style="flex: 1; min-width: 0; font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dirProv}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; color: #8B8B97"></span></button>
 <sc-if value="{{pkDir}}" hint-placeholder-val="{{ false }}"><div class="card" role="dialog" aria-label="{{mpk.title}}" style="position: absolute; z-index: 30; left: 0; top: calc(100% + 6px); width: 400px; border-radius: 14px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); padding: 6px; display: flex; flex-direction: column; gap: 2px; text-align: left">
 <div style="padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 600">{{mpk.title}}</span><span style="font-size: 12px; color: #8B8B97; line-height: 1.45">{{mpk.sub}}</span></div>
 <div class="scroll" role="radiogroup" aria-label="{{mpk.title}}" style="max-height: 300px; display: flex; flex-direction: column; gap: 1px">
@@ -1039,17 +1102,17 @@ ul.vv-dialog__list { padding-left: 30px; }
 <sc-if value="{{r.isRow}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" role="radio" aria-checked="{{r.on}}" aria-disabled="{{r.ariaDis}}" onClick="{{r.pick}}" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; border: none; background: {{r.bg}}; color: #EDEDEF; text-align: left; opacity: {{r.op}}; white-space: normal"><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span class="mono" style="font-size: 12.5px">{{r.id}}</span><span style="font-size: 11.5px; color: #8B8B97">{{r.note}}</span></span><span class="pill" style="height: 20px; padding: 0 7px; font-size: 11px; background: #222225; color: #A0A0AB">{{r.cap}}</span><sc-if value="{{r.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 15px; height: 15px; color: #FF4D63"></span></sc-if></button></sc-if>
 </sc-for>
 </div>
-<div style="padding: 6px 10px 4px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2px"><button class="ghost" type="button" onClick="{{goConnect}}" style="height: 28px; padding: 0; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px; display: flex; align-items: center; gap: 5px"><span class="ic i-key" aria-hidden="true" style="width: 13px; height: 13px"></span>Thêm model ở Kết nối AI</button></div>
+<div style="padding: 6px 10px 4px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2px"><button class="vv-btn vv-btn--quiet vv-btn--sm" type="button" onClick="{{goConnect}}" style="--h: 28px"><span class="ic i-key" aria-hidden="true" style="width: 13px; height: 13px"></span>Thêm model ở Kết nối AI</button></div>
 </div></sc-if>
 </div></div>
-<div style="display: flex; flex-direction: column; gap: 6px"><span id="l-think" style="font-size: 12px; color: #8B8B97">Mức suy nghĩ</span><div role="radiogroup" aria-labelledby="l-think" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; padding: 3px; border-radius: 9px; background: #0F0F11; border: 1px solid rgba(255,255,255,0.08)"><sc-for list="{{think}}" as="t" hint-placeholder-count="4"><button class="ghost" type="button" role="radio" aria-checked="{{t.on}}" onClick="{{t.pick}}" style="height: 28px; border: none; border-radius: 6px; font-size: 12.5px; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</button></sc-for></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span id="l-think" style="font-size: 12px; color: #8B8B97">Mức suy nghĩ</span><div class="vv-seg vv-seg--sm vv-seg--fill" role="radiogroup" aria-labelledby="l-think" style="background: #0F0F11"><sc-for list="{{think}}" as="t" hint-placeholder-count="4"><button type="button" role="radio" aria-checked="{{t.on}}" onClick="{{t.pick}}">{{t.label}}</button></sc-for></div></div>
 </div>
-<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #8B8B97">Khi model chính lỗi, thử lần lượt</span><div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><sc-for list="{{dirChain}}" as="c" hint-placeholder-count="2"><span class="pill num" style="height: 26px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.08); color: #C9C9D1"><span style="color: #8B8B97">{{c.n}}</span><span class="mono" style="font-size: 11.5px">{{c.id}}</span><span style="color: #8B8B97">· {{c.p}}</span></span></sc-for><button class="ghost" type="button" style="height: 26px; padding: 0 9px; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.18); background: transparent; color: #A0A0AB; font-size: 12px; display: inline-flex; align-items: center; gap: 5px"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm</button></div></div>
+<div style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; color: #8B8B97">Khi model chính lỗi, thử lần lượt</span><div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><sc-for list="{{dirChain}}" as="c" hint-placeholder-count="2"><span class="pill num" style="height: 26px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.08); color: #C9C9D1"><span style="color: #8B8B97">{{c.n}}</span><span class="mono" style="font-size: 11.5px">{{c.id}}</span><span style="color: #8B8B97">· {{c.p}}</span></span></sc-for><button class="vv-btn vv-btn--sm" type="button" style="--h: 26px"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm</button></div></div>
 </div>
 <div role="listitem" style="padding: 16px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.06)"><div style="display: flex; align-items: center; gap: 10px"><span class="orb o-artist" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="font-size: 14.5px; font-weight: 600">Hoạ sĩ</span><span style="flex: 1; min-width: 0; font-size: 12.5px; color: #8B8B97">Viết mô tả ảnh từ lời kể, rồi vẽ ảnh cảnh, ảnh bìa và bộ nhận diện kênh</span></div>
 <div style="display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: end">
 <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0"><span style="font-size: 12px; color: #8B8B97">Model viết mô tả ảnh</span><div style="position: relative">
-<button class="ghost" type="button" aria-haspopup="dialog" aria-expanded="{{pkArtA}}" aria-label="Model viết mô tả ảnh" onClick="{{openArt}}" style="width: 100%; height: 36px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.12); background: #0F0F11; color: #EDEDEF; text-align: left"><span class="mono" style="font-size: 12.5px; white-space: nowrap">{{artId}}</span><span style="flex: 1; min-width: 0; font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{artProv}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; color: #8B8B97"></span></button>
+<button class="vv-select" type="button" aria-haspopup="dialog" aria-expanded="{{pkArtA}}" aria-label="Model viết mô tả ảnh" onClick="{{openArt}}" style="width: 100%; background: #0F0F11; text-align: left"><span class="mono" style="font-size: 12.5px; white-space: nowrap">{{artId}}</span><span style="flex: 1; min-width: 0; font-size: 12px; color: #8B8B97; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{artProv}}</span><span class="ic i-arrow-d" aria-hidden="true" style="width: 12px; height: 12px; color: #8B8B97"></span></button>
 <sc-if value="{{pkArt}}" hint-placeholder-val="{{ false }}"><div class="card" role="dialog" aria-label="{{mpk.title}}" style="position: absolute; z-index: 30; left: 0; top: calc(100% + 6px); width: 400px; border-radius: 14px; background: #1A1A1D; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 60px -16px rgba(0,0,0,0.9), 0 2px 8px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05); padding: 6px; display: flex; flex-direction: column; gap: 2px; text-align: left">
 <div style="padding: 8px 10px 6px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13.5px; font-weight: 600">{{mpk.title}}</span><span style="font-size: 12px; color: #8B8B97; line-height: 1.45">{{mpk.sub}}</span></div>
 <div class="scroll" role="radiogroup" aria-label="{{mpk.title}}" style="max-height: 300px; display: flex; flex-direction: column; gap: 1px">
@@ -1058,15 +1121,15 @@ ul.vv-dialog__list { padding-left: 30px; }
 <sc-if value="{{r.isRow}}" hint-placeholder-val="{{ true }}"><button class="ghost" type="button" role="radio" aria-checked="{{r.on}}" aria-disabled="{{r.ariaDis}}" onClick="{{r.pick}}" style="display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 9px; border: none; background: {{r.bg}}; color: #EDEDEF; text-align: left; opacity: {{r.op}}; white-space: normal"><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span class="mono" style="font-size: 12.5px">{{r.id}}</span><span style="font-size: 11.5px; color: #8B8B97">{{r.note}}</span></span><span class="pill" style="height: 20px; padding: 0 7px; font-size: 11px; background: #222225; color: #A0A0AB">{{r.cap}}</span><sc-if value="{{r.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick" aria-hidden="true" style="width: 15px; height: 15px; color: #FF4D63"></span></sc-if></button></sc-if>
 </sc-for>
 </div>
-<div style="padding: 6px 10px 4px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2px"><button class="ghost" type="button" onClick="{{goConnect}}" style="height: 28px; padding: 0; border: none; background: transparent; color: #A0A0AB; font-size: 12.5px; display: flex; align-items: center; gap: 5px"><span class="ic i-key" aria-hidden="true" style="width: 13px; height: 13px"></span>Thêm model ở Kết nối AI</button></div>
+<div style="padding: 6px 10px 4px; display: flex; align-items: center; gap: 8px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: 2px"><button class="vv-btn vv-btn--quiet vv-btn--sm" type="button" onClick="{{goConnect}}" style="--h: 28px"><span class="ic i-key" aria-hidden="true" style="width: 13px; height: 13px"></span>Thêm model ở Kết nối AI</button></div>
 </div></sc-if>
 </div></div>
 <span style="display: flex; gap: 7px; padding-bottom: 8px; font-size: 12px; color: #8B8B97; line-height: 1.5"><span class="ic i-info" aria-hidden="true" style="flex: 0 0 auto; width: 14px; height: 14px; margin-top: 2px"></span>Cần model đọc được ảnh, vì Hoạ sĩ xem khung đối thủ làm mẫu.</span>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px"><span id="h-draw" style="font-size: 12px; color: #8B8B97">Vẽ ảnh bằng</span>
-<div role="radiogroup" aria-labelledby="h-draw" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div class="vv-seg vv-seg--fill" role="radiogroup" aria-labelledby="h-draw">
 <sc-for list="{{providers}}" as="p" hint-placeholder-count="3">
-<button class="opt" type="button" role="radio" aria-checked="{{p.on}}" aria-disabled="{{p.dis}}" onClick="{{p.pick}}" title="{{p.tip}}" style="border: 1.5px solid {{p.bd}}; background: {{p.bg}}; opacity: {{p.op}}; padding: 12px; gap: 6px; white-space: normal">
+<button class="opt" type="button" role="radio" aria-checked="{{p.on}}" aria-disabled="{{p.dis}}" onClick="{{p.pick}}" title="{{p.tip}}" style="opacity: {{p.op}}">
 <span style="display: flex; align-items: center; gap: 8px"><span aria-hidden="true" style="width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid {{p.dotBd}}; display: flex; align-items: center; justify-content: center; flex: 0 0 auto"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{p.dot}}"></span></span><span style="font-size: 13.5px; font-weight: 600">{{p.name}}</span><sc-if value="{{p.isDefault}}" hint-placeholder-val="{{ false }}"><span class="pill" style="height: 20px; padding: 0 7px; font-size: 11px; background: #222225; color: #A0A0AB">Mặc định</span></sc-if></span>
 <span class="mono" style="font-size: 11.5px; color: #A0A0AB">{{p.model}}</span>
 <span style="font-size: 12px; color: #8B8B97; line-height: 1.45">{{p.plan}}</span>
@@ -1077,7 +1140,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </div></div>
 <div style="display: flex; flex-direction: column; gap: 8px">
 <div style="display: flex; align-items: center; gap: 12px"><div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span id="l-fb" style="font-size: 13.5px; font-weight: 500">Vẽ lại bằng nguồn khác khi lỗi</span><span style="font-size: 12px; color: #8B8B97">Ảnh vẽ lỗi hoặc gặp hết hạn mức được vẽ lại ngay bằng nguồn kế tiếp đã kết nối.</span></div><button class="sw" type="button" role="switch" aria-checked="{{fbOn}}" aria-labelledby="l-fb" onClick="{{toggleFb}}" style="background: {{fbBg}}"><span style="left: {{fbLeft}}; background: {{fbKnob}}"></span></button></div>
-<sc-if value="{{fbShow}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><sc-for list="{{artChain}}" as="c" hint-placeholder-count="2"><span class="pill num" style="height: 26px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.08); color: #C9C9D1"><span style="color: #8B8B97">{{c.n}}</span><span class="mono" style="font-size: 11.5px">{{c.id}}</span><span style="color: #8B8B97">· {{c.p}}</span></span></sc-for><button class="ghost" type="button" style="height: 26px; padding: 0 9px; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.18); background: transparent; color: #A0A0AB; font-size: 12px; display: inline-flex; align-items: center; gap: 5px"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm nguồn</button></div></sc-if>
+<sc-if value="{{fbShow}}" hint-placeholder-val="{{ true }}"><div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><sc-for list="{{artChain}}" as="c" hint-placeholder-count="2"><span class="pill num" style="height: 26px; background: #1B1B1E; border: 1px solid rgba(255,255,255,0.08); color: #C9C9D1"><span style="color: #8B8B97">{{c.n}}</span><span class="mono" style="font-size: 11.5px">{{c.id}}</span><span style="color: #8B8B97">· {{c.p}}</span></span></sc-for><button class="vv-btn vv-btn--sm" type="button" style="--h: 26px"><span class="ic i-add" aria-hidden="true" style="width: 12px; height: 12px"></span>Thêm nguồn</button></div></sc-if>
 </div>
 </div>
 <div role="listitem" style="padding: 16px; display: flex; flex-direction: column; gap: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); border-bottom: none"><div style="display: flex; align-items: center; gap: 10px"><span class="orb o-qa" aria-hidden="true" style="width: 22px; height: 22px"></span><span style="font-size: 14.5px; font-weight: 600">Kiểm định</span><span style="flex: 1; min-width: 0; font-size: 12.5px; color: #8B8B97">Chấm độ hoàn thiện, đo âm lượng và xuất video</span><span class="pill" style="background: #1B1B1E; color: #8B8B97">Không dùng model</span></div></div>
@@ -1210,7 +1273,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 </section>
 <section class="card" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px" aria-labelledby="h-deliv">
 <div style="display: flex; flex-direction: column; gap: 2px"><h2 id="h-deliv" style="margin: 0; font-size: 14px; font-weight: 600">Cách gửi tệp tới trình duyệt</h2><span class="vv-help">Khi xem video, tua hay tải bản xuất. Kho luôn riêng tư; Viderse kiểm tra quyền trước mỗi lần. Video tua được ở cả hai cách.</span></div>
-<div role="radiogroup" aria-label="Cách gửi tệp" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px"><sc-for list="{{srv.delivs}}" as="o" hint-placeholder-count="2"><button class="vv-choice vv-choice--lg" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="white-space: normal"><span class="vv-radio" aria-hidden="true" aria-checked="{{o.on}}" style="margin-top: 2px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; line-height: 1.45"><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500">{{o.n}}<sc-if value="{{o.rec}}" hint-placeholder-val="{{ false }}"><span class="vv-tag" style="color: #B9D0F7; background: rgba(124,147,243,0.1)">Gợi ý</span></sc-if></span><span style="font-size: 12.5px; color: #A6EDC1">+ {{o.plus}}</span><span style="font-size: 12.5px; color: #F6CB8C">− {{o.minus}}</span></span></button></sc-for></div>
+<div class="vv-seg vv-seg--fill" role="radiogroup" aria-label="Cách gửi tệp"><sc-for list="{{srv.delivs}}" as="o" hint-placeholder-count="2"><button class="vv-choice vv-choice--lg" type="button" role="radio" aria-checked="{{o.on}}" onClick="{{o.pick}}"><span class="vv-radio" aria-hidden="true" aria-checked="{{o.on}}" style="margin-top: 2px"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; line-height: 1.45"><span style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500">{{o.n}}<sc-if value="{{o.rec}}" hint-placeholder-val="{{ false }}"><span class="vv-tag" style="color: #B9D0F7; background: rgba(124,147,243,0.1)">Gợi ý</span></sc-if></span><span style="font-size: 12.5px; color: #A6EDC1">+ {{o.plus}}</span><span style="font-size: 12.5px; color: #F6CB8C">− {{o.minus}}</span></span></button></sc-for></div>
 <sc-if value="{{srv.needPub}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 6px"><label class="vv-label" for="sv-pub">Địa chỉ kho cho trình duyệt</label><input id="sv-pub" class="vv-field" type="text" value="{{srv.pub}}" onInput="{{srv.onPub}}" placeholder="https://s3.aarverse.studio" autocomplete="off" spellcheck="false" style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px"><span class="vv-help" style="line-height: 1.5">Địa chỉ ở Thông tin kho chỉ dùng được trong mạng nội bộ. Điền tên miền trỏ tới cùng kho, mở ra internet, có https.</span><sc-if value="{{srv.pubEmpty}}" hint-placeholder-val="{{ true }}"><span style="display: flex; gap: 6px; font-size: 12.5px; color: #F6CB8C; line-height: 1.5"><span class="ic i-warning" aria-hidden="true" style="width: 14px; height: 14px; margin-top: 2px; flex: 0 0 auto"></span>Để trống thì trình duyệt không tải được tệp, xem video sẽ lỗi. Không có tên miền thì chọn “Qua máy chủ Viderse”.</span></sc-if></div></sc-if>
 </section>
 <section class="card" style="border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px" aria-labelledby="h-test">
@@ -1282,14 +1345,14 @@ ul.vv-dialog__list { padding-left: 30px; }
 <h2 id="h-tmp" style="margin: 0; font-size: 14px; font-weight: 600">Tệp tạm và thứ không ai dùng</h2>
 <span style="font-size: 12.5px; color: #A0A0AB">{{cl.sub}}</span>
 </div>
-<sc-if value="{{cleanIdle}}" hint-placeholder-val="{{ true }}"><button class="ghost btn" type="button" onClick="{{cleanPreview}}"><span class="ic i-eye" aria-hidden="true" style="width: 15px; height: 15px"></span>Xem trước những gì sẽ dọn</button></sc-if>
+<sc-if value="{{cleanIdle}}" hint-placeholder-val="{{ true }}"><button class="vv-btn" type="button" onClick="{{cleanPreview}}"><span class="ic i-eye" aria-hidden="true" style="width: 15px; height: 15px"></span>Xem trước những gì sẽ dọn</button></sc-if>
 </div>
 <sc-if value="{{cleanPrev}}" hint-placeholder-val="{{ false }}">
 <div role="list" style="display: flex; flex-direction: column; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); overflow: hidden"><sc-for list="{{cl.items}}" as="c" hint-placeholder-count="3"><div role="listitem" class="lg" style="padding: 10px 12px; border-top: {{c.bt}}"><span style="flex: 1; display: flex; flex-direction: column; gap: 1px"><span style="color: #C9C9D1">{{c.t}}</span><sc-if value="{{c.hasSub}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12px; color: #8B8B97">{{c.sub}}</span></sc-if></span><span class="num" style="color: {{c.vc}}">{{c.v}}</span></div></sc-for></div>
 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap">
 <span style="flex: 1 1 260px; font-size: 12px; color: #8B8B97">{{cl.foot}}</span>
-<button class="ghost btn" type="button" onClick="{{cleanCancel}}" style="border-color: transparent; color: #A0A0AB">Để sau</button>
-<button type="button" onClick="{{cleanRun}}" style="height: 32px; padding: 0 14px; border-radius: 8px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600">Dọn {{cl.total}}</button>
+<button class="vv-btn" type="button" onClick="{{cleanCancel}}">Để sau</button>
+<button class="vv-btn vv-btn--primary vv-btn--sm" type="button" onClick="{{cleanRun}}" style="--h: 32px">Dọn {{cl.total}}</button>
 </div>
 </sc-if>
 <sc-if value="{{cleanDone}}" hint-placeholder-val="{{ false }}"><span role="status" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 16px; height: 16px"></span>Đã dọn {{cl.total}} lúc 00:06</span></sc-if>
@@ -1302,15 +1365,15 @@ ul.vv-dialog__list { padding-left: 30px; }
 <h2 style="margin: 0; font-size: 14px; font-weight: 600">{{b.title}} <span class="num" style="font-weight: 400; color: #8B8B97">· {{b.size}}</span></h2>
 <span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.6">{{b.desc}}</span>
 </div>
-<sc-if value="{{b.idle}}" hint-placeholder-val="{{ true }}"><button class="ghost btn btn-warn" type="button" onClick="{{b.ask}}"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>{{b.act}}</button></sc-if>
+<sc-if value="{{b.idle}}" hint-placeholder-val="{{ true }}"><button class="btn-warn vv-btn" type="button" onClick="{{b.ask}}"><span class="ic i-trash" aria-hidden="true" style="width: 15px; height: 15px"></span>{{b.act}}</button></sc-if>
 <sc-if value="{{b.gone}}" hint-placeholder-val="{{ false }}"><span role="status" class="pill" style="background: rgba(166,237,193,0.1); color: #A6EDC1">Đã xoá · lấy lại {{b.size}}</span></sc-if>
 </div>
 <sc-if value="{{b.confirm}}" hint-placeholder-val="{{ false }}">
 <div role="alertdialog" aria-label="{{b.q}}" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,154,92,0.35); background: rgba(255,154,92,0.06)">
 <span class="ic i-warning" aria-hidden="true" style="width: 16px; height: 16px; color: #FF9A5C"></span>
 <span style="flex: 1 1 260px; font-size: 13px; color: #FFC09A">{{b.q}}</span>
-<button class="ghost btn" type="button" onClick="{{b.cancel}}" style="border-color: transparent; color: #A0A0AB">Huỷ</button>
-<button type="button" onClick="{{b.go}}" style="height: 32px; padding: 0 13px; border-radius: 8px; border: none; background: #FF9A5C; color: #1A0E06; font-size: 13px; font-weight: 600">Xoá {{b.size}}</button>
+<button class="vv-btn" type="button" onClick="{{b.cancel}}">Huỷ</button>
+<button class="vv-btn vv-btn--danger vv-btn--sm" type="button" onClick="{{b.go}}" style="--h: 32px; color: #1A0E06">Xoá {{b.size}}</button>
 </div>
 </sc-if>
 </section>
@@ -1324,7 +1387,7 @@ ul.vv-dialog__list { padding-left: 30px; }
 <h2 id="h-exp" style="margin: 0; font-size: 14px; font-weight: 600">Xuất log để báo lỗi</h2>
 <span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.6">Gom nhật ký của app và 5 video gần nhất vào một tệp .zip, khoảng 3 MB. Cookie, tài khoản và đường dẫn cá nhân đã được che.</span>
 </div>
-<button class="primary" type="button" style="height: 36px; padding: 0 14px; display: flex; align-items: center; gap: 8px; border-radius: 10px; border: none; background: #EDEDEF; color: #0B0B0D; font-size: 13px; font-weight: 600"><span class="ic i-export" aria-hidden="true" style="width: 16px; height: 16px"></span>Xuất log</button>
+<button class="vv-btn vv-btn--primary" type="button"><span class="ic i-export" aria-hidden="true" style="width: 16px; height: 16px"></span>Xuất log</button>
 </section>
 <section class="card" aria-labelledby="h-err" style="border-radius: 14px; overflow: hidden">
 <div style="padding: 14px 16px 6px; display: flex; align-items: baseline; gap: 10px"><h2 id="h-err" style="margin: 0; flex: 1; font-size: 14px; font-weight: 600">Lỗi gần đây</h2><span style="font-size: 12px; color: #8B8B97">7 ngày qua · 4 lỗi</span></div>
@@ -1337,13 +1400,13 @@ ul.vv-dialog__list { padding-left: 30px; }
 <span style="font-size: 12.5px; color: #A0A0AB; line-height: 1.55">{{e.why}}</span>
 <span style="font-size: 12px; color: {{e.stColor}}">{{e.st}}</span>
 </div>
-<a class="ghost" href="{{e.href}}" style="height: 28px; padding: 0 10px; display: flex; align-items: center; border-radius: 7px; border: 1px solid rgba(255,255,255,0.1); font-size: 12.5px; white-space: nowrap">{{e.link}}</a>
+<a class="vv-btn vv-btn--sm" href="{{e.href}}" style="--h: 28px">{{e.link}}</a>
 </div>
 </sc-for>
 </section>
 <section class="card" style="border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
 <div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14px; font-weight: 500">Viderse 1.4.0</span><span style="font-size: 12.5px; color: #A0A0AB">Bản mới nhất</span></div>
-<button class="ghost btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra bản mới</button>
+<button class="vv-btn" type="button"><span class="ic i-refresh" aria-hidden="true" style="width: 15px; height: 15px"></span>Kiểm tra bản mới</button>
 </section>
 </sc-if>
 </div>
@@ -1369,19 +1432,38 @@ ul.vv-dialog__list { padding-left: 30px; }
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"section": {"editor": "enum", "options": ["tools", "connect", "agents", "accounts", "storage", "logs"], "default": "tools", "section": "Mục đang mở"}, "tools": {"editor": "enum", "options": ["ok", "update", "failed", "installing"], "default": "ok", "section": "Công cụ trên máy"}, "conn": {"editor": "enum", "options": ["list", "add", "added", "models", "manual", "failed"], "default": "list", "section": "Kết nối AI · nhà cung cấp"}, "grok": {"editor": "enum", "options": ["signed", "code", "out"], "default": "signed", "section": "Kết nối AI · Grok"}, "ai": {"editor": "enum", "options": ["none", "director", "artist"], "default": "none", "section": "Trợ lý AI · chọn model"}, "bili": {"editor": "enum", "options": ["blocked", "saved", "manual", "expired", "empty"], "default": "blocked", "section": "Tài khoản nền tảng · Bilibili"}, "clean": {"editor": "enum", "options": ["idle", "preview", "done"], "default": "idle", "section": "Lưu trữ · dọn dẹp"}, "$preview": {"width": 1440, "height": 900}, "store": {"editor": "enum", "options": ["here", "pick", "lowspace", "cloud", "moving", "done", "donenew", "offline", "server", "s3pick", "s3form", "s3testing", "s3testok", "s3testfail", "s3envlocked", "s3nokey", "s3confirm", "s3moving", "s3moveerr", "s3active", "s3down"], "default": "here", "section": "Lưu trữ · máy tính (here…offline) · máy chủ (server, s3…)"}, "yt": {"editor": "enum", "options": ["ok", "bot"], "default": "ok", "section": "Tài khoản nền tảng · YouTube"}, "qr": {"editor": "enum", "options": ["none", "loading", "waiting", "scanned", "expired", "rejected", "error", "success"], "default": "none", "section": "Bilibili · đăng nhập bằng mã QR (mục Tài khoản nền tảng)"}, "sprov": {"editor": "enum", "options": ["garage", "r2", "aws", "other"], "default": "garage", "section": "Lưu trữ máy chủ · nhà cung cấp ở form"}, "sfail": {"editor": "enum", "options": ["key", "bucket", "perm", "net", "clock", "cors", "reach"], "default": "cors", "section": "Lưu trữ máy chủ · lỗi khi s3testfail"}, "skey": {"editor": "enum", "options": ["new", "saved"], "default": "new", "section": "Lưu trữ máy chủ · khoá ở form (saved = đổi kho khi đang dùng Garage)"}, "role": {"editor": "enum", "options": ["admin", "member"], "default": "admin", "section": "Lưu trữ máy chủ · người xem"}, "usage": {"editor": "enum", "options": ["full", "partial"], "default": "full", "section": "Lưu trữ máy chủ · dung lượng (partial = chỉ Thư viện có số, tới khi có luồng dựng video)"}}'>
+<script type="text/x-dc" data-dc-script data-props='{"section": {"editor": "enum", "options": ["tools", "connect", "agents", "accounts", "storage", "logs"], "default": "tools", "section": "Mục đang mở"}, "tools": {"editor": "enum", "options": ["ok", "update", "failed", "installing"], "default": "ok", "section": "Công cụ trên máy"}, "conn": {"editor": "enum", "options": ["list", "add", "added", "models", "manual", "failed"], "default": "list", "section": "Kết nối AI · nhà cung cấp"}, "grok": {"editor": "enum", "options": ["signed", "code", "out"], "default": "signed", "section": "Kết nối AI · Grok"}, "ai": {"editor": "enum", "options": ["none", "director", "artist"], "default": "none", "section": "Trợ lý AI · chọn model"}, "bili": {"editor": "enum", "options": ["blocked", "saved", "manual", "expired", "empty"], "default": "blocked", "section": "Tài khoản nền tảng · Bilibili"}, "clean": {"editor": "enum", "options": ["idle", "preview", "done"], "default": "idle", "section": "Lưu trữ · dọn dẹp"}, "$preview": {"width": 1440, "height": 900}, "store": {"editor": "enum", "options": ["here", "pick", "lowspace", "cloud", "moving", "done", "donenew", "offline", "server", "s3pick", "s3form", "s3testing", "s3testok", "s3testfail", "s3envlocked", "s3nokey", "s3confirm", "s3moving", "s3moveerr", "s3active", "s3down"], "default": "here", "section": "Lưu trữ · máy tính (here…offline) · máy chủ (server, s3…)"}, "yt": {"editor": "enum", "options": ["ok", "bot"], "default": "ok", "section": "Tài khoản nền tảng · YouTube"}, "qr": {"editor": "enum", "options": ["none", "loading", "waiting", "scanned", "expired", "rejected", "error", "success"], "default": "none", "section": "Bilibili · đăng nhập bằng mã QR (mục Tài khoản nền tảng)"}, "sprov": {"editor": "enum", "options": ["garage", "r2", "aws", "other"], "default": "garage", "section": "Lưu trữ máy chủ · nhà cung cấp ở form"}, "sfail": {"editor": "enum", "options": ["key", "bucket", "perm", "net", "clock", "cors", "reach"], "default": "cors", "section": "Lưu trữ máy chủ · lỗi khi s3testfail"}, "skey": {"editor": "enum", "options": ["new", "saved"], "default": "new", "section": "Lưu trữ máy chủ · khoá ở form (saved = đổi kho khi đang dùng Garage)"}, "role": {"editor": "enum", "options": ["admin", "member"], "default": "admin", "section": "Lưu trữ máy chủ · người xem"}, "ytkey": {"editor": "enum", "options": ["empty", "ok", "edit", "rejected", "failed", "offline"], "default": "ok", "section": "Kết nối AI · YouTube Data API (khoá tuỳ chọn)"}, "usage": {"editor": "enum", "options": ["full", "partial"], "default": "full", "section": "Lưu trữ máy chủ · dung lượng (partial = chỉ Thư viện có số, tới khi có luồng dựng video)"}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.state = { svp: null, svd: null, svt: null, svv: null, svpub: null, svh: null, svpath: null, svg: false, svadv: false, svkey: null, svre: null, svpause: false, svcancel: false, svcopy: false, svfrom: null, store: null, sdrive: null, smode: null, sec: null, adv: false, fb: true, prov: 'chatgpt', grok: null, bili: null, qr: null, biliMan: false, renewed: false, clean: null, big: {}, prof: 'p1', conn: null, open: null, flt: null, sel: null, man: null, pick: null, think: 'auto', dir: 'gpt-6.1-sol', art: 'gpt-6.1-sol', addPick: 'openrouter' };
   }
   componentDidUpdate(prev) {
+    if (prev.ytkey !== this.props.ytkey) this.setState({ ytk: null, ytv: null });
     const keys = ['section', 'tools', 'grok', 'bili', 'qr', 'yt', 'clean', 'conn', 'ai', 'store', 'sprov', 'sfail', 'skey', 'role', 'usage'];
     if (keys.some((k) => prev[k] !== this.props[k])) this.setState({ svp: null, svd: null, svt: null, svv: null, svpub: null, svh: null, svpath: null, svg: false, svadv: false, svkey: null, svre: null, svpause: false, svcancel: false, svcopy: false, svfrom: null, store: null, sdrive: null, smode: null, sec: null, grok: null, bili: null, qr: null, biliMan: false, renewed: false, ytx: null, clean: null, big: {}, adv: false, conn: null, open: null, flt: null, sel: null, man: null, pick: null, prov: 'chatgpt' });
   }
   later(f, ms) { (this.tm = this.tm || []).push(setTimeout(f, ms)); }
   componentWillUnmount() { (this.tm || []).forEach(clearTimeout); }
+
+  ytVals() {
+    const k = this.state.ytk || this.props.ytkey || 'ok';
+    const go = (x, v) => () => this.setState({ ytk: x, ytv: v === undefined ? null : v });
+    const A = (label, cls, run, dis, ic) => ({ label, cls: cls || '', run: run || (() => {}), dis: dis ? 'true' : 'false', hasIc: !!ic, ic: ic || '' });
+    const EMPTY = 'Chưa có khoá · số liệu sau đăng đọc từ trang công khai';
+    const v = { role: 'status', sub: EMPTY, subFg: '#8B8B97', bd: 'rgba(255,255,255,0.07)', hasActs: true, acts: [A('Thêm khoá', '', go('edit', ''))], edit: false, rej: false, val: '', inv: 'false', inBd: 'rgba(255,255,255,0.14)', saveDis: 'true', save: () => {}, cancel: go('empty') };
+    const typed = this.state.ytv !== null && this.state.ytv !== undefined ? this.state.ytv : 'AIzaSyB2c4XqN0d8kTq7mZr1Lp5Ev9x9Qw';
+    if (k === 'ok') Object.assign(v, { sub: 'Đã lưu ••••x9Qw · Trinh sát đọc lượt xem, thích, bình luận qua API', subFg: 'var(--vv-st-ready)', acts: [A('Đổi khoá', '', go('edit', '')), A('Gỡ khoá', 'vv-btn--quiet', go('empty'))] });
+    if (k === 'edit') Object.assign(v, { hasActs: false, edit: true, val: typed, saveDis: typed ? 'false' : 'true', save: go('ok'), cancel: go('empty') });
+    if (k === 'rejected') Object.assign(v, { hasActs: false, edit: true, rej: true, val: typed, inv: 'true', inBd: 'var(--vv-danger)', saveDis: 'false', save: go('ok'), cancel: go('empty'), bd: 'rgba(255,154,92,0.35)' });
+    if (k === 'failed') Object.assign(v, { role: 'alert', sub: 'Không đọc được trạng thái khoá', subFg: 'var(--vv-danger-text)', acts: [A('Thử lại', '', go('ok'), false, 'i-refresh')] });
+    if (k === 'offline') Object.assign(v, { role: 'alert', sub: 'Mất kết nối máy chủ — mọi nút của hàng này tắt cho tới khi kết nối lại', subFg: 'var(--vv-danger-text)', acts: [A('Thêm khoá', '', null, true)] });
+    return { yk: v };
+  }
   renderVals() {
+    return Object.assign(this.__rv(), this.ytVals());
+  }
+  __rv() {
     const sec = this.state.sec || this.props.section || 'tools';
     const tst = this.props.tools || 'ok';
     const grok = this.state.grok || this.props.grok || 'signed';
@@ -1899,5 +1981,6 @@ class Component extends DCLogic {
   }
 }
 </script>
+<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts)document.fonts.ready.then(q);q();})();</script>
 </body>
 </html>
