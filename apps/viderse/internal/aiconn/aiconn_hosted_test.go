@@ -43,12 +43,15 @@ func (r *authRecorder) seen() []string {
 
 func realAdapterService(t *testing.T, store *memStore, hosted bool, lookup func(context.Context, string) ([]net.IP, error)) *aiconn.Service {
 	t.Helper()
-	adapter := &aiconn.OpenAICompatAdapter{Client: aiconn.NewCredentialClient(5 * time.Second)}
+	client := aiconn.NewCredentialClient(aiconn.CredentialClientOptions{
+		Timeout: 5 * time.Second, Hosted: hosted, LookupIP: lookup,
+	})
+	adapter := &aiconn.OpenAICompatAdapter{Client: client}
 	return aiconn.New(aiconn.Options{
 		Store: store, Settings: newMemSettings(), Box: newFakeBox(t), Auth: newFakeAuth(),
 		Adapters: map[domain.ProviderKind]aiconn.Adapter{
 			domain.KindOpenAICompat: adapter,
-			domain.KindOllama:       &aiconn.OllamaAdapter{Client: aiconn.NewCredentialClient(5 * time.Second)},
+			domain.KindOllama:       &aiconn.OllamaAdapter{Client: client},
 		},
 		Hosted:   hosted,
 		LookupIP: lookup,

@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/datnt1998/verse/core/models"
 	"maps"
+	"net/http"
 	"strings"
 	"time"
 
@@ -33,9 +34,10 @@ import (
 
 // providerConfig is the common configuration consumed by provider factories.
 type providerConfig struct {
-	APIKey  string
-	BaseURL string
-	Extra   map[string]any
+	APIKey    string
+	BaseURL   string
+	Extra     map[string]any
+	Transport http.RoundTripper
 }
 
 // ClientModel adapts litellm to the ChatModel interface.
@@ -76,6 +78,7 @@ type modelConfig struct {
 	streamIdleSet bool // distinguishes "unset" from explicit 0 (disable watchdog)
 	extra         map[string]any
 	providerExtra map[string]any
+	transport     http.RoundTripper
 }
 
 // ModelOption configures NewModel.
@@ -83,6 +86,14 @@ type ModelOption func(*modelConfig)
 
 func WithAPIKey(key string) ModelOption  { return func(c *modelConfig) { c.apiKey = key } }
 func WithBaseURL(url string) ModelOption { return func(c *modelConfig) { c.baseURL = url } }
+
+// WithTransport routes every provider request through rt instead of the
+// default transport. Use it when the caller must control how the connection is
+// made — e.g. a dial-time address policy for a user-supplied base URL. A nil
+// transport keeps the provider default.
+func WithTransport(rt http.RoundTripper) ModelOption {
+	return func(c *modelConfig) { c.transport = rt }
+}
 
 // WithStreamIdleTimeout aborts a streaming response if no chunk arrives within
 // the window. Pass 0 to disable the watchdog explicitly. When the option is
@@ -130,9 +141,10 @@ func NewModel(provider, model string, opts ...ModelOption) (*ClientModel, error)
 	}
 
 	pcfg := providerConfig{
-		APIKey:  cfg.apiKey,
-		BaseURL: cfg.baseURL,
-		Extra:   cloneExtra(cfg.providerExtra),
+		APIKey:    cfg.apiKey,
+		BaseURL:   cfg.baseURL,
+		Extra:     cloneExtra(cfg.providerExtra),
+		Transport: cfg.transport,
 	}
 	providerImpl, err := newProvider(provider, pcfg)
 	if err != nil {
@@ -980,9 +992,9 @@ func newProvider(name string, cfg providerConfig) (litellm.Provider, error) {
 	userAgent := stringFromExtra(cfg.Extra, "user_agent")
 	switch name {
 	case "openai":
-		return openai.New(openai.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL, API: firstStringFromExtra(cfg.Extra, "api", "api_mode"), Headers: headers, UserAgent: userAgent, PromptCacheParams: boolFromExtra(cfg.Extra, "prompt_cache_params")})
+		return openai.New(openai.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL, API: firstStringFromExtra(cfg.Extra, "api", "api_mode"), Headers: headers, UserAgent: userAgent, Transport: cfg.Transport, PromptCacheParams: boolFromExtra(cfg.Extra, "prompt_cache_params")})
 	case "anthropic":
-		return anthropic.New(anthropic.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL, Beta: stringFromExtra(cfg.Extra, "anthropic_beta"), Headers: headers, UserAgent: userAgent})
+		return anthropic.New(anthropic.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL, Beta: stringFromExtra(cfg.Extra, "anthropic_beta"), Headers: headers, UserAgent: userAgent, Transport: cfg.Transport})
 	case "bedrock":
 		bedrockCfg, err := bedrockConfig(cfg)
 		if err != nil {
@@ -990,7 +1002,7 @@ func newProvider(name string, cfg providerConfig) (litellm.Provider, error) {
 		}
 		return bedrock.New(bedrockCfg)
 	case "gemini":
-		return gemini.New(gemini.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL})
+		return gemini.New(gemini.Config{APIKeyFunc: apiKeyFunc(cfg.APIKey), BaseURL: cfg.BaseURL, Transport: cfg.Transport})
 	case "deepseek":
 		return deepseek.New(compatProviderConfig(cfg, headers, userAgent))
 	case "glm":
@@ -1018,6 +1030,7 @@ func compatProviderConfig(cfg providerConfig, headers map[string]string, userAge
 	return compat.Config{
 		APIKeyFunc: apiKeyFunc(cfg.APIKey),
 		BaseURL:    cfg.BaseURL,
+		Transport:  cfg.Transport,
 
 		Headers:                     headers,
 		UserAgent:                   userAgent,
@@ -1035,6 +1048,7 @@ func bedrockConfig(cfg providerConfig) (bedrock.Config, error) {
 		Region:              firstStringFromExtra(cfg.Extra, "region", "aws_region"),
 		BaseURL:             cfg.BaseURL,
 		ControlPlaneBaseURL: stringFromExtra(cfg.Extra, "control_plane_base_url"),
+		Transport:           cfg.Transport,
 		Credentials: bedrock.StaticCredentials(
 			accessKeyID,
 			secretAccessKey,

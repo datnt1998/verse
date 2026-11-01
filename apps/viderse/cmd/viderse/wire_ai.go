@@ -265,6 +265,15 @@ func (e *aiExecutors) apiDeps(p domain.Provider, ref domain.ModelRef, style imag
 	}
 }
 
+// transport trả transport của client provider dùng chung: nil ở chế độ desktop,
+// transport chỉ-nối-địa-chỉ-công-khai ở chế độ hosted.
+func (e *aiExecutors) transport() http.RoundTripper {
+	if e.http == nil {
+		return nil
+	}
+	return e.http.Transport
+}
+
 // textModels dựng client text cho từng ModelRef của Đạo diễn, giữ thứ tự.
 func (e *aiExecutors) textModels(ctx context.Context, chain []domain.ModelRef) []*llm.ClientModel {
 	out := make([]*llm.ClientModel, 0, len(chain))
@@ -293,7 +302,8 @@ func (e *aiExecutors) textModel(ctx context.Context, ref domain.ModelRef) (*llm.
 		if err != nil {
 			return nil, err
 		}
-		return llm.NewModel("grok", ref.Model, llm.WithAPIKey(token), llm.WithBaseURL(p.BaseURL))
+		return llm.NewModel("grok", ref.Model, llm.WithAPIKey(token), llm.WithBaseURL(p.BaseURL),
+			llm.WithTransport(e.transport()))
 	}
 	name := textProviderName(p.Kind)
 	if name == "" {
@@ -302,6 +312,11 @@ func (e *aiExecutors) textModel(ctx context.Context, ref domain.ModelRef) (*llm.
 	opts := []llm.ModelOption{llm.WithAPIKey(key)}
 	if p.BaseURL != "" {
 		opts = append(opts, llm.WithBaseURL(p.BaseURL))
+	}
+	// Địa chỉ của thẻ là do người dùng nhập: ở chế độ hosted, transport chỉ
+	// nối tới địa chỉ công khai (chặn DNS rebinding về loopback/mạng riêng).
+	if rt := e.transport(); rt != nil {
+		opts = append(opts, llm.WithTransport(rt))
 	}
 	return llm.NewModel(name, ref.Model, opts...)
 }
@@ -416,8 +431,13 @@ func wireAI(
 	}
 
 	// Client dùng chung: giới hạn redirect cross-origin/hạ cấp https để khoá
-	// API không bị chuyển tiếp sang máy khác (SSRF phần redirect).
-	httpClient := aiconn.NewCredentialClient(30 * time.Second)
+	// API không bị chuyển tiếp sang máy khác (SSRF phần redirect); ở chế độ
+	// hosted, transport chỉ nối tới địa chỉ công khai nên DNS rebinding về
+	// loopback/mạng riêng cũng bị chặn ở tầng dial.
+	httpClient := aiconn.NewCredentialClient(aiconn.CredentialClientOptions{
+		Timeout: 30 * time.Second,
+		Hosted:  gateway.Hosted(),
+	})
 	limit := imagegen.DefaultDailyPaidImageLimit
 	if raw := os.Getenv("VIDERSE_DAILY_PAID_IMAGE_LIMIT"); raw != "" {
 		n, err := strconv.Atoi(raw)

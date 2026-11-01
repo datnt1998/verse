@@ -2,13 +2,25 @@ package aiconn
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
+)
+
+// LookupIPFunc phân giải tên host. nil → resolver hệ thống.
+type LookupIPFunc func(ctx context.Context, host string) ([]net.IP, error)
+
+// errInternalAddress: đích là loopback/link-local/mạng riêng — máy chủ chia sẻ
+// không được gọi hộ người dùng. errUnresolvableHost: không xác minh được đích.
+var (
+	errInternalAddress  = errors.New("địa chỉ nội bộ")
+	errUnresolvableHost = errors.New("không phân giải được địa chỉ")
 )
 
 // Dải địa chỉ không nằm trong IsPrivate/IsGlobalUnicast của thư viện chuẩn
@@ -48,6 +60,53 @@ func hostedAddressError(message string) *Error {
 	return apiError(http.StatusBadRequest, domain.ReasonInvalidBaseURL, message)
 }
 
+// publicAddrs phân giải host thành địa chỉ và từ chối nếu BẤT KỲ địa chỉ nào
+// là nội bộ. Một hàm duy nhất cho cả lúc lưu cấu hình (checkHostedAddress) và
+// lúc nối (publicDialContext): hai chỗ phải áp đúng một quy tắc.
+func publicAddrs(ctx context.Context, lookup LookupIPFunc, host string) ([]netip.Addr, error) {
+	if host == "" || strings.Contains(host, "%") {
+		return nil, errInternalAddress
+	}
+	if ip, err := netip.ParseAddr(host); err == nil {
+		if internalAddr(ip) {
+			return nil, errInternalAddress
+		}
+		return []netip.Addr{ip}, nil
+	}
+	if lookup == nil {
+		lookup = systemLookupIP
+	}
+	ips, err := lookup(ctx, host)
+	if err != nil || len(ips) == 0 {
+		return nil, errUnresolvableHost
+	}
+	addrs := make([]netip.Addr, 0, len(ips))
+	for _, ip := range ips {
+		if a, ok := netip.AddrFromSlice(ip); ok {
+			addrs = append(addrs, a)
+		}
+	}
+	if len(addrs) == 0 {
+		return nil, errUnresolvableHost
+	}
+	for _, a := range addrs {
+		if internalAddr(a) {
+			return nil, errInternalAddress
+		}
+	}
+	return addrs, nil
+}
+
+// systemLookupIP phân giải bằng resolver của hệ điều hành.
+func systemLookupIP(ctx context.Context, host string) ([]net.IP, error) {
+	found, err := net.DefaultResolver.LookupIPAddr(ctx, host)
+	out := make([]net.IP, 0, len(found))
+	for _, f := range found {
+		out = append(out, f.IP)
+	}
+	return out, err
+}
+
 // checkHostedAddress, khi Options.Hosted bật, từ chối baseUrl phân giải ra
 // địa chỉ nội bộ. Phải phân giải tên trước khi kiểm: "localhost" hay một tên
 // miền trỏ về 10.x đều là đích nội bộ. Không phân giải được thì không xác
@@ -61,44 +120,54 @@ func (s *Service) checkHostedAddress(ctx context.Context, base string) error {
 	if err != nil || u.Hostname() == "" {
 		return hostedAddressError("Địa chỉ máy chủ không hợp lệ")
 	}
-	host := u.Hostname()
-	if strings.Contains(host, "%") {
+	switch _, err := publicAddrs(ctx, s.o.LookupIP, u.Hostname()); {
+	case err == nil:
+		return nil
+	case errors.Is(err, errInternalAddress):
 		return hostedAddressError(internal)
+	default:
+		return hostedAddressError("Không phân giải được địa chỉ máy chủ")
 	}
-	var addrs []netip.Addr
-	if ip, perr := netip.ParseAddr(host); perr == nil {
-		addrs = []netip.Addr{ip}
-	} else {
-		lookup := s.o.LookupIP
-		if lookup == nil {
-			lookup = func(ctx context.Context, host string) ([]net.IP, error) {
-				found, err := net.DefaultResolver.LookupIPAddr(ctx, host)
-				out := make([]net.IP, 0, len(found))
-				for _, f := range found {
-					out = append(out, f.IP)
-				}
-				return out, err
+}
+
+// publicDialContext trả DialContext chỉ nối tới địa chỉ công khai. Tên được
+// phân giải ĐÚNG MỘT LẦN ở đây rồi nối thẳng bằng IP literal: để net.Dialer
+// tự phân giải lại chính là lỗ hổng DNS rebinding (kiểm tra thấy IP công
+// khai, nối lại thấy 127.0.0.1). Vì địa chỉ literal không đổi giữa hai lần,
+// mọi kết nối — kể cả keep-alive nối lại sau khi đích đổi DNS — đều bị chặn.
+func publicDialContext(lookup LookupIPFunc) func(ctx context.Context, network, address string) (net.Conn, error) {
+	dialer := &net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}
+	return func(ctx context.Context, network, address string) (net.Conn, error) {
+		host, port, err := net.SplitHostPort(address)
+		if err != nil {
+			return nil, err
+		}
+		addrs, err := publicAddrs(ctx, lookup, host)
+		if err != nil {
+			return nil, err
+		}
+		var firstErr error
+		for _, a := range addrs {
+			conn, derr := dialer.DialContext(ctx, network, net.JoinHostPort(a.String(), port))
+			if derr == nil {
+				return conn, nil
+			}
+			if firstErr == nil {
+				firstErr = derr
 			}
 		}
-		ips, lerr := lookup(ctx, host)
-		if lerr != nil || len(ips) == 0 {
-			return hostedAddressError("Không phân giải được địa chỉ máy chủ")
-		}
-		for _, ip := range ips {
-			if a, ok := netip.AddrFromSlice(ip); ok {
-				addrs = append(addrs, a)
-			}
-		}
-		if len(addrs) == 0 {
-			return hostedAddressError("Không phân giải được địa chỉ máy chủ")
-		}
+		return nil, firstErr
 	}
-	for _, a := range addrs {
-		if internalAddr(a) {
-			return hostedAddressError(internal)
-		}
-	}
-	return nil
+}
+
+// publicOnlyTransport là transport của client gọi địa chỉ do người dùng nhập
+// khi máy chủ đang chia sẻ: mỗi lần nối đều kiểm địa chỉ thật. Proxy từ biến
+// môi trường bị tắt — proxy tự nối tới đích nên sẽ vòng qua kiểm tra này.
+func publicOnlyTransport(lookup LookupIPFunc) *http.Transport {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.Proxy = nil
+	transport.DialContext = publicDialContext(lookup)
+	return transport
 }
 
 // sameHost báo hai baseUrl trỏ cùng scheme + host + cổng. Cùng máy chủ thì

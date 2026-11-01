@@ -16,7 +16,6 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -252,7 +251,7 @@ type Options struct {
 	// giữ được Ollama ở localhost/LAN.
 	Hosted bool
 	// LookupIP phân giải tên host cho kiểm tra Hosted; nil → resolver hệ thống.
-	LookupIP func(ctx context.Context, host string) ([]net.IP, error)
+	LookupIP LookupIPFunc
 }
 
 // Service là mặt tiền nghiệp vụ của kết nối AI.

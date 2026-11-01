@@ -73,11 +73,29 @@ func httpError(status int, body []byte) error {
 	}
 }
 
+// CredentialClientOptions cấu hình client gọi provider mang credential.
+type CredentialClientOptions struct {
+	Timeout time.Duration
+	// Hosted: máy chủ đang chia sẻ cho người khác (PUBLIC_URL). Mỗi lần nối
+	// phải kiểm địa chỉ THẬT đang nối — kiểm lúc lưu baseUrl là chưa đủ vì
+	// DNS có thể đổi giữa hai lần phân giải (DNS rebinding).
+	Hosted bool
+	// LookupIP là resolver dùng cho kiểm tra lúc nối; nil → resolver hệ thống.
+	LookupIP LookupIPFunc
+}
+
 // NewCredentialClient trả client HTTP cho mọi lời gọi mang credential: chặn
 // redirect cross-origin và hạ cấp https→http, nên khoá/tài khoản không bị
 // chuyển tiếp sang máy khác qua redirect của provider (SSRF phần redirect).
-func NewCredentialClient(timeout time.Duration) *http.Client {
-	return &http.Client{Timeout: timeout, CheckRedirect: SameOriginRedirect}
+// Ở chế độ hosted, transport chỉ nối tới địa chỉ công khai (cùng quy tắc
+// internalAddr với lúc lưu baseUrl), nên redirect, keep-alive nối lại hay
+// DNS đổi về loopback đều bị chặn ở tầng dial.
+func NewCredentialClient(o CredentialClientOptions) *http.Client {
+	client := &http.Client{Timeout: o.Timeout, CheckRedirect: SameOriginRedirect}
+	if o.Hosted {
+		client.Transport = publicOnlyTransport(o.LookupIP)
+	}
+	return client
 }
 
 // SameOriginRedirect chỉ theo redirect cùng scheme+host, tối đa 5 lần.

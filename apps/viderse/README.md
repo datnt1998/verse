@@ -165,7 +165,11 @@ DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
   được đặt (hosted), baseUrl phải phân giải (DNS trước khi kiểm) ra địa chỉ
   công khai — loopback, link-local (gồm metadata cloud), mạng riêng, CGNAT và
   multicast bị từ chối, nên Ollama trên chính máy chủ không dùng được khi
-  hosted. Không đặt `PUBLIC_URL` (app một chủ trên máy cá nhân) thì giữ nguyên
+  hosted. Quy tắc đó được áp lại **ở mỗi lần nối** (transport của client
+  provider, và transport của client text), không chỉ lúc lưu: tên được phân
+  giải một lần rồi nối bằng IP literal, nên DNS đổi về loopback sau khi kiểm
+  (DNS rebinding), redirect hay keep-alive nối lại đều bị chặn. Không đặt
+  `PUBLIC_URL` (app một chủ trên máy cá nhân) thì giữ nguyên
   Ollama ở localhost/LAN. Đổi baseUrl sang **máy chủ khác** của thẻ đã lưu khoá
   cần nhập lại khoá API trong cùng request; khoá đã lưu không bao giờ được gửi
   tới địa chỉ mới.
