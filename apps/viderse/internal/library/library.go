@@ -102,6 +102,9 @@ type Deps struct {
 	Runner Runner
 	Bins   Binaries
 	Price  PriceOf
+	// Importer nhập media của template cũ; nil = chỉ đọc/ghi metadata (test),
+	// nhập template báo 400 thay vì tạo template trỏ tới media không có.
+	Importer MediaImporter
 	// Notify phát sự kiện SSE (chủ đề, ref). nil = không phát (CLI/test).
 	Notify func(topic, ref string)
 	Now    func() time.Time
@@ -110,22 +113,23 @@ type Deps struct {
 
 // Service là nghiệp vụ Thư viện. An toàn cho goroutine (không giữ trạng thái).
 type Service struct {
-	store  Store
-	files  Files
-	media  *media.Service
-	runner Runner
-	bins   Binaries
-	price  PriceOf
-	notify func(topic, ref string)
-	now    func() time.Time
-	newID  func() string
+	store    Store
+	files    Files
+	media    *media.Service
+	runner   Runner
+	bins     Binaries
+	price    PriceOf
+	importer MediaImporter
+	notify   func(topic, ref string)
+	now      func() time.Time
+	newID    func() string
 }
 
 // New dựng Service trên store.
 func New(deps Deps) *Service {
 	s := &Service{
 		store: deps.Store, files: deps.Files, runner: deps.Runner, bins: deps.Bins,
-		media: deps.Media,
+		media: deps.Media, importer: deps.Importer,
 		price: deps.Price, notify: deps.Notify, now: deps.Now, newID: deps.NewID,
 	}
 	if s.now == nil {

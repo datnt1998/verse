@@ -474,6 +474,7 @@ export const vi = {
       done: 'Đã xoá video · MP4 vẫn còn trong thư mục xuất',
       error: 'Không xoá được: video đang được dựng. Tạm dừng rồi thử lại.',
       runningHint: 'Video đang chạy phải Tạm dừng trước rồi mới xoá.',
+      locked: 'Tạm dừng trước rồi xoá',
     },
     deleteChannel: {
       title: (name: string) => `Xoá kênh “${name}”?`,

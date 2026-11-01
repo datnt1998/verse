@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
-import { EXPORT_PRESETS, EXPORT_QUALITY_OPTIONS, exportSettings, exportTechnicalSummary, formatBytes, formatDuration, preflightMessage } from './export-settings'
+import { EXPORT_PRESETS, EXPORT_QUALITY_OPTIONS, exportSettings, exportTechnicalSummary, preflightMessage } from './export-settings'
+import { formatBytes, formatDuration } from '../../../lib/units'
 
 describe('export settings', () => {
   it('keeps every preset at 30 fps and disables smart-copy for render exports', () => {

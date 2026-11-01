@@ -2,7 +2,7 @@
 // Thanh trên: logo 24 + bộ đổi kênh trên Bàn dựng + JobsPill gọn + avatar.
 // Thanh dưới 64px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
 // mục đang mở nền pill đỏ nhạt, mục thường icon xám. Nội dung pad-bottom 110px.
-import { useState, type ReactNode } from 'react'
+import { Suspense, lazy, useState, type ReactNode } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, navSection, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -10,10 +10,12 @@ import { Icon, type IconName } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { JobsPill } from './JobsPill'
 import type { Status } from '../api/status'
-import { QueueSummarySheet } from '../screens/queue/QueueSummarySheet'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
+
+// Bảng Hàng chờ của điện thoại chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
+const QueueSummarySheet = lazy(() => import('../screens/queue/QueueSummarySheet').then((m) => ({ default: m.QueueSummarySheet })))
 
 const TAB_ITEMS: { key: NavKey; label: string; icon: IconName; iconActive: IconName; path: string; badge?: 'review' }[] = [
   { key: 'workbench', label: t.nav.workbench, icon: 'workbench', iconActive: 'workbench-b', path: paths.workbench() },
@@ -111,7 +113,9 @@ export function MobileShell({ route, status, online, userName, channels, channel
       </header>
       {children}
       <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
-      <QueueSummarySheet open={jobsOpen} onClose={() => setJobsOpen(false)} />
+      <Suspense fallback={null}>
+        <QueueSummarySheet open={jobsOpen} onClose={() => setJobsOpen(false)} />
+      </Suspense>
     </div>
   )
 }

@@ -39,6 +39,14 @@ const templateUsage = `Cách dùng:
   viderse template set <id> --revision N --recipe '<json>'
   viderse template set <id> --revision N --name '<tên>'
                                                          Lưu template (revision lệch → 409)
+  viderse template import <tệp|thư mục> [--name <tên>] [--only <chữ>]…
+                                                         Nhập template cũ (.ytf-template.zip,
+                                                         thư mục chứa các tệp đó, hoặc thư mục
+                                                         editor-workspace cũ); --only lọc theo tên
+  viderse template import --from-data <thư mục dữ liệu> [--only <chữ>]…
+                                                         Nhập thẳng template từ thư mục dữ liệu của
+                                                         bản cũ (app.db + editor-workspace), đọc trên
+                                                         bản sao, không cần chạy công cụ trước đây
   viderse template delete <id>                           Xoá template
 `
 
@@ -154,6 +162,42 @@ func runTemplateCommand(args []string, stdout, stderr io.Writer) int {
 			return libraryErrOut(stderr, err)
 		}
 		return outputTemplate(ctx, svc, tpl.ID, nil, stdout, stderr)
+	case "import":
+		flags, positional, code := parseImportFlags(rest, stderr)
+		if code != 0 {
+			return code
+		}
+		var results []library.ImportResult
+		if flags.fromData != "" {
+			if len(positional) != 0 {
+				return libraryUsageError(stderr, "--from-data không đi cùng đường dẫn", templateUsage)
+			}
+			items, err := library.OpenTemplateDataDir(flags.fromData)
+			if err != nil {
+				return libraryErrOut(stderr, err)
+			}
+			items = filterDataDirItems(items, flags.only)
+			results = svc.ImportBundles(ctx, items, library.ImportOptions{Name: flags.name})
+		} else {
+			if len(positional) != 1 {
+				return libraryUsageError(stderr, "thiếu tệp hoặc thư mục template", templateUsage)
+			}
+			targets, err := templateImportTargets(positional[0], flags.only)
+			if err != nil {
+				return libraryErrOut(stderr, err)
+			}
+			imported, err := svc.ImportTemplateFiles(ctx, targets, library.ImportOptions{Name: flags.name})
+			if err != nil {
+				return libraryErrOut(stderr, err)
+			}
+			results = imported
+		}
+		items, imported, failed := web.TemplateImportToWire(results)
+		writeLibraryJSON(stdout, map[string]any{"items": items, "imported": imported, "failed": failed})
+		if failed > 0 {
+			return 1
+		}
+		return 0
 	case "delete":
 		if len(rest) != 1 {
 			return libraryUsageError(stderr, "thiếu id template", templateUsage)

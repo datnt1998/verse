@@ -8,15 +8,18 @@ import { Suspense, lazy, useEffect, type ReactNode } from 'react'
 import { Spinner, ToastHost } from '@noverse/ui'
 import { SessionProvider, useSession } from './api/session'
 import { AppShell } from './shell/AppShell'
-import { SetupScreen } from './screens/auth/SetupScreen'
-import { LoginScreen } from './screens/auth/LoginScreen'
-import { AccessDeniedScreen } from './screens/auth/AccessDeniedScreen'
-import { ChangePasswordScreen } from './screens/auth/ChangePasswordScreen'
-import { ServerDownScreen } from './screens/auth/ServerDownScreen'
 import { WorkbenchScreen as HomeScreen } from './screens/workbench/WorkbenchScreen'
 import { SystemLoading } from './components'
 import { startDataEvents } from './data/events'
 import { navigate, routePath, useRoute, type Route } from './router'
+
+// Cổng phiên (thiết lập, đăng nhập, đổi mật khẩu, bị chặn, mất máy chủ) chỉ mở
+// một màn một lúc: để riêng chunk, người đã đăng nhập không tải mã của chúng.
+const SetupScreen = lazy(() => import('./screens/auth/SetupScreen').then((m) => ({ default: m.SetupScreen })))
+const LoginScreen = lazy(() => import('./screens/auth/LoginScreen').then((m) => ({ default: m.LoginScreen })))
+const AccessDeniedScreen = lazy(() => import('./screens/auth/AccessDeniedScreen').then((m) => ({ default: m.AccessDeniedScreen })))
+const ChangePasswordScreen = lazy(() => import('./screens/auth/ChangePasswordScreen').then((m) => ({ default: m.ChangePasswordScreen })))
+const ServerDownScreen = lazy(() => import('./screens/auth/ServerDownScreen').then((m) => ({ default: m.ServerDownScreen })))
 
 const ReviewScreen = lazy(() => import('./screens/review/ReviewScreen').then((m) => ({ default: m.ReviewScreen })))
 const QueueScreen = lazy(() => import('./screens/queue/QueueScreen').then((m) => ({ default: m.QueueScreen })))
@@ -91,18 +94,19 @@ function Root() {
     return startDataEvents()
   }, [full])
 
-  if (!checked) {
-    return (
-      <div style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center' }} aria-busy="true">
-        <Spinner size={18} color="var(--color-fg-3)" />
-      </div>
-    )
-  }
-  if (!serverReachable) return <ServerDownScreen />
-  if (setupNeeded) return <SetupScreen />
-  if (accessDenied) return <AccessDeniedScreen />
-  if (mustChangePassword) return <ChangePasswordScreen />
-  if (!user) return <LoginScreen />
+  const boot = (
+    <div style={{ minHeight: '100dvh', display: 'grid', placeItems: 'center' }} aria-busy="true">
+      <Spinner size={18} color="var(--color-fg-3)" />
+    </div>
+  )
+  if (!checked) return boot
+  // Chờ đúng chunk của màn cổng đang mở; khung chờ giống lúc hỏi /api/me.
+  const gate = (screen: ReactNode) => <Suspense fallback={boot}>{screen}</Suspense>
+  if (!serverReachable) return gate(<ServerDownScreen />)
+  if (setupNeeded) return gate(<SetupScreen />)
+  if (accessDenied) return gate(<AccessDeniedScreen />)
+  if (mustChangePassword) return gate(<ChangePasswordScreen />)
+  if (!user) return gate(<LoginScreen />)
   if (parsed.route.name === 'editor') return <Screen route={parsed.route} />
   return (
     <AppShell route={parsed.route} user={user}>

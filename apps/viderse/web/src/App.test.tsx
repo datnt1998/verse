@@ -23,12 +23,25 @@ const forcedBody = { code: 'password_change_required', mustChangePassword: true,
 
 const roots: Root[] = []
 
+// Cổng phiên là chunk lazy: nạp sẵn để test không phụ thuộc thời gian tải chunk.
+await Promise.all([
+  import('./screens/auth/SetupScreen'),
+  import('./screens/auth/LoginScreen'),
+  import('./screens/auth/AccessDeniedScreen'),
+  import('./screens/auth/ChangePasswordScreen'),
+  import('./screens/auth/ServerDownScreen'),
+])
+
+/** Chờ React xử lý xong lượt render của chunk lazy đã nạp sẵn. */
+const settle = () => act(async () => {})
+
 async function render() {
   const container = document.createElement('div')
   document.body.append(container)
   const root = createRoot(container)
   roots.push(root)
   await act(async () => { root.render(<App />) })
+  await settle()
   return container
 }
 
@@ -196,6 +209,7 @@ describe('cổng phiên', () => {
     // Gợi ý phiên chung: thoát Viderse là thoát cả Noverse.
     expect(container.textContent).toContain(t.account.sharedLogoutNote)
     await act(async () => { buttonWithText(container, t.account.logout)!.click() })
+    await settle()
     expect(container.querySelector('#lg-user')).toBeTruthy()
   })
 
@@ -239,6 +253,7 @@ describe('cổng phiên', () => {
       fill(container.querySelector<HTMLInputElement>('#pw-confirm')!, 'matkhau-moi-1')
       container.querySelector('form')!.requestSubmit()
     })
+    await settle()
     // Không gọi lại /api/me giả sau đổi — thẳng về màn đăng nhập + toast.
     expect(container.querySelector('#lg-user')).toBeTruthy()
     expect(document.body.textContent).toContain(t.auth.passwordForm.changed)
@@ -257,6 +272,7 @@ describe('cổng phiên', () => {
       fill(container.querySelector<HTMLInputElement>('#lg-pass')!, 'matkhau123')
       container.querySelector('form')!.requestSubmit()
     })
+    await settle()
     expect(container.textContent).toContain(t.auth.accessDenied)
     expect(container.querySelector('#lg-user')).toBeNull()
     expect(container.querySelector('#lg-err')).toBeNull()
@@ -275,6 +291,7 @@ describe('cổng phiên', () => {
       fill(container.querySelector<HTMLInputElement>('#lg-pass')!, 'temp-pass-1')
       container.querySelector('form')!.requestSubmit()
     })
+    await settle()
     expect(container.querySelector('#pw-current')).toBeTruthy()
     expect(container.querySelector('nav')).toBeNull()
   })

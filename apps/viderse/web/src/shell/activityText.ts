@@ -1,5 +1,5 @@
 import type { AppNotification } from '../api/activity'
-import { formatBytes, formatDuration } from '../editor/ui/export/export-settings'
+import { formatBytes, formatDuration } from '../lib/units'
 
 export function notificationDetail(n: AppNotification) {
   const detail = n.detail

@@ -32,9 +32,7 @@ func TestEditorDuplicateDeleteRestartRetiresRevision(t *testing.T) {
 	if err = s.DeleteProject(ctx, id); err != nil {
 		t.Fatal(err)
 	}
-	if err = s.AdoptBinaryRoots(ctx); err != nil {
-		t.Fatal(err)
-	}
+	adoptEditorRoots(t, s)
 	assertStrictEditorInventory(t, ctx, root, postgres.NewBlobRepository(pool))
 	if _, err = os.Stat(filepath.Join(root, filepath.FromSlash(head.Path))); !os.IsNotExist(err) {
 		t.Fatalf("deleted revision retained: %v", err)
@@ -98,17 +96,13 @@ func TestEditorDeletedRevisionStartupRequiresTombstoneAndMatchingID(t *testing.T
 					t.Fatal(err)
 				}
 			}
-			if err = s.AdoptBinaryRoots(ctx); err != nil {
-				t.Fatal(err)
-			}
+			adoptEditorRoots(t, s)
 			if mode == "deleted" {
 				if _, err = os.Stat(path); !os.IsNotExist(err) {
 					t.Fatalf("proven released revision retained: %v", err)
 				}
 				assertStrictEditorInventory(t, ctx, root, postgres.NewBlobRepository(pool))
-				if err = s.AdoptBinaryRoots(ctx); err != nil {
-					t.Fatal("repeat cleanup:", err)
-				}
+				adoptEditorRoots(t, s)
 				return
 			}
 			if _, err = os.Stat(path); err != nil {

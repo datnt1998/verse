@@ -6,6 +6,7 @@ import { assistantCopy } from '../../../i18n/assistant'
 import { RecapAutoLine } from '../../../components/suggestions/RecapAuto'
 import { RecapSuggestions } from '../../../components/suggestions/SuggestionPanels'
 import { useOnline } from '../../../data/status'
+import { recapLead } from './recap-logic'
 
 type Props = {
   data: RecapData | undefined
@@ -17,19 +18,6 @@ type Props = {
   onRetry: () => void
   onEnter: () => void
   onSelectJob: (id: string) => void
-}
-
-export function shouldAutoOpenRecap(from: string, to: string, hasNew: boolean, enabled: boolean): boolean {
-  const start = new Date(from)
-  const end = new Date(to)
-  if (!hasNew || !enabled || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())) return false
-  const five = new Date(end)
-  five.setHours(5, 0, 0, 0)
-  return end.getTime() - start.getTime() >= 3 * 60 * 60 * 1000 || (end >= five && start < five)
-}
-
-export function recapLead(waiting: number, ready: number): string {
-  return `Trong lúc bạn vắng: ${ready} video sẵn sàng đăng, ${waiting} video chờ bạn.`
 }
 
 const time = (value: string) => {

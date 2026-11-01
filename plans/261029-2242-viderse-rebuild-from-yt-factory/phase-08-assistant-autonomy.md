@@ -81,7 +81,7 @@ yt-factory chưa có các tính năng này, nên làm mới hoàn toàn theo des
   - ngưỡng D6 và luồng xác nhận "Tự duyệt hết";
   - khoá trùng và `cooldownUntil` của đề xuất;
   - nguồn số liệu: có khoá dùng Data API (`httptest`), không có khoá thì dùng fixture trang công khai.
-- Eval nhỏ cho bộ phân loại intent: model gán cho Đạo diễn, khoảng 40 câu tiếng Việt, ngưỡng ≥ 95% đúng intent. Phải hỏi anh trước khi chạy vì gọi model thật.
+- Eval bộ phân loại intent (khoảng 40 câu, ngưỡng ≥ 95%) và chạy thử chấm điểm ảnh bằng model thật: chủ sản phẩm bỏ (01/11/2026). Bộ eval vẫn nằm trong test, bị bỏ qua khi không bật biến môi trường.
 - Smoke thật: gõ "vẽ lại cảnh 5 cho y tá cầm đèn pin" → hộp xác nhận đúng → chạy → ảnh 5 vẽ lại.
 
 ## Nghiệm thu
@@ -91,5 +91,5 @@ yt-factory chưa có các tính năng này, nên làm mới hoàn toàn theo des
 
 ## Rủi ro
 
-- **Phân loại sai intent.** Luôn hỏi xác nhận, hộp xác nhận nêu rõ hệ quả và giá, và có eval với ngưỡng ở trên.
+- **Phân loại sai intent.** Luôn hỏi xác nhận, hộp xác nhận nêu rõ hệ quả và giá.
 - **Đọc trang công khai bị chặn.** Dùng chung bộ điều tốc với quét đối thủ. Hiện gợi ý thêm khoá Data API ở Kết nối AI.

@@ -296,6 +296,8 @@ Mẫu:
 - Chưa có định dạng tệp template (yt-factory nhập cả project editor), nên chưa có ô nhập template; nhập/xuất prompt ảnh thì có. Thẻ chưa có ảnh vì chưa có bản xem thử hay ảnh mẫu (#38): thẻ dùng khối màu trung tính và biểu tượng theo loại, không bịa ảnh. Lớp phủ hiện khung đầu của video.
 - Hỏi design: duyệt tới V13.
 - Trả lời (design, 01/11/2026): Duyệt tới V13: không ô nhập template, thẻ dùng khối màu trung tính + icon theo loại; lớp phủ dùng khung đầu. <!-- r31-v27 -->
+- Chủ sản phẩm (01/11/2026): cần nhập template cũ từ yt-factory. Quyết định V13 ở trên hết hiệu lực cho phần nhập template (thẻ vẫn không có ảnh thu nhỏ).
+- Đã làm: nút **Nhập template** trên thanh đầu `tab=templates` (đúng artboard) mở hộp nhập có vùng thả tệp. Nhận `.ytf-template.zip` (một tệp, nhiều tệp, hoặc thư mục `editor-workspace` cũ qua CLI `viderse template import`), kiểm sha256 từng media, nhập media vào kho media, đổi mã media trong project, suy recipe bằng hàm của màn Cài đặt template, đặt tên trùng theo luật #45 (`(nhập)`, `(nhập 2)`). Kết quả trả từng dòng `{name, ok, warnings[]}`; cảnh báo ghi rõ phần không quy đổi được (kênh nền/video ghim chưa có trong thư viện, lớp phủ nằm trong project dưới dạng track). Đường API: `POST /api/templates/import`.
 
 ### #47 · Kênh, Tạo kênh trên điện thoại — Đã chốt
 - Artboard: `MChannel`, `MCreate` thuộc V10.

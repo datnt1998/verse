@@ -4,11 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -109,6 +111,24 @@ func runServe(args []string) error {
 		return err
 	}
 	defer func() { _ = mediaManager.Close(context.Background()) }()
+	// Tệp bền vững không thuộc tham chiếu nào (ví dụ lần công bố bị kill giữa
+	// chừng) không được chặn khởi động: nói rõ cho chủ máy và vẫn phục vụ.
+	if unreferenced := mediaManager.UnreferencedDurablePaths(); len(unreferenced) > 0 {
+		if _, err := activities.Notify(bg, "needs_attention",
+			"Cần xử lý: "+strconv.Itoa(len(unreferenced))+" tệp trong kho dữ liệu chưa thuộc tham chiếu nào ("+unreferencedSample(unreferenced)+"). Viderse vẫn chạy; mở Lưu trữ để kiểm tra.",
+			"#/settings?section=storage", "Mở lưu trữ"); err != nil {
+			slog.Warn("serve: ghi thông báo tệp chưa tham chiếu", "err", err)
+		}
+	}
+	// Ghi chú media/bản xuất không khớp nội dung cũng không chặn khởi động:
+	// chủ máy cần mở được app để thấy việc cần xử lý.
+	if findings := mediaManager.AdoptionFindings(); len(findings) > 0 {
+		if _, err := activities.Notify(bg, "needs_attention",
+			"Cần xử lý: "+strconv.Itoa(len(findings))+" mục trong thư viện không khớp nội dung đã ghi ("+unreferencedSample(findings)+"). Viderse vẫn chạy và giữ nguyên tệp; mở Lưu trữ để kiểm tra.",
+			"#/settings?section=storage", "Mở lưu trữ"); err != nil {
+			slog.Warn("serve: ghi thông báo mục không khớp nội dung", "err", err)
+		}
+	}
 	mountServerStorage(gateway, mediaManager, activities, hub, statusSvc, serverCleanup)
 	// Máy: việc nền, công cụ, nhật ký và bước Chuẩn bị máy. Probe nền và
 	// lượt cài đi theo vòng đời serve — dừng khi serve tắt.

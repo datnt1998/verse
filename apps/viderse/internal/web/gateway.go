@@ -101,7 +101,7 @@ func allowFileUpload(r *http.Request) bool {
 		return false
 	}
 	switch r.URL.Path {
-	case "/api/overlays", "/api/image-prompts/import":
+	case "/api/overlays", "/api/image-prompts/import", "/api/templates/import":
 		return true
 	}
 	return false

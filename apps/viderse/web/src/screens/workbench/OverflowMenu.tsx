@@ -1,5 +1,6 @@
 import * as stylex from '@stylexjs/stylex'
 import type { CloneJobView } from '../../api/workbench'
+import { t } from '../../i18n/vi'
 import { routePath } from '../../router'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { requestMarkPosted } from '../../components/performance'
@@ -8,6 +9,7 @@ import { removeVideo, restartVideo, stopVideo } from './jobActions'
 
 export function OverflowMenu({ job, onClose, onRefresh, onError }: { job: CloneJobView; onClose: () => void; onRefresh: () => void; onError: (message: string) => void }) {
   const project = editorProjectId(job)
+  const lockedReason = job.stageGroup === 'working' ? t.confirm.deleteVideo.locked : null
   const report = (error: unknown) => onError(error instanceof Error ? error.message : 'Không thực hiện được')
   const restart = () => { onClose(); restartVideo(job, { onRefresh, onError: report }) }
   const remove = () => { onClose(); removeVideo(job, { onRefresh, onError: report }) }
@@ -20,7 +22,7 @@ export function OverflowMenu({ job, onClose, onRefresh, onError }: { job: CloneJ
     {/^https?:\/\//i.test(job.source.url) && <a role="menuitem" {...stylex.props(styles.item)} href={job.source.url} target="_blank" rel="noreferrer">Mở video nguồn</a>}
     {job.previousJobId && <a role="menuitem" {...stylex.props(styles.item)} href={`#${routePath({ name: 'workbench', channel: job.channelId, video: job.previousJobId })}`}>Lượt trước</a>}
     <a role="menuitem" {...stylex.props(styles.item)} href={`#/channels/${encodeURIComponent(job.channelId)}`}>Mở kênh</a>
-    <button role="menuitem" {...stylex.props(styles.item, styles.danger)} onClick={remove}>Xoá video<small>Xoá MP4, ảnh và project của video này</small></button>
+    <button role="menuitem" aria-disabled={lockedReason ? true : undefined} title={lockedReason ?? undefined} onClick={lockedReason ? undefined : remove} {...stylex.props(styles.item, !lockedReason && styles.danger)}>Xoá video<small>{lockedReason ?? 'Xoá MP4, ảnh và project của video này'}</small></button>
   </div>
 }
 const styles = stylex.create({

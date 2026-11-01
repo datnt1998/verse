@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -59,14 +58,20 @@ func (s *Service) publishJSONFile(ctx context.Context, key, legacyPath string, v
 // only an authoritative ready export/source record can introduce a root, after
 // its exact bytes, digest and size have been checked. Existing inventories stay
 // fail-closed for unknown or corrupt files.
-func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
+//
+// It returns the keys whose bytes could not be verified. Composition reports
+// them as Cần xử lý and keeps serving: a crash can leave a record whose bytes
+// no longer match, and refusing to boot would lock the owner out of the app
+// that could show it. Only storage or database failures return an error.
+func (s *Service) AdoptBinaryRoots(ctx context.Context) ([]string, error) {
 	repo := s.repository()
 	if repo == nil {
-		return errors.New("editor repository is required")
+		return nil, errors.New("editor repository is required")
 	}
+	problems := []string{}
 	rows, err := repo.List(ctx, "media/")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, row := range rows {
 		if strings.Count(row.Key, "/") != 1 {
@@ -75,19 +80,31 @@ func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
 		id := strings.TrimPrefix(row.Key, "media/")
 		record, _, err := s.readMedia(ctx, id)
 		if err != nil {
-			return err
+			if !adoptable(err) {
+				return nil, err
+			}
+			problems = append(problems, "media/"+id)
+			continue
 		}
 		path, err := s.mediaSourcePath(ctx, id, record)
 		if err != nil {
-			return err
+			if !adoptable(err) {
+				return nil, err
+			}
+			problems = append(problems, "media/"+id+"/source")
+			continue
 		}
-		if err = s.adoptBinary(ctx, row, "media/"+id+"/source", path, record.ContentHash, record.Size); err != nil {
-			return err
+		problem, err := s.adoptBinary(ctx, row, "media/"+id+"/source", path, record.ContentHash, record.Size)
+		if err != nil {
+			return nil, err
+		}
+		if problem != "" {
+			problems = append(problems, problem)
 		}
 	}
 	exports, err := repo.List(ctx, "exports/")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, row := range exports {
 		parts := strings.Split(row.Key, "/")
@@ -96,7 +113,11 @@ func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
 		}
 		meta, _, err := s.exportMeta(ctx, parts[1], parts[2])
 		if err != nil {
-			return err
+			if !adoptable(err) {
+				return nil, err
+			}
+			problems = append(problems, row.Key)
+			continue
 		}
 		if meta["status"] != "ready" {
 			continue
@@ -106,66 +127,103 @@ func (s *Service) AdoptBinaryRoots(ctx context.Context) error {
 			path = "editor/projects/" + parts[1] + "/exports/" + parts[2] + "/" + SanitizeFileName(exportString(meta["fileName"]))
 		}
 		digest := "sha256:" + exportString(meta["stagedSha256"])
-		if err = s.adoptBinary(ctx, row, row.Key+"/file", path, digest, int64(exportNumber(meta["size"]))); err != nil {
-			return err
+		problem, err := s.adoptBinary(ctx, row, row.Key+"/file", path, digest, int64(exportNumber(meta["size"])))
+		if err != nil {
+			return nil, err
+		}
+		if problem != "" {
+			problems = append(problems, problem)
+			continue
 		}
 		if err = s.retireOriginalUploadBinding(ctx, row, parts[1], parts[2], path, meta); err != nil {
-			return err
+			if !adoptable(err) && !errors.Is(err, errBinaryMismatch) && !errors.Is(err, ErrConflict) {
+				return nil, err
+			}
+			problems = append(problems, row.Key)
+			continue
 		}
 		// A prior replacement left by the pre-adapter producer is garbage only
 		// after the current authoritative ready file has been verified and rooted.
 		if err = s.reclaimSupersededExportFiles(ctx, row, parts[1], parts[2], path, exportString(meta["fileName"])); err != nil {
-			return err
+			return nil, err
 		}
 	}
-	return s.reclaimDeletedProjectRevisions(ctx)
+	return problems, s.reclaimDeletedProjectRevisions(ctx)
 }
 
-func (s *Service) adoptBinary(ctx context.Context, head Resource, key, path, digest string, size int64) error {
+// adoptable reports whether err describes bytes this boot cannot verify, as
+// opposed to a storage or database failure that must still stop start-up.
+// Unreadable or incomplete records are reported, never repaired or deleted:
+// only a committed head may introduce a root, and staging leftovers have none.
+func adoptable(err error) bool {
+	var e *Error
+	if errors.As(err, &e) {
+		return e.Code == "invalid_request" || e.Code == "not_found"
+	}
+	return mediaMissing(err)
+}
+
+// adoptBinary roots the bytes behind one authoritative record and returns the
+// head key when they cannot be verified. The digest, not the path, is the
+// identity: media ids are content-addressed, so two jobs or two builds of the
+// same content legitimately resolve the same id to different paths.
+func (s *Service) adoptBinary(ctx context.Context, head Resource, key, path, digest string, size int64) (string, error) {
 	if _, err := media.ContentKey(strings.TrimPrefix(digest, "sha256:")); err != nil || !strings.HasPrefix(digest, "sha256:") {
-		return fmt.Errorf("editor binary %s has invalid content digest", path)
+		return key, nil
 	}
 	resolved, err := s.resolvePath(ctx, path)
 	if err != nil {
-		return err
+		if mediaMissing(err) {
+			return key, nil
+		}
+		return "", err
 	}
 	path = resolved
-	existing, err := s.repository().Get(ctx, key)
-	if err == nil {
-		if existing.Path != path || existing.Revision != digest {
-			return fmt.Errorf("editor binary head disagrees with metadata: %s", key)
-		}
-		return nil
+	existing, getErr := s.repository().Get(ctx, key)
+	if getErr != nil && !isMissing(getErr) {
+		return "", getErr
 	}
-	if !isMissing(err) {
-		return err
+	expected := ""
+	if getErr == nil {
+		if existing.Revision != digest {
+			return key, nil
+		}
+		if existing.Path == path || s.readable(ctx, existing.Path) {
+			return "", nil
+		}
+		// The producer that owned the recorded path released it; the resolved
+		// path carries the same bytes, so the head moves instead of dangling.
+		expected = existing.Revision
 	}
 	handle, err := s.acquire(ctx, path)
 	if err != nil {
-		return fmt.Errorf("verify editor binary %s: %w", path, err)
+		if mediaMissing(err) {
+			return key, nil
+		}
+		return "", err
 	}
 	defer handle.Release()
 	file, err := os.Open(handle.Path)
 	if err != nil {
-		return err
+		return "", err
 	}
 	hash := sha256.New()
 	n, err := io.Copy(hash, file)
 	closeErr := file.Close()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if closeErr != nil {
-		return closeErr
+		return "", closeErr
 	}
 	if n != size || "sha256:"+hex.EncodeToString(hash.Sum(nil)) != digest {
-		return fmt.Errorf("editor binary digest/size mismatch: %s", path)
+		return key, nil
 	}
 	actual := path
 	if handle.Ref.Path != "" {
 		actual = handle.Ref.Path
 	}
-	return s.Media.Publish(ctx, nil, func(tx context.Context) error {
+	err = s.Media.Publish(ctx, nil, func(tx context.Context) error {
 		current, err := s.repository().Get(tx, head.Key)
 		if err != nil {
 			return err
@@ -173,8 +231,28 @@ func (s *Service) adoptBinary(ctx context.Context, head Resource, key, path, dig
 		if current.Revision != head.Revision || current.Path != head.Path {
 			return ErrConflict
 		}
-		return s.repository().CAS(tx, key, "", Resource{Key: key, Path: actual, Revision: digest, UpdatedAt: s.now()})
+		return s.repository().CAS(tx, key, expected, Resource{Key: key, Path: actual, Revision: digest, UpdatedAt: s.now()})
 	})
+	if err != nil {
+		if errors.Is(err, ErrConflict) {
+			// The record moved while this boot was verifying it; the next boot
+			// re-checks instead of refusing to serve.
+			return key, nil
+		}
+		return "", err
+	}
+	return "", nil
+}
+
+// readable proves a recorded head still resolves to bytes without classifying
+// anything new as live.
+func (s *Service) readable(ctx context.Context, path string) bool {
+	handle, err := s.acquire(ctx, path)
+	if err != nil {
+		return false
+	}
+	handle.Release()
+	return true
 }
 
 // Only the generated replacement directory belonging to this ready export is

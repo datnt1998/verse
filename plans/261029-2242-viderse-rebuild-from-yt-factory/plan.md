@@ -122,7 +122,7 @@ flowchart LR
 | [05 · Lõi pipeline, Làm video, Hàng chờ](phase-05-pipeline-queue.md) | V2, V6, §1–§4 | 04 | 88h | xong code, review và merge (01/11/2026); còn smoke các bước AI thật (cần đăng nhập ChatGPT hoặc Grok trên máy thử) |
 | [06 · Editor, render, xuất video](phase-06-editor-render.md) | V13, bước `export` | 05 | 60h | xong code, review, merge và xuất MP4 thật trên fixture (01/11/2026); `kill -9` khi xuất có test; còn so thời gian xuất với yt-factory trên cùng dự án mẫu |
 | [07 · Bàn dựng, Duyệt, Việc nền](phase-07-workbench-review.md) | V1, V3, V14, V16, V18 | 05, 06 | 60h | xong code, đo 1440×900 và merge (01/11/2026); còn chủ máy bấm thử thông báo macOS thật; đề xuất trợ lý, `learn`, thiết lập duyệt theo kênh chuyển phase 08 |
-| [08 · Trợ lý chủ động](phase-08-assistant-autonomy.md) | V11, V19, V20, V21 | 07 | 40h | xong code, đo 1440×900 và merge (01/11/2026); còn chạy bộ 40 câu ý định (≥ 95%), smoke trợ lý và điểm ảnh với model thật — cần đăng nhập ChatGPT hoặc Grok |
+| [08 · Trợ lý chủ động](phase-08-assistant-autonomy.md) | V11, V19, V20, V21 | 07 | 40h | xong code, đo 1440×900 và merge (01/11/2026); bỏ eval 40 câu và chạy thử chấm điểm ảnh theo lời anh; còn smoke trợ lý với model thật — cần đăng nhập ChatGPT hoặc Grok |
 | [09 · Điện thoại qua LAN](phase-09-mobile-lan.md) | V10, D1 | 07 | 20h | tạm hoãn theo lời anh; phase 10 không nghiệm thu V10 cho tới khi mở lại |
 | [10 · Nghiệm thu, chạy live, thôi dùng yt-factory](phase-10-acceptance-cutover.md) | toàn bộ | 01–09 | 16h | chưa |
 

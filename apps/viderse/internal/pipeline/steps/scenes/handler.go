@@ -190,7 +190,13 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if err = m.Validate(); err != nil {
 		return pipeline.StepResult{}, err
 	}
-	m.Pending = &Analysis{Kind: "initial", Fingerprint: AnalysisFingerprint(m), GeneratedAt: now().UTC().Format(time.RFC3339Nano)}
+	// Design V3 reviews images, not scenes: the analysis is accepted as soon as
+	// it is produced. Leaving it pending made `build` refuse every job forever
+	// (no screen or endpoint could approve it). Editing scenes still bumps the
+	// revision and clears both fields.
+	fingerprint := AnalysisFingerprint(m)
+	m.Approval = &Approval{Fingerprint: fingerprint, ApprovedAt: now().UTC().Format(time.RFC3339Nano)}
+	m.Pending = nil
 	file := filepath.Join(s.StagingDir, "scenes", "manifest.json")
 	if err = steps.WriteJSONAtomic(file, m); err != nil {
 		return pipeline.StepResult{}, err

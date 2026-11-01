@@ -24,6 +24,8 @@ it('keeps the recovery code visible until the administrator confirms saving it',
   }))
   const el = document.createElement('div'); document.body.append(el); root = createRoot(el)
   await act(async () => root!.render(<App />))
+  // Auth screens are lazy chunks: wait for the setup form before typing.
+  await vi.waitFor(() => expect(el.querySelector('#setup-code')).not.toBeNull())
   await act(() => fill(el.querySelector('#setup-code')!, 'TEST-SETUP'))
   await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
   const verifiedStep = [...el.querySelectorAll('ol li')].find((step) => step.textContent?.includes('Mã thiết lập'))

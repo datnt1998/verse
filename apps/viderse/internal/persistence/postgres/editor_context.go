@@ -153,7 +153,7 @@ func (r *EditorRepository) legacyArtifacts(ctx context.Context, alias string) ([
 		query += ` AND (a.value->>'path'=$1 OR right(a.value->>'path',length($1)+1)='/'||$1)`
 		args = append(args, alias)
 	}
-	query += ` ORDER BY a.value->>'path'`
+	query += ` ORDER BY b.updated_at DESC, a.value->>'path'`
 	rows, err := mediaDB(ctx, r.pool).Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
@@ -190,6 +190,27 @@ func (r *EditorRepository) legacyArtifacts(ctx context.Context, alias string) ([
 	return artifacts, rows.Err()
 }
 
+// pickArtifact chooses the current generation of an alias. Content-addressed
+// media aliases (editor/media/media-<sha>/…) may legitimately differ between
+// jobs for artifacts published before the build stopped writing its own clock
+// into the record, so the newest build wins there. Everything else keeps the
+// strict conflict check.
+func pickArtifact(alias string, artifacts []legacyEditorArtifact) (legacyEditorArtifact, error) {
+	if len(artifacts) == 0 {
+		return legacyEditorArtifact{}, blobstore.ErrNotFound
+	}
+	first := artifacts[0]
+	if strings.HasPrefix(alias, "editor/media/") {
+		return first, nil
+	}
+	for _, artifact := range artifacts[1:] {
+		if artifact.Digest != first.Digest {
+			return legacyEditorArtifact{}, fmt.Errorf("ambiguous current editor artifact: %s", alias)
+		}
+	}
+	return first, nil
+}
+
 func (r *EditorRepository) synthetic(ctx context.Context, key string) (editor.Resource, error) {
 	alias := editorKeyAlias(key)
 	if alias == "" {
@@ -220,11 +241,9 @@ func (r *EditorRepository) synthetic(ctx context.Context, key string) (editor.Re
 		if len(artifacts) == 0 {
 			continue
 		}
-		first := artifacts[0]
-		for _, artifact := range artifacts[1:] {
-			if artifact.Digest != first.Digest {
-				return editor.Resource{}, fmt.Errorf("ambiguous current editor artifact: %s", alias)
-			}
+		first, err := pickArtifact(alias, artifacts)
+		if err != nil {
+			return editor.Resource{}, err
 		}
 		return editor.Resource{Key: key, Revision: "sha256:" + first.Digest, Path: first.Path, UpdatedAt: first.UpdatedAt}, nil
 	}
@@ -259,11 +278,9 @@ func (r *EditorRepository) ResolvePath(ctx context.Context, logical string) (str
 	if len(artifacts) == 0 {
 		return "", blobstore.ErrNotFound
 	}
-	first := artifacts[0]
-	for _, artifact := range artifacts[1:] {
-		if artifact.Digest != first.Digest {
-			return "", fmt.Errorf("ambiguous current editor artifact: %s", logical)
-		}
+	first, err := pickArtifact(logical, artifacts)
+	if err != nil {
+		return "", err
 	}
 	return first.Path, nil
 }

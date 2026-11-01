@@ -1,5 +1,6 @@
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from './libraryTokens.stylex'
+import { space } from '../../styles/viderse.stylex'
 // Thư viện (artboard Library): cột kênh + 4 mục dùng chung, đầu trang một hành
 // động chính theo tab, tab Template / Prompt ảnh / Video nền / Lớp phủ. Video
 // nền và phần nền của template do mảng Video nền dựng (BackdropsTab.tsx,
@@ -21,6 +22,7 @@ import { channelTint } from '../../lib/channelTint'
 import { BackdropsTab } from './backdrops/BackdropsTab'
 import { OverlaysTab } from './OverlaysTab'
 import { PromptsTab } from './PromptsTab'
+import { TemplateImportDialog } from './TemplateImportDialog'
 import { TemplatesTab } from './TemplatesTab'
 import * as stylex from '@stylexjs/stylex'
 
@@ -45,6 +47,7 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
   const [createFieldError, setCreateFieldError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [templateImportOpen, setTemplateImportOpen] = useState(false)
   const importInput = useRef<HTMLInputElement>(null)
 
   const counts: Record<LibraryTab, number | undefined> = {
@@ -152,6 +155,11 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
             <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{ownerChannels.length ? copy.subtitle(ownerChannels.length) : copy.subtitleEmpty}</p>
           </div>
           <div className={`vlb-head-actions ${stylex.props(sx.headActions).className}`}>
+            {tab === 'templates' && (
+              <ActionButton xstyle={[sx.vlbHeadActionsActionButton]} variant="outline" icon={<Icon name="download" size={16} />} onClick={() => setTemplateImportOpen(true)}>
+                {copy.templates.importTemplate}
+              </ActionButton>
+            )}
             {tab === 'prompts' && (
               <>
                 <input ref={importInput} type="file" accept=".json,application/json" hidden
@@ -199,6 +207,8 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
         </div>
       </div>
 
+      {templateImportOpen && <TemplateImportDialog onClose={() => setTemplateImportOpen(false)} />}
+
       {createOpen && (
         <Dialog title={copy.templates.createTitle} onClose={() => setCreateOpen(false)} width={440}
           footer={<>
@@ -241,7 +251,7 @@ const sx = stylex.create({
   vlbHeadMainH1: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: { default: "var(--vv-s-22)", "@media (max-width: 767px)": "var(--vv-s-18)" }, fontWeight: libraryVars.headingWeight, letterSpacing: libraryVars.libraryScreenVlbHeadMainH1LetterSpacing },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.controlFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.bodyLineHeight },
   headActions: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)", flexGrow: 0, flexShrink: 0, flexBasis: "auto", justifyContent: { default: null, "@media (max-width: 767px)": "flex-start" }, flexWrap: { default: null, "@media (max-width: 767px)": "wrap" } },
-  vlbHeadActionsActionButton: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  vlbHeadActionsActionButton: { paddingInline: space['--vv-s-12'], borderColor: line['--line-4'], minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   tabs: { display: "flex", flexGrow: 0, flexShrink: 0, flexBasis: "auto", overflowX: { default: "auto", "@media (max-width: 767px)": "auto" }, scrollbarWidth: "none", rowGap: { default: "var(--vv-s-4)", "@media (max-width: 767px)": 0 }, columnGap: { default: "var(--vv-s-4)", "@media (max-width: 767px)": 0 }, paddingTop: { default: 0, "@media (max-width: 767px)": 0 }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: 0, "@media (max-width: 767px)": "var(--vv-s-8)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"] },
   tab: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", paddingTop: { default: "var(--vv-s-7)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-11)" }, paddingRight: "var(--vv-s-2)", paddingBottom: { default: "var(--vv-s-9)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-11)" }, paddingLeft: "var(--vv-s-2)", minHeight: { default: "var(--vv-s-38)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, fontSize: { default: libraryVars.controlFontSize, "@media (max-width: 767px)": libraryVars.bodySmallFontSize }, borderBottomWidth: "var(--vv-s-2)", borderBottomStyle: "solid", borderBottomColor: "transparent", color: { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, textDecoration: "none", whiteSpace: "nowrap" },
   tabSpaced: { marginLeft: { default: "var(--vv-s-18)", "@media (max-width: 767px)": "var(--vv-s-12)" } },

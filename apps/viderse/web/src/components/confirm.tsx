@@ -4,7 +4,6 @@
 import type { ReactNode } from 'react'
 import { confirm, type ConfirmOptions } from '@noverse/ui'
 import { t } from '../i18n/vi'
-import { openAutonomyDialog } from './autonomy/AutonomyDialog'
 import { ASSISTANT_ORB, assistantName, type Assistant } from './agents'
 
 export { ConfirmDialog } from '@noverse/ui'
@@ -222,7 +221,8 @@ export function confirmAutonomy(args: {
   const min = args.min ?? 85
   const kind = c[args.kind ?? 'auto']
   const first = typeof kind.first === 'function' ? kind.first(min) : kind.first
-  return openAutonomyDialog({
+  // Hộp Tự chạy chỉ mở khi bấm: nạp mã của nó lúc đó để chunk đầu nhẹ hơn.
+  return import('./autonomy/AutonomyDialog').then(({ openAutonomyDialog }) => openAutonomyDialog({
     title: kind.title(args.channel),
     lead: typeof kind.body === 'function' ? kind.body(min) : kind.body,
     items: [
@@ -232,5 +232,5 @@ export function confirmAutonomy(args: {
     ],
     confirmLabel: kind.ok,
     onConfirm: args.onConfirm,
-  })
+  }))
 }

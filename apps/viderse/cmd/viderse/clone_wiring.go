@@ -179,6 +179,10 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	}
 	editorService := newEditorService(pool, files, cfgDir, toolKit, toolDeps)
 	editorService.Store.Templates = librarySvc
+	// Nhập template cũ (POST /api/templates/import) cần mặt media của editor;
+	// service Thư viện dựng trước service Editor nên gắn ở đây, một lần, trước
+	// khi listener nhận request.
+	librarySvc.BindMediaImporter(editorService)
 	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
 	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps, activityService)
 	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {

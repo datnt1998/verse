@@ -162,7 +162,8 @@ describe('7 tình huống xác nhận', () => {
 
   it('tự chạy: 3 điều khoản trong thân hộp', async () => {
     const p = confirmAutonomy({ channel: 'Kênh Thực Tế', onConfirm: vi.fn() })
-    await act(async () => {})
+    // Hộp Tự chạy là chunk riêng (nạp khi bấm): chờ nó tải xong rồi mới đọc chữ.
+    await act(async () => { const { promise, resolve } = Promise.withResolvers<void>(); setTimeout(resolve, 200); await promise })
     const text = dialog().textContent ?? ''
     expect(text).toContain('Chuyển Kênh Thực Tế sang Tự chạy?')
     expect(text).toContain('Không bao giờ tự đăng')

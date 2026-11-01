@@ -39,6 +39,8 @@ export function planLine(plan: ClonePlan | null, opts: {
   ].filter(Boolean).join(' · ') || null
   const single = plan.position === 'front'
   if (single) {
+    // Máy rảnh: không có video nào đang chạy để chờ, nên nói thẳng là bấm được ngay.
+    if (opts.running === 0) return { text: tp.startNow, detail: skips }
     const eta = plan.etaStart
     if (eta) {
       const time = new Date(eta).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })

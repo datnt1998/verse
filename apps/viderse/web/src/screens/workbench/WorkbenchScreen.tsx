@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { getWorkbench, getWorkbenchJob, getJobImages, jobAction, getRecap, markRecapSeen } from '../../api/workbench'
@@ -10,16 +10,20 @@ import { navigate, routePath, type Route } from '../../router'
 import { EmptyWorkbench, SystemLoading, SystemNotFound } from '../../components'
 import { followAdmitted, groupJobs, scheduleScopeRestore } from './workbench-logic'
 import { WorkbenchPanels } from './panels/WorkbenchPanels'
-import { PromptMenu } from './PromptMenu'
 import { LiveStudio } from './LiveStudio'
-import { OverflowMenu } from './OverflowMenu'
-import { Recap, shouldAutoOpenRecap } from './recap/Recap'
+import { shouldAutoOpenRecap } from './recap/recap-logic'
 import { SuggestionDock, SuggestionToggles } from '../../components/suggestions/SuggestionPanels'
 import { useSuggestionList } from '../../components/suggestions/useSuggestions'
 import { workbenchPlaceholder } from '../../components/assistant/placeholders'
 import { assistantCopy } from '../../i18n/assistant'
 import { usePanelKeys } from './usePanelKeys'
 import { AssistantComposer } from '../../components/assistant/AssistantComposer'
+
+// Bản tin, menu Ảnh và menu ⋯ chỉ mở khi bấm: chunk riêng, không nằm trong
+// lần tải đầu của Bàn dựng.
+const Recap = lazy(() => import('./recap/Recap').then((m) => ({ default: m.Recap })))
+const PromptMenu = lazy(() => import('./PromptMenu').then((m) => ({ default: m.PromptMenu })))
+const OverflowMenu = lazy(() => import('./OverflowMenu').then((m) => ({ default: m.OverflowMenu })))
 
 const SCOPE_KEY = 'viderse:workbench-scope'
 const label: Record<string, string> = { attention: 'Cần xử lý', review: 'Chờ duyệt', paused: 'Tạm dừng', working: 'Đang làm', queued: 'Chờ lượt', ready: 'Sẵn sàng đăng', posted: 'Đã đăng' }
@@ -113,9 +117,9 @@ export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'work
       <div {...stylex.props(styles.footer)}>{scope === 'all' ? <>Tự lấy video: bật ở {channelRows.filter(c => c.autoFetch).length}/{channelRows.length} kênh<br />Hàng chờ chung: {list.data?.queuedTotal || 0} video</> : <button type="button" {...stylex.props(styles.button)} onClick={() => pickScope()}>Mọi kênh</button>}</div>
     </aside>}
     <main {...stylex.props(styles.center)}>
-      {recapOpen ? <Recap data={recap.data} loading={recap.initialLoading} error={recap.error} waitingCount={groups.find(group => group.key === 'waiting')?.count || 0} readyCount={groups.find(group => group.key === 'ready')?.count || 0} channelNames={Object.fromEntries(channelRows.map(c => [c.channelId, c.name]))} onRetry={() => void recap.refresh()} onEnter={closeRecap} onSelectJob={id => { closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, video: id })) }} /> : !selectedId ? <EmptyWorkbench /> : detail.initialLoading ? <SystemLoading /> : !job ? <SystemNotFound /> : <>
-        <header {...stylex.props(styles.header, job.stageGroup === 'review' && styles.headerNotice, job.stageGroup === 'attention' && job.activeStep === 'score' && styles.headerNotice, (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTall, promptOpen && styles.headerOpen, promptOpen && (job.stageGroup === 'review' || (job.stageGroup === 'attention' && job.activeStep === 'score')) && styles.headerNoticeOpen, promptOpen && (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTallOpen)}><div {...stylex.props(styles.heading)}><h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>{job.stageGroup === 'working' && <button {...stylex.props(styles.button)} onClick={() => void action('pause')}>Tạm dừng <kbd>Esc</kbd></button>}{job.stageGroup === 'paused' && <button {...stylex.props(styles.button)} onClick={() => void action('resume')}>Chạy tiếp</button>}{!queuedJob && <div {...stylex.props(styles.relative)}><button {...stylex.props(styles.button)} aria-label="Thêm thao tác cho video" aria-expanded={more} onClick={() => setMore(!more)}>⋯</button>{more && <OverflowMenu job={job} onClose={() => setMore(false)} onRefresh={refresh} onError={setNotice} />}</div>}</div>
-          <div {...stylex.props(styles.chips)}><span {...stylex.props(styles.chip)}>{label[job.stageGroup] || job.stageGroup}</span><span {...stylex.props(styles.chip)}>Nguồn <b>{job.source.channelTitle}</b></span><span {...stylex.props(styles.chip)}>Template <b>{job.templateId}</b></span><div><button {...stylex.props(styles.chip)} onClick={() => setPromptOpen(!promptOpen)} aria-expanded={promptOpen}>Ảnh <b>{images.data?.manifest?.scenePrompt.name}</b> {images.data?.manifest?.scenePrompt.overridden && 'riêng video này'} ▾</button>{promptOpen && <PromptMenu job={job} onClose={() => setPromptOpen(false)} onRefresh={refresh} />}</div></div>
+      {recapOpen ? <Suspense fallback={<SystemLoading />}><Recap data={recap.data} loading={recap.initialLoading} error={recap.error} waitingCount={groups.find(group => group.key === 'waiting')?.count || 0} readyCount={groups.find(group => group.key === 'ready')?.count || 0} channelNames={Object.fromEntries(channelRows.map(c => [c.channelId, c.name]))} onRetry={() => void recap.refresh()} onEnter={closeRecap} onSelectJob={id => { closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, video: id })) }} /></Suspense> : !selectedId ? <EmptyWorkbench /> : detail.initialLoading ? <SystemLoading /> : !job ? <SystemNotFound /> : <>
+        <header {...stylex.props(styles.header, job.stageGroup === 'review' && styles.headerNotice, job.stageGroup === 'attention' && job.activeStep === 'score' && styles.headerNotice, (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTall, promptOpen && styles.headerOpen, promptOpen && (job.stageGroup === 'review' || (job.stageGroup === 'attention' && job.activeStep === 'score')) && styles.headerNoticeOpen, promptOpen && (job.stageGroup === 'paused' || (job.stageGroup === 'attention' && job.activeStep !== 'score')) && styles.headerTallOpen)}><div {...stylex.props(styles.heading)}><h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>{job.stageGroup === 'working' && <button {...stylex.props(styles.button)} onClick={() => void action('pause')}>Tạm dừng <kbd>Esc</kbd></button>}{job.stageGroup === 'paused' && <button {...stylex.props(styles.button)} onClick={() => void action('resume')}>Chạy tiếp</button>}{!queuedJob && <div {...stylex.props(styles.relative)}><button {...stylex.props(styles.button)} aria-label="Thêm thao tác cho video" aria-expanded={more} onClick={() => setMore(!more)}>⋯</button>{more && <Suspense fallback={null}><OverflowMenu job={job} onClose={() => setMore(false)} onRefresh={refresh} onError={setNotice} /></Suspense>}</div>}</div>
+          <div {...stylex.props(styles.chips)}><span {...stylex.props(styles.chip)}>{label[job.stageGroup] || job.stageGroup}</span><span {...stylex.props(styles.chip)}>Nguồn <b>{job.source.channelTitle}</b></span><span {...stylex.props(styles.chip)}>Template <b>{job.templateId}</b></span><div><button {...stylex.props(styles.chip)} onClick={() => setPromptOpen(!promptOpen)} aria-expanded={promptOpen}>Ảnh <b>{images.data?.manifest?.scenePrompt.name}</b> {images.data?.manifest?.scenePrompt.overridden && 'riêng video này'} ▾</button>{promptOpen && <Suspense fallback={null}><PromptMenu job={job} onClose={() => setPromptOpen(false)} onRefresh={refresh} /></Suspense>}</div></div>
           <div {...stylex.props(styles.headerSub)}>{job.subline}</div>
           {job.stageGroup === 'review' && <div {...stylex.props(styles.banner)}>Ảnh đã sẵn sàng để bạn duyệt. <a href={`#/review?video=${encodeURIComponent(job.id)}`}>Duyệt ảnh</a></div>}{job.stageGroup === 'paused' && <div {...stylex.props(styles.banner)}>Video đang tạm dừng. Bạn có thể góp ý trước khi chạy tiếp.</div>}{job.stageGroup === 'attention' && <div {...stylex.props(styles.banner)}>Video cần bạn xử lý. {job.subline}</div>}
         </header>
