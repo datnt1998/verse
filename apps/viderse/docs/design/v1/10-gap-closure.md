@@ -285,9 +285,9 @@ thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi t
 
 - **Nhãn cho phần không sửa được.** "Nguyên văn" giờ có thêm khối hàng rào an toàn và chỉ dẫn công cụ mà board không vẽ; chưa có nhãn tiếng Việt cho chúng (đề xuất: một dòng chú thích dưới khối "Phần đầu và phần cuối là hàng rào an toàn và chỉ dẫn công cụ — không sửa được", và badge "chỉ Codex" cho khối tool). Chờ design chốt cách gọi trước khi thêm vào panel.
 - Ô chọn ảnh tham chiếu trên điện thoại chưa có thiết kế (Thêm ref ở desktop có).
-- Endpoint seed/dev cho job có ảnh chưa giao; muốn dựng lại cảnh kiểm thử phải seed tay (channel + job + bước `scenes` + blob).
-- Chưa đo được `Editor` (focus=scene, ảnh đang vẽ/xong) và ô **Phòng vẽ** ở Bàn dựng trên serve thật: job kiểm thử chưa có project đã dựng (bước `build` cần template + video nguồn thật), nên hai mặt này mới có test đơn vị của slice — phần này do V29Shots chốt. Mặt Duyệt/MReview đã chụp lại đầy đủ sau sửa (xem "Kiểm lại trên serve thật sau sửa" ở trên).
-- Trạng thái đang vẽ dùng `status === 'running'` của danh sách legacy ở ô Phòng vẽ, không đọc dòng `drawing` của §26; hai nguồn có thể lệch nhau khi bước `images` đỗ vì hạn mức.
+- Không đóng gói endpoint seed/dev hoặc dữ liệu review mẫu vào app. Cảnh QA dùng API/project thật và upstream ảnh kiểm soát ở biên nhà cung cấp; không coi đó là chứng cứ chất lượng model thương mại.
+- `Editor` đã kiểm trên serve thật: đổi phiên bản, vẽ lại và ⌘Z giữ toàn bộ bảy clip, 225 frame, keyframe, motion, transform và timing. Sau tích hợp control, đổi ảnh → sửa opacity → Hoàn tác ở toast đã khôi phục đúng media nhưng giữ opacity mới; ba lần Undo tiếp theo trả toàn bộ timeline về baseline, local và dữ liệu lưu trùng nhau. Ô **Phòng vẽ** ở Bàn dựng đã đối chiếu trạng thái sẵn sàng 3/3 ảnh cùng nhánh MMain; trạng thái vẽ giữ ảnh cũ có regression, không nhận ảnh chụp sẵn sàng là bằng chứng đang vẽ.
+- Ô **Phòng vẽ** nhận đủ `pending`/`queued`/`running` là đang chờ/đang vẽ, giữ ảnh phiên bản hiện tại phía sau hiệu ứng khi đã có ảnh, đếm riêng ảnh `review`/`approved` và khoá vẽ lại trong lúc có chuyến vẽ. Không còn chỉ kiểm `running`.
 
 ### Số đo tại 1440 × 900 (Duyệt)
 
@@ -354,4 +354,12 @@ thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi t
 - `MExplore`/B2 có bố cục riêng: chip đối thủ, bộ lọc, chọn nhiều, sao chép link, gửi hàng loạt và các sheet thông tin/thêm nguồn/chọn kênh/lý do. Bốn sheet dùng lề ngang 16 px; đo ở 390/360 px với inset 0 và 59/34, giữ nút trong khung.
 - API thật đã xác nhận thêm và liên kết đối thủ, gửi mười video (chín mới/một trùng), bỏ lọc và hồi phục tải lỗi. Clipboard được đọc lại đúng mười URL. Thiếu dữ liệu chương/preview/direct-video/job-status vẫn là giới hạn hợp đồng, không tạo dữ liệu thay.
 - MNew đo chiều cao footer thực và giới hạn vùng cuộn theo inset/bàn phím; textarea nhiều link không bị co, mục cuối cuộn tới được. AuthShell chừa safe-area trên/dưới, nút đăng xuất vẫn tới được. Kiểm tra tích hợp New/Auth/Settings/Queue/design: 194 test và typecheck đạt; chứng cứ 129 PNG dùng bàn phím CSS, không phải bàn phím iOS thật.
+
+
+## Gói V33 — control dùng chung, máy tính và điện thoại (02/11/2026)
+
+- Đã tích hợp control kit cho Kênh/Hàng chờ, Trợ lý AI/Kết nối AI/Lưu trữ, Khám phá, Bàn dựng và các panel Editor. Giữ anchor cho đích điều hướng; lựa chọn có avatar/mô tả vẫn là RadioCard, không ép thành bộ lọc chữ.
+- Dùng chung sửa lỗi Dialog trả focus về đúng nút mở, kể cả StrictMode và Escape; Segmented nhận giá trị custom không mất điểm Tab; menu trộn link/hành động dùng đúng bàn phím; label model dài không đè metadata.
+- Bản production đã kiểm native 390/360 px với safe-area59/34: chọn model không cắt mục cuối, More Sheet giữ lề/chạm và trả focus, bộ lọc Khám phá đổi ngay cùng GET200, sheet theo dõi giữ lề ngang16 px. Màu hồng Viderse không còn bị token mặc định nối sau CSS đổi thành tím.
+- Chứng cứ, giới hạn fixture/provider và kiểm tra tích hợp nằm ở [báo cáo control](../../../../../plans/reports/2026-11-02-settings-explore-kit.md), [Kênh/Hàng chờ](../../../../../plans/reports/2026-11-02-v33-channel-queue-kit.md) và [ảnh native bản dựng cuối](../../../../../plans/reports/261102-final-built-mobile/). Số đo hiệu năng/phát hành cuối thuộc báo cáo triển khai, không suy ra từ test control.
 

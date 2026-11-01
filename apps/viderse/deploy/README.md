@@ -7,6 +7,23 @@ Viderse cần **hai** cơ sở dữ liệu Postgres:
 | Data DB (VD `viderse_db`) | Bảng nghiệp vụ Viderse (migration riêng, `apps/viderse/internal/persistence/migrations`) | `viderse_app` (data), `viderse_migrate` (migration) | `VIDERSE_DATABASE_URL`, `VIDERSE_MIGRATION_DATABASE_URL` |
 | Identity DB (VD `noverse_db`) | Kho tài khoản **dùng chung** do Noverse sở hữu (users, sessions, app_grants…) | `viderse_identity` — role đọc-ghi giới hạn bảng tài khoản, không đụng bảng project Noverse | `VERSE_IDENTITY_DATABASE_URL` |
 
+## Tuyến live trên Mac mini
+
+`https://vid.aarverse.studio` chạy bằng launchd `com.dat.viderse`, bind
+`127.0.0.1:8789`. Tuyến triển khai hiện hành là
+`~/server/bin/build-deploy-viderse.sh`: lấy `origin/main` tại
+`~/server/src/verse`, dựng binary macOS arm64 bằng Docker, migrate rồi restart.
+Binary đang chạy là tệp thường `~/server/apps/viderse/bin/viderse`; commit nằm
+ở `viderse.commit` cùng thư mục. Giữ đường dẫn binary ổn định để không xin lại
+quyền riêng tư macOS mỗi lần phát hành.
+
+Script kiểm `/readyz` trước khi nhận bản mới và tự trả về bản trước nếu lỗi.
+`/healthz` kiểm tiến trình; kiểm thêm origin công khai và màn vừa thay đổi sau
+triển khai. Không chạy đồng thời script này và `build-deploy.sh` của Noverse:
+hai tuyến dùng chung checkout nguồn. Secret chỉ đọc từ cấu hình runtime hiện
+có; không truyền token hoặc DSN trên đối số hay chép vào tài liệu.
+
+
 ## Data DB
 
 1. Tạo hai role và DB (tham chiếu `apps/noverse/deploy/postgres-init/01-roles.sh` cho mô hình role; Viderse dùng cặp `viderse_migrate`/`viderse_app` như `pgtest.RoleSpec`):

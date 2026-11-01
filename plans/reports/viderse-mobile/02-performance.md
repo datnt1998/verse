@@ -243,9 +243,11 @@ tốt hơn hẳn — nhưng bù lại mất "keep-alive" (xem C6) và trả giá
   (Cài đặt) nằm trong đó.
 - **Ảnh hưởng**: `RecalcStyleDuration` 98–172 ms, `LayoutDuration` 213–1 136 ms; CSS là tài nguyên
   chặn vẽ đầu tiên nên nó cộng thẳng vào FCP.
-- **Hướng sửa**: đưa `stylex.create` của từng màn vào chunk CSS riêng (StyleX unplugin hỗ trợ tách
-  theo entry động; nếu không, tách `settings.stylex.ts`/`library.stylex.ts` khỏi import tĩnh); bỏ
-  preflight Tailwind ở đường điện thoại (chỉ editor NLE cần); gộp/giảm 26 `@font-face`.
+- **Hướng sửa cần kiểm chứng**: tách CSS theo route khi công cụ hỗ trợ. Kiểm tra bản cài đặt
+  `@stylexjs/unplugin` 0.19.1 ngày 2026-11-02 cho thấy plugin gom metadata StyleX vào CSS chung,
+  không có tuỳ chọn `splitCss`; chỉ đổi import sang lazy không tách được các atom này. Nhận định
+  trước đó rằng plugin hỗ trợ tách theo entry động là sai. Không thêm tuỳ chọn không tồn tại hay
+  sửa nội bộ plugin; giữ ngân sách bên dưới để đối chiếu số đo bản dựng cuối, không coi là đã đạt.
 - **Ngân sách**: CSS màn đầu ≤ **40 kB nén**.
 
 ### C3 — 9 tệp font / 146.5 kB ngay lần vẽ đầu · **P1**

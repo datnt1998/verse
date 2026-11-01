@@ -1,0 +1,118 @@
+[
+  {
+    "width": 390,
+    "bounds": {
+      "x": 0,
+      "y": 244.203125,
+      "width": 390,
+      "height": 599.796875,
+      "top": 244.203125,
+      "right": 390,
+      "bottom": 844,
+      "left": 0
+    },
+    "bodyPadding": "16px",
+    "options": [
+      {
+        "text": "gpt-6.1-sol\nchữ · đọc ảnh · 272K ngữ cảnh\nChữ · đọc ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 434.75,
+          "width": 344,
+          "height": 56,
+          "top": 434.75,
+          "right": 367,
+          "bottom": 490.75,
+          "left": 23
+        },
+        "hit": true
+      },
+      {
+        "text": "gpt-image-2\nChỉ vẽ ảnh, không viết chữ\nVẽ ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 490.75,
+          "width": 344,
+          "height": 56,
+          "top": 490.75,
+          "right": 367,
+          "bottom": 546.75,
+          "left": 23
+        },
+        "hit": true
+      },
+      {
+        "text": "grok-imagine-image\nChỉ vẽ ảnh, không viết chữ\nVẽ ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 574.5,
+          "width": 344,
+          "height": 56,
+          "top": 574.5,
+          "right": 367,
+          "bottom": 630.5,
+          "left": 23
+        },
+        "hit": true
+      }
+    ]
+  },
+  {
+    "width": 360,
+    "bounds": {
+      "x": 0,
+      "y": 180.203125,
+      "width": 360,
+      "height": 599.796875,
+      "top": 180.203125,
+      "right": 360,
+      "bottom": 780,
+      "left": 0
+    },
+    "bodyPadding": "16px",
+    "options": [
+      {
+        "text": "gpt-6.1-sol\nchữ · đọc ảnh · 272K ngữ cảnh\nChữ · đọc ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 370.75,
+          "width": 314,
+          "height": 56,
+          "top": 370.75,
+          "right": 337,
+          "bottom": 426.75,
+          "left": 23
+        },
+        "hit": true
+      },
+      {
+        "text": "gpt-image-2\nChỉ vẽ ảnh, không viết chữ\nVẽ ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 426.75,
+          "width": 314,
+          "height": 56,
+          "top": 426.75,
+          "right": 337,
+          "bottom": 482.75,
+          "left": 23
+        },
+        "hit": true
+      },
+      {
+        "text": "grok-imagine-image\nChỉ vẽ ảnh, không viết chữ\nVẽ ảnh",
+        "bounds": {
+          "x": 23,
+          "y": 510.5,
+          "width": 314,
+          "height": 74,
+          "top": 510.5,
+          "right": 337,
+          "bottom": 584.5,
+          "left": 23
+        },
+        "hit": true
+      }
+    ]
+  }
+]

@@ -83,6 +83,15 @@ The last authorized read-only batch encountered the shared fixture's first-run g
 
 All owned browser contexts and the temporary8058 server were closed. Existing8051/8047 backends and protected ports8790/5391 were left untouched. Parent integration must exercise the remaining latest-build UI/protocol boundaries using an authenticated, root-ungated approved fixture.
 
+### Controller integration supplement
+
+The integrated production bundle was subsequently exercised against the real populated 8047 fixture at 390×844 and 360×780. Actual screenshots and geometry are in [`261102-final-built-mobile/`](261102-final-built-mobile/): model sheets open fully, the final option is reachable, long labels stay beside—not under—metadata, and the page has no horizontal overflow. No eligible model or provider configuration was changed during this read-only proof.
+
+Explore filter selection displayed `7 ngày` immediately and the actual filtered GET returned200. Both mobile widths show the final filter row and the settled add-rival sheet with its preserved `0px 16px` body inset; its bottom is844/780 respectively. These close the final native option-containment and mobile Explore capture boundaries above, not the absent live-provider authentication boundary.
+
+Integrated gates: shared kit233 tests plus typecheck; Viderse445 test files,3658 tests passed and4 skipped; Viderse typecheck/build and150 KiB static-entry budget passed. Existing React act-environment warnings remain visible. All owned browser contexts and local previews were closed after proof.
+
+
 ## Intentionally preserved genuine interactions
 
 - `PostingCard.tsx` posting-time slots and the activity heatmap are timeline/data interactions, not text filters.

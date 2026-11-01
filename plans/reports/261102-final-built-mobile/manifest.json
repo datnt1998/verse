@@ -1,0 +1,372 @@
+{
+  "proof": [
+    {
+      "width": 390,
+      "more": {
+        "bounds": {
+          "x": 0,
+          "y": 530.703125,
+          "width": 390,
+          "height": 313.296875,
+          "top": 530.703125,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "w": 390,
+        "h": 844,
+        "scrollW": 390,
+        "text": "Thao tác video\nMở trong editor\nProject chưa sẵn sàng\nLàm lại từ đầu\nTạo lượt mới cho cùng video, tốn lại hạn mức ảnh\nMở kênh\nXoá video\nXoá MP4, ảnh và project của video này",
+        "rows": [
+          {
+            "text": "Mở trong editor\nProject chưa sẵn sàng",
+            "rect": {
+              "x": 16,
+              "y": 586,
+              "width": 358,
+              "height": 56,
+              "top": 586,
+              "right": 374,
+              "bottom": 642,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Làm lại từ đầu\nTạo lượt mới cho cùng video, tốn lại hạn mức ảnh",
+            "rect": {
+              "x": 16,
+              "y": 642,
+              "width": 358,
+              "height": 56,
+              "top": 642,
+              "right": 374,
+              "bottom": 698,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Mở kênh",
+            "rect": {
+              "x": 16,
+              "y": 698,
+              "width": 358,
+              "height": 56,
+              "top": 698,
+              "right": 374,
+              "bottom": 754,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Xoá video\nXoá MP4, ảnh và project của video này",
+            "rect": {
+              "x": 16,
+              "y": 754,
+              "width": 358,
+              "height": 56,
+              "top": 754,
+              "right": 374,
+              "bottom": 810,
+              "left": 16
+            },
+            "hit": true
+          }
+        ]
+      },
+      "focusRestored": true,
+      "channelDestination": "#/channels/11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "width": 360,
+      "more": {
+        "bounds": {
+          "x": 0,
+          "y": 466.703125,
+          "width": 360,
+          "height": 313.296875,
+          "top": 466.703125,
+          "right": 360,
+          "bottom": 780,
+          "left": 0
+        },
+        "w": 360,
+        "h": 780,
+        "scrollW": 360,
+        "text": "Thao tác video\nMở trong editor\nProject chưa sẵn sàng\nLàm lại từ đầu\nTạo lượt mới cho cùng video, tốn lại hạn mức ảnh\nMở kênh\nXoá video\nXoá MP4, ảnh và project của video này",
+        "rows": [
+          {
+            "text": "Mở trong editor\nProject chưa sẵn sàng",
+            "rect": {
+              "x": 16,
+              "y": 522,
+              "width": 328,
+              "height": 56,
+              "top": 522,
+              "right": 344,
+              "bottom": 578,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Làm lại từ đầu\nTạo lượt mới cho cùng video, tốn lại hạn mức ảnh",
+            "rect": {
+              "x": 16,
+              "y": 578,
+              "width": 328,
+              "height": 56,
+              "top": 578,
+              "right": 344,
+              "bottom": 634,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Mở kênh",
+            "rect": {
+              "x": 16,
+              "y": 634,
+              "width": 328,
+              "height": 56,
+              "top": 634,
+              "right": 344,
+              "bottom": 690,
+              "left": 16
+            },
+            "hit": true
+          },
+          {
+            "text": "Xoá video\nXoá MP4, ảnh và project của video này",
+            "rect": {
+              "x": 16,
+              "y": 690,
+              "width": 328,
+              "height": 56,
+              "top": 690,
+              "right": 344,
+              "bottom": 746,
+              "left": 16
+            },
+            "hit": true
+          }
+        ]
+      },
+      "focusRestored": true,
+      "channelDestination": "#/channels/11111111-1111-4111-8111-111111111111"
+    }
+  ],
+  "brand": {
+    "brand": "viderse",
+    "accent": "#FF4D63",
+    "switchBackground": "rgba(0, 0, 0, 0)",
+    "w": 360,
+    "scrollW": 360
+  },
+  "errors": [],
+  "assets": [
+    {
+      "url": "http://final-kit.localhost:8060/fonts/be-vietnam-pro-400.woff2",
+      "transfer": 13684,
+      "decoded": 13384
+    },
+    {
+      "url": "http://final-kit.localhost:8060/fonts/be-vietnam-pro-600.woff2",
+      "transfer": 14636,
+      "decoded": 14336
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/index-9ZyA7gxg.js",
+      "transfer": 137422,
+      "decoded": 431863
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/index-BdbkCI52.css",
+      "transfer": 73351,
+      "decoded": 325688
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/MobileWorkbench-DkqcFgbI.js",
+      "transfer": 16573,
+      "decoded": 62611
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/placeholders-ud04d_KJ.js",
+      "transfer": 3884,
+      "decoded": 8280
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/learn-CN5_Q3eJ.js",
+      "transfer": 1994,
+      "decoded": 3929
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/ReasonPopover-CsuV0aGy.js",
+      "transfer": 945,
+      "decoded": 1072
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/ConfirmDialog-DLzWPDLr.js",
+      "transfer": 4978,
+      "decoded": 11825
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/controls-BoPLTZFZ.js",
+      "transfer": 3394,
+      "decoded": 8052
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/useAsyncAction-CuzP-FIk.js",
+      "transfer": 1123,
+      "decoded": 823
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/performance-BdAWeIv1.js",
+      "transfer": 2956,
+      "decoded": 6400
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/assistant-xJzIx4B5.js",
+      "transfer": 4503,
+      "decoded": 9246
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/rows-w5-60iUq.js",
+      "transfer": 2276,
+      "decoded": 4231
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/panelLogic-DRsNfj9M.js",
+      "transfer": 2105,
+      "decoded": 4790
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/screens-Dxe8EeaG.js",
+      "transfer": 7585,
+      "decoded": 21548
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/newScreen-24F2sYJ6.js",
+      "transfer": 5174,
+      "decoded": 13664
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/DevelopEffect-uGGJxWL6.js",
+      "transfer": 2465,
+      "decoded": 5799
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/OverflowMenu-CU4PnxFs.js",
+      "transfer": 1728,
+      "decoded": 2712
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/jobActions-BvvkNyb0.js",
+      "transfer": 1246,
+      "decoded": 1779
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/confirm-Ch7-n6g4.js",
+      "transfer": 1463,
+      "decoded": 3267
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/PromptMenu-DBLL7rvf.js",
+      "transfer": 2519,
+      "decoded": 5086
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/Tabs-Dpd-M4bI.js",
+      "transfer": 3440,
+      "decoded": 8142
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/RecapAuto-fO1XZoNW.js",
+      "transfer": 945,
+      "decoded": 1195
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/planModel-C5MJ9VTg.js",
+      "transfer": 2212,
+      "decoded": 4365
+    },
+    {
+      "url": "http://final-kit.localhost:8060/fonts/be-vietnam-pro-500.woff2",
+      "transfer": 14516,
+      "decoded": 14216
+    },
+    {
+      "url": "http://final-kit.localhost:8060/fonts/be-vietnam-pro-700.woff2",
+      "transfer": 14592,
+      "decoded": 14292
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/SettingsScreen-BE0O2XSt.js",
+      "transfer": 4821,
+      "decoded": 14555
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/settings-DKX-4CJA.js",
+      "transfer": 24621,
+      "decoded": 95597
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/ai-CsTkDj3y.js",
+      "transfer": 875,
+      "decoded": 1421
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/platforms-zbCdg0Q3.js",
+      "transfer": 945,
+      "decoded": 645
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/storageServer-BRxyKFXJ.js",
+      "transfer": 7576,
+      "decoded": 20150
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/Segmented-DXeEZC0a.js",
+      "transfer": 446,
+      "decoded": 146
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/AgentsSection-CjknxAIp.js",
+      "transfer": 5460,
+      "decoded": 19025
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/Selects-DlvNYplG.js",
+      "transfer": 8320,
+      "decoded": 22977
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/poll-G39YnhQu.js",
+      "transfer": 610,
+      "decoded": 310
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/ProviderCard-CUs0k1j7.js",
+      "transfer": 7044,
+      "decoded": 22259
+    },
+    {
+      "url": "http://final-kit.localhost:8060/assets/useDebounced-BpirupR0.js",
+      "transfer": 492,
+      "decoded": 192
+    },
+    {
+      "url": "http://final-kit.localhost:8060/fonts/jetbrains-mono-400.woff2",
+      "transfer": 16224,
+      "decoded": 15924
+    },
+    {
+      "url": "http://final-kit.localhost:8060/fonts/jetbrains-mono-500.woff2",
+      "transfer": 16840,
+      "decoded": 16540
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "width": 390,
+    "label": " Đăng trong\n7 ngày",
+    "bounds": {
+      "x": 0,
+      "y": 435.453125,
+      "width": 390,
+      "height": 408.546875,
+      "top": 435.453125,
+      "right": 390,
+      "bottom": 844,
+      "left": 0
+    },
+    "padding": "0px 16px",
+    "w": 390,
+    "sw": 390
+  },
+  {
+    "width": 360,
+    "label": " Đăng trong\n7 ngày",
+    "bounds": {
+      "x": 0,
+      "y": 371.453125,
+      "width": 360,
+      "height": 408.546875,
+      "top": 371.453125,
+      "right": 360,
+      "bottom": 780,
+      "left": 0
+    },
+    "padding": "0px 16px",
+    "w": 360,
+    "sw": 360
+  }
+]

@@ -81,7 +81,7 @@ Local SSO chỉ cho phép origin loopback; đặt `VIDERSE_ADDR` ra LAN/`0.0.0.0
 
 Viderse chạy trên Mac mini cùng Noverse, địa chỉ công khai `vid.aarverse.studio`, dùng chung kho tài khoản và cookie `verse_session` (đặt `VERSE_APP_LINKS=noverse=…,viderse=…` ở cả hai app). Cổng nội bộ `127.0.0.1:8789`, kiểm bằng `/healthz`.
 
-Trong repo hiện chỉ có `apps/viderse/deploy/README.md` (hai DB, role, cookie/origin, kho S3) và `apps/viderse/deploy/.env.example`; **chưa có** Dockerfile, compose Dokploy hay `scripts/run-live.sh` riêng cho Viderse — mẫu để dựng là của Noverse (`apps/noverse/deploy/docker-compose.dokploy.yml`, `backup.sh`, `traefik/`). Bước chạy live bằng launchd thuộc phase 10 (xem `plans/261029-2242-viderse-rebuild-from-yt-factory/phase-10-acceptance-cutover.md`).
+Tuyến live dùng `~/server/bin/build-deploy-viderse.sh` và launchd `com.dat.viderse`; script dựng từ `origin/main`, migrate, kiểm `/readyz` và tự rollback nếu lỗi. Xem [tuyến Mac mini và cấu hình triển khai](deploy/README.md#tuyến-live-trên-mac-mini). Dockerfile vận hành nằm trên máy chủ, không phải Dockerfile của Noverse; hai tuyến dùng chung checkout nên triển khai tuần tự.
 
 ## Sao lưu và khôi phục
 
@@ -242,7 +242,7 @@ npm run dev -w apps/viderse/web          # vite dev server, proxy /api → 127.0
 npm run typecheck -w apps/viderse/web
 npm test -w apps/viderse/web
 npm run build -w apps/viderse/web        # build ra internal/web/dist (được //go:embed vào binary)
-npm run size -w apps/viderse/web         # kích thước gzip JS tải lần đầu, lỗi khi vượt 250 kB
+npm run size -w apps/viderse/web         # kích thước gzip JS tải lần đầu, lỗi khi vượt 150 kB
 ```
 
 Các màn Cài đặt dùng StyleX (`web/src/screens/settings/settings.stylex.ts`),
