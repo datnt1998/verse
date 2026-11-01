@@ -228,7 +228,7 @@ function DesktopBrowser({ b, onClose, onUse }: { b: Browser; onClose: () => void
     if (dialog && titleRef.current) dialog.setAttribute('aria-labelledby', titleRef.current.id)
   }, [])
   const crumbs = b.place ? [b.place.label, ...b.segments] : []
-  return <Dialog width={760} scrim="strong" onClose={onClose} style={{ height: 540, maxHeight: '100%', background: '#18181A', overflow: 'hidden' }}>
+  return <Dialog padBody={false} width={760} scrim="strong" onClose={onClose} style={{ height: 540, maxHeight: '100%', background: '#18181A', overflow: 'hidden' }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
       <Icon name="folder-open" size={18} style={{ color: '#C9A6F5' }} />
       <span ref={titleRef} id="fb-t" style={{ flex: '1 1 auto', fontSize: 15, fontWeight: 600 }}>Chọn thư mục lưu truyện</span>

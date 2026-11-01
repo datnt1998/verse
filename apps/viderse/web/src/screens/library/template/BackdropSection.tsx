@@ -8,7 +8,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // (recipe.appearance), Lớp hiệu ứng (recipe.overlays + listOverlays) và hộp
 // Gắn kênh hoặc video (BackdropPicker). Lưu qua onSave — trang gộp + PATCH.
 import { useMemo, useState } from 'react'
-import { Banner, Button, Dialog, Icon, NumberStepper, RadioDot, Skeleton, Switch } from '@noverse/ui'
+import { Banner, Button, Dialog, Icon, NumberStepper, Segmented, Skeleton, Switch } from '@noverse/ui'
 
 import { t } from '../../../i18n/library'
 import { keys } from '../../../data/keys'
@@ -285,15 +285,10 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
             </button>
             {cutOpen && (
               <>
-                <div role="radiogroup" aria-label={copy.modeAria} className={`vbd-cutrows ${stylex.props(sx.cutrows).className}`}>
-                  <button type="button" role="radio" aria-checked={!manual} className={`vbd-radioline ${stylex.props(sx.radioline).className}`}
-                    onClick={() => saveBackdrop({ clipCount: null })}>
-                    <RadioDot checked={!manual} />{copy.modeAuto}
-                  </button>
-                  <button type="button" role="radio" aria-checked={manual} className={`vbd-radioline ${stylex.props(sx.radioline).className}`}
-                    onClick={() => saveBackdrop({ clipCount: Math.min(CLIP_MAX_COUNT, Math.max(1, backdrop.clipCount ?? 9)) })}>
-                    <RadioDot checked={manual} />{copy.modeManual}
-                  </button>
+                <div className={`vbd-cutrows ${stylex.props(sx.cutrows).className}`}>
+                <Segmented size="sm" fit="content" label={copy.modeAria} value={manual ? 'manual' : 'auto'}
+                  onChange={(id) => saveBackdrop(id === 'auto' ? { clipCount: null } : { clipCount: Math.min(CLIP_MAX_COUNT, Math.max(1, backdrop.clipCount ?? 9)) })}
+                  options={[{ id: 'auto', label: copy.modeAuto }, { id: 'manual', label: copy.modeManual }]} />
                   {manual && (
                     <span className={`vbd-cutline ${stylex.props(sx.cutline2).className}`}>
                       <NumberStepper buttonStyle={sx.touchTarget} inputStyle={sx.touchTarget}
@@ -462,7 +457,6 @@ const sx = stylex.create({
   cut: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   cutline: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left", minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   cutrows: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  radioline: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: "var(--vv-s-12)", color: color["--color-fg"], cursor: "pointer", borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, fontFamily: "inherit", minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   cutline2: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
   touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   cardPart: { borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], paddingTop: "var(--vv-s-14)", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },

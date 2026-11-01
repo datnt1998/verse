@@ -457,9 +457,7 @@ function TemplateCard({ template, onOpen, onMenu }: {
       <div className={stylex.props(mlib.body).className}>
         <div className={stylex.props(mlib.head).className}>
           <a href={`#${paths.template(template.id)}`} className={stylex.props(mlib.name).className}>{template.name}</a>
-          <button type="button" className={stylex.props(mlib.more).className} aria-label={mobile.templateMenuAria(template.name)} onClick={onMenu}>
-            <Icon name="more" size={20} />
-          </button>
+          <Button variant="icon" size="lg" aria-label={mobile.templateMenuAria(template.name)} onClick={onMenu} icon={<Icon name="more" size={20} />} xstyle={mlib.more} />
         </div>
         <span {...stylex.props(mlib.health)}>
           <span {...stylex.props(mlib.dot, broken && mlib.dotWarn)} aria-hidden="true" />

@@ -34,7 +34,7 @@ export function WhatsNewDialog({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <Dialog width={560} padX={22} onClose={onClose} style={{ borderRadius: 20 }}
+    <Dialog padBody={false} width={560} padX={22} onClose={onClose} style={{ borderRadius: 20 }}
       icon={<Icon name="refresh-2" size={18} style={{ color: 'var(--kit-info-fg)' }} />}
       title={(
         <span style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}>

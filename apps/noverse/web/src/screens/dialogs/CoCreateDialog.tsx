@@ -9,7 +9,7 @@ import { refreshProjectData } from '../project/useProject'
 export function CoCreateDialog({ project, story, onClose }: { project: string; story: string; onClose: () => void }) {
   const narrow = useMediaQuery('(max-width: 900px)')
   return (
-    <Dialog title="Đồng sáng tác" width={1000} onClose={onClose}
+    <Dialog padBody={false} title="Đồng sáng tác" width={1000} onClose={onClose}
       icon={<Icon name="messages-2" size={18} style={{ color: 'var(--color-accent)' }} />}
       style={{ height: narrow ? 'min(88vh, 720px)' : 'min(72vh, 620px)' }}>
       <div style={{ flex: 1, minHeight: 0, display: 'flex', padding: 14 }}>

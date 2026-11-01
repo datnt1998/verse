@@ -43,6 +43,10 @@ const styles = stylex.create({
     borderColor: 'currentColor',
     fontSize: 14, fontWeight: 400, backgroundColor: 'transparent', color: color['--color-fg-3'],
   },
+  /* Nút chỉ có icon vẫn VUÔNG theo cỡ: 44 (lg) và 48 (xl) — vùng chạm điện thoại
+     của artboard MKit/MExplore. Trước đợt 37 `icon` khoá 36×36 nên size bị bỏ qua. */
+  iconLg: { width: 44, borderRadius: 12 },
+  iconXl: { width: 48, borderRadius: 13 },
   sm: { height: 30, paddingInline: 10, fontSize: 12, borderRadius: 8 },
   /* Cỡ lớn của mobile/CTA cuối thẻ: 44px, chữ 14, góc 12 (artboard .btn 44px). */
   lg: { height: 44, paddingInline: 16, fontSize: 14, borderRadius: 12 },
@@ -119,6 +123,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size === 'sm' && styles.sm,
     size === 'lg' && styles.lg,
     size === 'xl' && styles.xl,
+    iconOnly && size === 'lg' && styles.iconLg,
+    iconOnly && size === 'xl' && styles.iconXl,
     block && styles.block,
     off || locked ? styles.disabled : [
       styles.enabled,

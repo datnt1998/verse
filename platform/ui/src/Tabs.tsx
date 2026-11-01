@@ -36,6 +36,22 @@ const sx = stylex.create({
   label: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   panelOn: { backgroundColor: color['--color-surface-6'], color: FG, fontWeight: 500 },
   panelOff: { backgroundColor: 'transparent', color: FG3, fontWeight: 400 },
+  /* Tab gạch chân `.vv-tabs`/`.vv-tab` của kit (Library.dc.html): chữ và gạch đổi
+     240 ms, tôn trọng giảm chuyển động. Nhóm cuộn ngang khi hẹp hơn nội dung. */
+  underlineRoot: {
+    display: 'flex', gap: 4, minWidth: 0, overflowX: 'auto', scrollbarWidth: 'none',
+    borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-2'],
+  },
+  underlineBtn: {
+    position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, flex: '0 0 auto',
+    height: 40, paddingInline: 12, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent',
+    borderBottomWidth: 2, borderBottomStyle: 'solid', borderBottomColor: 'transparent',
+    fontSize: 14, whiteSpace: 'nowrap', cursor: 'pointer',
+    transition: { default: 'color .24s cubic-bezier(.2,.9,.3,1), border-color .24s cubic-bezier(.2,.9,.3,1)', [NO_MOTION]: 'none' },
+  },
+  underlineOn: { color: FG, borderBottomColor: color['--color-accent'], fontWeight: 500 },
+  underlineOff: { color: { default: FG3, ':hover': FG }, fontWeight: 400 },
+  underlineDisabled: { opacity: .42, cursor: 'not-allowed' },
   iconWrap: { display: 'inline-flex' },
   iconOn: { color: color['--color-accent'] },
   segmentRoot: { position: 'relative', display: 'flex', gap: 3, padding: 3, borderRadius: 10, backgroundColor: color['--color-surface-0'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'] },
@@ -60,14 +76,17 @@ const sx = stylex.create({
 
 export type TabItem = { id: string; label: ReactNode; icon?: ReactNode; dot?: ReactNode; disabled?: boolean }
 
-export function Tabs({ items, value, onChange, label, style, columns, variant = 'panel' }: {
+export function Tabs({ items, value, onChange, label, style, columns, variant = 'panel', tabs }: {
   items: TabItem[]; value: string; onChange: (id: string) => void
   label: string; style?: CSSProperties; columns?: number
-  /** 'panel' = tablist lưới 30 px của Main/Reader; 'bar' = thanh nhóm của Kit (32 px, bo 11, icon tím khi chọn). */
-  variant?: 'panel' | 'bar'
+  /** 'panel' = tablist lưới 30 px của Main/Reader; 'bar' = thanh nhóm của Kit (32 px, bo 11, icon tím khi chọn); 'underline' = `.vv-tabs` gạch chân 40 px (Library, Settings). */
+  variant?: 'panel' | 'bar' | 'underline'
+  /** id tab + id panel để `aria-controls`/`aria-labelledby` trỏ đúng cặp (dùng với 'underline'). */
+  tabs?: { id: string; panel: string }
 }) {
   const bar = variant === 'bar'
-  const group = stylex.props(bar ? sx.bar : sx.panel(String(columns ?? items.length)))
+  const underline = variant === 'underline'
+  const group = stylex.props(bar ? sx.bar : underline ? sx.underlineRoot : sx.panel(String(columns ?? items.length)))
   return (
     <div role="tablist" aria-label={label} onKeyDown={(event) => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
@@ -79,9 +98,14 @@ export function Tabs({ items, value, onChange, label, style, columns, variant = 
     }} className={group.className} style={{ ...group.style, ...style }}>
       {items.map((item) => {
         const on = item.id === value
-        const btn = stylex.props(bar ? [sx.barBtn, on ? sx.barOn : sx.barOff] : [sx.panelBtn, on ? sx.panelOn : sx.panelOff])
+        const btn = stylex.props(
+          underline ? [sx.underlineBtn, on ? sx.underlineOn : sx.underlineOff, item.disabled && sx.underlineDisabled]
+            : bar ? [sx.barBtn, on ? sx.barOn : sx.barOff] : [sx.panelBtn, on ? sx.panelOn : sx.panelOff],
+        )
         return (
           <button key={item.id} type="button" role="tab" aria-selected={on} tabIndex={on ? 0 : -1} disabled={item.disabled}
+            id={tabs ? `${tabs.id}-${item.id}` : undefined}
+            aria-controls={tabs?.panel}
             className={btn.className}
             onClick={() => onChange(item.id)} style={btn.style}>
             {bar && item.icon ? <span {...stylex.props(sx.iconWrap, on && sx.iconOn)}>{item.icon}</span> : item.icon}

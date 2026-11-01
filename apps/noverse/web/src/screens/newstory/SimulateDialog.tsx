@@ -47,7 +47,7 @@ export function SimulateDialog({ onClose, onSubmit, busy, error }: {
   }
 
   return (
-    <Dialog title={t.newStory.simulateTitle}
+    <Dialog padBody={false} title={t.newStory.simulateTitle}
       icon={<Icon name="brush-2" size={18} style={{ color: 'var(--color-accent)' }} />}
       onClose={onClose} width={560}
       footer={<>

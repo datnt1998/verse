@@ -6,7 +6,7 @@ import { space } from '../../styles/viderse.stylex'
 // nền và phần nền của template do mảng Video nền dựng (BackdropsTab.tsx,
 // template/BackdropSection.tsx) — ở đây chỉ gắn khung.
 import { useRef, useState } from 'react'
-import { Banner, Button, Dialog, FieldLabel, Icon, TextField } from '@noverse/ui'
+import { Banner, Button, Dialog, FieldLabel, Icon, Tabs, TextField } from '@noverse/ui'
 import { toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
@@ -183,21 +183,19 @@ function DesktopLibraryScreen({ route }: { route: Extract<Route, { name: 'librar
 
         {importError && <Banner tone="error" title={importError} />}
 
-        <div className={`vlb-tabs ${stylex.props(sx.tabs).className}`} role="tablist" aria-label={copy.tabAria}>
-          {(Object.keys(copy.tabs) as LibraryTab[]).map((id) => (
-            <a
-              key={id}
-              id={`vlb-tabs-${id}`}
-              role="tab"
-              className={`vlb-tab ${stylex.props(sx.tab, (id !== 'templates') && sx.tabSpaced, ((tab === id) === true) && sx.tabAriaSelectedTrue).className}`}
-              href={`#${paths.library(id)}`}
-              aria-selected={tab === id}
-              aria-controls="vlb-panel"
-            >
-              {copy.tabs[id]}
-              {counts[id] !== undefined && <span className={`vlb-tab-count ${stylex.props(sx.tabCount).className}`}>{counts[id]}</span>}
-            </a>
-          ))}
+        <div {...stylex.props(sx.tabsFrame)}>
+          <Tabs
+            variant="underline"
+            label={copy.tabAria}
+            value={tab}
+            onChange={(id) => navigate(paths.library(id as LibraryTab))}
+            tabs={{ id: 'vlb-tabs', panel: 'vlb-panel' }}
+            items={(Object.keys(copy.tabs) as LibraryTab[]).map((id) => ({
+              id,
+              label: copy.tabs[id],
+              dot: counts[id] !== undefined ? <span {...stylex.props(sx.tabCount)}>{counts[id]}</span> : undefined,
+            }))}
+          />
         </div>
 
         <div id="vlb-panel" role="tabpanel" aria-labelledby={`vlb-tabs-${tab}`} className={`vlb-panel ${stylex.props(sx.panel).className}`}>
@@ -260,10 +258,7 @@ const sx = stylex.create({
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.controlFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.bodyLineHeight },
   headActions: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)", flexGrow: 0, flexShrink: 0, flexBasis: "auto", justifyContent: { default: null, "@media (max-width: 767px)": "flex-start" }, flexWrap: { default: null, "@media (max-width: 767px)": "wrap" } },
   vlbHeadActionsActionButton: { paddingInline: space['--vv-s-12'], borderColor: line['--line-4'], minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  tabs: { display: "flex", flexGrow: 0, flexShrink: 0, flexBasis: "auto", overflowX: { default: "auto", "@media (max-width: 767px)": "auto" }, scrollbarWidth: "none", rowGap: { default: "var(--vv-s-4)", "@media (max-width: 767px)": 0 }, columnGap: { default: "var(--vv-s-4)", "@media (max-width: 767px)": 0 }, paddingTop: { default: 0, "@media (max-width: 767px)": 0 }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: 0, "@media (max-width: 767px)": "var(--vv-s-8)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"] },
-  tab: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", paddingTop: { default: "var(--vv-s-7)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-11)" }, paddingRight: "var(--vv-s-2)", paddingBottom: { default: "var(--vv-s-9)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-11)" }, paddingLeft: "var(--vv-s-2)", minHeight: { default: "var(--vv-s-38)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, fontSize: { default: libraryVars.controlFontSize, "@media (max-width: 767px)": libraryVars.bodySmallFontSize }, borderBottomWidth: "var(--vv-s-2)", borderBottomStyle: "solid", borderBottomColor: "transparent", color: { default: color["--color-fg-3"], ":hover": color["--color-fg"] }, textDecoration: "none", whiteSpace: "nowrap" },
-  tabSpaced: { marginLeft: { default: "var(--vv-s-18)", "@media (max-width: 767px)": "var(--vv-s-12)" } },
-  tabAriaSelectedTrue: { color: color["--color-fg"], borderBottomColor: color["--color-accent"], fontWeight: libraryVars.labelWeight },
+  tabsFrame: { paddingInline: "var(--vv-s-28)" },
   tabCount: { color: color["--color-fg-4"], fontSize: { default: "var(--vv-s-12)", "@media (max-width: 767px)": libraryVars.captionFontSize } },
   panel: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0 },
   hint2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },

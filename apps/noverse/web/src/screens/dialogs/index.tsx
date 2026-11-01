@@ -19,7 +19,7 @@ import { ReopenDialog } from './ReopenDialog'
 
 function NeedStory({ onClose }: { onClose: () => void }) {
   return (
-    <Dialog title="Cần chọn truyện" width={420} onClose={onClose}
+    <Dialog padBody={false} title="Cần chọn truyện" width={420} onClose={onClose}
       footer={<Button onClick={onClose}>{t.dialogs.close}</Button>}>
       <EmptyState icon="book-1" title="Chọn truyện trước"
         hint="Lệnh này áp dụng cho một truyện cụ thể — mở truyện trong Dự án rồi thử lại." />

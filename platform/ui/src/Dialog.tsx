@@ -29,6 +29,12 @@ const sx = stylex.create({
     display: 'flex', alignItems: 'center', gap: 10, paddingTop: 16, paddingBottom: 16,
     paddingInline: padX, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-2'],
   }),
+  // Thân hộp: cùng lề ngang với đầu/chân (08-dev-prompt V33). Trước đợt 37 thân
+  // không có đệm nên câu mô tả dính mép; hộp cần tràn mép (danh sách) truyền
+  // `padBody={false}` để thân không bọc đệm — giữ nguyên bố cục cũ.
+  body: (padX: string) => ({
+    paddingTop: 14, paddingBottom: 16, paddingInline: padX, minWidth: 0,
+  }),
   title: { margin: 0, flex: 1, fontSize: 16, fontWeight: 600 },
   meta: { fontSize: 12, color: color['--color-fg-4'] },
   close: {
@@ -76,15 +82,20 @@ export function playDialogExit(overlay: HTMLElement) {
   window.setTimeout(() => overlay.remove(), DIALOG_EXIT_MS)
 }
 
-export function Dialog({ title, label, icon, meta, onClose, footer, children, width = 560, alertDialog, style, padX = 18, scrim = 'default', scrimStyle: scrimOverride }: {
+export function Dialog({ title, label, icon, meta, onClose, footer, children, width = 560, alertDialog, style, padX = 18, padBody = true, scrim = 'default', scrimStyle: scrimOverride }: {
   title?: ReactNode; label?: string; icon?: ReactNode
   /** Lệnh mono cạnh tiêu đề, vd "/reopen" (Dialogs.dc.html) */
   meta?: ReactNode
   onClose?: () => void
   footer?: ReactNode; children: ReactNode
   width?: number | string; alertDialog?: boolean; style?: CSSProperties
-  /** Lề ngang của đầu và chân hộp (mặc định 18 px) */
+  /** Lề ngang của đầu, thân và chân hộp (mặc định 18 px) */
   padX?: number
+  /**
+   * Đệm thân hộp theo `padX` (mặc định, khớp đầu/chân). `false` cho thân tràn
+   * mép — danh sách dài, lưới thẻ, hoặc hộp đã tự đệm bên trong.
+   */
+  padBody?: boolean
   /** 'default' = --kit-scrim; 'strong' = --kit-scrim-strong (Onboard.dc.html › lib=browse). Animation không đổi. */
   scrim?: 'default' | 'strong'
   scrimStyle?: stylex.StyleXStyles
@@ -155,6 +166,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
   const scrimStyle = stylex.props(sx.scrim, scrim === 'strong' && sx.scrimStrong, scrimOverride)
   const dlg = stylex.props(sx.dlg, sx.box)
   const head = stylex.props(sx.head(`${padX}px`))
+  const body = stylex.props(sx.body(`${padX}px`))
   const foot = stylex.props(sx.foot(`${padX}px`))
   return createPortal(
     <div ref={overlayRef} {...stylex.props(sx.overlay)}>
@@ -176,7 +188,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
               )}
             </div>
           )}
-          {children}
+          {padBody ? <div className={`kit-dlg-body ${body.className}`} style={body.style}>{children}</div> : children}
           {footer !== undefined && (
             <div className={foot.className} style={foot.style}>
               {footer}

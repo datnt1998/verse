@@ -86,7 +86,7 @@ export function ConfirmExportDialog({ project, story, volume, chapters, cast, vo
   const singleVoice = voices.find((voice) => voice.id === cast?.single.voiceId)
 
   return (
-    <Dialog title={form.split ? c.title(volume) : t.audio.confirm.ghepXuatTap(volume)} icon={<Icon name="sound" size={20} style={{ color: 'var(--color-accent)' }} />} width={820} padX={20}
+    <Dialog padBody={false} title={form.split ? c.title(volume) : t.audio.confirm.ghepXuatTap(volume)} icon={<Icon name="sound" size={20} style={{ color: 'var(--color-accent)' }} />} width={820} padX={20}
       onClose={onClose} style={{ position: 'absolute', top: 130, maxHeight: 'calc(100dvh - 146px)' }}
       footer={<>
         <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6, alignSelf: 'center' }}>

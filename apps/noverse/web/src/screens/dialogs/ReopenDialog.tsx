@@ -28,7 +28,7 @@ export function ReopenDialog({ project, story, onClose }: { project: string; sto
   useSaveShortcut(() => action.run(), !action.busy && connection.writable)
 
   return (
-    <Dialog title={t.dialogs.reopen} meta="/reopen" width={560} onClose={onClose}
+    <Dialog padBody={false} title={t.dialogs.reopen} meta="/reopen" width={560} onClose={onClose}
       icon={<Icon name="edit-2" size={18} style={{ color: 'var(--color-accent)' }} />}
       footer={<>
         <Button onClick={onClose}>{t.dialogs.cancel}</Button>

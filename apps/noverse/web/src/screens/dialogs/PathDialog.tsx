@@ -25,7 +25,7 @@ export function PathDialog({ title, label, placeholder, hint, submitLabel, onSub
   useUnsavedGuard(!!path.trim() && !disabled && !busy)
   useSaveShortcut(submit, !!path.trim() && !disabled && !busy)
   return (
-    <Dialog title={title} width={560} onClose={onClose}
+    <Dialog padBody={false} title={title} width={560} onClose={onClose}
       icon={<Icon name="document-text" size={18} style={{ color: 'var(--color-accent)' }} />}
       footer={<>
         <Button onClick={onClose}>Huỷ</Button>

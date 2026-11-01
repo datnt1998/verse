@@ -90,7 +90,7 @@ export function DiagPanel({ project, story, mode = 'run', onClose }: {
   const generatedAt = generated && !Number.isNaN(generated.getTime()) ? `${pad(generated.getHours())}:${pad(generated.getMinutes())}` : '—'
 
   return (
-    <Dialog onClose={onClose} width={1000} style={{ height: 680, maxHeight: '100%', overflow: 'hidden' }}>
+    <Dialog padBody={false} onClose={onClose} width={1000} style={{ height: 680, maxHeight: '100%', overflow: 'hidden' }}>
       <div className="cr-dlg-in" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Icon name="activity" size={18} style={{ color: '#C9A6F5' }} />

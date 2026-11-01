@@ -399,7 +399,7 @@ function SceneInspector({ item, jobId, beforeMutation }: Pick<InspectorProps, 'j
       </>}
     </section>
     {picker && <MediaPicker item={item} onClose={() => setPicker(false)} />}
-    {redraw && <Dialog title="Vẽ lại ảnh" onClose={busy ? undefined : () => setRedraw(false)} footer={<>
+    {redraw && <Dialog title="Vẽ lại ảnh" padBody={false} onClose={busy ? undefined : () => setRedraw(false)} footer={<>
       <Button disabled={busy} onClick={() => setRedraw(false)}>Huỷ</Button>
       <Button variant="primary" pending={busy} disabled={!feedback.trim()} onClick={() => { void regenerate() }}>Vẽ lại ảnh</Button>
     </>}>
@@ -466,7 +466,7 @@ function BackgroundInspector({ item, actions, jobId }: { item: VideoItem; action
     <p {...stylex.props(sx.help)}>Chỉ đổi cho video này. Bỏ clip thì nền lặp lại 1:00 ở cuối — Kiểm định sẽ báo nếu nền không phủ kín.</p>
     {actions.pending && <p role="status" {...stylex.props(sx.meta)}>Đang dựng lại nền…</p>}
     {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
-    {choosing && <Dialog title="Chọn đoạn khác" onClose={actions.pending ? undefined : () => setChoosing(false)} footer={<>
+    {choosing && <Dialog title="Chọn đoạn khác" padBody={false} onClose={actions.pending ? undefined : () => setChoosing(false)} footer={<>
       <Button disabled={actions.pending} onClick={() => setChoosing(false)}>Đóng</Button>
       <Button variant="primary" pending={actions.pending} onClick={() => { void choose() }}>Dùng đoạn này</Button>
     </>}>

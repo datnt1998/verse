@@ -136,7 +136,7 @@ export function ImportDialog({ project, story, onClose }: { project: string; sto
   ) : undefined
 
   return (
-    <Dialog title={t.dialogs.importTitle} meta="/import" width={820} onClose={onClose} footer={footer}
+    <Dialog padBody={false} title={t.dialogs.importTitle} meta="/import" width={820} onClose={onClose} footer={footer}
       icon={<Icon name="document-text" size={18} style={{ color: 'var(--color-accent)' }} />}>
       <PanelRefreshBar resourceKeys={[keys.story(project, story, 'snapshot', 'import')]} updatedAt={resume.updatedAt} />
       <StaleBanner error={resume.error} onRetry={resume.refresh} />

@@ -1,15 +1,15 @@
-// Hộp nhập template cũ: vùng thả tệp + danh sách kết quả.
-// Artboard Library.dc.html › tab=templates chỉ vẽ nút "Nhập template" trên
-// thanh đầu (không có ô thả), nên nút ở đó mở hộp này; ô thả nằm trong hộp.
-// Mỗi tệp một dòng {tên, đã nhập/chưa, cảnh báo} — cảnh báo là những gì không
-// quy đổi được sang Viderse, không bao giờ bỏ im lặng.
-import { useRef, useState } from 'react'
+// Hộp nhập template cũ: vùng thả tệp + từng dòng tiến độ thật.
+// Artboard Library.dc.html › import=ready|drag|importing|done|partial|zip|offline:
+// mỗi tệp là một yêu cầu riêng nên dòng nào cũng có trạng thái thật (chờ / đang
+// nhập / xong / lỗi) — không bịa phần trăm. Huỷ chỉ bỏ phần CHƯA nhập (tệp đang
+// chạy vẫn xong); mất kết nối thì giữ nguyên tệp đã chọn để "Thử lại".
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Banner, Button, Dialog, Icon } from '@noverse/ui'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { Banner, Button, Dialog, Dropzone, FileRow, Icon, type FileRowStatus } from '@noverse/ui'
+import { color } from '@noverse/ui/tokens.stylex'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
-import { importTemplates, type TemplateImportItem, type TemplateImportResult } from '../../api/library'
+import { importTemplates, type TemplateImportItem } from '../../api/library'
 import { uploadTooLarge } from '../../api/upload-limits'
 import { ApiError } from '../../api/request'
 import { keys } from '../../data/keys'
@@ -17,195 +17,240 @@ import { libraryVars } from './libraryTokens.stylex'
 
 const copy = t.library.templates
 
+type Phase = 'ready' | 'importing' | 'done' | 'partial' | 'offline'
+
+type Row = {
+  file: File
+  status: FileRowStatus
+  item?: TemplateImportItem
+  /** Lý do lỗi của riêng tệp này (máy chủ trả về hoặc lỗi mạng). */
+  error?: string
+  /** Tệp chưa kịp nhập vì người dùng bấm huỷ. */
+  cancelled?: boolean
+}
+
 /** Hộp nhập template; `onClose` do nơi mở quyết định (Dialog không tự đóng). */
 export function TemplateImportDialog({ onClose }: { onClose: () => void }) {
   const input = useRef<HTMLInputElement>(null)
-  const [busy, setBusy] = useState(false)
-  const [dragging, setDragging] = useState(false)
-  const [result, setResult] = useState<TemplateImportResult | null>(null)
+  const alive = useRef(true)
+  const cancelRef = useRef(false)
+  const [phase, setPhase] = useState<Phase>('ready')
+  const [rows, setRows] = useState<Row[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [cancelling, setCancelling] = useState(false)
 
-  const run = async (picked: FileList | File[] | null | undefined) => {
-    const files = Array.from(picked ?? []).filter((file) => /\.zip$/i.test(file.name))
-    if (files.length === 0) {
+  useEffect(() => () => { alive.current = false }, [])
+
+  const update = (index: number, patch: Partial<Row>) => {
+    if (!alive.current) return
+    setRows((current) => current.map((row, i) => (i === index ? { ...row, ...patch } : row)))
+  }
+
+  // Nhập lần lượt từng tệp: một yêu cầu một tệp nên dòng tiến độ và lỗi là thật.
+  const run = async (picked: File[]) => {
+    if (picked.length === 0) return
+    if (picked.some((file) => !/\.zip$/i.test(file.name))) {
       setError(copy.importOnlyZip)
+      setPhase('ready')
       return
     }
     // Qua internet, gói vượt trần bị edge chặn bằng trang 413 HTML — tự chặn
     // trước để người dùng đọc được trần thay vì một trang lỗi lạ.
-    for (const file of files) {
+    for (const file of picked) {
       const tooLarge = await uploadTooLarge('template', file.size)
       if (tooLarge) {
+        if (!alive.current) return
         setError(`${file.name}: ${tooLarge}`)
-        if (input.current) input.current.value = ''
+        setPhase('ready')
         return
       }
     }
-    setBusy(true)
+    if (!alive.current) return
+    cancelRef.current = false
+    setCancelling(false)
     setError(null)
-    try {
-      const imported = await importTemplates(files)
-      setResult(imported)
-      if (imported.imported > 0) await invalidate(keys.templates())
-    } catch (err) {
-      const offline = err instanceof ApiError && err.status === 0
-      setError(offline ? copy.importOffline : err instanceof Error ? err.message : String(err))
-    } finally {
-      setBusy(false)
-      if (input.current) input.current.value = ''
-    }
+    setRows(picked.map((file) => ({ file, status: 'wait' })))
+    setPhase('importing')
+    await importRows(picked.map((file) => ({ file, status: 'wait' })))
   }
+
+  // Nhập những dòng chưa xong (giữ nguyên dòng đã nhập khi Thử lại).
+  const importRows = async (queue: Row[]) => {
+    let offline = false
+    let imported = 0
+    for (let index = 0; index < queue.length; index += 1) {
+      const row = queue[index]
+      if (row.status === 'ok') { imported += 1; continue }
+      if (cancelRef.current) break
+      update(index, { status: 'active', error: undefined })
+      try {
+        const result = await importTemplates([row.file])
+        const item = result.items[0]
+        if (!item) throw new Error(copy.importItemFail)
+        if (item.ok) imported += 1
+        update(index, { status: item.ok ? 'ok' : 'fail', item, error: item.ok ? undefined : item.error })
+      } catch (caught) {
+        if (caught instanceof ApiError && caught.status === 0) {
+          offline = true
+          update(index, { status: 'wait', error: undefined })
+          break
+        }
+        update(index, { status: 'fail', error: caught instanceof Error ? caught.message : String(caught) })
+      }
+    }
+    if (imported > 0) await invalidate(keys.templates())
+    if (!alive.current) return
+    setCancelling(false)
+    setRows((current) => current.map((row) => {
+      if (row.status === 'ok' || row.status === 'fail') return row
+      if (offline) return { ...row, status: 'wait', error: undefined }
+      if (cancelRef.current) return { ...row, status: 'wait', error: undefined, cancelled: true }
+      return row
+    }))
+    setPhase(offline ? 'offline' : imported === queue.length ? 'done' : 'partial')
+  }
+
+  const pick = () => {
+    setError(null)
+    input.current?.click()
+  }
+
+  const chosen = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.currentTarget.files ?? [])
+    event.currentTarget.value = ''
+    void run(files)
+  }
+
+  const cancel = () => {
+    cancelRef.current = true
+    setCancelling(true)
+  }
+
+  const retry = () => {
+    const pending = rows.filter((row) => row.status !== 'ok')
+    if (pending.length === 0) return
+    setError(null)
+    setPhase('importing')
+    cancelRef.current = false
+    setCancelling(false)
+    setRows((current) => current.map((row) => row.status === 'ok' ? row : { ...row, status: 'wait', error: undefined, cancelled: false }))
+    void importRows(rows.map((row) => row.status === 'ok' ? row : { ...row, status: 'wait', error: undefined, cancelled: false }))
+  }
+
+  const close = () => {
+    cancelRef.current = true
+    onClose()
+  }
+
+  const imported = rows.filter((row) => row.status === 'ok').length
+  const pending = rows.filter((row) => row.status !== 'ok').length
+  const head = phase === 'done' ? 'tick' : phase === 'partial' ? 'info' : phase === 'offline' ? 'danger' : 'document-download'
+
+  const footer = phase === 'ready'
+    ? <Button size="sm" onClick={close}>{copy.importClose}</Button>
+    : phase === 'importing'
+      ? <Button size="sm" onClick={cancel} disabled={cancelling}>{cancelling ? copy.importCancelling : copy.importCancel}</Button>
+      : phase === 'offline'
+        ? <>
+            <Button size="sm" onClick={close}>{copy.importClose}</Button>
+            <Button size="sm" variant="primary" onClick={retry}>{copy.importRetry}</Button>
+          </>
+        : <>
+            <Button size="sm" onClick={pick}>{copy.importAgain}</Button>
+            <Button size="sm" variant="primary" onClick={close}>{copy.importDone}</Button>
+          </>
 
   return (
     <Dialog
       title={copy.importTitle}
-      onClose={onClose}
-      width={560}
-      footer={
-        <>
-          <Button size="sm" onClick={() => { setResult(null); setError(null); input.current?.click() }}>
-            {copy.importAgain}
-          </Button>
-          <Button size="sm" variant="primary" onClick={onClose}>{copy.importClose}</Button>
-        </>
-      }
+      icon={<span {...stylex.props(sx.headIcon, phase === 'done' && sx.headOk, phase === 'partial' && sx.headWarn, phase === 'offline' && sx.headErr)}><Icon name={head} size={16} /></span>}
+      onClose={close}
+      width={520}
+      footer={footer}
     >
+      <input ref={input} type="file" accept=".zip,application/zip" multiple hidden onChange={chosen} />
       <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.importHint}</p>
-      <input
-        ref={input}
-        type="file"
-        accept=".zip,application/zip"
-        multiple
-        hidden
-        onChange={(event) => void run(event.currentTarget.files)}
-      />
-      <button
-        type="button"
-        className={stylex.props(sx.drop, dragging && sx.dropDragging, busy && sx.dropBusy).className}
-        aria-label={copy.importDrop}
-        aria-busy={busy || undefined}
-        disabled={busy}
-        onClick={() => input.current?.click()}
-        onDragOver={(event) => { event.preventDefault(); if (!busy) setDragging(true) }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(event) => {
-          event.preventDefault()
-          setDragging(false)
-          if (!busy) void run(event.dataTransfer.files)
-        }}
-      >
-        <Icon name={busy ? 'refresh' : 'document-download'} size={22} />
-        <span className={stylex.props(sx.dropTitle).className}>{busy ? copy.importing : copy.importDrop}</span>
-        <span className={stylex.props(sx.dropHint).className}>{copy.importAccept}</span>
-        {!busy && <span className={stylex.props(sx.dropPick).className}>{copy.importPick}</span>}
-      </button>
+
+      {phase === 'ready' && (
+        <Dropzone
+          label={copy.importDropAria}
+          title={copy.importDrop}
+          hint={copy.importAccept}
+          dragTitle={copy.importDragTitle}
+          dragHint={copy.importDragHint}
+          onPick={pick}
+          onDrop={(files) => void run(files)}
+          action={<Button size="sm" icon={<Icon name="folder" size={14} />} onClick={(event) => { event.stopPropagation(); pick() }}>{copy.importPick}</Button>}
+        />
+      )}
 
       {error && <Banner tone="error" title={error} />}
-      {result && <ImportResults result={result} />}
+
+      {phase !== 'ready' && (
+        <div {...stylex.props(sx.results)}>
+          {phase === 'offline'
+            ? <Banner tone="error" title={copy.importOffline} />
+            : (
+              <p {...stylex.props(sx.summary)} role="status">
+                {phase === 'importing' ? copy.importProgress(imported, rows.length)
+                  : phase === 'partial' && pending > 0 && rows.some((row) => row.cancelled)
+                    ? copy.importCancelSummary(imported, pending)
+                  : copy.importSummary(imported, pending)}
+              </p>
+            )}
+          <div {...stylex.props(sx.list)}>
+            {rows.map((row, index) => (
+              <FileRow
+                key={`${row.file.name}-${index}`}
+                name={row.file.name}
+                status={row.status}
+                meta={metaFor(row, phase)}
+                warnings={row.item?.warnings}
+                warningsLabel={row.item && row.item.warnings.length > 0 ? copy.importWarnings(row.item.warnings.length) : undefined}
+                defaultWarningsOpen={false}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </Dialog>
   )
 }
 
-// ImportResults là danh sách kết quả: tổng kết, rồi từng template.
-function ImportResults({ result }: { result: TemplateImportResult }) {
-  return (
-    <div className={stylex.props(sx.results).className}>
-      <p className={stylex.props(sx.summary).className} role="status">
-        {copy.importSummary(result.imported, result.failed)}
-      </p>
-      {result.items.length === 0 && <p className={stylex.props(sx.dropHint).className}>{copy.importEmptyTitle}</p>}
-      <ul className={stylex.props(sx.list).className}>
-        {result.items.map((item, index) => (
-          <li key={`${item.file}-${index}`} className={stylex.props(sx.item).className}>
-            <Icon name={item.ok ? 'tick-circle' : 'close-circle'} size={15} />
-            <div className={stylex.props(sx.itemBody).className}>
-              <p className={stylex.props(sx.itemName).className}>{item.name}</p>
-              <p className={stylex.props(sx.itemMeta).className}>{itemState(item)}</p>
-              {item.error && <p className={stylex.props(sx.itemError).className} role="alert">{item.error}</p>}
-              {item.warnings.length > 0 && (
-                <ul className={stylex.props(sx.warnings).className}>
-                  <li className={stylex.props(sx.itemMeta).className}>{copy.importWarnings(item.warnings.length)}</li>
-                  {item.warnings.map((warning) => <li key={warning}>{warning}</li>)}
-                </ul>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-// itemState là dòng phụ: đã nhập hay chưa, kèm số media vào kho.
-function itemState(item: TemplateImportItem): string {
-  if (!item.ok) return copy.importItemFail
-  const media = item.media + item.mediaReused
-  return media > 0 ? `${copy.importItemOk} · ${copy.importMedia(item.media, item.mediaReused)}` : copy.importItemOk
+// metaFor là dòng phụ của từng tệp — luôn nói đúng việc đã xảy ra.
+function metaFor(row: Row, phase: Phase) {
+  if (row.status === 'ok') {
+    const item = row.item
+    if (!item) return copy.importItemOk
+    const media = item.media + item.mediaReused
+    return media > 0 ? `${copy.importItemOk} · ${copy.importMedia(item.media, item.mediaReused)}` : copy.importItemOk
+  }
+  if (row.status === 'fail') return row.error ? `${copy.importItemFail} · ${row.error}` : copy.importItemFail
+  if (row.status === 'active') return copy.importActive
+  if (phase === 'offline') return copy.importPending
+  if (row.cancelled) return copy.importCancelled
+  return copy.importWait
 }
 
 const sx = stylex.create({
+  headIcon: {
+    width: 30, height: 30, flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: 9, backgroundColor: color['--color-surface-4'], color: color['--color-fg-3'],
+  },
+  headOk: { backgroundColor: 'var(--tint-ok)', color: color['--color-ok'] },
+  headWarn: { backgroundColor: 'var(--tint-warn)', color: color['--color-warn'] },
+  headErr: { backgroundColor: 'var(--tint-err)', color: color['--color-err'] },
   hint: {
     marginTop: 0, marginRight: 0, marginBottom: 'var(--vv-s-12)', marginLeft: 0,
     fontSize: 'var(--vv-s-12)', color: color['--color-fg-4'], lineHeight: libraryVars.bodyLineHeight,
   },
-  drop: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    rowGap: 'var(--vv-s-6)', columnGap: 'var(--vv-s-6)', width: '100%',
-    paddingTop: 'var(--vv-s-22)', paddingBottom: 'var(--vv-s-22)',
-    paddingInline: 'var(--vv-s-16)', marginBottom: 'var(--vv-s-12)',
-    borderWidth: 'var(--vv-s-1)', borderStyle: 'dashed', borderColor: line['--line-4'],
-    borderRadius: 'var(--vv-r-12)', backgroundColor: color['--color-surface-2'],
-    color: color['--color-fg-2'], textAlign: 'center', cursor: 'pointer',
-  },
-  dropDragging: {
-    borderColor: color['--color-accent'], backgroundColor: color['--color-surface-4'],
-  },
-  dropBusy: { cursor: 'progress', color: color['--color-fg-3'] },
-  dropTitle: { fontSize: 'var(--vv-s-13)', fontWeight: libraryVars.labelWeight },
-  dropHint: {
-    marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
-    fontSize: 'var(--vv-s-12)', color: color['--color-fg-4'], lineHeight: libraryVars.bodyLineHeight,
-  },
-  dropPick: {
-    marginTop: 'var(--vv-s-4)', fontSize: 'var(--vv-s-12)', fontWeight: libraryVars.labelWeight,
-    color: color['--color-accent'],
-  },
-  results: { display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)' },
+  results: { display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-10)', columnGap: 'var(--vv-s-10)' },
   summary: {
     marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
     fontSize: libraryVars.controlFontSize, color: color['--color-fg-2'],
   },
   list: {
-    display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)',
-    marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
-    paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, listStyle: 'none',
+    display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-6)', columnGap: 'var(--vv-s-6)',
     maxHeight: 'var(--vv-s-280)', overflowY: 'auto',
-  },
-  item: {
-    display: 'flex', alignItems: 'flex-start', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)',
-    paddingTop: 'var(--vv-s-8)', paddingBottom: 'var(--vv-s-8)',
-    paddingInline: 'var(--vv-s-10)',
-    borderWidth: 'var(--vv-s-1)', borderStyle: 'solid', borderColor: line['--line-3'],
-    borderRadius: 'var(--vv-r-10)', backgroundColor: color['--color-surface-2'],
-  },
-  itemBody: { display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-2)', columnGap: 'var(--vv-s-2)', minWidth: 0 },
-  itemName: {
-    marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
-    fontSize: 'var(--vv-s-13)', fontWeight: libraryVars.labelWeight, color: color['--color-fg'],
-    overflowWrap: 'anywhere',
-  },
-  itemMeta: {
-    marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
-    fontSize: 'var(--vv-s-12)', color: color['--color-fg-4'], lineHeight: libraryVars.bodyLineHeight,
-  },
-  itemError: {
-    marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0,
-    fontSize: 'var(--vv-s-12)', color: color['--color-err'], lineHeight: libraryVars.bodyLineHeight,
-  },
-  warnings: {
-    display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-2)', columnGap: 'var(--vv-s-2)',
-    marginTop: 'var(--vv-s-2)', marginRight: 0, marginBottom: 0, marginLeft: 0,
-    paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 'var(--vv-s-14)',
-    fontSize: 'var(--vv-s-12)', color: color['--color-fg-3'], lineHeight: libraryVars.bodyLineHeight,
   },
 })

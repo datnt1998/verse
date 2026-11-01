@@ -6,7 +6,7 @@ import { libraryVars } from './libraryTokens.stylex'
 // thêm bằng kéo thả/chọn tệp (multipart /api/overlays), bỏ hiệu ứng = tombstone
 // (template đang dùng vẫn giữ nó).
 import { useRef, useState } from 'react'
-import { Banner, Icon, Spinner, confirm } from '@noverse/ui'
+import { Banner, Button, Icon, Spinner, confirm } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { useResource } from '../../data/useResource'
@@ -45,9 +45,7 @@ function OverlayTile({ overlay, onRemove }: { overlay: Overlay; onRemove: () => 
       <div className={`vlb-ofoot ${stylex.props(sx.ofoot).className}`}>
         <span className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.usedText(overlay.usedBy.map((ref) => ref.name))}</span>
         {overlay.builtIn === '' && (
-          <button type="button" className={`vlb-iconbtn ${stylex.props(sx.iconbtn).className}`} aria-label={copy.removeAria(overlay.name)} onClick={onRemove}>
-            <Icon name="trash" size={14} />
-          </button>
+          <Button variant="icon" size="sm" className="vlb-iconbtn" xstyle={sx.iconbtn} aria-label={copy.removeAria(overlay.name)} onClick={onRemove} icon={<Icon name="trash" size={14} />} />
         )}
       </div>
     </article>

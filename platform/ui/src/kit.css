@@ -177,6 +177,7 @@ html[data-standalone]{ --m-edge: 40px }
 @keyframes kit-select-pop { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes kit-select-wave { 0%, 100% { height: 4px; } 50% { height: 12px; } }
 @keyframes kit-select-spin { to { transform: rotate(360deg); } }
+@keyframes kit-indet { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
 @keyframes kit-select-skeleton { from { background-position: 100% 0; } to { background-position: -100% 0; } }
 
 

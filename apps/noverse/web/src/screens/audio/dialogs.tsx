@@ -49,7 +49,7 @@ export function AddVoiceDialog({ onClose, onUpload }: {
   }
 
   return (
-    <Dialog title={t.audio.dialogs.themMauGiong} icon={<Icon name="microphone-2" size={16} />} onClose={onClose} width={460}
+    <Dialog padBody={false} title={t.audio.dialogs.themMauGiong} icon={<Icon name="microphone-2" size={16} />} onClose={onClose} width={460}
       footer={<>
         <Button variant="ghost" onClick={onClose}>{t.audio.dialogs.thoi}</Button>
         <Button variant="primary" onClick={() => void submit()} disabled={busy}>{busy ? t.audio.dialogs.dangTai : t.audio.dialogs.themMauGiong}</Button>

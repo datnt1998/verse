@@ -5,6 +5,8 @@ import { color, kit, tint } from './tokens.stylex'
 import { Icon } from './Icon'
 import './kit.css'
 
+const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
+
 const spin = stylex.create({
   base: {
     display: 'inline-block', boxSizing: 'border-box', verticalAlign: 'middle',
@@ -27,11 +29,22 @@ export function Shimmer({ children, style }: { children: ReactNode; style?: CSSP
 const bar = stylex.create({
   track: (height: string) => ({ height, borderRadius: height, backgroundColor: color['--color-surface-5'], overflow: 'hidden' }),
   fill: (width: string, height: string, fill: string) => ({ width, height: '100%', borderRadius: height }),
+  /* Chưa biết % (máy chủ đang xử lý): dải chạy qua lại, không bịa số. */
+  indet: (height: string, fill: string) => ({
+    width: '35%', height: '100%', borderRadius: height, backgroundColor: fill,
+    animationName: { default: 'kit-indet', [NO_MOTION]: 'none' },
+    animationDuration: '1.2s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite',
+  }),
 })
 
-export function ProgressBar({ value, tone = 'neutral', height = 3, style }: {
-  /** 0–100 */
-  value: number; tone?: 'neutral' | 'writer' | 'info' | 'ok' | 'warn' | 'err'; height?: number; style?: CSSProperties
+export function ProgressBar({ value, tone = 'neutral', height = 3, indeterminate = false, label, style }: {
+  /** 0–100 (bỏ qua khi `indeterminate`). */
+  value?: number; tone?: 'neutral' | 'writer' | 'info' | 'ok' | 'warn' | 'err'; height?: number
+  /** Chưa biết tiến độ: dải chạy, `role=progressbar` không có aria-valuenow. */
+  indeterminate?: boolean
+  /** Tên đọc cho trình đọc màn hình khi thanh đứng riêng. */
+  label?: string
+  style?: CSSProperties
 }) {
   const fill = tone === 'writer' ? 'var(--grad-writer-progress)'
     : tone === 'ok' ? 'var(--color-ok)'
@@ -40,9 +53,17 @@ export function ProgressBar({ value, tone = 'neutral', height = 3, style }: {
     : tone === 'info' ? 'var(--color-info)'
     : 'var(--color-fg)'
   const outer = stylex.props(bar.track(`${height}px`))
-  const inner = stylex.props(bar.fill(`${Math.min(100, Math.max(0, value))}%`, `${height}px`, fill))
+  if (indeterminate) {
+    const inner = stylex.props(bar.indet(`${height}px`, fill))
+    return (
+      <div role="progressbar" aria-label={label} className={outer.className} style={{ ...outer.style, ...style }}>
+        <div className={inner.className} style={inner.style} />
+      </div>
+    )
+  }
+  const inner = stylex.props(bar.fill(`${Math.min(100, Math.max(0, value ?? 0))}%`, `${height}px`, fill))
   return (
-    <div role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}
+    <div role="progressbar" aria-label={label} aria-valuenow={Math.round(value ?? 0)} aria-valuemin={0} aria-valuemax={100}
       className={outer.className} style={{ ...outer.style, ...style }}>
       <div className={inner.className} style={{ ...inner.style, background: fill }} />
     </div>

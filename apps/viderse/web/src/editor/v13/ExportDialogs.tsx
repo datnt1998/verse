@@ -12,7 +12,7 @@ export function ExportingDialog({ seconds, fps, progress, onCancel }: { seconds:
   const percent = progress?.framesTotal ? Math.round((progress.framesDone ?? 0) / progress.framesTotal * 100) : progress?.bytesTotal ? Math.round((progress.bytesSent ?? 0) / progress.bytesTotal * 100) : null
   const rendered = progress?.phase === 'uploading' || progress?.phase === 'compressing'
   const compressing = progress?.phase === 'compressing'
-  return <Dialog label="Đang xuất video" width={520}><div {...stylex.props(sx.dialogBody)}>
+  return <Dialog label="Đang xuất video" width={520} padBody={false}><div {...stylex.props(sx.dialogBody)}>
     <div {...stylex.props(s.row)}><Spinner size={22} /><h2 {...stylex.props(sx.dialogTitle, sx.spread)}>Đang xuất video</h2><span {...stylex.props(sx.secondary)}>{percent != null ? `${percent}%` : compressing ? 'Mã hoá MP4' : progress?.phase === 'rendering' ? 'Dựng khung hình' : 'Đang chuẩn bị…'}</span></div>
     <span {...stylex.props(s.meta)}>1080p · {fps} fps · toàn bộ {rangeTime(seconds)} · nén sau khi xuất</span>
     <div role="progressbar" aria-label="Tiến độ xuất" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent ?? undefined} {...stylex.props(sx.scoreTrack)}><span {...stylex.props(sx.scoreFill(percent ?? 0, true))} /></div>
@@ -31,7 +31,7 @@ export function ExportDoneDialog({ seconds, bytes, download, onClose, onBack }: 
   const [playing, setPlaying] = useState(false)
   const [error, setError] = useState<string>()
   const play = () => { void video.current?.play().catch(cause => setError(cause instanceof Error ? cause.message : String(cause))) }
-  return <Dialog label="Đã xuất MP4" width={520} onClose={onClose}><div {...stylex.props(sx.dialogBody)}>
+  return <Dialog label="Đã xuất MP4" width={520} onClose={onClose} padBody={false}><div {...stylex.props(sx.dialogBody)}>
     <div {...stylex.props(s.row)}><Icon name="tick-b" size={22} {...stylex.props(sx.ok)} /><h2 {...stylex.props(sx.dialogTitle, sx.spread)}>Đã xuất MP4</h2><span {...stylex.props(s.meta)}>{rangeTime(seconds)}{bytes != null ? ` · ${formatBytes(bytes)}` : ''}</span></div>
     {download && <div {...stylex.props(s.videoFrame)}><video ref={video} controls={playing} src={download} preload="metadata" aria-label="Bản vừa xuất" {...stylex.props(s.video)} onPlay={() => { setPlaying(true); setError(undefined) }} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />{!playing && <><button type="button" aria-label="Phát bản vừa xuất" {...stylex.props(s.play)} onClick={play}><Icon name="play" size={20} /></button><span {...stylex.props(s.duration)}>{rangeTime(seconds)}</span></>}</div>}
     {error && <p role="alert" {...stylex.props(sx.dialogCopy)}>{error}</p>}

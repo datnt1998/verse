@@ -106,7 +106,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
   useSaveShortcut(submit, !invalid && !action.busy)
 
   return (
-    <Dialog title={t.dialogs.newProject} width={760} onClose={onClose}
+    <Dialog padBody={false} title={t.dialogs.newProject} width={760} onClose={onClose}
       icon={<Icon name="folder-open" size={18} xstyle={sx.accent} />}
       footer={<>
         <Button onClick={onClose}>{t.dialogs.cancel}</Button>

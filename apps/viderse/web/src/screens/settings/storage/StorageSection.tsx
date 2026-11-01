@@ -695,7 +695,7 @@ function LocalStorageSection() {
         }} />
       </Sheet>
     ) : (
-      <Dialog title={t.storage.picker.title} onClose={() => setPick((p) => ({ ...p, browse: false }))} width={640}>
+      <Dialog title={t.storage.picker.title} onClose={() => setPick((p) => ({ ...p, browse: false }))} width={640} padBody={false}>
         <FolderBrowser path={pick.chosen} onPick={(p) => {
           if (p.startsWith('use:')) setPick((s) => ({ ...s, chosen: p.slice(4), browse: false }))
           else setPick((s) => ({ ...s, chosen: p }))

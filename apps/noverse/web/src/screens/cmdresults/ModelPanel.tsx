@@ -125,7 +125,7 @@ export function ModelPanel({ project, story, role, onClose }: {
   const canSave = (changed.length > 0 || dirty > 0) && !saveAction.busy && !contextChanges.some(entry => entry.draft.mode === 'custom' && contextThousands(entry.draft.value) === null)
 
   return (
-    <Dialog onClose={close} width={900} style={{ height: 600, maxHeight: '100%', overflow: 'hidden' }}>
+    <Dialog padBody={false} onClose={close} width={900} style={{ height: 600, maxHeight: '100%', overflow: 'hidden' }}>
       <div className="cr-dlg-in" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <h2 id="cr-model-h" style={{ margin: 0, flex: 1, fontSize: 16, fontWeight: 600 }}>Model cho từng trợ lý</h2>

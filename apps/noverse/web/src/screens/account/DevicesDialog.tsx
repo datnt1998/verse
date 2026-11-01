@@ -64,7 +64,7 @@ export function DevicesDialog({ onClose }: { onClose: () => void }) {
   useSaveShortcut(submitPassword, canChange)
 
   return (
-    <Dialog
+    <Dialog padBody={false}
       title="Thiết bị & bảo mật"
       icon={<Icon name="shield-security-bulk" size={20} style={{ color: 'var(--color-accent)' }} />}
       onClose={onClose}

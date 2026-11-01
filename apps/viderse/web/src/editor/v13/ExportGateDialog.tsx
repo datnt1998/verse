@@ -16,7 +16,7 @@ export function ExportGateDialog({ quality, ranges, onAccept, onContinue, onClos
     : blockers.length ? 'Video còn điều kiện bắt buộc chưa đạt.'
       : quality?.changedSinceMeasure ? 'Bản vừa sửa cần đo lại để cập nhật điểm.'
         : 'Chưa có kết quả đo mới đủ điều kiện xuất.'
-  return <Dialog label="Xuất khi chưa đạt độ hoàn thiện?" alertDialog width={460} onClose={onClose}>
+  return <Dialog label="Xuất khi chưa đạt độ hoàn thiện?" alertDialog width={460} onClose={onClose} padBody={false}>
     <div {...stylex.props(sx.dialogBody)}>
       <div {...stylex.props(s.head)}><span {...stylex.props(s.icon)}><Icon name="warning" size={20} /></span><div {...stylex.props(s.text)}><h2 {...stylex.props(s.title)}>Xuất khi chưa đạt độ hoàn thiện?</h2><p {...stylex.props(s.description)}>{score ?? 'Chưa đo'}/100, cần 90. {explanation}</p></div></div>
       <ul {...stylex.props(s.list)}>

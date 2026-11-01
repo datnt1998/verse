@@ -396,7 +396,7 @@ export function QrLoginDialog({ platformId, pausedUntil, open, mobile, onClose, 
 
   if (!open) return null
   return (
-    <Dialog onClose={onClose} label={t.qrTitle} width={620} scrimStyle={settingsStyles.qrScrim}>
+    <Dialog onClose={onClose} label={t.qrTitle} width={620} padBody={false} scrimStyle={settingsStyles.qrScrim}>
       <div className={`sacc-qr-dialog ${stylex.props(settingsStyles.saccQrDialog).className}`}>
         <div className={`sacc-qr-head ${stylex.props(settingsStyles.saccQrHead).className}`}>
           <span className={`sacc-qr-head__icon ${stylex.props(settingsStyles.saccQrHeadIcon).className}`}><Icon name="scan-line" size={20} /></span>

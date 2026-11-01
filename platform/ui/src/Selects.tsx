@@ -116,6 +116,12 @@ export type KitSelectProps = {
   chevronSize?: number
   /** Chữ đứng yên trước giá trị trong nút mở, vd “Kênh” / “Template”. */
   prefix?: ReactNode
+  /** Bề rộng popover (px) khi nút mở hẹp hơn danh sách — ChipSelect dùng 240. */
+  popWidth?: number
+  /** Kiểu của chính giá trị đang chọn (ChipSelect in đậm giá trị như `.vv-chip b`). */
+  valueStyle?: stylex.StyleXStyles
+  /** Nhấn thu nút mở còn 98% (`.vv-chip:active`). */
+  pressScale?: boolean
 }
 
 export type RichSelectProps = KitSelectProps & {
@@ -232,6 +238,19 @@ const sx = stylex.create({
   trgCompact: { paddingTop: 0, paddingBottom: 0, paddingLeft: 10, paddingRight: 8, borderRadius: 8, fontSize: 12 },
   trgCompactH: { height: 32 },
   trgRole: { height: 32, paddingLeft: 12, paddingRight: 10, borderRadius: 9, fontSize: 13 },
+  /* ChipSelect — `.vv-chip` của kit (Kit.dc.html › Huy hiệu · chip): 28 px, chữ 12,
+     bo 8, nền surface-1, viền field; điện thoại cao 44. Mũi tên lật 180 ms có sẵn
+     ở `chev`, nhấn thu .98 ở `.vv-chip:active` (kit.css › motion:controls). */
+  chipTrg: {
+    width: 'auto', height: 28, gap: 6, paddingLeft: 10, paddingRight: 8, borderRadius: 8,
+    fontSize: 12, color: color['--color-fg-2'],
+    backgroundColor: { default: color['--color-surface-1'], ':hover': kit['--kit-surface-18'] },
+    borderColor: { default: line['--line-4'], ':hover': kit['--kit-wash-22'] },
+  },
+  chipPress: { transform: { ':active': 'scale(.98)' } },
+  chipTrgM: { height: 44, paddingLeft: 12, paddingRight: 10, borderRadius: 12, fontSize: 12.5 },
+  chipCustom: { borderColor: kit['--kit-warn-30'] },
+  chipValue: { flex: '1 1 auto', minWidth: 0, fontWeight: 500, color: color['--color-fg'], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   trgRoleDisabled: { opacity: .6 },
   chev: { flexShrink: 0, transition: { default: 'transform .18s', [NO_MOTION]: 'none' }, color: color['--color-fg-4'] },
   chevOpen: { transform: 'rotate(180deg)' },
@@ -418,9 +437,9 @@ function WaveBars() {
   return <span aria-hidden="true" {...stylex.props(sx.eq)}><span {...stylex.props(sx.eqBar)} /><span {...stylex.props(sx.eqBar, sx.eqDelay('-.3s'))} /><span {...stylex.props(sx.eqBar, sx.eqDelay('-.6s'))} /></span>
 }
 
-function Pop({ max, children, onKeyDown, upward = false, model = false, role = false }: { max: number; children: ReactNode; onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void; upward?: boolean; model?: boolean; role?: boolean }) {
+function Pop({ max, children, onKeyDown, upward = false, model = false, role = false, width }: { max: number; children: ReactNode; onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void; upward?: boolean; model?: boolean; role?: boolean; width?: number }) {
   const p = stylex.props(sx.pop(`${max}px`), role && sx.popRole, upward && sx.popUp, model && sx.popModel, model && upward && sx.popModelUp)
-  return <div data-select-pop data-placement={upward ? 'top' : 'bottom'} className={p.className} style={p.style} onKeyDown={onKeyDown}>{children}</div>
+  return <div data-select-pop data-placement={upward ? 'top' : 'bottom'} className={p.className} style={{ ...p.style, ...(width ? { width, right: 'auto' } : {}) }} onKeyDown={onKeyDown}>{children}</div>
 }
 
 function GroupLabel({ children, count }: { children: ReactNode; count?: number }) {
@@ -432,7 +451,7 @@ function FooterAction({ icon, tone, children, onClick, action }: { icon: string;
   return <button type="button" {...stylex.props(sx.opt)} data-select-action={action || undefined} onMouseDown={(event) => event.preventDefault()} onClick={onClick}><Icon name={icon} size={15} style={{ color: tone }} /><span {...stylex.props(sx.footerLabel)}>{children}</span></button>
 }
 
-function SelectList({ rich = false, inlineDescription, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant, xstyle, triggerStyle, chevronSize, prefix }: RichSelectProps & { rich?: boolean }) {
+function SelectList({ rich = false, inlineDescription, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant, xstyle, triggerStyle, chevronSize, prefix, popWidth, valueStyle, pressScale }: RichSelectProps & { rich?: boolean }) {
   const generatedId = useId()
   const id = suppliedId ?? generatedId
   const L = getKitLabels().selects
@@ -494,6 +513,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
     inlineDescription && sx.modelTrigger,
     variant === 'project-role' && sx.trgRole,
     variant === 'project-role' && disabled && sx.trgRoleDisabled,
+    pressScale && sx.chipPress,
     triggerStyle,
   )
   const chev = stylex.props(sx.chev, open && sx.chevOpen)
@@ -507,14 +527,14 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
         {prefix != null && <span {...stylex.props(sx.prefix)}>{prefix}</span>}
         {selected
           ? <span {...stylex.props(sx.valueCol, rich && sx.valueRich, inlineDescription && sx.valueInline)}>
-            <span {...stylex.props(inlineDescription ? sx.modelName : sx.valueLabel)}>{selected.label}</span>
+            <span {...stylex.props(inlineDescription ? sx.modelName : sx.valueLabel, valueStyle)}>{selected.label}</span>
             {inlineDescription && selected.description && <span {...stylex.props(sx.modelDesc)}>· {selected.description}</span>}
             {rich && selected.description && <span {...stylex.props(sx.desc, sx.valueLabel)}>{selected.description}</span>}
           </span>
           : <span {...stylex.props(sx.valuePlaceholder)}>{ph}</span>}
         <Icon name="arrow-down-2" size={chevronSize ?? 15} className={chev.className} style={chev.style} />
       </button>
-      {open && <Pop max={variant === 'project-role' ? 400 : 300} upward={upward} model={inlineDescription} role={variant === 'project-role'}>
+      {open && <Pop max={variant === 'project-role' ? 400 : 300} upward={upward} model={inlineDescription} role={variant === 'project-role'} width={popWidth}>
         <div id={`${id}-list`} role="listbox" aria-label={ariaLabel ?? label ?? L.options}>
           {options.length === 0 && <div role="status" {...stylex.props(sx.small, sx.empty)}>{L.empty}</div>}
           {options.map((option, index) => {
@@ -553,6 +573,30 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
 
 export function KitSelect(props: KitSelectProps) { return <SelectList {...props} /> }
 export function RichSelect(props: RichSelectProps) { return <SelectList {...props} rich /> }
+
+export type ChipSelectProps = Omit<KitSelectProps, 'label'> & {
+  /** Tên đọc cho trình đọc màn hình (chip không có nhãn nhìn thấy). */
+  label: string
+  /** `sm` 28 px (máy tính) · `m` 44 px (điện thoại). */
+  size?: 'sm' | 'm'
+  /** `.is-custom` — viền cam nhạt cho giá trị người dùng tự đặt (“riêng”). */
+  custom?: boolean
+}
+
+/**
+ * Chip chọn “khoá : giá trị ▾” (04-components › ChipSelect · Kit.dc.html):
+ * nút `.vv-chip` mở danh sách chọn một. Mũi tên lật 180 ms, nhấn thu .98,
+ * popover mở bằng chuyển động của kit; tôn trọng `prefers-reduced-motion`.
+ */
+export function ChipSelect({ label, size = 'sm', custom, triggerStyle, chevronSize, valueStyle, ...rest }: ChipSelectProps) {
+  return <KitSelect {...rest}
+    aria-label={rest['aria-label'] ?? label}
+    pressScale
+    chevronSize={chevronSize ?? 13}
+    popWidth={rest.popWidth ?? 240}
+    triggerStyle={[sx.chipTrg, size === 'm' && sx.chipTrgM, custom && sx.chipCustom, triggerStyle]}
+    valueStyle={[sx.chipValue, valueStyle]} />
+}
 
 function Highlight({ label, query }: { label: string; query: string }) {
   const needle = normalize(query.trim())

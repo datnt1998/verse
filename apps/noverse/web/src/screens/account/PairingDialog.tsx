@@ -92,7 +92,7 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
   }
 
   return (
-    <Dialog
+    <Dialog padBody={false}
       title={t.qr.title}
       icon={<Icon name="mobile-bulk" size={20} style={{ color: 'var(--color-accent)' }} />}
       onClose={onClose}

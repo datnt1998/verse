@@ -14,7 +14,7 @@ export function StartFileDialog({ onClose, onSubmit, busy, pending }: {
   useUnsavedGuard(!!path.trim() && !busy)
   useSaveShortcut(submit, !!path.trim() && !busy)
   return (
-    <Dialog title="Bắt đầu từ tệp" icon={<Icon name="document-text" size={18} style={{ color: 'var(--color-accent)' }} />}
+    <Dialog padBody={false} title="Bắt đầu từ tệp" icon={<Icon name="document-text" size={18} style={{ color: 'var(--color-accent)' }} />}
       onClose={onClose} width={560}
       footer={<>
         <Button onClick={onClose}>Huỷ</Button>
