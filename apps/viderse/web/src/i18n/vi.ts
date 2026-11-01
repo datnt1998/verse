@@ -52,6 +52,8 @@ export const base = {
     reviewBadge: (n: number) => `${n} video cần duyệt`,
   },
   shell: {
+    storageDown: { title: shared.storageStripTitle, body: shared.storageDownBody, held: shared.storageHeld, open: shared.storageOpen },
+    serverSettingsCrumb: shared.storageServerTitle,
     jobsIdle: (_queued: number) => 'Máy rảnh',
     jobsIdleCompact: 'Rảnh',
     jobsIdleTip: 'Không video nào đang chạy hay chờ lượt',
