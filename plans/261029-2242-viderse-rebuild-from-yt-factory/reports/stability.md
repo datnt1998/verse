@@ -110,20 +110,25 @@ kể cả khi ảnh đã vẽ xong và kênh đặt tự duyệt (`autonomy.appr
 trực tiếp khiến bước “Ổn định” không thể chạy các kịch bản 2–5 ở §3, và cũng chặn mục “một video đi
 hết chuỗi tới export” của plan.
 
-**Sửa tối thiểu (đề xuất, chưa áp dụng).** Khi chủ duyệt ảnh (“Duyệt cả video & dựng” →
-`images.Service.ApproveAll`), duyệt luôn bản phân tích cảnh đang chờ: đọc `scenes/manifest.json` hiện
-tại, nếu `Pending != nil` thì `scenes.Approve(m, m.Pending.Fingerprint, now)`, publish lại artifact
-`scenes/manifest.json` (revision +1) trong cùng lượt commit của lần duyệt ảnh. Không đụng cổng ở
-`build` (vẫn là hàng rào thật), chỉ nối đúng thao tác design đã có.
+**Sửa tối thiểu (đã áp dụng, commit `046a92c7`).** `scenes` công bố luôn bản phân tích đã
+được chấp nhận thay vì để `Pending`: `m.Approval = &Approval{Fingerprint, ApprovedAt}` và
+`m.Pending = nil` (`internal/pipeline/steps/scenes/handler.go:193`). Lý do: design V3 chỉ duyệt
+**ảnh**; không có màn/route nào duyệt cảnh, nên cổng `Pending` là hàng rào không có cửa. Sửa cảnh
+sau đó vẫn tăng revision và xoá cả hai trường (`ApplyEdits`), cổng ở `build` giữ nguyên.
 
-**Test hỏng-trước.** `internal/clone/images/service_test.go`:
-`TestApproveAllClearsPendingSceneAnalysis` — dựng store giả có `scenes/manifest.json` với `Pending != nil`,
-gọi `ApproveAll(job, revision, ApproveExport:true)`, rồi `build.validateBuildRecipe` (hoặc đọc artifact
-sau khi duyệt) phải thấy `Pending == nil` và `Approval.Fingerprint == Pending.Fingerprint`.
-Trước khi sửa: `pending scene analysis still blocks build` (hiện `manifest.Pending != nil` sau duyệt).
-Test này chưa được viết vì hết ngân sách lượt chạy; ghi lại để người sau làm đúng thứ tự hỏng-trước.
+**Test hỏng-trước.** `TestScenesPublishAcceptedAnalysisWithoutPendingReview`
+(`internal/pipeline/steps/scenes/handler_test.go`) — chạy trên mã cũ:
+`--- FAIL: TestScenesPublishAcceptedAnalysisWithoutPendingReview … scene analysis left pending: build would wait for a review screen that does not exist`;
+sau khi sửa: `ok … 0.565s`, và `go test -run 'Build|Template|Recipe' ./internal/pipeline/steps/build/`
+vẫn `ok` (cổng `build` cho `Pending` vẫn được kiểm bởi test cũ).
+Chưa chạy lại end-to-end trên serve sau khi sửa (xem §6 bước 0).
 
 ## 6. Kịch bản còn lại — đúng lệnh để chạy sau khi §5 được sửa
+
+0. **Chạy lại end-to-end sau khi sửa (việc đầu tiên).** `serve.sh setup 18911` (build lại từ HEAD
+   đã có `046a92c7`), dựng lại kênh/template/video nguồn như §1, xếp 1 job, chờ qua `build` → `score`
+   → `export`; nếu `score` báo chưa đạt thì bấm “Vẫn xuất” (`POST /api/clone/<id> {action:"run"}` sau
+   khi chấp nhận cổng chất lượng) để đi hết chuỗi.
 
 1. **10 video / 3 kênh tới `images`.** `for i in 1..10: POST /api/clone {channelId:<kênh i%3>, urls:["https://www.youtube.com/watch?v=stab000000$i"], noImages:false}`;
    theo dõi `select step,status,error from clone_steps where job_id=…`. Hạn mức 1 ảnh/ngày ⇒ 1 job qua
