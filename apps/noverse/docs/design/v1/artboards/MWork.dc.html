@@ -134,6 +134,7 @@ button:disabled{cursor:not-allowed}
 .agshim{--sb:color-mix(in srgb,rgb(var(--rgb)) 72%,#FFFFFF);background:linear-gradient(90deg,var(--sb) 0%,var(--sb) 30%,#FFFFFF 45%,#FFFFFF 55%,var(--sb) 70%,var(--sb) 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent !important;animation:agshimk 2.2s linear infinite}
 @keyframes agshimk{from{background-position:100% 0}to{background-position:-100% 0}}
 @media (prefers-reduced-motion:reduce){.agshim{animation:none;background:none;color:var(--fg) !important}.agorb.on .orb,.aghalo,.agspec,.agspec i{animation:none}.aghalo{opacity:.5}}
+.i-add-square{-webkit-mask-image:url(../icons/add-square.svg);mask-image:url(../icons/add-square.svg)}
 .i-arrow-d{-webkit-mask-image:url(../icons/arrow-down-2.svg);mask-image:url(../icons/arrow-down-2.svg)}
 .i-arrow-l{-webkit-mask-image:url(../icons/arrow-left-2.svg);mask-image:url(../icons/arrow-left-2.svg)}
 .i-arrow-r{-webkit-mask-image:url(../icons/arrow-right-2.svg);mask-image:url(../icons/arrow-right-2.svg)}
@@ -229,10 +230,11 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 <div class="rise" style="padding: 70px 30px 0; display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center">
 <span aria-hidden="true" class="celebrate" style="position: relative; width: 120px; height: 90px"><span class="orb o-architect" style="position: absolute; left: 6px; top: 34px; width: 34px; height: 34px"></span><span class="orb o-writer" style="position: absolute; left: 38px; top: 6px; width: 46px; height: 46px"></span><span class="orb o-editor" style="position: absolute; right: 6px; top: 40px; width: 30px; height: 30px"></span><span class="orb o-arbiter" style="position: absolute; left: 50px; bottom: 0; width: 24px; height: 24px"></span></span>
 <span style="font-size: 21px; font-weight: 600">Chưa có truyện nào</span>
-<span style="font-size: 15px; color: #A0A0AB">Tạo truyện mới hoặc nhập truyện có sẵn trên máy tính. Khi truyện bắt đầu, bạn theo dõi và duyệt ngay tại đây.</span>
+<span style="font-size: 15px; color: #A0A0AB">Tạo truyện mới ngay tại đây, hoặc mở truyện có sẵn. Khi truyện bắt đầu, bạn theo dõi và duyệt ở màn này.</span>
 <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px">
-<a class="mbtn pri tap" href="MMore.dc.html">Mở truyện có sẵn</a>
-<a class="mbtn gho tap" href="MNotify.dc.html">Báo tôi khi có truyện mới</a>
+<a class="mbtn pri tap" href="MNewStory.dc.html"><span class="ic i-add-square" aria-hidden="true" style="width: 19px; height: 19px"></span>Tạo truyện mới</a>
+<a class="mbtn gho tap" href="MMore.dc.html">Mở truyện có sẵn</a>
+<a class="tap" href="MNotify.dc.html" style="align-self: center; min-height: 44px; display: flex; align-items: center; font-size: 14.5px; color: #A0A0AB">Báo tôi khi có truyện mới</a>
 </div>
 </div>
 </sc-if>

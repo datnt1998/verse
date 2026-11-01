@@ -198,7 +198,7 @@
       "y": 0,
       "w": 390,
       "h": 844,
-      "title": "M1 · Viết — agent, trạng thái, lệnh /, ngoại tuyến, bàn phím · lối sang Truyện (M9) và Luồng viết (M1b) (Gói AQ)",
+      "title": "M1 · Viết — agent, trạng thái, lệnh /, ngoại tuyến, bàn phím · lối sang Truyện (M9), Luồng viết (M1b), Truyện mới (M11 · Gói AR)",
       "is_interactive": true,
       "page": "mobile",
       "radius": 44
@@ -458,6 +458,17 @@
       "x": 1520,
       "y": 4380,
       "page": "desktop"
+    },
+    "MNewStory.dc.html": {
+      "expand": "fill",
+      "h": 844,
+      "is_interactive": true,
+      "title": "M11 · Truyện mới — Bắt đầu nhanh, Đồng sáng tác, so với truyện trước, 3 cách khác (Gói AR: mode, state, check, co, sheet, alt)",
+      "w": 390,
+      "x": 5290,
+      "y": 0,
+      "page": "mobile",
+      "radius": 44
     }
   },
   "createdOnFiles": {
@@ -482,7 +493,7 @@
       "y": -300,
       "text": "Noverse — Điện thoại",
       "kind": "title1",
-      "maxW": 5300,
+      "maxW": 5770,
       "w": 240,
       "page": "mobile"
     }
@@ -519,6 +530,7 @@
     "Kit.dc.html",
     "Nav.dc.html",
     "ScrollTop.dc.html",
+    "MNewStory.dc.html",
     "MWork.dc.html",
     "MRun.dc.html",
     "MReader.dc.html",

@@ -953,3 +953,14 @@ Quyết định của chủ sản phẩm (01/11/2026): bỏ hẳn tuỳ chọn c
 | `Phone` | chip mạng “Wi-Fi nhà” / “Tailscale” ở đầu màn | Bỏ chip; lời giải thích camera chỉ nói trình duyệt cần kết nối https |
 
 Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` trong `serve.json` (tệp cũ còn khoá này vẫn đọc được) và trường `lan` của `GET /api/system`; `POST /api/me/pairings` và `POST /api/users/:u/pairings` trả đúng một liên kết, không dò card mạng. Giới hạn loopback của local SSO giữ nguyên.
+
+## Gói AR — Truyện mới trên điện thoại · trả lời “Gói AQ — lệch khi triển khai” (01/11/2026, canvas 135) <!-- ar-gap-closure -->
+
+| # | Chỗ dev nêu | Quyết định design | Artboard |
+|---|---|---|---|
+| AM-7 | Không có artboard Tạo truyện mới cho điện thoại; app thu hẹp QuickMode | **Vẽ M11** — bố cục riêng, cùng logic và dữ liệu. | `MNewStory` |
+| AQ-lệch 1 | Tiêu đề vòng cũ không có `title` → “Vòng N · {vai} · hh:mm” | **Xác nhận.** Không suy tiêu đề từ chữ tự do. | `RunCards`, `MRun` |
+| AQ-lệch 2 | Huy hiệu Quản trị trên `MMore` còn tím | **Sửa board**: `#E3C99E` / `rgba(184,154,110,.14)` như mọi huy hiệu Quản trị. | `MMore` home |
+| AQ-lệch 3 | M9 `found=partial`: API chỉ báo thiếu mục bắt buộc của tier | **Xác nhận** — danh sách mục thiếu lấy từ API; board chỉ minh hoạ. Chiều cao khác board là đúng. | `MOutline` |
+| AQ-lệch 4 | Màu vai Đồng phạm chưa có token | **Chốt tên** `--role-accomplice-fg: #E8A3AA`, `--role-accomplice-bg: rgba(255,154,162,.06)` (đã thêm `tokens.css`). Board M9 sửa nền 0,08 → 0,06 cho khớp máy tính. | `MOutline`, `Outline` |
+| Máy tính · Mô phỏng văn phong | Nút tạo truyện rồi chạy học văn phong khi chưa có văn mẫu → lỗi | **Đổi**: dán văn mẫu trước (hộp thoại máy tính = ngăn M11). | `MNewStory` `sheet=samples` |

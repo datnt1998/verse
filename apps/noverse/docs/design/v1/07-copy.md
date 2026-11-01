@@ -278,3 +278,21 @@ Câu “vì sao phải đăng nhập lại” ở `09-auth-onboard.md` §12.3.
 | Tên thẻ | xem `20-settings-rules.md` §10 |
 | M9 | Truyện · Nhờ Kiến trúc sư · Gửi cho Kiến trúc sư · trả lời ở tab Viết · Nhờ Kiến trúc sư đổi định hướng · So với các truyện khác ở Não dự án |
 | M10 | Sổ cái · Vũ trụ · Tìm · Tần suất theo trục · Truyện · Chỉ truyện trùng · Chạm một giá trị để xem truyện nào đã dùng. |
+
+## Bảng từ: Gói AR (01/11) <!-- ar-copy -->
+
+| Chỗ | Câu |
+|---|---|
+| M11 thanh đầu | Truyện mới · Lưu vào {dự án} |
+| M11 ô yêu cầu (điện thoại) | Nhập yêu cầu sáng tác truyện (không nhắc Enter) |
+| M11 lý do khoá | Nhập ý tưởng hoặc yêu cầu sáng tác để bắt đầu. · Mất kết nối — chờ kết nối lại để bắt đầu. · Còn 1 mục Bắt sửa. Đổi trục để bắt đầu. · Đang tạo truyện để nhập bản thảo… · Đang tạo truyện để học văn phong… |
+| M11 ngoại tuyến | Mất kết nối · bản đang gõ vẫn được giữ |
+| M11 lỗi | Khởi tạo thất bại, vui lòng kiểm tra cấu hình hoặc đổi mô hình · nút Thử lại |
+| M11 Người viết · chân ngăn | Thêm model ở Kết nối AI trong Tuỳ chỉnh trên máy tính. |
+| M11 Bắt đầu từ tệp | Chọn tệp thiết lập hoặc đại cương đã có trong dự án để AI viết tiếp từ đó. · Tên tệp · Tên truyện tạm lấy theo tên tệp; Kiến trúc sư đặt lại tên sau khi đọc. · Tạo truyện & bắt đầu |
+| M11 Mô phỏng văn phong | Dán vài đoạn văn bạn thích. Người viết học nhịp câu, cách thoại và chọn từ — không chép nội dung. · Văn mẫu {n} · {n} chữ · Thêm đoạn · Chọn tệp văn bản · Văn mẫu lưu vào truyện mới; thêm hoặc xoá sau ở Cách viết của truyện. · Tạo truyện & học văn phong |
+| M11 Đồng sáng tác trống | Kể ý tưởng của bạn · Một câu cũng được. Trò chuyện làm rõ yêu cầu cùng AI trước khi viết; sau mỗi lượt, AI cập nhật bản nháp yêu cầu ở dưới. · ô: Kể ý tưởng truyện của bạn… |
+| M11 Bản nháp yêu cầu | Chưa có · Đang làm rõ · Đang cập nhật · Sẵn sàng viết · AI cập nhật sau mỗi lượt trao đổi · Khi bắt đầu, toàn bộ nội dung trên trở thành yêu cầu sáng tác. · Chờ AI cập nhật xong bản nháp. · Huỷ đồng sáng tác |
+| M1 trống | Chưa có truyện nào · Tạo truyện mới ngay tại đây, hoặc mở truyện có sẵn. Khi truyện bắt đầu, bạn theo dõi và duyệt ở màn này. · Tạo truyện mới · Mở truyện có sẵn · Báo tôi khi có truyện mới |
+| M4 Dự án & truyện | hàng cuối mỗi dự án: Truyện mới |
+| Hướng dẫn lệnh `/start` | nhãn: Dùng ở Truyện mới · nút: Mở Truyện mới |
