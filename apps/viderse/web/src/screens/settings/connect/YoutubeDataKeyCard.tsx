@@ -44,7 +44,7 @@ export function YoutubeDataKeyCard({ mobile = false }: {
     : failed ? { text: c.sub.fail, tone: settingsStyles.connSubErr }
     : data === undefined ? { text: c.sub.loading, tone: null }
     : configured ? { text: c.sub.ok(data.keyHint ?? ''), tone: settingsStyles.connSubOk }
-    : { text: c.sub.empty, tone: null }
+    : { text: c.sub.empty, tone: settingsStyles.connYtSubIdle }
 
   function open() { setEditing(true); setValue(''); setRejected(false) }
 
@@ -135,7 +135,7 @@ export function YoutubeDataKeyCard({ mobile = false }: {
         className={`conn-card ${stylex.props(settingsStyles.card, settingsStyles.connCard, rejected && settingsStyles.connYtCardRejected).className}`}
       >
         <div className={`conn-head ${stylex.props(settingsStyles.connHead).className}`}>
-          <span aria-hidden="true" className={`conn-av ${stylex.props(settingsStyles.connAv).className}`}>{c.avatar}</span>
+          <span aria-hidden="true" className={`conn-av ${stylex.props(settingsStyles.connAv, settingsStyles.connAvYt).className}`}>{c.avatar}</span>
           <div className={`conn-id ${stylex.props(settingsStyles.connId).className}`}>
             <div className={`conn-title ${stylex.props(settingsStyles.connTitle).className}`}>
               <span className={`conn-name ${stylex.props(settingsStyles.connName).className}`}>{c.name}</span>
@@ -166,7 +166,7 @@ export function YoutubeDataKeyCard({ mobile = false }: {
             ) : configured ? (
               <>
                 <Button size={size} variant="ghost" block disabled={locked} onClick={open}>{c.change}</Button>
-                <Button size={size} variant="quiet" block disabled={locked} pending={pending === 'remove'} onClick={() => void remove()}>{c.remove}</Button>
+                <Button size={size} variant="ghost" block disabled={locked} pending={pending === 'remove'} onClick={() => void remove()} xstyle={[settingsStyles.connYtMRemove]}>{c.remove}</Button>
               </>
             ) : (
               <Button size={size} variant="ghost" block disabled={locked} onClick={open}>{c.add}</Button>

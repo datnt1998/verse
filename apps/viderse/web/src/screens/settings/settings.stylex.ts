@@ -309,8 +309,10 @@ export const styles = stylex.create({
   connCardNew: { borderColor: "var(--vv-purple-35)" },
   connCardPending: { borderColor: "var(--vv-amber-30)" },
   connHead: { display: "flex", alignItems: "center", gap: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-12)" }, flexWrap: { default: "wrap", [stylex.when.ancestor(':is(*)', connMMarker)]: "nowrap" } },
-  connAv: { width: { default: "var(--vv-s-36)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-34)" }, height: { default: "var(--vv-s-36)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-34)" }, borderRadius: "50%", flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: { default: "var(--vv-s-14)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-13)" }, fontWeight: 700, backgroundImage: "none", backgroundColor: color["--color-surface-6"], color: color["--color-fg"] },
+  connAv: { width: { default: "var(--vv-s-36)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-34)" }, height: { default: "var(--vv-s-36)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-34)" }, borderRadius: "50%", flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: { default: "var(--vv-s-13)", [stylex.when.ancestor(':is(*)', connMMarker)]: "12.5px" }, fontWeight: 700, backgroundImage: "none", backgroundColor: color["--color-surface-6"], color: color["--color-fg"] },
   connAvChatgpt: { backgroundImage: "none", backgroundColor: "var(--vv-av-chatgpt-bg)", color: "var(--vv-av-chatgpt-ink)" },
+  /* YouTube Data API: avatar sáng “YT” như artboard (nền nền sáng, mực mực đậm). */
+  connAvYt: { backgroundImage: "none", backgroundColor: "var(--vv-av-grok-bg)", color: "var(--vv-av-grok-ink)" },
   connAvGrok: { backgroundImage: "none", backgroundColor: "var(--vv-av-grok-bg)", color: "var(--vv-av-grok-ink)" },
   connAvGemini: { backgroundImage: "none", backgroundColor: "var(--vv-av-gemini-bg)", color: "var(--vv-av-gemini-ink)" },
   connAvOllama: { backgroundImage: "none", backgroundColor: "var(--vv-av-ollama-bg)", color: "var(--vv-av-ollama-ink)" },
@@ -351,14 +353,18 @@ export const styles = stylex.create({
   connYtGroup: { display: "flex", flexDirection: "column", gap: "var(--vv-s-8)", marginTop: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-8)" } },
   connYtHead: { display: "flex", alignItems: "baseline", gap: "var(--vv-s-10)", flexWrap: "wrap", padding: "0 var(--vv-s-2)" },
   connYtTitle: { margin: 0, fontSize: "var(--vv-s-13)", fontWeight: 600, color: color["--color-fg-2"] },
-  connYtGroupSub: { fontSize: "var(--vv-s-12)", color: color["--color-fg-3"] },
+  connYtGroupSub: { fontSize: "var(--vv-s-12)", color: "var(--vv-fg-note)" },
+  /* Dòng phụ chưa có khoá: màu ghi chú như artboard (không phải fg-3). */
+  connYtSubIdle: { color: "var(--vv-fg-note)" },
   /* Điện thoại: tiêu đề và câu phụ xếp dọc, sát nhau (artboard MSettings). */
   connYtHeadMobile: { alignItems: "flex-start", flexDirection: "column", gap: "var(--vv-s-1)" },
   connYtCardRejected: { borderColor: "var(--vv-err-35)" },
-  connYtHint: { display: "flex", gap: "var(--vv-s-7)", fontSize: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: settingsVars.setTipsTitlefontSize }, color: color["--color-fg-3"], lineHeight: 1.5 },
+  connYtHint: { display: "flex", gap: "var(--vv-s-7)", fontSize: { default: "var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: settingsVars.setTipsTitlefontSize }, color: "var(--vv-fg-note)", lineHeight: 1.5 },
   connYtReject: { display: "flex", alignItems: "flex-start", gap: "var(--vv-s-8)", padding: { default: "var(--vv-s-9) var(--vv-s-12)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-s-10) var(--vv-s-12)" }, borderRadius: { default: "var(--vv-r-10)", [stylex.when.ancestor(':is(*)', connMMarker)]: "var(--vv-r-12)" }, backgroundImage: "none", backgroundColor: "var(--vv-warn-bg)", borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: "var(--vv-danger-border)" },
   connYtRejectText: { fontSize: settingsVars.setTipsTitlefontSize, color: "var(--vv-danger-text-2)", lineHeight: 1.5 },
   connYtMActs: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(0, 1fr))", gap: "var(--vv-s-8)" },
+  /* Điện thoại: Gỡ khoá vẫn có viền, chữ dịu hơn (artboard MSettings ytkey=ok). */
+  connYtMRemove: { color: color["--color-fg-2"] },
   connYtHintIcon: { marginTop: "var(--vv-s-2)" },
   connYtRejectIcon: { marginTop: "var(--vv-s-2)", color: "var(--vv-danger)" },
   connYtMEdit: { display: "flex", flexDirection: "column", gap: "var(--vv-s-8)" },

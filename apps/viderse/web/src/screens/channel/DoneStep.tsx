@@ -31,6 +31,7 @@ export function DoneStep({ channelId, onLeave }: {
   const mobile = useMediaQuery('(max-width: 767px)')
   const [retrying, setRetrying] = useState(false)
   const [retryError, setRetryError] = useState<string | null>(null)
+  const [brokenThumbnail, setBrokenThumbnail] = useState<string | null>(null)
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
   const list = channels.data?.channels ?? []
   const id = channelId ?? list[0]?.id ?? null
@@ -122,18 +123,25 @@ export function DoneStep({ channelId, onLeave }: {
       video.score != null ? fmtScore(video.score) : '',
     ].filter(Boolean).join(' · ')
     : ''
+  /* Điện thoại: điểm nằm trên ảnh thu nhỏ nên dòng meta chỉ còn ngày đăng + thời lượng. */
+  const latestMetaM = video
+    ? [
+      video.publishedAt ? `Đăng ${fmtAge(video.publishedAt)} trước` : '',
+      fmtDuration(video.durationSec),
+    ].filter(Boolean).join(' · ')
+    : ''
 
   return (
     <div className={`vch-new vch-done ${stylex.props(channelStyles.new, channelRootMarker).className}`}>
       <div className={`vch-new__main ${stylex.props(channelStyles.newMain).className}`}>
-        <div className={`vch-done__head ${stylex.props(channelStyles.doneHead).className}`}>
+        <div className={`vch-done__head ${stylex.props(channelStyles.doneHead, mobile && channelStyles.doneHeadM).className}`}>
           {directorFailed ? (
             /* Tên tạm: avatar chữ “K” nền trung tính tới khi Đạo diễn đặt được tên. */
             <ChannelAvatar
               name={tt.noName}
               initials="K"
               color={{ bg: 'var(--color-surface-5)', ring: 'var(--line-5)' }}
-              size={64}
+              size={mobile ? 60 : 64}
               style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-fg-2)' }}
             />
           ) : (
@@ -141,78 +149,120 @@ export function DoneStep({ channelId, onLeave }: {
               name={data.name || t.channels.page.noName}
               src={data.avatarUrl ?? undefined}
               color={{ bg: channelTint(data.id), ring: channelTint(data.id) }}
-              size={64}
+              size={mobile ? 60 : 64}
               style={{ fontSize: 20, fontWeight: 700 }}
             />
           )}
           <div className={`vch-done__title ${stylex.props(channelStyles.doneTitle).className}`}>
-            <h1 {...stylex.props(channelStyles.newTitle, channelStyles.doneHeading)}>{directorFailed ? tt.titleTemp : tt.title}</h1>
+            <h1 {...stylex.props(channelStyles.newTitle, channelStyles.doneHeading, mobile && channelStyles.doneHeadingM)}>{directorFailed ? tt.titleTemp : tt.title}</h1>
             <p className={`vch-done__sub ${stylex.props(channelStyles.doneSub).className}`}>
-              {directorFailed ? (
-                <>
-                  <span className={`vch-done__name ${stylex.props(channelStyles.doneName).className}`}>{tt.noName}</span>
-                  {' '}
-                  {tt.tempNote}
-                  {' '}
-                  {tt.subTail({
+              {mobile
+                ? (reference
+                  ? tt.subM({
+                    name: directorFailed ? tt.noName : (data.name || tt.noName),
                     rivals: data.sources.length,
                     language: t.channels.page.languageLower[data.language],
                     pace: data.pacePerDay,
-                  })}
-                </>
-              ) : reference
-                ? tt.sub({
-                  name: data.name || tt.noName,
-                  rival: reference.title,
-                  rivals: data.sources.length,
-                  language: t.channels.page.languageLower[data.language],
-                  pace: data.pacePerDay,
-                })
-                : tt.noName}
+                  })
+                  : tt.noName)
+                : directorFailed ? (
+                  <>
+                    <span className={`vch-done__name`}>{tt.noName}</span>
+                    {' '}
+                    <span className={`vch-done__tempnote ${stylex.props(channelStyles.doneNote).className}`}>{tt.tempNote}</span>
+                    {' '}
+                    {tt.subTail({
+                      rivals: data.sources.length,
+                      language: t.channels.page.languageLower[data.language],
+                      pace: data.pacePerDay,
+                    })}
+                  </>
+                )
+                  : reference
+                    ? tt.sub({
+                      name: data.name || tt.noName,
+                      rival: reference.title,
+                      rivals: data.sources.length,
+                      language: t.channels.page.languageLower[data.language],
+                      pace: data.pacePerDay,
+                    })
+                    : tt.noName}
             </p>
           </div>
         </div>
+        {mobile && reference && (
+          <p className={`vch-done__note ${stylex.props(channelStyles.doneNoteLine).className}`}>
+            {directorFailed ? tt.noteTempM : tt.noteM(reference.title)}
+          </p>
+        )}
 
-        <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={directorFailed ? tt.needsYou : tt.background}>
-          <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
-            <h2 {...stylex.props(channelStyles.cardHeading)}>
+        <section className={`vch-card ${stylex.props(channelStyles.card, mobile ? channelStyles.doneCardM : channelStyles.doneCard).className}`} aria-label={directorFailed ? tt.needsYou : tt.background}>
+          <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead, channelStyles.doneCardHead, mobile && channelStyles.doneCardHeadM).className}`}>
+            <h2 {...stylex.props(channelStyles.cardHeading, mobile && channelStyles.cardHeadingM)}>
               <span aria-hidden="true" className={`vch-recdot ${stylex.props(channelStyles.recdot, directorFailed && channelStyles.recdotWarn).className}`} />
               {directorFailed ? tt.needsYou : tt.background}
             </h2>
-            <span className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{directorFailed ? tt.needsYouSub : tt.backgroundSub}</span>
+            {!(mobile && directorFailed) && (
+              <span className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{directorFailed ? tt.needsYouSub : (mobile ? tt.backgroundSubM : tt.backgroundSub)}</span>
+            )}
           </div>
           <StepRow who="director" label={tt.director} step={director} mobile={mobile} onRetry={() => void retryDirector()} retrying={retrying} />
           <StepRow who="artist" label={tt.artist} step={artist} percent={percent} mobile={mobile} />
           <StepRow who="qa" label={tt.qa} step={{ state: 'ok', what: tt.qaWhat, text: tt.ok }} mobile={mobile} />
           {retryError && <p className={`vch-field__hint ${stylex.props(channelStyles.fieldError).className}`} role="alert">{retryError}</p>}
-          <p className={`vch-field__hint ${stylex.props(channelStyles.fieldHint).className}`}>{directorFailed ? tt.footnoteTemp : tt.footnote}</p>
+          <p className={`vch-done__foot ${stylex.props(channelStyles.doneFoot, mobile && channelStyles.doneFootM).className}`}>
+            {mobile ? (directorFailed ? tt.footnoteTempM : tt.footnoteM) : (directorFailed ? tt.footnoteTemp : tt.footnote)}
+          </p>
         </section>
 
-        <section className={`vch-card ${stylex.props(channelStyles.card).className}`} aria-label={tt.next}>
-          <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
-            <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="video-play" size={16} />{tt.next}</h2>
-          </div>
+        <section className={`vch-card ${stylex.props(channelStyles.card, mobile ? channelStyles.nextCardM : channelStyles.nextCard).className}`} aria-label={tt.next}>
           {video ? (
-            <div className={`vch-next ${stylex.props(channelStyles.next).className}`}>
-              <ChannelAvatar
-                name={reference?.title ?? ''}
-                color={{ bg: channelTint(reference?.rivalId ?? data.id) }}
-                size={34}
-                style={{ fontSize: 11, fontWeight: 700 }}
-              />
-              <span className={`vch-next__text ${stylex.props(channelStyles.nextText).className}`}>
-                <span className={`vch-next__title ${stylex.props(channelStyles.nextTitle).className}`} title={video.title}>{video.title}</span>
-                <span className={`vch-next__meta ${stylex.props(channelStyles.nextMeta).className}`}>{latestMeta}</span>
-              </span>
-              <ActionButton className={stylex.props(channelStyles.touchTarget).className}
-                variant="primary"
-                size="md"
-                lockedReason={t.channels.queueLock}
-                icon={<Icon name="video-add" size={15} />}
-              >
-                {tt.makeLatest(reference?.title ?? '')}
-              </ActionButton>
-            </div>
+            mobile ? (
+              <>
+                <div className={`vch-next ${stylex.props(channelStyles.nextRow).className}`}>
+                  <span className={`vch-next__thumb ${stylex.props(channelStyles.nextThumb).className}`}>
+                    {video.thumbnailUrl && video.thumbnailUrl !== brokenThumbnail && <img className={`vch-next__img ${stylex.props(channelStyles.nextThumbImg).className}`} src={video.thumbnailUrl} alt="" loading="lazy" onError={() => setBrokenThumbnail(video.thumbnailUrl ?? null)} />}
+                    {video.score != null && (
+                      <span className={`vch-next__score ${stylex.props(channelStyles.nextThumbScore).className}`}>{fmtScore(video.score)}</span>
+                    )}
+                  </span>
+                  <span className={`vch-next__text ${stylex.props(channelStyles.nextText).className}`}>
+                    <span className={`vch-next__title ${stylex.props(channelStyles.nextTitle, channelStyles.nextTitleM).className}`} title={video.title}>{video.title}</span>
+                    <span className={`vch-next__meta ${stylex.props(channelStyles.nextMeta).className}`}>{latestMetaM}</span>
+                  </span>
+                </div>
+                <ActionButton
+                  variant="primary"
+                  size="lg"
+                  block
+                  lockedReason={t.channels.queueLock}
+                  icon={<Icon name="video-add" size={18} />}
+                >
+                  {tt.makeLatestM}
+                </ActionButton>
+                <p className={`vch-next__hint ${stylex.props(channelStyles.nextHint).className}`}>{tt.nextHintM}</p>
+              </>
+            ) : (
+              <div className={`vch-next ${stylex.props(channelStyles.next).className}`}>
+                <ChannelAvatar
+                  name={reference?.title ?? ''}
+                  color={{ bg: channelTint(reference?.rivalId ?? data.id) }}
+                  size={34}
+                  style={{ fontSize: 11.5, fontWeight: 700 }}
+                />
+                <span className={`vch-next__text ${stylex.props(channelStyles.nextText).className}`}>
+                  <span className={`vch-next__title ${stylex.props(channelStyles.nextTitle).className}`} title={video.title}>{video.title}</span>
+                  <span className={`vch-next__meta ${stylex.props(channelStyles.nextMeta).className}`}>{latestMeta ? `${latestMeta} · ${tt.nextHint}` : tt.nextHint}</span>
+                </span>
+                <ActionButton className={stylex.props(channelStyles.touchTarget).className}
+                  variant="primary"
+                  size="md"
+                  lockedReason={t.channels.queueLock}
+                >
+                  {tt.makeLatest(reference?.title ?? '')}
+                </ActionButton>
+              </div>
+            )
           ) : latest.initialLoading ? (
             <Spinner size={16} color="var(--color-fg-3)" />
           ) : (
@@ -220,20 +270,34 @@ export function DoneStep({ channelId, onLeave }: {
           )}
         </section>
 
-        <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
-          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
-            {tt.openChannel}
-          </ActionButton>
-          {/* r38: Đạo diễn chưa đặt được tên → cho đặt tay ở Hồ sơ kênh. */}
-          {directorFailed && (
-            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" icon={<Icon name="edit" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
-              {tt.nameInProfile}
+        {mobile ? (
+          <>
+            {directorFailed && (
+              <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="lg" block icon={<Icon name="edit" size={16} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
+                {tt.nameInProfile}
+              </ActionButton>
+            )}
+            <div className={`vch-actions ${stylex.props(channelStyles.actionsGridM).className}`}>
+              <ActionButton size="lg" onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id)}` }}>{tt.openChannel}</ActionButton>
+              <ActionButton size="lg" icon={<Icon name="radar" size={16} />} onClick={() => { onLeave(); window.location.hash = `#${paths.explore()}` }}>{tt.exploreShort}</ActionButton>
+            </div>
+          </>
+        ) : (
+          <div className={`vch-actions ${stylex.props(channelStyles.actions).className}`}>
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id)}` }}>
+              {tt.openChannel}
             </ActionButton>
-          )}
-          <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" icon={<Icon name="radar" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.explore()}` }}>
-            {tt.explore}
-          </ActionButton>
-        </div>
+            {/* r38: Đạo diễn chưa đặt được tên → cho đặt tay ở Hồ sơ kênh. */}
+            {directorFailed && (
+              <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" icon={<Icon name="edit" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.channel(data.id, 'settings')}` }}>
+                {tt.nameInProfile}
+              </ActionButton>
+            )}
+            <ActionButton className={stylex.props(channelStyles.touchTarget).className} size="md" variant="quiet" icon={<Icon name="radar" size={15} />} onClick={() => { onLeave(); window.location.hash = `#${paths.explore()}` }}>
+              {tt.explore}
+            </ActionButton>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -253,34 +317,56 @@ function StepRow({ who, label, step, percent, mobile = false, onRetry, retrying 
   onRetry?: () => void
   retrying?: boolean
 }) {
-  const tone = step.state === 'run' ? ' vch-task__state--run'
+  const toneClass = step.state === 'run' ? ' vch-task__state--run'
     : step.state === 'fail' ? ' vch-task__state--fail'
       : step.state === 'wait' ? ' vch-task__state--wait' : ''
+  const tone = step.state === 'run' ? channelStyles.taskStateRun
+    : step.state === 'fail' ? channelStyles.taskStateFail
+      : step.state === 'wait' ? channelStyles.taskStateWait : null
+  const whoTone = who === 'director' ? channelStyles.taskWhoDirector
+    : who === 'artist' ? channelStyles.taskWhoArtist : channelStyles.taskWhoQa
+  const state = (
+    <span className={`vch-task__state${toneClass} ${stylex.props(channelStyles.taskState, mobile && channelStyles.taskStateM, tone).className}`}>
+      {step.state === 'ok' && <Icon name="tick-b" size={mobile ? 12 : 13} />}
+      {step.text}
+      {!mobile && step.retry && onRetry && (
+        <ActionButton
+          variant="outline"
+          size="sm"
+          icon={<Icon name="refresh" size={14} />}
+          pending={retrying}
+          onClick={onRetry}
+        >
+          {t.common.retry}
+        </ActionButton>
+      )}
+    </span>
+  )
   return (
-    <div className={`vch-task ${stylex.props(channelStyles.task).className}`}>
+    <div className={`vch-task ${stylex.props(channelStyles.task, mobile && channelStyles.taskM).className}`}>
       <Orb of={who} size={20} live={step.state === 'run'} />
       <span className={`vch-task__text ${stylex.props(channelStyles.taskText).className}`}>
-        <span className={`vch-task__who ${stylex.props(channelStyles.taskWho).className}`}>{label}</span>
-        <span className={`vch-task__what ${stylex.props(channelStyles.taskWhat).className}`}>{step.what}</span>
-      </span>
-      <span className={`vch-task__state${tone} ${stylex.props(channelStyles.taskState, step.state === 'run' && channelStyles.taskStateRun, step.state === 'fail' && channelStyles.taskStateFail, step.state === 'wait' && channelStyles.taskStateWait).className}`}>
-        {step.state === 'ok' && <Icon name="tick-b" size={13} />}
-        {step.text}
-        {step.retry && onRetry && (
-          <ActionButton
-            variant="outline"
-            size={mobile ? 'lg' : 'sm'}
-            xstyle={mobile ? [channelStyles.retryM] : undefined}
-            icon={<Icon name="refresh" size={mobile ? 15 : 14} />}
-            pending={retrying}
-            onClick={onRetry}
-          >
-            {t.common.retry}
-          </ActionButton>
+        <span className={`vch-task__line ${stylex.props(channelStyles.taskLine).className}`}>
+          <span className={`vch-task__who ${stylex.props(channelStyles.taskWho, whoTone).className}`}>{label}</span>
+          <span className={`vch-task__what ${stylex.props(channelStyles.taskWhat).className}`}>{step.what}</span>
+        </span>
+        {mobile && state}
+        {step.state === 'run' && percent !== undefined && (
+          <span className={`vch-task__bar ${stylex.props(channelStyles.taskBar).className}`}><ProgressBar value={percent} tone="warn" height={4} /></span>
         )}
       </span>
-      {step.state === 'run' && percent !== undefined && (
-        <span className={`vch-task__bar ${stylex.props(channelStyles.taskBar).className}`}><ProgressBar value={percent} tone="warn" height={4} /></span>
+      {!mobile && state}
+      {mobile && step.retry && onRetry && (
+        <ActionButton
+          variant="outline"
+          size="lg"
+          xstyle={[channelStyles.retryM]}
+          icon={<Icon name="refresh" size={15} />}
+          pending={retrying}
+          onClick={onRetry}
+        >
+          {t.common.retry}
+        </ActionButton>
       )}
     </div>
   )
