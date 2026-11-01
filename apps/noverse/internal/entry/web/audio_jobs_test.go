@@ -56,3 +56,37 @@ func TestAudioRowsGroupVolumesAndFailedChapters(t *testing.T) {
 		t.Fatalf("volume 2 row = %+v", vol2)
 	}
 }
+
+// A volume whose chapters are still waiting is labelled "đang chờ máy đọc" when
+// no reader is ready, and looks like an ordinary running job once one is
+// (10-audio.md §8.3).
+func TestAudioRowsMarkQueuedWorkWaitingForMachine(t *testing.T) {
+	dir := t.TempDir()
+	layout := audio.Layout{StoryDir: dir, AudioDir: filepath.Join(dir, "audio"), AssetsDir: filepath.Join(dir, "tai-san"), ExportsDir: filepath.Join(dir, "xuat-ban")}
+	now := time.Now()
+	jobs := []audio.Job{
+		{ID: "q", Volume: 1, Chapter: 4, State: audio.JobQueued, Segments: 3, CreatedAt: now, UpdatedAt: now},
+	}
+	data, _ := json.Marshal(map[string]any{"jobs": jobs})
+	if err := os.MkdirAll(layout.AudioDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(layout.AudioDir, "queue.json"), data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	svc, err := audio.NewService(layout, audio.NullSynth{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer svc.Close()
+	entry := audioEntry{svc: svc, project: "p", story: "s"}
+
+	waiting := audioRows(entry, now, false)
+	if len(waiting) != 1 || !waiting[0].WaitingMachine {
+		t.Fatalf("rows without a machine = %+v, want waitingMachine", waiting)
+	}
+	served := audioRows(entry, now, true)
+	if len(served) != 1 || served[0].WaitingMachine {
+		t.Fatalf("rows with a ready machine = %+v, want no waitingMachine", served)
+	}
+}

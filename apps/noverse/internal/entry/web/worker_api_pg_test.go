@@ -283,6 +283,24 @@ func TestWorkerAPIPostgresPublish(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("new owner complete = %d", resp.StatusCode)
 	}
+
+	// A revoked credential is cut off at the door: no claim, no state publish.
+	workers, err := jobs.ListWorkers(ctx)
+	if err != nil {
+		t.Fatalf("list workers: %v", err)
+	}
+	for _, wk := range workers {
+		if wk.Name != "mac-b" {
+			continue
+		}
+		if err := jobs.RevokeWorker(ctx, wk.ID); err != nil {
+			t.Fatalf("revoke worker b: %v", err)
+		}
+	}
+	resp = call(tokenB, http.MethodPost, "/internal/worker/claim", []byte(`{}`), nil)
+	if resp.StatusCode != http.StatusUnauthorized {
+		t.Fatalf("revoked claim = %d, want 401", resp.StatusCode)
+	}
 }
 
 func decodeWorkerResp(t *testing.T, resp *http.Response, dst any) {

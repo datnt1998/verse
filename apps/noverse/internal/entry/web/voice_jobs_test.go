@@ -170,7 +170,7 @@ func TestVoiceInstallJobVisibleInDock(t *testing.T) {
 	// nên chờ theo trạng thái thuần có thể bắt hàng chưa kịp báo bước.
 	running := waitJobWhere(t, tg, admin, voiceInstallJobID,
 		func(j *Job) bool {
-			return j.Status == JobRunning && j.Progress != nil && *j.Progress == 0.4 && j.Step == "Đang cài thư viện Python…"
+			return j.Status == JobRunning && j.Progress != nil && *j.Progress == 0.4 && j.Step == "Bước 4/6 · Cài thư viện"
 		}, "running · 40% · đang cài thư viện")
 	if running.Kind != voiceJobsKind || running.Title == "" || running.Href != voiceSettingsRoute {
 		t.Fatalf("hàng cài bộ đọc = %+v", running)

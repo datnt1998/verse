@@ -261,6 +261,9 @@ func TestProvisionStopsWhenDiskTight(t *testing.T) {
 	}
 }
 
+// Percent is the percent of the step that is running (10-audio.md §8.1): it
+// never goes backwards inside one step, and a new step starts its own count
+// instead of inheriting the previous step's number.
 func TestProvisionPercentNeverGoesBackwards(t *testing.T) {
 	e := testEngine(t)
 	deps := noopDeps()
@@ -270,8 +273,13 @@ func TestProvisionPercentNeverGoesBackwards(t *testing.T) {
 		return nil
 	}
 	deps.syncDeps = func(r *provisionRun, _ context.Context) error {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 40, "c")
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 30, "lùi")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 80, "c")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 40, "lùi")
+		return nil
+	}
+	deps.startModel = func(r *provisionRun, _ context.Context) error {
+		// Bước mới: số của bước trước không được kéo sang.
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, 5, "mẫu giọng")
 		return nil
 	}
 	e.prov = deps
@@ -279,27 +287,53 @@ func TestProvisionPercentNeverGoesBackwards(t *testing.T) {
 	if err := e.Provision(context.Background(), log.report); err != nil {
 		t.Fatalf("Provision: %v", err)
 	}
-	prev := -2
 	lastByStep := map[string]int{}
+	percentByStep := map[string][]int{}
 	for _, st := range log.all() {
 		if st.Percent < 0 {
 			continue
 		}
-		if st.Percent < prev {
-			t.Fatalf("phần trăm lùi: %d sau %d (%+v)", st.Percent, prev, st)
-		}
-		prev = st.Percent
 		if stepPrev, ok := lastByStep[st.Step]; ok && st.Percent < stepPrev {
-			t.Fatalf("bước %s lùi: %d sau %d", st.Step, st.Percent, stepPrev)
+			t.Fatalf("bước %s lùi: %d sau %d (%+v)", st.Step, st.Percent, stepPrev, st)
 		}
 		lastByStep[st.Step] = st.Percent
+		percentByStep[st.Step] = append(percentByStep[st.Step], st.Percent)
 	}
-	if got := lastByStep[voice.ProvisionStepDeps]; got != 40 {
-		t.Fatalf("mốc lùi không bị kéo về mốc trước: deps = %d, muốn 40", got)
+	if got := lastByStep[voice.ProvisionStepDeps]; got != 80 {
+		t.Fatalf("mốc lùi không bị kéo về mốc trước: deps = %d, muốn 80", got)
+	}
+	if got := percentByStep[voice.ProvisionStepModel]; len(got) == 0 || got[0] != 5 {
+		t.Fatalf("bước mới = %v, muốn bắt đầu từ 5 (không thừa hưởng 80 của bước trước)", got)
 	}
 	if last := log.last(); last.State != voice.ProvisionStateReady || last.Percent != 100 {
 		t.Fatalf("mốc cuối = %+v, muốn ready/100", last)
 	}
+}
+
+// A step that cannot measure its progress reports -1 and never a made-up 0, so
+// the card can draw a spinner instead of a percentage.
+func TestProvisionUnmeasurableStepReportsUnknown(t *testing.T) {
+	e := testEngine(t)
+	deps := noopDeps()
+	deps.ensureTools = func(r *provisionRun, _ context.Context) error {
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "đang chuẩn bị")
+		return nil
+	}
+	e.prov = deps
+	log := &stateLog{}
+	if err := e.Provision(context.Background(), log.report); err != nil {
+		t.Fatalf("Provision: %v", err)
+	}
+	for _, st := range log.all() {
+		if st.Step != voice.ProvisionStepTools || st.State != voice.ProvisionStateProvisioning {
+			continue
+		}
+		if st.Percent != voice.ProvisionPercentUnknown {
+			t.Fatalf("bước không đo được = %d, muốn %d", st.Percent, voice.ProvisionPercentUnknown)
+		}
+		return
+	}
+	t.Fatal("không có mốc nào của bước công cụ")
 }
 
 func TestProvisionHashMismatchLeavesNoFile(t *testing.T) {

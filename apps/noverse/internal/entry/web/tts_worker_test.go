@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/migrate"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres/gen"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
@@ -89,8 +90,8 @@ func TestHostedTTSStatusFromWorkerState(t *testing.T) {
 
 	setWorkerState(t, jobs, w.ID, `{"state":"provisioning","step":"deps","percent":42,"message":"Đang cài thư viện…"}`)
 	got = hostedStatus(t, tg, admin)
-	if got["state"] != voice.StateInstalling {
-		t.Fatalf("state = %v, want installing", got["state"])
+	if got["state"] != voice.ProvisionStateProvisioning {
+		t.Fatalf("state = %v, want provisioning", got["state"])
 	}
 	if got["installed"] != true {
 		t.Fatalf("installed = %v, want true while provisioning", got["installed"])
@@ -111,8 +112,13 @@ func TestHostedTTSStatusFromWorkerState(t *testing.T) {
 
 	setWorkerState(t, jobs, w.ID, `{"state":"error","percent":-1,"error":{"code":"download_failed","message":"Tải mô hình hỏng"},"message":"Tải mô hình hỏng"}`)
 	got = hostedStatus(t, tg, admin)
-	if got["state"] != voice.StateError || got["error"] != "Tải mô hình hỏng" {
+	errBody, _ := got["error"].(map[string]any)
+	if got["state"] != voice.StateError || errBody == nil ||
+		errBody["code"] != voice.ProvisionErrDownloadFailed || errBody["message"] != "Tải mô hình hỏng" {
 		t.Fatalf("error state = %v", got)
+	}
+	if got["percent"] != nil {
+		t.Fatalf("error percent = %v, want null", got["percent"])
 	}
 	rr = tg.do("GET", "/api/tts/install", admin, "")
 	if decodeJSONBody(t, rr)["state"] != "error" {
@@ -315,5 +321,187 @@ func TestFileModeTTSStatusStaysLocal(t *testing.T) {
 	active, _ := engines["active"].(string)
 	if active == "remote" {
 		t.Fatal("file mode advertised the hosted engine list")
+	}
+}
+
+// enqueueQueuedTTSJob puts one waiting voice job in the durable queue: that is
+// what `queueWaiting` counts for the machine card.
+func enqueueQueuedTTSJob(t *testing.T, pool *postgres.Pool, key string) {
+	t.Helper()
+	ctx := context.Background()
+	projectSlug := "wait-" + key
+	if _, err := gen.New(pool.Pool()).EnsureProject(ctx, gen.EnsureProjectParams{
+		ID: randomTestUUID(t), Slug: projectSlug, Name: "Wait",
+	}); err != nil {
+		t.Fatalf("anchor project: %v", err)
+	}
+	nar := postgres.NewNarrative(pool)
+	if _, err := nar.CreateStory(ctx, projectSlug, nil, postgres.StoryInfo{Slug: "story", Title: "Chờ", Status: "writing"}); err != nil {
+		t.Fatalf("create story: %v", err)
+	}
+	scope, err := nar.Resolve(ctx, projectSlug, "story", nil, false)
+	if err != nil {
+		t.Fatalf("resolve scope: %v", err)
+	}
+	if _, err := pool.Pool().Exec(ctx, `
+		INSERT INTO jobs (project_id, story_id, id, kind, state, idempotency_key, input)
+		VALUES ($1, $2, $3, 'tts', 'queued', $4, '{}'::jsonb)`,
+		scope.ProjectID, scope.StoryID, randomTestUUID(t), key); err != nil {
+		t.Fatalf("enqueue tts job: %v", err)
+	}
+}
+
+// A step that cannot measure its progress reports `percent: null`; the UI draws
+// a spinner instead of a made-up 0 %. A measured step keeps its number.
+func TestHostedStatusUnmeasurableStepHasNoPercent(t *testing.T) {
+	tg, jobs, _ := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	w := hostedWorker(t, jobs, "mac-percent")
+
+	setWorkerState(t, jobs, w.ID, `{"state":"provisioning","step":"tools","percent":-1,"message":"Đang chuẩn bị công cụ…"}`)
+	got := hostedStatus(t, tg, admin)
+	if got["state"] != voice.ProvisionStateProvisioning || got["step"] != voice.ProvisionStepTools {
+		t.Fatalf("state = %v/%v, want provisioning/tools", got["state"], got["step"])
+	}
+	if got["percent"] != nil {
+		t.Fatalf("percent = %v, want null for an unmeasurable step", got["percent"])
+	}
+
+	setWorkerState(t, jobs, w.ID, `{"state":"provisioning","step":"model","percent":42,"bytesDone":4200,"bytesTotal":10000,"etaSec":9}`)
+	got = hostedStatus(t, tg, admin)
+	if got["percent"] == nil || got["percent"].(float64) != 42 {
+		t.Fatalf("percent = %v, want 42", got["percent"])
+	}
+	if got["bytesDone"].(float64) != 4200 || got["bytesTotal"].(float64) != 10000 || got["etaSec"].(float64) != 9 {
+		t.Fatalf("model numbers = %v", got)
+	}
+}
+
+// `queueWaiting` is the number of chapters waiting for a reader: zero while the
+// machine is ready, and the queued count whenever it is not.
+func TestHostedStatusCountsChaptersWaitingForMachine(t *testing.T) {
+	tg, jobs, pool := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	w := hostedWorker(t, jobs, "mac-waiting")
+	setWorkerState(t, jobs, w.ID, `{"state":"ready","percent":100}`)
+
+	got := hostedStatus(t, tg, admin)
+	if got["queueWaiting"].(float64) != 0 {
+		t.Fatalf("queueWaiting = %v with a ready machine, want 0", got["queueWaiting"])
+	}
+
+	enqueueQueuedTTSJob(t, pool, "ch1")
+	enqueueQueuedTTSJob(t, pool, "ch2")
+	got = hostedStatus(t, tg, admin)
+	if got["queueWaiting"].(float64) != 0 {
+		t.Fatalf("queueWaiting = %v while the machine is ready, want 0", got["queueWaiting"])
+	}
+
+	// Reader gone: the two chapters now wait for it.
+	ageLastSeen(t, pool, w.ID)
+	got = hostedStatus(t, tg, admin)
+	if got["state"] != voice.ProvisionStateOffline {
+		t.Fatalf("state = %v, want offline", got["state"])
+	}
+	if got["queueWaiting"].(float64) != 2 {
+		t.Fatalf("queueWaiting = %v, want 2", got["queueWaiting"])
+	}
+}
+
+// Revoking is one admin step; the status then says `token_rejected` so Nâng cao
+// can offer to grant the machine again. Members cannot revoke.
+func TestRevokeMachineIsAdminOnlyAndReportsTokenRejected(t *testing.T) {
+	tg, jobs, _ := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	writer := tg.login("writer", "writer-pass")
+	w := hostedWorker(t, jobs, "mac-revoke")
+	setWorkerState(t, jobs, w.ID, `{"state":"ready","percent":100}`)
+
+	if rr := tg.do("POST", "/api/tts/machine/revoke", writer, ""); rr.Code != http.StatusForbidden {
+		t.Fatalf("writer revoke = %d, want 403", rr.Code)
+	}
+	rr := tg.do("POST", "/api/tts/machine/revoke", admin, "")
+	if rr.Code != http.StatusOK {
+		t.Fatalf("revoke = %d %s", rr.Code, rr.Body.String())
+	}
+	if body := decodeJSONBody(t, rr); body["machine"] != "mac-revoke" {
+		t.Fatalf("revoke body = %v", body)
+	}
+
+	got := hostedStatus(t, tg, admin)
+	if got["state"] != voice.ProvisionStateError || got["ready"] != false {
+		t.Fatalf("revoked status = %v, want error/not ready", got)
+	}
+	errBody, _ := got["error"].(map[string]any)
+	if errBody == nil || errBody["code"] != voice.ProvisionErrTokenRejected {
+		t.Fatalf("error = %v, want token_rejected", got["error"])
+	}
+	machine, _ := got["machine"].(map[string]any)
+	if machine == nil || machine["revokedAt"] == nil {
+		t.Fatalf("machine = %v, want revokedAt", got["machine"])
+	}
+
+	// Revoking again is harmless: the machine is already cut off.
+	if rr := tg.do("POST", "/api/tts/machine/revoke", admin, ""); rr.Code != http.StatusOK {
+		t.Fatalf("second revoke = %d, want 200", rr.Code)
+	}
+}
+
+// Channel and log tail belong to Nâng cao: admins get them, members never do.
+func TestHostedStatusHidesTechnicalDetailFromMembers(t *testing.T) {
+	tg, jobs, _ := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	writer := tg.login("writer", "writer-pass")
+	w := hostedWorker(t, jobs, "mac-detail")
+	setWorkerState(t, jobs, w.ID, `{"state":"error","percent":-1,"channel":"https://api.example.test",
+		"error":{"code":"deps_failed","message":"Thiếu thư viện","logTail":"dòng 1\ndòng 2\ndòng 3\n"}}`)
+
+	adminView := hostedStatus(t, tg, admin)
+	if adminView["channel"] != "https://api.example.test" {
+		t.Fatalf("admin channel = %v", adminView["channel"])
+	}
+	tail, _ := adminView["logTail"].([]any)
+	if len(tail) != 3 || tail[2] != "dòng 3" {
+		t.Fatalf("admin logTail = %v, want 3 lines", adminView["logTail"])
+	}
+
+	memberView := hostedStatus(t, tg, writer)
+	if _, ok := memberView["channel"]; ok {
+		t.Fatalf("member saw the channel: %v", memberView["channel"])
+	}
+	if _, ok := memberView["logTail"]; ok {
+		t.Fatalf("member saw the log tail: %v", memberView["logTail"])
+	}
+	if errBody, _ := memberView["error"].(map[string]any); errBody == nil || errBody["message"] != "Thiếu thư viện" {
+		t.Fatalf("member error = %v, want the sentence without the log", memberView["error"])
+	}
+}
+
+// On-demand preview exists only when the machine advertises it: without the
+// capability the endpoint answers 503 instead of hanging on a call the reader
+// will never take (10-audio.md §8.4 #6).
+func TestHostedPreviewNeedsWorkerCapability(t *testing.T) {
+	tg, jobs, _ := provisionHostedTTS(t)
+	admin := tg.login("admin", "admin-pass")
+	body := `{"text":"Xin chào","voiceId":"vieneu-nu-bac"}`
+
+	rr := tg.do("POST", "/api/tts/preview", admin, body)
+	if rr.Code != http.StatusServiceUnavailable {
+		t.Fatalf("preview without machine = %d, want 503", rr.Code)
+	}
+	if !strings.Contains(rr.Body.String(), "chưa hỗ trợ nghe thử") {
+		t.Fatalf("preview body = %s", rr.Body.String())
+	}
+
+	w := hostedWorker(t, jobs, "mac-preview")
+	setWorkerState(t, jobs, w.ID, `{"state":"ready","percent":100,"capabilities":{"preview":true}}`)
+	// With the capability the endpoint moves past the gate; an empty text is
+	// rejected by validation, so the test never waits on a real synthesis.
+	rr = tg.do("POST", "/api/tts/preview", admin, `{"text":""}`)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("preview with capability = %d %s, want 400 from validation", rr.Code, rr.Body.String())
+	}
+	if strings.Contains(rr.Body.String(), "chưa hỗ trợ nghe thử") {
+		t.Fatalf("preview with capability was refused: %s", rr.Body.String())
 	}
 }
