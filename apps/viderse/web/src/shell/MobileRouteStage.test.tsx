@@ -60,6 +60,34 @@ beforeEach(() => {
   vi.stubGlobal('fetch', vi.fn((path: string) => Promise.resolve(Response.json(path.includes('clone/counts') ? { approvedToday: null } : {}))))
 })
 
+describe('đệm cuối vùng cuộn', () => {
+  // Chromium bỏ qua `padding-bottom` của hộp cuộn flex khi nội dung dài hơn khung,
+  // nên hàng cuối của màn chui xuống dưới thanh tab. Vùng cuộn phải là khối
+  // (block) và màn nằm trong một cột flex riêng đủ cao bằng khung.
+  it('pane cuộn ở dạng khối, màn nằm trong cột flex con', async () => {
+    const { container } = await render({ name: 'workbench' })
+    await act(async () => {})
+    const scroller = paneOf(container, 'workbench').firstElementChild as HTMLElement
+    expect(getComputedStyle(scroller).display).toBe('block')
+    expect(scroller.children).toHaveLength(1)
+    const body = scroller.firstElementChild as HTMLElement
+    expect(body.querySelector('[data-marker="workbench"]')).toBeTruthy()
+    // Màn không còn là con trực tiếp của hộp cuộn: cột flex con giữ đệm cuối.
+    expect(scroller.firstElementChild).not.toBe(container.querySelector('[data-marker="workbench"]'))
+  })
+
+  it('màn đẩy cũng cuộn ở dạng khối trong cột flex con', async () => {
+    const { container } = await render({ name: 'library' })
+    await act(async () => {})
+    const screen = container.querySelector('[data-marker="pushed"]') as HTMLElement
+    const body = screen.parentElement as HTMLElement
+    const push = body.parentElement as HTMLElement
+    expect(getComputedStyle(push).display).toBe('block')
+    expect(push.children).toHaveLength(1)
+    expect(body.querySelector('[data-marker="pushed"]')).toBeTruthy()
+  })
+})
+
 describe('giữ pane khi đổi tab', () => {
   it('đổi tab rồi quay lại: state, DOM và dữ liệu còn nguyên, không gọi lại API', async () => {
     const { container, draw } = await render({ name: 'workbench' })
