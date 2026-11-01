@@ -115,6 +115,27 @@ export const libraryCopy = {
     attachGo: (name: string) => `Mở ${name}`,
     attachEmpty: 'Chưa có kênh nào để thêm template.',
     nameTaken: 'Tên này đã có template khác dùng.',
+    importTemplate: 'Nhập template',
+    importTitle: 'Nhập template cũ',
+    importHint: 'Nhập tệp .ytf-template.zip (bản xuất template). Mỗi tệp là một template, kèm mọi media nó dùng — thả nhiều tệp một lúc được.',
+    importDrop: 'Kéo tệp vào đây',
+    importPick: 'Chọn tệp',
+    importAccept: 'Tệp .ytf-template.zip · thả nhiều tệp một lúc được',
+    importOnlyZip: 'Chỉ nhận tệp .zip. Nếu máy đã giải nén sẵn, chuột phải thư mục → Nén, rồi chọn tệp .zip vừa tạo.',
+    importing: 'Đang nhập…',
+    importEmptyTitle: 'Chưa có tệp nào được nhập',
+    importSummary: (imported: number, failed: number) => failed === 0
+      ? `Đã nhập ${imported} template.`
+      : `Đã nhập ${imported} template, ${failed} tệp chưa nhập được.`,
+    importItemOk: 'Đã nhập',
+    importItemFail: 'Chưa nhập được',
+    importWarnings: (count: number) => (count === 1 ? '1 điều cần biết' : `${count} điều cần biết`),
+    importMedia: (fresh: number, reused: number) => reused === 0
+      ? `${fresh} media vào kho media`
+      : `${fresh} media mới, ${reused} media đã có dùng lại`,
+    importOffline: 'Mất kết nối máy chủ nên chưa nhập được. Kiểm tra máy chủ rồi thử lại.',
+    importAgain: 'Nhập tệp khác',
+    importClose: 'Đóng',
   },
 
   // ── Tab Prompt ảnh ─────────────────────────────────────────────────────────

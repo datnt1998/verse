@@ -260,6 +260,29 @@ export function importPrompt(file: File): Promise<ImagePrompt> {
   return upload<ImagePrompt>('/api/image-prompts/import', form)
 }
 
+// ─── Nhập template cũ ───────────────────────────────────────────────────────
+
+/** Một dòng kết quả nhập template (khớp TemplateImportItemWire của máy chủ). */
+export type TemplateImportItem = {
+  file: string
+  name: string
+  templateId?: string
+  ok: boolean
+  warnings: string[]
+  error?: string
+  media: number
+  mediaReused: number
+}
+
+export type TemplateImportResult = { items: TemplateImportItem[]; imported: number; failed: number }
+
+/** Nhập nhiều tệp `.ytf-template.zip` một lượt — cùng route với `viderse template import`. */
+export function importTemplates(files: File[]): Promise<TemplateImportResult> {
+  const form = new FormData()
+  for (const file of files) form.append('file', file)
+  return upload<TemplateImportResult>('/api/templates/import', form)
+}
+
 // ─── Lớp phủ ─────────────────────────────────────────────────────────────────
 
 export const listOverlays = (signal?: AbortSignal) =>

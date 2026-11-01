@@ -1,11 +1,14 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -30,13 +33,16 @@ type fakeLibrary struct {
 
 	err error
 
-	lastPatch    library.Patch
-	lastPatchID  string
-	lastPromptIn library.PromptInput
-	lastName     string
-	lastFromID   string
-	deletedID    string
-	removedID    string
+	lastPatch      library.Patch
+	lastPatchID    string
+	lastPromptIn   library.PromptInput
+	lastName       string
+	lastFromID     string
+	deletedID      string
+	removedID      string
+	lastImport     []string
+	lastImportName string
+	importResults  []library.ImportResult
 }
 
 func (f *fakeLibrary) List(context.Context) ([]library.Summary, error) {
@@ -82,6 +88,12 @@ func (f *fakeLibrary) Rename(_ context.Context, id, name string, _ *int64) (*dom
 func (f *fakeLibrary) DeleteTemplate(_ context.Context, id string) error {
 	f.deletedID = id
 	return f.err
+}
+
+func (f *fakeLibrary) ImportTemplateFiles(_ context.Context, files []string, opts library.ImportOptions) ([]library.ImportResult, error) {
+	f.lastImport = files
+	f.lastImportName = opts.Name
+	return f.importResults, f.err
 }
 
 func (f *fakeLibrary) ListPrompts(context.Context, domain.PromptKind, string) ([]domain.ImagePrompt, error) {
@@ -505,6 +517,115 @@ func TestLibraryTemplateMixDelegation(t *testing.T) {
 	w := tg.do(http.MethodGet, "/api/templates/11111111-1111-4111-8111-111111111111/backdrop/mix?lengthSec=600", cookie, "")
 	if w.Code != http.StatusOK || called != "11111111-1111-4111-8111-111111111111" {
 		t.Fatalf("mix: %d called=%q", w.Code, called)
+	}
+}
+
+// ── nhập template cũ ───────────────────────────────────────────────────────
+
+// templateImportBody dựng multipart với một tệp .ytf-template.zip giả và
+// trường name tuỳ chọn.
+func templateImportBody(t *testing.T, fileName string, data []byte, name string) (*bytes.Buffer, string) {
+	t.Helper()
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	if name != "" {
+		if err := writer.WriteField("name", name); err != nil {
+			t.Fatal(err)
+		}
+	}
+	part, err := writer.CreateFormFile("file", fileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := part.Write(data); err != nil {
+		t.Fatal(err)
+	}
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
+	return body, writer.FormDataContentType()
+}
+
+// postMultipart gửi một request multipart qua gateway thử nghiệm.
+func postMultipart(t *testing.T, tg *testGateway, cookie, path, contentType string, body *bytes.Buffer) *httptest.ResponseRecorder {
+	t.Helper()
+	r := httptest.NewRequest(http.MethodPost, path, body)
+	r.RemoteAddr = "192.0.2.1:1234"
+	r.Host = "127.0.0.1:8789"
+	r.Header.Set("Content-Type", contentType)
+	r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+	w := httptest.NewRecorder()
+	tg.g.ServeHTTP(w, r)
+	return w
+}
+
+func TestLibraryTemplateImportReturnsPerFileResults(t *testing.T) {
+	fake := &fakeLibrary{importResults: []library.ImportResult{
+		{Source: "one.ytf-template.zip", Name: "Đêm khuya", TemplateID: "tpl-1", OK: true, Warnings: []string{"Kênh nền twitch:x chưa có"}, MediaImported: 3, MediaReused: 1},
+		{Source: "two.ytf-template.zip", Name: "two.ytf-template.zip", OK: false, Error: "Tệp không phải template của yt-factory"},
+	}}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	body, contentType := templateImportBody(t, "one.ytf-template.zip", []byte("PK\x03\x04 dữ liệu"), "")
+	w := postMultipart(t, tg, cookie, "/api/templates/import", contentType, body)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	var out struct {
+		Items    []TemplateImportItemWire `json:"items"`
+		Imported int                      `json:"imported"`
+		Failed   int                      `json:"failed"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &out)
+	if len(out.Items) != 2 || out.Imported != 1 || out.Failed != 1 {
+		t.Fatalf("kết quả = %+v", out)
+	}
+	if out.Items[0].Name != "Đêm khuya" || len(out.Items[0].Warnings) != 1 || out.Items[0].Media != 3 || out.Items[0].MediaReused != 1 {
+		t.Fatalf("dòng 1 = %+v", out.Items[0])
+	}
+	if out.Items[1].OK || out.Items[1].Error == "" {
+		t.Fatalf("dòng 2 = %+v", out.Items[1])
+	}
+	if len(fake.lastImport) != 1 {
+		t.Fatalf("service nhận %d tệp", len(fake.lastImport))
+	}
+	// Tệp tải lên đi qua đĩa tạm rồi phải được dọn.
+	if _, err := os.Stat(fake.lastImport[0]); !os.IsNotExist(err) {
+		t.Fatalf("tệp tạm còn lại: %v", err)
+	}
+}
+
+func TestLibraryTemplateImportPassesNameAndRejectsEmptyUpload(t *testing.T) {
+	fake := &fakeLibrary{}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	body, contentType := templateImportBody(t, "one.ytf-template.zip", []byte("PK\x03\x04"), "Tên khác")
+	if w := postMultipart(t, tg, cookie, "/api/templates/import?name=T%C3%AAn+kh%C3%A1c", contentType, body); w.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	if fake.lastImportName != "Tên khác" {
+		t.Fatalf("name = %q", fake.lastImportName)
+	}
+	empty, emptyType := templateImportBody(t, "", nil, "")
+	w := postMultipart(t, tg, cookie, "/api/templates/import", emptyType, empty)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("thiếu tệp: %d %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "Chưa chọn tệp template") {
+		t.Fatalf("body = %s", w.Body.String())
+	}
+}
+
+func TestLibraryTemplateImportRequiresMultipart(t *testing.T) {
+	fake := &fakeLibrary{}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	w := tg.do(http.MethodPost, "/api/templates/import", cookie, `{"file":"x"}`)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("status %d: %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), "tệp tải lên") {
+		t.Fatalf("body = %s", w.Body.String())
+	}
+	if len(fake.lastImport) != 0 {
+		t.Fatalf("service vẫn được gọi: %v", fake.lastImport)
 	}
 }
 

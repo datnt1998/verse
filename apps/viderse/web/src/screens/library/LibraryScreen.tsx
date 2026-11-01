@@ -21,6 +21,7 @@ import { channelTint } from '../../lib/channelTint'
 import { BackdropsTab } from './backdrops/BackdropsTab'
 import { OverlaysTab } from './OverlaysTab'
 import { PromptsTab } from './PromptsTab'
+import { TemplateImportDialog } from './TemplateImportDialog'
 import { TemplatesTab } from './TemplatesTab'
 import * as stylex from '@stylexjs/stylex'
 
@@ -45,6 +46,7 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
   const [createFieldError, setCreateFieldError] = useState<string | null>(null)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
+  const [templateImportOpen, setTemplateImportOpen] = useState(false)
   const importInput = useRef<HTMLInputElement>(null)
 
   const counts: Record<LibraryTab, number | undefined> = {
@@ -152,6 +154,11 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
             <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{ownerChannels.length ? copy.subtitle(ownerChannels.length) : copy.subtitleEmpty}</p>
           </div>
           <div className={`vlb-head-actions ${stylex.props(sx.headActions).className}`}>
+            {tab === 'templates' && (
+              <ActionButton xstyle={[sx.vlbHeadActionsActionButton]} variant="outline" icon={<Icon name="download" size={16} />} onClick={() => setTemplateImportOpen(true)}>
+                {copy.templates.importTemplate}
+              </ActionButton>
+            )}
             {tab === 'prompts' && (
               <>
                 <input ref={importInput} type="file" accept=".json,application/json" hidden
@@ -198,6 +205,8 @@ export function LibraryScreen({ route }: { route: Extract<Route, { name: 'librar
           {tab === 'overlays' && <OverlaysTab />}
         </div>
       </div>
+
+      {templateImportOpen && <TemplateImportDialog onClose={() => setTemplateImportOpen(false)} />}
 
       {createOpen && (
         <Dialog title={copy.templates.createTitle} onClose={() => setCreateOpen(false)} width={440}

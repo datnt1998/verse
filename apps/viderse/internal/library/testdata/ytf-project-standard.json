@@ -1,0 +1,510 @@
+{
+  "id": "8c3210af-49e3-4a53-8f19-fad02cc8c9f8",
+  "name": "Mẫu chuẩn · Velvety Murmurs",
+  "description": "",
+  "createdAt": 1791950001074,
+  "updatedAt": 1791950228425,
+  "duration": 24,
+  "schemaVersion": 15,
+  "metadata": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30
+  },
+  "mediaItems": [
+    {
+      "id": "34fe07e1-e7d3-46f1-8095-e2c9db60d83a"
+    },
+    {
+      "id": "d162e623-25f6-4bfa-bd99-41653bbbdf06"
+    },
+    {
+      "id": "4d68391e-c32d-4c37-8a6a-9b1c909c97ee"
+    },
+    {
+      "id": "eb25c93a-daec-4440-8f6b-53cfec7a01ee"
+    }
+  ],
+  "timeline": {
+    "tracks": [
+      {
+        "id": "362d41ca-a413-45df-945e-37c8eccf10e0",
+        "name": "Lớp phủ: sub.mp4",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 0,
+        "kind": "video",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "2e417a9d-6c0c-46b4-b177-43afea550264",
+        "name": "Lớp phủ: song am.mp4",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 1,
+        "kind": "video",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "a2acef03-72bd-4956-8ecc-85a7cc550e93",
+        "name": "Lớp phủ: _users_2477c203-b829-47ec-90f4-0397816f6133_generated_75497815-cd65-43e2-b51a-fdcfb6571725_generated_video.MP4",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 2,
+        "kind": "video",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "standard-snow",
+        "name": "Lớp phủ: tuyết",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 3,
+        "kind": "video",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "standard-captions",
+        "name": "Phụ đề",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 10,
+        "kind": "video",
+        "templateSlot": "captions",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "standard-wave",
+        "name": "Sóng giọng",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 11,
+        "kind": "video",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "standard-scenes",
+        "name": "Hình ảnh cảnh",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 12,
+        "kind": "video",
+        "templateSlot": "scenes",
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      },
+      {
+        "id": "standard-audio",
+        "name": "Âm thanh gốc",
+        "height": 100,
+        "locked": false,
+        "visible": true,
+        "muted": false,
+        "solo": false,
+        "order": 13,
+        "kind": "audio",
+        "templateSlot": "source-audio",
+        "templateLoudnessLufs": -14,
+        "items": [],
+        "syncLock": true,
+        "volume": 0
+      }
+    ],
+    "items": [
+      {
+        "id": "standard-scene-0",
+        "type": "image",
+        "trackId": "standard-scenes",
+        "from": 0,
+        "durationInFrames": 180,
+        "label": "Ảnh minh hoạ 1",
+        "mediaId": "34fe07e1-e7d3-46f1-8095-e2c9db60d83a",
+        "src": "/api/editor/media/34fe07e1-e7d3-46f1-8095-e2c9db60d83a?v=sha256%3A9a9086304bbad53b2dc1920dd44cca81dc572144c6f515c35d8e5fc8c0e4493a",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceDuration": 0
+      },
+      {
+        "id": "standard-scene-1",
+        "type": "image",
+        "trackId": "standard-scenes",
+        "from": 180,
+        "durationInFrames": 180,
+        "label": "Ảnh minh hoạ 2",
+        "mediaId": "d162e623-25f6-4bfa-bd99-41653bbbdf06",
+        "src": "/api/editor/media/d162e623-25f6-4bfa-bd99-41653bbbdf06?v=sha256%3Af2121cb1307ff5708eb65bdd4c81a973d475b606bc18f08213d527ff377d5142",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080
+        },
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceDuration": 0
+      },
+      {
+        "id": "standard-audio",
+        "type": "audio",
+        "trackId": "standard-audio",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Âm thanh minh hoạ",
+        "mediaId": "4d68391e-c32d-4c37-8a6a-9b1c909c97ee",
+        "src": "/api/editor/media/4d68391e-c32d-4c37-8a6a-9b1c909c97ee?v=sha256%3A8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+        "volume": 0,
+        "sourceStart": 0,
+        "sourceEnd": 360,
+        "sourceDuration": 360,
+        "sourceFps": 30,
+        "audioSrc": "/api/editor/media/4d68391e-c32d-4c37-8a6a-9b1c909c97ee?v=sha256%3A8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+        "sourceWidth": 0,
+        "sourceHeight": 0
+      },
+      {
+        "id": "standard-captions",
+        "type": "subtitle",
+        "trackId": "standard-captions",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Phụ đề",
+        "source": {
+          "type": "subtitle-import",
+          "fileName": "captions.json",
+          "format": "vtt",
+          "importedAt": 0
+        },
+        "cues": [
+          {
+            "id": "preview",
+            "startSeconds": 0.2,
+            "endSeconds": 2.8,
+            "text": "Câu chuyện bắt đầu từ đây"
+          }
+        ],
+        "words": [
+          {
+            "text": "Câu",
+            "startFrame": 6,
+            "endFrame": 18
+          },
+          {
+            "text": "chuyện",
+            "startFrame": 18,
+            "endFrame": 30
+          },
+          {
+            "text": "bắt",
+            "startFrame": 30,
+            "endFrame": 42
+          },
+          {
+            "text": "đầu",
+            "startFrame": 42,
+            "endFrame": 54
+          },
+          {
+            "text": "từ",
+            "startFrame": 54,
+            "endFrame": 66
+          },
+          {
+            "text": "đây",
+            "startFrame": 66,
+            "endFrame": 78
+          }
+        ],
+        "wordsEstimated": false,
+        "captionPreset": "karaoke",
+        "color": "#ffffff",
+        "fontFamily": "Arial",
+        "fontWeight": "bold",
+        "fontSize": 64,
+        "stroke": {
+          "width": 8,
+          "color": "#0b1020"
+        },
+        "textShadow": {
+          "offsetX": 0,
+          "offsetY": 4,
+          "blur": 12,
+          "color": "#000000"
+        },
+        "textAlign": "center",
+        "verticalAlign": "middle",
+        "lineHeight": 1.15,
+        "transform": {
+          "x": 0,
+          "y": 324,
+          "width": 1560,
+          "height": 160
+        }
+      },
+      {
+        "id": "standard-wave",
+        "type": "shape",
+        "trackId": "standard-wave",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Sóng giọng",
+        "shapeType": "rectangle",
+        "mediaId": "4d68391e-c32d-4c37-8a6a-9b1c909c97ee",
+        "fillColor": "#b8d8e8",
+        "sourceStart": 0,
+        "sourceEnd": 360,
+        "sourceFps": 30,
+        "sourceDuration": 360,
+        "transform": {
+          "x": 0,
+          "y": 205,
+          "width": 1020,
+          "height": 72,
+          "opacity": 0.3
+        },
+        "waveformVisualizer": {
+          "version": 1,
+          "windowSeconds": 1,
+          "bars": 96,
+          "amplitude": 0.8,
+          "color": "#b8d8e8",
+          "strokeWidth": 3,
+          "baseline": 0.5,
+          "visible": true,
+          "sourceHash": "sha256:8153116c5fe4ba98132976ee4a18391a7dadc129e93d3f066e8b70dfe5972fbb",
+          "samplesPerSecond": 50,
+          "durationSeconds": 12,
+          "envelopeBase64": "AAAAAAtHmd/+8bxtIwAAAAAAAAAAAAcwbave+vzisXM3CgAAAAAAAAg0drfi/ffXoF4hAQAAAAAAAAYrZKHQ8/z21Z9pMQgAAAAAAA1Mot767q9bEAAAAAAAAAAAAAYmWY/B5vz868aWXCoIAAAAAAUmVYe64Pf/89yzfkgcAAAAAAUfTH6s0vL/+uzNoW1AAAAAAAUeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYoVpXI6v376sONWSYFAAAAAAgxbKfe+P3tvoZLFgAAAAAAAApElNf7+NKMPggAAAAAAAAAAAUiUoS23Pb++ty4glIiAAAAAA1KneX+7rRlGgAAAAAAAAAAAAUiT4O12vf/9uK7jVopAAAAAAUhToCx2fX9+efEmWQ0AAAAAAYtYJ3O7fr127B3OxEAAAAAAAUiU4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlAkdT4+9ycUBEAAAAAAAAAAApAldX7+NKJPwcAAAAAAAAAAAgxd7fl/ffcoFkiAQAAAAAAAAg0bq7f+vrmtHA0CAAAAAAAAAYlUom95Pr+89asd0EVAAAAAAk7hMfs++u7bC0DAAAAAAAAAAYpXJzM8fz43bN7QRQAAAAAAAUhSHim0ez9/vHWsoNRAAAAAAUnWZLC6wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "normalization": 0.19864614837681904
+        }
+      },
+      {
+        "id": "standard-snow",
+        "type": "video",
+        "trackId": "standard-snow",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "Tuyết nhẹ",
+        "templateAnchor": "full",
+        "mediaId": "eb25c93a-daec-4440-8f6b-53cfec7a01ee",
+        "src": "/api/editor/media/eb25c93a-daec-4440-8f6b-53cfec7a01ee?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceStart": 0,
+        "sourceEnd": 300,
+        "sourceDuration": 300,
+        "embeddedAudioMuted": true,
+        "loop": true,
+        "blendMode": "screen",
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "width": 1920,
+          "height": 1080,
+          "opacity": 0.45
+        },
+        "audioSrc": "/api/editor/media/eb25c93a-daec-4440-8f6b-53cfec7a01ee?v=sha256%3Aeead054216ca7a4deefbf2b83d191ac2cd1d4300c5f83f88ae9a4d4a64f49937"
+      },
+      {
+        "id": "2e1d305b-9f07-4165-b10a-fab0f3ee98b3",
+        "type": "video",
+        "trackId": "a2acef03-72bd-4956-8ecc-85a7cc550e93",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "_users_2477c203-b829-47ec-90f4-0397816f6133_generated_75497815-cd65-43e2-b51a-fdcfb6571725_generated_video.MP4",
+        "mediaId": "e73a9ef2-72c9-4e26-8b60-323283eead29",
+        "src": "/api/editor/media/e73a9ef2-72c9-4e26-8b60-323283eead29?v=sha256%3A37fb45362c6fd8ffe322d88221b2c62b02d822e001dfda7ef646011219452495",
+        "sourceWidth": 736,
+        "sourceHeight": 400,
+        "sourceFps": 24,
+        "sourceDuration": 145,
+        "sourceStart": 0,
+        "blendMode": "screen",
+        "sourceEnd": 145,
+        "embeddedAudioMuted": true,
+        "loop": true,
+        "templateAnchor": "full",
+        "audioSrc": "/api/editor/media/e73a9ef2-72c9-4e26-8b60-323283eead29?v=sha256%3A37fb45362c6fd8ffe322d88221b2c62b02d822e001dfda7ef646011219452495"
+      },
+      {
+        "id": "e9a1a11b-c3a1-4694-b298-80a477e326d2",
+        "type": "video",
+        "trackId": "2e417a9d-6c0c-46b4-b177-43afea550264",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "song am.mp4",
+        "mediaId": "b325c3f7-4b68-48e9-b1af-1a8dac786b46",
+        "src": "/api/editor/media/b325c3f7-4b68-48e9-b1af-1a8dac786b46?v=sha256%3A07feefc03b3d7e490403771ac02ef2e3fe9c407f51858984b594d796873c7a8f",
+        "sourceWidth": 1280,
+        "sourceHeight": 720,
+        "sourceFps": 30,
+        "sourceDuration": 584,
+        "sourceStart": 0,
+        "sourceEnd": 360,
+        "embeddedAudioMuted": true,
+        "effects": [
+          {
+            "id": "26d57c7a-d253-4110-ba23-bc2a1cce37e0",
+            "effect": {
+              "type": "gpu-effect",
+              "gpuEffectType": "gpu-chroma-key",
+              "params": {
+                "keyColor": "#00ca00",
+                "tolerance": 0.2,
+                "softness": 0.1,
+                "spillSuppression": 0.5
+              }
+            },
+            "enabled": true
+          }
+        ],
+        "transform": {
+          "x": -754.2340036563071,
+          "y": -422.89262592125084,
+          "width": 292.34414907457455,
+          "height": 164.44358385444818,
+          "anchorX": 146.17207453728727,
+          "anchorY": 82.22179192722409,
+          "rotation": 0,
+          "opacity": 1,
+          "cornerRadius": 0
+        },
+        "templateAnchor": "full",
+        "audioSrc": "/api/editor/media/b325c3f7-4b68-48e9-b1af-1a8dac786b46?v=sha256%3A07feefc03b3d7e490403771ac02ef2e3fe9c407f51858984b594d796873c7a8f"
+      },
+      {
+        "id": "550047e3-71aa-49d8-ac30-54e83362dd58",
+        "type": "video",
+        "trackId": "362d41ca-a413-45df-945e-37c8eccf10e0",
+        "from": 0,
+        "durationInFrames": 360,
+        "label": "sub.mp4",
+        "mediaId": "1bc56164-c80b-40fb-8142-e6b80bd8e362",
+        "src": "/api/editor/media/1bc56164-c80b-40fb-8142-e6b80bd8e362?v=sha256%3A5fc8542d20ed8761d22b4753a16a5e6108fc5e2ab1a8311fa744a46237cacb47",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceDuration": 208,
+        "sourceStart": 0,
+        "sourceEnd": 208,
+        "embeddedAudioMuted": true,
+        "loop": true,
+        "effects": [
+          {
+            "id": "3f7f039a-0542-46f5-b3d5-f13d800640a1",
+            "effect": {
+              "type": "gpu-effect",
+              "gpuEffectType": "gpu-chroma-key",
+              "params": {
+                "keyColor": "#59fd06",
+                "tolerance": 0.2,
+                "softness": 0.1,
+                "spillSuppression": 0.5
+              }
+            },
+            "enabled": true
+          }
+        ],
+        "templateAnchor": "start",
+        "audioSrc": "/api/editor/media/1bc56164-c80b-40fb-8142-e6b80bd8e362?v=sha256%3A5fc8542d20ed8761d22b4753a16a5e6108fc5e2ab1a8311fa744a46237cacb47"
+      },
+      {
+        "id": "63e4a489-004b-48ee-82e9-cac0fcd5e7c2",
+        "type": "video",
+        "trackId": "362d41ca-a413-45df-945e-37c8eccf10e0",
+        "from": 360,
+        "durationInFrames": 360,
+        "label": "sub.mp4",
+        "mediaId": "1bc56164-c80b-40fb-8142-e6b80bd8e362",
+        "src": "/api/editor/media/1bc56164-c80b-40fb-8142-e6b80bd8e362?v=sha256%3A5fc8542d20ed8761d22b4753a16a5e6108fc5e2ab1a8311fa744a46237cacb47",
+        "sourceWidth": 1920,
+        "sourceHeight": 1080,
+        "sourceFps": 30,
+        "sourceDuration": 208,
+        "sourceStart": 0,
+        "sourceEnd": 208,
+        "embeddedAudioMuted": true,
+        "loop": true,
+        "effects": [
+          {
+            "id": "3f7f039a-0542-46f5-b3d5-f13d800640a1",
+            "effect": {
+              "type": "gpu-effect",
+              "gpuEffectType": "gpu-chroma-key",
+              "params": {
+                "keyColor": "#59fd06",
+                "tolerance": 0.2,
+                "softness": 0.1,
+                "spillSuppression": 0.5
+              }
+            },
+            "enabled": true
+          }
+        ],
+        "templateAnchor": "end",
+        "originId": "dbf3a3eb-6e8b-42e0-9431-00b856667432",
+        "audioSrc": "/api/editor/media/1bc56164-c80b-40fb-8142-e6b80bd8e362?v=sha256%3A5fc8542d20ed8761d22b4753a16a5e6108fc5e2ab1a8311fa744a46237cacb47"
+      }
+    ],
+    "masterBusDb": 0,
+    "currentFrame": 359,
+    "zoomLevel": 1,
+    "scrollPosition": 0,
+    "transitions": [
+      {
+        "id": "2ed85239-e16e-48ba-9bcd-19c913bd6231",
+        "leftClipId": "standard-scene-0",
+        "rightClipId": "standard-scene-1",
+        "trackId": "standard-scenes",
+        "type": "crossfade",
+        "durationInFrames": 15,
+        "presentation": "fade",
+        "timing": "ease-in-out",
+        "alignment": 0.5
+      }
+    ]
+  },
+  "thumbnailId": "project:8c3210af-49e3-4a53-8f19-fad02cc8c9f8:cover"
+}

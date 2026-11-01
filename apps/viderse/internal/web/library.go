@@ -8,11 +8,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"mime"
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -32,6 +34,9 @@ type LibraryService interface {
 	Patch(ctx context.Context, id string, patch library.Patch) (*domain.Template, error)
 	Rename(ctx context.Context, id, name string, expectRevision *int64) (*domain.Template, error)
 	DeleteTemplate(ctx context.Context, id string) error
+	// ImportTemplateFiles nhập template cũ (.ytf-template.zip hoặc thư mục
+	// editor cũ) — cùng đường với `viderse template import`.
+	ImportTemplateFiles(ctx context.Context, files []string, opts library.ImportOptions) ([]library.ImportResult, error)
 
 	ListPrompts(ctx context.Context, kind domain.PromptKind, q string) ([]domain.ImagePrompt, error)
 	PromptUsage(ctx context.Context) (map[string][]library.TemplateRef, error)
@@ -66,6 +71,11 @@ func MountLibraryDiag(g *Gateway, svc LibraryService, mix TemplateBackdropMix, d
 	})
 	g.Handle(http.MethodPost, "/api/templates", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		createTemplate(w, r, svc, diag)
+	})
+	// Nhập template cũ đăng ký TRƯỚC tiền tố /api/templates/ để không bị route
+	// theo id nuốt mất ("import" không phải id).
+	g.Handle(http.MethodPost, "/api/templates/import", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+		importTemplates(w, r, svc, diag)
 	})
 	for _, method := range methods {
 		g.Handle(method, "/api/templates/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
@@ -295,6 +305,151 @@ func writeTemplateByID(w http.ResponseWriter, ctx context.Context, svc LibrarySe
 		return
 	}
 	webapp.WriteJSON(w, status, TemplateDetailToWire(detail))
+}
+
+// ── nhập template cũ ───────────────────────────────────────────────────────
+
+// maxImportFiles là trần số tệp một lần nhập (một lượt thả cả thư viện cũ).
+const maxImportFiles = 64
+
+// TemplateImportItemWire là một dòng kết quả nhập: tên đã đặt, cảnh báo, lỗi.
+type TemplateImportItemWire struct {
+	File        string   `json:"file"`
+	Name        string   `json:"name"`
+	TemplateID  string   `json:"templateId,omitempty"`
+	OK          bool     `json:"ok"`
+	Warnings    []string `json:"warnings"`
+	Error       string   `json:"error,omitempty"`
+	Media       int      `json:"media"`
+	MediaReused int      `json:"mediaReused"`
+}
+
+// importTemplates nhận multipart nhiều tệp `.ytf-template.zip` (trường "file",
+// lặp lại được) rồi nhập từng tệp. Luôn trả 200 khi đọc được request: mỗi
+// template một dòng {name, ok, warnings[]} để UI hiện được cả lô lẫn từng lỗi;
+// chỉ request hỏng (không phải multipart, không có tệp) mới là 400.
+func importTemplates(w http.ResponseWriter, r *http.Request, svc LibraryService, diag LibraryDiag) {
+	files, cleanup, err := receiveTemplateUploads(w, r)
+	defer cleanup()
+	if err != nil {
+		writeLibraryError(w, err, diag)
+		return
+	}
+	results, err := svc.ImportTemplateFiles(r.Context(), files, library.ImportOptions{
+		Name: strings.TrimSpace(r.URL.Query().Get("name")),
+	})
+	if err != nil {
+		writeLibraryError(w, err, diag)
+		return
+	}
+	items, imported, failed := TemplateImportToWire(results)
+	webapp.WriteJSON(w, http.StatusOK, map[string]any{
+		"items": items, "imported": imported, "failed": failed,
+	})
+}
+
+// TemplateImportToWire đổi kết quả nghiệp vụ sang hình API và đếm số template
+// nhập được / hỏng — CLI in đúng hình này để hai đường đọc như nhau.
+func TemplateImportToWire(results []library.ImportResult) ([]TemplateImportItemWire, int, int) {
+	items := make([]TemplateImportItemWire, 0, len(results))
+	imported, failed := 0, 0
+	for _, result := range results {
+		warnings := result.Warnings
+		if warnings == nil {
+			warnings = []string{}
+		}
+		items = append(items, TemplateImportItemWire{
+			File: result.Source, Name: result.Name, TemplateID: result.TemplateID,
+			OK: result.OK, Warnings: warnings, Error: result.Error,
+			Media: result.MediaImported, MediaReused: result.MediaReused,
+		})
+		if result.OK {
+			imported++
+		} else {
+			failed++
+		}
+	}
+	return items, imported, failed
+}
+
+// receiveTemplateUploads ghi từng phần multipart ra tệp tạm rồi trả danh sách
+// đường dẫn. Tệp lớn không đi qua bộ nhớ: phần được chép thẳng xuống đĩa với
+// trần MaxTemplateBundleBytes mỗi tệp và trần tổng cho cả lượt.
+func receiveTemplateUploads(w http.ResponseWriter, r *http.Request) ([]string, func(), error) {
+	noop := func() {}
+	reader, err := r.MultipartReader()
+	if err != nil {
+		return nil, noop, &library.Error{
+			Code:     library.CodeInvalidInput,
+			Message:  "Yêu cầu nhập template phải là tệp tải lên",
+			Recovery: "Chọn tệp .ytf-template.zip từ máy rồi nhập lại",
+		}
+	}
+	dir, err := os.MkdirTemp("", "viderse-template-upload-")
+	if err != nil {
+		return nil, noop, err
+	}
+	cleanup := func() { _ = os.RemoveAll(dir) }
+	files := make([]string, 0, 4)
+	total := int64(0)
+	for {
+		part, err := reader.NextPart()
+		if errors.Is(err, io.EOF) {
+			break
+		}
+		if err != nil {
+			cleanup()
+			return nil, noop, uploadError("Không đọc được tệp tải lên")
+		}
+		name := part.FileName()
+		if part.FormName() != "file" || strings.TrimSpace(name) == "" {
+			_ = part.Close()
+			continue
+		}
+		if len(files) >= maxImportFiles {
+			_ = part.Close()
+			cleanup()
+			return nil, noop, uploadError(fmt.Sprintf("Mỗi lần nhập tối đa %d tệp", maxImportFiles))
+		}
+		file := filepath.Join(dir, fmt.Sprintf("%d-%s", len(files)+1, safeFilename(name)))
+		destination, err := os.OpenFile(file, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+		if err != nil {
+			_ = part.Close()
+			cleanup()
+			return nil, noop, err
+		}
+		written, copyErr := io.Copy(destination, io.LimitReader(part, library.MaxTemplateBundleBytes+1))
+		closeErr := destination.Close()
+		_ = part.Close()
+		if copyErr != nil || closeErr != nil {
+			cleanup()
+			return nil, noop, uploadError("Không đọc được tệp tải lên")
+		}
+		if written > library.MaxTemplateBundleBytes {
+			cleanup()
+			return nil, noop, uploadError(fmt.Sprintf("Mỗi tệp tối đa %d GiB", library.MaxTemplateBundleBytes>>30))
+		}
+		total += written
+		if total > library.MaxTemplateBundleBytes {
+			cleanup()
+			return nil, noop, uploadError(fmt.Sprintf("Mỗi lần nhập tối đa %d GiB", library.MaxTemplateBundleBytes>>30))
+		}
+		files = append(files, file)
+	}
+	if len(files) == 0 {
+		cleanup()
+		return nil, noop, &library.Error{
+			Code:     library.CodeInvalidInput,
+			Message:  "Chưa chọn tệp template",
+			Recovery: "Chọn tệp .ytf-template.zip (bản xuất template)",
+		}
+	}
+	return files, cleanup, nil
+}
+
+// uploadError là lỗi 400 của lượt tải tệp.
+func uploadError(message string) error {
+	return &library.Error{Code: library.CodeInvalidInput, Message: message, Recovery: "Chọn lại tệp rồi thử lại"}
 }
 
 // templatePatchRequest là body PATCH /api/templates/:id. revision bắt buộc;
