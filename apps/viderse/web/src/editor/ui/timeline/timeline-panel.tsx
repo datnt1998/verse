@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual';
 import { ChevronRight, Eye, EyeOff, Flag, GripHorizontal, GripVertical, Headphones, Link, Lock, Magnet, Maximize, Minus, MousePointer2, Plus, Scissors, Trash2, Unlock, Volume2, VolumeX, PanelTop, MoveHorizontal } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/editor/ui/toast';
 import type { TimelineItem, TimelineTrack } from '@editor/types/timeline';
 import type { Transition } from '@editor/types/transition';
 import { useTimelineStore } from '@editor/features/timeline/stores/timeline-store';
@@ -271,7 +271,7 @@ export function TimelinePanel() {
     const next = tracks.find((entry) => entry.id !== id);
     if (next) focusTrack(next.id); else scrollRef.current?.focus();
     setRemoveTrackId(null); announce('Đã xoá track');
-    toast.success(`Đã xoá track ${track.name}`, { action: { label: 'Hoàn tác', onClick: () => { getCommandExecutor().undo(); } } });
+    toast.success(`Đã xoá track ${track.name}`, { action: { label: 'Hoàn tác', onClick: () => { getCommandExecutor().undo(); } }, undo: true });
   };
   /** An empty track goes straight away (with an undo toast); one holding clips asks first. */
   const requestRemoveTrack = (id: string) => {

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { create } from 'zustand'
-import { toast } from 'sonner'
+import { toast } from '@/editor/ui/toast'
 import type { ExportSettings, CompositionInputProps } from '@editor/types/export'
 import { useProjectStore } from '@editor/features/projects/stores/project-store'
 import { useMediaLibraryStore } from '@editor/features/media-library/stores/media-library-store'

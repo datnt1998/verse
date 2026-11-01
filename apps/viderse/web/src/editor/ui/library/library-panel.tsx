@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState, type DragEvent } from 'react';
 import { Image } from '../../bridge/navigation';
 import { Film, Type, Sparkles, Scissors, Captions, Folder, Upload, Plus, Trash2, Music, ImageIcon, AlertCircle, X, Search, Layers, Link2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/editor/ui/toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem } from '@/components/ui/context-menu';

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Dialog, Icon, Spinner, type IconName } from '@noverse/ui'
-import { Toaster } from 'sonner'
 import { executeCommands, getCommandExecutor, useCommandHistory } from '@editor/commands'
 import { useProjectStore } from '@editor/features/projects/stores/project-store'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
@@ -233,6 +232,6 @@ function EditorBody({ projectId }: { projectId: string }) {
     {dialog === 'exporting' && <ExportingDialog seconds={seconds} fps={fps} progress={progress} onCancel={() => { if (task) void mutate('DELETE', task.stateUrl).then(() => setDialog(null)).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Chưa huỷ được xuất')) }} />}
     {dialog === 'done' && <ExportDoneDialog seconds={seconds} bytes={taskResult?.export?.size} download={download} onClose={() => setDialog(null)} onBack={() => navigate('/')} />}
     {conflictOpen && <Dialog label="Dự án vừa được lưu ở nơi khác" alertDialog width={520}><div {...stylex.props(sx.dialogBody)}><div {...stylex.props(sx.row)}><Icon name="warning" size={20} {...stylex.props(sx.warning)} /><h2 {...stylex.props(sx.dialogTitle)}>Dự án vừa được lưu ở nơi khác</h2></div><p {...stylex.props(sx.dialogCopy)}>Dự án đã có bản mới hơn. Thay đổi bạn làm ở đây chưa được lưu. Chọn cách giữ lại thay đổi; không tự ghi đè bản mới.</p><div {...stylex.props(sx.stack)}><button type="button" {...stylex.props(sx.dialogChoice)} onClick={() => { setAutosave(true); session.reloadProject() }}><span {...stylex.props(sx.dialogChoiceTitle)}>Tải lại bản mới</span><span {...stylex.props(sx.dialogChoiceMeta)}>Bỏ thay đổi chưa lưu của bạn</span></button><button type="button" {...stylex.props(sx.dialogChoice)} onClick={() => { setAutosave(false); setDismissedConflict(session.conflict?.timestamp) }}><span {...stylex.props(sx.dialogChoiceTitle)}>Tiếp tục ở đây, tạm tắt tự lưu</span><span {...stylex.props(sx.dialogChoiceMeta)}>Bạn tự quyết sau; không ghi đè bản mới</span></button></div><div {...stylex.props(sx.dialogActions)}><button type="button" disabled={copying} {...stylex.props(sx.button, sx.primary)} onClick={() => { void saveCopy() }}><Icon name="copy" size={15} />Lưu thay đổi thành bản sao</button></div></div></Dialog>}
-    <Toaster theme="dark" toastOptions={{ unstyled: true, classNames: { toast: stylex.props(sx.toast).className } }} />
+
   </main>
 }

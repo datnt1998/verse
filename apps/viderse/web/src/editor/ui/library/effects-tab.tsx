@@ -2,7 +2,7 @@
 
 import type { DragEvent } from "react";
 import { Check, Sparkles, Trash2 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { cn } from "cn";
 import { EditorIconButton } from "@/editor/ui/controls";
 import { EFFECT_SAMPLE_BACKGROUND, effectPreview } from "@/editor/ui/inspector/effect-preview";

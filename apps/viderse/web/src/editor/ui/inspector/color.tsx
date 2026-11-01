@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { Eye, EyeOff, FileUp, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EditorIconButton, NumberField, PropertyRow, SectionHeader } from "@/editor/ui/controls";

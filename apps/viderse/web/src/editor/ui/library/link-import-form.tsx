@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { announce } from "@/editor/ui/shell/announcer";

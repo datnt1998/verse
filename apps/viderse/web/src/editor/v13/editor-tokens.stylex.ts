@@ -11,5 +11,4 @@ export const v13 = stylex.defineVars({
   primary: '#EDEDEF', primaryHover: '#FFFFFF', primaryFg: '#0B0B0D',
   readyBorder: 'rgba(166,237,193,.3)', readyTint: 'rgba(166,237,193,.06)',
   choiceRadius: '11px', fieldBorder: 'rgba(255,255,255,.10)', stage: '#111113',
-  toastRadius: '999px',
 })

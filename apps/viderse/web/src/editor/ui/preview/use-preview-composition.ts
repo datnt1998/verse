@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type RefObject } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/editor/ui/toast';
 import type { PlayerRef } from '@editor/runtime/player/Player';
 import { useItemsStore } from '@editor/features/timeline/stores/items-store';
 import { useTransitionsStore } from '@editor/features/timeline/stores/transitions-store';

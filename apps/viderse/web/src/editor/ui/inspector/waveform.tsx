@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { RefreshCw, Eye, EyeOff } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '@/editor/ui/toast'
 import type { ShapeItem, TimelineItem } from '@editor/types/timeline'
 import { executeCommands, type SerializedCommand } from '@editor/commands'
 import { useMediaLibraryStore } from '@editor/features/media-library/stores/media-library-store'

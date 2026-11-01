@@ -16,7 +16,7 @@ import type { ResolvedTransform } from '@editor/types/transform';
 import { EditorIconButton, EditorSelect } from '@/editor/ui/controls';
 import { useShortcutAction, type ShortcutScope } from '@/editor/ui/shortcuts';
 import { announce } from '@/editor/ui/shell/announcer';
-import { toast } from 'sonner';
+import { toast } from '@/editor/ui/toast';
 
 import { frameTimecode } from './timecode';
 import { withCommandMergeKey } from '@editor/commands';

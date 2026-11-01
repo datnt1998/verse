@@ -13,7 +13,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "../../bridge/navigation";
 import { Check, LoaderCircle, SlidersHorizontal, Tv } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/editor/ui/toast";
 import { useTimelineSettingsStore } from "@editor/features/timeline/stores/timeline-settings-store";
 import { z } from "zod";
 import { executeCommands } from "@editor/commands";
