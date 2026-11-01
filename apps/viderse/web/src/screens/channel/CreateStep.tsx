@@ -203,7 +203,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
             <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
               <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.library('templates')}`}>{tt.chooseTemplate}</a>
             </div>
-            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
+            <div className={`vch-runrow ${stylex.props(channelStyles.runrow, autonomyStyles.autRow).className}`}>
               <span {...stylex.props(autonomyStyles.orbsSm)} aria-hidden="true">
                 <Orb of="qa" size={11} className={stylex.props(autonomyStyles.orbQa).className} />
                 <Orb of="artist" size={11} className={stylex.props(autonomyStyles.orbArtist).className} />
@@ -214,9 +214,11 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
               </span>
               <Segmented
                 size="sm"
+                fit="content"
+                buttonStyle={autonomyStyles.segSm}
                 label={ta.title}
                 value={aut}
-                options={presetIds.map((id) => ({ id, label: ta.presets[id] }))}
+                options={presetIds.map((id) => ({ id, label: ta.presets[id], style: { paddingInline: 12 } }))}
                 onChange={(id) => setAut(id as PresetId)}
               />
             </div>

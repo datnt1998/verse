@@ -18,6 +18,8 @@ export const autonomyStyles = stylex.create({
   head: { display: 'flex', alignItems: 'flex-start', gap: space['--vv-s-12'] },
   orbs: { position: 'relative', width: space['--vv-s-22'], height: space['--vv-s-22'], marginTop: space['--vv-s-2'], flex: '0 0 auto' },
   orbsSm: { position: 'relative', width: space['--vv-s-16'], height: space['--vv-s-16'], marginTop: space['--vv-s-2'], flex: '0 0 auto' },
+  segSm: { fontSize: 11.5 },
+  autRow: { flexWrap: 'nowrap' },
   dim: { opacity: 0.5 },
   orbQa: { position: 'absolute', left: 0, top: 0 },
   orbArtist: { position: 'absolute', right: 0, bottom: 0 },
