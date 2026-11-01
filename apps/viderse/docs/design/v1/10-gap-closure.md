@@ -246,8 +246,8 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 
 - `preview=building` chưa biểu diễn được: API template chỉ có `none|fresh|stale`. Bộ chọn video xem trước không có trường tương ứng; xuất tệp template hiện khoá kèm lý do. Không tạo trạng thái hoặc ảnh mẫu giả để che thiếu dữ liệu.
 - B2 danh sách chương vẫn thiếu dữ liệu API.
-- Khung `MExplore` tổng thể (header/chip đối thủ/các bộ lọc) còn thuộc đợt đối chiếu toàn màn; thay đổi này mới đóng các trạng thái danh sách. App hiện có bộ lọc ≥8 phút, không phải ví dụ ≥40 phút trong artboard.
-- Vùng cuối màn Tạo kênh trên điện thoại còn được kiểm lại trong lượt sửa vùng cuộn/tab bar tích hợp; chưa dùng ảnh riêng từng nhánh để khẳng định hết che khuất.
+- Khung `MExplore` và B2 đã có màn điện thoại riêng, chip/lọc/chọn nhiều và sheet; lượt đối chiếu toàn màn đã tích hợp bên dưới. App giữ bộ lọc ≥8 phút theo API, không đổi thành ví dụ ≥40 phút.
+- Vùng cuối Tạo kênh đã kiểm lại trên nguồn tích hợp ở 390/360 px, inset 59/34 và bàn phím CSS 320 px; chưa coi đây là kiểm thử bàn phím thiết bị thật.
 
 
 ## Bộ điều khiển dùng chung và nhập template (02/11/2026)
@@ -255,12 +255,12 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 - Kit dùng chung cung cấp chọn chip, vùng thả tệp/dòng tệp và tab gạch chân; hộp nhập template hiển thị kết quả thật từng tệp, giữ tệp chưa xong khi mất kết nối và không gửi lại tệp đã nhập khi thử lại.
 - Đã chạy UI thật với hai gói hợp lệ và một gói hỏng: kết quả hai template được nhập, một tệp lỗi; kiểm tra điện thoại 390/360 px không tràn ngang. Sửa vòng đời hộp thoại để chọn tệp vẫn hoạt động khi React chạy lại effect; ba regression nhập một phần/huỷ/thử lại đều chạy trong StrictMode.
 - Sửa menu chọn mục làm mất ảnh đại diện của kênh đang dùng: giữ hình nhận diện và ghi chú, vẫn có dấu chọn. Regression tái hiện ảnh bị mất trước sửa; toàn bộ kit đạt 231 test sau sửa. Màn Bàn dựng sẽ kiểm hình thêm trong lượt tích hợp.
-- Chưa coi lượt này là xác nhận khớp toàn bộ `MLibrary`/`MTemplate`: bản xem thử chưa có dữ liệu ở fixture, và phần còn lại của ma trận điện thoại được ghi ở báo cáo đối chiếu riêng.
+- `MTemplate` đã đối chiếu lại header tên thật, hàng không đóng thẻ, ba cột cách ghép ảnh và hai cột prompt/đầu ra. Pitch hàng 59,625 px bằng canonical; bốn phần desktop không đổi pixel. Tự lưu đổi cách ghép trên template hợp lệ trả 200/revision 2 và giữ sau tải lại; template QA xoá qua API 204. Giới hạn xem trước/nguồn/xuất tệp phía trên vẫn còn, không giả dữ liệu.
 
 ## Kênh và tạo kênh điện thoại — tích hợp (02/11/2026)
 
 - Các ngăn Video/Nguồn/Template/Hồ sơ và sheet tự động dùng màn điện thoại riêng; tạo kênh có đầu trang riêng, chọn đối thủ bắt buộc và nút tạo cố định có chừa bàn phím/inset. Dữ liệu nhận diện vẫn lấy thật từ máy chủ, không ghép ảnh minh hoạ thay kết quả.
-- Đã chạy tạo kênh qua API thật, mở kênh vừa tạo và xem trường hợp Đạo diễn lỗi; các ảnh và kích thước thực nằm trong báo cáo `plans/reports/viderse-mobile/mchannel-screenshots.json`. Ảnh chụp trước lượt chuyển style tĩnh sang StyleX nên lượt kiểm hình tích hợp vẫn còn mở.
+- Đã chạy tạo kênh qua API thật, mở kênh vừa tạo và xem trường hợp Đạo diễn lỗi; báo cáo `plans/reports/viderse-mobile/mchannel-screenshots.json` ghi kích thước ảnh. Sau chuyển StyleX, lượt nguồn tích hợp đã chụp lại Hồ sơ và Tạo kênh 390/360 px: không cuộn ngang, cuối Hồ sơ không bị tab che, ô tên khi bật bàn phím CSS nằm trên nút tạo.
 - Sau tích hợp: bộ kiểm tra kênh có 55 test đạt. Menu hành động đối thủ dùng đúng một nút trigger thay vì lồng hai nút, giữ liên kết nguồn/kênh hoạt động; kiểm tra chức năng liên kết đã đạt.
 
 ## Duyệt ảnh điện thoại — đã tích hợp (02/11/2026)
@@ -269,3 +269,10 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 - Chạy UI với API thật đã xác nhận các thao tác nhận 202, trạng thái được lưu và chuyển video kế tiếp. Ảnh đối chiếu có đủ 390/360 px, inset 0 và 59/34; lượt chụp lại vẽ/hiện ảnh mới xác nhận ảnh đã tải và toàn bộ khung ảnh nằm trong vùng nhìn.
 - Sửa lỗi polling máy tính/điện thoại bị ngắt liên tục khi danh sách việc làm mới: chu kỳ tải ảnh theo ID ổn định, không theo đối tượng việc thay mới. Regression tái hiện không có lượt tải ảnh, sau sửa đạt chu kỳ mong đợi.
 - Sau tích hợp, bộ kiểm tra review và luật thiết kế đạt 27 test. API chấp nhận vẽ lại là thật; hoàn tất ảnh mới trong lượt đối chiếu dùng dữ liệu fixture đi qua polling thật, không phải chứng cứ provider ảnh bên ngoài đã tạo thành công.
+
+## Khám phá và các màn phụ điện thoại — đã tích hợp (02/11/2026)
+
+- `MExplore`/B2 có bố cục riêng: chip đối thủ, bộ lọc, chọn nhiều, sao chép link, gửi hàng loạt và các sheet thông tin/thêm nguồn/chọn kênh/lý do. Bốn sheet dùng lề ngang 16 px; đo ở 390/360 px với inset 0 và 59/34, giữ nút trong khung.
+- API thật đã xác nhận thêm và liên kết đối thủ, gửi mười video (chín mới/một trùng), bỏ lọc và hồi phục tải lỗi. Clipboard được đọc lại đúng mười URL. Thiếu dữ liệu chương/preview/direct-video/job-status vẫn là giới hạn hợp đồng, không tạo dữ liệu thay.
+- MNew đo chiều cao footer thực và giới hạn vùng cuộn theo inset/bàn phím; textarea nhiều link không bị co, mục cuối cuộn tới được. AuthShell chừa safe-area trên/dưới, nút đăng xuất vẫn tới được. Kiểm tra tích hợp New/Auth/Settings/Queue/design: 194 test và typecheck đạt; chứng cứ 129 PNG dùng bàn phím CSS, không phải bàn phím iOS thật.
+
