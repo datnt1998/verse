@@ -27,6 +27,7 @@
 /* Màn không có thanh tab (màn đẩy, chế độ chọn nhiều, bàn phím mở): mọi thứ "nổi trên
    thanh tab" lùi về mép vùng an toàn. Provider ghi data-tab-mode lên <html>. */
 html[data-tab-mode="hide"]{
+  --m-scroll-pad: calc(max(26px, var(--m-safe-bottom)) + var(--kb));
   --m-float-bottom: calc(max(26px, var(--m-safe-bottom)) + var(--kb));
   --m-toast-bottom: calc(max(26px, var(--m-safe-bottom)) + var(--kb) + 12px);
 }

@@ -193,7 +193,7 @@ export const mlib = stylex.create({
   },
   promptArt: {
     position: 'relative',
-    aspectRatio: '4 / 3',
+    aspectRatio: '16 / 9',
     borderRadius: corners['--vv-r-12'],
     backgroundImage: libraryVars.promptsTabPcardArtBackgroundImage,
     overflow: 'hidden',
@@ -250,16 +250,15 @@ export const mlib = stylex.create({
   },
 
   // ── Nguồn nền ───────────────────────────────────────────────────────────
+  /* Artboard: hàng phẳng có đường kẻ dưới, không phải thẻ. */
   source: {
     display: 'flex',
     alignItems: 'center',
     gap: s['--vv-s-10'],
-    padding: s['--vv-s-10'],
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: line['--line-2'],
-    borderRadius: corners['--vv-r-16'],
-    backgroundColor: color['--color-card'],
+    paddingBlock: s['--vv-s-8'],
+    borderBottomWidth: 1,
+    borderBottomStyle: 'solid',
+    borderBottomColor: line['--line-1'],
   },
   sourceAvatar: {
     flexShrink: 0,
@@ -275,7 +274,6 @@ export const mlib = stylex.create({
   sourceName: {
     color: color['--color-fg'],
     fontSize: s['--vv-s-14'],
-    fontWeight: 600,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -288,30 +286,33 @@ export const mlib = stylex.create({
     whiteSpace: 'nowrap',
   },
   sourceUse: {
+    color: color['--color-fg-4'],
+    fontSize: s['--vv-s-12'],
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  sourceChevron: {
     flexShrink: 0,
     color: color['--color-fg-4'],
-    fontSize: s['--vv-s-11'],
   },
   addRow: {
     marginTop: s['--vv-s-12'],
   },
 
   // ── Lớp phủ ─────────────────────────────────────────────────────────────
+  /* Artboard: ô phẳng — ảnh vuông có viền, tên và dòng phụ ngay dưới. */
   overlay: {
     display: 'flex',
     flexDirection: 'column',
-    gap: s['--vv-s-6'],
-    padding: s['--vv-s-6'],
-    borderWidth: 1,
-    borderStyle: 'solid',
-    borderColor: line['--line-2'],
-    borderRadius: corners['--vv-r-16'],
-    backgroundColor: color['--color-card'],
-    overflow: 'hidden',
+    gap: s['--vv-s-5'],
   },
   overlayArt: {
     position: 'relative',
     aspectRatio: '1 / 1',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: line['--line-2'],
     borderRadius: corners['--vv-r-12'],
     backgroundColor: color['--color-surface-4'],
     overflow: 'hidden',
@@ -322,18 +323,15 @@ export const mlib = stylex.create({
     objectFit: 'cover',
   },
   overlayName: {
-    paddingInline: s['--vv-s-4'],
     color: color['--color-fg'],
-    fontSize: s['--vv-s-12'],
-    fontWeight: 600,
+    fontSize: s['--vv-s-13'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   overlaySub: {
-    paddingInline: s['--vv-s-4'],
     color: color['--color-fg-4'],
-    fontSize: s['--vv-s-11'],
+    fontSize: s['--vv-s-12'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',

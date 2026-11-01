@@ -186,8 +186,8 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   // ── Danh sách ────────────────────────────────────────────────────────────
   return (
     <MobilePage
-      title={styleName}
-      subtitle={subtitle}
+      title={copy.editTemplate}
+      subtitle={styleName}
       onBack={() => navigate(paths.library('templates'))}
       actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={() => setMore(true)} />}
     >
@@ -195,16 +195,15 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
         <div className={stylex.props(mtpl.card).className}>
           <div className={stylex.props(mtpl.frame).className}>
             <span {...stylex.props(mtpl.frameArt)} aria-hidden="true" />
-            <span {...stylex.props(mtpl.frameState)}>{previewStateText}</span>
           </div>
           <div className={stylex.props(mtpl.body).className}>
             <span {...stylex.props(mtpl.stateRow)}>
               <span {...stylex.props(mtpl.dot, stalePreview && mtpl.dotWarn)} aria-hidden="true" />
-              {detail.preview?.builtAt ? t.library.template.preview.builtAt(clock(detail.preview.builtAt)) : t.library.template.preview.never}
+              {previewStateText} · {detail.preview?.builtAt ? t.library.template.preview.builtAt(clock(detail.preview.builtAt)) : t.library.template.preview.never}
             </span>
             <p {...stylex.props(mtpl.help)}>{t.library.template.preview.effect}</p>
             <div className={stylex.props(mtpl.actions).className}>
-              <Button size="lg" variant="ghost" aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
+              <Button size="sm" variant="ghost" aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
                 {stalePreview ? t.library.template.preview.rebuildStale : t.library.template.preview.rebuild}
               </Button>
             </div>

@@ -28,7 +28,7 @@ import { AttachChannelDialog } from '../AttachChannelDialog'
 import { TemplateImportDialog } from '../TemplateImportDialog'
 import { PromptEditor } from '../PromptEditor'
 import { styleOf, imagesText } from '../TemplatesTab'
-import { clock, initials } from '../fmt'
+import { editedLabel, initials } from '../fmt'
 import { kindName, platformName, segmentLabel } from '../backdrops/fmt'
 import { mlib } from './mlibrary.stylex'
 
@@ -220,9 +220,9 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   ] : []
 
   const newItems: MobileSheetAction[] = [
-    { key: 'template', icon: 'add', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => openName(null) },
+    { key: 'template', icon: 'layer', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => openName(null) },
     { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => setImporting(true) },
-    { key: 'prompt', icon: 'gallery', label: copy.newPrompt, onSelect: () => setEditingPrompt(null) },
+    { key: 'prompt', icon: 'magicpen', label: copy.newPrompt, onSelect: () => setEditingPrompt(null) },
     { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => setAddingBackdrop(true) },
   ]
 
@@ -306,7 +306,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                       {prompt.builtIn && <span {...stylex.props(mlib.promptBuilt)}>{copy.promptBuilt}</span>}
                     </span>
                     <span {...stylex.props(mlib.promptName)}>{prompt.name}</span>
-                    <span {...stylex.props(mlib.promptSub)}>{copy.promptTag(kindName(prompt.kind), prompt.usedBy.length ? copy.usedAt(prompt.usedBy.map((ref) => ref.name)) : copy.unused)}</span>
+                    <span {...stylex.props(mlib.promptSub)}>{copy.promptTag(t.library.prompts.kindName[prompt.kind], prompt.usedBy.length ? copy.usedAt(prompt.usedBy.map((ref) => ref.name)) : copy.unused)}</span>
                   </button>
                 ))}
                 <button type="button" className={stylex.props(mlib.promptNew).className} onClick={() => setEditingPrompt(null)}>
@@ -477,7 +477,7 @@ function TemplateCard({ template, onOpen, onMenu }: {
             </span>
           )}
           <span>{names.length ? copy.usedText(names) : copy.usedText([])}</span>
-          <span>{clock(template.updatedAt)}</span>
+          <span>{editedLabel(template.updatedAt, { today: copy.editedToday, date: copy.editedDate })}</span>
         </div>
       </div>
     </article>
@@ -496,8 +496,9 @@ function SourceChannelRow({ channel }: { channel: BackdropChannel }) {
       <span className={stylex.props(mlib.sourceMain).className}>
         <span {...stylex.props(mlib.sourceName)}>{channel.title ?? channel.handle}</span>
         <span {...stylex.props(mlib.sourceSub)}>{t.library.mobile.channelKind(platformName(channel.platform), kinds)}</span>
+        {used.length > 0 && <span {...stylex.props(mlib.sourceUse)}>{t.library.mobile.usedAt(used)}</span>}
       </span>
-      <span {...stylex.props(mlib.sourceUse)}>{used.length ? t.library.mobile.usedAt(used) : t.library.mobile.unused}</span>
+      <span {...stylex.props(mlib.sourceChevron)} aria-hidden="true"><Icon name="arrow-r" size={16} /></span>
     </div>
   )
 }
@@ -510,8 +511,9 @@ function SourceVideoRow({ video }: { video: BackdropVideo }) {
       <span className={stylex.props(mlib.sourceMain).className}>
         <span {...stylex.props(mlib.sourceName)}>{video.title}</span>
         <span {...stylex.props(mlib.sourceSub)}>{t.library.mobile.videoKind(platformName(video.platform), segmentLabel(video.segment.fromSec, video.segment.toSec))}</span>
+        {used.length > 0 && <span {...stylex.props(mlib.sourceUse)}>{t.library.mobile.usedAt(used)}</span>}
       </span>
-      <span {...stylex.props(mlib.sourceUse)}>{used.length ? t.library.mobile.usedAt(used) : t.library.mobile.unused}</span>
+      <span {...stylex.props(mlib.sourceChevron)} aria-hidden="true"><Icon name="arrow-r" size={16} /></span>
     </div>
   )
 }

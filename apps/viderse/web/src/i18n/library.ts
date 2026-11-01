@@ -507,7 +507,7 @@ export const libraryCopy = {
     overlaysHelp: 'Lớp phủ chạy trên cả video (tuyết, mưa, hạt phim…). Lớp có sẵn không xoá được.',
     addBackdrop: 'Thêm kênh hoặc video nền',
     addOverlay: 'Thêm hiệu ứng',
-    newPrompt: 'Prompt mới',
+    newPrompt: 'Prompt ảnh mới',
     promptTag: (kind: string, detail: string) => `${kind} · ${detail}`,
     promptBuilt: 'Có sẵn',
     channelKind: (platform: string, kinds: string) => `${platform} · ${kinds}`,

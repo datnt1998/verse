@@ -134,8 +134,9 @@ export function MobileShell({ route, status, online, userName, channels, channel
         </>}
       />}
       {children}
-      {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab. */}
-      {route.name === 'channel-new' ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
+      {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab.
+          MLibrary / MTemplate cũng vậy: artboard chỉ có thanh riêng của màn. */}
+      {route.name === 'channel-new' || subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
       {jobsLoaded && <Suspense fallback={null}>
         <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
       </Suspense>}
