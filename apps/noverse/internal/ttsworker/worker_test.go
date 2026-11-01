@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -75,8 +77,12 @@ type fakeServer struct {
 	released     []int64
 	failed       int
 	forceFence   bool // complete/fail/upload answer 409
+	uploadStatus int  // when non-zero, the blob endpoint answers this status
 	heartbeat    int
 	unauthorized int
+	states       []map[string]any
+	commandSeq   int64
+	commandOp    string
 	srv          *httptest.Server
 }
 
@@ -90,6 +96,8 @@ func newFakeServer(t *testing.T, jobs ...job) *fakeServer {
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/heartbeat", fs.handleHeartbeat)
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/release", fs.handleRelease)
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/fail", fs.handleFail)
+	mux.HandleFunc("POST /internal/worker/state", fs.handleState)
+	mux.HandleFunc("GET /internal/worker/command", fs.handleCommand)
 	fs.srv = httptest.NewServer(mux)
 	t.Cleanup(fs.srv.Close)
 	return fs
@@ -148,6 +156,10 @@ func (f *fakeServer) handleUpload(w http.ResponseWriter, r *http.Request) {
 	defer f.mu.Unlock()
 	if f.forceFence {
 		http.Error(w, `{"error":"fenced"}`, http.StatusConflict)
+		return
+	}
+	if f.uploadStatus != 0 {
+		http.Error(w, `{"error":"máy chủ bận"}`, f.uploadStatus)
 		return
 	}
 	body, _ := io.ReadAll(r.Body)
@@ -234,6 +246,32 @@ func (f *fakeServer) handleFail(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(map[string]any{"job": map[string]any{"state": "failed"}})
 }
 
+func (f *fakeServer) handleState(w http.ResponseWriter, r *http.Request) {
+	if !f.authOK(w, r) {
+		return
+	}
+	var body map[string]any
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, `{"error":"bad"}`, http.StatusBadRequest)
+		return
+	}
+	f.mu.Lock()
+	f.states = append(f.states, body)
+	f.mu.Unlock()
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (f *fakeServer) handleCommand(w http.ResponseWriter, r *http.Request) {
+	if !f.authOK(w, r) {
+		return
+	}
+	f.mu.Lock()
+	seq, op := f.commandSeq, f.commandOp
+	f.mu.Unlock()
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{"seq": seq, "op": op})
+}
+
 func snapshotInput(t *testing.T, kind string, segments ...Segment) json.RawMessage {
 	t.Helper()
 	body, err := json.Marshal(Snapshot{
@@ -251,6 +289,7 @@ func newTestWorker(t *testing.T, fs *fakeServer, engine voice.Engine) *Worker {
 	w, err := New(Config{
 		APIURL: fs.srv.URL, Token: testToken, Engine: engine,
 		Lease: 120 * time.Second, Heartbeat: 50 * time.Millisecond, Poll: 10 * time.Millisecond,
+		StateDir: t.TempDir(),
 	})
 	if err != nil {
 		t.Fatalf("new worker: %v", err)
@@ -387,6 +426,36 @@ func TestWorkerEngineFailure(t *testing.T) {
 	}
 }
 
+// TestWorkerUploadOutageLeavesLeaseRecoverable: a rendered segment whose upload
+// hits a server outage (5xx) is not the chapter's fault. The lease must go back
+// to the queue and /fail must never be called, even though it is reachable.
+func TestWorkerUploadOutageLeavesLeaseRecoverable(t *testing.T) {
+	for _, status := range []int{http.StatusServiceUnavailable, http.StatusInternalServerError} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			input := snapshotInput(t, "create", Segment{ID: "seg-1", Text: "Câu một."})
+			fs := newFakeServer(t, job{ID: "job-1", Kind: "tts", State: "running", Fence: 4, Input: input})
+			fs.uploadStatus = status
+			w := newTestWorker(t, fs, &fakeEngine{})
+
+			// The worker keeps serving: an outage must not stop the process.
+			ctx, cancel := context.WithTimeout(context.Background(), 300*time.Millisecond)
+			defer cancel()
+			if err := w.Run(ctx); err != nil {
+				t.Fatalf("run returned %v, want the worker to keep serving", err)
+			}
+			fs.mu.Lock()
+			failed, released := fs.failed, append([]int64(nil), fs.released...)
+			fs.mu.Unlock()
+			if failed != 0 {
+				t.Fatalf("/fail called %d time(s): an upload outage must not terminalize the job", failed)
+			}
+			if len(released) != 1 || released[0] != 4 {
+				t.Fatalf("released = %v, want the lease back ([4])", released)
+			}
+		})
+	}
+}
+
 // TestWorkerRequiresToken: a worker without a token refuses to start (the
 // secret is env-only, never argv).
 func TestWorkerRequiresToken(t *testing.T) {
@@ -395,5 +464,85 @@ func TestWorkerRequiresToken(t *testing.T) {
 	}
 	if _, err := New(Config{APIURL: "", Token: testToken, Engine: &fakeEngine{}}); err == nil {
 		t.Fatal("New accepted an empty API URL")
+	}
+}
+
+// TestWorkerSmokeIsolatedHome is the end-to-end smoke: a real HTTP listener
+// (throwaway httptest server) and a fake engine, driven through the actual
+// claim → synthesize → upload → complete loop, with HOME redirected to a temp
+// dir so no real user state is touched. It also proves the durable command
+// marker lands under that HOME and that a replacement process with the same
+// credential does not replay the command.
+func TestWorkerSmokeIsolatedHome(t *testing.T) {
+	home := t.TempDir()
+	t.Setenv("HOME", home)
+	t.Setenv("USERPROFILE", home)
+
+	input := snapshotInput(t, "create", Segment{ID: "seg-1", Text: "Câu một.", Voice: "vieneu-nu-bac", Speed: 1})
+	fs := newFakeServer(t, job{
+		ID: "job-1", ProjectID: testProjectID, StoryID: testStoryID,
+		Kind: "tts", State: "running", Fence: 3, Input: input,
+	})
+	fs.mu.Lock()
+	fs.commandSeq, fs.commandOp = 4, "install"
+	fs.mu.Unlock()
+
+	engine := &fakeEngine{}
+	prov := &fakeProvisioner{}
+	newSmokeWorker := func(p Provisioner) *Worker {
+		t.Helper()
+		w, err := New(Config{
+			APIURL: fs.srv.URL, Token: testToken, Engine: engine,
+			Lease: 30 * time.Second, Heartbeat: time.Second, Poll: 5 * time.Millisecond,
+			Provisioner: p,
+		})
+		if err != nil {
+			t.Fatalf("new worker: %v", err)
+		}
+		return w
+	}
+	w := newSmokeWorker(prov)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	if err := w.Run(ctx); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+
+	fs.mu.Lock()
+	completed, states, failed := len(fs.completed), len(fs.states), fs.failed
+	fs.mu.Unlock()
+	if completed != 1 {
+		t.Fatalf("completed = %d, want 1", completed)
+	}
+	if failed != 0 {
+		t.Fatalf("/fail called %d time(s)", failed)
+	}
+	if states == 0 {
+		t.Fatal("worker never published its state")
+	}
+	// Startup pin reconciliation plus the operator command: two provision runs.
+	if got := prov.count(); got != 2 {
+		t.Fatalf("provision passes = %d, want 2 (startup reconcile + command)", got)
+	}
+
+	// The durable marker is under the isolated HOME, never the real one.
+	markerDir := filepath.Join(home, ".ainovel", "worker")
+	entries, err := os.ReadDir(markerDir)
+	if err != nil {
+		t.Fatalf("read state dir %s: %v", markerDir, err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("state dir holds %v, want exactly one marker", entries)
+	}
+
+	// A replacement process with the same credential must not replay seq 4.
+	prov2 := &fakeProvisioner{}
+	w2 := newSmokeWorker(prov2)
+	if err := w2.pollCommand(context.Background()); err != nil {
+		t.Fatalf("poll command after restart: %v", err)
+	}
+	if prov2.count() != 0 {
+		t.Fatalf("replayed command after restart: %d provision pass(es)", prov2.count())
 	}
 }
