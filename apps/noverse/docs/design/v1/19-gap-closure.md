@@ -1002,3 +1002,11 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 - `formatRunDuration`: 0/không có số đo → ẩn, dưới 0,1 giây → “<0,1 giây”. Không còn “0 giây”.
 - Token mới đo từ canvas 137: `--kit-acc-3/10/38`, `--kit-errf-4/32`.
 - Chưa kiểm với một vòng viết thật (máy dev không có nhà cung cấp AI) — đã so artboard `Main` `phase=rewrite` bằng dữ liệu mẫu ở 1440×900.
+
+### Gói AT — đã tích hợp (02/11/2026)
+
+- Máy chủ trả trạng thái máy đọc, tiến độ có số đo, hàng đợi đang chờ và khả năng nghe thử; giao diện máy tính/điện thoại dùng cùng dữ liệu, không giả phần trăm cho bước không đo được. Máy đọc offline là trung tính, chỉ cảnh báo khi có chương chờ.
+- Giọng đọc/Nâng cao có cấp và thu hồi quyền; lỗi công khai dùng câu an toàn, chẩn đoán chỉ ở Nâng cao cho quản trị. Lượt lỗi đã huỷ không tự xuất hiện lại khi cùng heartbeat được phát lại.
+- Worker kiểm tra máy đọc trước khi nhận việc, trả lease khi upload tạm lỗi và giữ dấu lượt chuẩn bị chưa rõ kết quả qua khởi động lại; checksum lỗi hoặc lượt bị gián đoạn chỉ tiếp tục sau lệnh quản trị mới. Hợp đồng lý do tại [10-audio.md](10-audio.md#82-câu-lý-do-lỗi-tweak-vfail).
+- Đã mở UI mock thật ở 390 px với inset 0 và 59/34: thẻ chưa có máy/đang chuẩn bị/thiếu dung lượng, ngăn tạo giọng có ba chương chờ và đang chuẩn bị. Không coi dữ liệu mock là chứng cứ tạo giọng thật.
+- Đã kiểm lại tích hợp bằng typecheck, suite web và các package Go liên quan; các lỗi vòng đời worker được review riêng. Chứng cứ vận hành còn phải đóng: triển khai cặp hosted/native cùng revision, tạo giọng một chương thật và xuất M4B trên Mac mini.

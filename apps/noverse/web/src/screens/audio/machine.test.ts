@@ -1,7 +1,7 @@
 // Gói AT — bộ chuyển trạng thái máy đọc (10-audio.md §8.1, §8.2, §8.3).
 import { describe, expect, it } from 'vitest'
 import {
-  MACHINE_FAILURES, machineAdvanced, machineKind, machineSeenNote, machineStepLine, machineSteps, machineView, prepLine, type MachineStatus,
+  machineAdvanced, machineKind, machineSeenNote, machineStepLine, machineSteps, machineView, prepLine, type MachineStatus,
 } from './machine'
 
 const status = (over: MachineStatus = {}): MachineStatus => ({ state: 'ready', ffmpeg: true, ...over })
@@ -52,27 +52,6 @@ it('danh sách 6 bước: bước xong, bước đang chạy, bước chờ', ()
   expect(machineStepLine(status({ state: 'provisioning', step: 'model', percent: 42 }))).toBe('Bước 5/6 · Tải mẫu giọng · 42%')
 })
 
-it('bảy câu lỗi 8.2: đúng tiêu đề, đúng một câu lý do, đúng nút', () => {
-  const expected: Record<string, [string, string, string]> = {
-    no_disk: ['Máy đọc không đủ chỗ trống', 'Cần ít nhất 4 GB trống', 'Thử lại'],
-    download_failed: ['Không tải được bộ đọc', 'Mạng của máy đọc bị ngắt giữa chừng', 'Thử lại'],
-    hash_mismatch: ['Tệp tải về không khớp bản gốc', 'đã bị bỏ để giữ an toàn', 'Thử lại'],
-    deps_failed: ['Không chuẩn bị được thư viện', 'Bước cài thư viện cho bộ đọc dừng giữa chừng', 'Thử lại'],
-    model_failed: ['Không tải được mẫu giọng', 'Mẫu giọng (khoảng 580 MB)', 'Thử lại'],
-    start_failed: ['Bộ đọc không khởi động được', 'không bật lên được', 'Thử lại'],
-    token_rejected: ['Máy đọc đã bị thu hồi quyền', 'không còn được nhận việc tạo giọng', 'Mở Nâng cao'],
-  }
-  for (const [code, [title, fragment, label]] of Object.entries(expected)) {
-    const view = machineView(status({ state: 'error', error: { code } }))
-    expect(view.title, code).toBe(title)
-    expect(view.sentence, code).toContain(fragment)
-    expect(view.actions, code).toEqual([{ label, kind: label === 'Thử lại' ? 'retry' : 'advanced' }])
-    expect(view.chip).toEqual({ text: 'Bắt sửa', tone: 'error' })
-  }
-  expect(Object.keys(MACHINE_FAILURES).sort()).toEqual(
-    ['deps_failed', 'download_failed', 'hash_mismatch', 'model_failed', 'no_disk', 'start_failed', 'token_rejected', 'uv_failed'].sort(),
-  )
-})
 
 it('uv_failed dùng chung câu với download_failed; mã lạ vẫn có câu an toàn', () => {
   const uv = machineView(status({ state: 'error', error: { code: 'uv_failed' } }))

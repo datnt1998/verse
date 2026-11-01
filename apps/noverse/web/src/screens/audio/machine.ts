@@ -112,7 +112,7 @@ export const MACHINE_STEPS: readonly { key: string; label: string; measurable: b
 
 export type MachineFailure = { title: string; sentence: string; action: MachineActionKind; label: string }
 
-/** Bảy câu lý do lỗi (10-audio.md §8.2) — mã chỉ nằm trong bảng này, không ra UI. */
+/** Lý do lỗi công khai (10-audio.md §8.2) — mã không ra UI. */
 export const MACHINE_FAILURES: Record<string, MachineFailure> = {
   no_disk: {
     title: 'Máy đọc không đủ chỗ trống',
@@ -132,6 +132,11 @@ export const MACHINE_FAILURES: Record<string, MachineFailure> = {
   hash_mismatch: {
     title: 'Tệp tải về không khớp bản gốc',
     sentence: 'Tệp vừa tải khác bản Noverse đã kiểm nên đã bị bỏ để giữ an toàn. Máy đọc không tự thử tiếp; thử lại khi mạng ổn định, vẫn lỗi thì báo quản trị.',
+    action: 'retry', label: 'Thử lại',
+  },
+  interrupted: {
+    title: 'Lượt chuẩn bị bị gián đoạn',
+    sentence: 'Máy đọc dừng giữa chừng khi chuẩn bị bộ đọc nên chưa rõ kết quả. Phần đã xong được giữ nguyên; bấm Thử lại để làm tiếp.',
     action: 'retry', label: 'Thử lại',
   },
   deps_failed: {
