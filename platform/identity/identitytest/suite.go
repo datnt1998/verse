@@ -10,7 +10,9 @@ package identitytest
 
 import (
 	"errors"
+	"fmt"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -329,6 +331,51 @@ func Run(t *testing.T, factory Factory) {
 		}
 		// Mã QR một lần.
 		isErr(t, errorCheck(func() error { _, err := s.Pair(code, "", ""); return err }), identity.ErrInvalidPairing, "pairing reuse")
+	})
+
+	// pairing_concurrent giữ bất biến "một mã QR, một phiên" khi nhiều request
+	// đổi mã cùng lúc: backend phải tranh chấp trên một hàng/bản ghi thật sự,
+	// không chỉ đọc-rồi-ghi. Đúng một lượt thành công, phần còn lại
+	// ErrInvalidPairing — không được có phiên thứ hai từ cùng một mã.
+	t.Run("pairing_concurrent", func(t *testing.T) {
+		s := factory(t)
+		if _, err := s.CreateUser(identity.NewUser{Username: "chu", Role: identity.RoleAdmin, Password: pass1}); err != nil {
+			t.Fatal(err)
+		}
+		const attempts = 8
+		code, _, err := s.NewPairing("chu", "chu")
+		if err != nil {
+			t.Fatal(err)
+		}
+		var (
+			start   = make(chan struct{})
+			results = make([]error, attempts)
+			wg      sync.WaitGroup
+		)
+		for i := range attempts {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				<-start
+				_, err := s.Pair(code, fmt.Sprintf("Phone-%d", i), "")
+				results[i] = err
+			}()
+		}
+		close(start)
+		wg.Wait()
+		won := 0
+		for i, err := range results {
+			switch {
+			case err == nil:
+				won++
+			case errors.Is(err, identity.ErrInvalidPairing):
+			default:
+				t.Fatalf("attempt %d: unexpected error: %v", i, err)
+			}
+		}
+		if won != 1 {
+			t.Fatalf("%d of %d concurrent redemptions of one pairing code succeeded, want exactly 1", won, attempts)
+		}
 	})
 
 	t.Run("recovery", func(t *testing.T) {

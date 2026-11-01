@@ -160,10 +160,13 @@ WHERE id = $1 AND revoked_at IS NULL;
 INSERT INTO device_pairings (id, user_id, token_hash, created_by, expires_at)
 VALUES ($1, $2, $3, $4, $5);
 
--- name: GetPairingByTokenHash :one
-SELECT * FROM device_pairings WHERE token_hash = $1;
+-- name: GetPairingByTokenHashForUpdate :one
+-- Row lock, not a plain read: two concurrent redemptions of one QR code must
+-- serialize on the row, or each can read used_at IS NULL and mint a session.
+-- The second waiter re-reads the committed row and sees it consumed.
+SELECT * FROM device_pairings WHERE token_hash = $1 FOR UPDATE;
 
--- name: ConsumePairing :exec
+-- name: ConsumePairing :execrows
 UPDATE device_pairings SET used_at = $2, updated_at = $2, version = version + 1
 WHERE id = $1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > $2;
 

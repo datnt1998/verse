@@ -30,7 +30,7 @@ func (q *Queries) ClearMustChangePassword(ctx context.Context, arg ClearMustChan
 	return err
 }
 
-const consumePairing = `-- name: ConsumePairing :exec
+const consumePairing = `-- name: ConsumePairing :execrows
 UPDATE device_pairings SET used_at = $2, updated_at = $2, version = version + 1
 WHERE id = $1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > $2
 `
@@ -40,9 +40,12 @@ type ConsumePairingParams struct {
 	UsedAt pgtype.Timestamptz `json:"used_at"`
 }
 
-func (q *Queries) ConsumePairing(ctx context.Context, arg ConsumePairingParams) error {
-	_, err := q.db.Exec(ctx, consumePairing, arg.ID, arg.UsedAt)
-	return err
+func (q *Queries) ConsumePairing(ctx context.Context, arg ConsumePairingParams) (int64, error) {
+	result, err := q.db.Exec(ctx, consumePairing, arg.ID, arg.UsedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const consumeRecoveryCode = `-- name: ConsumeRecoveryCode :exec
@@ -278,12 +281,15 @@ func (q *Queries) GetOpenTempPasswordForUpdate(ctx context.Context, userID pgtyp
 	return i, err
 }
 
-const getPairingByTokenHash = `-- name: GetPairingByTokenHash :one
-SELECT id, user_id, token_hash, created_by, expires_at, used_at, revoked_at, created_at, updated_at, version FROM device_pairings WHERE token_hash = $1
+const getPairingByTokenHashForUpdate = `-- name: GetPairingByTokenHashForUpdate :one
+SELECT id, user_id, token_hash, created_by, expires_at, used_at, revoked_at, created_at, updated_at, version FROM device_pairings WHERE token_hash = $1 FOR UPDATE
 `
 
-func (q *Queries) GetPairingByTokenHash(ctx context.Context, tokenHash []byte) (DevicePairing, error) {
-	row := q.db.QueryRow(ctx, getPairingByTokenHash, tokenHash)
+// Row lock, not a plain read: two concurrent redemptions of one QR code must
+// serialize on the row, or each can read used_at IS NULL and mint a session.
+// The second waiter re-reads the committed row and sees it consumed.
+func (q *Queries) GetPairingByTokenHashForUpdate(ctx context.Context, tokenHash []byte) (DevicePairing, error) {
+	row := q.db.QueryRow(ctx, getPairingByTokenHashForUpdate, tokenHash)
 	var i DevicePairing
 	err := row.Scan(
 		&i.ID,

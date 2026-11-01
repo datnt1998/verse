@@ -236,7 +236,7 @@ func (a *Accounts) Pair(code, device, ip string) (identity.NewSession, error) {
 	var out identity.NewSession
 	err := RunInTx(context.Background(), a.pool, func(tx pgx.Tx) error {
 		q := a.q(tx)
-		p, err := q.GetPairingByTokenHash(ctx, h)
+		p, err := q.GetPairingByTokenHashForUpdate(ctx, h)
 		if err != nil {
 			if noRows(err) {
 				return identity.ErrInvalidPairing
@@ -253,8 +253,14 @@ func (a *Accounts) Pair(code, device, ip string) (identity.NewSession, error) {
 		if row.Status == "locked" || p.UsedAt.Valid || p.RevokedAt.Valid || !p.ExpiresAt.Time.After(a.now()) {
 			return identity.ErrInvalidPairing
 		}
-		if err := q.ConsumePairing(ctx, gen.ConsumePairingParams{ID: p.ID, UsedAt: ts(a.now())}); err != nil {
+		// The row lock already serializes redemption; the affected-row count is
+		// the second guard, so a future lock change cannot mint two sessions.
+		n, err := q.ConsumePairing(ctx, gen.ConsumePairingParams{ID: p.ID, UsedAt: ts(a.now())})
+		if err != nil {
 			return sanitizeErr(err)
+		}
+		if n != 1 {
+			return identity.ErrInvalidPairing
 		}
 		out, err = a.newSession(ctx, q, tx, row, "pairing", pgtype.UUID{}, device, ip)
 		return err
