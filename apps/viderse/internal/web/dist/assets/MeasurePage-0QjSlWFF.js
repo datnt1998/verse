@@ -1,1 +1,0 @@
-import{j as e}from"./index-DFqRsbfX.js";import{H as o}from"./headless-page-Droq8u2K.js";import"./client-render-engine-pxHep6bQ.js";import"./canvas-audio-D3Nvhao4.js";import"./canvas-render-orchestrator-BCBZ8bUK.js";function p(r){return e.jsx(o,{...r,kind:"measure"})}export{p as MeasurePage};
