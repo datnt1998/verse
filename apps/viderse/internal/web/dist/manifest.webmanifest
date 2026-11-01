@@ -1,14 +1,33 @@
 {
-  "name": "Viderse",
+  "id": "/",
+  "name": "Viderse · Xưởng video YouTube",
   "short_name": "Viderse",
+  "description": "Theo dõi bốn trợ lý, duyệt ảnh và video, rồi xuất video cho kênh YouTube của bạn.",
   "lang": "vi",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0B0B0D",
   "theme_color": "#0B0B0D",
+  "background_color": "#0B0B0D",
   "icons": [
-    { "src": "/app-icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/app-icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

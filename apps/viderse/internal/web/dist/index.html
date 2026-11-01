@@ -2,20 +2,34 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="dark" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/app-icon.svg" />
-    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#0B0B0D" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Viderse" />
+    <meta name="application-name" content="Viderse" />
+    <meta name="description" content="Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <!-- Thứ tự layer phải có trong HTML tĩnh, trước mọi stylesheet do JS nạp.
          StyleX chèn `virtual:stylex.css` (mở đầu `@layer priority1; …`) bằng một <style>
          tạo lúc chạy, tức là stylesheet ĐẦU TIÊN của trang; nếu chỉ khai báo trong
          base.css (nạp sau) thì `@layer theme, base, …` bị bỏ qua và base/components rơi
          xuống SAU priority* → reset đè hết atom của kit. Giống index.html của Noverse. -->
     <style>@layer theme, base, components, utilities, properties, priority, priority1, priority2, priority3, priority4, priority5, priority6, priority7, priority8;</style>
-    <title>Viderse</title>
-    <script type="module" crossorigin src="/assets/index-CVqBdUoX.js"></script>
+    <title>Viderse · Xưởng video</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Viderse" />
+    <meta property="og:title" content="Viderse · Xưởng video" />
+    <meta property="og:description" content="Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." />
+    <meta property="og:image" content="/icons/viderse-og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="module" crossorigin src="/assets/index-BgifezqK.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-B9x0Kezx.css">
   </head>
   <body>

@@ -1,1 +1,0 @@
-import{j as t,E as x}from"./index-CVqBdUoX.js";function n({icon:a="magic-star",title:m,hint:r,action:s}){return t.jsx("div",{className:"x78zum5 x6s0dn4 xl56j7k xjxljni x16mkdm",children:t.jsx(x,{variant:"frame",icon:a,title:m,hint:r,action:s})})}export{n as S};
