@@ -18,7 +18,7 @@
 :is(.mc-page,.mc-overlay) .mc-scroll>*{flex-shrink:0}
 :is(.mc-page,.mc-overlay) .mc-scroll::-webkit-scrollbar{display:none}
 :is(.mc-page,.mc-overlay) .mc-scroll h2{margin:0;font-size:20px;font-weight:600}
-:is(.mc-page,.mc-overlay) .mc-actions{position:absolute;bottom:var(--kb,0px);left:0;right:0;z-index:20;display:flex;gap:10px;padding:16px 16px max(30px,env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,#0B0B0D 28%)}
+:is(.mc-page,.mc-overlay) .mc-actions{position:absolute;bottom:var(--kb,0px);left:0;right:0;z-index:20;display:flex;gap:10px;padding:16px 16px max(30px,var(--m-safe-bottom));background:linear-gradient(180deg,transparent,#0B0B0D 28%)}
 :is(.mc-page,.mc-overlay) .mc-actions-stack{flex-direction:column;gap:8px}
 :is(.mc-page,.mc-overlay) .mc-actions-stack>.mc-button{flex:0 0 auto;width:100%}
 :is(.mc-page,.mc-overlay) .mc-actions>.mc-button.mc-auto{flex:0 0 auto;padding:0 18px}
@@ -127,7 +127,7 @@
 :is(.mc-page,.mc-overlay) .mc-impacts{display:flex;gap:6px;flex-wrap:wrap}
 :is(.mc-page,.mc-overlay) .mc-impacts>span{height:26px;padding:0 10px;border-radius:8px;background:rgba(255,255,255,.05);color:#C9C9D1;font-size:12.5px;display:flex;align-items:center;gap:6px;white-space:nowrap}
 :is(.mc-page,.mc-overlay) .mc-success{display:flex;align-items:center;gap:10px;font-size:14px;color:#A6EDC1}
-:is(.mc-page,.mc-overlay) .mc-composer{position:absolute;left:0;right:0;bottom:var(--kb,0px);z-index:20;padding:14px 12px max(30px,env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,#0B0B0D 26%)}
+:is(.mc-page,.mc-overlay) .mc-composer{position:absolute;left:0;right:0;bottom:var(--kb,0px);z-index:20;padding:14px 12px max(30px,var(--m-safe-bottom));background:linear-gradient(180deg,transparent,#0B0B0D 26%)}
 :is(.mc-page,.mc-overlay) .mc-composer-box{display:flex;align-items:center;gap:8px;min-height:52px;padding:5px 5px 5px 18px;border-radius:26px;background:rgba(28,28,31,.92);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.1);box-shadow:0 14px 34px -14px rgba(0,0,0,.8)}
 :is(.mc-page,.mc-overlay) .mc-composer-box input{flex:1;min-width:0;height:40px;border:0;background:none;color:#EDEDEF;font-size:16px;outline:none}
 :is(.mc-page,.mc-overlay) .mc-send{width:42px;height:42px;border:0;border-radius:50%;background:#EDEDEF;color:#0B0B0D;display:flex;align-items:center;justify-content:center;flex-shrink:0}

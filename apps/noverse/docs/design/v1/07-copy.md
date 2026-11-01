@@ -296,3 +296,18 @@ Câu “vì sao phải đăng nhập lại” ở `09-auth-onboard.md` §12.3.
 | M1 trống | Chưa có truyện nào · Tạo truyện mới ngay tại đây, hoặc mở truyện có sẵn. Khi truyện bắt đầu, bạn theo dõi và duyệt ở màn này. · Tạo truyện mới · Mở truyện có sẵn · Báo tôi khi có truyện mới |
 | M4 Dự án & truyện | hàng cuối mỗi dự án: Truyện mới |
 | Hướng dẫn lệnh `/start` | nhãn: Dùng ở Truyện mới · nút: Mở Truyện mới |
+
+## Bảng từ: Gói AS + AT (01/11) <!-- at-copy -->
+
+| Chỗ | Câu |
+|---|---|
+| Luồng viết trực tiếp (AS) | Tất cả · Kiến trúc sư · Người viết · Biên tập viên · {n} vòng · Lịch sử › · Tải thêm vòng cũ hơn · Vòng {n} {vai} · {việc} · {n} thao tác · {tổng thời gian} · Chưa có vòng nào của {vai} |
+| Thuật ngữ máy đọc | máy đọc · bộ đọc · chuẩn bị bộ đọc · máy đọc chưa kết nối · đang chờ máy đọc · Máy này (bản cá nhân) |
+| Nhãn trạng thái máy đọc | Chưa có máy đọc · Chưa chuẩn bị · Chưa kết nối · Đang chuẩn bị · Chuẩn bị chưa xong · Sẵn sàng · Đã thu hồi (Nâng cao) |
+| Bước chuẩn bị | Tải công cụ cài đặt · Chuẩn bị môi trường chạy · Tải bộ đọc · Cài thư viện · Tải mẫu giọng · Khởi động bộ đọc · “Bước i/6 · …” · “{x} / 581 MB · còn khoảng {n} phút” |
+| Thẻ đầu màn | Chưa có máy đọc để tạo giọng · Máy đọc chưa kết nối · Đang chuẩn bị bộ đọc · {bước} · Chưa ghép và xuất tập được · {n} chương đang chờ |
+| Đang chờ | {n} chương đang chờ máy đọc · Đang chờ máy đọc · Báo khi bắt đầu · Không phải lỗi: chương giữ nguyên thứ tự và tự tạo giọng khi máy đọc sẵn sàng. Đóng app vẫn được. |
+| Lỗi chuẩn bị | xem `10-audio.md` §8.2 (7 câu) |
+| Dock | Chuẩn bị bộ đọc · Bộ đọc đã sẵn sàng · Mở Giọng đọc · Thử lại · Huỷ |
+| Thu hồi | Thu hồi quyền của “{máy}”? · Máy đọc dừng nhận việc ngay; chương đang tạo trả về hàng chờ, không mất phần đã đọc. · Giọng đã tạo, bản đọc và tệp xuất giữ nguyên. · Muốn dùng lại phải cấp quyền mới trên máy đọc. · Thu hồi quyền |
+| Nghe thử (máy chủ) | Nghe thử hiện khi máy đọc hỗ trợ; giọng vẫn dùng được cho truyện. · Đang nhờ máy đọc… |

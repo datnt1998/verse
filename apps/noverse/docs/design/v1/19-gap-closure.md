@@ -981,3 +981,16 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 - Bước Mật khẩu ở onboard vẫn “tùy chọn” với tài khoản đã có mật khẩu riêng.
 - Artboard `MMore` (`page=firstPw`) và `Onboard` còn vẽ dòng “Để sau” — cần design xoá ở lần cập nhật canvas tới.
 - Máy tính: còn mật khẩu tạm thì Thiết lập lần đầu mở thẳng bước **Mật khẩu riêng** ở vị trí đầu, cho cả quản trị (luồng 7 bước vốn không có bước này) lẫn thành viên; người đã thiết lập xong rồi bị đặt lại mật khẩu chỉ thấy một bước này, mọi route khác chuyển về đây. Trước đó tài khoản dừng ở bước Hồ sơ với băng “Không tải lại được” và nút Tiếp tục bị khoá, vì lưu Hồ sơ và mọi dữ liệu đều bị máy chủ chặn. Đổi xong phiên bị thu hồi; đăng nhập lại thì luồng chạy đúng thứ tự `09-auth-onboard.md` F0/F0b. Lệch thứ tự F0b (Hồ sơ → Mật khẩu) — design cập nhật artboard `Onboard` khi vẽ lại.
+
+## Gói AS + AT — Luồng viết trực tiếp · Máy đọc (01/11/2026, canvas 137) <!-- at-gap-closure -->
+
+| # | Câu hỏi / chỗ dev nêu | Quyết định design | Artboard |
+|---|---|---|---|
+| AS | Khung Luồng viết trực tiếp (bản thật): “Lịch sử ›” nằm một hàng riêng, nút lọc to, orb vòng lệch, “0 giây” | **Vẽ lại**: hàng 2 gọn (lọc dạng nhóm nút 24 px có chấm màu vai · “n vòng” · *Lịch sử ›* sang trang lịch sử, không cuộn lên đầu); vòng là dòng mảnh có orb 11 px + đường dọc nối thẻ; vòng cũ hơn 2 vòng gần nhất thu gọn còn “n thao tác · tổng thời gian”; thẻ 36 px; thẻ đang chạy dính đáy, hiện đồng hồ chạy; dưới 0,1 giây ghi “<0,1 giây”, không có số đo thì ẩn | `Main` |
+| AT-1 | Máy đọc offline: Cảnh báo hay trung tính? | **Trung tính**; Cảnh báo chỉ khi có chương đang chờ | `Settings` `voice=offline` |
+| AT-2 | Nút “Kiểm tra lại” ở màn Nghe? | **Không**; tự làm mới, chỉ lỗi có Thử lại | `MAudio`, `AudioExport` |
+| AT-3 | Đang chuẩn bị lần đầu: khoá Tạo giọng hay xếp hàng? | **Xếp hàng**, hiện “Đang chờ máy đọc” | `AudioExport` `machine=provisioning`, `MVoiceGen` `gk=waitPrep` |
+| AT-4 | Thu hồi quyền một hay hai bước? | **Một bước** có nêu hậu quả | `Settings` `section=adv` `vadv=confirm` |
+| AT-5 | Chất lượng / Thiết bị / Bộ đọc ở bản máy chủ | Ẩn Thiết bị, Bộ đọc; giữ Chất lượng = mặc định cho truyện mới | `Settings` `voice` |
+| AT-6 | Nghe thử ở bản máy chủ | Ẩn tới khi máy đọc báo hỗ trợ; khi có: “Đang nhờ máy đọc…” | `Settings` `vprev` |
+| AT-7 | Máy tính bảng / Onboard “Cần cài bộ đọc” (mục 17 báo cáo) | Chưa vẽ trong gói này — dùng lại thẻ đầu màn khi cần | — |

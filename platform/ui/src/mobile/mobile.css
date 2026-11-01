@@ -1,0 +1,12 @@
+/* Luật CSS của bộ mobile kit — chỉ những gì StyleX không diễn đạt được
+   (bộ chọn tổ tiên/con). Mọi số đo khác nằm trong *.tsx (StyleX) hoặc biến
+   an toàn do kit khai một lần (--m-safe-*, --m-tabbar-*, --m-float-bottom). */
+
+/* Đang mất mạng (OfflineBanner đã bền 3s): làm mờ nội dung để banner nổi lên,
+   vẫn đọc được — đúng chuẩn Noverse `.m-is-offline .m-scroll`. */
+html[data-offline] .m-scroll,
+html[data-offline] .m-pane {
+  opacity: .55;
+  filter: saturate(.4);
+  transition: opacity .2s, filter .2s;
+}

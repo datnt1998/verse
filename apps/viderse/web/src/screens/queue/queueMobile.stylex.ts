@@ -67,7 +67,7 @@ export const mobileQueueStyles = stylex.create({
   doneRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], minHeight: '48px', borderBottom: `1px solid var(--vv-wash-5)`, color: color['--color-fg'], fontSize: '13.5px', textDecoration: 'none' },
   doneDot: { width: '7px', height: '7px', borderRadius: '50%', backgroundColor: color['--color-ok'], flexShrink: 0 },
   reviewDot: { backgroundColor: color['--color-warn'] },
-  sheet: { backgroundColor: 'var(--vv-sheet-bg)', paddingBottom: 'env(safe-area-inset-bottom, 0px)', borderColor: line['--line-3'], fontSize: '14px', lineHeight: 1.5 },
+  sheet: { backgroundColor: 'var(--vv-sheet-bg)', paddingBottom: 'max(26px, var(--m-safe-bottom))', borderColor: line['--line-3'], fontSize: '14px', lineHeight: 1.5 },
   sheetBody: { display: 'flex', flexDirection: 'column', flex: '0 1 auto' },
   sheetHeading: { display: 'flex', flexDirection: 'column', padding: `${s['--vv-s-6']} ${s['--vv-s-16']} ${s['--vv-s-4']}` },
   sheetTitle: { margin: 0, fontSize: '18px', fontWeight: 600, lineHeight: 1.35 },

@@ -65,6 +65,7 @@ export const vi = {
     allChannels: 'Mọi kênh',
     myChannels: 'Kênh của tôi',
     createChannel: 'Tạo kênh',
+    reviewBadge: (n: number) => `${n} video cần duyệt`,
   },
 
   shell: {
@@ -649,6 +650,7 @@ export const vi = {
       controls: 'Điều khiển',
       lists: 'Hàng',
       sheets: 'Sheet',
+      system: 'Kit mobile',
     },
     reopenDialog: 'Mở lại hộp thoại',
     demoToast: 'Đã thêm 3 video vào hàng chờ',

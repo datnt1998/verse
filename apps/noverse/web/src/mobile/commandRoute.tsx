@@ -6,7 +6,7 @@ import { Spinner } from '@noverse/ui'
 import { MobileFeedback, MobilePage } from './primitives'
 import { toastBottomFor } from './logic'
 import { MobileRuntimeProvider, useTabMode } from './runtime'
-import { useToastBottom } from './toastBottom'
+import { useToastBottom } from '@noverse/ui'
 
 function Result({ parsed }: { parsed: Parsed }) {
   useTabMode('hide')

@@ -32,7 +32,7 @@ export function MobileTabBar({ route }: { route: Route }) {
   return (
     <nav aria-label="Điều hướng" style={{
       flex: '0 0 auto', display: 'grid', gridTemplateColumns: `repeat(${MOBILE_TABS.length}, minmax(0, 1fr))`,
-      padding: '4px 6px calc(22px + env(safe-area-inset-bottom, 0px))',
+      padding: '4px 6px calc(22px + var(--m-safe-bottom))',
       borderTop: '1px solid var(--line-1)', background: 'var(--color-bg)',
     }}>
       {MOBILE_TABS.map((tab) => {

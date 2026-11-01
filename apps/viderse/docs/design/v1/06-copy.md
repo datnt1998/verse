@@ -356,3 +356,24 @@ Giữ nhãn đầy đủ, không rút gọn (#80): Khám phá › Sắp xếp �
 - Sheet Việc nền (điện thoại): tiêu đề “Việc nền”; tab “Đang chạy” · “Thông báo” (số chưa đọc trong huy hiệu vàng). Dòng phụ: tab Đang chạy giữ câu cũ; tab Thông báo “3 chưa đọc” · “Đã đọc hết” · “Chưa có thông báo”.
 - Danh sách Thông báo dùng đúng câu của popover máy tính (“3 video chờ duyệt”, “Cần xử lý: <tên video>”, “<tên video> sẵn sàng đăng”…), chưa đọc in đậm + chấm vàng trên icon; *Đánh dấu đã đọc*; cuối danh sách *Cài đặt thông báo*.
 - Trống: “Chưa có thông báo” — “Khi video chờ bạn duyệt, cần xử lý hay sẵn sàng đăng, Viderse báo ở đây.” · *Cài đặt thông báo*.
+
+## Màn bổ sung đợt 38 <a id="copy-r38"></a> <!-- r38 -->
+
+**Khám phá — danh sách video** (`Explore`/`MExplore` · `list`)
+- Lọc rỗng: “Chưa có video nào khớp bộ lọc” — “Đang lọc dài ≥ 40 phút, đăng trong 7 ngày, chưa làm cho kênh nào — trong 1.284 video đã quét của Nocturne Stories. Nới bộ lọc để thấy thêm.” · nút *Bỏ lọc*. Chip đang khác mặc định có viền vàng (`.vv-chip.is-custom`).
+- Quét lần đầu (đối thủ vừa thêm): banner “Trinh sát đang lấy video đầu tiên · 12 / 30” — “Đang đọc 30 video mới nhất của Nocturne Stories để tính mức thường. Video hiện dần ở đây, thường xong trong khoảng 1 phút.” + lưới ô xương. Không hiện “Chưa có video nào khớp bộ lọc” lúc này.
+- Lỗi tải: “Chưa tải được danh sách video” — “Máy chủ trả lời quá chậm. 1.284 video đã quét vẫn còn nguyên, chỉ là chưa tải về màn này.” · *Thử lại*.
+- Mất kết nối: “Mất kết nối máy chủ” — “Tự thử lại sau 8 giây. Bộ lọc, ô tìm và video đang chọn vẫn giữ nguyên.” · *Thử lại ngay*.
+- Chưa theo dõi đối thủ (điện thoại): “Chưa theo dõi đối thủ nào” — câu như máy tính · **Theo dõi đối thủ** · Ví dụ `@nocturnestories`, `youtube.com/@hosobian`.
+
+**Cài đặt › Kết nối AI › Số liệu YouTube** (dùng đúng `performanceCopy.dataKey`)
+- Nhóm: “Số liệu YouTube” · “Không phải AI · Trinh sát dùng để đọc số liệu video đã đăng”.
+- Thẻ: “YouTube Data API” · nhãn “Khoá API”, “Không bắt buộc”. Dòng phụ: chưa có “Chưa có khoá · số liệu sau đăng đọc từ trang công khai”; đã lưu “Đã lưu ••••x9Qw · Trinh sát đọc lượt xem, thích, bình luận qua API” (xanh); không đọc được “Không đọc được trạng thái khoá” (cam) + *Thử lại*; mất kết nối “Mất kết nối máy chủ — mọi nút của hàng này tắt cho tới khi kết nối lại”.
+- Ô dán: nhãn “Khoá API”; gợi ý dưới ô “Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.” Lỗi: “Google không nhận khoá này — kiểm tra lại khoá và bật YouTube Data API v3.”
+
+**Tạo kênh — bước Xong khi Đạo diễn lỗi** (`identity=director`)
+- Tiêu đề “Đã tạo kênh”; tên “Kênh mới” · “tên tạm, đặt lại ở Hồ sơ kênh”.
+- Thẻ “Một việc cần bạn” — “Phần còn lại đã xong hoặc đang chờ.” Dòng: “Đạo diễn chưa đặt được tên và mô tả kênh: ChatGPT không phản hồi” · *Thử lại*; “Hoạ sĩ vẽ avatar và ảnh bìa · chờ Đạo diễn” · Chờ.
+- Chú thích: “Kênh làm video được ngay với tên tạm “Kênh mới”. Bấm Thử lại để Đạo diễn đặt tên, hoặc tự đặt tên và mô tả ở Kênh › Hồ sơ kênh — Hoạ sĩ vẽ avatar, ảnh bìa theo tên đó.” Nút thêm: *Đặt tên ở Hồ sơ kênh*.
+
+**Kênh mới chưa có video (điện thoại)** — “Kênh chưa có video” — “Tự lấy video đang bật: video đối thủ đăng từ giờ sẽ tự vào hàng chờ. Muốn có video ngay thì làm video mới nhất của đối thủ.” Đầu trang: “Chưa liên kết YouTube · tạo hôm nay · 2 đối thủ”.

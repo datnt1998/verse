@@ -449,6 +449,45 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-seg--sm > button { height: 26px; padding: 0 10px; border-radius: 6px; font-size: 12px; flex: 0 0 auto; }
 .vv-seg--m { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(max-content, 1fr); border-radius: 12px; }
 .vv-seg--m > button { height: 40px; border-radius: 9px; font-size: 14px; }
+/* r37: viên trượt cho mọi nhóm chọn (đo bằng script nhỏ trong board, như Noverse đo bằng JS) */
+.vv-seg.is-glide::before { content: ""; position: absolute; z-index: 0; top: 3px; bottom: 3px; left: 0; width: var(--gw, 0px); transform: translateX(var(--gx, 0px)); border-radius: var(--vv-r-tip); background: var(--vv-selected-2); box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 1px 2px rgba(0,0,0,.4); transition: transform .32s cubic-bezier(.3,.7,.2,1), width .32s cubic-bezier(.3,.7,.2,1); pointer-events: none; }
+.vv-seg.is-glide > button[aria-checked="true"], .vv-seg.is-glide > button[aria-selected="true"] { background: transparent; }
+.vv-seg.is-glide.no-anim::before { transition: none; }
+.vv-seg--bar.is-glide::before { background: var(--vv-selected); border-radius: 8px; }
+.vv-seg--sm.is-glide::before { border-radius: 6px; }
+.vv-seg--m.is-glide::before { border-radius: 9px; }
+.vv-seg > button { transition: color var(--vv-dur), background-color var(--vv-dur), transform 80ms; }
+.vv-seg > button:active { transform: scale(.97); }
+/* r37: chip chọn và nút có mũi tên — hover, nhấn, mũi tên lật khi mở */
+.vv-chip { cursor: pointer; transition: background-color var(--vv-dur), border-color var(--vv-dur), transform 80ms; }
+.vv-chip:hover { border-color: var(--vv-field-border-hover); background: var(--vv-field-hover); }
+.vv-chip:active { transform: scale(.98); }
+.vv-chip > .i-arrow-d:last-child, .vv-btn > .i-arrow-d:last-child { width: 13px; height: 13px; color: var(--vv-text-hint); transition: transform .18s var(--vv-ease); }
+.vv-chip[aria-expanded="true"] > .i-arrow-d:last-child, .vv-btn[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+.vv-tab { transition: color var(--vv-dur), border-color .24s var(--vv-ease); }
+.vv-select > .i-arrow-d:last-child { width: 15px; height: 15px; margin-left: auto; color: var(--vv-muted); transition: transform .18s var(--vv-ease); }
+.vv-select[aria-expanded="true"] > .i-arrow-d:last-child { transform: rotate(180deg); }
+/* r37: vùng thả tệp + dòng tệp (Nhập template, Nhập prompt, Thêm hiệu ứng) */
+.vv-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 168px; padding: 20px; border-radius: var(--vv-r-tile); border: 1.5px dashed rgba(255,255,255,.14); background: rgba(255,255,255,.015); color: var(--vv-text-2); text-align: center; transition: border-color var(--vv-dur), background-color var(--vv-dur), transform .2s var(--vv-ease); }
+.vv-drop > .ic { width: 22px; height: 22px; color: var(--vv-text-3); margin-bottom: 2px; }
+.vv-drop__title { font-size: 14px; font-weight: 500; color: var(--vv-text); }
+.vv-drop__hint { font-size: 12px; color: var(--vv-text-hint); }
+.vv-drop .vv-btn { margin-top: 8px; }
+.vv-drop:hover { border-color: rgba(255,255,255,.24); }
+.vv-drop.is-drag { border-color: var(--vv-accent-focus); background: var(--vv-accent-bg); transform: scale(1.01); }
+.vv-drop.is-drag > .ic { color: var(--vv-accent); }
+.vv-filerow { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--vv-r-opt); background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); }
+.vv-filerow__ic { width: 28px; height: 28px; flex: 0 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.05); color: var(--vv-text-3); }
+.vv-filerow__ic > .ic { width: 15px; height: 15px; }
+.vv-filerow__ic--ok { background: var(--vv-st-ready-bg); color: var(--vv-st-ready); }
+.vv-filerow__ic--fail { background: var(--vv-danger-soft); color: var(--vv-danger); }
+.vv-filerow__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.vv-filerow__name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-filerow__meta { font-size: 12px; color: var(--vv-text-hint); }
+.vv-filerow__meta.is-fail { color: var(--vv-danger-text); }
+.vv-filerow--wait { opacity: .6; }
+.vv-dialog__actions--end { justify-content: flex-end; }
+@media (prefers-reduced-motion: reduce) { .vv-seg.is-glide::before, .vv-seg > button, .vv-chip, .vv-tab, .vv-drop { transition: none; } }
 .vv-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--vv-hairline); }
 .vv-tab { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--vv-text-3); font: inherit; font-size: 14px; white-space: nowrap; cursor: pointer; }
 .vv-tab:hover { color: var(--vv-text); }
@@ -607,6 +646,7 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 .vv-row__more[aria-expanded="true"] { background: rgba(255,255,255,.08); }
 @media (hover: none) { .vv-row__more { opacity: 1; } }
 .vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
+button.vv-row { -webkit-appearance: none; appearance: none; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }   /* r38: hàng là nút */
 .vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
 .vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
 .vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
@@ -923,12 +963,32 @@ details>summary::-webkit-details-marker{display:none}
 <sc-if value="{{p.hasQuota}}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-direction: column; gap: 5px"><span aria-hidden="true" style="height: 4px; border-radius: 2px; background: #1E1E22; overflow: hidden"><span style="display: block; height: 100%; width: {{p.pct}}; background: #C9C9D1"></span></span><span style="display: flex; justify-content: space-between; font-size: 12px; color: #8B8B97"><span class="num" style="color: #C9C9D1">{{p.used}}</span><span>{{p.reset}}</span></span></span></sc-if>
 <sc-if value="{{p.hasNote}}" hint-placeholder-val="{{ false }}"><span role="status" style="padding: 10px 12px; border-radius: 12px; background: rgba(246,203,140,0.07); border: 1px solid rgba(246,203,140,0.28); font-size: 12.5px; color: #F3D9AE; line-height: 1.5">{{p.note}}</span></sc-if>
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
-<button class="btn ghost" type="button" onClick="{{p.models}}" style="height: 44px; font-size: 13.5px; border-color: {{p.mBd}}">{{p.mLabel}}</button>
-<button class="btn ghost" type="button" style="height: 44px; font-size: 13.5px; color: #A0A0AB">{{p.sec}}</button>
+<button class="vv-btn vv-btn--m" type="button" onClick="{{p.models}}" style="border-color: {{p.mBd}}">{{p.mLabel}}</button>
+<button class="vv-btn vv-btn--m" type="button">{{p.sec}}</button>
 </div>
 </section>
 </sc-for>
-<button class="btn ghost" type="button" onClick="{{openAdd}}" style="height: 48px; border-style: dashed; color: #C9C9D1"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Thêm nhà cung cấp</button>
+<button class="vv-btn vv-btn--m" type="button" onClick="{{openAdd}}" style="--h: 48px; flex: 0 0 auto"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span>Thêm nhà cung cấp</button>
+<!-- r38 ytkey: YouTube Data API -->
+<div role="group" aria-labelledby="h-ytd" style="flex: 0 0 auto; display: flex; flex-direction: column; gap: 8px; margin-top: 8px">
+<span style="display: flex; flex-direction: column; gap: 1px; padding: 0 2px"><span id="h-ytd" style="font-size: 13px; font-weight: 600; color: #C9C9D1">Số liệu YouTube</span><span style="font-size: 12px; color: #8B8B97">Không phải AI · Trinh sát dùng để đọc số liệu video đã đăng</span></span>
+<section class="card" aria-label="YouTube Data API" style="border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; border-color: {{yk.bd}}">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: #E4E4E8; color: #16161A; font-size: 12.5px; font-weight: 700">YT</span>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px"><span style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap"><span style="font-size: 15px; font-weight: 600">YouTube Data API</span><span style="height: 20px; padding: 0 7px; display: flex; align-items: center; border-radius: 999px; background: #1E1E22; color: #A0A0AB; font-size: 11px; white-space: nowrap">Không bắt buộc</span></span><span role="{{yk.role}}" style="font-size: 12.5px; color: {{yk.subFg}}; line-height: 1.45">{{yk.sub}}</span></span>
+</div>
+<sc-if value="{{yk.hasActs}}" hint-placeholder-val="{{ true }}"><div style="display: grid; grid-template-columns: repeat({{yk.cols}}, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{yk.acts}}" as="a" hint-placeholder-count="2"><button class="vv-btn vv-btn--m" type="button" aria-disabled="{{a.dis}}" onClick="{{a.run}}" style="color: {{a.fg}}; opacity: {{a.op}}"><sc-if value="{{a.hasIc}}" hint-placeholder-val="{{ false }}"><span class="ic {{a.ic}}" aria-hidden="true" style="width: 15px; height: 15px"></span></sc-if>{{a.label}}</button></sc-for>
+</div></sc-if>
+<sc-if value="{{yk.edit}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-direction: column; gap: 8px">
+<label for="ytdk" style="font-size: 13px; color: #C9C9D1">Khoá API</label>
+<input id="ytdk" class="mono" type="password" placeholder="Dán khoá API" value="{{yk.val}}" aria-invalid="{{yk.inv}}" aria-describedby="ytdk-h" style="height: 48px; padding: 0 14px; border-radius: 12px; background: #0F0F11; border: 1px solid {{yk.inBd}}; color: #EDEDEF; font-size: 15px; outline: none">
+<sc-if value="{{yk.rej}}" hint-placeholder-val="{{ false }}"><div role="alert" style="display: flex; gap: 8px; padding: 10px 12px; border-radius: 12px; background: rgba(255,154,92,.07); border: 1px solid rgba(255,154,92,.22); font-size: 13px; color: var(--vv-danger-text-2); line-height: 1.5"><span class="ic i-danger" aria-hidden="true" style="width: 16px; height: 16px; flex: 0 0 auto; margin-top: 2px; color: var(--vv-danger)"></span>Google không nhận khoá này — kiểm tra lại khoá và bật YouTube Data API v3.</div></sc-if>
+<span id="ytdk-h" style="font-size: 12.5px; color: #8B8B97; line-height: 1.5">Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.</span>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px"><button class="vv-btn vv-btn--m" type="button" onClick="{{yk.cancel}}">Huỷ</button><button class="btn-pri" type="button" aria-disabled="{{yk.saveDis}}" onClick="{{yk.save}}" style="height: 44px; font-size: 14px; opacity: {{yk.saveOp}}">Lưu khoá</button></div>
+</div></sc-if>
+</section>
+</div>
 </main>
 </sc-if>
 <sc-if value="{{isAgents}}" hint-placeholder-val="{{ false }}">
@@ -1041,13 +1101,14 @@ details>summary::-webkit-details-marker{display:none}
 </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"screen": {"editor": "enum", "options": ["list", "tools", "connect", "agents", "accounts", "storage"], "default": "list", "section": "Màn hình"}, "bili": {"editor": "enum", "options": ["blocked", "saved", "manual", "expired", "empty"], "default": "blocked", "section": "Tài khoản nền tảng · Bilibili"}, "qr": {"editor": "enum", "options": ["none", "waiting", "scanned", "expired", "rejected", "error", "success"], "default": "none", "section": "Bilibili · đăng nhập bằng mã QR (sheet)"}, "store": {"editor": "enum", "options": ["here", "pick", "lowspace", "moving", "done", "offline", "server", "s3active", "s3moving", "s3down"], "default": "here", "section": "Lưu trữ · máy tính (here…offline) · máy chủ (server, s3…)"}, "sheet": {"editor": "enum", "options": ["none", "add", "models", "director", "artist"], "default": "none", "section": "Sheet"}, "usage": {"editor": "enum", "options": ["full", "partial"], "default": "full", "section": "Lưu trữ máy chủ · dung lượng (partial = chỉ Thư viện có số)"}, "$preview": {"width": 390, "height": 844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"screen": {"editor": "enum", "options": ["list", "tools", "connect", "agents", "accounts", "storage"], "default": "list", "section": "Màn hình"}, "bili": {"editor": "enum", "options": ["blocked", "saved", "manual", "expired", "empty"], "default": "blocked", "section": "Tài khoản nền tảng · Bilibili"}, "qr": {"editor": "enum", "options": ["none", "waiting", "scanned", "expired", "rejected", "error", "success"], "default": "none", "section": "Bilibili · đăng nhập bằng mã QR (sheet)"}, "store": {"editor": "enum", "options": ["here", "pick", "lowspace", "moving", "done", "offline", "server", "s3active", "s3moving", "s3down"], "default": "here", "section": "Lưu trữ · máy tính (here…offline) · máy chủ (server, s3…)"}, "sheet": {"editor": "enum", "options": ["none", "add", "models", "director", "artist"], "default": "none", "section": "Sheet"}, "ytkey": {"editor": "enum", "options": ["empty", "ok", "edit", "rejected", "failed", "offline"], "default": "ok", "section": "Kết nối AI · YouTube Data API (khoá tuỳ chọn)"}, "usage": {"editor": "enum", "options": ["full", "partial"], "default": "full", "section": "Lưu trữ máy chủ · dung lượng (partial = chỉ Thư viện có số)"}, "$preview": {"width": 390, "height": 844}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
     this.state = { svre: null, qr: null, bili: null, renewed: false, store: null, sdrive: null, smode: null, screen: null, prov: 'chatgpt', fb: true, sheet: null, dir: 'gpt-6.1-sol', art: 'gpt-6.1-sol', addPick: 'openrouter', sel: null };
   }
   componentDidUpdate(prev) {
+    if (prev.ytkey !== this.props.ytkey) this.setState({ ytk: null, ytv: null });
     if (prev.screen !== this.props.screen || prev.sheet !== this.props.sheet || prev.store !== this.props.store || prev.usage !== this.props.usage || prev.bili !== this.props.bili || prev.qr !== this.props.qr) this.setState({ svre: null, qr: null, bili: null, renewed: false, store: null, sdrive: null, smode: null, screen: null, sheet: null, sel: null });
   }
   renderVals() {
@@ -1228,7 +1289,22 @@ class Component extends DCLogic {
     sto.stoPick = sto.isPick; sto.goOp = okSpace ? '1' : '0.45';
     sto.modes = sto.modes.map((m, i) => Object.assign(m, { short: i === 0 ? 'Chuyển 81,1 GB sang' : 'Chỉ video mới' }));
 
+    // r38 ytkey
+    const yk = (() => {
+      const k = this.state.ytk || this.props.ytkey || 'ok';
+      const go = (x, v) => () => this.setState({ ytk: x, ytv: v === undefined ? null : v });
+      const A = (label, run, dis, ic, quiet) => ({ label, run: run || (() => {}), dis: dis ? 'true' : 'false', op: dis ? '0.45' : '1', fg: quiet ? '#C9C9D1' : '#EDEDEF', hasIc: !!ic, ic: ic || '' });
+      const v = { role: 'status', sub: 'Chưa có khoá · số liệu sau đăng đọc từ trang công khai', subFg: '#8B8B97', bd: 'rgba(255,255,255,0.07)', hasActs: true, cols: 1, acts: [A('Thêm khoá', go('edit', ''))], edit: false, rej: false, val: '', inv: 'false', inBd: 'rgba(255,255,255,0.14)', saveDis: 'true', saveOp: '0.45', save: () => {}, cancel: go('empty') };
+      const typed = this.state.ytv !== null && this.state.ytv !== undefined ? this.state.ytv : 'AIzaSyB2c4XqN0d8kTq7mZr1Lp5Ev9x9Qw';
+      if (k === 'ok') Object.assign(v, { sub: 'Đã lưu ••••x9Qw · Trinh sát đọc lượt xem, thích, bình luận qua API', subFg: 'var(--vv-st-ready)', cols: 2, acts: [A('Đổi khoá', go('edit', '')), A('Gỡ khoá', go('empty'), false, '', true)] });
+      if (k === 'edit' || k === 'rejected') Object.assign(v, { hasActs: false, edit: true, val: typed, saveDis: typed ? 'false' : 'true', saveOp: typed ? '1' : '0.45', save: go('ok'), cancel: go('empty') });
+      if (k === 'rejected') Object.assign(v, { rej: true, inv: 'true', inBd: 'var(--vv-danger)', bd: 'rgba(255,154,92,0.35)' });
+      if (k === 'failed') Object.assign(v, { role: 'alert', sub: 'Không đọc được trạng thái khoá', subFg: 'var(--vv-danger-text)', acts: [A('Thử lại', go('ok'), false, 'i-refresh')] });
+      if (k === 'offline') Object.assign(v, { role: 'alert', sub: 'Mất kết nối máy chủ — mọi nút của hàng này tắt cho tới khi kết nối lại', subFg: 'var(--vv-danger-text)', acts: [A('Thêm khoá', null, true)] });
+      return v;
+    })();
     return {
+      yk,
       badge: '3', hasBadge: true, rows, tools, providers, provs, agents, artChain, addList, sh, hasSheet: sheet !== 'none', closeSheet: () => this.setState({ sheet: 'none' }), openAdd: () => this.setState({ sheet: 'add' }), fbShow: fb,
       sto, sv, stoPick: sto.isPick, closePick: sto.cancelPick, isStorage: screen === 'storage',
       isList: screen === 'list', isTools: screen === 'tools', isConnect: screen === 'connect', isAgents: screen === 'agents', isAccounts: screen === 'accounts', plats, q,
@@ -1238,5 +1314,6 @@ class Component extends DCLogic {
   }
 }
 </script>
+<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts)document.fonts.ready.then(q);q();})();</script>
 </body>
 </html>
