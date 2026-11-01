@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -108,5 +109,24 @@ func TestSnapshotRemembersVolumeInfoAcrossRestart(t *testing.T) {
 	}
 	if got := snap.Projects.Volume.FreeBytes; got != 0 {
 		t.Fatalf("Volume.FreeBytes = %d, muốn 0", got)
+	}
+}
+
+// Gợi ý của máy chủ là `/Volumes/<tên ổ>/Viderse Projects`: thư mục dự án trên
+// ổ ngoài phải chuyển được; chỉ gốc ổ mới bị chặn.
+func TestValidateTargetAllowsFolderOnExternalVolume(t *testing.T) {
+	ctx := context.Background()
+	rig := newTestRig(t)
+	for _, ok := range []string{"/Volumes/Samsung T7/Viderse Projects", "/Volumes/Samsung T7/Kênh YouTube/Viderse Projects"} {
+		if err := rig.svc.validateTarget(ctx, ok); err != nil {
+			t.Fatalf("validateTarget(%q) = %v, muốn nil", ok, err)
+		}
+	}
+	for _, bad := range []string{"/Volumes", "/Volumes/Samsung T7"} {
+		err := rig.svc.validateTarget(ctx, bad)
+		var coded *Error
+		if !errors.As(err, &coded) || coded.Code != ErrInvalidPath {
+			t.Fatalf("validateTarget(%q) = %v, muốn invalid_path", bad, err)
+		}
 	}
 }

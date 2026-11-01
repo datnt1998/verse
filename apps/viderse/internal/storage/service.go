@@ -543,7 +543,13 @@ func (s *Service) validateTarget(ctx context.Context, target string) error {
 	case target != s.deps.DefaultDir && underDir(target, s.deps.ConfigDir):
 		return codeError(ErrInvalidPath, "thư mục này nằm trong dữ liệu cấu hình của Viderse")
 	}
-	for _, sys := range []string{"/System", "/Library", "/bin", "/sbin", "/etc", "/usr", "/Volumes", "/dev", "/opt", "/private/etc"} {
+	// Ổ ngoài nằm dưới /Volumes: chỉ chặn chính gốc ổ (`/Volumes`, `/Volumes/<tên ổ>`),
+	// thư mục dự án trên ổ ngoài là chỗ lưu hợp lệ (gợi ý của máy chủ chính là
+	// `/Volumes/<tên ổ>/Viderse Projects`).
+	if target == "/Volumes" || filepath.Dir(target) == "/Volumes" {
+		return codeError(ErrInvalidPath, "không đặt thư mục dự án trong /Volumes")
+	}
+	for _, sys := range []string{"/System", "/Library", "/bin", "/sbin", "/etc", "/usr", "/dev", "/opt", "/private/etc"} {
 		if target == sys || underDir(target, sys) {
 			return codeError(ErrInvalidPath, "không đặt thư mục dự án trong %s", sys)
 		}
