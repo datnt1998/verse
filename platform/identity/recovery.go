@@ -215,6 +215,7 @@ func (s *Store) Recover(username, code, newPassword, device, ip string) (NewSess
 			}
 		}
 		d.dropSessions(func(x session) bool { return x.Username != username })
+		d.dropDeviceTokens(username)
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(p pairing) bool { return p.Username == username })
 		var err error
 		out, err = s.newSession(d, username, device, ip)

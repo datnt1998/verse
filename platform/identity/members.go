@@ -364,6 +364,7 @@ func (s *Store) RevokeAll(username string, context AuditContext) error {
 			return ErrNotFound
 		}
 		d.dropSessions(func(x session) bool { return x.Username != username })
+		d.dropDeviceTokens(username)
 		d.Pairings = slices.DeleteFunc(d.Pairings, func(x pairing) bool { return x.Username == username })
 		s.addAudit(d, context.Actor, "sec", "Đăng xuất mọi thiết bị", username, "", "", context.Reason)
 		return nil
