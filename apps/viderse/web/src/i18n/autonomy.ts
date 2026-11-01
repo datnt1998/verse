@@ -5,6 +5,8 @@ export const autonomyCopy = {
   title: 'Mức tự chủ',
   custom: 'Tuỳ chỉnh',
   sub: 'Máy tự quyết tới đâu ở kênh này. Việc máy tự làm luôn được kể lại trong Bản tin, có Hoàn tác khi được.',
+  // Hai nút chữ riêng trong chip flex (gap 6) như artboard, nên không có dấu cách cuối.
+  headChip: 'Tự chủ ·',
   presets: { careful: 'Cẩn thận', balanced: 'Cân bằng', auto: 'Tự chạy' },
   rows: {
     pick: {

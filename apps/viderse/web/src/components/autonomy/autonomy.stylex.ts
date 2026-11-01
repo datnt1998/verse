@@ -1,10 +1,13 @@
 // Mức tự chủ (artboard Channel › tab=sources: .vv-autonomy / .vv-arow / .vv-guard) —
 // khoảng cách, bán kính, màu đều qua token (design-rules).
 import * as stylex from '@stylexjs/stylex'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { color, kit, line } from '@noverse/ui/tokens.stylex'
 import { space, corners } from '../../styles/viderse.stylex'
 
 export const autonomyStyles = stylex.create({
+  // Chip đầu trang Kênh (artboard Channel › .chip: cao 26, bo 7, đệm 7/9, nền kit-surface-15).
+  headChip: { padding: '0 var(--vv-s-9) 0 var(--vv-s-7)', borderRadius: corners['--vv-r-7'], backgroundColor: kit['--kit-surface-15'], borderColor: line['--line-2'], color: kit['--kit-fg-sub'] },
+  headChipOk: { backgroundColor: kit['--kit-ok-6'], borderColor: kit['--kit-ok-25'], color: color['--color-ok'] },
   paceCard: { gap: space['--vv-s-12'] },
   paused: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-warn-ink)' },
   paceBlock: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: space['--vv-s-10'], paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-0'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-1'] },
