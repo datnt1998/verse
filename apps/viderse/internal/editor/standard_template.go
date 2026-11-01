@@ -9,10 +9,12 @@ import (
 // standardLayout is the schema-v15 result of yt-factory 2c201e6's
 // buildStandardTemplateProject and its command engine. The bundled source
 // assets are immutable, including the voice envelope; generation is recorded
-// by testdata/generate-standard.mjs. Keeping the engine-authored payload avoids
-// a second implementation of Subscribe's keyframes or track defaults.
+// by testdata/generate-standard.mjs (output dir: assets). It lives outside
+// testdata because release builds exclude testdata. Keeping the engine-authored
+// payload avoids a second implementation of Subscribe's keyframes or track
+// defaults.
 //
-//go:embed testdata/standard-project.json
+//go:embed assets/standard-project.json
 var standardLayout []byte
 
 // BuildStandardTemplateProject creates a fresh Mẫu chuẩn with the exact
