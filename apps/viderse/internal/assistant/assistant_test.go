@@ -165,7 +165,7 @@ func TestProviderCommandSetsVideoDrawSource(t *testing.T) {
 	if st := runAll(t, r, plan); st.State != "done" {
 		t.Fatalf("run = %+v", st)
 	}
-	if !r.w.log.has("images.drawSource " + jobID + " prov-grok model-grok") || r.w.drawSource.Model != "model-grok" {
+	if !r.w.log.has("images.drawSource "+jobID+" prov-grok model-grok") || r.w.drawSource.Model != "model-grok" {
 		t.Fatalf("log=%v nguồn=%+v", r.w.log.all(), r.w.drawSource)
 	}
 	// Cùng lệnh lần nữa: video đã vẽ bằng nguồn đó rồi.

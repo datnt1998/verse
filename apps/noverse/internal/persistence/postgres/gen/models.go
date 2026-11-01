@@ -285,6 +285,17 @@ type DevicePairing struct {
 	Version   int64              `json:"version"`
 }
 
+type DeviceToken struct {
+	ID        pgtype.UUID        `json:"id"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	TokenHash []byte             `json:"token_hash"`
+	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	RevokedAt pgtype.Timestamptz `json:"revoked_at"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	Version   int64              `json:"version"`
+}
+
 type ExportCache struct {
 	ProjectID     pgtype.UUID        `json:"project_id"`
 	StoryID       pgtype.UUID        `json:"story_id"`
