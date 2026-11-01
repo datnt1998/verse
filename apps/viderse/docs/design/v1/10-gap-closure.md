@@ -233,3 +233,19 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 
 1. **Ảnh chia sẻ 1200×630 chưa có thiết kế.** Bản tạm dựng theo cách của Noverse: nền `#0B0B0D`, quầng `#FF0033` alpha .22 ở 50%/42%, logo ngang `viderse-logo-dark@2x` (bỏ nền thẻ, rộng 600), dòng "XƯỞNG VIDEO" Be Vietnam Pro 500 21px, letter-spacing .34em, màu `#8A8A94`. Cần design vẽ bản chính thức, kèm SVG nguồn trong `brand/svg/` như Noverse.
 2. **Khẩu hiệu chưa có bản viết.** Tạm dùng: tiêu đề tab `Viderse · Xưởng video`; manifest `Viderse · Xưởng video YouTube`; mô tả "Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." Design chốt lại câu chữ.
+
+## Gói V34 — Thư viện điện thoại, trạng thái Khám phá và kênh mới (02/11/2026)
+
+- `MLibrary`/`MTemplate`: màn điện thoại riêng ở ≤767 px; bốn ngăn Template, Prompt ảnh, Video nền, Lớp phủ; sheet hành động/tạo mới; sửa từng mục tự lưu và hiện giờ đã lưu. Trang con ẩn thanh tab, tự quản vùng cuộn; máy tính giữ màn hiện có. Xoá template đang dùng bị khoá kèm lý do.
+- Khám phá phân biệt đang quét lần đầu, bộ lọc không có kết quả (**Bỏ lọc**), tải lỗi (**Thử lại**) và mất kết nối (đếm ngược, **Thử lại ngay**). `MChannel` kênh mới có hàng thống kê ngắn, liên kết chọn video trong Khám phá và thẻ tự lấy video.
+- `YoutubeDataKeyCard` nằm trong nhóm **Số liệu YouTube**, dưới **Thêm nhà cung cấp**, không còn là một nhà cung cấp AI. Có rỗng/đã lưu/sửa/khoá bị từ chối/tải lỗi/mất kết nối.
+- Tạo kênh vẫn tới **Xong** khi Đạo diễn lỗi: dùng tên tạm, thẻ **Một việc cần bạn**, **Thử lại** chỉ bước đặt tên; **Mở kênh** điều hướng tới kênh vừa tạo, không bắt đợi nhận diện.
+- Đã kiểm bằng local serve: điện thoại 390×844 với inset 59/34 cho các trạng thái Khám phá/Kênh mới; Thư viện và các mục sửa có ảnh đối chiếu; Số liệu YouTube và Xong có ảnh máy tính/điện thoại. Kiểm tra lại tích hợp bao gồm typecheck và các suite library/explore/channel/settings-connect/shell/checks/i18n. Không coi những ảnh này là chứng cứ toàn bộ màn điện thoại đã khớp artboard.
+
+**Giới hạn hợp đồng / phần còn đối chiếu**
+
+- `preview=building` chưa biểu diễn được: API template chỉ có `none|fresh|stale`. Bộ chọn video xem trước không có trường tương ứng; xuất tệp template hiện khoá kèm lý do. Không tạo trạng thái hoặc ảnh mẫu giả để che thiếu dữ liệu.
+- B2 danh sách chương vẫn thiếu dữ liệu API.
+- Khung `MExplore` tổng thể (header/chip đối thủ/các bộ lọc) còn thuộc đợt đối chiếu toàn màn; thay đổi này mới đóng các trạng thái danh sách. App hiện có bộ lọc ≥8 phút, không phải ví dụ ≥40 phút trong artboard.
+- Vùng cuối màn Tạo kênh trên điện thoại còn được kiểm lại trong lượt sửa vùng cuộn/tab bar tích hợp; chưa dùng ảnh riêng từng nhánh để khẳng định hết che khuất.
+
