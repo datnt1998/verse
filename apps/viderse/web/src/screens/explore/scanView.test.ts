@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import { scanView } from './scanView'
 import type { ScanStatus } from '../../api/rivals'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 
 const tt = t.screens.explore.scanStates
 const bt = t.screens.explore.scanButtons

@@ -2,7 +2,7 @@
 // tập ô trên bảng thứ × khối-2-giờ mà một khung bao phủ (bấm khung → làm nổi).
 // Grid và slots đều đã ở múi giờ đang xem (server đổi múi), nên chỉ khớp thứ
 // và khoảng giờ — không đổi múi ở client.
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 import type { PostingSchedule, PostingSlot } from '../../api/rivals'
 
 /** "HH:MM" → phút trong ngày; giá trị sai trả -1. */

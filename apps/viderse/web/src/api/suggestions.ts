@@ -94,8 +94,3 @@ export async function dismissSuggestion(id: string, forever = false) {
 
 /** Hoàn tác một việc máy đã làm (op + params nguyên văn từ server). */
 export const undoOp = async (undo: UndoOp) => { await mutate<unknown>('POST', '/api/undo', { op: undo.op, params: undo.params }) }
-
-/** Loại đề xuất đã tắt: `channelId` null = mọi kênh. Nằm trong cài đặt thông báo (PUT cả khối). */
-export const suggestionSettingsSchema = z.object({
-  off: z.array(z.object({ channelId: z.string().nullable(), kind: z.enum(SUGGESTION_KINDS) })).nullable().transform((value) => value ?? []),
-}).default({ off: [] })

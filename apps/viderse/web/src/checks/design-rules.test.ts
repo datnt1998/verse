@@ -36,8 +36,9 @@ const walk = (dir: string) => {
 }
 walk(SRC)
 
-// Tệp được phép chứa hex cứng: tệp token, bộ icon SVG (đồ hoạ), brand.
-const TOKEN_FILES = /tokens\.css|tokens\.stylex\.ts$|viderse\.css|brand\.ts$|LensLogo\.tsx$|\/icons\//
+// Tệp được phép chứa hex cứng: tệp token, bộ icon SVG (đồ hoạ), brand (kể cả
+// styles/brand.css sinh sẵn từ src/brand.ts — cùng một bảng token).
+const TOKEN_FILES = /tokens\.css|tokens\.stylex\.ts$|viderse\.css|brand\.(ts|css)$|LensLogo\.tsx$|\/icons\//
 
 describe('luật thiết kế trong src/', () => {
   it('không màu hex cứng ngoài token/đồ hoạ', () => {

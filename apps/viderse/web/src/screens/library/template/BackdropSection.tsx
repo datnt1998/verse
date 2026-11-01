@@ -10,7 +10,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 import { useMemo, useState } from 'react'
 import { Banner, Button, Dialog, Icon, NumberStepper, RadioDot, Skeleton, Switch } from '@noverse/ui'
 
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { keys } from '../../../data/keys'
 import { useResource } from '../../../data/useResource'
 import {

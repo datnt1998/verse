@@ -1,11 +1,14 @@
 // Copy màn “Chuẩn bị máy cho 4 trợ lý” — Onboard.dc.html (step=setup với
 // setup=running|login|failed) và W1. Không có nav: một việc duy nhất là cài máy.
+import { base } from './vi'
+import { shared } from './shared'
+
 export const setup = {
   header: 'Chuẩn bị máy cho 4 trợ lý',
   /** Tiêu đề tab trình duyệt — tên màn ngắn, bỏ "cho 4 trợ lý". */
-  titleShort: 'Chuẩn bị máy',
-  skippedWarn: 'Máy này chưa cài đủ công cụ cho 4 trợ lý.',
-  skippedAction: 'Cài tiếp',
+  titleShort: shared.setupTitle,
+  skippedWarn: shared.setupSkippedWarn,
+  skippedAction: shared.setupSkippedAction,
   back: 'Quay lại',
   stepLabel: 'Bước {n}',
   brand: 'Viderse',
@@ -88,3 +91,6 @@ export const setup = {
     noSkip: 'Lần đầu mở thì không bỏ qua được — app cần đủ công cụ mới dựng được video.',
   },
 } as const
+
+/** `t` của màn Chuẩn bị máy: chữ khung app + chữ bộ cài. */
+export const t = { ...base, prep: setup } as const

@@ -3,7 +3,7 @@
 // tooltip), ⋯ cho Huỷ/Xoá, “Thoát chọn Esc”. Thay chỗ ô nhắn trợ lý ở dock.
 import * as stylex from '@stylexjs/stylex'
 import { ActionMenu, Icon, type ActionMenuItem } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import type { BulkCounts } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
 

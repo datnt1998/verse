@@ -1,6 +1,6 @@
 // Thanh chọn nhiều: chọn kênh đích trước khi xếp các video đã chọn.
 import { Icon, toast, usePopup } from '@noverse/ui'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { copyText } from './VideoGrid'

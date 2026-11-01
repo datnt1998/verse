@@ -13,7 +13,7 @@ import { useVirtualGrid } from '../../lib/useVirtualGrid'
 import { useRivalVideos, type RivalVideos } from './useRivalVideos'
 import { VideoGrid } from './VideoGrid'
 import { keys } from '../../data/keys'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/all'
 import type { PostingSchedule, Rival, RivalList, ScanStatus, Video, VideoPage } from '../../api/rivals'
 
 const tt = t.screens.explore

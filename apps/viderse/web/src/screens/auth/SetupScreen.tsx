@@ -6,7 +6,7 @@
 import { useState, type FormEvent } from 'react'
 import { ApiError, createSetupAdmin, verifySetup } from '../../api/client'
 import { useSession } from '../../api/session'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/auth'
 import { Banner, Button, Checkbox, Field, FieldError, Icon } from '@noverse/ui'
 import { LensLogo } from '../../components/LensLogo'
 import { AuthError, AuthLabel, AuthPassword, AuthShell } from './parts'

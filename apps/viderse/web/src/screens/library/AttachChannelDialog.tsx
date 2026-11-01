@@ -4,7 +4,7 @@ import { libraryVars } from './libraryTokens.stylex'
 // “Thêm vào kênh…” — chọn kênh rồi mở tab Template của kênh (việc gắn template
 // thuộc danh sách luân phiên của kênh, không sửa từ Thư viện).
 import { Button, Dialog } from '@noverse/ui'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/library'
 import { navigate, paths } from '../../router'
 import type { OwnerChannelRef } from '../../api/library'
 import { ChannelAvatar } from '../../components'

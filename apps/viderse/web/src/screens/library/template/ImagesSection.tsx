@@ -6,7 +6,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ngay qua `onSave` với khối `scenes` đầy đủ (PATCH thay cả recipe).
 import { NumberStepper, RadioCard, Switch } from '@noverse/ui'
 import { Segmented } from '../../../components/Segmented'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { num, usd } from '../fmt'
 import type { ImagePrompt, PriceEstimate, Recipe, ScenePlacement } from '../../../api/library'
 import { SliderField } from './SliderField'

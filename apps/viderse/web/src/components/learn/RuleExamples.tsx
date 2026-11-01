@@ -1,6 +1,6 @@
 // Ví dụ trước → sau của một quy tắc/đề xuất học, hiện ngay dưới hàng (không mở hộp thoại).
 import * as stylex from '@stylexjs/stylex'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/learn'
 import { learnStyles as s } from './learn.stylex'
 
 const c = t.learn.learn

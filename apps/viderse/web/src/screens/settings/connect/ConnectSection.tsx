@@ -18,7 +18,7 @@ import { listProviders, updateProvider, type AiModel, type AiProvider } from '..
 import { ApiError } from '../../../api/client'
 import { aiCopy, clockOf } from '../../../i18n/ai'
 import { navigate } from '../../../router'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, catalogSource } from './ModelCatalog'
 import { orderProviders } from './order'

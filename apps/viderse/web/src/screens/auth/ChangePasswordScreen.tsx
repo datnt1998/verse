@@ -9,7 +9,7 @@
 import { useState, type FormEvent } from 'react'
 import { ApiError, changePassword } from '../../api/client'
 import { useSession } from '../../api/session'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/auth'
 import { Banner, Button, FieldError, Icon, toast } from '@noverse/ui'
 import { AuthError, AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
 import * as stylex from '@stylexjs/stylex'

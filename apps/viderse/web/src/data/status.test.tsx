@@ -57,3 +57,25 @@ it('marks an SSE outage longer than ten seconds offline even while status pollin
     expect(app.online()).toBe('true')
   } finally { await app.close() }
 })
+
+it('reuses a status fetched less than a minute ago when a screen mounts again', async () => {
+  vi.useFakeTimers()
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  const fetchMock = vi.fn(async () => new Response(JSON.stringify({ running: 1, queued: 0 })))
+  vi.stubGlobal('fetch', fetchMock)
+  const mount = async () => {
+    const el = document.createElement('div'); document.body.append(el); const root = createRoot(el)
+    await act(async () => { root.render(<Connection />) })
+    return async () => { await act(async () => root.unmount()); el.remove() }
+  }
+  const closeFirst = await mount()
+  await act(async () => { await vi.advanceTimersByTimeAsync(10) })
+  const calls = fetchMock.mock.calls.length
+  await closeFirst()
+  await act(async () => { await vi.advanceTimersByTimeAsync(5_000) })
+  const closeSecond = await mount()
+  try {
+    expect(calls).toBe(1)
+    expect(fetchMock.mock.calls.length).toBe(calls)
+  } finally { await closeSecond() }
+})

@@ -1,5 +1,14 @@
 // Copy của khung Cài đặt (desktop 3 cột + mobile danh sách) — Settings.dc.html,
 // MSettings.dc.html và 06-copy.md.
+import { accountsCopy } from './accounts'
+import { aiCopy } from './ai'
+import { base } from './vi'
+import { errorsCopy } from './errorsCopy'
+import { logs } from './logs'
+import { setup } from './setup'
+import { storage } from './storage'
+import { tools } from './tools'
+
 export const settings = {
   backMobile: 'Quay lại',
   nav: {
@@ -71,4 +80,17 @@ export const settings = {
     },
     foot: 'Viderse {version} · cài đặt áp dụng cho máy này',
   },
+} as const
+
+/** `t` của khung Cài đặt: chữ khung app + mọi tab cài đặt (một chunk duy nhất). */
+export const t = {
+  ...base,
+  settings,
+  tools,
+  storage,
+  logs,
+  ai: aiCopy,
+  accounts: accountsCopy,
+  errors: errorsCopy.errors,
+  prep: setup,
 } as const

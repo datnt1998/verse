@@ -7,7 +7,7 @@ import { channelStyles } from './channel.stylex'
 // phụ chỉ nói ngày tạo (dữ liệu thật) chứ không bịa số.
 import { Icon } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { paths, type ChannelTab } from '../../router'
 import type { Channel } from '../../api/channels'
 import { fmtDay } from './fmt'

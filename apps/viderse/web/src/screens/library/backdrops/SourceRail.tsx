@@ -5,7 +5,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // lẻ. Dùng ở hai chỗ theo artboard: tab Video nền (nhóm Video lẻ là một hàng
 // tổng "Tất cả video lẻ") và hộp Gắn của Template (mỗi video lẻ một hàng).
 import { Icon, Spinner } from '@noverse/ui'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { channelTint } from '../../../lib/channelTint'
 import type { BackdropChannel, BackdropVideo } from '../../../api/backdrop'
 import { initials, num, platformColor, platformName, segmentLabel } from './fmt'

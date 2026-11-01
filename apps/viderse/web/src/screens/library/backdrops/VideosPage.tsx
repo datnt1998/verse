@@ -8,7 +8,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 import { useState } from 'react'
 import { ActionMenu, Banner, Button, Dialog, Icon, ProgressBar } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { keys } from '../../../data/keys'
 import {
   addBackdropVideo, backdropVideoFileHref, patchBackdropVideo, removeBackdropVideo,

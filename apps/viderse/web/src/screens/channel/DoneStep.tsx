@@ -7,7 +7,7 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // đối thủ tham chiếu. Nút Làm video là việc của hàng chờ — khoá kèm lý do.
 import { Icon, ProgressBar, Spinner } from '@noverse/ui'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { paths } from '../../router'
 import { keys } from '../../data/keys'
 import { useResource } from '../../data/useResource'

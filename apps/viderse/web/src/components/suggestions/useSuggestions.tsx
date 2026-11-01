@@ -9,7 +9,7 @@ import { ApiError } from '../../api/request'
 import { useOnline } from '../../data/status'
 import { useResource } from '../../data/useResource'
 import { navigate } from '../../router'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/learn'
 
 const c = t.learn.suggest
 

@@ -8,7 +8,7 @@ import { exploreStyles, videoCardMarker } from './explore.stylex'
 // hàng chờ chưa có nên luôn là nút.
 import type { SyntheticEvent } from 'react'
 import { Icon, toast } from '@noverse/ui'
-import { vi as t } from '../../i18n/vi'
+import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { fmtDuration, fmtScore, scoreText, videoMeta } from './fmt'

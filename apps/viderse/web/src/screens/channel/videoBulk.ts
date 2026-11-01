@@ -5,7 +5,7 @@ import { confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { BULK_MAX, BUNDLE_MAX, bundleUrl, runBulk, type BulkAction } from '../../api/channelVideos'
 import { keys } from '../../data/keys'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 
 const tt = t.channels.videos.bulk
 

@@ -10,7 +10,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it } from 'vitest'
 import * as stylex from '@stylexjs/stylex'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
-import { t } from '../i18n/vi'
+import { t } from '../i18n/all'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 

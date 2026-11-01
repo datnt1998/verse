@@ -7,7 +7,7 @@ import type { ChannelJobs } from '../../api/channelVideos'
 import { getQueue } from '../../api/clone'
 import { keys } from '../../data/keys'
 import { useResource, type Resource } from '../../data/useResource'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { channelStats } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
 

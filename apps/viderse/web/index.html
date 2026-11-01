@@ -12,6 +12,11 @@
     <meta name="description" content="Bốn trợ lý quét video nổi của đối thủ, viết tiêu đề và chia cảnh, vẽ ảnh, rồi dựng và xuất video cho các kênh YouTube của bạn." />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+    <!-- Hai tệp chữ của lần vẽ đầu (400 = chữ thường, 600 = tiêu đề/nút): nạp
+         song song với CSS thay vì chờ CSS parse xong mới phát hiện @font-face.
+         Font luôn được tải bằng CORS nên phải có crossorigin. -->
+    <link rel="preload" href="/fonts/be-vietnam-pro-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/be-vietnam-pro-600.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/icons/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <!-- Thứ tự layer phải có trong HTML tĩnh, trước mọi stylesheet do JS nạp.

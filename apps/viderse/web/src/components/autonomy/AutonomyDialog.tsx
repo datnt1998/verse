@@ -7,7 +7,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { Button, Icon, Kbd, useEscapeLayer } from '@noverse/ui'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/autonomy'
 import { dialogStyles as sx } from './dialog.stylex'
 
 export type AutonomyDialogItem = { icon: string; tone: 'warn' | 'note'; text: string }

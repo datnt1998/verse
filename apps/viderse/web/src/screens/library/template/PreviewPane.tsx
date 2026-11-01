@@ -7,7 +7,7 @@ import { Icon } from '@noverse/ui'
 // duy nhất của màn và chỉ khi `stale`; dựng lại cần video đã làm xong nên khi
 // chưa có video thì khoá kèm lý do — bấm không làm gì.
 import { ActionButton } from '../../../components'
-import { vi as t } from '../../../i18n/vi'
+import { t } from '../../../i18n/library'
 import { clock } from '../fmt'
 import type { TemplateDetail } from '../../../api/library'
 

@@ -9,7 +9,7 @@ import {
   InfoPopover, NumberStepper, Sheet, Switch, TextField, Tooltip, toast, Icon,
 } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/devkit'
 import { navigate, paths, type DevKitBoard, type Route } from '../../router'
 import {
   ActionButton, ChannelAvatar, EmptyWorkbench, LensLogo, Orb, StatusLabel,

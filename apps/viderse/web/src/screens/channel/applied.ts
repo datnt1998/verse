@@ -2,7 +2,7 @@
 // trị thật của kênh, nhãn "riêng" chỉ khi khác mặc định của kênh mới, và một
 // lối "Tuỳ chỉnh" mở đúng tab. Hàm thuần để test; TSX chỉ kết xuất.
 import type { Channel } from '../../api/channels'
-import { t } from '../../i18n/vi'
+import { t } from '../../i18n/channels'
 import { paths, type ChannelTab } from '../../router'
 
 export type AppliedRow = {

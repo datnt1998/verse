@@ -1,23 +1,12 @@
-// Chuỗi giao diện tiếng Việt — mọi chữ hiển thị của app đi qua `t`.
-// Thuật ngữ, mẫu câu và câu lỗi theo design 06-copy.md; không lộ kỹ thuật
-// (tên công cụ, đường dẫn, mã lỗi) ngoài “Chi tiết”.
-import { newScreenCopy, queueScreenCopy } from './newScreen'
-import { accountsCopy } from './accounts'
-import { aiCopy } from './ai'
-import { autonomyCopy } from './autonomy'
-import { backdropCopy } from './backdrop'
-import { channelsCopy } from './channels'
-import { libraryCopy } from './library'
-import { learnCopy } from './learn'
-import { logs } from './logs'
-import { settings } from './settings'
-import { setup } from './setup'
-import { storage } from './storage'
-import { tools } from './tools'
+// Chữ tiếng Việt của khung app: mọi thứ entry thật sự vẽ (tab, tiêu đề, menu,
+// hộp xác nhận, trạng thái trống) cộng đúng vài nhãn màn khác mà khung app đọc.
+// Chữ riêng của từng màn nằm ở module của màn đó (./library, ./channels,
+// ./explore, ./queue, ./settings, ./learn, …); bản gộp đủ mọi màn cho test nằm ở
+// ./all. Entry chỉ nạp tệp này, nên đừng thêm chữ riêng của một màn vào đây.
+import { shared } from './shared'
 
-export const vi = {
+export const base = {
   brand: { name: 'Viderse', studio: 'Studio', tagline: 'Xưởng video' },
-
   common: {
     loading: 'Đang tải…',
     retry: 'Thử lại',
@@ -34,16 +23,12 @@ export const vi = {
     undo: 'Hoàn tác',
     save: 'Lưu',
   },
-
-  // Bốn trợ lý (01-ia-flows §4 — tên hiển thị luôn là tên Viderse).
   agents: {
     scout: { name: 'Trinh sát', role: 'Tải nguồn, phụ đề, bốc clip nền' },
     director: { name: 'Đạo diễn', role: 'Tiêu đề, mô tả, tag, chia cảnh' },
     artist: { name: 'Hoạ sĩ', role: 'Ảnh cảnh, ảnh bìa, bộ nhận diện' },
     qa: { name: 'Kiểm định', role: 'Dựng, đo độ hoàn thiện, xuất MP4' },
   },
-
-  // Trạng thái video (01-ia-flows §3.1 — một tên, một màu, mọi nơi giống nhau).
   states: {
     queued: 'Chờ lượt',
     working: 'Đang làm',
@@ -53,7 +38,6 @@ export const vi = {
     ready: 'Sẵn sàng',
     posted: 'Đã đăng',
   },
-
   nav: {
     main: 'Điều hướng chính',
     bottom: 'Điều hướng',
@@ -66,7 +50,6 @@ export const vi = {
     myChannels: 'Kênh của tôi',
     createChannel: 'Tạo kênh',
   },
-
   shell: {
     jobsIdle: (_queued: number) => 'Máy rảnh',
     jobsIdleCompact: 'Rảnh',
@@ -110,128 +93,11 @@ export const vi = {
     viewingAllChannels: 'đang xem Mọi kênh',
     selectingChannel: (name: string) => `đang chọn ${name}`,
   },
-
-  // Dải mất kết nối (System artboard · state=offline).
   offline: {
     title: 'Mất kết nối với máy chủ Viderse',
     retryingIn: (seconds: number) => `đang thử lại sau ${seconds} giây`,
     body: 'Video đang chạy trên máy vẫn tiếp tục nếu app còn mở. Màn hình dừng cập nhật tới khi kết nối lại; thao tác của bạn chưa được gửi.',
   },
-
-  auth: {
-    serverOnline: 'Máy chủ Viderse · đang hoạt động',
-    serverOffline: 'Không kết nối được máy chủ Viderse',
-    serverOnlineMobile: 'Máy chủ đang hoạt động',
-    serverOfflineMobile: 'Không kết nối được',
-    serverDownTitleMobile: 'Không kết nối được máy chủ',
-    accountsDownChip: 'Máy chủ Viderse · chưa đọc được tài khoản',
-    serverDownBodyMobile: 'Máy chủ Viderse không trả lời hoặc đang khởi động lại. Video đang chạy không bị dừng.',
-    accountsDownBodyMobile: 'Máy chủ Viderse đang chạy nhưng chưa đọc được kho tài khoản dùng chung. Bạn vẫn đang đăng nhập.',
-    serverDownTitle: 'Không kết nối được máy chủ Viderse',
-    serverDownBody: 'Máy chủ không trả lời hoặc đang khởi động lại. Video đang chạy trên máy chủ không bị dừng.',
-    serverDownHint: 'Noverse chạy trên máy chủ riêng nên có thể vẫn dùng được.',
-    accountsDownTitle: 'Chưa đọc được tài khoản',
-    accountsDownBody: 'Máy chủ Viderse đang chạy nhưng chưa đọc được kho tài khoản dùng chung, nên chưa kiểm được đăng nhập. Bạn vẫn đang đăng nhập; không cần nhập lại mật khẩu.',
-    accountsDownHint: 'Kho tài khoản dùng chung với Noverse, nên Noverse có thể cũng đang báo lỗi này.',
-    retryIn: (n: number) => `Tự thử lại sau ${n} giây`,
-    loginTitle: 'Đăng nhập',
-    loginSub: 'Một tài khoản dùng cho Noverse và Viderse',
-    wrongLogin: 'Sai tên đăng nhập hoặc mật khẩu.',
-    loginFailed: 'Đăng nhập thất bại. Thử lại.',
-    limited: (time: string) => `Thử sai quá nhiều lần. Thử lại sau ${time}.`,
-    wait: (time: string) => `Đợi ${time}`,
-    footerForgot: 'Quên mật khẩu? Nhờ quản trị viên đặt lại ở Noverse › Thành viên',
-    footerNew: 'Chưa có tài khoản? Nhờ quản trị viên tạo',
-    footerMobilePrompt: 'Quên mật khẩu hay chưa có tài khoản?',
-    footerMobileHelp: 'Nhờ quản trị viên ở Noverse › Thành viên.',
-    kicked: {
-      self: { title: 'Đã đăng xuất', body: 'Đã đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.' },
-      other: { title: 'Bạn vừa đăng xuất ở Noverse', body: 'Hai app dùng chung một lần đăng nhập, nên Viderse cũng cần đăng nhập lại.' },
-      password: { title: 'Mật khẩu vừa được đổi', body: 'Mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse. Dùng mật khẩu mới.' },
-      admin: { title: 'Quản trị viên vừa thay đổi tài khoản này', body: 'Có thể là quyền vào ứng dụng hoặc mật khẩu đã được đặt lại. Đăng nhập lại để tiếp tục.' },
-      expired: { title: 'Phiên đăng nhập đã hết hạn', body: 'Phiên giữ 30 ngày. Đăng nhập lại để tiếp tục; video đang chạy trên máy chủ không bị dừng.' },
-      unknown: { title: 'Phiên đăng nhập đã kết thúc', body: 'Có thể bạn vừa đăng xuất hoặc đổi mật khẩu ở Noverse hay Viderse. Đăng nhập lại để tiếp tục.' },
-    },
-    username: 'Tên đăng nhập',
-    usernameHint: 'Chữ thường không dấu, số và . _ - · 2–32 ký tự',
-    usernamePlaceholder: 'vd: linh',
-    password: 'Mật khẩu',
-    login: 'Đăng nhập',
-    loggingIn: 'Đang đăng nhập…',
-    sessionNote: 'Phiên giữ 30 ngày trên trình duyệt này, dùng chung cho Noverse và Viderse.',
-    accessDeniedTitle: 'Chưa được cấp quyền vào Viderse',
-    accessDenied: 'Tài khoản này đăng nhập đúng nhưng chưa được cấp quyền dùng Viderse. Nhờ quản trị viên bật ô Viderse cho bạn ở Noverse › Thành viên, rồi bấm Thử lại.',
-    openNoverse: 'Mở Noverse',
-    copyRequest: 'Chép lời nhờ quản trị viên cấp quyền',
-    copied: 'Đã chép',
-    copyFailed: 'Chưa chép được. Thử lại.',
-    copyRecoveryFailedMobile: 'Không chép được. Chạm giữ vào mã để chọn rồi chép.',
-    copyRecoveryFailedDesktop: 'Không chép được. Bấm đúp vào mã để chọn rồi chép bằng Ctrl/⌘ + C.',
-    otherAccountLogout: 'Không phải tài khoản của bạn? Đăng xuất khỏi cả Noverse và Viderse trên trình duyệt này.',
-    grantRequest: (username: string, name: string) => `Nhờ bạn cấp quyền Viderse cho tài khoản @${username}: Noverse › Thành viên › ${name} › Quyền vào ứng dụng › bật Viderse.`,
-    passwordForm: {
-      forceTitle: 'Đặt mật khẩu của bạn',
-      forceBody: 'Bạn đang đăng nhập bằng mật khẩu tạm quản trị viên gửi. Đặt mật khẩu riêng để bắt đầu dùng. Mật khẩu mới dùng cho cả Noverse và Viderse.',
-      forceBodyMobile: 'Bạn đang dùng mật khẩu tạm quản trị viên gửi. Mật khẩu mới dùng cho cả Noverse và Viderse.',
-      forceNoteMobile: 'Đổi xong, bạn đăng nhập lại một lần bằng mật khẩu mới.',
-      wrongTemp: 'Mật khẩu tạm không đúng.',
-      forceNote: 'Đổi xong, bạn đăng nhập lại một lần bằng mật khẩu mới. Thiết bị khác cũng phải đăng nhập lại.',
-      current: 'Mật khẩu hiện tại',
-      currentTemp: 'Mật khẩu tạm',
-      next: 'Mật khẩu mới',
-      confirm: 'Nhập lại mật khẩu mới',
-      confirmShort: 'Nhập lại',
-      hint: 'Ít nhất 8 ký tự',
-      short: 'Mật khẩu mới cần ít nhất 8 ký tự.',
-      mismatch: 'Mật khẩu nhập lại chưa khớp.',
-      wrongCurrent: 'Mật khẩu hiện tại không đúng.',
-      failed: 'Không đổi được mật khẩu. Vui lòng thử lại.',
-      submit: 'Đổi mật khẩu',
-      changing: 'Đang đổi…',
-      changed: 'Đã đổi mật khẩu. Vui lòng đăng nhập lại.',
-      reauthNote: 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả trình duyệt này.',
-      reauthNoteMobile: 'Đổi xong, mọi thiết bị phải đăng nhập lại ở cả Noverse và Viderse, kể cả điện thoại này.',
-    },
-  },
-
-  setup: {
-    title: 'Thiết lập Viderse',
-    body: 'Tạo tài khoản quản trị đầu tiên. Tài khoản này dùng được cho cả Noverse và Viderse.',
-    bodyMobile: 'Tài khoản quản trị tạo ở đây dùng được cho cả Noverse và Viderse.',
-    codeHintMobile: 'Mã in trong nhật ký máy chủ khi Viderse chạy lần đầu.',
-    footerShared: 'Viderse và Noverse dùng chung kho tài khoản',
-    footerLogin: 'Đã có tài khoản ở Noverse? Đăng nhập thay vì thiết lập',
-    copyRecovery: 'Chép',
-    copyRecoveryMobile: 'Chép mã',
-    recoveryWarningMobile: 'Mã chỉ hiện một lần. Mất cả mật khẩu lẫn mã này là mất quyền quản trị cả Noverse và Viderse.',
-    saved: 'Tôi đã lưu mã khôi phục',
-    verifyFailed: 'Không kiểm được mã thiết lập.',
-    createFailed: 'Không tạo được quản trị viên.',
-    stepsAria: 'Các bước thiết lập',
-    progress: (step: number) => `Bước ${step}/3`,
-    steps: ['Mã thiết lập', 'Tài khoản', 'Mã khôi phục'],
-    codeLabel: 'Mã thiết lập',
-    codeHint: 'Mã in trong nhật ký máy chủ khi Viderse chạy lần đầu. Ai có quyền vào máy chủ mới xem được.',
-    codePlaceholder: 'XXXX-XXXX',
-    verifying: 'Đang kiểm tra…',
-    attemptsLeft: (n: number) => `Mã chưa đúng — còn ${n} lần thử.`,
-    nameLabel: 'Tên hiển thị',
-    usernameLabel: 'Tên đăng nhập',
-    passwordLabel: 'Mật khẩu',
-    passwordHint: 'Ít nhất 8 ký tự',
-    createAdmin: 'Tạo quản trị viên',
-    creating: 'Đang tạo…',
-    recoveryTitle: 'Đã tạo quản trị viên',
-    signedIn: 'Bạn đang đăng nhập.',
-    recoveryWarning:
-      'Mã chỉ hiện một lần này. Mất cả mật khẩu lẫn mã này là mất quyền quản trị cả Noverse và Viderse. Lưu ở nơi an toàn, không lưu chung với mật khẩu.',
-    recoveryLabel: 'Mã khôi phục',
-    recoveryUnavailableTitle: 'Chưa nhận được mã khôi phục',
-    recoveryUnavailable: 'Tài khoản quản trị đã tạo xong nhưng máy chủ không trả mã khôi phục. Vào Viderse rồi tạo mã mới ở Noverse › Tuỳ chỉnh › Nâng cao › Truy cập & khôi phục.',
-    enter: 'Vào Viderse',
-  },
-
-  // Trạng thái hệ thống (System artboard) và trạng thái trống của từng trang.
   system: {
     loadingWorkbench: 'Đang tải Bàn dựng',
     notFoundTitle: 'Không tìm thấy video này',
@@ -242,213 +108,6 @@ export const vi = {
     emptyWorkbenchAction: 'Làm video',
     emptyWorkbenchAlt: 'Khám phá',
   },
-
-  screens: {
-    workbench: {
-      title: 'Bàn dựng',
-      videosOfChannel: 'Video của kênh',
-      emptyHint: 'Video bạn làm sẽ hiện ở đây theo nhóm Chờ bạn · Đang làm · Chờ lượt · Sẵn sàng.',
-    },
-    review: {
-      title: 'Duyệt',
-      emptyTitle: 'Đã duyệt hết',
-      emptyHint: 'Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.',
-      emptyAction: 'Về Bàn dựng',
-    },
-    queue: queueScreenCopy,
-    explore: {
-      title: 'Khám phá',
-      emptyTitle: 'Chưa theo dõi đối thủ nào',
-      emptyHint: 'Thêm kênh đối thủ bằng @handle hoặc link — Trinh sát sẽ quét video nổi để bạn chọn làm.',
-      // Artboard Explore (gói V5): ba cột — đối thủ · lưới video · cột phải.
-      emptyBody: 'Thêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.',
-      allRivals: 'Tất cả đối thủ',
-      rivalsGroup: 'Đối thủ',
-      rivalsEmpty: 'Đối thủ bạn theo dõi sẽ hiện ở đây, kèm số video nổi trội mới.',
-      addRival: 'Thêm đối thủ',
-      addRivalAria: 'Thêm đối thủ bằng @handle, link kênh hoặc mã UC',
-      addRivalPlaceholder: '@handle, link kênh hoặc mã UC…',
-      addRivalCompact: '@handle hoặc link kênh',
-      addRivalPending: 'Đang thêm…',
-      example: 'Ví dụ',
-      emptyExamples: ['@nocturnestories', 'youtube.com/@hosobian', 'UCx9…Qw'] as const,
-      // 06-copy › Khám phá: câu thứ nhất nói chuyện gì xảy ra, câu sau nói việc tiếp theo.
-      addErrors: {
-        invalid_input: 'Chưa nhận ra kênh YouTube. Dán @handle, link kênh hoặc mã UC…',
-        not_found: 'Không tìm thấy kênh này trên YouTube. Kiểm tra lại @handle hoặc link.',
-        exists: 'Đã theo dõi đối thủ này.',
-        existsOpen: 'Mở',
-        rate_limited: 'YouTube đang giới hạn tốc độ. Thử lại lúc {time}.',
-        rateLimitedNoTime: 'YouTube đang giới hạn tốc độ. Thử lại sau ít phút.',
-        blocked: 'YouTube đòi xác minh không phải bot. Chọn hồ sơ trình duyệt có đăng nhập Google ở Tài khoản nền tảng rồi thử lại.',
-        blockedOpen: 'Mở Tài khoản nền tảng',
-        unexpected_page: 'YouTube trả về trang không đọc được. Thử lại sau ít phút; lặp lại thì gửi Báo lỗi.',
-        failed: 'Chưa thêm được đối thủ. Thử lại.',
-        retry: 'Thử lại',
-      },
-      newBadge: (n: string) => `${n} mới`,
-      newBadgeAria: (n: string) => `${n} video nổi trội mới`,
-      scanning: 'Đang quét lịch sử',
-      videosMeta: (videos: string, fresh: string) => `${videos} video · ${fresh} mới`,
-      subscribers: (n: string) => `${n} người theo dõi`,
-      outlierTitle: 'Video nổi trội',
-      outlierHint: 'Điểm × = lượt xem so với mức thường của kênh đó',
-      selectMany: 'Chọn nhiều',
-      exitSelect: 'Thoát chọn',
-      sortLabel: 'Sắp xếp',
-      sorts: { outlier: 'Nổi trội', newest: 'Mới nhất', views: 'Lượt xem' },
-      filterLong: 'Dài',
-      filterLongValue: '≥ 8 phút',
-      filterWithin: 'Đăng trong',
-      withinDays: { any: 'Tất cả', d7: '7 ngày', d30: '30 ngày', d90: '90 ngày' },
-      withinLabel: 'Khoảng thời gian đăng',
-      filterStatus: 'Trạng thái',
-      statusAll: 'Tất cả',
-      statusTitle: 'Tất cả · Chưa làm cho kênh nào · Đã làm',
-      statusLabel: 'Lọc theo trạng thái',
-      statusOptions: { all: 'Tất cả', notMade: 'Chưa làm cho kênh nào', made: 'Đã làm' },
-      videoCount: (shown: string, scanned: string) => `${shown} / ${scanned} video`,
-      videosEmpty: 'Chưa có video nào khớp bộ lọc.',
-      videosError: 'Chưa tải được danh sách video.',
-      searchLabel: 'Tìm theo tiêu đề video',
-      searchPlaceholder: 'Tìm tiêu đề',
-      searchClear: 'Xoá tìm',
-      searchCount: (n: string, q: string, scanned: string) => `${n} video có “${q}” · trong ${scanned} đã quét`,
-      searchCountNone: (q: string) => `0 video có “${q}”`,
-      noMatchTitle: (q: string) => `Không có video nào có “${q}” trong tiêu đề`,
-      /** dòng phụ của khối không có kết quả: tìm ở đâu, đang lọc gì */
-      noMatchWhere: (scanned: string, where: string, filters: string[]) =>
-        `Tìm trong ${scanned} video đã quét của ${where}${filters.length ? `, đang lọc ${filters.join(', ')}` : ''}.`,
-      noMatchAll: 'tất cả đối thủ',
-      noMatchLong: 'dài ≥ 8 phút',
-      noMatchWithin: (days: string) => `đăng trong ${days}`,
-      preview: 'Xem trước',
-      previewLabel: 'Video đã chọn',
-      rivalInfo: 'Thông tin đối thủ',
-      rivalDetail: 'Chi tiết đối thủ',
-      makeFor: (ch: string) => `Làm cho ${ch}`,
-      copyLink: 'Sao chép link',
-      copyLinkVideo: (title: string) => `Sao chép link ${title}`,
-      copyLinkTitle: 'Sao chép link YouTube',
-      copied: 'Đã sao chép link',
-      copyFailed: 'Không sao chép được — trình duyệt đang chặn clipboard.',
-      selected: (n: number) => `Đã chọn ${n}`,
-      top10: 'Top 10',
-      top20: 'Top 20',
-      deselect: 'Bỏ chọn',
-      pickVideo: (title: string) => `Chọn ${title}`,
-      bulkRegion: 'Thao tác với video đã chọn',
-      bulkMake: (n: number) => `Làm ${n} video`,
-      bulkMakeFor: (n: number, channel: string) => `Làm ${n} video cho ${channel}`,
-      lockedReason: 'Cần một kênh của bạn để làm video. Tạo kênh ở mục Kênh.',
-      /** đã có kênh nhưng hàng chờ chưa mở — đổi lý do khoá, không bịa nút chạy */
-      queueReason: 'Cần hàng chờ để làm video. Hàng chờ chưa mở.',
-      createChannel: 'Tạo kênh',
-      scoreTitle: (score: string) => `Lượt xem gấp ${score} lần mức thường của kênh`,
-      scoreTimes: (score: string) => `lượt xem gấp ${score} lần mức thường`,
-      why: 'Vì sao?',
-      whyTitle: 'Vì sao nổi trội',
-      hasSubs: 'Có phụ đề do kênh đăng',
-      openYouTube: 'Mở trên YouTube',
-      queuePlan: 'Lên đầu hàng chờ khi bấm Làm video.',
-      queuePlanLoading: 'Đang kiểm kế hoạch…',
-      queuePlanEta: (time: string) => `Lên đầu hàng chờ · dự kiến bắt đầu ${time}.`,
-      queuePlanDup: 'Video này đã được làm cho kênh này.',
-      queuePlanOpen: 'Mở video',
-      queueNote: 'Video chọn tay lên đầu hàng chờ, không chiếm nhịp ngày của kênh.',
-      queuedLabel: 'Đã vào hàng chờ',
-      queuedDone: 'Video đã xếp vào hàng chờ.',
-      makeChannel: 'Làm cho kênh',
-      makeVideo: 'Làm video',
-      makeSubtitle: (channel: string) => `cho ${channel}`,
-      rivalActions: (name: string) => `Thao tác với ${name}`,
-      menuCheck: 'Kiểm tra video mới',
-      menuCheckHint: (hours: number) => `Trinh sát xem lại kênh ngay, không đợi chu kỳ ${hours} giờ`,
-      menuLink: 'Liên kết với kênh…',
-      menuLinkHint: 'Chọn một kênh của bạn để dùng đối thủ này làm nguồn video.',
-      menuUnfollow: 'Bỏ theo dõi',
-      menuUnfollowHint: 'Gỡ kênh này khỏi Khám phá; video đã quét bị xoá cùng, video đã làm giữ nguyên.',
-      statBaseline: 'Mức thường',
-      statPerWeek: 'Mỗi tuần',
-      statOutliers: 'Nổi trội',
-      perWeekValue: (n: string) => `${n} video`,
-      statPending: '—',
-      linkedChannel: 'Liên kết với',
-      notLinked: 'Chưa liên kết kênh nào',
-      linkedTo: (channel: string) => `Đã liên kết với ${channel}`,
-      linkDialogTitle: (name: string) => `Liên kết ${name} với kênh nào?`,
-      linkDialogHint: 'Đối thủ đã liên kết với kênh đó thì khoá, kèm tên kênh.',
-      linkPick: 'Liên kết',
-      linkDone: 'Đã liên kết đối thủ với kênh.',
-      linkFailed: 'Chưa liên kết được. Thử lại.',
-      linkEmpty: 'Chưa có kênh nào. Tạo kênh trước.',
-      unfollowTitle: (name: string) => `Bỏ theo dõi ${name}?`,
-      unfollowBody: 'Kênh này rời khỏi Khám phá và không còn được kiểm tra video mới.',
-      unfollowItem: (n: string) => `${n} video đã quét bị xoá cùng.`,
-      unfollowQueue: 'Video đã làm giữ nguyên; video đang trong hàng chờ bị bỏ.',
-      unfollowOk: 'Bỏ theo dõi',
-      unfollowDone: 'Đã bỏ theo dõi đối thủ.',
-      scanTitle: 'Quét lịch sử',
-      scanProgress: 'Tiến độ quét lịch sử',
-      scanCount: (scanned: string, cap: string) => `${scanned} / ${cap}`,
-      /** "mỗi giờ" khi chu kỳ 1 giờ, "mỗi 6 giờ" khi khác (settings clone.rescanHours). */
-      everyHours: (hours: number) => hours <= 1 ? 'mỗi giờ' : `mỗi ${hours} giờ`,
-      scanStates: {
-        running: 'Đang đọc tab Videos, mỗi lượt cách nhau vài giây. Tạm dừng được; app mở lại vẫn chạy tiếp.',
-        queued: 'Chờ lượt quét. Trinh sát bắt đầu sau ít giây.',
-        limited: 'YouTube đang giới hạn tốc độ. Trinh sát tự thử lại lúc {time}.',
-        limitedNoTime: 'YouTube đang giới hạn tốc độ. Trinh sát tự thử lại sau ít phút.',
-        paused: 'Đã tạm dừng. Video đã quét vẫn dùng được trong Khám phá.',
-        capped: (n: string, every: string) => `Đã quét ${n} video mới nhất, đủ giới hạn đặt cho đối thủ này. Video mới vẫn được kiểm tra ${every}.`,
-        complete: (n: string, every: string) => `Đã quét hết lịch sử kênh (${n} video). Video mới vẫn được kiểm tra ${every}.`,
-        idle: 'Chưa quét lịch sử. Bấm Quét lịch sử để Trinh sát đọc tab Videos.',
-        cancelled: 'Đã huỷ quét lịch sử. Video đã quét vẫn dùng được trong Khám phá.',
-        error: 'Quét lịch sử dừng vì lỗi. Bấm Tiếp tục để thử lại; video đã quét vẫn dùng được.',
-        discovery: 'Đang kiểm tra video mới trên kênh này.',
-      },
-      scanButtons: {
-        pause: 'Tạm dừng',
-        resume: 'Tiếp tục',
-        rescan: 'Quét lại',
-        start: 'Quét lịch sử',
-      },
-      scanCap: 'Giới hạn',
-      scanCapLabel: 'Giới hạn quét lịch sử',
-      postingTitle: 'Lịch đăng',
-      postingZone: 'Múi giờ',
-      postingSample: (n: number) => `${n} video gần nhất`,
-      postingSlotCount: (n: number) => `${n} khung lặp lại`,
-      postingSlotsLabel: 'Các khung đăng lặp lại',
-      postingTop: 'nhiều nhất',
-      postingRhythm: {
-        weekly: (hit: number, total: number) => `Mỗi tuần · ${hit}/${total} tuần`,
-        mostWeeks: (hit: number, total: number) => `Gần như mỗi tuần · ${hit}/${total}`,
-        biweekly: 'Hai tuần một lần',
-        new: (weeks: number) => `Mới · từ ${weeks} tuần nay`,
-      },
-      postingOff: (n: number) => `${n} video lẻ ngoài các khung trên · khung = cùng thứ và cùng giờ, lặp ít nhất 3 lần`,
-      postingHeat: (zone: string, n: number) => `Bảng thứ theo giờ đăng của 30 video gần nhất, ${zone}. Có ${n} khung lặp lại.`,
-      postingZoneLong: { vn: 'giờ Việt Nam', ny: 'giờ New York' },
-      postingPending: 'Đang đọc giờ đăng chính xác của các video còn lại.',
-      postingPaused: (time: string) => `YouTube đang giới hạn tốc độ. Đọc giờ đăng tiếp lúc ${time}.`,
-      postingEmpty: 'Chưa đọc được giờ đăng chính xác của video nào. Trinh sát đọc khi quét tới.',
-      postingNoSlots: (n: number) => `${n} video gần nhất đăng lệch giờ nhau, chưa có khung nào lặp ít nhất 3 lần.`,
-      weekdays: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-    },
-    new: newScreenCopy,
-    editor: {
-      title: 'Editor',
-      emptyTitle: 'Chưa mở project nào',
-      emptyHint: 'Mở editor từ một video Chưa đạt độ hoàn thiện trên Bàn dựng.',
-    },
-    settings: {
-      title: 'Cài đặt',
-      emptyTitle: 'Cài đặt',
-      emptyHint: 'Công cụ trên máy, kết nối AI, tài khoản nền tảng và lưu trữ sẽ nằm ở đây.',
-    },
-  },
-
-  // Hộp xác nhận — 7 tình huống của Kit › Xác nhận / Dialogs.
   confirm: {
     pause: {
       title: (agent: string) => `Tạm dừng ${agent}?`,
@@ -543,40 +202,6 @@ export const vi = {
       never: 'Đổi lại bất cứ lúc nào ở Mức tự chủ. Không bao giờ tự đăng, tự xoá hay đổi template',
     },
   },
-
-  // Cài đặt: khung + Công cụ/Lưu trữ/Nhật ký (i18n/settings,tools,storage,logs),
-  // Chuẩn bị máy (i18n/setup), Kết nối AI + Trợ lý AI (ai.ts), Tài khoản nền tảng (accounts.ts).
-  ai: aiCopy,
-  accounts: accountsCopy,
-  settings,
-  tools,
-  storage,
-  logs,
-  prep: setup,
-  library: libraryCopy,
-  backdrop: backdropCopy,
-  channels: channelsCopy,
-  autonomy: autonomyCopy,
-  learn: learnCopy,
-
-  // Mã lỗi → câu (06-copy.md › Từ mã lỗi tới câu). Trả null khi mã không nên
-  // hiện lỗi (vd rate_limited chỉ là dòng phụ).
-  errors: {
-    login_required: 'Cần đăng nhập ChatGPT để Hoạ sĩ vẽ tiếp.',
-    cookies_failed: 'YouTube yêu cầu đăng nhập để tải video này.',
-    unsupported_platform: (platform: string) => `Chưa hỗ trợ ${platform}. App lấy nguồn nền từ Twitch và Bilibili.`,
-    unavailable: 'Video nguồn không còn xem được (đã ẩn hoặc xoá).',
-    no_subtitles: 'Video không có phụ đề. Trinh sát sẽ tự chép lời từ âm thanh.',
-    quality_gate: (score: number) => `Chưa đạt độ hoàn thiện ${score}/100`,
-    auth_failed: (provider: string) => `${provider} từ chối khoá API này. Kiểm tra lại khoá.`,
-    template_changed: 'Template đã đổi số ảnh hoặc prompt ảnh. Đạo diễn cần chia cảnh lại.',
-    failed: 'Có lỗi xảy ra. Thử lại.',
-  },
-
-  home: {
-    title: 'Trang chủ',
-  },
-
   account: {
     title: 'Tài khoản',
     menuLabel: 'Tài khoản của bạn',
@@ -627,33 +252,36 @@ export const vi = {
     lastSeen: (time: string) => `Hoạt động ${time}`,
     back: 'Quay lại',
   },
-
   role: {
     admin: 'Quản trị viên',
     member: 'Thành viên',
   },
-
-  devkit: {
-    title: 'Kit Viderse',
-    boards: { kit: 'Kit (máy tính)', mkit: 'MKit (điện thoại)' },
-    groups: {
-      foundation: 'Nền tảng',
-      confirm: 'Xác nhận',
-      menus: 'Menu',
-      select: 'Select & Combobox',
-      inputs: 'Ô nhập & nút',
-      overlays: 'Gợi ý & trạng thái',
-      video: 'Video & thẻ',
-      agent: 'Trợ lý',
-      bars: 'Đầu trang',
-      controls: 'Điều khiển',
-      lists: 'Hàng',
-      sheets: 'Sheet',
-    },
-    reopenDialog: 'Mở lại hộp thoại',
-    demoToast: 'Đã thêm 3 video vào hàng chờ',
+  // Nhãn của màn khác mà khung app vẫn đọc (tiêu đề trang, tab, crumb, cảnh báo
+  // cài đặt thiếu). Bản đầy đủ nằm ở module của chính màn đó; ở đây chỉ giữ đúng
+  // khoá khung app dùng và cùng trỏ về ./shared nên không chép chữ.
+  channels: {
+    page: { title: shared.channelTitle, noName: shared.channelNoName },
+    create: { title: shared.channelCreateTitle },
+  },
+  library: { titleShort: shared.libraryTitle, tabs: { templates: shared.templatesTab } },
+  prep: {
+    titleShort: shared.setupTitle,
+    skippedWarn: shared.setupSkippedWarn,
+    skippedAction: shared.setupSkippedAction,
+  },
+  screens: {
+    workbench: { title: shared.workbenchTitle },
+    review: { title: shared.reviewTitle },
+    queue: { title: shared.queueTitle },
+    explore: { title: shared.exploreTitle, allRivals: shared.allRivals, weekdays: shared.weekdays, hasSubs: shared.exploreHasSubs },
+    new: { title: shared.newTitle, toasts: shared.newToasts, plan: { blockedNoTemplate: shared.blockedNoTemplate } },
+    editor: { title: shared.editorTitle },
+    settings: { title: shared.settingsTitle },
   },
 } as const
 
-export type ViStrings = typeof vi
-export const t = vi
+export type ViStrings = typeof base
+/** Tên cũ của cùng một bảng chữ — giữ cho `import { vi as t }` ở khung app. */
+export const vi = base
+/** Bí danh ngắn cho tệp chỉ đọc chữ của khung app (phần lớn components/ và shell/). */
+export const t = base

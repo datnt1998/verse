@@ -4,7 +4,7 @@
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { applyViderseLabels } from '../kitLabels'
-import { t } from '../i18n/vi'
+import { t } from '../i18n/all'
 import {
   confirmAutonomy, confirmDeleteChannel, confirmDeleteVideo, confirmLeaveUnsaved,
   confirmOverwrite, confirmPause, confirmProviderLogout, confirmStopAll,

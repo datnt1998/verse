@@ -10,7 +10,7 @@ import { AppHeader } from './AppHeader'
 import { AppShell } from './AppShell'
 import { MobileShell } from './MobileShell'
 import { OfflineStrip } from './OfflineStrip'
-import { t } from '../i18n/vi'
+import { t } from '../i18n/all'
 import type { Status } from '../api/status'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })

@@ -27,7 +27,7 @@ import {
   type AiAgents, type AiModel, type AiProvider, type ModelRef,
 } from '../../../api/ai'
 import { aiCopy, clockOf } from '../../../i18n/ai'
-import { t } from '../../../i18n/vi'
+import { t } from '../../../i18n/settings'
 import { ModelList, ModelPicker, pickedFrom, refId, type Picked } from './ModelPicker'
 import { fieldOf, planLabel, reasonOf } from '../connect/ProviderCard'
 
