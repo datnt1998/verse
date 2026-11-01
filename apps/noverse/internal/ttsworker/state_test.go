@@ -728,3 +728,80 @@ func TestWorkerCommandWaitsWhenAckCannotBePersisted(t *testing.T) {
 		t.Fatalf("lastSeq = %d, want 0 after a failed ack", w.lastSeq)
 	}
 }
+
+// A checksum stop is a safety decision, not a transient error: an ordinary
+// restart (launchd, reboot) with the same HOME and credential must not retry
+// the download through the startup reconciliation pass. Only a genuinely new
+// admin command may clear it.
+func TestWorkerChecksumStopSurvivesRestart(t *testing.T) {
+	srv := newStateServer(t)
+	dir := t.TempDir()
+	eng := &stateEngine{} // nothing installed: startup reconciliation would provision
+	failHash := func() *fakeProvisioner {
+		return &fakeProvisioner{err: &voice.ProvisionError{
+			Code: voice.ProvisionErrHashMismatch, Message: "hash lệch",
+		}}
+	}
+
+	first := failHash()
+	w1 := newStateWorkerWith(t, srv, eng, first, testToken, dir)
+	runUntil(t, w1, 5*time.Second, func() bool { return first.count() >= 1 })
+	runFor(t, w1, 150*time.Millisecond)
+	if got := first.count(); got != 1 {
+		t.Fatalf("in-process attempts = %d, want 1: a checksum mismatch must not retry", got)
+	}
+
+	// Ordinary restart, no admin action: the durable stop is restored before
+	// the startup provisioning pass.
+	second := failHash()
+	w2 := newStateWorkerWith(t, srv, eng, second, testToken, dir)
+	runFor(t, w2, 250*time.Millisecond)
+	if got := second.count(); got != 0 {
+		t.Fatalf("restart retried the checksum download %d time(s) without an admin command", got)
+	}
+	if st := w2.State(); st.State != voice.ProvisionStateError || st.Error == nil || st.Error.Code != voice.ProvisionErrHashMismatch {
+		t.Fatalf("restored state = %+v, want error/hash_mismatch", st)
+	}
+
+	// A new command is the explicit decision to retry: exactly one attempt.
+	srv.setCommand(5, "install")
+	runUntil(t, w2, 5*time.Second, func() bool { return second.count() > 0 })
+	// The server keeps returning the consumed seq 5: it must not run again.
+	runFor(t, w2, 150*time.Millisecond)
+	if got := second.count(); got != 1 {
+		t.Fatalf("authorized attempts = %d, want exactly 1", got)
+	}
+}
+
+// If the checksum stop cannot be written, the worker must fail closed: this
+// process stops provisioning, and the next start refuses to provision because
+// it cannot prove the absence of a stop.
+func TestWorkerChecksumStopFailsClosedWhenItCannotBeRecorded(t *testing.T) {
+	srv := newStateServer(t)
+	dir := t.TempDir()
+	eng := &stateEngine{}
+	prov := &fakeProvisioner{
+		err:   &voice.ProvisionError{Code: voice.ProvisionErrHashMismatch, Message: "hash lệch"},
+		onRun: func() { _ = os.Chmod(dir, 0o500) },
+	}
+	t.Cleanup(func() { _ = os.Chmod(dir, 0o700) })
+	w1 := newStateWorkerWith(t, srv, eng, prov, testToken, dir)
+	runUntil(t, w1, 5*time.Second, func() bool { return prov.count() >= 1 })
+	runFor(t, w1, 150*time.Millisecond)
+	if got := prov.count(); got != 1 {
+		t.Fatalf("in-process attempts = %d, want 1", got)
+	}
+	if w1.blockSaved() {
+		t.Fatal("stop claimed to be on disk although the state dir is read-only")
+	}
+
+	// Restart with the store still unusable: fail closed, no provision.
+	second := &fakeProvisioner{err: &voice.ProvisionError{
+		Code: voice.ProvisionErrHashMismatch, Message: "hash lệch",
+	}}
+	w2 := newStateWorkerWith(t, srv, eng, second, testToken, dir)
+	runFor(t, w2, 250*time.Millisecond)
+	if got := second.count(); got != 0 {
+		t.Fatalf("restart provisioned %d time(s) although the safety stop could not be recorded", got)
+	}
+}

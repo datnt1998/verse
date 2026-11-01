@@ -139,6 +139,20 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	// idempotent upgrade path (which keeps the downloaded model and voices).
 	// With --no-provision there is no provisioner: nothing is ever downloaded.
 	if w.cfg.Provisioner != nil && !w.pinned() {
+		code, unknown := w.safetyStop()
+		if code != "" || unknown {
+			// A checksum stop is durable and only a genuinely new operator
+			// command may clear it; an unreadable/unwritable store cannot prove
+			// there is no stop. Either way: never provision on a guess. Keep
+			// trying to record a stop whose first write failed. The reader is
+			// reported as failed (10-audio.md §8.2: "không tự thử tiếp") and
+			// chapters stay queued until an admin clicks retry.
+			if code != "" && !w.blockSaved() {
+				_ = w.persistCommandState(w.seqSnapshot(), code)
+			}
+			w.setState(w.blockedState(code))
+			return
+		}
 		if !w.due() {
 			return
 		}
@@ -285,15 +299,13 @@ func (w *Worker) pollCommand(ctx context.Context) error {
 	}
 	// Record the sequence before the install runs: a crash between the write
 	// and the work loses this one click (the operator can click again) but can
-	// never replay it. If the marker cannot be written the command waits for
-	// the next poll instead of running unrecorded — replaying it later is the
-	// failure this file exists to prevent.
-	if err := w.persistCommandSeq(cmd.Seq); err != nil {
+	// never replay it. A new command is also the only thing that clears a
+	// durable checksum stop — it is the explicit decision to retry the
+	// download. If the marker cannot be written the command waits for the next
+	// poll instead of running unrecorded, and the stop stays in force.
+	if err := w.persistCommandState(cmd.Seq, ""); err != nil {
 		return fmt.Errorf("ghi nhận lệnh đã chạy: %w", err)
 	}
-	w.mu.Lock()
-	w.lastSeq = cmd.Seq
-	w.mu.Unlock()
 	// An operator's click always runs once: clear an exhausted retry budget so
 	// the command is not swallowed by the backoff.
 	w.resetAttempts()
@@ -408,6 +420,23 @@ func (w *Worker) statusState(st voice.Status) voice.ProvisionState {
 	return next
 }
 
+// blockedState is the visible state for a durable safety stop (or for a worker
+// that cannot record one). The code stays stable so the UI can translate it;
+// the message is canonical because the original diagnostics are gone after a
+// restart.
+func (w *Worker) blockedState(code string) voice.ProvisionState {
+	msg := "Bản tải về không khớp mã băm đã ghim — đã dừng tự cài, chờ quản trị viên."
+	if code == "" {
+		code = voice.ProvisionErrStartFailed
+		msg = "Không ghi/đọc được trạng thái an toàn của máy đọc — đã tắt tự cài, chờ quản trị viên."
+	}
+	return voice.ProvisionState{
+		State: voice.ProvisionStateError, Percent: voice.ProvisionPercentUnknown,
+		Engine: w.cfg.Engine.Name(), Message: msg,
+		Error: &voice.ProvisionError{Code: code, Message: msg},
+	}
+}
+
 // installedReporter is the narrow view of voice.Installer the readiness gate
 // needs: does the reader's pinned build exist on disk?
 type installedReporter interface {
@@ -452,9 +481,13 @@ func (w *Worker) fail(p *voice.ProvisionError) {
 	w.mu.Lock()
 	attempt := w.attempts
 	delay := time.Duration(0)
+	hashMismatch := p != nil && p.Code == voice.ProvisionErrHashMismatch
 	switch {
-	case p != nil && p.Code == voice.ProvisionErrHashMismatch:
+	case hashMismatch:
 		w.exhausted = true
+		// The stop must outlive this process: an ordinary restart (launchd,
+		// reboot) would otherwise provision again through the startup pass.
+		w.blocked, w.blockOnDisk = p.Code, false
 	case attempt <= len(w.cfg.ProvisionBackoff):
 		delay = w.cfg.ProvisionBackoff[attempt-1]
 	default:
@@ -468,7 +501,14 @@ func (w *Worker) fail(p *voice.ProvisionError) {
 		Engine: w.cfg.Engine.Name(), Message: p.Message, Error: p, Attempts: attempt,
 	}
 	w.ready = false
+	seq := w.lastSeq
 	w.mu.Unlock()
+	if hashMismatch {
+		// Record it now. If the write fails the in-memory stop still holds for
+		// this process (ensureReady retries the write every tick), and the next
+		// start's store probe fails closed instead of provisioning.
+		_ = w.persistCommandState(seq, p.Code)
+	}
 }
 
 // resetAttempts clears the retry budget (success, or an operator command).
