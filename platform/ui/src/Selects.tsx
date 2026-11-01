@@ -108,6 +108,14 @@ export type KitSelectProps = {
   autoFocus?: boolean
   className?: string
   style?: CSSProperties
+  /** Lớp ngoài cùng: cho màn biến cả ô chọn thành một chip hay một hàng rộng (NewVideo.dc.html). */
+  xstyle?: stylex.StyleXStyles
+  /** Nút đóng (chưa mở danh sách): chiều cao, viền, khoảng cách giữa các phần. */
+  triggerStyle?: stylex.StyleXStyles
+  /** Cỡ mũi tên xuống (mặc định 15); chip nhỏ trong câu dùng 12. */
+  chevronSize?: number
+  /** Chữ đứng yên trước giá trị trong nút mở, vd “Kênh” / “Template”. */
+  prefix?: ReactNode
 }
 
 export type RichSelectProps = KitSelectProps & {
@@ -236,6 +244,7 @@ const sx = stylex.create({
   modelOptionDesc: { fontSize: 12, lineHeight: 1.35 },
   modelTrigger: { paddingLeft: 11, paddingRight: 8, borderRadius: 9 },
   valueLabel: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  prefix: { flex: '0 0 auto', whiteSpace: 'nowrap' },
   valuePlaceholder: { flex: '1 1 auto', minWidth: 0, color: color['--color-fg-4'], whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   iconLead: { display: 'flex', color: color['--color-fg-3'] },
   empty: { padding: 10 },
@@ -423,7 +432,7 @@ function FooterAction({ icon, tone, children, onClick, action }: { icon: string;
   return <button type="button" {...stylex.props(sx.opt)} data-select-action={action || undefined} onMouseDown={(event) => event.preventDefault()} onClick={onClick}><Icon name={icon} size={15} style={{ color: tone }} /><span {...stylex.props(sx.footerLabel)}>{children}</span></button>
 }
 
-function SelectList({ rich = false, inlineDescription, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant }: RichSelectProps & { rich?: boolean }) {
+function SelectList({ rich = false, inlineDescription, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant, xstyle, triggerStyle, chevronSize, prefix }: RichSelectProps & { rich?: boolean }) {
   const generatedId = useId()
   const id = suppliedId ?? generatedId
   const L = getKitLabels().selects
@@ -476,7 +485,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
       if (index >= 0) { event.preventDefault(); setActive(index); setOpen(true) }
     }
   }
-  const rootP = stylex.props(sx.col)
+  const rootP = stylex.props(sx.col, xstyle)
   const wrap = stylex.props(sx.popWrap, open && sx.popWrapOpen)
   const trg = stylex.props(sx.trg,
     disabled ? sx.trgDisabled : error ? sx.trgInvalid : open ? sx.trgOpen : sx.trgNormal,
@@ -485,6 +494,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
     inlineDescription && sx.modelTrigger,
     variant === 'project-role' && sx.trgRole,
     variant === 'project-role' && disabled && sx.trgRoleDisabled,
+    triggerStyle,
   )
   const chev = stylex.props(sx.chev, open && sx.chevOpen)
   return <div ref={root} className={[rootP.className, className].filter(Boolean).join(' ')} style={{ ...rootP.style, ...style }} onKeyDown={keyboard} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false) }}>
@@ -494,6 +504,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
       <button ref={trigger} id={id} type="button" role="combobox" className={trg.className} aria-label={ariaLabel ?? label ?? L.chooseItem} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? `${id}-list` : undefined} aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined} aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-error` : undefined} disabled={disabled} autoFocus={autoFocus} title={selected ? [selected.label, inlineDescription && selected.description].filter(Boolean).join(' · ') : ph} onClick={() => open ? setOpen(false) : begin()} style={{ ...trg.style, ...(rich ? { height: 48 } : {}), ...(height ? { height } : {}) }}>
         {rich && selected && <Avatar option={selected} />}
         {!rich && icon && <span aria-hidden="true" {...stylex.props(sx.iconLead)}>{icon}</span>}
+        {prefix != null && <span {...stylex.props(sx.prefix)}>{prefix}</span>}
         {selected
           ? <span {...stylex.props(sx.valueCol, rich && sx.valueRich, inlineDescription && sx.valueInline)}>
             <span {...stylex.props(inlineDescription ? sx.modelName : sx.valueLabel)}>{selected.label}</span>
@@ -501,7 +512,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
             {rich && selected.description && <span {...stylex.props(sx.desc, sx.valueLabel)}>{selected.description}</span>}
           </span>
           : <span {...stylex.props(sx.valuePlaceholder)}>{ph}</span>}
-        <Icon name="arrow-down-2" size={15} className={chev.className} style={chev.style} />
+        <Icon name="arrow-down-2" size={chevronSize ?? 15} className={chev.className} style={chev.style} />
       </button>
       {open && <Pop max={variant === 'project-role' ? 400 : 300} upward={upward} model={inlineDescription} role={variant === 'project-role'}>
         <div id={`${id}-list`} role="listbox" aria-label={ariaLabel ?? label ?? L.options}>

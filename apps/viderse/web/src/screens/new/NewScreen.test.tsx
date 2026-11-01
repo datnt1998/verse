@@ -30,7 +30,11 @@ beforeEach(async () => {
   plan = { accepted: [{ url: 'https://youtu.be/abcdefghijk', videoId: golden[1].source.id, title: golden[1].source.title, durationSec: 180, outlier: null, hasCaptions: true }], duplicates: [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 2, overflowDays: 0, template: { id: 'standard', name: 'Mẫu chuẩn', fromRotation: true } }
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })))
   vi.stubGlobal('fetch', vi.fn(async (path: string, init?: RequestInit) => {
-    if (path === '/api/owner-channels') return response({ channels: [{ id: 'mine', name: 'Kênh của tôi', pacePerDay: 5, templates: [{ id: 'standard', name: 'Mẫu chuẩn', position: 0 }], sources: [] }] })
+    if (path === '/api/owner-channels') return response({ channels: [
+      { id: 'mine', name: 'Kênh của tôi', pacePerDay: 5, templates: [{ id: 'standard', name: 'Mẫu chuẩn', position: 0 }], sources: [] },
+      // Kênh để trống tên lúc tạo: nhận diện sẽ đặt tên sau.
+      { id: 'other', name: '', pacePerDay: 3, templates: [{ id: 'doc', name: 'Phim tài liệu', position: 0 }], sources: [] },
+    ] })
     if (path.includes('/videos')) return response({ videos: [], nextCursor: null, total: 0 })
     if (path === '/api/clone/plan') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response(plan) }
     if (path === '/api/clone/enqueue') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response({ items: [] }) }
@@ -158,4 +162,36 @@ it('uses daily pace separately from remaining turns without repeating skipped li
   await tick(300)
   expect(el.querySelector('.nv-plantext')?.textContent).toContain('theo nhịp 5 video/ngày của Kênh của tôi. Hôm nay còn 2 lượt.')
   expect(el.querySelector('.nv-summary')?.textContent).toBe('3 link đọc được1 đã làm cho kênh này · sẽ bỏ quaHôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.')
+})
+
+// Ô chọn Kênh/Template là ô chọn của kit (nút mở danh sách), không phải <select> gốc.
+const picker = (label: string) => el.querySelector<HTMLButtonElement>(`button[role="combobox"][aria-label="${label}"]`)!
+const pick = async (label: string, option: string) => {
+  await act(async () => picker(label).click())
+  const target = [...el.querySelectorAll<HTMLElement>('[role="option"]')].find((node) => node.textContent === option)
+  expect(target, `lựa chọn “${option}” trong ${label}`).toBeDefined()
+  await act(async () => target!.click())
+}
+
+it.each([false, true])('plans with the picked template and returns to rotation when the channel changes (mobile=%s)', async (mobile) => {
+  await viewport(mobile)
+  await input('https://youtu.be/abcdefghijk'); await tick(300)
+  expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
+  await pick('Template', 'Mẫu chuẩn')
+  await tick(300)
+  expect(calls.at(-1)?.body).toMatchObject({ channelId: 'mine', templateId: 'standard' })
+  expect(picker('Template').textContent).toContain('Mẫu chuẩn')
+  await pick('Kênh', 'Kênh chưa đặt tên')
+  await tick(300)
+  // Đổi kênh luôn trả template về luân phiên, kể cả khi kênh mới có template riêng.
+  expect(calls.at(-1)?.body).toMatchObject({ channelId: 'other' })
+  expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
+  expect(picker('Kênh').textContent).toContain('Kênh chưa đặt tên')
+  expect(picker('Template').textContent).toContain('Theo luân phiên')
+})
+
+it('names a channel that was created without a name instead of showing an empty value', async () => {
+  await act(async () => picker('Kênh').click())
+  expect([...el.querySelectorAll('[role="option"]')].map((node) => node.textContent)).toEqual(['Kênh của tôi', 'Kênh chưa đặt tên'])
+  expect(picker('Kênh').textContent).toContain('Kênh của tôi')
 })
