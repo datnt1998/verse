@@ -255,3 +255,9 @@ Bằng chứng số liệu gốc: `/tmp/p06-editor-board-1440-final.json`, `/tmp
 - Kit dùng chung cung cấp chọn chip, vùng thả tệp/dòng tệp và tab gạch chân; hộp nhập template hiển thị kết quả thật từng tệp, giữ tệp chưa xong khi mất kết nối và không gửi lại tệp đã nhập khi thử lại.
 - Đã chạy UI thật với hai gói hợp lệ và một gói hỏng: kết quả hai template được nhập, một tệp lỗi; kiểm tra điện thoại 390/360 px không tràn ngang. Sửa vòng đời hộp thoại để chọn tệp vẫn hoạt động khi React chạy lại effect; ba regression nhập một phần/huỷ/thử lại đều chạy trong StrictMode.
 - Chưa coi lượt này là xác nhận khớp toàn bộ `MLibrary`/`MTemplate`: bản xem thử chưa có dữ liệu ở fixture, và phần còn lại của ma trận điện thoại được ghi ở báo cáo đối chiếu riêng.
+
+## Kênh và tạo kênh điện thoại — tích hợp (02/11/2026)
+
+- Các ngăn Video/Nguồn/Template/Hồ sơ và sheet tự động dùng màn điện thoại riêng; tạo kênh có đầu trang riêng, chọn đối thủ bắt buộc và nút tạo cố định có chừa bàn phím/inset. Dữ liệu nhận diện vẫn lấy thật từ máy chủ, không ghép ảnh minh hoạ thay kết quả.
+- Đã chạy tạo kênh qua API thật, mở kênh vừa tạo và xem trường hợp Đạo diễn lỗi; các ảnh và kích thước thực nằm trong báo cáo `plans/reports/viderse-mobile/mchannel-screenshots.json`. Ảnh chụp trước lượt chuyển style tĩnh sang StyleX nên lượt kiểm hình tích hợp vẫn còn mở.
+- Sau tích hợp: bộ kiểm tra kênh có 55 test đạt. Menu hành động đối thủ dùng đúng một nút trigger thay vì lồng hai nút, giữ liên kết nguồn/kênh hoạt động; kiểm tra chức năng liên kết đã đạt.

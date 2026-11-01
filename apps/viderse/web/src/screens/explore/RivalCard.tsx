@@ -88,11 +88,11 @@ export function RivalCard({ rival, color, rescanHours, perWeek, channels, linked
           <span className={`vx-rivalhead__sub ${stylex.props(exploreStyles.rivalheadSub).className}`} title={[rival.handle, subs].filter(Boolean).join(' · ')}>{subs}</span>
         </div>
         <div style={{ position: 'relative' }}>
-          <ActionMenu triggerStyle={exploreStyles.touchMenuTrigger}
+          <ActionMenu triggerStyle={[exploreStyles.iconbtn, exploreStyles.touchMenuTrigger]}
             label={tt.rivalActions(rival.title)}
             items={items}
             width={272}
-            trigger={<button type="button" className={`vx-iconbtn ${stylex.props(exploreStyles.iconbtn).className}`} aria-label={tt.rivalActions(rival.title)} aria-haspopup="menu"><Icon name="more" size={16} /></button>}
+            trigger={<Icon name="more" size={16} />}
           />
         </div>
       </div>

@@ -1,0 +1,283 @@
+{
+  "base": "http://127.0.0.1:8047",
+  "sourceCommit": "7717b462b2b913f252e73e2a24a011fd9bab95da",
+  "capturedWith": "Playwright Chromium (file:// node_modules/@playwright/test), one browser one page, closed after batch",
+  "channel": "Kể Chuyện Đêm (seeded), fresh = Kênh chưa đặt tên created via POST /api/owner-channels during capture",
+  "shots": [
+    {
+      "name": "360-create",
+      "file": "/tmp/mchannel-shots/360-create.png",
+      "actualWidth": 360,
+      "hash16": "402f4c30acd60a02",
+      "route": "/channels/new",
+      "note": "create at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-fresh",
+      "file": "/tmp/mchannel-shots/360-fresh.png",
+      "actualWidth": 360,
+      "hash16": "26d91cbd1c057c57",
+      "route": "/channels/d1704192-5905-4ed0-b152-df14aa5b4d61?tab=videos",
+      "note": "true fresh at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-tab-settings",
+      "file": "/tmp/mchannel-shots/360-tab-settings.png",
+      "actualWidth": 360,
+      "hash16": "f3bf6085dbdf03cf",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=settings",
+      "note": "settings tab at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-tab-sources",
+      "file": "/tmp/mchannel-shots/360-tab-sources.png",
+      "actualWidth": 360,
+      "hash16": "9cff9a4091379cd6",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=sources",
+      "note": "sources tab at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-tab-templates",
+      "file": "/tmp/mchannel-shots/360-tab-templates.png",
+      "actualWidth": 360,
+      "hash16": "70a4dfe9bd97ad03",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=templates",
+      "note": "templates tab at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-tab-videos",
+      "file": "/tmp/mchannel-shots/360-tab-videos.png",
+      "actualWidth": 360,
+      "hash16": "babc30ecfa01e5a1",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=videos",
+      "note": "videos tab at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "360-tab-videos-empty",
+      "file": "/tmp/mchannel-shots/360-tab-videos-empty.png",
+      "actualWidth": 360,
+      "hash16": "fdc678e6849b66ef",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=videos&filter=none",
+      "note": "videos filter no matches at 360",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-create",
+      "file": "/tmp/mchannel-shots/390-create.png",
+      "actualWidth": 390,
+      "hash16": "72e6c678b12e4d6d",
+      "route": "/channels/new",
+      "note": "create: 3 rivals, 0 picked, disabled CTA, opaque footer",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-create-filled",
+      "file": "/tmp/mchannel-shots/390-create-filled.png",
+      "actualWidth": 360,
+      "labelMismatch": "Filename prefix 390 is incorrect; actual capture is 360×844.",
+      "hash16": "90060428ffd87f6f",
+      "route": "/channels/new",
+      "note": "filled: picked rival w/ Tham chiếu nhân diện badge, CTA enabled",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-create-kb",
+      "file": "/tmp/mchannel-shots/390-create-kb.png",
+      "actualWidth": 390,
+      "hash16": "ff022413dc8ce433",
+      "route": "/channels/new",
+      "note": "same + --kb:320, footer lifted above keyboard",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 320
+      }
+    },
+    {
+      "name": "390-done",
+      "file": "/tmp/mchannel-shots/390-done.png",
+      "actualWidth": 360,
+      "labelMismatch": "Filename prefix 390 is incorrect; actual capture is 360×844.",
+      "hash16": "e0ecf345363e7ae9",
+      "route": "/channels/new",
+      "note": "done: Kênh đã sẵn sàng + Đạo diễn failed state, Kênh mới header",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-fresh",
+      "file": "/tmp/mchannel-shots/390-fresh.png",
+      "actualWidth": 390,
+      "hash16": "23de398b55ec1614",
+      "route": "/channels/d1704192-5905-4ed0-b152-df14aa5b4d61?tab=videos",
+      "note": "real created channel, 0 jobs = true fresh",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-sheet-autonomy",
+      "file": "/tmp/mchannel-shots/390-sheet-autonomy.png",
+      "actualWidth": 390,
+      "hash16": "056517a3a04bebe0",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=sources",
+      "note": "autonomy row Sheet radio list",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-sheet-rival",
+      "file": "/tmp/mchannel-shots/390-sheet-rival.png",
+      "actualWidth": 390,
+      "hash16": "c5b650ece6384542",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=sources",
+      "note": "rival ⋯ ActionSheet incl. destructive Bỏ liên kết",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-tab-settings",
+      "file": "/tmp/mchannel-shots/390-tab-settings.png",
+      "actualWidth": 390,
+      "hash16": "e13d0029bc8a4ecb",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=settings",
+      "note": "profile: banner, 44px safe row, avatar 48, 2-col actions",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-tab-sources",
+      "file": "/tmp/mchannel-shots/390-tab-sources.png",
+      "actualWidth": 390,
+      "hash16": "a3fb3d5551191d1f",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=sources",
+      "note": "sources: Nhịp→Tự chủ→Đối thủ→Lịch, 60px rival rows",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-tab-templates",
+      "file": "/tmp/mchannel-shots/390-tab-templates.png",
+      "actualWidth": 390,
+      "hash16": "c4c3add7669a7c36",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=templates",
+      "note": "templates 44px rows, order badge, next badge",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-tab-videos",
+      "file": "/tmp/mchannel-shots/390-tab-videos.png",
+      "actualWidth": 390,
+      "hash16": "b701940476fde7f2",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=videos",
+      "note": "videos tab, real 7/0/2/4 counts, flat rows + Segmented filter",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "390-tab-videos-empty",
+      "file": "/tmp/mchannel-shots/390-tab-videos-empty.png",
+      "actualWidth": 390,
+      "hash16": "988480eb978d1cc0",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=videos&filter=none",
+      "note": "videos filter with no matching rows",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "desktop-channel",
+      "file": "/tmp/mchannel-shots/desktop-channel.png",
+      "actualWidth": 1440,
+      "hash16": "2c54338e9242579f",
+      "route": "/channels/11111111-1111-4111-8111-111111111111?tab=sources",
+      "note": "desktop sources unchanged",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    },
+    {
+      "name": "desktop-create",
+      "file": "/tmp/mchannel-shots/desktop-create.png",
+      "actualWidth": 1440,
+      "hash16": "8dbc4a1a57bf0d79",
+      "route": "/channels/new",
+      "note": "desktop create unchanged",
+      "env": {
+        "safeTop": 59,
+        "safeBottom": 34,
+        "kb": 0
+      }
+    }
+  ]
+}
