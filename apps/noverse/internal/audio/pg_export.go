@@ -320,7 +320,7 @@ func NewPGExportRunner(ctx context.Context, deps PGDeps) (*PGExportRunner, error
 // whole installation). Returns true when a job ran.
 func (r *PGExportRunner) RunOnce(ctx context.Context) (bool, error) {
 	if r.deps.Audio != nil {
-		if err := r.deps.Audio.RecoverPlayback(ctx); err != nil {
+		if err := r.deps.Audio.RecoverPlayback(ctx, PlaybackProof{}); err != nil {
 			return false, err
 		}
 	}
@@ -474,7 +474,7 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (res
 		if err != nil {
 			return err
 		}
-		revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID)
+		revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID, PlaybackProof{})
 		if err != nil {
 			return err
 		}
@@ -577,7 +577,7 @@ func (s *PGService) processExportJob(ctx context.Context, job postgres.Job) (res
 			// Chapter audio is addressed by (volume, chapter), not by the
 			// volume's content key: the play endpoint looks it up directly.
 			for _, u := range chapterAudio {
-				current, err := s.deps.Audio.PlaybackRevisionTx(ctx, tx, scope, chapterIDs[u.chapter])
+				current, err := s.deps.Audio.PlaybackRevisionTx(ctx, tx, scope, chapterIDs[u.chapter], PlaybackProof{})
 				if err != nil {
 					return err
 				}

@@ -24,45 +24,55 @@ type PlaybackRevision struct {
 	LatestJob       pgtype.UUID
 }
 
-type playbackQuerier interface {
-	QueryRow(context.Context, string, ...any) pgx.Row
+// PlaybackProof keeps synthesis/cast interpretation in the audio domain while
+// the repository owns locking, queue idempotency and atomic publication.
+type PlaybackProof interface {
+	Fingerprint(context.Context, gen.DBTX, ScopeRef, Script) ([]byte, error)
+	LegacyCurrent(context.Context, gen.DBTX, Job) (bool, error)
 }
 
-func playbackRevision(ctx context.Context, db playbackQuerier, scope ScopeRef, chapter pgtype.UUID) (PlaybackRevision, error) {
+func playbackRevision(ctx context.Context, db gen.DBTX, scope ScopeRef, chapter pgtype.UUID, proof PlaybackProof) (PlaybackRevision, error) {
 	var out PlaybackRevision
 	var config, renders []byte
-	err := db.QueryRow(ctx, `SELECT s.revision_no, s.source_revision, c.current_revision,
-	 jsonb_build_array(to_jsonb(s), c.current_revision,
-	   (SELECT payload->'settings' FROM audio_settings WHERE project_id=$1 AND story_id=$2),
-	   (SELECT jsonb_agg(to_jsonb(a) ORDER BY role_key) FROM audio_cast a WHERE project_id=$1 AND story_id=$2),
-	   (SELECT jsonb_agg(to_jsonb(v) ORDER BY legacy_id) FROM audio_voices v WHERE project_id=$1)),
-	 (SELECT jsonb_agg(to_jsonb(r) ORDER BY segment_id) FROM audio_renders r
-	   WHERE r.project_id=$1 AND r.chapter_id=$3 AND r.script_revision=s.revision_no AND selected),
-	 (SELECT id FROM jobs WHERE project_id=$1 AND story_id=$2 AND kind='tts'
-	   AND input->>'chapterId'=$3::text ORDER BY created_at DESC, id DESC LIMIT 1)
+	var script Script
+	var fence int64
+	err := db.QueryRow(ctx, `SELECT s.revision_no, s.source_revision, c.current_revision, s.source_sha256, s.payload,
+	 jsonb_build_array(s.revision_no, s.source_revision, s.source_sha256, c.current_revision),
+	 (SELECT jsonb_agg(jsonb_build_array(segment_id, synth_key, blob_id, duration_sec, sample_rate) ORDER BY segment_id)
+	   FROM audio_renders r WHERE r.project_id=$1 AND r.chapter_id=$3 AND r.script_revision=s.revision_no AND selected),
+	 latest.id, COALESCE(latest.fencing_token,0)
 	 FROM chapters c JOIN audio_scripts s ON s.project_id=c.project_id AND s.chapter_id=c.id
+	 LEFT JOIN LATERAL (SELECT id, fencing_token FROM jobs WHERE project_id=$1 AND story_id=$2 AND kind='tts'
+	   AND input->>'chapterId'=($3::uuid)::text ORDER BY created_at DESC, id DESC LIMIT 1) latest ON true
 	 WHERE c.project_id=$1 AND c.story_id=$2 AND c.id=$3
 	 ORDER BY s.revision_no DESC LIMIT 1`, scope.ProjectID, scope.StoryID, chapter).Scan(
-		&out.Revision, &out.SourceRevision, &out.CurrentRevision, &config, &renders, &out.LatestJob)
+		&out.Revision, &out.SourceRevision, &out.CurrentRevision, &script.SourceSHA256, &script.Payload,
+		&config, &renders, &out.LatestJob, &fence)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return out, ErrJobNotFound
 	}
 	if err != nil {
 		return out, sanitizeErr(err)
 	}
+	script.ChapterID, script.RevisionNo, script.SourceRevision = chapter, out.Revision, out.SourceRevision
+	audible, err := proof.Fingerprint(ctx, db, scope, script)
+	if err != nil {
+		return out, err
+	}
+	config = append(config, audible...)
 	h := sha256.Sum256(config)
 	out.Ownership = hex.EncodeToString(h[:])
-	h = sha256.Sum256(append(append(config, renders...), []byte(UUIDString(out.LatestJob))...))
+	h = sha256.Sum256(append(append(config, renders...), []byte(fmt.Sprintf("%s:%d", UUIDString(out.LatestJob), fence))...))
 	out.Content = hex.EncodeToString(h[:])
 	return out, nil
 }
 
-func (a *Audio) PlaybackRevision(ctx context.Context, scope ScopeRef, chapter pgtype.UUID) (PlaybackRevision, error) {
-	return playbackRevision(ctx, a.pool, scope, chapter)
+func (a *Audio) PlaybackRevision(ctx context.Context, scope ScopeRef, chapter pgtype.UUID, proof PlaybackProof) (PlaybackRevision, error) {
+	return playbackRevision(ctx, a.pool, scope, chapter, proof)
 }
 
 // PlaybackRevisionTx is used inside the fenced ACK/publication transaction.
-func (a *Audio) PlaybackRevisionTx(ctx context.Context, tx pgx.Tx, scope ScopeRef, chapter pgtype.UUID) (PlaybackRevision, error) {
+func (a *Audio) PlaybackRevisionTx(ctx context.Context, tx pgx.Tx, scope ScopeRef, chapter pgtype.UUID, proof PlaybackProof) (PlaybackRevision, error) {
 	// Hold existing mutable inputs through attachment/publication. A concurrent
 	// editor or cast/settings writer cannot pass the ownership check and then
 	// change those rows before the transaction commits.
@@ -85,12 +95,12 @@ func (a *Audio) PlaybackRevisionTx(ctx context.Context, tx pgx.Tx, scope ScopeRe
 	if _, err := tx.Exec(ctx, `SELECT id FROM audio_voices WHERE project_id=$1 FOR SHARE`, scope.ProjectID); err != nil {
 		return PlaybackRevision{}, sanitizeErr(err)
 	}
-	return playbackRevision(ctx, tx, scope, chapter)
+	return playbackRevision(ctx, tx, scope, chapter, proof)
 }
 
 // EnqueuePlaybackTx shares the render completion transaction: there is no
 // completion/dispatch crash window. The existing audio_export queue owns leases.
-func (a *Audio) EnqueuePlaybackTx(ctx context.Context, tx pgx.Tx, job Job) error {
+func (a *Audio) EnqueuePlaybackTx(ctx context.Context, tx pgx.Tx, job Job, proof PlaybackProof) error {
 	var in struct {
 		Volume         int    `json:"volume"`
 		Chapter        int    `json:"chapter"`
@@ -110,15 +120,21 @@ func (a *Audio) EnqueuePlaybackTx(ctx context.Context, tx pgx.Tx, job Job) error
 		return err
 	}
 	scope := ScopeRef{ProjectID: job.ProjectID, StoryID: job.StoryID}
-	rev, err := playbackRevision(ctx, tx, scope, chapter)
+	rev, err := a.PlaybackRevisionTx(ctx, tx, scope, chapter, proof)
 	if err != nil {
 		return err
 	}
 	if rev.LatestJob != job.ID {
 		return nil
 	}
-	if rev.Revision != in.ScriptRevision || rev.SourceRevision != rev.CurrentRevision ||
-		(in.Ownership != "" && in.Ownership != rev.Ownership) {
+	current := in.Ownership != "" && in.Ownership == rev.Ownership
+	if in.Ownership == "" {
+		current, err = proof.LegacyCurrent(ctx, tx, job)
+		if err != nil {
+			return err
+		}
+	}
+	if rev.Revision != in.ScriptRevision || rev.SourceRevision != rev.CurrentRevision || !current {
 		rev.Content = "superseded"
 	}
 	return enqueuePlaybackTx(ctx, tx, scope, "chapter-playback-"+UUIDString(job.ID), in.Volume, in.Chapter, chapter, rev.Content)
@@ -148,15 +164,15 @@ func enqueuePlaybackTx(ctx context.Context, tx pgx.Tx, scope ScopeRef, key strin
 
 // SelectPlaybackRender changes the take and dispatches its chapter rebuild in
 // the same transaction, so accepting a candidate cannot leave playback missing.
-func (a *Audio) SelectPlaybackRender(ctx context.Context, scope ScopeRef, chapterID pgtype.UUID, scriptRevision int32, segmentID, synthKey string, volume, chapter int) error {
+func (a *Audio) SelectPlaybackRender(ctx context.Context, scope ScopeRef, chapterID pgtype.UUID, scriptRevision int32, segmentID, synthKey string, volume, chapter int, proof PlaybackProof) error {
 	return a.tx(ctx, func(tx pgx.Tx) error {
-		if _, err := a.PlaybackRevisionTx(ctx, tx, scope, chapterID); err != nil {
+		if _, err := a.PlaybackRevisionTx(ctx, tx, scope, chapterID, proof); err != nil {
 			return err
 		}
 		if _, err := a.SelectRenderTx(ctx, tx, scope.ProjectID, chapterID, scriptRevision, segmentID, synthKey); err != nil {
 			return err
 		}
-		revision, err := playbackRevision(ctx, tx, scope, chapterID)
+		revision, err := playbackRevision(ctx, tx, scope, chapterID, proof)
 		if err != nil {
 			return err
 		}
@@ -166,7 +182,7 @@ func (a *Audio) SelectPlaybackRender(ctx context.Context, scope ScopeRef, chapte
 
 // RecoverPlayback dispatches pre-upgrade completions as well as ACKs committed
 // before a process restart. Each source job has exactly one durable dispatch.
-func (a *Audio) RecoverPlayback(ctx context.Context) error {
+func (a *Audio) RecoverPlayback(ctx context.Context, proof PlaybackProof) error {
 	return a.tx(ctx, func(tx pgx.Tx) error {
 		rows, err := tx.Query(ctx, `SELECT j.project_id, j.id FROM jobs j WHERE j.kind='tts' AND j.state='completed'
 		 AND j.input ? 'chapterId' AND j.input ? 'volume'
@@ -198,7 +214,7 @@ func (a *Audio) RecoverPlayback(ctx context.Context) error {
 			if err != nil {
 				return sanitizeErr(err)
 			}
-			if err := a.EnqueuePlaybackTx(ctx, tx, jobFromRow(row)); err != nil {
+			if err := a.EnqueuePlaybackTx(ctx, tx, jobFromRow(row), proof); err != nil {
 				return fmt.Errorf("recover chapter playback: %w", err)
 			}
 		}

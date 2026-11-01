@@ -204,6 +204,19 @@ volume MP3/M4B exports keep their normal queue and download paths.
 Accepting a different segment candidate likewise queues a chapter rebuild in
 the same transaction as the selection change.
 
+Ownership fingerprints contain canonical audible inputs, not row versions,
+timestamps, cast display fields or unrelated voice metadata. Re-saving an
+identical cast or queueing another chapter with the same voice mode does not
+invalidate a playable chapter or its in-flight native job. Referenced voice
+samples, effective pauses, synthesis settings and selected take bytes still
+supersede old playback.
+
+Pre-upgrade jobs without an ownership fingerprint must prove currentness from
+their complete frozen source revision and segment synthesis parameters/keys.
+Unchanged built-in-voice jobs recover normally; missing fields, partial segment
+snapshots or custom-sample identity not frozen by the old protocol are unknown
+and are superseded rather than attached or published under today's settings.
+
 #### Cùng máy (mặc định)
 
 Container chỉ mở cổng worker trên loopback của host; Mac mini chạy worker nối

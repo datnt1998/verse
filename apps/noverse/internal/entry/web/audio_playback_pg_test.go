@@ -220,7 +220,7 @@ func TestPGNativeCompletionPublishesChapterPlayback(t *testing.T) {
 	if _, err := svc.Enqueue(ctx, 1, 1, script.SourceHash); err != nil {
 		t.Fatal(err)
 	}
-	complete(0.2)
+	initialRender := complete(0.2)
 	if response := get(); response.Code != http.StatusNotFound {
 		t.Fatalf("GET must not build: %d", response.Code)
 	}
@@ -285,9 +285,46 @@ func TestPGNativeCompletionPublishesChapterPlayback(t *testing.T) {
 
 	// A pre-upgrade completed row has no automatic child yet. Recovery must
 	// discover it without another render or an export request.
-	legacy, err := jobs.Enqueue(ctx, scope, postgres.JobTTS, "pre-upgrade", map[string]any{"volume": 1, "chapter": 1, "chapterId": postgres.UUIDString(ref.ID), "scriptRevision": 1}, nil, pgtype.UUID{})
+	var legacyInput map[string]json.RawMessage
+	if err := json.Unmarshal(initialRender.Input, &legacyInput); err != nil {
+		t.Fatal(err)
+	}
+	delete(legacyInput, "ownership")
+	legacy, err := jobs.Enqueue(ctx, scope, postgres.JobTTS, "pre-upgrade", legacyInput, nil, pgtype.UUID{})
 	if err != nil {
 		t.Fatal(err)
+	}
+	for _, omitted := range []string{"segment", "voice", "tone", "pitch", "speaker", "sourceRevision", "nullTone"} {
+		var input map[string]json.RawMessage
+		if err := json.Unmarshal(legacy.Input, &input); err != nil {
+			t.Fatal(err)
+		}
+		var segments []map[string]json.RawMessage
+		if err := json.Unmarshal(input["segments"], &segments); err != nil {
+			t.Fatal(err)
+		}
+		switch omitted {
+		case "segment":
+			segments = segments[:1]
+		case "sourceRevision":
+			delete(input, "sourceRevision")
+		case "nullTone":
+			segments[0]["tone"] = json.RawMessage(`null`)
+		default:
+			delete(segments[0], omitted)
+		}
+		input["segments"], err = json.Marshal(segments)
+		if err != nil {
+			t.Fatal(err)
+		}
+		incomplete := legacy
+		incomplete.Input, err = json.Marshal(input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if current, err := (audio.PlaybackProof{}).LegacyCurrent(ctx, pool.Pool(), incomplete); err != nil || current {
+			t.Fatalf("legacy snapshot missing %s accepted: current=%v err=%v", omitted, current, err)
+		}
 	}
 	claimed, err := jobs.Claim(ctx, postgres.JobTTS, worker.ID, postgres.DefaultLease, scope.ProjectID)
 	if err != nil || claimed.ID != legacy.ID {

@@ -102,7 +102,13 @@ func TestWorkerAPIPostgresPublish(t *testing.T) {
 			"kind":           "create",
 			"chapterId":      postgres.UUIDString(chapterID),
 			"scriptRevision": 1,
-			"segments":       1,
+			"sourceRevision": 1,
+			"segments": []map[string]any{{
+				"id": "seg-1", "text": "Một đoạn văn để đọc.", "speaker": "nguoi-ke",
+				"voice": "", "tone": "", "speed": 1, "pitch": 1, "quality": "standard",
+				"engine": "remote", "model": "remote",
+				"synthKey": (audio.SynthKey{Text: "Một đoạn văn để đọc.", Speed: 1, Pitch: 1, Quality: "standard", Engine: "remote", Model: "remote"}).Hash(),
+			}},
 		}, nil, pgtype.UUID{})
 		if err != nil {
 			t.Fatalf("enqueue %s: %v", key, err)
@@ -181,8 +187,8 @@ func TestWorkerAPIPostgresPublish(t *testing.T) {
 
 	// ── complete with attachment ────────────────────────────────────────────
 	synthKey := audio.SynthKey{
-		Text: "Một đoạn văn để đọc.", VoiceID: "vieneu-nu-bac", Speed: 1, Pitch: 1,
-		Quality: "high", Engine: "vieneu", Model: "v1",
+		Text: "Một đoạn văn để đọc.", Speed: 1, Pitch: 1,
+		Quality: "standard", Engine: "remote", Model: "remote",
 	}.Hash()
 	ack := map[string]any{
 		"fence":        claimed.Job.Fence,

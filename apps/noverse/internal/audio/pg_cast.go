@@ -56,6 +56,10 @@ func (s *PGService) loadCastFor(ctx context.Context, scope postgres.ScopeRef) (*
 	if err != nil {
 		return nil, 0, pgErr(err)
 	}
+	return castFromRows(rows, voices)
+}
+
+func castFromRows(rows []postgres.CastRole, voices []postgres.Voice) (*Cast, int64, error) {
 	legacyByID := map[string]string{}
 	for _, v := range voices {
 		legacyByID[postgres.UUIDString(v.ID)] = v.LegacyID

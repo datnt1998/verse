@@ -206,7 +206,7 @@ func (s *PGService) OpenChapterAudio(ctx context.Context, volume, chapter int) (
 	if err != nil {
 		return Object{}, err
 	}
-	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID)
+	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, ref.ID, PlaybackProof{})
 	if err != nil {
 		return Object{}, pgErr(err)
 	}
@@ -257,7 +257,7 @@ func (s *PGService) AcceptCandidate(ctx context.Context, volume, chapter int, se
 	if err != nil {
 		return pgErr(err)
 	}
-	return pgErr(s.deps.Audio.SelectPlaybackRender(ctx, scope, ref.ID, row.RevisionNo, segID, key, volume, chapter))
+	return pgErr(s.deps.Audio.SelectPlaybackRender(ctx, scope, ref.ID, row.RevisionNo, segID, key, volume, chapter, PlaybackProof{}))
 }
 
 // RejectCandidate drops one candidate render (the current take is untouched).

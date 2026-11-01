@@ -272,7 +272,7 @@ func (s *PGService) enqueueTTS(ctx context.Context, scope postgres.ScopeRef, cha
 		}
 		return active.ID, nil
 	}
-	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, chapter.ID)
+	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, chapter.ID, PlaybackProof{})
 	if err != nil {
 		return "", pgErr(err)
 	}
