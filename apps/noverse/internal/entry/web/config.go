@@ -66,6 +66,10 @@ func (g *Gateway) serveConfig(w http.ResponseWriter, r *http.Request, user ident
 		g.listProviderModels(w, r, user)
 	case path == "/api/config/models" && get:
 		g.configModels(w, r, user)
+	case path == "/api/config/swap-provider" && post:
+		g.swapProvider(w, r, user)
+	case path == "/api/config/swap-provider/undo" && post:
+		g.undoSwapProvider(w, r, user)
 	case path == "/api/config/account" && get:
 		g.configAccount(w, r, user)
 	case path == "/api/config/oauth/start" && post:
@@ -472,11 +476,38 @@ func (g *Gateway) buildConfigResponse(ctx context.Context, t configTarget, user 
 	if t.scope == "global" {
 		delete(effRaw, "style")
 	}
-	providerErrors := map[string]string{}
+	providerErrors := map[string]providerErrorView{}
 	for name, pc := range effective.Providers {
 		if err := bootstrap.ValidateProvider(name, pc); err != nil {
-			providerErrors[name] = err.Error()
+			providerErrors[name] = providerErrorView{Kind: bootstrap.ProviderFailureKey, Message: err.Error()}
 		}
+	}
+	// OAuth account hết hạn mà không refresh được → expired (Bắt sửa).
+	if admin {
+		if store, err := auth.DefaultStore(); err == nil {
+			for _, preset := range bootstrap.ProviderPresets() {
+				if !preset.OAuth {
+					continue
+				}
+				view := accountView(store, preset.Name)
+				if expired, _ := view["expired"].(bool); expired {
+					providerErrors[preset.Name] = providerErrorView{
+						Kind:    bootstrap.ProviderFailureExpired,
+						Message: fmt.Sprintf("%s đã hết hạn gói. Gia hạn rồi đăng nhập lại ở Cài đặt › Kết nối AI.", providerLabel(preset.Name)),
+					}
+				}
+			}
+		}
+	}
+	// Lỗi thật do worker phân loại (expired/key/quota + retryAt) thắng chẩn đoán
+	// từ cấu hình: đó là điều người dùng vừa thấy khi viết.
+	for name, failure := range bootstrap.ProviderFailures() {
+		view := providerErrorView{Kind: failure.Kind, Message: failure.Message}
+		if failure.RetryAt != nil {
+			retryAt := *failure.RetryAt
+			view.RetryAt = &retryAt
+		}
+		providerErrors[name] = view
 	}
 	return map[string]any{
 		"target":         target,
@@ -486,6 +517,12 @@ func (g *Gateway) buildConfigResponse(ctx context.Context, t configTarget, user 
 		"accounts":       g.configAccounts(admin),
 		"providerErrors": providerErrors,
 	}, nil
+}
+
+type providerErrorView struct {
+	Kind    string     `json:"kind"`
+	Message string     `json:"message"`
+	RetryAt *time.Time `json:"retryAt,omitempty"`
 }
 
 func configToMap(cfg bootstrap.Config) (map[string]any, error) {
@@ -586,6 +623,16 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		}
 	}
 
+	snapshot, err := configWriteSnapshot(t, r.Header.Get("If-Match"))
+	if err != nil {
+		if isStorageConflict(err) {
+			g.writeConfigConflict(w, r, t, user)
+		} else {
+			scopeError(w, err)
+		}
+		return
+	}
+
 	// api_key 语义：vắng/rỗng = giữ khoá cũ（从该层旧文件回插）；clear_api_key = xoá。
 	// 旧文件损坏时拒绝静默覆盖（与 SaveProviderConfig 同一约定）。
 	existingKeys := map[string]string{}
@@ -660,11 +707,28 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 400, "Hiện chỉ hỗ trợ viết tiếng Việt")
 		return
 	}
+	if t.scope == "global" {
+		if msg := validateThinkingSelections(saved, cfg, hasSaved); msg != "" {
+			jsonError(w, 400, msg)
+			return
+		}
+		if msg := validateFallbackProviders(saved, cfg, hasSaved); msg != "" {
+			jsonError(w, 400, msg)
+			return
+		}
+	}
 	if t.scope != "global" {
 		if msg := changedRoutingField(saved, cfg); msg != "" {
 			jsonError(w, 400, msg)
 			return
 		}
+		if msg := changedAppWideField(saved, cfg); msg != "" {
+			jsonError(w, 400, msg)
+			return
+		}
+		// Ghim cũ (hoặc bản nháp cũ gửi lại) bị bỏ trước khi ghi: tài liệu dự án/truyện
+		// không còn giữ provider/model riêng (model_scope.go).
+		cfg = bootstrap.StripModelSelection(cfg)
 	}
 	validationConfig, err := g.providerValidationConfig(r.Context(), t, user, cfg)
 	if err != nil {
@@ -712,7 +776,7 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 			return
 		}
 	}
-	if err := g.saveTargetConfig(r.Context(), t, user, cfg, strings.Trim(r.Header.Get("If-Match"), "\"")); err != nil {
+	if err := g.saveConfigWriteSnapshot(r.Context(), t, user, cfg, strings.Trim(r.Header.Get("If-Match"), "\""), snapshot); err != nil {
 		if errors.Is(err, errs.ErrStorageConflict) {
 			res := g.resourceFor(r, user, nil)
 			version := g.resourceVersion(res)
@@ -734,12 +798,45 @@ func (g *Gateway) putConfig(w http.ResponseWriter, r *http.Request, user identit
 		jsonError(w, 502, "Đã lưu thiết lập nhưng chưa cập nhật được ngữ cảnh của trợ lý đang chạy")
 		return
 	}
+	// Nhà cung cấp/model dùng chung: truyện đang chạy phải nhận ngay lựa chọn mới,
+	// nếu không nó vẫn gọi provider cũ (gói đã hết hạn) dù người dùng vừa đổi.
+	if t.scope == "global" {
+		if err := g.syncWorkerModelSelection(r.Context(), t.scope, t.project, q.Get("story")); err != nil {
+			g.configChanged(t.scope, t.project, q.Get("story"))
+			jsonError(w, 502, "Đã lưu thiết lập nhưng chưa áp dụng được nhà cung cấp/model mới cho trợ lý đang chạy — mở lại truyện để dùng thiết lập mới")
+			return
+		}
+	}
 	resp, err := g.buildConfigResponse(r.Context(), t, user)
 	if err != nil {
 		scopeError(w, err)
 		return
 	}
 	writeJSON(w, 200, resp)
+}
+
+// Bind the client's If-Match to bytes and metadata captured under the shared
+// file lock. A later writer is rejected by the final locked snapshot CAS too.
+func configWriteSnapshot(t configTarget, expected string) (bootstrap.ConfigFileSnapshot, error) {
+	if t.hosted {
+		return bootstrap.ConfigFileSnapshot{}, nil
+	}
+	snapshot, err := bootstrap.ReadConfigFileSnapshot(t.path)
+	if err != nil {
+		return snapshot, err
+	}
+	expected = strings.Trim(strings.TrimSpace(expected), "\"")
+	if expected != "" && expected != "*" && expected != fileSnapshotVersion(snapshot.Info, snapshot.Data) {
+		return bootstrap.ConfigFileSnapshot{}, errs.ErrStorageConflict
+	}
+	return snapshot, nil
+}
+
+func (g *Gateway) saveConfigWriteSnapshot(ctx context.Context, t configTarget, user identity.User, cfg bootstrap.Config, expected string, snapshot bootstrap.ConfigFileSnapshot) error {
+	if !t.hosted {
+		return bootstrap.SaveConfigIfUnchanged(t.path, cfg, snapshot)
+	}
+	return g.saveTargetConfig(ctx, t, user, cfg, expected)
 }
 
 // ---------- presets / test / models / account ----------
@@ -785,6 +882,9 @@ func (g *Gateway) servePresets(w http.ResponseWriter, r *http.Request) {
 		PasteCode    bool   `json:"pasteCode"`
 		API          string `json:"api"`
 		DefaultModel string `json:"defaultModel"`
+		// Thinking là các mức model mặc định của preset thật sự nhận (gồm
+		// "minimal" khi hỗ trợ). Không quảng cáo cả tám nhãn cho mọi model.
+		Thinking []string `json:"thinking"`
 	}
 	out := []preset{}
 	for _, p := range bootstrap.ProviderPresets() {
@@ -792,10 +892,11 @@ func (g *Gateway) servePresets(w http.ResponseWriter, r *http.Request) {
 		if p.Name == "custom" {
 			typ = ""
 		}
+		model := defaultModelFor(p.Name, typ)
 		out = append(out, preset{
 			ID: p.Name, Label: p.Label, Type: typ, BaseURL: p.BaseURL,
 			KeyRequired: !p.APIKeyOptional, OAuth: p.OAuth, DeviceOnly: auth.DeviceOnly(p.Name), PasteCode: auth.PasteCode(p.Name),
-			DefaultModel: defaultModelFor(p.Name, typ),
+			DefaultModel: model, Thinking: presetThinking(p.Name, model, typ, p.BaseURL),
 		})
 	}
 	// 风格清单 = 内置 + ~/.ainovel/style/styles/*.md 用户自建（与运行时 DefaultLoadOptions 的 home 层一致），排序保证输出稳定。
@@ -831,7 +932,7 @@ func (g *Gateway) servePresets(w http.ResponseWriter, r *http.Request) {
 		"providers": out,
 		"styles":    styles,
 		"packs":     packList,
-		"reasoning": []string{"off", "low", "medium", "high", "xhigh", "max"},
+		"reasoning": []string{"", "off", "minimal", "low", "medium", "high", "xhigh", "max"},
 	})
 }
 
@@ -1042,6 +1143,9 @@ type modelInfo struct {
 	SummaryThreshold int                           `json:"summaryThreshold"`
 	AutomaticWindow  int                           `json:"automaticWindow"`
 	AutomaticSource  bootstrap.ContextWindowSource `json:"automaticSource"`
+	// Thinking là đúng các mức suy luận model này nhận ('' = Mặc định); màn
+	// Tuỳ chỉnh vẽ nút theo danh sách này thay vì 4 mức cố định của artboard.
+	Thinking []string `json:"thinking"`
 }
 
 // configuredModels 返回 provider 配置里声明的 models（含 context_window）。
@@ -1084,7 +1188,51 @@ func resolvedModelInfo(cfg bootstrap.Config, provider, name, display string) mod
 	window, source := cfg.ResolveContextWindow(provider, name)
 	automatic, automaticSource := (bootstrap.Config{ContextWindow: cfg.ContextWindow}).ResolveContextWindow(provider, name)
 	return modelInfo{Name: name, DisplayName: display, ContextWindow: window, ContextSource: source,
-		RegistryWindow: models.DefaultRegistry().ResolveContextWindow(name), AutomaticWindow: automatic, AutomaticSource: automaticSource, SummaryThreshold: max(0, window-bootstrap.CompactReserveTokens(window))}
+		RegistryWindow: models.DefaultRegistry().ResolveContextWindow(name), AutomaticWindow: automatic, AutomaticSource: automaticSource, SummaryThreshold: max(0, window-bootstrap.CompactReserveTokens(window)),
+		Thinking: thinkingLevelsFor(cfg, provider, name)}
+}
+
+// presetThinking trả các mức mà model mặc định của preset nhận, dùng cấu hình
+// tạm (chưa cần người dùng lưu provider). Lỗi/không rõ → chỉ "Tự động".
+func presetThinking(provider, model, typ, baseURL string) []string {
+	if provider == "" || model == "" {
+		return []string{""}
+	}
+	cfg := bootstrap.Config{Providers: map[string]llmconfig.ProviderConfig{
+		provider: {Type: typ, BaseURL: baseURL},
+	}}
+	probe, err := cfg.ProbeModel(provider, model)
+	if err != nil {
+		return []string{""}
+	}
+	levels := llmtypes.ThinkingPolicyFor(probe).Available
+	out := make([]string, 0, len(levels))
+	for _, level := range levels {
+		out = append(out, strings.TrimSpace(string(level)))
+	}
+	if len(out) == 0 {
+		out = []string{""}
+	}
+	return out
+}
+
+// thinkingLevelsFor: các mức suy luận model thật sự nhận (Codex/OpenAI trả
+// low…xhigh, Grok trả mức khác, Claude có thể không có "off"…). Model lạ hoặc
+// chưa cấu hình → chỉ "Mặc định" để giao diện không mời chọn mức vô nghĩa.
+func thinkingLevelsFor(cfg bootstrap.Config, provider, model string) []string {
+	probe, err := cfg.ProbeModel(provider, model)
+	if err != nil {
+		return []string{""}
+	}
+	levels := llmtypes.ThinkingPolicyFor(probe).Available
+	out := make([]string, 0, len(levels))
+	for _, level := range levels {
+		out = append(out, strings.TrimSpace(string(level)))
+	}
+	if len(out) == 0 {
+		out = append(out, "")
+	}
+	return out
 }
 
 func (g *Gateway) configModels(w http.ResponseWriter, r *http.Request, user identity.User) {
@@ -1185,7 +1333,7 @@ func oauthModelList(ctx context.Context, provider, baseURL string, store *auth.S
 
 // accountView 返回一个 OAuth provider 的持久账户状态（G7）；读 ~/.ainovel/auth.json。
 func accountView(store *auth.Store, provider string) map[string]any {
-	out := map[string]any{"connected": false, "label": "", "email": "", "plan": "", "expiresAt": nil}
+	out := map[string]any{"connected": false, "label": "", "email": "", "plan": "", "expiresAt": nil, "expired": false}
 	cred, ok, err := store.Get(provider)
 	if err != nil || !ok {
 		return out
@@ -1196,6 +1344,10 @@ func accountView(store *auth.Store, provider string) map[string]any {
 	out["plan"] = cred.Plan
 	if cred.Expires > 0 {
 		out["expiresAt"] = cred.ExpiresAt().Format(time.RFC3339)
+		// Access token hết hạn mà không có refresh token → không tự gia hạn được,
+		// người dùng phải đăng nhập lại. Có refresh token thì lớp auth tự làm mới,
+		// nên không báo “hết hạn” oan.
+		out["expired"] = cred.Refresh == "" && !time.Now().Before(cred.ExpiresAt())
 	}
 	return out
 }

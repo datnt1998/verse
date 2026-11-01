@@ -15,10 +15,16 @@ export function avatarOf(name: string, index: number): { ini: string; bg: string
 }
 
 /** Tên hiển thị: nhãn preset bỏ phần trong ngoặc (“ChatGPT Plus/Pro (Codex …)” → “ChatGPT Plus/Pro”); không có preset thì dùng id. */
+/** Tên thương hiệu khi chưa tải xong presets — không bao giờ hiện mã nhà cung cấp thô trong câu lỗi. */
+const KNOWN_PROVIDER_NAMES: Record<string, string> = {
+  openai: 'ChatGPT', 'openai-codex': 'ChatGPT', deepseek: 'DeepSeek', gemini: 'Gemini',
+  anthropic: 'Claude', ollama: 'Ollama', xai: 'Grok', openrouter: 'OpenRouter',
+}
+
 export function providerName(id: string, preset: { id: string; label: string } | null): string {
-  if (!preset) return id
+  if (!preset) return KNOWN_PROVIDER_NAMES[id] ?? id
   if (preset.id === 'openai-codex') return 'ChatGPT'
-  return preset.label.split(' (')[0] || id
+  return preset.label.split(' (')[0] || KNOWN_PROVIDER_NAMES[id] || id
 }
 
 /** `api_key_hint` của máy chủ (“sk-o…7890”, “…”, “oauth”) → “••••7890”; không có 4 ký tự cuối đọc được → “••••”. */

@@ -30,9 +30,10 @@ import { latestGateChapter } from '../GateCard'
 import { CommandSheet } from './CommandSheet'
 import { JobsSheet } from './JobsSheet'
 import { PauseSheet } from './PauseSheet'
-import { agentStatus, hasMobileResult, resultHref, retryText, reviewScore, WRITING_STEPS, writingPercent, workState, workspaceActions, type AgentRole } from './logic'
+import { agentStatus, hasMobileResult, providerStoppedRole, resultHref, retryText, reviewScore, WRITING_STEPS, writingPercent, workState, workspaceActions, type AgentRole } from './logic'
 import { withExportFlag } from '../../cmdresults/logic'
 import { idleModel, PendingQuestionCard } from '../IdleCard'
+import { ProviderStopCard } from '../ProviderStopCard'
 import './workspace.css'
 import { WorkspaceComposer } from './WorkspaceComposer'
 import { PanelRefreshBar } from '../../../ui/PanelRefreshBar'
@@ -74,6 +75,7 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
   const { user } = useSession()
   const live = useStoryEvents(project, story, NOOP)
   const { snapshot, connected, blocked } = live
+  const stoppedRole = providerStoppedRole(snapshot)
   const events = useMemo(() => deduplicateUserEvents(live.events.filter((event) => !isInternalEvent(event))), [live.events])
   useStoryConnection(live)
   const background = useActiveJobs()
@@ -179,7 +181,8 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
       const working = !!agent && ['running', 'working', 'thinking', 'tool'].includes(agent.state)
       const active = running && !stale && (role.key === 'writer' || working)
       const task = agent?.tool ? toolLabel(agent.tool) : step.label
-      const text = agentStatus(role.key as AgentRole, { state, stale, active, task, nextChapter: waitingChapter, queued: queued.length > 0 })
+      const providerStop = stoppedRole === role.key ? snapshot?.providerError?.kind : undefined
+      const text = agentStatus(role.key as AgentRole, { state, stale, active, task, nextChapter: waitingChapter, queued: queued.length > 0, providerStop })
       return <div className={`m-agent${active ? ' active' : ''}`} role="listitem" aria-label={active ? `${role.label} · ${text} · đang chạy` : `${role.label} · ${text}`} key={role.key} style={{ '--rgb': AGENT_RGB[role.key], '--ag': 'var(--rgb)' } as CSSProperties}>
         <span className="mw-agent-orb" aria-hidden="true">
           {active && <span className="mw-agent-halo" />}
@@ -187,13 +190,16 @@ function StoryWorkspace({ project, story, tablet = false }: { project: string; s
             {active && <span className="mw-agent-highlight" />}
           </span>
         </span>
-        <span className="mw-agent-copy"><strong title={role.label}>{role.label}</strong><small title={text} className={active ? 'mw-agent-action-live' : role.key === 'writer' ? (state === 'error' ? 'mw-st-error' : 'mw-st-writer') : undefined}>{text}</small></span>
+        <span className="mw-agent-copy"><strong title={role.label}>{role.label}</strong><small title={text} className={providerStop && providerStop !== 'quota' ? 'mw-st-error' : active ? 'mw-agent-action-live' : role.key === 'writer' ? (state === 'error' ? 'mw-st-error' : 'mw-st-writer') : undefined}>{text}</small></span>
       </div>
     })}</div>}
+    {snapshot && (snapshot.providerError || snapshot.fallback?.active) && <div className="mw-pad">
+      <ProviderStopCard snapshot={snapshot} isRunning={snapshot.isRunning} mobile onResume={() => { if (writable) void resume.run() }} />
+    </div>}
     {snapshot && pendingQuestion?.phase === 'wait' && <div className="mw-pad"><PendingQuestionCard model={pendingQuestion} snapshot={snapshot} mobile
       disabled={!writable || send.busy} onReply={(reply) => void send.run(reply)}
       onRead={(n) => navigate(paths.reader(project, story, n))} /></div>}
-    {snapshot && !pendingQuestion && <section key={state} className={`m-card mw-hero mw-${state}${stale ? ' mw-dim' : ''}`} title={live.updatedAt ? `Cập nhật lúc ${formatShortClock(new Date(live.updatedAt).toISOString())}` : undefined}>
+    {snapshot && !pendingQuestion && (!snapshot.providerError || snapshot.isRunning) && <section key={state} className={`m-card mw-hero mw-${state}${stale ? ' mw-dim' : ''}`} title={live.updatedAt ? `Cập nhật lúc ${formatShortClock(new Date(live.updatedAt).toISOString())}` : undefined}>
       {state === 'running' && <>
         <div className="mw-between"><span className="mw-label">Đang viết</span><span className="mw-spacer" />{stale && updatedClock && <span className="mw-updated">cập nhật lúc {updatedClock}</span>}<span className="num mw-percent">{percent}%</span></div>
         {tablet && <span className={`m-orb writer mw-large-orb${!stale ? ' live' : ''}`} aria-hidden="true" />}

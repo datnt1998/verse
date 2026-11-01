@@ -27,5 +27,5 @@ export async function saveModelContexts(changes: ContextChange[], admin: boolean
     providers[change.provider] = { ...pc, models }
   }
   await putConfig('global', { ...config, providers }, undefined, undefined, current.version)
-  await Promise.all([invalidate(['model-context']), invalidate(['settings-model-catalog']), invalidate(['config'])])
+  await Promise.all([invalidate(['model-context']), invalidate(['settings-model-catalog']), invalidate(['app-model-catalog']), invalidate(['config'])])
 }

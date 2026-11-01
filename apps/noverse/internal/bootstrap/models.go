@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/core/agentcore"
@@ -50,6 +51,8 @@ type SwappableModel struct {
 	// jsonSchema 是当前选中模型的 config json_schema 三态声明，与 provider/name
 	// 同锁原子切换；llmcontract.Resolve 经结构匹配接口每次现读。
 	jsonSchema *bool
+	generation uint64
+	epoch      *atomic.Uint64
 }
 
 func NewSwappableModel(provider, name string, model llmtypes.ChatModel, jsonSchema *bool) *SwappableModel {
@@ -59,6 +62,106 @@ func NewSwappableModel(provider, name string, model llmtypes.ChatModel, jsonSche
 		name:           name,
 		jsonSchema:     jsonSchema,
 	}
+}
+
+// ModelRequestError identifies the stable slot and selection that actually
+// served a failed request, including errors delivered asynchronously in a stream.
+// The original chain is retained for provider classification and retry policy.
+type ModelRequestError struct {
+	Provider   string
+	Model      string
+	Generation uint64
+	source     *SwappableModel
+	cause      error
+}
+
+func (e *ModelRequestError) Error() string { return e.cause.Error() }
+func (e *ModelRequestError) Unwrap() error { return e.cause }
+
+func (e ModelRequestError) withCause(cause error) error {
+	e.cause = cause
+	return &e
+}
+
+// IsCurrent reports whether this request still belongs to its selected client.
+// A swap back to the same provider/model is a new selection, not the old request.
+func (e *ModelRequestError) IsCurrent() bool {
+	e.source.mu.RLock()
+	defer e.source.mu.RUnlock()
+	return e.Generation == e.source.selectionGeneration()
+}
+
+func (m *SwappableModel) requestModel() (llmtypes.ChatModel, ModelRequestError) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.SwappableModel.Current(), ModelRequestError{
+		Provider: m.provider, Model: m.name, Generation: m.selectionGeneration(), source: m,
+	}
+}
+
+// Caller holds m.mu. Shared epochs invalidate request-level fallback clients
+// as well as role slots when the selection changes.
+func (m *SwappableModel) selectionGeneration() uint64 {
+	if m.epoch != nil {
+		return m.epoch.Load()
+	}
+	return m.generation
+}
+
+func (m *SwappableModel) setEpoch(epoch *atomic.Uint64) {
+	m.mu.Lock()
+	m.epoch = epoch
+	m.mu.Unlock()
+}
+
+func (m *SwappableModel) Generate(ctx context.Context, messages []llmtypes.Message, tools []llmtypes.ToolSpec, opts ...llmtypes.CallOption) (*llmtypes.LLMResponse, error) {
+	model, identity := m.requestModel()
+	if model == nil {
+		return nil, llmtypes.ErrNoModel
+	}
+	response, err := model.Generate(ctx, messages, tools, opts...)
+	if err != nil {
+		return response, identity.withCause(err)
+	}
+	return response, nil
+}
+
+func (m *SwappableModel) GenerateStream(ctx context.Context, messages []llmtypes.Message, tools []llmtypes.ToolSpec, opts ...llmtypes.CallOption) (<-chan llmtypes.StreamEvent, error) {
+	model, identity := m.requestModel()
+	if model == nil {
+		return nil, llmtypes.ErrNoModel
+	}
+	stream, err := model.GenerateStream(ctx, messages, tools, opts...)
+	if err != nil {
+		return nil, identity.withCause(err)
+	}
+	out := make(chan llmtypes.StreamEvent)
+	go func() {
+		defer close(out)
+		for {
+			var event llmtypes.StreamEvent
+			select {
+			case <-ctx.Done():
+				return
+			case next, ok := <-stream:
+				if !ok {
+					return
+				}
+				event = next
+			}
+			if event.Err != nil {
+				failure := identity
+				failure.cause = event.Err
+				event.Err = &failure
+			}
+			select {
+			case out <- event:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return out, nil
 }
 
 func (m *SwappableModel) ProviderName() string {
@@ -108,6 +211,11 @@ func (m *SwappableModel) Swap(provider, name string, model llmtypes.ChatModel, j
 	m.provider = provider
 	m.name = name
 	m.jsonSchema = jsonSchema
+	if m.epoch != nil {
+		m.epoch.Add(1)
+	} else {
+		m.generation++
+	}
 }
 
 // JSONSchemaOverride 返回当前选中模型的 config json_schema 三态声明。
@@ -149,38 +257,71 @@ func (ms *ModelSet) SetRetryGate(gate *llmretry.Gate) {
 
 // ForRole 返回指定角色的模型，未配置时返回默认模型。
 func (ms *ModelSet) ForRole(role string) llmtypes.ChatModel {
-	ms.mu.RLock()
-	defer ms.mu.RUnlock()
-	if m, ok := ms.models[role]; ok {
-		return m
+	ms.mu.Lock()
+	defer ms.mu.Unlock()
+	return ms.roleModelLocked(role)
+}
+
+// Each assembled role retains its own stable slot, including roles initially
+// inheriting the default. A later explicit override must update the model a
+// running worker already holds, not allocate a disconnected replacement.
+func (ms *ModelSet) roleModelLocked(role string) *SwappableModel {
+	if role == "" || role == "default" || !knownRoles[role] {
+		return ms.Default
 	}
-	return ms.Default
+	if model, ok := ms.models[role]; ok {
+		return model
+	}
+	provider, name := ms.Default.Current()
+	model := NewSwappableModel(provider, name, ms.Default.SwappableModel.Current(), ms.Default.JSONSchemaOverride())
+	model.setEpoch(ms.Default.epoch)
+	if ms.models == nil {
+		ms.models = make(map[string]*SwappableModel)
+	}
+	ms.models[role] = model
+	return model
 }
 
 // ForRoleWithFailover 返回带有单次请求级 fallback 的角色模型。
 // 仅当该角色显式配置了 fallbacks 时生效；未配置时退化为普通模型。
 func (ms *ModelSet) ForRoleWithFailover(role string, report FailoverReporter) llmtypes.ChatModel {
-	ms.mu.RLock()
-	defer ms.mu.RUnlock()
-	primary, ok := ms.models[role]
-	if !ok {
-		return ms.wrap(ms.Default, role)
-	}
-	targets := ms.fallbacks[role]
-	if len(targets) == 0 {
-		return ms.wrap(primary, role)
-	}
-	return ms.wrap(&failoverModel{
-		role: role, primary: primary, set: ms, report: report,
-	}, role)
+	return ms.forRoleWithFailover(role, report, false)
 }
 
-// wrap 给 agent 模型套上开流前重试（G4）；未配置闸门时原样返回。
-func (ms *ModelSet) wrap(m llmtypes.ChatModel, role string) llmtypes.ChatModel {
-	if ms.retryGate == nil || m == nil {
+// ForWorkerRole leaves temporary provider limits to the engine's AU policy
+// (real retryAt and cross-provider fallback after two minutes). Direct import
+// and revision calls keep their existing request-level retry/failover policy.
+func (ms *ModelSet) ForWorkerRole(role string, report FailoverReporter) llmtypes.ChatModel {
+	return ms.forRoleWithFailover(role, report, true)
+}
+
+func (ms *ModelSet) forRoleWithFailover(role string, report FailoverReporter, worker bool) llmtypes.ChatModel {
+	ms.mu.Lock()
+	defer ms.mu.Unlock()
+	primary := ms.roleModelLocked(role)
+	if len(ms.fallbacks[role]) == 0 {
+		return ms.wrap(primary, role, worker)
+	}
+	return ms.wrap(&failoverModel{
+		role: role, primary: primary, set: ms, report: report, deferProviderLimits: worker,
+	}, role, worker)
+}
+
+// Worker errors must also bypass agentcore's own retries when no shared gate
+// was installed (e.g. an isolated runner). Other callers retain nil-gate behavior.
+func (ms *ModelSet) wrap(m llmtypes.ChatModel, role string, worker bool) llmtypes.ChatModel {
+	if m == nil || ms.retryGate == nil && !worker {
 		return m
 	}
-	return llmretry.NewRetryingModel(m, ms.retryGate, role, llmretry.DefaultMaxRetries)
+	wrapped := llmretry.NewRetryingModel(m, ms.retryGate, role, llmretry.DefaultMaxRetries)
+	if worker {
+		wrapped.DeferError = isProviderLimit
+	}
+	return wrapped
+}
+
+func isProviderLimit(err error) bool {
+	return errors.Is(err, llmtypes.ErrProviderRateLimit)
 }
 
 // Summary 返回模型分配摘要（供日志使用）。
@@ -211,7 +352,8 @@ func (ms *ModelSet) CurrentSelection(role string) (provider, model string, expli
 	}
 	if sw, ok := ms.models[role]; ok {
 		provider, model = sw.Current()
-		return provider, model, true
+		_, explicit = ms.config.Roles[role]
+		return provider, model, explicit
 	}
 	provider, model = ms.Default.Current()
 	return provider, model, false
@@ -234,6 +376,11 @@ func (ms *ModelSet) Swap(role, provider, model string) error {
 	jsonSchema := ms.config.ModelJSONSchema(provider, model)
 	if role == "" || role == "default" {
 		ms.Default.Swap(provider, model, next, jsonSchema)
+		for inheritedRole, modelSlot := range ms.models {
+			if _, explicit := ms.config.Roles[inheritedRole]; !explicit {
+				modelSlot.Swap(provider, model, next, jsonSchema)
+			}
+		}
 		ms.config.Provider = provider
 		ms.config.ModelName = model
 		return nil
@@ -248,6 +395,7 @@ func (ms *ModelSet) Swap(role, provider, model string) error {
 	} else {
 		ms.models[role] = NewSwappableModel(provider, model, next, jsonSchema)
 	}
+	ms.models[role].setEpoch(ms.Default.epoch)
 	if ms.config.Roles == nil {
 		ms.config.Roles = make(map[string]roles.RoleConfig)
 	}
@@ -286,10 +434,26 @@ func (ms *ModelSet) ApplyPrepared(candidate *ModelSet) {
 			nextModels[role] = existing
 		} else {
 			nextModels[role] = next
+			next.setEpoch(ms.Default.epoch)
+		}
+	}
+	// Roles whose explicit override was removed still have assembled workers.
+	// Reset those same slots to the new default instead of dropping the slots.
+	for role, existing := range ms.models {
+		if _, retained := nextModels[role]; !retained {
+			existing.Swap(defaultProvider, defaultName, candidate.Default.SwappableModel.Current(), candidate.Default.JSONSchemaOverride())
+			nextModels[role] = existing
 		}
 	}
 	ms.models = nextModels
 	ms.fallbacks = candidate.fallbacks
+	for _, targets := range ms.fallbacks {
+		for _, target := range targets {
+			if slot, ok := target.model.(*SwappableModel); ok {
+				slot.setEpoch(ms.Default.epoch)
+			}
+		}
+	}
 	ms.config = CloneConfig(candidate.config)
 }
 
@@ -337,6 +501,7 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 		fallbacks: make(map[string][]modelTarget),
 		config:    cfg,
 	}
+	ms.Default.setEpoch(&atomic.Uint64{})
 
 	// 创建角色覆盖模型
 	for role, rc := range cfg.Roles {
@@ -349,6 +514,7 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 			return nil, fmt.Errorf("model của vai %s: %w", role, err)
 		}
 		ms.models[role] = NewSwappableModel(rc.Provider, rc.Model, m, cfg.ModelJSONSchema(rc.Provider, rc.Model))
+		ms.models[role].setEpoch(ms.Default.epoch)
 		slog.Info("gán model theo vai", "module", "config", "role", role, "provider", rc.Provider, "model", rc.Model)
 		if len(rc.Fallbacks) == 0 {
 			continue
@@ -364,10 +530,12 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 			if err != nil {
 				return nil, fmt.Errorf("fallback %s/%s của vai %s: %w", fallback.Provider, fallback.Model, role, err)
 			}
+			fallbackModel := NewSwappableModel(fallback.Provider, fallback.Model, fm, cfg.ModelJSONSchema(fallback.Provider, fallback.Model))
+			fallbackModel.setEpoch(ms.Default.epoch)
 			targets = append(targets, modelTarget{
 				provider:   fallback.Provider,
 				name:       fallback.Model,
-				model:      fm,
+				model:      fallbackModel,
 				jsonSchema: cfg.ModelJSONSchema(fallback.Provider, fallback.Model),
 			})
 		}
@@ -381,10 +549,11 @@ func NewModelSet(cfg Config) (*ModelSet, error) {
 // provider → ChatModel 构造）；本文件只保留 ModelSet/SwappableModel/failover
 // 这些 Noverse 装配层逻辑。
 type failoverModel struct {
-	role    string
-	primary *SwappableModel
-	set     *ModelSet
-	report  FailoverReporter
+	role                string
+	primary             *SwappableModel
+	set                 *ModelSet
+	report              FailoverReporter
+	deferProviderLimits bool
 }
 
 func (m *failoverModel) Generate(ctx context.Context, messages []llmtypes.Message, tools []llmtypes.ToolSpec, opts ...llmtypes.CallOption) (*llmtypes.LLMResponse, error) {
@@ -511,8 +680,17 @@ func (m *failoverModel) pickFallback(current modelTarget, err error, requireJSON
 	if err == nil || current.model == nil {
 		return modelTarget{}, "", false
 	}
+	var request *ModelRequestError
+	if errors.As(err, &request) && !request.IsCurrent() {
+		return modelTarget{}, "", false
+	}
 	if errors.Is(err, context.Canceled) {
 		return modelTarget{}, "", false
+	}
+	// The worker engine owns the quota countdown and two-minute threshold;
+	// request-level failover must not silently switch first.
+	if m.deferProviderLimits && isProviderLimit(err) {
+		return modelTarget{}, "quota", false
 	}
 
 	if !agentcore.IsFailoverEligible(err) {
@@ -573,6 +751,11 @@ func (m *failoverModel) startAttempt(ctx context.Context, target modelTarget, me
 	streamCh, err := target.model.GenerateStream(ctx, messages, tools, opts...)
 	if err == nil {
 		return streamCh, nil, nil
+	}
+	// An explicit provider rejection is not "streaming unsupported": repeating
+	// it as a non-streaming call only duplicates an expired/key/quota request.
+	if errors.Is(err, llmtypes.ErrProviderAuth) || errors.Is(err, llmtypes.ErrProviderQuota) || isProviderLimit(err) {
+		return nil, nil, err
 	}
 
 	resp, genErr := target.model.Generate(ctx, messages, tools, opts...)

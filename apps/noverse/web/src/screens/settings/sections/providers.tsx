@@ -18,6 +18,7 @@ import { Page, SectionHead } from '../parts'
 import type { SettingsContext } from '../types'
 import { SUB_COLOR, avatarOf, providerName, subLine, testedLabel } from './connectLogic'
 import { ModelPicker } from './ModelPicker'
+import { issueLevel, issueOf, issueShort, issueTech, issueText, issueTitle, quotaRetryText } from '../lib/providerError'
 
 /** Nút viền của thẻ (artboard “Thử kết nối”). */
 const outlineBtn: CSSProperties = {
@@ -118,7 +119,7 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
   const [pasteError, setPasteError] = useState('')
   const [testResult, setTestResult] = useState<ConfigTestResult | null>(null)
   const account = accountOverride ? accountOverride.account : ctx.response?.accounts?.[id] ?? null
-  const validationError = ctx.response?.providerErrors?.[id]
+  const issue = issueOf(ctx.response, id)
   const models = provider.models ?? []
   const canKey = ctx.canEdit && ctx.scope === 'global'
   const keySet = !own.clear_api_key && (own.api_key_set ?? inherited.api_key_set)
@@ -218,7 +219,7 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
         <span aria-hidden="true" style={{ width: 40, height: 40, borderRadius: 12, background: avatar.bg, color: '#0B0B0D', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto' }}>{avatar.ini}</span>
         <span style={{ flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.4 }}>
           <span style={{ fontSize: 14.5, fontWeight: 500 }}>{name}</span>
-          <span style={{ fontSize: 12.5, color: validationError ? 'var(--color-err)' : SUB_COLOR[sub.tone] }}>{validationError ? vi.providerValidation.invalid : sub.text}</span>
+          <span style={{ fontSize: 12.5, color: issue ? issue.kind === 'quota' ? 'var(--color-warn)' : 'var(--color-err)' : SUB_COLOR[sub.tone] }}>{issue ? `${issueLevel(issue.kind)} · ${issueShort(issue.kind)}` : sub.text}</span>
         </span>
         {/* “Model · n” mở bảng chọn model; 0 model → nút sáng “Chọn model”. */}
         <CardButton kind={models.length === 0 && !pickerOpen ? 'solid' : 'outline'} expanded={pickerOpen}
@@ -242,10 +243,19 @@ function ProviderCard({ ctx, id, index, fresh, pickerOpen, setPicker }: {
           <CardButton kind="text" label={`Đổi khoá ${name}`} onClick={() => setEditingKey(!editingKey)}>Đổi khoá</CardButton>
         )}
       </div>
-      {validationError && <details style={{ paddingLeft: 54, fontSize: 12, color: 'var(--color-err)' }}>
-        <summary>{vi.providerValidation.details}</summary>
-        <p role="alert">{validationError}</p>
-      </details>}
+      {issue && <div role={issue.kind === 'quota' ? 'status' : 'alert'} style={{ marginLeft: 54, display: 'flex', flexDirection: 'column', gap: 8, padding: '10px 12px', borderRadius: 10, background: `color-mix(in srgb, ${issue.kind === 'quota' ? 'var(--color-warn)' : 'var(--color-err)'} 7%, transparent)` }}>
+        <b style={{ fontSize: 13 }}>{issueTitle(name, issue.kind)}</b>
+        <span style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--color-fg-3)' }}>{issue.kind === 'quota' ? quotaRetryText(issue.retryAt) : issueText(issue.kind)}</span>
+        {ctx.admin && issue.kind !== 'quota' && <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {issue.kind === 'key' && !preset?.oauth && <Button size="sm" onClick={() => setEditingKey(true)}>Nhập khoá mới</Button>}
+          {issue.kind === 'expired' && preset?.oauth && <Button size="sm" disabled={connect.busy || !!flow} onClick={() => { void connect.run(!!preset.deviceOnly) }}>Đăng nhập lại {name}</Button>}
+          <Button size="sm" variant="ghost" onClick={() => ctx.goSection('models')}>Đổi nhà cung cấp</Button>
+        </div>}
+        <details style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>
+          <summary>{vi.providerValidation.details}</summary>
+          <p className="mono" style={{ overflowWrap: 'anywhere' }}>{issueTech(id, issue)}{issue.message ? ` · ${issue.message}` : ''}</p>
+        </details>
+      </div>}
       {actionError instanceof Error && <div role="alert" style={{ paddingLeft: 54, color: 'var(--color-err)', fontSize: 12 }}>{actionError.message}</div>}
       {keyPanel && (
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, paddingLeft: 54 }}>

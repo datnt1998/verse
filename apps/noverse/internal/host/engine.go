@@ -18,6 +18,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/noverse/internal/agents/guard"
 	"github.com/datnt1998/verse/apps/noverse/internal/arbiter"
+	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/domain"
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/flow"
@@ -50,6 +51,21 @@ type engine struct {
 	notify    func(kind, level, title, body string)
 	onPause   func(summary string) // 引擎自主暂停(僵局/失败裁定 abort):走 host 统一暂停语义(lifecycle=paused)
 	onDone    func()               // run 结束(任何原因);host 据 store 事实定终态
+	// providerOf 返回某角色正在用的 provider/model，供 lỗi xác thực báo đúng
+	// nhà cung cấp cần đăng nhập lại/đổi thay vì chuỗi thô của máy chủ.
+	providerOf func(role string) (provider, model string)
+	// Gói AU: phân loại lỗi nhà cung cấp → fallback khác nhà cung cấp / chờ
+	// quota có retryAt thật / dừng ngay với câu Bắt sửa. Các hook nil-safe để
+	// test cũ dựng engine tối giản vẫn chạy.
+	providerFallback      func(role, badProvider, reason string) (fallbackSwap, bool)
+	recordProviderFailure func(provider, role, kind, message string, retryAt time.Time)
+	clearProviderFailure  func(provider string)
+	probePrimaryFallback  func(role string)
+	prepareWorkerTurn     func() error
+	lockProviderFailure   func() func()
+	// quotaSince giữ mốc lần đầu gặp quota của một指令 để quá 2 phút thì đổi
+	// nhà cung cấp thay vì chờ mãi. Engine chạy single-goroutine.
+	quotaSince map[string]time.Time
 
 	mu             sync.Mutex
 	wg             sync.WaitGroup
@@ -227,6 +243,16 @@ func (e *engine) run(ctx context.Context) {
 		if !firstDispatch && e.pauseAtBoundary() {
 			return
 		}
+		// Reload before any model-backed boundary decision, not merely before
+		// workers: deadlock/plan-start recovery must not consult a stale Arbiter.
+		if err := e.prepareTurn(); err != nil {
+			if e.stopAfterInitial {
+				e.recordOnceResult(e.takeNext(), err)
+			} else {
+				e.handleWorkerError(ctx, nil, err)
+			}
+			return
+		}
 		// hold+dispatch 必须先让配对派单建立返工事实；其它情况在派发前统一检查
 		// Gate，保证 boundary hold 和无许可 review 不会多跑一个 Worker。
 		deferGate := e.applyPendingOps(ctx) || e.nextDefersGate()
@@ -270,6 +296,9 @@ func (e *engine) run(ctx context.Context) {
 		if inst == nil {
 			var err error
 			inst, err = e.planStartFallback(ctx)
+			if staleModelRequest(err) {
+				continue
+			}
 			if err != nil {
 				e.pauseWithNotify(notify.KindPlanStart, "Đọc dữ kiện khôi phục lập kế hoạch thất bại, đã tạm dừng: "+err.Error())
 				return
@@ -304,7 +333,7 @@ func (e *engine) run(ctx context.Context) {
 		}
 
 		firstDispatch = false
-		err = e.runWorker(ctx, inst)
+		err = e.runPreparedWorker(ctx, inst)
 		// 单指令运行只执行这一个 worker:先固化结果供快照读取(即使随后
 		// 是 ctx 取消),再走与正常停机完全相同的收尾。不问重试,不问仲裁。
 		if e.stopAfterInitial {
@@ -432,15 +461,20 @@ func (e *engine) planStartFallback(ctx context.Context) (*flow.Instruction, erro
 	if meta.StartPrompt == "" {
 		return nil, nil
 	}
-	return e.retryPlanStart(ctx, meta.StartPrompt), nil
+	return e.retryPlanStart(ctx, meta.StartPrompt)
 }
 
 // retryPlanStart 补裁启动决策并固化(裁定先落事实再执行,与 StartPrepared 同构)。
-func (e *engine) retryPlanStart(ctx context.Context, prompt string) *flow.Instruction {
+func (e *engine) retryPlanStart(ctx context.Context, prompt string) (*flow.Instruction, error) {
 	start := time.Now()
 	decision, derr := runObservedDecision(e.observer, "Phán định khởi động bổ sung", func() (arbiter.PlanStartDecision, error) {
 		return arbiter.DecidePlanStart(ctx, e.arbiterModel, e.planStartPrompt, prompt, e.style)
 	})
+	unlock := e.modelDecisionBoundary()
+	defer unlock()
+	if staleModelRequest(derr) {
+		return nil, derr
+	}
 	rec := storepkg.DecisionRecord{Kind: "plan_start", Decider: "arbiter", Input: prompt,
 		Reason: decision.Reason, DurationMs: time.Since(start).Milliseconds()}
 	if derr == nil {
@@ -456,17 +490,17 @@ func (e *engine) retryPlanStart(ctx context.Context, prompt string) *flow.Instru
 	}
 	if derr != nil {
 		e.pauseWithNotify(notify.KindPlanStart, "Phán định khởi động thất bại, đã tạm dừng (kiểm tra cấu hình model/mạng rồi tiếp tục): "+derr.Error())
-		return nil
+		return nil, nil
 	}
 	if err := e.store.RunMeta.SetPlanStart(domain.PlanStartRecord{
 		RawPrompt: prompt, Planner: decision.Planner, PlannerTask: decision.Task, DecisionID: rec.ID,
 	}); err != nil {
 		e.pauseWithNotify(notify.KindPlanStart, "Phán định khởi động không thể ghi xuống đĩa, đã tạm dừng: "+err.Error())
-		return nil
+		return nil, nil
 	}
 	e.emitEvent(Event{Time: time.Now(), Category: "SYSTEM", Level: "info",
 		Summary: fmt.Sprintf("Đã bổ sung phán định khởi động (người lập kế hoạch: %s — %s)", RoleLabel(decision.Planner), decision.Reason)})
-	return &flow.Instruction{Agent: decision.Planner, Task: decision.Task, Reason: decision.Reason}
+	return &flow.Instruction{Agent: decision.Planner, Task: decision.Task, Reason: decision.Reason}, nil
 }
 
 // precheck 是原 ToolGate 的确定性化身:不合法的派发直接改写,无需教学文案。
@@ -555,7 +589,12 @@ func (e *engine) trackDeadlock(ctx context.Context, inst **flow.Instruction) (st
 	decision, err := runObservedDecision(e.observer, "Phán định bế tắc", func() (arbiter.FailureDecision, error) {
 		return arbiter.DecideFailure(ctx, e.arbiterModel, e.failurePrompt, facts)
 	})
+	unlock := e.modelDecisionBoundary()
+	defer unlock()
 	e.recordFailureDecision("deadlock", in, facts, decision, err)
+	if staleModelRequest(err) {
+		return false
+	}
 	if err != nil {
 		e.pauseWithNotify(notify.KindDeadlock, "Phán định bế tắc thất bại, đã tạm dừng chờ can thiệp thủ công: "+err.Error())
 		return true
@@ -572,8 +611,28 @@ func (e *engine) trackDeadlock(ctx context.Context, inst **flow.Instruction) (st
 	}
 }
 
-// runWorker 直接运行一次子代理:DISPATCH 事件 + 进度中继 + 结果解析。
+// prepareTurn is the infrastructure boundary shared by engine decisions and
+// direct worker calls. No selected model may be consulted after a failed reload.
+func (e *engine) prepareTurn() error {
+	if e.prepareWorkerTurn != nil {
+		if err := e.prepareWorkerTurn(); err != nil {
+			return fmt.Errorf("%w: %w", errModelSelectionReload, err)
+		}
+	}
+	return nil
+}
+
+// runWorker also protects direct callers; the engine loop has already prepared
+// its turn before arbitration and calls runPreparedWorker without a second stat.
 func (e *engine) runWorker(ctx context.Context, inst *flow.Instruction) error {
+	if err := e.prepareTurn(); err != nil {
+		return err
+	}
+	return e.runPreparedWorker(ctx, inst)
+}
+
+// runPreparedWorker runs one sub-agent with dispatch/progress/result events.
+func (e *engine) runPreparedWorker(ctx context.Context, inst *flow.Instruction) error {
 	title := ""
 	if state, err := flow.LoadState(e.store); err == nil {
 		title = roundTitle(inst, state)
@@ -597,6 +656,11 @@ func (e *engine) runWorker(ctx context.Context, inst *flow.Instruction) error {
 	runCtx := agentcore.WithToolProgress(ctx, func(p agentcore.ProgressPayload) {
 		e.observer.workerProgress(p)
 	})
+	// Gói AU: sau một lần fallback, thử lại model chính theo cooldown; nếu vẫn
+	// lỗi, lỗi kế tiếp sẽ bật lại fallback ngay.
+	if e.probePrimaryFallback != nil {
+		e.probePrimaryFallback(providerRoleOfAgent(inst.Agent))
+	}
 	result, err := e.workers.Run(runCtx, inst.Agent, inst.Task)
 	if err == nil {
 		err = questionFromWorker(result.Output)
@@ -604,6 +668,14 @@ func (e *engine) runWorker(ctx context.Context, inst *flow.Instruction) error {
 	if err == nil {
 		// 成功即清失败追踪:同键的下一次失败重新享有"先重试一次"额度。
 		e.failedKey = ""
+		if e.quotaSince != nil {
+			delete(e.quotaSince, instructionKey(inst))
+		}
+		if e.clearProviderFailure != nil && e.providerOf != nil {
+			if provider, _ := e.providerOf(providerRoleOfAgent(inst.Agent)); provider != "" {
+				e.clearProviderFailure(provider)
+			}
+		}
 	}
 	e.observer.dispatchFinish(inst.Agent, err)
 	return err
@@ -614,6 +686,24 @@ func (e *engine) runWorker(ctx context.Context, inst *flow.Instruction) error {
 // 负责阻止不合法写入。
 func (e *engine) handleWorkerError(ctx context.Context, inst *flow.Instruction, werr error) (stop bool) {
 	msg := werr.Error()
+	if errors.Is(werr, errModelSelectionReload) {
+		// Infrastructure, not a failed creative attempt: keep the exact dispatch
+		// for resume and never ask an Arbiter still holding the old selection.
+		if inst != nil {
+			e.retainInstruction(inst)
+		}
+		e.failedKey, e.lastKey, e.repeats = "", "", 0
+		slog.Warn("Không áp dụng được lựa chọn AI trước lượt chạy", "err", werr)
+		e.pauseWithNotify(notify.KindWorkerFailure, "Chưa áp dụng được lựa chọn AI dùng chung. Đã tạm dừng và giữ nguyên yêu cầu; bấm Viết tiếp để thử lại.")
+		return true
+	}
+
+	// Gói AU: lỗi nhà cung cấp đã phân loại (expired/key/quota) không được đẩy
+	// sang retry/Arbiter — cả hai đều gọi lại đúng provider đó. Đổi sang nhà
+	// cung cấp dự phòng khác, chờ quota có retryAt thật, hoặc dừng với câu Bắt sửa.
+	if handled, stop := e.handleProviderFailure(ctx, inst, werr); handled {
+		return stop
+	}
 
 	key := instructionKey(inst)
 	if e.failedKey != key {
@@ -626,7 +716,13 @@ func (e *engine) handleWorkerError(ctx context.Context, inst *flow.Instruction, 
 	decision, err := runObservedDecision(e.observer, "Phán định thất bại", func() (arbiter.FailureDecision, error) {
 		return arbiter.DecideFailure(ctx, e.arbiterModel, e.failurePrompt, facts)
 	})
+	unlock := e.modelDecisionBoundary()
+	defer unlock()
 	e.recordFailureDecision("worker_failure", inst, facts, decision, err)
+	if staleModelRequest(err) {
+		e.retainInstruction(inst)
+		return false
+	}
 	if err != nil {
 		e.pauseWithNotify(notify.KindWorkerFailure, "Phán định thất bại không khả dụng, đã tạm dừng chờ can thiệp thủ công: "+msg+contentFilterAdvice(werr))
 		return true
@@ -644,6 +740,155 @@ func (e *engine) handleWorkerError(ctx context.Context, inst *flow.Instruction, 
 		e.pauseStuck(notify.KindWorkerFailure, inst, "Phán định thất bại: "+decision.Reason+contentFilterAdvice(werr))
 		return true
 	}
+}
+
+var errModelSelectionReload = errors.New("cập nhật lựa chọn AI trước lượt chạy thất bại")
+
+func staleModelRequest(err error) bool {
+	var request *bootstrap.ModelRequestError
+	return errors.As(err, &request) && !request.IsCurrent()
+}
+
+func (e *engine) modelDecisionBoundary() func() {
+	if e.lockProviderFailure != nil {
+		return e.lockProviderFailure()
+	}
+	return func() {}
+}
+
+func (e *engine) retainInstruction(inst *flow.Instruction) {
+	e.mu.Lock()
+	e.next = inst
+	e.deferGateForNext = false
+	e.mu.Unlock()
+}
+
+// handleProviderFailure applies AU3/AU4 policy. It returns handled=true when it
+// took ownership of the error; stop=true means the engine must pause.
+func (e *engine) handleProviderFailure(ctx context.Context, inst *flow.Instruction, werr error) (handled, stop bool) {
+	unlock := e.modelDecisionBoundary()
+	defer func() { unlock() }()
+	var request *bootstrap.ModelRequestError
+	if errors.As(werr, &request) && !request.IsCurrent() {
+		// A completed after a cutover to B (including A→B→A). It must not
+		// diagnose, replace or pause the new selection. Replay this dispatch.
+		e.retainInstruction(inst)
+		e.failedKey = ""
+		delete(e.quotaSince, instructionKey(inst))
+		return true, false
+	}
+	info := ClassifyProviderFailure(werr)
+	if info.Kind == "" {
+		return false, false
+	}
+	role := providerRoleOfAgent(inst.Agent)
+	provider, model := "", ""
+	if request != nil {
+		provider, model = request.Provider, request.Model
+	} else if e.providerOf != nil {
+		provider, model = e.providerOf(role)
+	}
+	message := providerFailureMessage(provider, model, info.Kind)
+	e.failedKey = ""
+
+	switch info.Kind {
+	case providerFailureExpired, providerFailureKey:
+		// Bắt sửa: renew/login or new key. A different-provider fallback keeps the
+		// story writing immediately; otherwise stop before retry/Arbiter loops.
+		if e.tryProviderFallback(role, provider, info.Kind) {
+			e.recordFailure(provider, role, info.Kind, message, time.Time{})
+			return true, false
+		}
+		e.recordFailure(provider, role, info.Kind, message, time.Time{})
+		e.pauseWithNotify(notify.KindWorkerFailure, message)
+		return true, true
+
+	case providerFailureQuota:
+		// Cảnh báo: wait for the provider's real Retry-After. A limit beyond two
+		// minutes (or one that keeps repeating past two minutes) switches to a
+		// different provider instead of idling the story.
+		now := time.Now()
+		retryAt := now.Add(info.RetryAfter)
+		key := instructionKey(inst)
+		if e.quotaSince == nil {
+			e.quotaSince = map[string]time.Time{}
+		}
+		since, seen := e.quotaSince[key]
+		if !seen {
+			since = now
+			e.quotaSince[key] = since
+		}
+		tooLong := info.RetryAfter > quotaFallbackAfter || now.Sub(since) > quotaFallbackAfter
+		if tooLong && e.tryProviderFallback(role, provider, info.Kind) {
+			delete(e.quotaSince, key)
+			e.recordFailure(provider, role, info.Kind, message, retryAt)
+			return true, false
+		}
+		e.recordFailure(provider, role, info.Kind, message, retryAt)
+		e.emitProviderRetry(inst, provider, retryAt, info.RetryAfter)
+		// Settings must remain writable during a provider's countdown.
+		unlock()
+		unlock = func() {}
+		if !e.waitUntil(ctx, retryAt) {
+			return true, true
+		}
+		return true, false
+	}
+	return false, false
+}
+
+func (e *engine) tryProviderFallback(role, provider, kind string) bool {
+	if e.providerFallback == nil {
+		return false
+	}
+	_, ok := e.providerFallback(role, provider, kind)
+	return ok
+}
+
+func (e *engine) recordFailure(provider, role, kind, message string, retryAt time.Time) {
+	if e.recordProviderFailure != nil {
+		e.recordProviderFailure(provider, role, kind, message, retryAt)
+	}
+}
+
+func (e *engine) emitProviderRetry(inst *flow.Instruction, provider string, retryAt time.Time, wait time.Duration) {
+	if e.emitEvent == nil {
+		return
+	}
+	e.emitEvent(Event{
+		Time: time.Now(), Category: "SYSTEM", Kind: "provider.retry", Level: "warn",
+		Role: providerRoleOfAgent(inst.Agent), Provider: provider, Reason: providerFailureQuota,
+		RetryAt: retryAt,
+		Summary: fmt.Sprintf("%s tạm hết lượt — Noverse tự thử lại sau %s.",
+			providerDisplayName(provider), humanWait(wait)),
+	})
+}
+
+func (e *engine) waitUntil(ctx context.Context, at time.Time) bool {
+	delay := time.Until(at)
+	if delay <= 0 {
+		return true
+	}
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return false
+	case <-timer.C:
+		return true
+	}
+}
+
+func humanWait(d time.Duration) string {
+	if d < time.Minute {
+		seconds := int(d.Round(time.Second) / time.Second)
+		if seconds < 1 {
+			seconds = 1
+		}
+		return fmt.Sprintf("%d giây", seconds)
+	}
+	minutes := int((d + time.Minute - 1) / time.Minute)
+	return fmt.Sprintf("%d phút", minutes)
 }
 
 // pauseStuck 在引擎放弃一条指令时暂停:返工章先出队再停。仅用于引擎已判定该指令
@@ -698,7 +943,7 @@ func isNonSemanticWorkerFailure(err error) bool {
 	if err == nil {
 		return false
 	}
-	if errors.Is(err, llmtypes.ErrContextOverflow) || errors.Is(err, agentcore.ErrStreamPartial) {
+	if errors.Is(err, errModelSelectionReload) || errors.Is(err, llmtypes.ErrContextOverflow) || errors.Is(err, agentcore.ErrStreamPartial) {
 		return true
 	}
 	providerErr := agentcore.ClassifyProvider(err)

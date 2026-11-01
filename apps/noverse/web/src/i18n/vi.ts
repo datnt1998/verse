@@ -88,6 +88,8 @@ export const vi = {
     gate: 'Chờ duyệt: nhập ý kiến chỉnh sửa, hoặc bấm Duyệt để viết chương tiếp',
     completed: 'Truyện đã hoàn thành · nhập yêu cầu sửa (vd: “viết lại chương 3”), hoặc gõ / để mở lại, xuất truyện',
     initFailed: 'Khởi tạo thất bại, vui lòng kiểm tra cấu hình hoặc đổi mô hình',
+    initFailedQuick: 'Chưa bắt đầu viết được',
+    initFailedHint: 'Truyện đã tạo được giữ lại: đổi nhà cung cấp ở Thêm › Model trợ lý rồi bấm Thử lại, không tạo truyện thứ hai.',
     newStory: 'Nhập yêu cầu sáng tác truyện, Enter để bắt đầu viết ngay',
     cocreate: 'Tiếp tục bổ sung yêu cầu, Enter để gửi cho AI',
     idea: 'Ghi nhanh một ý tưởng truyện… sẽ lưu vào Ý tưởng',
@@ -156,7 +158,8 @@ export const vi = {
   phase: { init: 'Khởi tạo', premise: 'Tiền đề', outline: 'Đại cương', ready: 'Kế hoạch xong', writing: 'Sáng tác', complete: 'Hoàn thành' } as Record<string, string>,
   flow: { writing: 'Sáng tác', reviewing: 'Thẩm duyệt', rewriting: 'Viết lại', polishing: 'Gọt giũa', steering: 'Can thiệp' } as Record<string, string>,
   advanceMode: { auto: 'Tự động', review: 'Nghiệm thu từng chương' } as Record<string, string>,
-  thinkingLevel: { '': 'Mặc định', off: 'Tắt', minimal: 'Tối thiểu', low: 'Thấp', medium: 'Vừa', high: 'Cao', xhigh: 'Rất cao', max: 'Tối đa' } as Record<string, string>,
+  /** '' = mức mặc định của model, gọi là “Tự động”; đủ 8 nhãn máy chủ trả. */
+  thinkingLevel: { '': 'Tự động', off: 'Tắt', minimal: 'Tối thiểu', low: 'Thấp', medium: 'Vừa', high: 'Cao', xhigh: 'Rất cao', max: 'Tối đa' } as Record<string, string>,
   ctxScope: { baseline: 'chuẩn', projected: 'dự đoán', recovered: 'khôi phục', committed: 'đã ghi nhận', skipped: 'bỏ qua' } as Record<string, string>,
 
   /** Gói AG — điều hướng màn Dự án (Outline.dc.html › nav none/project/story/search). */
@@ -1590,6 +1593,7 @@ export const vi = {
   },
   settingsModelsW: {
     model: 'Mô hình', effort: 'Mức suy nghĩ', context: 'Ngữ cảnh',
+    swapRoles: { default: 'Mặc định', architect: 'Kiến trúc sư', writer: 'Người viết', editor: 'Biên tập viên', import_segment: 'Chia bản thảo nhập', import_analyze: 'Phân tích bản thảo nhập', import_synthesize: 'Tổng hợp bản thảo nhập' } as Record<string, string>,
     source: { registry: 'tự nhận', model_config: 'bạn đặt', config: 'bạn đặt', default: 'dự phòng' },
     auto: 'Tự nhận', fallback: 'Mức dự phòng', custom: 'Tự đặt', thousand: 'nghìn',
     description: 'Lượng nội dung trợ lý giữ trong đầu một lúc. Gần đầy thì trợ lý tự tóm tắt phần cũ rồi viết tiếp.',

@@ -85,7 +85,7 @@ export function MobileNewStory({ project }: { project: string }) {
 
   const busy = startAction.busy || alternativeAction.busy || simulate.busy || gate.checking || gate.suggesting
   const failure = startAction.error || alternativeAction.error
-  const error = failure ? { message: t.placeholder.initFailed, detail: failure instanceof Error ? failure.message : '' } : null
+  const error = failure ? { message: t.placeholder.initFailedQuick, detail: failure instanceof Error ? failure.message : '' } : null
   const writable = connection.writable
   const projectName = projectLabel(detail?.project ?? library?.projects.find((item) => item.id === project), project)
 

@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,10 +12,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/library"
 	"github.com/datnt1998/verse/apps/noverse/internal/utils"
 	"github.com/datnt1998/verse/core/llmconfig"
 	"github.com/datnt1998/verse/core/roles"
+	"github.com/gofrs/flock"
 )
 
 const configDirName = ".ainovel"
@@ -152,6 +155,16 @@ func LoadConfigChain(dir string) ([]ConfigLevel, Config, error) {
 			return fmt.Errorf("phân tích cấu hình cấp %s %s thất bại (kiểm tra cú pháp JSON): %w", scopeLabel(scope), path, lerr)
 		}
 		if found {
+			// AU1: ghim provider/model cũ bị xoá khỏi tài liệu dự án/truyện (không
+			// chỉ ẩn khỏi /api/config). Lỗi ghi không chặn đọc: cấu hình hiệu lực
+			// vẫn bị bỏ ghim trong bộ nhớ.
+			if migrated, merr := MigrateConfigFile(path); merr != nil {
+				slog.Warn("dọn ghim provider/model cũ khỏi cấu hình thất bại", "module", "config", "path", path, "err", merr)
+			} else if migrated {
+				slog.Info("đã dọn ghim provider/model cũ khỏi cấu hình cấp "+scopeLabel(scope), "module", "config", "path", path)
+			}
+			// Lựa chọn provider/model chỉ có hiệu lực ở lớp toàn cục (model_scope.go).
+			c = StripModelSelection(c)
 			lvl.Exists, lvl.Config = true, c
 			cfg = MergeConfig(cfg, c)
 		}
@@ -257,16 +270,28 @@ func ReadConfigJSON(path string) (map[string]any, error) {
 // ConfigLevelJSON reads the original field declarations of a config layer.
 // Repository layers already carry them; file layers retain JSONC parsing.
 func ConfigLevelJSON(level ConfigLevel) (map[string]any, error) {
+	var raw map[string]any
 	if level.Raw != nil {
 		data, err := json.Marshal(level.Raw)
 		if err != nil {
 			return nil, err
 		}
-		var raw map[string]any
-		err = json.Unmarshal(data, &raw)
-		return raw, err
+		if err = json.Unmarshal(data, &raw); err != nil {
+			return nil, err
+		}
+	} else {
+		var err error
+		raw, err = ReadConfigJSON(level.Path)
+		if err != nil {
+			return nil, err
+		}
 	}
-	return ReadConfigJSON(level.Path)
+	// Ghim provider/model cũ ở cấp dự án/truyện không còn hiệu lực: ẩn khỏi
+	// /api/config để màn Tuỳ chỉnh không hiện lại và lần Lưu sau dọn khỏi tài liệu.
+	if level.Scope != "global" {
+		stripModelSelectionJSON(raw)
+	}
+	return raw, nil
 }
 
 // ParseConfigDocument parses the same JSONC syntax as LoadConfigFile without
@@ -438,18 +463,20 @@ func CloneConfig(cfg Config) Config {
 // 只动 providers 段，绝不触碰顶层 provider/model 选择——“当前用哪个”归 /model。
 // 目标不存在时创建最小配置；目标损坏时拒绝覆盖。
 func SaveProviderConfig(path string, provider string, pc llmconfig.ProviderConfig) error {
-	target, found, err := loadOptionalJSON(path)
-	if err != nil {
-		return err
-	}
-	if !found {
-		target = Config{}
-	}
-	if target.Providers == nil {
-		target.Providers = make(map[string]llmconfig.ProviderConfig)
-	}
-	target.Providers[provider] = pc
-	return SaveConfig(path, target)
+	return withConfigFileLock(path, func() error {
+		target, found, err := loadOptionalJSON(path)
+		if err != nil {
+			return err
+		}
+		if !found {
+			target = Config{}
+		}
+		if target.Providers == nil {
+			target.Providers = make(map[string]llmconfig.ProviderConfig)
+		}
+		target.Providers[provider] = pc
+		return saveConfigLocked(path, target)
+	})
 }
 
 // stripJSONComments 去除 JSON 中的 // 行注释，跟踪引号状态避免误删字符串内容。
@@ -527,13 +554,95 @@ func WriteStartupError(msg string) string {
 
 // SaveConfig 将配置写入指定路径（JSON 格式，缩进美化）。
 func SaveConfig(path string, cfg Config) error {
+	return withConfigFileLock(path, func() error {
+		return saveConfigLocked(path, cfg)
+	})
+}
+
+// ConfigFileSnapshot binds document bytes to the file generation that supplied
+// them. A zero snapshot represents a missing file.
+type ConfigFileSnapshot struct {
+	Data []byte
+	Info os.FileInfo
+}
+
+// ReadConfigFileSnapshot reads bytes and metadata while all cooperating config
+// writers are excluded. Callers can bind an HTTP version to this exact snapshot.
+func ReadConfigFileSnapshot(path string) (ConfigFileSnapshot, error) {
+	var snapshot ConfigFileSnapshot
+	err := withConfigFileLock(path, func() error {
+		var err error
+		snapshot, err = readConfigFileSnapshotLocked(path)
+		return err
+	})
+	return snapshot, err
+}
+
+func readConfigFileSnapshotLocked(path string) (ConfigFileSnapshot, error) {
+	info, err := os.Stat(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return ConfigFileSnapshot{}, nil
+	}
+	if err != nil {
+		return ConfigFileSnapshot{}, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return ConfigFileSnapshot{}, err
+	}
+	return ConfigFileSnapshot{Data: data, Info: info}, nil
+}
+
+// SaveConfigIfUnchanged compares the captured file generation and document bytes
+// and replaces them under the shared lock. Even an identical atomic replacement
+// invalidates the snapshot, matching the HTTP file-version contract.
+func SaveConfigIfUnchanged(path string, cfg Config, snapshot ConfigFileSnapshot) error {
+	return withConfigFileLock(path, func() error {
+		current, err := readConfigFileSnapshotLocked(path)
+		if err != nil {
+			return err
+		}
+		sameFile := current.Info == nil && snapshot.Info == nil
+		if current.Info != nil && snapshot.Info != nil {
+			sameFile = os.SameFile(current.Info, snapshot.Info) &&
+				current.Info.ModTime().Equal(snapshot.Info.ModTime()) &&
+				current.Info.Size() == snapshot.Info.Size()
+		}
+		if !sameFile || !bytes.Equal(current.Data, snapshot.Data) {
+			return errs.ErrStorageConflict
+		}
+		return saveConfigLocked(path, cfg)
+	})
+}
+
+// withConfigFileLock serializes all file-backed configuration writers, including
+// migration's read/strip/write, across goroutines and processes. The sidecar is
+// never renamed or removed: locking the replaced config inode would not work.
+// Callbacks must use the locked writer, not re-enter an exported writer.
+func withConfigFileLock(path string, fn func() error) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
+	lock := flock.New(path+".lock", flock.SetPermissions(0o600))
+	defer lock.Close()
+	if err := lock.Lock(); err != nil {
+		return fmt.Errorf("khoá tệp cấu hình: %w", err)
+	}
+	defer lock.Unlock()
+	return fn()
+}
+
+// saveConfigLocked requires withConfigFileLock to be held by the caller.
+func saveConfigLocked(path string, cfg Config) error {
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return err
 	}
+	return writeConfigDataLocked(path, data, 0o600)
+}
+
+// writeConfigDataLocked requires withConfigFileLock to be held by the caller.
+func writeConfigDataLocked(path string, data []byte, mode os.FileMode) error {
 	tmp, err := os.CreateTemp(filepath.Dir(path), ".config-*.tmp")
 	if err != nil {
 		return err
@@ -546,7 +655,7 @@ func SaveConfig(path string, cfg Config) error {
 			_ = os.Remove(tmpPath)
 		}
 	}()
-	if err := tmp.Chmod(0o600); err != nil {
+	if err := tmp.Chmod(mode); err != nil {
 		return err
 	}
 	if _, err := tmp.Write(append(data, '\n')); err != nil {

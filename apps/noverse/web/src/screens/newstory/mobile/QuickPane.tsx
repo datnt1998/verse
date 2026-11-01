@@ -85,8 +85,9 @@ export function QuickPane({ project, gate, prompt, onPrompt, choices, config, id
         {error && <div role="alert" {...stylex.props(styles.error)}>
           <Icon name="warning-2" size={18} {...stylex.props(styles.errorIcon)} />
           <span {...stylex.props(styles.errorCopy)}>
-            <span {...stylex.props(styles.errorTitle)}>{t.placeholder.initFailed}</span>
-            <span {...stylex.props(styles.errorDetail)}>{error.detail || error.message}</span>
+            <span {...stylex.props(styles.errorTitle)}>{t.placeholder.initFailedQuick}</span>
+            <span {...stylex.props(styles.errorDetail)}>{t.placeholder.initFailedHint}</span>
+            {!!error.detail && <span {...stylex.props(styles.errorDetail)}>{error.detail}</span>}
           </span>
         </div>}
 

@@ -2,7 +2,7 @@
 // (đúng dạng `settingsLink` của màn Dự án tạo ra); `?section=` được chấp nhận như đường dẫn dự phòng.
 import type { ConfigScope } from '../../../api/types'
 
-export const SECTION_IDS = ['models', 'budget', 'info', 'members', 'storage', 'connect', 'export', 'notify', 'app', 'adv'] as const
+export const SECTION_IDS = ['run', 'models', 'budget', 'info', 'members', 'storage', 'connect', 'export', 'notify', 'app', 'adv'] as const
 export type SectionId = (typeof SECTION_IDS)[number]
 /** Giọng đọc không có trong artboard Settings: chỉ mở bằng liên kết từ màn Audio, không có mục trong menu. */
 export type PageId = SectionId | 'voice'

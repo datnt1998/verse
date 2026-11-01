@@ -258,6 +258,24 @@ export type Snapshot = {
   advanceHoldChapter?: number
   /** Gói P · P4: Trọng tài đang dừng chờ người dùng trả lời; null/undefined = không có. */
   pendingAsk?: PendingAsk | null
+  /** Gói AU — banner “đang viết bằng model dự phòng” (sống qua tải lại trang). */
+  fallback?: {
+    active: true
+    role: string
+    provider: string
+    model: string
+    fromProvider: string
+    fromModel: string
+    reason: 'expired' | 'key' | 'quota' | string
+    since: string
+  } | null
+  /** Gói AU — băng lỗi nhà cung cấp đã phân loại; null/undefined = không có. */
+  providerError?: {
+    provider: string
+    kind: 'expired' | 'key' | 'quota' | string
+    message: string
+    retryAt?: string
+  } | null
   recoveryLabel: string; isRunning: boolean; agents: AgentSnapshot[] | null
   totalInputTokens: number; totalOutputTokens: number; totalCacheReadTokens: number; totalCacheWriteTokens: number
   totalCostUSD: number; totalSavedUSD: number; budgetLimitUSD: number
@@ -293,6 +311,12 @@ export type HostEvent = {
   /** User action audit data, separate from its Vietnamese presentation. */
   command?: string
   input?: string
+  /** Gói AU — kind='fallback.active' / 'provider.retry': nhà cung cấp/model liên quan. */
+  provider?: string
+  model?: string
+  fromProvider?: string
+  fromModel?: string
+  reason?: 'expired' | 'key' | 'quota' | string
 }
 export type CoCreateState = {
   active: boolean
@@ -467,14 +491,33 @@ export type TtsConfig = {
 }
 
 export type ConfigDoc = { scope: ConfigScope; path: string; exists: boolean; config: Config }
+/** Gói AU — lỗi nhà cung cấp đã phân loại (expired/key/quota). */
+export type ProviderError = {
+  kind: 'expired' | 'key' | 'quota'
+  message: string
+  /** RFC3339, chỉ có với kind='quota' (mốc tự thử lại thật từ Retry-After). */
+  retryAt?: string
+}
+export type SwapSelection = { provider: string; model: string; reasoning_effort: string }
+export type SwapRow = { role: string; from: SwapSelection; to: SwapSelection }
+export type SwapProviderResult = {
+  swapped: SwapRow[]
+  skipped: { role: string; reason: string }[]
+  undoToken: string
+  expiresAt: string
+  version: string
+  /** Đã ghi cấu hình nhưng chưa đẩy được tới trợ lý đang chạy; lượt kế tiếp tự nhận. */
+  warning?: string
+}
+export type SwapUndoResult = { restored: SwapRow[]; version: string; warning?: string }
 export type ConfigResponse = {
   version?: string
   target: ConfigDoc; effective: Config
   chain: ConfigDoc[]; sources: Record<string, ConfigScope>
   /** G7 — tài khoản OAuth đã kết nối theo provider (đọc từ auth.json); chỉ admin nhận dữ liệu thật. */
   accounts?: Record<string, ConfigAccount>
-  /** Cảnh báo cấu hình theo nhà cung cấp; không chặn các nhà cung cấp khác. */
-  providerErrors?: Record<string, string>
+  /** Gói AU — cảnh báo cấu hình/lỗi runtime theo nhà cung cấp; không chặn các nhà cung cấp khác. */
+  providerErrors?: Record<string, ProviderError>
 }
 export type ProviderPreset = {
   id: string; label: string; type: string; baseURL: string
@@ -485,6 +528,8 @@ export type ProviderPreset = {
   pasteCode?: boolean
   /** G6 — model mặc định của preset; server dùng khi /api/config/test không có `model`. */
   defaultModel: string
+  /** Gói AU — các mức suy luận model mặc định thật sự nhận ('' = Tự động); không phải cả tám nhãn. */
+  thinking?: string[]
 }
 /** D2 — gói thể loại (GAP: `/api/config/presets` › `packs`). Gói có bộ luật, Biên tập viên chấm từng chương. */
 export type PackLayer = {
@@ -540,7 +585,7 @@ export type ConfigPresets = {
   /** Gói thể loại đang có trên máy chủ (rỗng/thiếu = máy chủ chưa trả). */
   packs?: PackPreset[]
 }
-export type ConfigModelInfo = { name: string; displayName: string; description?: string; contextWindow: number; contextSource: ContextWindowSource; registryWindow: number; summaryThreshold: number; automaticWindow: number; automaticSource: ContextWindowSource }
+export type ConfigModelInfo = { name: string; displayName: string; description?: string; contextWindow: number; contextSource: ContextWindowSource; registryWindow: number; summaryThreshold: number; automaticWindow: number; automaticSource: ContextWindowSource; /** Các mức suy luận model này nhận ('' = Mặc định); màn Tuỳ chỉnh vẽ nút theo danh sách này. */ thinking?: string[] }
 
 // ─── POST /api/config/models/list (06-data-contract) ──────
 
@@ -575,7 +620,7 @@ export type ProviderModelList = {
   /** lỗi gốc từ nhà cung cấp, không bắt buộc */
   detail?: string
 }
-export type ConfigAccount = { connected: boolean; label: string; email: string; plan: string; expiresAt: string | null }
+export type ConfigAccount = { connected: boolean; label: string; email: string; plan: string; expiresAt: string | null; /** Access token hết hạn và không tự gia hạn được → phải đăng nhập lại. */ expired?: boolean }
 export type OAuthStart = {
   id: string; mode: 'browser' | 'device' | 'paste'
   url: string; userCode: string; verifyURL: string; expiresAt: string

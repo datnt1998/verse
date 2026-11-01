@@ -100,7 +100,7 @@ func (p *Provider) Chat(ctx context.Context, req *litellm.Request) (*litellm.Res
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(resp.Body)
-		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data))
+		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data), resp.Header)
 	}
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -143,7 +143,7 @@ func (p *Provider) Stream(ctx context.Context, req *litellm.Request) (litellm.St
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data))
+		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data), resp.Header)
 	}
 	return newStream(resp, req, warnings), nil
 }

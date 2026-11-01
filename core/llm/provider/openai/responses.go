@@ -340,7 +340,7 @@ func (p *Provider) Responses(ctx context.Context, req *ResponsesRequest) (*litel
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		data, _ := io.ReadAll(resp.Body)
-		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data))
+		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data), resp.Header)
 	}
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -404,7 +404,7 @@ func (p *Provider) ResponsesStream(ctx context.Context, req *ResponsesRequest) (
 		if cancel != nil {
 			cancel()
 		}
-		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data))
+		return nil, litellm.NewHTTPError(p.Name(), resp.StatusCode, string(data), resp.Header)
 	}
 	stream := litellm.Stream(newResponsesStream(resp, req.Model))
 	return litellm.WithStreamIdleWatchdog(stream, cancel, p.cfg.StreamIdleTimeout, p.Name()), nil

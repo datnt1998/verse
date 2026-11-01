@@ -49,7 +49,7 @@ func TestGatewayMutationPublishesImmediately(t *testing.T) {
 	cookie := tg.login("admin", "admin-pass")
 	sub, _, _ := tg.g.events().subscribe(identity.User{Username: "admin", Role: identity.RoleAdmin}, 0, nil)
 	defer tg.g.events().unsubscribe(sub)
-	w := tg.do("PUT", "/api/config?scope=story&project=proj&story=01-story", cookie, `{"model":"test"}`)
+	w := tg.do("PUT", "/api/config?scope=story&project=proj&story=01-story", cookie, `{"style":"test"}`)
 	if w.Code != 200 {
 		t.Fatalf("PUT = %d %s", w.Code, w.Body.String())
 	}
@@ -61,7 +61,7 @@ func TestGatewayMutationPublishesImmediately(t *testing.T) {
 	default:
 		t.Fatal("successful gateway write emitted no immediate event")
 	}
-	w = tg.doWith("PUT", "/api/config?scope=story&project=proj&story=01-story", cookie, `{"model":"test"}`, func(r *http.Request) { r.Header.Set("If-Match", "stale") })
+	w = tg.doWith("PUT", "/api/config?scope=story&project=proj&story=01-story", cookie, `{"style":"test"}`, func(r *http.Request) { r.Header.Set("If-Match", "stale") })
 	if w.Code != 409 {
 		t.Fatalf("stale write = %d", w.Code)
 	}

@@ -24,16 +24,25 @@ import (
 // File versions include metadata as well as content: saving an identical document
 // still invalidates a previously read version, including atomic file replacements.
 func fileVersion(path string) string {
+	info, _ := os.Stat(path)
+	var data []byte
+	if info != nil && !info.IsDir() {
+		data, _ = os.ReadFile(path)
+	}
+	return fileSnapshotVersion(info, data)
+}
+
+// Use the same version formula for ordinary resources and config snapshots
+// whose metadata/content were captured together under the config file lock.
+func fileSnapshotVersion(info os.FileInfo, data []byte) string {
 	h := sha256.New()
-	if info, err := os.Stat(path); err == nil {
+	if info == nil {
+		_, _ = h.Write([]byte("missing"))
+	} else {
 		fmt.Fprintf(h, "%d:%d:", info.ModTime().UnixNano(), info.Size())
 		if !info.IsDir() {
-			if data, err := os.ReadFile(path); err == nil {
-				_, _ = h.Write(data)
-			}
+			_, _ = h.Write(data)
 		}
-	} else {
-		_, _ = h.Write([]byte("missing"))
 	}
 	return hex.EncodeToString(h.Sum(nil))
 }
@@ -145,6 +154,12 @@ func requestedConfigScope(r *http.Request, body []byte) url.Values {
 
 func (g *Gateway) resourceFor(r *http.Request, user identity.User, q url.Values) *versionResource {
 	path := strings.TrimSuffix(r.URL.Path, "/")
+	// Swap and undo mutate the same global document as PUT /api/config.
+	// Use its existing compare/write lock, not a separate endpoint lock.
+	if path == "/api/config/swap-provider" || path == "/api/config/swap-provider/undo" {
+		path = "/api/config"
+		q = url.Values{"scope": {"global"}}
+	}
 	switch path {
 	case "/api/config", "/api/rules/file", "/api/rules/file/delete":
 		resolve := g.resolveConfigScope
@@ -308,6 +323,9 @@ func (g *Gateway) currentResource(r *http.Request, user identity.User, current i
 		get.URL.RawQuery = res.query.Encode()
 	}
 	get.URL.Path = strings.TrimSuffix(get.URL.Path, "/delete")
+	if get.URL.Path == "/api/config/swap-provider" || get.URL.Path == "/api/config/swap-provider/undo" {
+		get.URL.Path = "/api/config"
+	}
 	b := newResourceBuffer()
 	if !g.serveAccount(b, get, user, current) && !g.serveConfig(b, get, user) && !g.serveLibrary(b, get, user) {
 		g.serveProjects(b, get, user)

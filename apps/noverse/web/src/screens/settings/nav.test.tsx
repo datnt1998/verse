@@ -39,7 +39,7 @@ describe('menu trái Tuỳ chỉnh', () => {
     session.pendingLessons = 0
   })
   it('chấm tím ở mục có ghi đè', () => {
-    const dotted = render(false, { models: true })
+    const dotted = render(false, { run: true })
     expect(dotted.match(/border-radius:50%/g)).toHaveLength(1)
   })
   it('Thông tin dự án luôn hiện ở mọi cấp', () => {

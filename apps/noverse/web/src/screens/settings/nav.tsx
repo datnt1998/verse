@@ -15,7 +15,7 @@ import { WhatsNewDialog } from '../../shell/WhatsNew'
 type Item = { id: SectionId; label: string; icon: string }
 
 const CREATIVE: Item[] = [
-  { id: 'models', label: 'Trợ lý AI', icon: 'cpu' },
+  { id: 'run', label: 'Cách chạy', icon: 'routing-2' },
   { id: 'budget', label: 'Ngân sách', icon: 'coin-1' },
   { id: 'info', label: 'Thông tin dự án', icon: 'document-text' },
 ]
@@ -24,6 +24,8 @@ const SYSTEM: Item[] = [
   { id: 'members', label: membersCopy.title, icon: 'profile-2user' },
   { id: 'storage', label: 'Lưu trữ tệp', icon: 'box' },
   { id: 'connect', label: 'Kết nối AI', icon: 'cloud-connection' },
+  // Gói AU: model dùng chung cả app nên đứng trong nhóm Hệ thống (Settings.dc.html).
+  { id: 'models', label: 'Trợ lý AI', icon: 'cpu' },
   { id: 'export', label: 'Xuất tự động', icon: 'export-square' },
   { id: 'notify', label: 'Báo động máy chủ', icon: 'notification' },
   { id: 'app', label: 'Giao diện', icon: 'monitor' },
@@ -90,7 +92,7 @@ export function SettingsNav({ current, scope, admin, membersCount, dots, version
         </>
       )}
       <div style={{ marginTop: 'auto', padding: '14px 10px 0', fontSize: 12, color: '#6E6E78', lineHeight: 1.5 }}>
-        {current === 'members' ? membersCopy.navNote : 'Thay đổi ghi vào đúng cấp bạn chọn ở trên cùng khi bấm Áp dụng. Truyện kế thừa từ dự án, dự án kế thừa từ “Mọi truyện”.'}
+        {current === 'models' ? 'Model và mức suy luận dùng chung cho cả app. Đổi là lưu ngay, áp dụng từ lượt viết kế tiếp ở mọi truyện.' : current === 'members' ? membersCopy.navNote : 'Thay đổi ghi vào đúng cấp bạn chọn ở trên cùng khi bấm Áp dụng. Truyện kế thừa từ dự án, dự án kế thừa từ “Mọi truyện”.'}
       </div>
       <button type="button" className="hov-ghost" onClick={onWhatsNew ?? (() => setWhatsNew(true))} style={{
         margin: '12px 0 0', height: 34, padding: '0 10px', border: 'none', borderRadius: 9, background: 'transparent',

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { Config } from '../../../api/types'
 import {
-  configForCompare, configForSave, configsEqual, deletePath, getPath, mergeConfig, modelOptions, oauthAccountName, oauthPlanLabel,
-  providerTypeOptions, pruneEmpty, reasoningSegments, rebaseConfig, rolesUsing, setPath, sourceOf, stableStringify, testModelFor,
+  configForCompare, configForSave, configsEqual, deletePath, getPath, hasThinkingLevels, mergeConfig, modelOptions, oauthAccountName, oauthPlanLabel,
+  providerTypeOptions, pruneEmpty, rebaseConfig, rolesUsing, setPath, sourceOf, stableStringify, testModelFor, thinkingSegments,
 } from './config'
 
 const base: Config = {
@@ -197,22 +197,38 @@ describe('Claude Pro/Max trong Cài đặt', () => {
   })
 })
 
-describe('reasoningSegments (Settings.dc.html: Tự động / Thấp / Vừa / Cao)', () => {
-  const labels = (current: string) => reasoningSegments(current).map((segment) => segment.label)
-  it.each(['', 'low', 'medium', 'high'])('giá trị %j nằm trong 4 đoạn của artboard → đúng 4 đoạn', (current) => {
-    expect(labels(current)).toEqual(['Tự động', 'Thấp', 'Vừa', 'Cao'])
+describe('thinkingSegments (mức model thật sự nhận, không phải 4 mức cố định)', () => {
+  it('Codex 1–7 mức → đúng từng mức API trả về', () => {
+    expect(thinkingSegments(['', 'low', 'medium', 'high', 'xhigh'], 'high').map((s) => s.id))
+      .toEqual(['', 'low', 'medium', 'high', 'xhigh'])
   })
-  it.each([['off', 'Tắt'], ['xhigh', 'Rất cao'], ['max', 'Tối đa']])('giá trị đã lưu %s ngoài 4 mức → thêm đoạn thứ 5 "%s" đang chọn', (current, label) => {
-    const segments = reasoningSegments(current)
-    expect(segments).toHaveLength(5)
-    expect(segments[4]).toEqual({ id: current, label })
+  it('máy chủ trả mức không kèm “Tự động” → vẫn đứng đầu danh sách', () => {
+    expect(thinkingSegments(['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'], '').map((s) => s.label))
+      .toEqual(['Tự động', 'Tắt', 'Tối thiểu', 'Thấp', 'Vừa', 'Cao', 'Rất cao', 'Tối đa'])
   })
-  it('đoạn thứ 5 tự biến mất khi người dùng chọn một trong 4 mức', () => {
-    expect(reasoningSegments('xhigh')).toHaveLength(5)
-    expect(reasoningSegments('high')).toHaveLength(4)
+  it('model không có mức suy luận → chỉ một nút “Tự động”', () => {
+    expect(thinkingSegments([''], '').map((s) => s.label)).toEqual(['Tự động'])
+    expect(hasThinkingLevels([''])).toBe(false)
+    expect(hasThinkingLevels(['', 'high'])).toBe(true)
   })
-  it('mức lạ vẫn hiện nguyên giá trị thay vì mất', () => {
-    expect(labels('ultra')).toEqual(['Tự động', 'Thấp', 'Vừa', 'Cao', 'ultra'])
+  it('chưa tải xong danh mục → chỉ “Tự động”, không mời chọn mức vô nghĩa', () => {
+    expect(thinkingSegments(undefined, '').map((s) => s.id)).toEqual([''])
+  })
+  it('giá trị đã lưu ngoài danh sách vẫn hiện để không nói sai cấu hình', () => {
+    expect(thinkingSegments(['', 'low', 'high'], 'xhigh')).toContainEqual({ id: 'xhigh', label: 'Rất cao' })
+  })
+})
+
+describe('configForSave (provider/model dùng chung cả app)', () => {
+  it('“Theo Mặc định” của một vai (provider/model rỗng) không được gửi lên', () => {
+    const next = structuredClone(base) as Config
+    next.roles = { writer: { provider: '', model: '' } }
+    expect(configForSave(next).roles).toBeUndefined()
+  })
+  it('vai còn provider/model vẫn được giữ', () => {
+    const next = structuredClone(base) as Config
+    next.roles = { writer: { provider: 'codex', model: 'gpt-5.4' } }
+    expect(configForSave(next).roles).toEqual({ writer: { provider: 'codex', model: 'gpt-5.4' } })
   })
 })
 

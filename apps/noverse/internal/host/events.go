@@ -59,6 +59,15 @@ type Event struct {
 	DurationMs int64        `json:"durationMs,omitempty"`
 	Status     string       `json:"status,omitempty"`
 	Retries    []EventRetry `json:"retries,omitempty"`
+	// Gói AU: nhà cung cấp/model của sự kiện fallback.active hoặc provider.retry.
+	// Kind = "fallback.active" → FromProvider/FromModel là model chính vừa lỗi,
+	// Provider/Model là model dự phòng đang dùng. Kind = "provider.retry" →
+	// RetryAt là mốc tự thử lại, Reason là expired|key|quota.
+	Provider     string `json:"provider,omitempty"`
+	Model        string `json:"model,omitempty"`
+	FromProvider string `json:"fromProvider,omitempty"`
+	FromModel    string `json:"fromModel,omitempty"`
+	Reason       string `json:"reason,omitempty"`
 }
 
 // Internal marks reasoning that belongs in audit logs, never in user chat.
@@ -74,11 +83,34 @@ func (e Event) Internal() bool {
 	return strings.HasPrefix(text, "Phán định:")
 }
 
+// EventRetry is one retry attempt reported by the agent kernel.
 type EventRetry struct {
 	AtSec   float64 `json:"atSec"`
 	Error   string  `json:"error"`
 	WaitSec float64 `json:"waitSec"`
 	OK      bool    `json:"ok"`
+}
+
+// FallbackSnapshot is the "đang viết bằng model dự phòng" banner state. It
+// survives a page reload because it travels in the worker snapshot, not only
+// in the event stream.
+type FallbackSnapshot struct {
+	Active       bool      `json:"active"`
+	Role         string    `json:"role"`
+	Provider     string    `json:"provider"`
+	Model        string    `json:"model"`
+	FromProvider string    `json:"fromProvider"`
+	FromModel    string    `json:"fromModel"`
+	Reason       string    `json:"reason"`
+	Since        time.Time `json:"since"`
+}
+
+// ProviderErrorSnapshot is the classified provider error strip (AU3).
+type ProviderErrorSnapshot struct {
+	Provider string     `json:"provider"`
+	Kind     string     `json:"kind"`
+	Message  string     `json:"message"`
+	RetryAt  *time.Time `json:"retryAt,omitempty"`
 }
 
 // Running 返回事件是否处于进行中。
@@ -131,42 +163,46 @@ type UISnapshot struct {
 	// AdvanceHoldChapter 是一次性暂停意图的章节目标（after=chapter），供 Đại cương 行加色。
 	AdvanceHoldChapter int `json:"advanceHoldChapter"`
 	// PendingAsk 是 Trọng tài 正在等用户回答的提问（Gói P · P4）；无则 null。
-	PendingAsk             *PendingAskSnapshot `json:"pendingAsk,omitempty"`
-	RecoveryLabel          string              `json:"recoveryLabel"`
-	IsRunning              bool                `json:"isRunning"`
-	Agents                 []AgentSnapshot     `json:"agents"`
-	TotalInputTokens       int                 `json:"totalInputTokens"`
-	TotalOutputTokens      int                 `json:"totalOutputTokens"`
-	TotalCacheReadTokens   int                 `json:"totalCacheReadTokens"`
-	TotalCacheWriteTokens  int                 `json:"totalCacheWriteTokens"`
-	TotalCostUSD           float64             `json:"totalCostUSD"`
-	TotalSavedUSD          float64             `json:"totalSavedUSD"`
-	BudgetLimitUSD         float64             `json:"budgetLimitUSD"`
-	OverallCacheCapable    bool                `json:"overallCacheCapable"`
-	OverallRecentCacheRead int                 `json:"overallRecentCacheRead"`
-	OverallRecentInput     int                 `json:"overallRecentInput"`
-	OverallRecentSamples   int                 `json:"overallRecentSamples"`
-	TotalCacheBreaks       int                 `json:"totalCacheBreaks"`
-	MissingAssistantUsage  int                 `json:"missingAssistantUsage"`
-	CachePerAgent          []AgentCacheStat    `json:"cachePerAgent"`
-	CachePerModel          []AgentCacheStat    `json:"cachePerModel"`
-	Synopsis               string              `json:"synopsis"`
-	Premise                string              `json:"premise"`
-	Outline                []OutlineSnapshot   `json:"outline"`
-	Characters             []string            `json:"characters"`
-	SupportingCount        int                 `json:"supportingCount"`
-	RecentSupporting       []string            `json:"recentSupporting"`
-	Layered                bool                `json:"layered"`
-	CurrentVolumeArc       string              `json:"currentVolumeArc"`
-	NextVolumeTitle        string              `json:"nextVolumeTitle"`
-	CompassDirection       string              `json:"compassDirection"`
-	CompassScale           string              `json:"compassScale"`
-	OpenThreads            []string            `json:"openThreads"`
-	PlanningTier           domain.PlanningTier `json:"planningTier"`
-	LastCommitSummary      string              `json:"lastCommitSummary"`
-	LastReviewSummary      string              `json:"lastReviewSummary"`
-	LastCheckpointName     string              `json:"lastCheckpointName"`
-	RecentSummaries        []string            `json:"recentSummaries"`
+	PendingAsk *PendingAskSnapshot `json:"pendingAsk,omitempty"`
+	// Gói AU: banner "đang viết bằng model dự phòng" và băng lỗi nhà cung cấp
+	// đã phân loại (expired/key/quota) — sống qua lần tải lại trang.
+	Fallback               *FallbackSnapshot      `json:"fallback,omitempty"`
+	ProviderError          *ProviderErrorSnapshot `json:"providerError,omitempty"`
+	RecoveryLabel          string                 `json:"recoveryLabel"`
+	IsRunning              bool                   `json:"isRunning"`
+	Agents                 []AgentSnapshot        `json:"agents"`
+	TotalInputTokens       int                    `json:"totalInputTokens"`
+	TotalOutputTokens      int                    `json:"totalOutputTokens"`
+	TotalCacheReadTokens   int                    `json:"totalCacheReadTokens"`
+	TotalCacheWriteTokens  int                    `json:"totalCacheWriteTokens"`
+	TotalCostUSD           float64                `json:"totalCostUSD"`
+	TotalSavedUSD          float64                `json:"totalSavedUSD"`
+	BudgetLimitUSD         float64                `json:"budgetLimitUSD"`
+	OverallCacheCapable    bool                   `json:"overallCacheCapable"`
+	OverallRecentCacheRead int                    `json:"overallRecentCacheRead"`
+	OverallRecentInput     int                    `json:"overallRecentInput"`
+	OverallRecentSamples   int                    `json:"overallRecentSamples"`
+	TotalCacheBreaks       int                    `json:"totalCacheBreaks"`
+	MissingAssistantUsage  int                    `json:"missingAssistantUsage"`
+	CachePerAgent          []AgentCacheStat       `json:"cachePerAgent"`
+	CachePerModel          []AgentCacheStat       `json:"cachePerModel"`
+	Synopsis               string                 `json:"synopsis"`
+	Premise                string                 `json:"premise"`
+	Outline                []OutlineSnapshot      `json:"outline"`
+	Characters             []string               `json:"characters"`
+	SupportingCount        int                    `json:"supportingCount"`
+	RecentSupporting       []string               `json:"recentSupporting"`
+	Layered                bool                   `json:"layered"`
+	CurrentVolumeArc       string                 `json:"currentVolumeArc"`
+	NextVolumeTitle        string                 `json:"nextVolumeTitle"`
+	CompassDirection       string                 `json:"compassDirection"`
+	CompassScale           string                 `json:"compassScale"`
+	OpenThreads            []string               `json:"openThreads"`
+	PlanningTier           domain.PlanningTier    `json:"planningTier"`
+	LastCommitSummary      string                 `json:"lastCommitSummary"`
+	LastReviewSummary      string                 `json:"lastReviewSummary"`
+	LastCheckpointName     string                 `json:"lastCheckpointName"`
+	RecentSummaries        []string               `json:"recentSummaries"`
 	// Plan 是规划期“Kế hoạch truyện”面板数据（Gói P），写作/完结期为 nil。
 	Plan *PlanSnapshot `json:"plan,omitempty"`
 	// OnceResult 是"单指令运行"(RunInstructionOnce)唯一 Worker 的回收结果：

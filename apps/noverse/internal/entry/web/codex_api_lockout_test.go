@@ -76,12 +76,15 @@ func TestCodexAPIUnusedInvalidProviderDoesNotLockWorker(t *testing.T) {
 	}
 	response = tg.do("GET", "/api/config?scope=global", admin, "")
 	var body struct {
-		ProviderErrors map[string]string `json:"providerErrors"`
+		ProviderErrors map[string]struct {
+			Kind    string `json:"kind"`
+			Message string `json:"message"`
+		} `json:"providerErrors"`
 	}
 	if err := json.Unmarshal(response.Body.Bytes(), &body); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(body.ProviderErrors["broken"], "api") {
+	if !strings.Contains(body.ProviderErrors["broken"].Message, "api") || body.ProviderErrors["broken"].Kind != "key" {
 		t.Fatalf("missing provider warning: %s", response.Body.String())
 	}
 }
@@ -123,20 +126,28 @@ func TestCodexAPIReferencedInvalidProviderBlocksModelReady(t *testing.T) {
 	}
 }
 
-func TestCodexAPIPartialScopedProviderInheritsProtocol(t *testing.T) {
+func TestCodexAPIProviderProtocolIsGlobalOnly(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	defer tg.g.Close()
 	tg.globalConfig(t, `{"providers":{"subscription":{"type":"openai-codex","models":[{"name":"gpt-6.1-sol"}]}}}`)
 	admin := tg.login("admin", "admin-pass")
+	// AU1: model list/provider protocol is app-wide. A story may not add or
+	// change models any more; the old scoped save is rejected instead of being
+	// silently dropped.
 	response := tg.do("PUT", "/api/config?scope=story&project=proj&story=01-story", admin, `{"providers":{"subscription":{"api":"responses","models":[{"name":"gpt-6.1-sol","context_window":500000}]}}}`)
-	if response.Code != 200 {
-		t.Fatalf("partial provider must inherit protocol: %d %s", response.Code, response.Body.String())
+	if response.Code != http.StatusBadRequest {
+		t.Fatalf("scoped model list must be rejected: %d %s", response.Code, response.Body.String())
 	}
-	saved, err := bootstrap.LoadConfigFile(filepath.Join(tg.story, ".ainovel", "config.json"))
+	// Global save still normalizes the Codex protocol (fixed Responses).
+	response = tg.do("PUT", "/api/config?scope=global", admin, `{"providers":{"subscription":{"type":"openai-codex","api":"responses","models":[{"name":"gpt-6.1-sol"}]}}}`)
+	if response.Code != 200 {
+		t.Fatalf("global provider save: %d %s", response.Code, response.Body.String())
+	}
+	saved, err := bootstrap.LoadConfigFile(bootstrap.DefaultConfigPath())
 	if err != nil {
 		t.Fatal(err)
 	}
-	if saved.Providers["subscription"].API != "" || saved.Providers["subscription"].Type != "" {
-		t.Fatalf("scoped save must normalize API without copying inherited type: %+v", saved)
+	if saved.Providers["subscription"].API != "" || saved.Providers["subscription"].Type != "openai-codex" {
+		t.Fatalf("global save must normalize API: %+v", saved.Providers["subscription"])
 	}
 }

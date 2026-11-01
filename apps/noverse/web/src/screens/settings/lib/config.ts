@@ -101,6 +101,16 @@ export function configForSave(config: Config): Config {
     }
   }
   const out = pruneEmpty(next) as JsonObject
+  // “Theo Mặc định” ở một vai được biểu diễn bằng provider/model rỗng trong bản
+  // nháp (để hàng đổi ngay trước khi Lưu); lúc gửi thì bỏ hẳn vai đó — cấu hình
+  // không chấp nhận roles.<vai> thiếu provider/model.
+  if (isJsonObject(out.roles)) {
+    for (const [key, role] of Object.entries(out.roles)) {
+      if (!isJsonObject(role)) continue
+      if (!String(role.provider ?? '').trim() && !String(role.model ?? '').trim()) delete out.roles[key]
+    }
+    if (Object.keys(out.roles).length === 0) delete out.roles
+  }
   if (entries.length) {
     const kept = isJsonObject(out.providers) ? out.providers : {}
     out.providers = Object.fromEntries(entries.map(([name]) => [name, kept[name] ?? {}]))
@@ -195,16 +205,29 @@ export function testModelFor(models: { name: string }[] | undefined): string | u
 
 export const roleLabel = (key: string): string => (key === 'default' ? 'Mặc định' : key.toUpperCase())
 
-/** Settings.dc.html: mỗi vai trò và "Mặc định" chỉ có 4 mức suy nghĩ; '' = Tự động. */
-const REASONING_ARTBOARD: { id: string; label: string }[] = [
-  { id: '', label: 'Tự động' }, { id: 'low', label: 'Thấp' }, { id: 'medium', label: 'Vừa' }, { id: 'high', label: 'Cao' },
-]
-const REASONING_EXTRA_LABEL: Record<string, string> = { off: 'Tắt', minimal: 'Tối thiểu', xhigh: 'Rất cao', max: 'Tối đa' }
+/**
+ * Gói AU: đủ 8 nhãn mức suy luận, '' = Tự động (mặc định của model). Danh sách
+ * nút luôn do máy chủ trả theo từng model (`thinking`), không còn 4 mức cố định.
+ */
+export const THINKING_LABELS: Record<string, string> = {
+  '': 'Tự động', off: 'Tắt', none: 'Tắt', minimal: 'Tối thiểu', low: 'Thấp', medium: 'Vừa', high: 'Cao', xhigh: 'Rất cao', max: 'Tối đa',
+}
+export const thinkingLabel = (level: string): string => THINKING_LABELS[level] ?? level
 
-/** 4 đoạn theo artboard; giá trị đã lưu nằm ngoài 4 mức (off, xhigh, max…) được thêm làm đoạn thứ 5 đang chọn để không trình bày sai cấu hình — chọn mức khác thì đoạn đó tự biến mất. */
-export function reasoningSegments(current: string): { id: string; label: string }[] {
-  if (!current || REASONING_ARTBOARD.some((segment) => segment.id === current)) return REASONING_ARTBOARD
-  return [...REASONING_ARTBOARD, { id: current, label: REASONING_EXTRA_LABEL[current] ?? current }]
+/** Model không có mức suy luận: máy chủ trả [''] (chỉ Tự động) → không vẽ nút. */
+export const hasThinkingLevels = (levels: readonly string[] | undefined): boolean =>
+  !!levels && levels.some((level) => level !== '')
+
+/**
+ * Nút “Mức suy luận”: “Tự động” trước, rồi đúng các mức model nhận (1–7 mức,
+ * tổng 1–8 nút). Model chưa tải xong → chỉ “Tự động”; giá trị đã lưu ngoài danh
+ * sách được thêm để không trình bày sai cấu hình (đổi model sẽ tự về Tự động).
+ */
+export function thinkingSegments(levels: readonly string[] | undefined, current: string): { id: string; label: string }[] {
+  const ids = ['', ...(levels ?? []).filter((level) => level !== '')]
+  const out = ids.map((id) => ({ id, label: thinkingLabel(id) }))
+  if (current && !ids.includes(current)) out.push({ id: current, label: thinkingLabel(current) })
+  return out
 }
 
 /** Nhãn vai trò đang gán cho một model (artboard: "Mặc định · Architect · Writer"). */
@@ -228,4 +251,17 @@ export function sourceOf(
   const reported = sources?.[path]
   if (reported) return reported
   return getPath(draft, path) !== undefined ? scope : 'global'
+}
+
+/** Vai trò AI dùng chung — điện thoại và CmdResults đọc cùng bản cấu hình toàn cục. */
+export type ModelRole = 'default' | 'architect' | 'writer' | 'editor'
+
+/** Provider/model/mức suy luận đang hiệu lực của một vai; vai chưa chọn riêng → theo Mặc định. */
+export function roleModel(config: Config, key: ModelRole): { provider: string; model: string; effort: string } {
+  const role = key === 'default' ? undefined : config.roles?.[key]
+  return {
+    provider: role?.provider || config.provider || '',
+    model: role?.model || config.model || '',
+    effort: role?.reasoning_effort ?? (key === 'default' ? config.reasoning_effort : '') ?? '',
+  }
 }

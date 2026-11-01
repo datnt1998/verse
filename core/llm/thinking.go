@@ -89,15 +89,17 @@ func uniqueThinkingLevels(levels []ThinkingLevel) []ThinkingLevel {
 
 // ParseThinkingLevel chuyển chuỗi cấu hình thành ThinkingLevel.
 // "" hợp lệ (= không ghi đè/kế thừa); các giá trị còn lại phải là
-// off/low/medium/high/xhigh/max, sai thì trả lỗi (lúc khởi động hạ về rỗng kèm
-// warn, lúc chạy lỗi được trả lại cho người dùng).
+// off/minimal/low/medium/high/xhigh/max, sai thì trả lỗi (lúc khởi động hạ về
+// rỗng kèm warn, lúc chạy lỗi được trả lại cho người dùng). "minimal" là mức
+// Tối thiểu trong bộ tám nhãn của Gói AU; model không hỗ trợ vẫn bị
+// ThinkingPolicy.Resolve kẹp về ThinkingAuto.
 func ParseThinkingLevel(s string) (ThinkingLevel, error) {
 	lv := NormalizeThinkingLevel(ThinkingLevel(s))
 	switch lv {
-	case ThinkingAuto, ThinkingOff, ThinkingLow, ThinkingMedium,
+	case ThinkingAuto, ThinkingOff, ThinkingMinimal, ThinkingLow, ThinkingMedium,
 		ThinkingHigh, ThinkingXHigh, ThinkingMax:
 		return lv, nil
 	default:
-		return "", fmt.Errorf("mức suy luận không hợp lệ %q (tùy chọn: off/low/medium/high/xhigh/max)", s)
+		return "", fmt.Errorf("mức suy luận không hợp lệ %q (tùy chọn: off/minimal/low/medium/high/xhigh/max)", s)
 	}
 }

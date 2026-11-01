@@ -72,10 +72,12 @@ func (s *workerServer) handleLive(w http.ResponseWriter, r *http.Request, p stri
 			return true
 		}
 		writeJSON(w, 200, map[string]any{"ok": true})
-	case r.Method == "POST" && p == "models":
-		s.postModels(w, r)
-	case r.Method == "POST" && p == "thinking":
-		s.postThinking(w, r)
+	case r.Method == "POST" && p == "models/selection-reload":
+		if err := s.h.ReloadModelSelection(); err != nil {
+			jsonError(w, 500, err.Error())
+			return true
+		}
+		writeJSON(w, 200, map[string]any{"ok": true})
 	case r.Method == "POST" && p == "command":
 		s.postCommand(w, r)
 	default:
@@ -563,45 +565,6 @@ func (s *workerServer) getModels(w http.ResponseWriter) {
 		})
 	}
 	writeJSON(w, 200, map[string]any{"roles": roles, "providers": modelCatalogJSON(s.h.ModelCatalog())})
-}
-
-func (s *workerServer) postModels(w http.ResponseWriter, r *http.Request) {
-	var v struct {
-		Role     string `json:"role"`
-		Provider string `json:"provider"`
-		Model    string `json:"model"`
-	}
-	if !decodeJSON(w, r, &v) {
-		return
-	}
-	if !host.ValidWebRole(v.Role) {
-		jsonError(w, 400, "Vai trò không hợp lệ: "+v.Role)
-		return
-	}
-	if err := s.h.SwitchModel(v.Role, v.Provider, v.Model); err != nil {
-		jsonError(w, 400, err.Error())
-		return
-	}
-	writeJSON(w, 200, map[string]any{"ok": true})
-}
-
-func (s *workerServer) postThinking(w http.ResponseWriter, r *http.Request) {
-	var v struct {
-		Role  string `json:"role"`
-		Level string `json:"level"`
-	}
-	if !decodeJSON(w, r, &v) {
-		return
-	}
-	if !host.ValidWebRole(v.Role) {
-		jsonError(w, 400, "Vai trò không hợp lệ: "+v.Role)
-		return
-	}
-	if err := s.h.SetRoleThinking(v.Role, v.Level); err != nil {
-		jsonError(w, 400, err.Error())
-		return
-	}
-	writeJSON(w, 200, map[string]any{"ok": true})
 }
 
 // ── Chẩn đoán ──

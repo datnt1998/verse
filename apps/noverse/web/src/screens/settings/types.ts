@@ -45,6 +45,16 @@ export type SettingsContext = {
   /** Nhãn kế thừa của một nhóm khoá (Settings.dc.html `ovr`): Riêng … / Theo dự án / Theo “Mọi truyện” / Mặc định. */
   ovr: (paths: string[]) => Ovr
   refreshConfig: () => void
+  /**
+   * Gói AU — lưu ngay cấu hình dùng chung cả app (Trợ lý AI). Nhận hàm sửa trên bản mới nhất,
+   * gửi một PUT hoàn chỉnh; trả `false` khi lỗi (bản hiển thị đã trả về lựa chọn đã lưu).
+   */
+  saveAppModels: (mutate: (config: Config) => Config) => Promise<boolean>
+  savingAppModels: boolean
+  /** Lỗi lưu gần nhất; rỗng khi đã lưu xong. */
+  appModelsError: string
+  /** Gửi lại đúng thay đổi vừa lỗi. */
+  retryAppModels: () => void
   audioSettings: AudioSettings | null
   audioSettingsError: string
   setAutoOnLock: (value: boolean) => void

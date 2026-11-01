@@ -96,7 +96,7 @@ export function NewStoryScreen({ project }: { project: string }) {
   }, { success: 'Đã tạo truyện', invalidate: [keys.project(project), keys.library(), keys.jobs()] })
   const busy = startAction.busy || alternativeAction.busy || simulate.busy || gate.checking || gate.suggesting
   const failure = startAction.error || alternativeAction.error
-  const error = failure ? { message: t.placeholder.initFailed, detail: failure instanceof Error ? failure.message : '' } : null
+  const error = failure ? { message: t.placeholder.initFailedQuick, detail: failure instanceof Error ? failure.message : '' } : null
   const start = () => { if (!busy && !gate.blocked && prompt.trim() && connection.writable) void startAction.run() }
   useUnsavedGuard(!!prompt.trim() && !busy)
   useSaveShortcut(start, !!prompt.trim() && !busy)
@@ -164,6 +164,7 @@ export function NewStoryScreen({ project }: { project: string }) {
             }}>
               <span style={{ flex: 1 }}>
                 <b style={{ fontWeight: 500 }}>{error.message}</b>
+                <span style={{ display: 'block', color: 'var(--color-fg-3)', fontSize: 12 }}>{t.placeholder.initFailedHint}</span>
                 {error.detail && <span style={{ display: 'block', color: 'var(--color-fg-3)', fontSize: 12 }}>{error.detail}</span>}
               </span>
             </div>

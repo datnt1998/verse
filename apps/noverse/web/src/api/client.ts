@@ -9,7 +9,7 @@ import type {
   Session, Snapshot, StoryFile, StorySummary, SyncChanged, SystemInfo, User, ValidateResult, AppId, AppLink,
   ChaptersResponse, ImportPreview, ProjectCoCreateReply, ProjectCoCreateState, RevealPath, RevealRequest, RevealResult,
   CommandResult, RetryResult, CommandSpec, ExportOnExists, SyncDiff,
-  ConfigTestResult, LibraryRootResult, PickFolderResult, ProviderModelList,
+  ConfigTestResult, LibraryRootResult, PickFolderResult, ProviderModelList, SwapProviderResult, SwapUndoResult,
   AudioVolume, AudioScript, AudioSegment, AudioCast, AudioVoice, AudioPronunciation,
   AudioSettings, AudioQueue, AudioPeaks, AudioExportOptions, AudioExportPrefs, AudioExportResult, AudioExportState, AudioFlag, AudioCandidate,
   AudioReady, TtsStatus, TtsEngine, TtsInstallProgress,
@@ -389,10 +389,6 @@ export const downloadSimulationProfile = (p: string, s: string) =>
   download(`${storyPath(p, s)}/simulate/profile?download=1`, 'ho-so-van-phong.json')
 export const startFromFile = (p: string, s: string, path: string) => request<{ ok: boolean; action: 'start' }>(`${storyPath(p, s)}/start-file`, { body: { path } })
 export const getModels = (p: string, s: string, signal?: AbortSignal) => request<ModelsResponse>(`${storyPath(p, s)}/models`, { signal })
-export const setModel = (p: string, s: string, role: string, provider: string, model: string) =>
-  request<{ ok: boolean }>(`${storyPath(p, s)}/models`, { body: { role, provider, model } })
-export const setThinking = (p: string, s: string, role: string, level: string) =>
-  request<{ ok: boolean }>(`${storyPath(p, s)}/thinking`, { body: { role, level } })
 
 // ─── §6 Cấu hình & quy tắc ──────────────────────────────────────────────
 
@@ -406,6 +402,15 @@ export const getConfig = (scope: ConfigScope, project?: string, story?: string, 
   request<ConfigResponse>(`/api/config?${configQuery(scope, project, story)}`, { signal })
 export const putConfig = (scope: ConfigScope, config: Config, project?: string, story?: string, version?: string) =>
   request<ConfigResponse>(`/api/config?${configQuery(scope, project, story)}`, { method: 'PUT', body: config, version })
+/**
+ * Gói AU — đổi hàng loạt trợ lý đang dùng `from` sang `to` (chỉ admin).
+ * `version` gửi qua If-Match; lệch → 409 `{conflict,version,current}`.
+ */
+export const swapProvider = (from: string, to: string, model?: string, version?: string) =>
+  request<SwapProviderResult>('/api/config/swap-provider', { body: { from, to, model }, version })
+/** Gói AU — hoàn tác đúng các giá trị AI lần chuyển trước đã đổi (409 nếu cấu hình đã đổi). */
+export const undoSwapProvider = (token: string) =>
+  request<SwapUndoResult>('/api/config/swap-provider/undo', { body: { token } })
 export const getConfigPresets = (signal?: AbortSignal) => request<ConfigPresets>('/api/config/presets', { signal })
 /** G6 — thiếu `model` thì máy chủ dùng `defaultModel` của preset và trả lại model đã dùng. */
 export const testConfig = (provider: string, model?: string, config?: Config) =>

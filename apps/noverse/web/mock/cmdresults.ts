@@ -149,7 +149,7 @@ export const mockModels = (): ModelsResponse => ({
       { name: 'gpt-6.1-sol', contextWindow: 400_000, contextSource: 'registry', registryWindow: 400_000, thinking: ['', 'low', 'medium', 'high', 'xhigh'] },
       { name: 'gpt-6-luna', contextWindow: 400_000, contextSource: 'registry', registryWindow: 400_000, thinking: ['', 'low', 'medium', 'high', 'xhigh'] },
       { name: 'gpt-5.6-terra', contextWindow: 200_000, contextSource: 'registry', registryWindow: 200_000, thinking: ['', 'low', 'medium', 'high'] },
-      { name: 'gpt-5.4', contextWindow: 400_000, contextSource: 'registry', registryWindow: 400_000, thinking: ['', 'minimal', 'low', 'medium', 'high', 'xhigh'] },
+      { name: 'gpt-5.4', contextWindow: 400_000, contextSource: 'registry', registryWindow: 400_000, thinking: ['', 'off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'] },
       { name: 'gpt-5.4-mini', contextWindow: 400_000, contextSource: 'registry', registryWindow: 400_000, thinking: ['', 'low', 'medium', 'high'] },
     ] },
     { provider: 'openrouter', label: 'OpenRouter', ready: true, models: [

@@ -326,7 +326,7 @@ func TestPutConfig_ProjectRejectsSecrets(t *testing.T) {
 	}
 
 	// writer(p/*) 写项目层成功，round-trip 后 effective 反映覆盖。
-	w = tg.do("PUT", "/api/config?scope=project&project=proj", writer, `{"model":"proj-model","style":"romance"}`)
+	w = tg.do("PUT", "/api/config?scope=project&project=proj", writer, `{"style":"romance"}`)
 	if w.Code != 200 {
 		t.Fatalf("writer PUT project -> %d: %s", w.Code, w.Body.String())
 	}
@@ -336,16 +336,16 @@ func TestPutConfig_ProjectRejectsSecrets(t *testing.T) {
 		t.Fatalf("target phải là lớp project đã tồn tại: %v", target)
 	}
 	eff := m["effective"].(map[string]any)
-	if eff["model"] != "proj-model" || eff["provider"] != "openai" {
-		t.Fatalf("effective phải hợp nhất model lớp project với provider toàn cục: %v", eff)
+	if eff["style"] != "romance" {
+		t.Fatalf("effective phải có style lớp project: %v", eff)
 	}
 	sources := m["sources"].(map[string]any)
-	if sources["model"] != "project" || sources["provider"] != "global" {
+	if sources["style"] != "project" {
 		t.Fatalf("quy nguồn sources sai: %v", sources)
 	}
 
 	// reader 不能写项目层（可读但不可管理 → 403，与 POST /stories 一致）。
-	w = tg.do("PUT", "/api/config?scope=project&project=proj", tg.login("reader", "reader-pass"), `{"model":"y"}`)
+	w = tg.do("PUT", "/api/config?scope=project&project=proj", tg.login("reader", "reader-pass"), `{"style":"y"}`)
 	if w.Code != 403 {
 		t.Fatalf("reader PUT phải trả 403, nhận được %d", w.Code)
 	}
@@ -374,11 +374,11 @@ func TestGetConfig_StoryChainSources(t *testing.T) {
 	}
 	m := decodeResp(t, w)
 	eff := m["effective"].(map[string]any)
-	if eff["model"] != "s-model" || eff["style"] != "romance" || eff["advance_mode"] != "review" {
-		t.Fatalf("effective phải hợp nhất ba cấp: %v", eff)
+	if eff["model"] != "g-model" || eff["reasoning_effort"] != "medium" || eff["style"] != "romance" || eff["advance_mode"] != "review" {
+		t.Fatalf("effective phải lấy model toàn cục + thiết lập không phải model theo cấp: %v", eff)
 	}
 	sources := m["sources"].(map[string]any)
-	if sources["model"] != "story" || sources["style"] != "project" || sources["reasoning_effort"] != "global" || sources["advance_mode"] != "story" {
+	if sources["model"] != "global" || sources["reasoning_effort"] != "global" || sources["style"] != "project" || sources["advance_mode"] != "story" {
 		t.Fatalf("quy nguồn sources sai: %v", sources)
 	}
 	chain := m["chain"].([]any)
@@ -769,6 +769,21 @@ func TestPresetsListXAIOAuthAsDeviceOnlySubscription(t *testing.T) {
 	}
 }
 
+func TestPresetsReasoningIncludesMinimal(t *testing.T) {
+	tg := newConfigTestGateway(t)
+	admin := tg.login("admin", "admin-pass")
+	presets := decodeResp(t, tg.do("GET", "/api/config/presets", admin, ""))
+	raw, _ := presets["reasoning"].([]any)
+	var levels []string
+	for _, item := range raw {
+		levels = append(levels, item.(string))
+	}
+	want := []string{"", "off", "minimal", "low", "medium", "high", "xhigh", "max"}
+	if strings.Join(levels, ",") != strings.Join(want, ",") {
+		t.Fatalf("reasoning = %v, want %v", levels, want)
+	}
+}
+
 func TestConnectionFailureForXAIOAuthIsVietnameseAndActionable(t *testing.T) {
 	pc := llmconfig.ProviderConfig{}
 	msg, _ := connectionFailure("xai-oauth", pc, fmt.Errorf("request failed: %w", auth.NotLoggedInError("xai-oauth")))
@@ -1001,43 +1016,44 @@ func TestPresetsStylesIncludePacks(t *testing.T) {
 	}
 }
 
-// Tuỳ chỉnh › “Theo dự án”: gửi lại tệp cấp truyện không còn khoá `roles.writer` phải XOÁ khoá ở cấp đó
+// Tuỳ chỉnh › “Theo dự án”: gửi lại tệp cấp truyện không còn khoá `style` phải XOÁ khoá ở cấp đó
 // (PUT thay nguyên tệp của cấp) và `sources` quay về cấp dự án; effective lấy lại giá trị của dự án.
 func TestPutConfig_StoryScopeDeleteKeyRestoresInheritance(t *testing.T) {
 	tg := newConfigTestGateway(t)
 	admin := tg.login("admin", "admin-pass")
-	tg.globalConfig(t, `{"provider":"openai","model":"g-model","providers":{"openai":{"type":"openai","api_key":"sk-secret-1234567890","models":[{"name":"g-model"},{"name":"p-model"},{"name":"s-model"}]}}}`)
+	tg.globalConfig(t, `{"provider":"openai","model":"g-model","providers":{"openai":{"type":"openai","api_key":"sk-secret-1234567890","models":[{"name":"g-model"}]}}}`)
 	if err := os.MkdirAll(filepath.Join(tg.project, ".ainovel"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(tg.project, ".ainovel", "config.json"), []byte(`{"roles":{"writer":{"provider":"openai","model":"p-model"}}}`), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tg.project, ".ainovel", "config.json"), []byte(`{"style":"project-style"}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	const url = "/api/config?scope=story&project=proj&story=01-story"
 
-	put := tg.do("PUT", url, admin, `{"roles":{"writer":{"provider":"openai","model":"s-model"}}}`)
+	put := tg.do("PUT", url, admin, `{"style":"story-style"}`)
 	if put.Code != 200 {
 		t.Fatalf("PUT khoá riêng của truyện -> %d: %s", put.Code, put.Body.String())
 	}
 	m := decodeResp(t, tg.do("GET", url, admin, ""))
-	if got := m["sources"].(map[string]any)["roles.writer.model"]; got != "story" {
+	if got := m["sources"].(map[string]any)["style"]; got != "story" {
 		t.Fatalf("sau khi ghi, nguồn phải là story, nhận %v", got)
 	}
 
-	// “Theo dự án”: tệp truyện gửi lên không còn roles.writer
+	// “Theo dự án”: tệp truyện gửi lên không còn style
 	reset := tg.do("PUT", url, admin, `{}`)
 	if reset.Code != 200 {
 		t.Fatalf("PUT xoá khoá -> %d: %s", reset.Code, reset.Body.String())
 	}
 	m = decodeResp(t, tg.do("GET", url, admin, ""))
-	if roles, ok := m["target"].(map[string]any)["config"].(map[string]any)["roles"]; ok {
-		t.Fatalf("khoá roles phải bị xoá khỏi tệp cấp truyện: %v", roles)
+	if target, ok := m["target"].(map[string]any)["config"].(map[string]any); ok {
+		if _, has := target["style"]; has {
+			t.Fatalf("khoá style phải bị xoá khỏi tệp cấp truyện: %v", target)
+		}
 	}
-	if got := m["sources"].(map[string]any)["roles.writer.model"]; got != "project" {
+	if got := m["sources"].(map[string]any)["style"]; got != "project" {
 		t.Fatalf("sau khi xoá, nguồn phải quay về project, nhận %v", got)
 	}
-	writer := m["effective"].(map[string]any)["roles"].(map[string]any)["writer"].(map[string]any)
-	if writer["model"] != "p-model" {
-		t.Fatalf("effective phải lấy lại model của dự án: %v", writer)
+	if got := m["effective"].(map[string]any)["style"]; got != "project-style" {
+		t.Fatalf("effective phải lấy lại style của dự án: %v", got)
 	}
 }

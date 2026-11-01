@@ -25,6 +25,10 @@ type RetryingModel struct {
 	Gate       *Gate
 	Agent      string // 进度行的归属（角色名），空则用 "model"
 	MaxRetries int    // 不含首次尝试
+	// DeferError leaves selected errors to a caller-owned recovery policy.
+	// The returned chain is marked nonretryable so agentcore does not repeat
+	// the same request before that policy can inspect it. Nil preserves defaults.
+	DeferError func(error) bool
 }
 
 // NewRetryingModel 构造包装器；gate 为 nil 时使用独立计时器。
@@ -117,6 +121,9 @@ func (m *RetryingModel) terminal(ctx context.Context, err error) bool {
 // retryable 镜像 agentcore 的判定：错误链声明 Retryable()，或流未完成
 // （PartialStreamError）。未声明者一律不重试。
 func (m *RetryingModel) retryable(err error) bool {
+	if m.DeferError != nil && m.DeferError(err) {
+		return false
+	}
 	var pse *agentcore.PartialStreamError
 	if errors.As(err, &pse) {
 		return true
@@ -128,6 +135,9 @@ func (m *RetryingModel) retryable(err error) bool {
 // finalError 在包装器已重试过之后把可重试错误标记为不可重试，防止 agentcore
 // 再按自己的 MaxRetries 重来一轮。
 func (m *RetryingModel) finalError(err error, attempt int) error {
+	if m.DeferError != nil && m.DeferError(err) {
+		return &exhaustedError{err: err}
+	}
 	if attempt > 0 && m.retryable(err) {
 		return &exhaustedError{err: err}
 	}

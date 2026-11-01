@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type ErrorType string
@@ -97,7 +99,7 @@ func NewProviderErrorWithCause(provider string, errorType ErrorType, message str
 	return &LiteLLMError{Type: errorType, Provider: provider, Message: message, Cause: cause, Retryable: isRetryableByType(errorType)}
 }
 
-func NewHTTPError(provider string, statusCode int, message string) *LiteLLMError {
+func NewHTTPError(provider string, statusCode int, message string, headers ...http.Header) *LiteLLMError {
 	code, message := parseHTTPErrorMessage(message)
 	errorType := classifyHTTPError(statusCode)
 	// Content moderation rejections are deterministic: the same payload will be
@@ -107,6 +109,17 @@ func NewHTTPError(provider string, statusCode int, message string) *LiteLLMError
 	if isContentFilterError(code, message) {
 		errorType = ErrorTypeContentFilter
 	}
+	retryAfter := 0
+	if len(headers) > 0 {
+		value := strings.TrimSpace(headers[0].Get("Retry-After"))
+		if seconds, err := strconv.Atoi(value); err == nil && seconds > 0 {
+			retryAfter = seconds
+		} else if deadline, err := http.ParseTime(value); err == nil {
+			if delay := time.Until(deadline); delay > 0 {
+				retryAfter = int((delay + time.Second - 1) / time.Second)
+			}
+		}
+	}
 	return &LiteLLMError{
 		Type:       errorType,
 		Code:       code,
@@ -114,6 +127,7 @@ func NewHTTPError(provider string, statusCode int, message string) *LiteLLMError
 		Message:    message,
 		StatusCode: statusCode,
 		Retryable:  isRetryableByType(errorType),
+		RetryAfter: retryAfter,
 	}
 }
 
@@ -135,6 +149,11 @@ func parseHTTPErrorMessage(body string) (string, string) {
 		return "", strings.TrimSpace(e)
 	case map[string]any:
 		code := stringField(e, "code")
+		// Some providers use only error.type for the machine-readable code.
+		// An explicit code remains authoritative when both are present.
+		if code == "" {
+			code = stringField(e, "type")
+		}
 		msg := stringField(e, "message")
 		// Aggregator gateways (OpenRouter) wrap the upstream provider's real
 		// error under error.metadata: message is a generic "Provider returned

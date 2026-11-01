@@ -74,10 +74,9 @@ type workerHost interface {
 	CurrentModelSelection(string) (string, string, bool)
 	ModelCatalog() []host.CatalogProvider
 	RefreshModelContexts() error
-	SwitchModel(string, string, string) error
+	ReloadModelSelection() error
 	CurrentThinking(string) string
 	AvailableThinkingLevels(string) []string
-	SetRoleThinking(string, string) error
 }
 
 // workerServer 持有 worker 端点的共享状态：广播器、长任务登记表、共创会话、

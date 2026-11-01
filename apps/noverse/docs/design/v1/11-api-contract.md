@@ -298,9 +298,9 @@ type JobEvent = { job: string /* id */; kind: 'import' | 'simulate' | 'importsim
 | `GET /diag` | — | `{generatedAt,stats,findings,actions,sections}` — hình dạng GAP-28 bên dưới |
 | `POST /start-file` | `{path}` | `{ok, action:'start'}` |
 | `GET /models` | — | `{roles: {role: 'default'\|'architect'\|'writer'\|'editor', provider, model, thinking, thinkingOptions: string[]}[], providers: {provider, label /* tên ngắn của preset */, ready /* có key, không cần key, hoặc OAuth đã đăng nhập */, models: {name, contextWindow, thinking: string[] /* mức model hỗ trợ; '' = Mặc định */}[]}[]}` — bảng `/model` (14 §2) dùng `providers` để chỉ hiện mức suy luận model chọn hỗ trợ trước khi lưu |
-| `POST /models` | `{role, provider, model}` | `{ok}` (đổi lúc chạy, ghi cấu hình như `/model`) |
-| `POST /thinking` | `{role, level}` | `{ok}` |
 | `POST /command` | `{line: string /* bắt đầu bằng "/" */}` | `{ok:true,message?,result?:CommandOutcome}` (G13/GAP-26…29). Registry dùng chung (`internal/commands`) kiểm tra cú pháp/quyền trạng thái; lỗi cú pháp 400, đang chạy hoặc sai màn 409. `/model` và `/diag` trả `panel`; việc dài trả `job`; `/sync --check` trả `syncCheck`. |
+
+Lựa chọn nhà cung cấp/model/mức suy luận chỉ ghi ở cấu hình toàn ứng dụng qua `PUT /api/config?scope=global`, chỉ quản trị viên. Các đường ghi model và mức suy luận theo truyện đã bỏ; `GET /models` chỉ đọc trạng thái. Lượt đang chạy giữ yêu cầu hiện tại, lựa chọn mới áp dụng từ lượt kế tiếp.
 
 #### G9 · Nhập truyện trên điện thoại (18-mobile M5)
 

@@ -36,6 +36,7 @@ import { InfoSection } from './sections/info'
 import { NotifySection } from './sections/notify'
 import { ProvidersSection } from './sections/providers'
 import { RolesSection } from './sections/roles'
+import { RunCard } from './sections/RunCard'
 import { VoiceSection } from './sections/voice'
 import type { PendingExtra, SettingsContext } from './types'
 import { MembersSettings } from './members'
@@ -48,11 +49,11 @@ import { useUnsavedGuard } from '../../ui/useUnsavedGuard'
 const EMPTY_STORIES: StorySummary[] = []
 
 /** Mục cần `GET /api/config` (các mục còn lại tự lấy dữ liệu hoặc lưu riêng). */
-const CONFIG_SECTIONS: readonly PageId[] = ['models', 'budget', 'connect', 'notify', 'voice']
+const CONFIG_SECTIONS: readonly PageId[] = ['run', 'models', 'budget', 'connect', 'notify', 'voice']
 
 /** Khoá cấu hình thuộc từng mục — chấm tím ở menu khi cấp đang chọn có ghi đè. */
 const DOT_KEYS: Partial<Record<SectionId, string[]>> = {
-  models: ['provider', 'model', 'reasoning_effort', 'roles', 'advance_mode', 'ask_user'],
+  run: ['advance_mode', 'ask_user'],
   budget: ['budget'],
 }
 
@@ -175,7 +176,10 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
     if (location.hash === next) return
     navigate(next.slice(1), true)
   }, [user, current, effectiveScope, project, story, touched, target])
-  const cfgScope: ConfigScope = system ? 'global' : effectiveScope
+  // Trợ lý AI (provider/model/mức suy nghĩ) dùng chung cả app (chủ dự án chốt 02/11):
+  // luôn đọc/ghi cấp chung, không có bản riêng theo dự án/truyện.
+  const appWide = current === 'models'
+  const cfgScope: ConfigScope = system || appWide ? 'global' : effectiveScope
   const needsStory = cfgScope === 'story'
   const cfgProject = cfgScope === 'global' ? undefined : project
   const cfgStory = needsStory ? story : undefined
@@ -208,6 +212,76 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
   }, [configResource.data, identity])
   const refreshConfig = configResource.refresh
   const sources = configResource.data?.sources ?? response?.sources
+
+  // ─── Gói AU — Trợ lý AI lưu ngay, không có thanh Lưu ─────────────────────────────────────
+  // Mỗi thao tác gửi ĐÚNG MỘT bản cấu hình chung hoàn chỉnh (không ghi từng trường), nối tiếp
+  // nhau để lần sau không đè lần trước bằng bản cũ. Lỗi mạng → trả về lựa chọn đã lưu gần nhất
+  // (vẫn dùng được) và giữ thay đổi để bấm Thử lại; 409 → áp lại thay đổi lên bản mới nhất.
+  const draftRef = useRef(draft)
+  const responseRef = useRef<ConfigResponse | null>(response)
+  draftRef.current = draft
+  responseRef.current = response
+  const saveChain = useRef<Promise<unknown>>(Promise.resolve())
+  const [savingAppModels, setSavingAppModels] = useState(false)
+  const [appModelsError, setAppModelsError] = useState('')
+  const failedModels = useRef<Config | null>(null)
+  const acceptModels = (saved: ConfigResponse) => {
+    const doc = configForCompare(saved.target.config)
+    draftRef.current = doc
+    responseRef.current = saved
+    setResponse(saved); setDraft(doc); setBaseline(doc); setData(resourceKey, saved)
+    void invalidate(['config'])
+  }
+  const modelErrorText = (error: unknown): string => {
+    const detail = error instanceof ApiError || error instanceof Error ? error.message : ''
+    return `${detail || 'Không kết nối được máy chủ.'} Đang dùng lựa chọn đã lưu trước đó — bấm Thử lại để lưu lại.`
+  }
+  const saveAppModels = useCallback((mutate: (config: Config) => Config): Promise<boolean> => {
+    const task = saveChain.current.then(async (): Promise<boolean> => {
+      const current = responseRef.current
+      if (!current) return false
+      const next = mutate(configForCompare(draftRef.current))
+      draftRef.current = next
+      setDraft(next)
+      setSavingAppModels(true)
+      setAppModelsError('')
+      const attempt = async (latest: ConfigResponse, doc: Config): Promise<ConfigResponse> => {
+        try {
+          return await putConfig('global', configForSave(doc), undefined, undefined, latest.version)
+        } catch (error) {
+          // 409: người khác vừa lưu — áp lại đúng thay đổi này lên bản mới nhất, thử một lần.
+          if (error instanceof ConflictError && error.current && typeof error.current === 'object' && 'target' in error.current) {
+            const fresh = error.current as ConfigResponse
+            return await putConfig('global', configForSave(mutate(configForCompare(fresh.target.config))), undefined, undefined, fresh.version)
+          }
+          throw error
+        }
+      }
+      try {
+        acceptModels(await attempt(current, next))
+        failedModels.current = null
+        return true
+      } catch (error) {
+        const fallback = responseRef.current
+        const doc = fallback ? configForCompare(fallback.target.config) : configForCompare(current.target.config)
+        draftRef.current = doc
+        setDraft(doc)
+        failedModels.current = next
+        setAppModelsError(modelErrorText(error))
+        return false
+      } finally {
+        setSavingAppModels(false)
+      }
+    })
+    saveChain.current = task.catch(() => false)
+    return task
+  }, [resourceKey])
+  const retryAppModels = () => {
+    const failed = failedModels.current
+    if (!failed) return
+    failedModels.current = null
+    void saveAppModels(() => failed)
+  }
 
   // autoOnLock thuộc truyện (audio/settings), không thuộc cấu hình TTS kế thừa.
   const audioKey = keys.story(project, story, 'audio', 'settings')
@@ -267,7 +341,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
   const extraCount = Object.values(extraMeta).reduce((sum, item) => sum + item.count, 0)
 
   // ─── Dirty + lưu ──────────────────────────────────────────────────────────────────────────
-  const configDirty = !!response && !configsEqual(draft, baseline)
+  const configDirty = !!response && !appWide && !configsEqual(draft, baseline)
   const libDirty = !!libDraft && !!libBaseline && stableStringify(libDraft) !== stableStringify(libBaseline)
   const dirtyCount = (configDirty ? Math.max(1, countChanges(baseline, draft)) : 0) + (audioDirty ? 1 : 0) + (libDirty ? 1 : 0) + extraCount
   const dirty = dirtyCount > 0
@@ -375,6 +449,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
     scope: cfgScope, viewScope: effectiveScope, project, story, projectName, storyTitle, admin, canEdit, canEditScope,
     response, draft, effective: response?.effective ?? {}, presets, snapshot,
     setField, resetField: (path) => setField(path, undefined), fieldState, ovr, refreshConfig,
+    saveAppModels, savingAppModels, appModelsError, retryAppModels,
     audioSettings: audioResource.data ? { ...audioResource.data, autoOnLock: autoOnLockDraft ?? audioResource.data.autoOnLock } : null,
     audioSettingsError: audioResource.error ? errText(audioResource.error) : '',
     setAutoOnLock: setAutoOnLockDraft, refreshAudioSettings: audioResource.refresh,
@@ -390,7 +465,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
 
   const needsConfig = CONFIG_SECTIONS.includes(current)
   // Chỉ mục có 3 cấp mới hiện thanh “Áp dụng cho” (Gói R, R3).
-  const showScope = showsScope(current)
+  const showScope = showsScope(current) && !appWide
   const readOnlyNotice = !canEdit
     ? cfgScope === 'global' ? 'Chỉ quản trị viên sửa thiết lập chung — bạn đang xem bản chỉ đọc.'
       : cfgScope === 'project' ? 'Bạn chỉ có quyền đọc tuỳ chỉnh của dự án này.' : 'Bạn chỉ có quyền đọc tuỳ chỉnh của truyện này.'
@@ -398,6 +473,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
 
   const body = () => {
     switch (current) {
+      case 'run': return <RunCard ctx={ctx} />
       case 'models': return <RolesSection ctx={ctx} />
       case 'budget': return <BudgetSection ctx={ctx} />
       case 'connect': return <ProvidersSection ctx={ctx} open={sectionHint?.id === 'connect' ? sectionHint.open : undefined} />
@@ -480,7 +556,7 @@ function GeneralSettingsScreen({ section, search }: { section: string | null; se
         )}
       </main>
       {whatsNew && <WhatsNewDialog onClose={() => setWhatsNew(false)} />}
-      {dirty && (
+      {dirty && current !== 'models' && (
         <SaveBar text={current === 'connect' ? `${dirtyCount} thay đổi ở Kết nối AI · dùng cho cả máy chủ` : dirtyText(dirtyCount, cfgScope)}
           applyLabel="Lưu" saving={saving} disabled={saveAction.busy || !connection.writable} onApply={() => void save()} onCancel={discard} />
       )}

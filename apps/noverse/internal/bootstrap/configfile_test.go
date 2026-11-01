@@ -112,20 +112,23 @@ func TestLoadConfig_CorruptProjectFailsLoud(t *testing.T) {
 	}
 }
 
-// 全局是最低优先级基底：坏文件不得阻断更高优先级的项目级覆盖（回归守卫——
+// 全局是最低优先级基底：坏文件不得阻断项目级的非模型设置（回归守卫——
 // 上一版误把全局也 fail-loud，导致"坏全局 + 有效项目配置"的用户被无关文件挡住）。
-func TestLoadConfig_CorruptGlobalDoesNotBlockProjectOverride(t *testing.T) {
+func TestLoadConfig_CorruptGlobalDoesNotBlockProjectSettings(t *testing.T) {
 	writeGlobal(t, `{ not json`)
 	proj := t.TempDir()
 	t.Chdir(proj)
-	writeProjectConfig(t, validGlobal)
+	writeProjectConfig(t, `{"style":"romance","budget":{"book_usd":7.5}}`)
 
 	cfg, err := LoadConfig()
 	if err != nil {
 		t.Fatalf("坏全局不应阻断有效项目级配置，得到: %v", err)
 	}
-	if cfg.Provider != "openrouter" {
-		t.Errorf("应使用项目级配置的值，得到 provider=%q", cfg.Provider)
+	if cfg.Style != "romance" || cfg.Budget.BookUSD != 7.5 {
+		t.Errorf("项目级非模型设置应生效: style=%q budget=%v", cfg.Style, cfg.Budget)
+	}
+	if cfg.Provider != "" || cfg.ModelName != "" {
+		t.Errorf("坏全局不得提供模型选择: %s/%s", cfg.Provider, cfg.ModelName)
 	}
 }
 
@@ -163,8 +166,9 @@ func TestLoadConfig_MissingFilesNoError(t *testing.T) {
 	}
 }
 
-// 正常路径：全局 + 项目级合并生效。
-func TestLoadConfig_ValidMergeWorks(t *testing.T) {
+// AU1: model/provider is app-wide. A legacy project pin is stripped physically
+// and cannot override the global selection; project non-model settings still merge.
+func TestLoadConfig_ProjectModelPinsAreIgnoredAndStripped(t *testing.T) {
 	writeGlobal(t, validGlobal)
 	proj := t.TempDir()
 	t.Chdir(proj)
@@ -177,24 +181,38 @@ func TestLoadConfig_ValidMergeWorks(t *testing.T) {
       "model": "google/gemini-2.5-flash",
       "reasoning_effort": "low"
     }
-  }
+  },
+  "style": "romance",
+  "budget": {"book_usd": 3.25}
 }`)
 
 	cfg, err := LoadConfig()
 	if err != nil {
 		t.Fatalf("有效配置不应报错: %v", err)
 	}
-	if cfg.Provider != "openrouter" {
-		t.Errorf("provider 应保留全局值 openrouter，得到 %q", cfg.Provider)
+	if cfg.Provider != "openrouter" || cfg.ModelName != "google/gemini-2.5-flash" {
+		t.Errorf("model phải lấy từ cấu hình chung, được %s/%s", cfg.Provider, cfg.ModelName)
 	}
-	if cfg.ModelName != "google/gemini-2.5-pro" {
-		t.Errorf("model 应被项目级覆盖，得到 %q", cfg.ModelName)
+	if cfg.ReasoningEffort != "" {
+		t.Errorf("reasoning_effort cấp dự án không được áp dụng, được %q", cfg.ReasoningEffort)
 	}
-	if cfg.ReasoningEffort != "high" {
-		t.Errorf("reasoning_effort 应被项目级覆盖，得到 %q", cfg.ReasoningEffort)
+	if got := cfg.Roles["writer"].ReasoningEffort; got != "" {
+		t.Errorf("roles.writer cấp dự án không được áp dụng, được %q", got)
 	}
-	if got := cfg.Roles["writer"].ReasoningEffort; got != "low" {
-		t.Errorf("roles.writer.reasoning_effort 应被项目级覆盖，得到 %q", got)
+	if cfg.Style != "romance" || cfg.Budget.BookUSD != 3.25 {
+		t.Errorf("thiết lập không phải model phải được giữ: style=%q budget=%v", cfg.Style, cfg.Budget)
+	}
+	stored, err := ReadConfigJSON(filepath.Join(".ainovel", "config.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, key := range modelSelectionKeys {
+		if _, ok := stored[key]; ok {
+			t.Fatalf("file dự án vẫn còn ghim %q: %+v", key, stored)
+		}
+	}
+	if stored["style"] != "romance" {
+		t.Fatalf("file dự án mất style: %+v", stored)
 	}
 }
 
@@ -232,8 +250,9 @@ func TestLoadConfig_ThreeLevelChain(t *testing.T) {
 	if err != nil {
 		t.Fatalf("LoadConfigChain: %v", err)
 	}
-	if cfg.ModelName != "story-model" {
-		t.Errorf("model 应被故事层覆盖，得到 %q", cfg.ModelName)
+	// 02/11: model/provider dùng chung cả app — lớp gần không ghi đè nữa.
+	if cfg.ModelName != "base-model" {
+		t.Errorf("model phải lấy từ lớp toàn cục, được %q", cfg.ModelName)
 	}
 	if cfg.Style != "romance" {
 		t.Errorf("style 应来自项目层，得到 %q", cfg.Style)

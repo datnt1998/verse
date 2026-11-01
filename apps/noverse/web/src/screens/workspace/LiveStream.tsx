@@ -16,6 +16,7 @@ import { useElapsed } from './hooks'
 import { ReviewIssue } from '../../ui/ReviewIssue'
 import { runCardModel } from '../../lib/runCardModel'
 import { RunHistory } from './RunHistory'
+import { ProviderStopCard } from './ProviderStopCard'
 
 
 /** Dải xanh tóm tắt lần chấm trước + thẻ cảnh báo còn lại + lối mở Trình đọc (Main.dc.html › gateReview). */
@@ -61,7 +62,7 @@ export function GateBody({ review, chapter, loading, onOpenReader, quality = fal
   )
 }
 
-export function LiveStream({ project, story, streamText, isRunning, snapshot, mobile = false, gate = false, review = null, reviewLoading = false, gateChapter = 0, onOpenReader, idleActions }: {
+export function LiveStream({ project, story, streamText, isRunning, snapshot, mobile = false, gate = false, review = null, reviewLoading = false, gateChapter = 0, onOpenReader, idleActions, onResume }: {
   project: string
   story: string
   streamText: string
@@ -76,6 +77,8 @@ export function LiveStream({ project, story, streamText, isRunning, snapshot, mo
   gateChapter?: number
   onOpenReader?: () => void
   idleActions?: IdleActions
+  /** Gói AU — thẻ “việc viết đã dừng” chuyển nhà cung cấp rồi viết tiếp. */
+  onResume?: () => void
 }) {
   const parsed = useMemo(() => parseStream(streamText, isRunning), [streamText, isRunning])
   // Gói O · mục 6–7: trợ lý đang chạy (không cứng writer) quyết định tên, orb và màu thẻ bước.
@@ -142,6 +145,7 @@ export function LiveStream({ project, story, streamText, isRunning, snapshot, mo
             </span>
           )}
         </div>
+        {!gate && snapshot && <ProviderStopCard snapshot={snapshot} isRunning={isRunning} mobile={mobile} onResume={onResume} />}
         {gate
           ? <GateBody review={review} chapter={gateChapter || (review?.chapter ?? 0)} loading={reviewLoading} onOpenReader={onOpenReader} quality={!mobile} />
           : <RunHistory project={project} story={story} mobile={mobile} embedded empty={idle && idleActions && snapshot ? <IdleCard model={idle} snapshot={snapshot} actions={idleActions} mobile={mobile} /> : undefined} />}

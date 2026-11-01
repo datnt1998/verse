@@ -74,7 +74,8 @@ export const newProjectContents = (shared: boolean, source: { ruleCount?: number
   { icon: 'book-1', name: 'Truyện', note: 'chưa có', color: color['--color-accent'] },
   { icon: 'edit-2', name: 'Quy tắc viết', note: source ? `chép ${source.ruleCount} quy tắc` : 'trống', color: color['--color-ok'] },
   { icon: 'brush-2', name: 'Văn phong', note: projectStyleName(source?.style, presets), color: color['--color-accent'] },
-  { icon: 'cpu', name: 'Trợ lý AI', note: shared ? 'theo “Mọi truyện”' : 'bản riêng', color: color['--color-fg-3'] },
+  { icon: 'cpu', name: 'Trợ lý AI', note: 'dùng chung cho cả app', color: color['--color-fg-3'] },
+  { icon: 'coin', name: 'Ngân sách', note: shared ? 'theo “Mọi truyện”' : 'bản riêng', color: color['--color-fg-3'] },
 ]
 
 export function NewProjectDialog({ onClose }: { onClose: () => void }) {
@@ -162,7 +163,7 @@ export function NewProjectDialog({ onClose }: { onClose: () => void }) {
           </div>
           <Checkbox checked={shared} onChange={(next) => setShared(next)}
             xstyle={sx.checkbox}
-            label={<span {...stylex.props(sx.checkboxText)}><span>Dùng chung trợ lý AI và ngân sách với “Mọi truyện”</span><span {...stylex.props(sx.muted)}>Model, mức suy nghĩ, ngân sách mỗi truyện. Tắt thì dự án giữ một bản riêng, đổi ở Tuỳ chỉnh.</span></span>} />
+            label={<span {...stylex.props(sx.checkboxText)}><span>Dùng chung ngân sách với “Mọi truyện”</span><span {...stylex.props(sx.muted)}>Tắt thì dự án giữ ngân sách riêng, đổi ở Tuỳ chỉnh. Trợ lý AI luôn dùng chung cho cả app.</span></span>} />
           {error && <FieldError>{error}</FieldError>}
         </form>
 

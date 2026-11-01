@@ -1010,3 +1010,15 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 - Worker kiểm tra máy đọc trước khi nhận việc, trả lease khi upload tạm lỗi và giữ dấu lượt chuẩn bị chưa rõ kết quả qua khởi động lại; checksum lỗi hoặc lượt bị gián đoạn chỉ tiếp tục sau lệnh quản trị mới. Hợp đồng lý do tại [10-audio.md](10-audio.md#82-câu-lý-do-lỗi-tweak-vfail).
 - Đã mở UI mock thật ở 390 px với inset 0 và 59/34: thẻ chưa có máy/đang chuẩn bị/thiếu dung lượng, ngăn tạo giọng có ba chương chờ và đang chuẩn bị. Không coi dữ liệu mock là chứng cứ tạo giọng thật.
 - Đã kiểm lại tích hợp bằng typecheck, suite web và các package Go liên quan; các lỗi vòng đời worker được review riêng. Chứng cứ vận hành còn phải đóng: triển khai cặp hosted/native cùng revision, tạo giọng một chương thật và xuất M4B trên Mac mini.
+
+## Gói AU — Nhà cung cấp AI toàn ứng dụng (02/11/2026, canvas 138) <a id="goi-au"></a>
+
+- **GAP-AU1:** provider, model, mức suy luận và model dự phòng dùng chung mọi dự án/truyện, chỉ quản trị sửa; lớp cấu hình cũ được di trú mà không đổi ngân sách hay nội dung truyện. Ghi cấu hình có khoá liên tiến trình và CAS theo đúng phiên bản người gọi. API ghi model riêng theo truyện đã bỏ; catalog đọc vẫn còn.
+- **GAP-AU2:** lựa chọn suy luận lấy từ presets của từng model; UI dùng bộ tám nhãn, không còn bốn segment cố định. Trợ lý AI ở nhóm Hệ thống; chọn model thấy ngay, lưu ngay, có trạng thái đang lưu/lỗi/thử lại và chỉ áp dụng từ lượt tiếp theo. Các tuỳ chỉnh khác giữ phạm vi hiện có.
+- **GAP-AU3:** `expired`/`key` buộc sửa hoặc đổi nhà cung cấp; `quota` là cảnh báo có mốc tự thử lại. Phân loại có xét mã lỗi có cấu trúc; lỗi yêu cầu cũ không gán sang nhà cung cấp vừa đổi. Tải cấu hình lỗi thì dừng trước khi gọi trợ lý/Trọng tài, không tiếp tục bằng cấu hình cũ.
+- **GAP-AU4:** đổi hàng loạt trợ lý và hoàn tác có hạn; kiểm tra lại model/nhà cung cấp lúc hoàn tác, giữ ngân sách và thông tin kết nối mới. `fallback.active` và snapshot phản ánh model dự phòng thực sự đang dùng. Kết nối AI có dải lỗi; desktop và tab Viết điện thoại có thẻ **Đổi và viết tiếp**.
+- Hồi quy hai lần lỗi trên cùng thẻ đang mount đã đóng: đổi A sang B, B chạy rồi lỗi khoá mới vẫn hiện thẻ sửa; thông báo xanh chỉ hiện khi runtime xác nhận chạy và không còn lỗi nhà cung cấp.
+- Chứng cứ runtime cục bộ: upstream HTTP thật trả 402 → đổi B → tiếp tục/hoàn tác; lỗi tải cấu hình không gọi upstream; lỗi 429 hết gói dừng một lần, 429 quota giữ `Retry-After`. Hash chương/bản nháp/canonical giữ nguyên. Không tuyên bố đã gọi nhà cung cấp thương mại.
+- Chứng cứ UI: chọn model trong khi PUT đang chờ vẫn thấy lựa chọn mới, sau phản hồi mới báo lưu; ảnh desktop/điện thoại 390/360 và hai lần lỗi liên tiếp dùng máy chủ mock. Không coi đó là chứng cứ thực thi model hay bàn phím iOS thật. Triển khai và kiểm tra Mac mini ghi riêng trong báo cáo phát hành.
+
+Hợp đồng sở hữu: [20 §12](20-settings-rules.md#au-settings), [06 §AU](06-data-contract.md#au), [21 · Gói AU](21-dev-prompt.md#goi-au).

@@ -3,9 +3,8 @@ import { getConfig, getRulesEffective, putConfig } from '../../api/client'
 import type { Config, ConfigResponse, ConfigScope, PackPreset } from '../../api/types'
 import { cache, invalidate, keys, useResource } from '../../data'
 import { findPack, packLabel } from '../settings/lib/packs'
-import { reasoningSegments } from '../settings/lib/config'
 import { usd } from '../more/mobile/storySetLogic'
-import { configForSave, mergeConfig } from '../settings/lib/config'
+import { configForSave, mergeConfig, thinkingLabel } from '../settings/lib/config'
 import { effectiveKey } from '../settings/sections/rules/useRulesEditor'
 
 /** PUT chỉ tệp của cấp đích; không sao chép giá trị hiệu lực từ cấp trên. */
@@ -38,8 +37,7 @@ export function useEffectiveConfig(project: string, story: string | null): Confi
 
 /** “suy nghĩ vừa” — nhãn mức suy nghĩ của Settings, viết thường. */
 function thinkingText(level: string | undefined): string {
-  const id = level ?? ''
-  return `suy nghĩ ${(reasoningSegments(id).find((segment) => segment.id === id)?.label ?? id).toLowerCase()}`
+  return `suy nghĩ ${thinkingLabel(level ?? '').toLowerCase()}`
 }
 
 export function appliedRows(config: ConfigResponse, counts: RuleCounts | null, story: boolean, packs?: PackPreset[]): AppliedRow[] {

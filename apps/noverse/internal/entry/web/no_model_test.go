@@ -94,9 +94,16 @@ func TestNoModelSnapshotReadsForEveryRoleAndConfigRestartsWorker(t *testing.T) {
 	if response.Code != 200 || decodeLiveBody(t, response)["provider"] != "local" || *launches != 2 {
 		t.Fatalf("config.changed must retire no-model worker: launches=%d %d %s", *launches, response.Code, response.Body.String())
 	}
-	response = tg.do(http.MethodPost, "/api/projects/_/stories/oldbook/models", sessions["writer"], `{"role":"default","provider":"local","model":"test"}`)
-	if response.Code != 200 {
-		t.Fatalf("next action must use configured host: %d %s", response.Code, response.Body.String())
+	for _, role := range []string{"writer", "admin"} {
+		for _, action := range []struct{ path, body string }{
+			{"models", `{"role":"default","provider":"local","model":"test"}`},
+			{"thinking", `{"role":"writer","level":"high"}`},
+		} {
+			response = tg.do(http.MethodPost, "/api/projects/_/stories/oldbook/"+action.path, sessions[role], action.body)
+			if response.Code != http.StatusNotFound {
+				t.Fatalf("%s can still change story AI through %s: %d %s", role, action.path, response.Code, response.Body.String())
+			}
+		}
 	}
 }
 

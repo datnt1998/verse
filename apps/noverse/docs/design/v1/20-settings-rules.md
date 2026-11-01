@@ -13,7 +13,7 @@ Người dùng chỉ thấy **khái niệm đời thường**. Đường dẫn, 
 | Truyện | `<dự án>/kich_ban/NN-slug/` + `story.json` |
 | Bản xuất | `<truyện>/xuat-ban/tap-NN/…` |
 | Quy tắc viết | `.ainovel/rules/*.md` ở 3 cấp |
-| Tuỳ chỉnh (văn phong, trợ lý, ngân sách…) | `.ainovel/config.json` ở 3 cấp |
+| Tuỳ chỉnh có phạm vi (ngân sách, cách chạy…) | `.ainovel/config.json` ở 3 cấp; Trợ lý AI dùng chung toàn ứng dụng (§12) |
 | Tên dự án “Kênh truyện audio” | `project.json.name`; slug thư mục **không** hiện |
 | Tên truyện | `story.json.title`; tiền tố `01 ·` **không** hiện |
 | Dàn ý · Nhân vật · Chi tiết cài cắm | `output/novel/outline.json` · `characters.json` · `foreshadow_ledger.json` |
@@ -35,16 +35,16 @@ Người dùng chỉ thấy **khái niệm đời thường**. Đường dẫn, 
 
 > **Gói AP (31/10):** Tuỳ chỉnh **bỏ hẳn** mục *Quy tắc chung* và *Cách viết*. Quy tắc viết và văn phong chỉ còn hai cấp — truyện và dự án — sửa ở `Outline` (xem §9). Hai công tắc *Duyệt từng chương* và *Trọng tài hỏi bạn khi phân vân* chuyển xuống thẻ **Cách chạy** trong mục Trợ lý AI. Mục *Thông tin dự án* luôn hiện; bấm khi đang chọn “Truyện này” thì thanh Áp dụng cho chuyển sang “Dự án”. Thông tin truyện sửa ở `Outline` › tab Thông tin. <!-- ap-set -->
 
-Tweak `section`: models · budget · info · connect · storage · export · notify · app · adv (mặc định `models`); `scope`: story · project · global (cấp “Mọi truyện” chỉ còn cho Trợ lý AI và Ngân sách).
+Tweak `section`: models · budget · info · connect · storage · export · notify · app · adv (mặc định `models`). `scope`: story · project · global dành cho các thiết lập có phạm vi; Trợ lý AI luôn dùng cấu hình toàn ứng dụng (§12).
 
 ### 2.1 Thanh “Áp dụng cho”
 
-Có 3 viên chọn: **Truyện này** (tên truyện) · **Dự án** (tên dự án · số truyện) · **Mọi truyện** (toàn bộ thư viện). Dưới thanh là một câu giải thích kế thừa.
+Các mục có phạm vi có 3 viên chọn: **Truyện này** (tên truyện) · **Dự án** (tên dự án · số truyện) · **Mọi truyện** (toàn bộ thư viện). Dưới thanh là một câu giải thích kế thừa. Trợ lý AI không hiện thanh này.
 
 - Mỗi thiết lập có nhãn **“Riêng truyện này”** / “Riêng dự án” (tím) kèm nút *Theo dự án* để đặt lại, hoặc nhãn **“Theo dự án”** / “Theo ‘Mọi truyện’” (xám).
-- Nguồn nhãn: `ConfigResponse.sources["roles.writer.model"]`.
+- Nguồn nhãn: ví dụ `ConfigResponse.sources["budget.book_usd"]`.
 - Trong menu trái, mục có chỉnh riêng ở cấp đang chọn có chấm tím.
-- Thay đổi gom lại ở **thanh nổi đáy**: “N thay đổi cho truyện này · có hiệu lực từ chương 26” · *Huỷ* · **Áp dụng** (Quy tắc) / **Lưu** (mục khác).
+- Thay đổi của các mục có phạm vi gom ở **thanh nổi đáy**: “N thay đổi cho truyện này · có hiệu lực từ chương 26” · *Huỷ* · **Áp dụng** / **Lưu**. Trợ lý AI lưu ngay, không dùng thanh lưu nháp (§12).
 
 ### 2.2 Ma trận thiết lập
 
@@ -53,9 +53,9 @@ Có 3 viên chọn: **Truyện này** (tên truyện) · **Dự án** (tên dự
 | Quy tắc viết | ✓ | ✓ | — (bỏ ở Gói AP) | có quyền ghi | `PUT /api/rules/file` (§3.3) · sửa ở `Outline` <!-- ap-mx --> |
 | Văn phong (Chung · Ngôn tình · Hồi hộp · Huyền huyễn · Kiếm hiệp · Văn phong của bạn) | ✓ | ✓ | — (Gói AP: dự án chưa chọn thì dùng “Chung” của Noverse) <!-- ap-mx2 --> | có quyền ghi | `config.style` (`default · romance · suspense · fantasy · wuxia` + tên tệp tự tạo) |
 | Duyệt từng chương | ✓ (đổi ngay = `/review on\|off`) | ✓ (cho truyện mới) | ✓ (cho truyện mới) | có quyền ghi | truyện: lệnh live; dự án/toàn cục: `config.advance_mode` (`review`/`auto`) |
-| Trợ lý AI: model + mức suy nghĩ (Tự động · Thấp · Vừa · Cao) | ✓ | ✓ | ✓ | có quyền ghi | `config.roles.<vai>.{provider,model,reasoning_effort}`; Mặc định = `provider/model/reasoning_effort` cấp trên |
+| Trợ lý AI: nhà cung cấp + model + mức suy luận | — | — | ✓ toàn ứng dụng | quản trị | Cấu hình toàn cục; mức có thể chọn lấy theo model từ máy chủ (§12) |
 | Ngữ cảnh của model (Gói W): Tự nhận / Tự đặt (nghìn) | — | — | ✓ (theo model, mọi trợ lý) | quản trị | `providers.<p>.models[].context_window`; bỏ trống = theo danh mục model, không có thì mức dự phòng |
-| Model dự phòng | ✓ | ✓ | ✓ | có quyền ghi | `roles.<vai>.fallbacks` |
+| Model dự phòng | — | — | ✓ toàn ứng dụng | quản trị | Cùng lựa chọn Trợ lý AI; không có ghi đè dự án/truyện (§12) |
 | Ngân sách mỗi truyện · báo trước % · khi hết | ✓ | ✓ | ✓ | có quyền ghi | `config.budget.{book_usd,warn_ratio,hard_stop}` |
 | Thông tin truyện / dự án | truyện | dự án | — | có quyền ghi | `story.json` / `project.json` |
 | Kết nối AI (tài khoản ChatGPT, khoá API) | — | — | ✓ | quản trị | `providers.*`, OAuth (GAP-16) |
@@ -63,7 +63,7 @@ Có 3 viên chọn: **Truyện này** (tên truyện) · **Dự án** (tên dự
 | Báo động máy chủ | — | — | ✓ | quản trị | `config.notify.events` (lệnh shell ở Nâng cao) |
 | Nâng cao | — | — | ✓ | quản trị | vị trí lưu, tên thư mục, mẫu tên tệp, cửa sổ ngữ cảnh, ngắt khi im lặng, model khi nhập truyện, lệnh báo động |
 
-- Cấp dự án/truyện từ chối `api_key` và `notify` (400) đúng như `11-api-contract.md` §6. UI không hiện các mục này ở hai cấp đó.
+- Cấp dự án/truyện từ chối các khoá kết nối, model, vai trò AI, mức suy luận và dự phòng; không ảnh hưởng ngân sách/cách chạy. Hợp đồng ghi xem `11-api-contract.md` và §12.
 - Trọng tài luôn dùng model Mặc định. UI ghi rõ điều này, không cho chọn riêng.
 
 ### 2.3 Kết nối AI — chọn model của từng nhà cung cấp (28/10, Gói AH) <!-- ah-conn -->
@@ -101,7 +101,7 @@ Quy tắc viết gắn với truyện, nên sửa ở chỗ người dùng làm 
 - Cột phải khi mở tab: thẻ **Kiểm tra 3 chương gần nhất** (thay vị trí trong Tuỳ chỉnh). Dòng *Quy tắc viết* trong thẻ “Đang áp dụng cho truyện” mở tab này thay vì sang Tuỳ chỉnh.
 - “Khi nào có hiệu lực” lấy theo truyện thật: quy tắc mới có hiệu lực từ chương kế tiếp sau chương đang viết; chương đã viết không bị sửa.
 - **Điện thoại** (M4 › Quy tắc viết): mở thẳng cấp truyện, bỏ nút chia 3 cấp. Nhóm kế thừa chạm vào để sửa ở cấp đó; khi đang ở cấp dự án / Mọi truyện có nút *‹ Về quy tắc của truyện*.
-- Các mục khác của Tuỳ chỉnh (Trợ lý AI, Ngân sách, và trong Cách viết: Duyệt từng chương, Trọng tài hỏi) vẫn giữ thanh “Áp dụng cho” 3 cấp. **Văn phong** đã chuyển theo cùng cách với quy tắc viết — xem *Cách viết — vị trí* bên dưới (Gói AL). <!-- al-note -->
+- Các thiết lập khác như Ngân sách và Cách chạy (Duyệt từng chương, Trọng tài hỏi) giữ thanh “Áp dụng cho” theo hợp đồng hiện có. Trợ lý AI đã tách sang toàn ứng dụng (§12). **Văn phong** có vị trí riêng cùng quy tắc viết (Gói AL/AP).
 - Số từ dễ lặp mặc định là **12** (đúng danh sách đang hiện), không phải 16.
 
 **Cách viết gọn lại, chốt 31/10 (Gói AM — thay phần chia tab của Gói AL bên dưới)** <!-- am-gon -->
@@ -553,3 +553,17 @@ Artboard `RunCards` (máy tính) và `MRun` (điện thoại); dữ liệu mẫu
 
 - **M9 `MOutline`** — thanh chip cuộn ngang: Thông tin · Tiền đề · Nhân vật · Thế giới · Dàn ý · Cài cắm · *Cách viết ›* (sang M4). Thông tin: lưới Nền móng 2×2, nhóm Thông tin truyện / Khung truyện / Định hướng kết / 10 trục (+ *So với các truyện khác ở Não dự án*). Nhân vật: danh sách, chạm sang Não truyện M8. Dàn ý: chương bấm mở sự kiện chính + móc + *Đọc chương ›*. Sửa = ngăn dưới; *Nhờ…* = ngăn **Nhờ Kiến trúc sư** điền sẵn.
 - **M10 `MProjBrain`** — ba phần Sổ cái · Vũ trụ · Tìm. Bảng 10 cột không vẽ trên 390 px; thay bằng Tần suất theo trục (chạm giá trị → ngăn truyện đã dùng) và thẻ truyện (tổ hợp 1·3·4·6, chạm → ngăn 10 trục, giá trị trùng truyện mới tô tím).
+
+## 12. Nhà cung cấp AI dùng chung cho cả ứng dụng <a id="au-settings"></a>
+
+Quyết định sản phẩm của Gói AU, canvas bản 138: đổi nhà cung cấp, model, mức suy luận hoặc dự phòng phải áp dụng cho mọi dự án và mọi truyện. Không còn lựa chọn AI riêng theo truyện/dự án; các tuỳ chỉnh khác không bị gộp theo.
+
+- **Trợ lý AI** nằm trong nhóm **Hệ thống**, chỉ quản trị được đổi. Mỗi lần đổi lưu ngay, có trạng thái đang lưu/lỗi/thử lại thật; lựa chọn vừa chọn hiện ngay, không đợi phản hồi lưu. Chỉ báo thành công sau khi máy chủ xác nhận.
+- Yêu cầu đang chạy không bị thay giữa chừng. Lựa chọn mới dùng từ lượt kế tiếp; phần truyện, bản nháp và lịch sử đã có được giữ nguyên.
+- Mức suy luận có tám nhãn trong toàn bộ từ vựng: **Tự động · Tắt · Tối thiểu · Thấp · Vừa · Cao · Rất cao · Tối đa**. Từng model chỉ hiện các mức máy chủ cho biết nó hỗ trợ; không khôi phục bộ bốn mức cố định. Giá trị máy được giữ đúng theo model, không đổi `none` thành `off` chỉ để khớp nhãn.
+- **Hết hạn gói** và **khoá không dùng được** là **Bắt sửa**: giải thích đúng loại và cho đổi nhà cung cấp hoặc sửa kết nối. **Tạm hết lượt** là **Cảnh báo**: giữ hàng chờ, tự thử lại theo thời gian máy chủ, hoặc dùng model dự phòng hợp lệ.
+- Màn viết máy tính và tab Viết điện thoại có **Đổi và viết tiếp**. Danh sách thay thế lấy từ kết nối/model hiện có; không tự bịa model. Đổi hàng loạt hiển thị các trợ lý bị ảnh hưởng và có **Hoàn tác**, kể cả sau khi dải lỗi cũ đã hết.
+- Hoàn tác chỉ khôi phục lựa chọn AI của lần đổi đó, không trả lại khoá cũ hay ghi đè ngân sách/văn phong vừa sửa. Nếu kết nối/model cũ đã bị xoá hoặc lựa chọn đã đổi tiếp thì báo xung đột, không khôi phục cấu hình hỏng.
+- Dữ liệu cũ không còn được dùng để ghim model ở cấp dự án/truyện. Di trú giữ nguyên các thiết lập không phải AI và không ghi đè thay đổi đồng thời.
+
+Hợp đồng dữ liệu và chủ sở hữu mã tại [06 · AU](06-data-contract.md#au); chứng cứ triển khai ở [19 · Gói AU](19-gap-closure.md#goi-au).

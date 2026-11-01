@@ -13,12 +13,12 @@ const story = (id: string, title = id): StorySummary => ({
 })
 
 describe('thanh “Áp dụng cho” chỉ ở mục 3 cấp', () => {
-  it('hiện ở Trợ lý AI, Ngân sách, Thông tin', () => {
-    for (const id of ['models', 'budget', 'info'] as const) expect(showsScope(id)).toBe(true)
+  it('hiện ở Cách chạy, Ngân sách, Thông tin', () => {
+    for (const id of ['run', 'budget', 'info'] as const) expect(showsScope(id)).toBe(true)
   })
 
-  it('không hiện ở mục Hệ thống hay Giọng đọc', () => {
-    for (const id of ['connect', 'export', 'notify', 'app', 'adv', 'voice'] as const) expect(showsScope(id)).toBe(false)
+  it('không hiện ở mục Hệ thống hay Giọng đọc, kể cả Trợ lý AI (dùng chung cả app)', () => {
+    for (const id of ['models', 'connect', 'export', 'notify', 'app', 'adv', 'voice'] as const) expect(showsScope(id)).toBe(false)
   })
 })
 

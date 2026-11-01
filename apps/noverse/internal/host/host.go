@@ -69,9 +69,20 @@ type Host struct {
 	streamCh chan string
 	done     chan struct{}
 
-	mu         sync.Mutex
-	lifecycle  lifecycle
-	cocreating bool // 阶段共创占用：paused 窗口内堵住 import/simulate/continue 的并发介入
+	mu sync.Mutex
+	// Serializes selection commits with provider failure decisions, but is
+	// never held across quota waits or in-flight requests. Acquire before mu.
+	modelSelectionMu sync.RWMutex
+	lifecycle        lifecycle
+	cocreating       bool // 阶段共创占用：paused 窗口内堵住 import/simulate/continue 的并发介入
+	// Gói AU: runtime fallback theo vai (không ghi vào cấu hình) + lỗi nhà cung
+	// cấp đã phân loại gần nhất cho Snapshot/băng lỗi.
+	fallbacks     map[string]fallbackState
+	lastFallback  *FallbackSnapshot
+	providerError *ProviderErrorSnapshot
+	// Global-file stamp makes worker boundaries adopt a committed selection
+	// even when the gateway's immediate reload request could not reach us.
+	selectionFileInfo os.FileInfo
 	// gateWaiting：最近一次暂停由章节推进闸门（逐章验收/advance hold）触发，
 	// Snapshot 据此把 waitingFor 报成 "gate"（G5）。引擎重新开跑即清除。
 	gateWaiting bool
@@ -403,6 +414,23 @@ func New(cfg bootstrap.Config, bundle assets.Bundle, options ...NewOption) (*Hos
 		},
 		onPause: func(summary string) { h.abortWithEvent(summary, "warn") },
 		onDone:  h.runEnded,
+		providerOf: func(role string) (string, string) {
+			provider, model, ok := h.CurrentModelSelection(role)
+			if ok {
+				return provider, model
+			}
+			provider, model, _ = h.CurrentModelSelection("default")
+			return provider, model
+		},
+		providerFallback:      h.activateProviderFallback,
+		recordProviderFailure: h.recordProviderFailure,
+		clearProviderFailure:  h.clearProviderFailure,
+		probePrimaryFallback:  h.probePrimaryFallback,
+		prepareWorkerTurn:     h.refreshModelSelectionForTurn,
+		lockProviderFailure: func() func() {
+			h.modelSelectionMu.RLock()
+			return h.modelSelectionMu.RUnlock
+		},
 	}
 	// 27/10：ask_user tắt → thẻ “Đang chờ bạn” không bao giờ xuất hiện； cờ vừa
 	// bị tắt trong khi còn câu hỏi treo thì dọn luôn trạng thái chờ khi mở truyện.
@@ -1545,6 +1573,9 @@ func (h *Host) Snapshot() UISnapshot {
 		MissingAssistantUsage:  h.usage.MissingAssistantUsage(),
 		OpenThreads:            []string{},
 	}
+	// Gói AU: banner model dự phòng + băng lỗi nhà cung cấp sống qua tải lại.
+	snap.Fallback = h.fallbackSnapshot()
+	snap.ProviderError = h.providerErrorSnapshot()
 
 	// 单指令运行结果:engine 存在时才可能有;正常 run 恒为 nil。
 	if h.engine != nil {
@@ -1822,6 +1853,8 @@ func (h *Host) CurrentModelSelection(role string) (string, string, bool) {
 }
 
 func (h *Host) SwitchModel(role, provider, model string) error {
+	h.modelSelectionMu.Lock()
+	defer h.modelSelectionMu.Unlock()
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	if provider == "" || model == "" {

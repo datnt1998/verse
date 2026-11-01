@@ -78,10 +78,9 @@ func (h *fakeHost) ModelReady() bool                                     { retur
 func (h *fakeHost) CurrentModelSelection(string) (string, string, bool)  { return "", "", false }
 func (h *fakeHost) ModelCatalog() []host.CatalogProvider                 { return nil }
 func (h *fakeHost) RefreshModelContexts() error                          { h.call("refreshModelContexts"); return nil }
-func (h *fakeHost) SwitchModel(string, string, string) error             { return nil }
+func (h *fakeHost) ReloadModelSelection() error                          { h.call("reloadModelSelection"); return nil }
 func (h *fakeHost) CurrentThinking(string) string                        { return "" }
 func (h *fakeHost) AvailableThinkingLevels(string) []string              { return nil }
-func (h *fakeHost) SetRoleThinking(string, string) error                 { return nil }
 func (h *fakeHost) PauseAfterStep() bool                                 { h.call("pauseAfterStep"); return true }
 func (h *fakeHost) DiagnoseView() host.DiagView                          { return host.DiagView{Report: h.Diagnose()} }
 func (h *fakeHost) SimulationProfileView() (*host.SimulationView, error) { return nil, nil }

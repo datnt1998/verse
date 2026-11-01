@@ -2,51 +2,77 @@
 import { act, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { Config, ConfigScope } from '../../../api/types'
+import type { Config, ConfigResponse } from '../../../api/types'
 import { getPath, setPath } from '../lib/config'
-import { hasOwn, inheritedFrom, ovrOf } from '../lib/labels'
 import type { SettingsContext } from '../types'
-import { putConfig } from '../../../api/client'
+import { swapProvider, undoSwapProvider } from '../../../api/client'
 
-vi.mock('@noverse/ui', async (importOriginal) => ({ ...(await importOriginal<object>()),  Icon: () => null,  AgentOrb: () => null }))
+vi.mock('@noverse/ui', async (importOriginal) => ({ ...(await importOriginal<object>()), Icon: () => null, AgentOrb: () => null }))
 vi.mock('../../../api/client', () => ({
-  getConfigModels: vi.fn(async () => ({ models: [
-    { name: 'gpt-6.1-sol', displayName: 'gpt-6.1-sol', contextWindow: 272000, registryWindow: 272000, contextSource: 'registry', summaryThreshold: 231200, automaticWindow: 272000, automaticSource: 'registry' },
-    { name: 'gpt-6-luna', displayName: 'gpt-6-luna', contextWindow: 200000, registryWindow: 0, contextSource: 'default', summaryThreshold: 170000, automaticWindow: 200000, automaticSource: 'default' },
-  ] })),
-  getConfig: vi.fn(async () => ({ target: { config: globalDoc }, version: 'w' })),
-  putConfig: vi.fn(async () => ({})),
+  getConfigModels: vi.fn(async (_provider: string, models: string[]) => ({ models: models.map((name) => ({
+    name, displayName: name, contextWindow: 200000, registryWindow: 200000, contextSource: 'registry', summaryThreshold: 170000,
+    automaticWindow: 200000, automaticSource: 'registry',
+    thinking: name === 'gpt-6.1-sol' ? ['', 'low', 'medium', 'high', 'xhigh'] : ['', 'low', 'medium', 'high'],
+  })) })),
+  swapProvider: vi.fn(async () => ({
+    swapped: ['default', 'architect', 'writer', 'editor'].map((role) => ({
+      role,
+      from: { provider: 'openai', model: 'gpt-6.1-sol', reasoning_effort: 'xhigh' },
+      to: { provider: 'deepseek', model: 'deepseek-chat', reasoning_effort: '' },
+    })),
+    skipped: [], undoToken: 'undo-1', expiresAt: '', version: 'w2',
+  })),
+  undoSwapProvider: vi.fn(async () => ({ restored: [], version: 'w3' })),
 }))
 import { RolesSection } from './roles'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
-afterEach(async () => { for (const root of roots.splice(0)) await act(() => root.unmount()); document.body.replaceChildren() })
+afterEach(async () => { for (const root of roots.splice(0)) await act(() => root.unmount()); document.body.replaceChildren(); vi.clearAllMocks() })
 
 const globalDoc: Config = {
   provider: 'openai', model: 'gpt-6.1-sol',
-  providers: { openai: { models: [{ name: 'gpt-6.1-sol' }, { name: 'gpt-6-luna' }] } } as Config['providers'],
+  providers: { openai: { models: [{ name: 'gpt-6.1-sol' }, { name: 'gpt-6-luna' }] }, deepseek: { models: [{ name: 'deepseek-chat' }] } } as Config['providers'],
+  roles: { writer: { provider: '', model: '', fallbacks: [{ provider: 'deepseek', model: 'deepseek-chat' }] } },
 }
-const projectDoc: Config = { roles: { writer: { provider: 'openai', model: 'gpt-6-luna' } } }
+const responseOf = (patch: Partial<ConfigResponse> = {}): ConfigResponse => ({
+  target: { config: globalDoc }, effective: globalDoc, version: 'w', sources: {}, ...patch,
+} as ConfigResponse)
 
-/** Cấp truyện thật sự nối nhãn kế thừa như index.tsx: bản nháp của truyện + chuỗi cấp dưới. */
-function Harness({ scope = 'story', initial = {}, admin = true }: { scope?: ConfigScope; initial?: Config; admin?: boolean }) {
+type HarnessProps = {
+  admin?: boolean
+  initial?: Config
+  response?: ConfigResponse
+  error?: string
+  onSave?: (next: Config) => void
+  onRefresh?: () => ConfigResponse
+}
+
+/** Bắt chước index.tsx: lưu ngay, bản nháp đổi trước khi máy chủ trả lời. */
+function Harness({ admin = true, initial = globalDoc, response = responseOf(), error = '', onSave, onRefresh }: HarnessProps) {
+  const [fresh, setFresh] = useState<ConfigResponse | null>(null)
+  response = fresh ?? response
   const [draft, setDraft] = useState<Config>(initial)
-  const chain = [{ scope: 'global' as const, path: '', exists: true, config: globalDoc }, { scope: 'project' as const, path: '', exists: true, config: projectDoc }]
-  const writer = { ...projectDoc.roles?.writer, ...draft.roles?.writer } as { provider: string; model: string }
-  const effective: Config = { ...globalDoc, roles: { writer } }
-  const sources: Record<string, ConfigScope> = { 'roles.writer.model': 'project', 'roles.writer.provider': 'project', provider: 'global', model: 'global' }
-  for (const path of ['roles.writer.model', 'roles.writer.provider']) if (getPath(draft, path) !== undefined) sources[path] = 'story'
+  const [appModelsError, setAppModelsError] = useState(error)
+  const retryAppModels = vi.fn(() => setAppModelsError(''))
   const ctx = {
-    scope, admin, canEdit: true, draft, effective, presets: null, snapshot: null, refreshConfig: () => {}, goSection: () => {},
-    setField: (path: string, value: unknown) => setDraft((prev) => setPath(prev, path, value)),
-    resetField: (path: string) => setDraft((prev) => setPath(prev, path, undefined)),
-    ovr: (paths: string[]) => ovrOf(scope, hasOwn(draft, paths), inheritedFrom(sources, paths, scope, chain)),
+    scope: 'global', admin, canEdit: admin, draft, effective: response.effective, presets: null, snapshot: null,
+    response, connection: { writable: true }, refreshConfig: () => {
+      const next = onRefresh?.()
+      if (next) { setFresh(next); setDraft(next.target.config) }
+    }, goSection: vi.fn(),
+    appModelsError, retryAppModels,
+    saveAppModels: async (mutate: (config: Config) => Config) => {
+      const next = mutate(draft)
+      onSave?.(next)
+      setDraft(next)
+      return true
+    },
   } as unknown as SettingsContext
   return <RolesSection ctx={ctx} />
 }
 
-async function mount(props?: Parameters<typeof Harness>[0]) {
+async function mount(props: HarnessProps = {}) {
   const container = document.createElement('div')
   document.body.append(container)
   const root = createRoot(container)
@@ -56,6 +82,7 @@ async function mount(props?: Parameters<typeof Harness>[0]) {
 }
 const row = (container: HTMLElement, key: string) => container.querySelector<HTMLElement>(`[data-role="${key}"]`)!
 const picker = (container: HTMLElement, key: string) => row(container, key).querySelector<HTMLButtonElement>('[role="combobox"]')!
+const levels = (container: HTMLElement, key: string) => [...row(container, key).querySelectorAll<HTMLElement>('[role="radio"]')]
 const chooseModel = async (container: HTMLElement, key: string, label: string) => {
   await act(async () => { picker(container, key).click() })
   const option = [...row(container, key).querySelectorAll<HTMLElement>('[role="option"]')].find((node) => node.textContent?.includes(label))
@@ -63,100 +90,123 @@ const chooseModel = async (container: HTMLElement, key: string, label: string) =
   await act(async () => { option!.click() })
 }
 
-describe('Trợ lý AI ở cấp truyện', () => {
-  it('đổi cách chạy ở dự án giữ hai lựa chọn độc lập và bật tắt lại được', async () => {
-    const container = await mount({ scope: 'project' })
-    const review = container.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Duyệt từng chương (truyện mới)"]')!
-    const ask = container.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Trọng tài hỏi bạn khi phân vân"]')!
-    expect(review).not.toBeNull()
-    expect(ask).not.toBeNull()
-    expect(review.getAttribute('aria-checked')).toBe('false')
-    await act(async () => review.click())
-    expect(review.getAttribute('aria-checked')).toBe('true')
-    expect(ask.getAttribute('aria-checked')).toBe('false')
-    await act(async () => ask.click())
-    expect(ask.getAttribute('aria-checked')).toBe('true')
-    expect(review.getAttribute('aria-checked')).toBe('true')
-    await act(async () => review.click())
-    expect(review.getAttribute('aria-checked')).toBe('false')
-    expect(ask.getAttribute('aria-checked')).toBe('true')
-  })
-
-  it('đổi model Người viết → nhãn “Riêng truyện này”; nút “Theo dự án” xoá khoá và nhãn về “Theo dự án”', async () => {
-    const container = await mount()
-    const writer = () => row(container, 'writer')
-    expect(writer().querySelector('.st-ovr')!.textContent).toBe('Theo dự án')
-    expect(writer().querySelector('button.hov-ghost')).toBeNull()
-
-    await chooseModel(container, 'writer', 'gpt-6.1-sol')
-    expect(writer().querySelector('.st-ovr')!.textContent).toBe('Riêng truyện này')
+describe('Trợ lý AI — model dùng chung, lưu ngay', () => {
+  it('quản trị đổi model → thấy ngay, một bản cấu hình hoàn chỉnh, không có nút Lưu', async () => {
+    const saves: Config[] = []
+    const container = await mount({ onSave: (next) => saves.push(next) })
     expect(picker(container, 'writer').textContent).toContain('gpt-6.1-sol')
-    const reset = [...writer().querySelectorAll('button')].find((button) => button.textContent === 'Theo dự án')!
-    expect(reset).toBeTruthy()
-
-    await act(async () => { reset.click() })
-    expect(writer().querySelector('.st-ovr')!.textContent).toBe('Theo dự án')
+    await chooseModel(container, 'writer', 'gpt-6-luna')
     expect(picker(container, 'writer').textContent).toContain('gpt-6-luna')
-  })
-
-  it('đổi mức suy nghĩ cũng tạo khoá riêng và chép đủ provider+model để tệp truyện vẫn hợp lệ', async () => {
-    const container = await mount()
-    const high = [...row(container, 'writer').querySelectorAll('[role="radio"]')].find((node) => node.textContent === 'Cao') as HTMLElement
-    await act(async () => { high.click() })
-    expect(row(container, 'writer').querySelector('.st-ovr')!.textContent).toBe('Riêng truyện này')
-  })
-
-  it('Trọng tài không có hàng riêng; ghi rõ dùng Mặc định', async () => {
-    const container = await mount()
-    expect(container.textContent).toContain('Trọng tài luôn dùng model “Mặc định”.')
-    expect(container.querySelectorAll('select')).toHaveLength(0)
-    expect(container.querySelectorAll('[role="combobox"]')).toHaveLength(4)
-  })
-
-  it('hiện nguồn thật, ngưỡng tóm tắt và phạm vi áp dụng', async () => {
-    const container = await mount()
-    const trigger = row(container, 'writer').querySelector<HTMLButtonElement>('[data-context-trigger]')!
-    expect(trigger?.textContent).toContain('dự phòng')
-    await act(async () => trigger.click())
-    expect(container.textContent).toContain('170K')
-    expect(container.textContent).toContain('mọi trợ lý và mọi truyện')
-    expect(row(container, 'default').textContent).toContain('tự nhận')
-  })
-
-  it('chỉ quản trị có Lưu, người viết chỉ xem', async () => {
-    const container = await mount({ admin: false })
-    await act(async () => row(container, 'writer').querySelector<HTMLButtonElement>('[data-context-trigger]')!.click())
+    expect(saves).toHaveLength(1)
+    // Một lần ghi có đủ provider + model của vai, không phải hai lần ghi rời.
+    expect(getPath(saves[0], 'roles.writer.provider')).toBe('openai')
+    expect(getPath(saves[0], 'roles.writer.model')).toBe('gpt-6-luna')
+    expect(getPath(saves[0], 'provider')).toBe('openai')
     expect([...container.querySelectorAll('button')].some((button) => button.textContent === 'Lưu')).toBe(false)
-    expect(container.querySelector<HTMLButtonElement>('[role="dialog"] button[role="radio"]')?.disabled).toBe(true)
   })
 
-  it('quản trị lưu theo model ở cấp toàn cục và Tự nhận xoá giá trị riêng', async () => {
+  it('mức suy luận đúng danh sách máy chủ trả theo model, có “Tự động” và “Tối thiểu”', async () => {
     const container = await mount()
-    const open = () => row(container, 'writer').querySelector<HTMLButtonElement>('[data-context-trigger]')!.click()
-    await act(async () => open())
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent?.includes('Khi chạy qua máy chủ riêng'))!.click())
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === '128K')!.click())
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Lưu')!.click())
-    expect(vi.mocked(putConfig).mock.calls.at(-1)?.[0]).toBe('global')
-    expect(vi.mocked(putConfig).mock.calls.at(-1)?.[1].providers?.openai.models?.find((model) => model.name === 'gpt-6-luna')?.context_window).toBe(128000)
-    await act(async () => open())
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent?.includes('Mức dự phòng'))!.click())
-    await act(async () => [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Lưu')!.click())
-    expect(vi.mocked(putConfig).mock.calls.at(-1)?.[1].providers?.openai.models?.find((model) => model.name === 'gpt-6-luna')).not.toHaveProperty('context_window')
+    expect(levels(container, 'writer').map((node) => node.textContent)).toEqual(['Tự động', 'Thấp', 'Vừa', 'Cao', 'Rất cao'])
+    await chooseModel(container, 'writer', 'gpt-6-luna')
+    expect(levels(container, 'writer').map((node) => node.textContent)).toEqual(['Tự động', 'Thấp', 'Vừa', 'Cao'])
+    expect(container.textContent).toContain('3 mức của gpt-6-luna')
   })
 
-  it('kiểm tra 8–2.000 nghìn và mở lên ở hàng sát đáy; Esc đóng', async () => {
-    const container = await mount()
-    const trigger = row(container, 'editor').querySelector<HTMLButtonElement>('[data-context-trigger]')!
-    trigger.getBoundingClientRect = () => ({ top: 740, bottom: 776, left: 100, right: 276, width: 176, height: 36, x: 100, y: 740, toJSON() {} })
-    await act(async () => trigger.click())
-    expect(container.querySelector('[role="dialog"]')?.getAttribute('data-placement')).toBe('top')
-    const custom = [...container.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(button => button.textContent?.includes('Khi chạy qua máy chủ riêng'))!
-    await act(async () => custom.click())
-    const input = container.querySelector<HTMLInputElement>('input[type="number"]')!
-    await act(async () => { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, '7'); input.dispatchEvent(new Event('input', { bubbles: true })); input.dispatchEvent(new Event('change', { bubbles: true })) })
-    expect([...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Lưu')?.disabled).toBe(true)
-    await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
-    expect(container.querySelector('[role="dialog"]')).toBeNull()
+  it('đổi model làm mức đang chọn không còn hợp lệ → về Tự động và nói rõ mức cũ', async () => {
+    const initial: Config = { ...globalDoc, roles: { writer: { provider: 'openai', model: 'gpt-6.1-sol', reasoning_effort: 'xhigh' } } }
+    const saves: Config[] = []
+    const container = await mount({ initial, onSave: (next) => saves.push(next) })
+    expect(levels(container, 'writer').find((node) => node.textContent === 'Rất cao')?.getAttribute('aria-checked')).toBe('true')
+    await chooseModel(container, 'writer', 'gpt-6-luna')
+    expect(getPath(saves.at(-1), 'roles.writer.reasoning_effort')).toBe('')
+    expect(levels(container, 'writer')[0].getAttribute('aria-checked')).toBe('true')
+    expect(container.textContent).toContain('Mức Rất cao không có ở gpt-6-luna — đã về Tự động.')
+  })
+
+  it('chọn mức suy luận ghi ngay, chép provider+model khi vai đang theo Mặc định', async () => {
+    const saves: Config[] = []
+    const container = await mount({ onSave: (next) => saves.push(next) })
+    const high = levels(container, 'architect').find((node) => node.textContent === 'Cao')!
+    await act(async () => { high.click() })
+    expect(saves).toHaveLength(1)
+    expect(getPath(saves[0], 'roles.architect.provider')).toBe('openai')
+    expect(getPath(saves[0], 'roles.architect.model')).toBe('gpt-6.1-sol')
+    expect(getPath(saves[0], 'roles.architect.reasoning_effort')).toBe('high')
+    expect(high.getAttribute('aria-checked')).toBe('true')
+  })
+
+  it('người viết chỉ xem: thấy ghi chú, không đổi được model hay mức', async () => {
+    const container = await mount({ admin: false })
+    expect(container.textContent).toContain('Model dùng chung cho mọi người nên chỉ quản trị đổi được.')
+    expect(picker(container, 'writer').disabled).toBe(true)
+    expect(levels(container, 'writer').every((node) => (node as HTMLButtonElement).disabled)).toBe(true)
+  })
+
+  it('lưu lỗi: giữ lựa chọn đã lưu trước đó và có nút Thử lại', async () => {
+    const container = await mount({ error: 'Mất kết nối máy chủ. Đang dùng lựa chọn đã lưu trước đó — bấm Thử lại để lưu lại.' })
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain('Đang dùng lựa chọn đã lưu trước đó')
+    const retry = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Thử lại')!
+    expect(retry).toBeTruthy()
+    await act(async () => { retry.click() })
+    expect(container.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it('hết hạn gói: thẻ Bắt sửa, chuyển cả loạt và Hoàn tác được', async () => {
+    const response = responseOf({ accounts: { openai: { expired: true } } as unknown as ConfigResponse['accounts'] })
+    const container = await mount({ response })
+    expect(container.textContent).toContain('ChatGPT đã hết hạn gói')
+    expect(container.textContent).toContain('Bắt sửa')
+    const swap = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent?.startsWith('Chuyển 4 trợ lý sang'))!
+    expect(swap).toBeTruthy()
+    await act(async () => { swap.click() })
+    expect(swapProvider).toHaveBeenCalledWith('openai', 'deepseek', 'deepseek-chat', 'w')
+    expect(container.textContent).toContain('Đã chuyển 4 trợ lý sang nhà cung cấp khác')
+    const undo = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Hoàn tác')!
+    await act(async () => { undo.click() })
+    expect(undoSwapProvider).toHaveBeenCalledWith('undo-1')
+    expect(container.textContent).toContain('ChatGPT đã hết hạn gói')
+  })
+
+  it('Hoàn tác vẫn còn sau khi refresh đổi model chính sang nhà cung cấp không lỗi', async () => {
+    const healthy: Config = { ...globalDoc, provider: 'deepseek', model: 'deepseek-chat', roles: {} }
+    const container = await mount({
+      response: responseOf({ providerErrors: { openai: { kind: 'expired', message: '' } } }),
+      onRefresh: () => responseOf({ target: { ...responseOf().target, config: healthy }, effective: healthy, version: 'w2', providerErrors: { openai: { kind: 'expired', message: '' } } }),
+    })
+    const swap = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent?.startsWith('Chuyển 4 trợ lý sang'))!
+    await act(async () => { swap.click() })
+    expect(picker(container, 'default').textContent).toContain('deepseek-chat')
+    const undo = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Hoàn tác')
+    expect(undo).toBeTruthy()
+    await act(async () => { undo!.click() })
+    expect(undoSwapProvider).toHaveBeenCalledWith('undo-1')
+  })
+
+  it('quota là tạm thời: Cảnh báo, giờ thử lại, không mời đổi nhà cung cấp', async () => {
+    const retryAt = new Date(Date.now() + 4 * 60_000).toISOString()
+    const response = responseOf({ providerErrors: { openai: { kind: 'quota', message: '', retryAt } } })
+    const container = await mount({ response })
+    expect(container.textContent).toContain('ChatGPT tạm hết lượt')
+    expect(container.textContent).toContain('Cảnh báo')
+    expect(container.textContent).toContain('tự thử lại lúc')
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent?.startsWith('Chuyển'))).toBe(false)
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent?.startsWith('Đăng nhập lại'))).toBe(false)
+  })
+
+  it('khoá hỏng: nói rõ nhập khoá mới cho đúng nhà cung cấp', async () => {
+    const response = responseOf({ providerErrors: { openai: { kind: 'key', message: 'invalid_api_key' } } })
+    const container = await mount({ response })
+    expect(container.textContent).toContain('Khoá ChatGPT không còn dùng được')
+    expect([...container.querySelectorAll('button')].some((button) => button.textContent === 'Nhập khoá mới ChatGPT')).toBe(true)
+    const tech = [...container.querySelectorAll<HTMLButtonElement>('button')].find((button) => button.textContent === 'Chi tiết kỹ thuật')!
+    await act(async () => { tech.click() })
+    expect(container.textContent).toContain('provider=openai · kind=key')
+  })
+
+  it('dự phòng đang lỗi hiện đúng loại lỗi trên chip', async () => {
+    const response = responseOf({ providerErrors: { deepseek: { kind: 'key', message: '' } } })
+    const container = await mount({ response })
+    expect(container.textContent).toContain('1 · deepseek-chat · khoá không dùng được')
   })
 })

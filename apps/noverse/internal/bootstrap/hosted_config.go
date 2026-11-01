@@ -6,7 +6,6 @@ import (
 	"log/slog"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
-	"github.com/datnt1998/verse/core/llmconfig"
 )
 
 // LoadHostedConfigChain uses the server's global credentials/config as the base
@@ -35,12 +34,29 @@ func LoadHostedConfigChain(ctx context.Context, docs *postgres.ConfigDocuments, 
 		if scope == "story" {
 			id = story
 		}
-		data, _, err := docs.Get(ctx, actor, project, id)
+		data, version, err := docs.Get(ctx, actor, project, id)
 		if err != nil {
 			return nil, Config{}, err
 		}
 		level := ConfigLevel{Scope: scope, Raw: map[string]any{}}
 		if data != nil {
+			// AU1: xoá ghim provider/model khỏi chính tài liệu đã lưu, giữ nguyên
+			// mọi thiết lập khác (văn phong, ngân sách, quy tắc…). Chỉ lớp ghi
+			// được mới ghi lại; lỗi/đua ghi không chặn đường đọc — lớp hiệu lực
+			// vẫn bị bỏ ghim trong bộ nhớ bên dưới.
+			migrated, mchanged, merr := MigrateConfigDocument(data)
+			if merr != nil {
+				slog.Warn("dọn ghim provider/model cũ khỏi tài liệu cấu hình thất bại", "module", "config", "scope", scope, "err", merr)
+			} else if mchanged {
+				if actor == nil {
+					slog.Warn("tài liệu cấu hình còn ghim provider/model nhưng không có người ghi để dọn", "module", "config", "scope", scope)
+				} else if err := docs.Put(ctx, actor, project, id, migrated, fmt.Sprintf("pgc-%d", version)); err != nil {
+					slog.Warn("ghi tài liệu cấu hình đã dọn ghim thất bại", "module", "config", "scope", scope, "err", err)
+				} else {
+					data = migrated
+					slog.Info("đã dọn ghim provider/model cũ khỏi tài liệu cấu hình cấp "+scopeLabel(scope), "module", "config", "project", project)
+				}
+			}
 			cfg, raw, err := ParseConfigDocument(data)
 			if err != nil {
 				return nil, Config{}, fmt.Errorf("phân tích cấu hình cấp %s thất bại: %w", scopeLabel(scope), err)
@@ -60,14 +76,9 @@ func LoadHostedConfigChain(ctx context.Context, docs *postgres.ConfigDocuments, 
 // layer documents can reach the repository through other writers, so the
 // merge enforces the invariant itself. Everything else still overrides.
 func HostedLayerConfig(cfg Config) Config {
-	if len(cfg.Providers) > 0 {
-		providers := make(map[string]llmconfig.ProviderConfig, len(cfg.Providers))
-		for name, pc := range cfg.Providers {
-			pc.Type, pc.BaseURL, pc.Extra = "", "", nil
-			providers[name] = pc
-		}
-		cfg.Providers = providers
-	}
+	// Provider/model/mức suy luận dùng chung cả app: lớp dự án/truyện không
+	// được ghim provider cũ (model_scope.go). Phần còn lại vẫn ghi đè như cũ.
+	cfg = StripModelSelection(cfg)
 	cfg.TTS.Endpoint = ""
 	return cfg
 }

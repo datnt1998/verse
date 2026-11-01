@@ -229,6 +229,8 @@ func (h *Host) prepareProviderDraftLocked(draft ModelConfigurationDraft) (prepar
 
 // ConfigureModels 校验、持久化并热应用一个 provider 的模型库。
 func (h *Host) ConfigureModels(draft ModelConfigurationDraft) error {
+	h.modelSelectionMu.Lock()
+	defer h.modelSelectionMu.Unlock()
 	h.mu.Lock()
 	defer h.mu.Unlock()
 

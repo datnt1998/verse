@@ -11,9 +11,10 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
 	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
+	"github.com/datnt1998/verse/core/roles"
 )
 
-func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
+func TestHostedLedgerUsesGlobalArchitectAcrossScopes(t *testing.T) {
 	f := provisionHostedGateway(t, "ledger-config", "story")
 	tg := &testGateway{t: t, g: f.g}
 	owner := tg.login("hosted-owner", "mat-khau-12345")
@@ -30,8 +31,8 @@ func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
 			return
 		}
 		calls.Add(1)
-		if request.Model != "project-architect" {
-			http.Error(w, "ledger must select the project architect", http.StatusBadRequest)
+		if request.Model != "global-architect" {
+			http.Error(w, "ledger must select the app-wide architect", http.StatusBadRequest)
 			return
 		}
 		proposal, err := json.Marshal(ledger.Proposal{Values: values, Brief: "Yêu cầu đã đổi", Changed: []int{4, 6}})
@@ -46,11 +47,15 @@ func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
 		})
 	}))
 	t.Cleanup(server.Close)
-	// Credentials are global; the default model and architect selection live only
-	// in the project document. A sibling story override must not affect the ledger.
-	global := bootstrap.Config{Providers: map[string]llmconfig.ProviderConfig{
-		"ledger": {Type: "openai", APIKey: "test-only", BaseURL: server.URL + "/v1"},
-	}}
+	// AU: credentials and every model/role selection are app-wide. Legacy
+	// project/story pins cannot redirect the ledger to a stale provider/model.
+	global := bootstrap.Config{
+		Provider: "ledger", ModelName: "global-default",
+		Roles: map[string]roles.RoleConfig{"architect": {Provider: "ledger", Model: "global-architect"}},
+		Providers: map[string]llmconfig.ProviderConfig{
+			"ledger": {Type: "openai", APIKey: "test-only", BaseURL: server.URL + "/v1"},
+		},
+	}
 	if err := bootstrap.SaveConfig(bootstrap.DefaultConfigPath(), global); err != nil {
 		t.Fatal(err)
 	}
@@ -69,7 +74,7 @@ func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
 		t.Run(action, func(t *testing.T) {
 			w := tg.do(http.MethodPost, base+"/"+action, owner, `{"brief":"Yêu cầu truyện"}`)
 			if w.Code != http.StatusOK {
-				t.Fatalf("hosted ledger %s must use project config: %d %s", action, w.Code, w.Body.String())
+				t.Fatalf("hosted ledger %s must use app-wide config: %d %s", action, w.Code, w.Body.String())
 			}
 			var response struct {
 				Values ledger.Values `json:"values"`
@@ -79,7 +84,7 @@ func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
 				t.Fatal(err)
 			}
 			if response.Values != values || action == "suggest" && response.Brief != "Yêu cầu đã đổi" {
-				t.Fatalf("wrong project architect result: %s", w.Body.String())
+				t.Fatalf("wrong app-wide architect result: %s", w.Body.String())
 			}
 		})
 	}
@@ -96,18 +101,35 @@ func TestHostedLedgerProjectArchitectConfig(t *testing.T) {
 	if calls.Load() != before {
 		t.Fatal("denied request invoked the model")
 	}
-	// Broken project configuration must fail closed, not read gateway cwd or
-	// silently use a working global model instead.
-	global.Provider, global.ModelName = "ledger", "project-architect"
+	// A forged stale project pin is ignored and physically migrated, while
+	// unrelated project settings survive.
+	put("", `{"roles":{"architect":{"provider":"missing","model":"invalid"}},"style":"romance"}`)
+	w := tg.do(http.MethodPost, base+"/check", owner, `{"brief":"Yêu cầu truyện"}`)
+	if w.Code != http.StatusOK || calls.Load() != before+1 {
+		t.Fatalf("legacy scoped pin redirected ledger: %d %s", w.Code, w.Body.String())
+	}
+	stored, _, err := docs.Get(t.Context(), actor, f.project, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var migrated map[string]any
+	if err := json.Unmarshal(stored, &migrated); err != nil {
+		t.Fatal(err)
+	}
+	if _, pinned := migrated["roles"]; pinned || migrated["style"] != "romance" {
+		t.Fatalf("migration lost non-model data or retained the role pin: %s", stored)
+	}
+	// Invalid global selection still fails closed without invoking an upstream.
+	before = calls.Load()
+	global.Roles["architect"] = roles.RoleConfig{Provider: "missing", Model: "invalid"}
 	if err := bootstrap.SaveConfig(bootstrap.DefaultConfigPath(), global); err != nil {
 		t.Fatal(err)
 	}
-	put("", `{"roles":{"architect":{"provider":"missing","model":"invalid"}}}`)
-	w := tg.do(http.MethodPost, base+"/check", owner, `{"brief":"Yêu cầu truyện"}`)
+	w = tg.do(http.MethodPost, base+"/check", owner, `{"brief":"Yêu cầu truyện"}`)
 	if w.Code != http.StatusBadGateway || calls.Load() != before {
-		t.Fatalf("invalid project config fell back to global: %d %s (calls %d -> %d)", w.Code, w.Body.String(), before, calls.Load())
+		t.Fatalf("invalid app-wide config did not fail closed: %d %s", w.Code, w.Body.String())
 	}
-	global.Provider, global.ModelName = "", ""
+	global.Provider, global.ModelName, global.Roles = "", "", nil
 	if err := bootstrap.SaveConfig(bootstrap.DefaultConfigPath(), global); err != nil {
 		t.Fatal(err)
 	}

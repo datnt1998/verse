@@ -28,3 +28,40 @@ func changedRoutingField(saved, next bootstrap.Config) string {
 	}
 	return ""
 }
+
+// changedAppWideField reports (in Vietnamese) the first provider/model choice
+// in a project or story layer that differs from what the layer already stores.
+// The owner decided (02/11) that provider, model, reasoning effort and
+// fallbacks apply to the whole app: a story that pinned its own provider kept
+// writing with an expired subscription after the shared provider was switched.
+// Echoing a stored value is allowed so an older client that saves the whole
+// layer keeps working; the value is stripped before it is written back, which
+// migrates the stale pin away.
+func changedAppWideField(saved, next bootstrap.Config) string {
+	modelMessage := "Model và mức suy luận dùng chung cho cả ứng dụng — đổi ở Tuỳ chỉnh › Trợ lý AI, không đặt riêng cho dự án hoặc truyện"
+	if next.Provider != "" && next.Provider != saved.Provider {
+		return modelMessage
+	}
+	if next.ModelName != "" && next.ModelName != saved.ModelName {
+		return modelMessage
+	}
+	if next.ReasoningEffort != "" && next.ReasoningEffort != saved.ReasoningEffort {
+		return modelMessage
+	}
+	for key, role := range next.Roles {
+		old := saved.Roles[key]
+		if (role.Provider != "" && role.Provider != old.Provider) ||
+			(role.Model != "" && role.Model != old.Model) ||
+			(role.ReasoningEffort != "" && role.ReasoningEffort != old.ReasoningEffort) ||
+			(len(role.Fallbacks) > 0 && !reflect.DeepEqual(role.Fallbacks, old.Fallbacks)) {
+			return modelMessage
+		}
+	}
+	for name, pc := range next.Providers {
+		old := saved.Providers[name]
+		if len(pc.Models) > 0 && !reflect.DeepEqual(pc.Models, old.Models) {
+			return "Danh sách model dùng chung cho cả ứng dụng — thêm hoặc bớt model ở Kết nối AI, không đặt riêng cho dự án hoặc truyện"
+		}
+	}
+	return ""
+}

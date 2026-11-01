@@ -1,12 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import { COMMANDS } from '../../../../mock/data'
 import type { HostEvent, Snapshot, User } from '../../../api/types'
-import { agentStatus, COMMAND_SHORT, composerPrefill, hasMobileResult, MAX_COMPOSER, retryText, writingPercent, WRITING_STEPS, mobileInitialValues, resultHref, reviewScore, workState, workspaceActions } from './logic'
+import { agentStatus, COMMAND_SHORT, composerPrefill, hasMobileResult, MAX_COMPOSER, providerStoppedRole, retryText, writingPercent, WRITING_STEPS, mobileInitialValues, resultHref, reviewScore, workState, workspaceActions } from './logic'
 
 const snapshot = (patch: Partial<Snapshot> = {}) => ({ runtimeState: 'idle', phase: 'writing', isRunning: false, waitingFor: '', advanceMode: 'auto', advancePermitChapter: 25, completedCount: 24, currentChapter: 25, ...patch }) as Snapshot
 const failed = { failed: true, level: 'error' } as HostEvent
 
 describe('M1 state and navigation', () => {
+  it('projects classified provider failure to the actual failed or latest active agent, never always the writer', () => {
+    const agents = [{ name: 'writer', state: 'running', updatedAt: '2026-11-02T04:00:00Z' }, { name: 'editor', state: 'error', updatedAt: '2026-11-02T03:59:00Z' }] as Snapshot['agents']
+    const stopped = snapshot({ agents, providerError: { provider: 'openai', kind: 'expired', message: '' } })
+    expect(providerStoppedRole(stopped)).toBe('editor')
+    expect(providerStoppedRole(snapshot({ ...stopped, isRunning: true }))).toBeNull()
+    expect(providerStoppedRole(snapshot({ agents }))).toBeNull()
+    expect(providerStoppedRole(snapshot({ ...stopped, agents: agents!.map((agent) => ({ ...agent, state: 'running' })) }))).toBe('writer')
+    const context = { state: 'idle' as const, stale: false, active: false, task: '', nextChapter: 4, queued: false }
+    expect(agentStatus('editor', { ...context, providerStop: 'expired' })).toBe('Dừng do lỗi')
+    expect(agentStatus('editor', { ...context, providerStop: 'quota' })).toBe('Chờ lượt, sẽ tự thử lại')
+    expect(agentStatus('writer', context)).toBe('Đang chờ')
+  })
+
   it('hides writer and export actions for a story reader on phone and tablet (18-mobile §M2, POST /exports needs write)', () => {
     const reader: User = { username: 'lan', name: 'Lan', role: 'member', projects: { p: 'view' }, disabled: false, createdAt: '', updatedAt: '', onboardedAt: null, mustChangePassword: false, lastSeenAt: null }
     for (const tablet of [false, true]) {

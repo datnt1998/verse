@@ -5,7 +5,7 @@ import type { PageId } from '../lib/target'
 import { storyLabel } from '../../../shell/labels'
 
 /** Mục có 3 cấp (21-dev-prompt.md › Gói R, R3): chỉ những mục này mới hiện thanh “Áp dụng cho”. */
-export const SCOPED_SECTIONS: readonly PageId[] = ['models', 'budget', 'info']
+export const SCOPED_SECTIONS: readonly PageId[] = ['run', 'budget', 'info']
 
 export const showsScope = (section: PageId): boolean => SCOPED_SECTIONS.includes(section)
 

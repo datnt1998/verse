@@ -27,7 +27,8 @@ export type AgentRole = 'writer' | 'architect' | 'editor' | 'arbiter'
  * Dòng trạng thái dưới tên trợ lý trong dải M1 (MWork.dc.html › `AGS`): Người viết theo trạng thái truyện
  * (đang chạy → bước hiện tại, mất mạng → “—”), ba trợ lý còn lại chờ lệnh; đang chạy thật thì ghi việc đang làm.
  */
-export function agentStatus(role: AgentRole, ctx: { state: WorkState | null; stale: boolean; active: boolean; task: string; nextChapter: number; queued: boolean }): string {
+export function agentStatus(role: AgentRole, ctx: { state: WorkState | null; stale: boolean; active: boolean; task: string; nextChapter: number; queued: boolean; providerStop?: string }): string {
+  if (ctx.providerStop) return ctx.providerStop === 'quota' ? 'Chờ lượt, sẽ tự thử lại' : 'Dừng do lỗi'
   if (role === 'writer') {
     if (ctx.state === null) return '—'
     if (ctx.state === 'running') return ctx.stale ? '—' : ctx.task
@@ -37,6 +38,21 @@ export function agentStatus(role: AgentRole, ctx: { state: WorkState | null; sta
   if (role === 'architect') return ctx.state === 'done' ? 'Đã xong' : 'Chờ lệnh'
   if (role === 'editor') return ctx.state === 'done' ? 'Đã xong' : `Chờ chương ${ctx.nextChapter}`
   return ctx.queued ? 'Chờ góp ý' : 'Gọi khi cần'
+}
+
+/** Snapshot không gắn lỗi nhà cung cấp vào một vai: ưu tiên trợ lý báo lỗi, rồi trợ lý hoạt động gần nhất. */
+export function providerStoppedRole(snapshot: Snapshot | null | undefined): AgentRole | null {
+  if (!snapshot?.providerError || snapshot.isRunning) return null
+  let selected: NonNullable<Snapshot['agents']>[number] | undefined
+  let selectedPriority = 0
+  for (const agent of snapshot.agents ?? []) {
+    const priority = ['error', 'failed'].includes(agent.state) ? 2 : ['running', 'working', 'thinking', 'tool'].includes(agent.state) ? 1 : 0
+    if (!priority || (selected && (priority < selectedPriority || (priority === selectedPriority && agent.updatedAt <= selected.updatedAt)))) continue
+    selected = agent
+    selectedPriority = priority
+  }
+  const name = selected?.name.toLowerCase()
+  return name ? (['writer', 'architect', 'editor', 'arbiter'] as const).find((role) => name.includes(role)) ?? null : null
 }
 
 /** Băng mất kết nối (MWork.dc.html › `retryText`). */

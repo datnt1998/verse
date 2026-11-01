@@ -330,7 +330,7 @@ Con trỏ khi đang stream: chu kỳ `· ✢ ✳ ✶ ✻ ✽` (màu `round-star`
 - Chỉ **quy tắc và văn phong** bỏ cấp global: `/api/config?scope=global` không trả `style` trong `target.config`, `chain[].config`, `effective`, `sources`; ghi `style` ở cấp global trả 400. Chuỗi cấu hình dự án/truyện không thừa hưởng `style` global; chưa chọn dùng gói “Chung” tích hợp của Noverse. Provider, model, khoá truy cập và các cài đặt hệ thống vẫn giữ cấp global như cũ.
 
 - Bài học **Não hệ thống** đã duyệt với `scope=all` không phải quy tắc global do người dùng viết: vẫn được chốt cho truyện mới như mặc định Noverse, nguồn **`default:lessons`** (nguồn cũ `global:lessons` được đổi nhãn khi đọc, không đổi nội dung). Không sinh mục/nhóm “Mọi truyện” trong phản hồi hiệu lực. Bài học riêng gói giữ nguồn `pack:*`; truyện cũ không tự nhận các bài học duyệt sau khi bắt đầu.
-- Dự án **tạo mới sau nâng cấp** bắt đầu với quy tắc trống, không chép lại các tệp global đã nghỉ dùng. `shareGlobal` chỉ còn chọn kế thừa/chốt cấu hình trợ lý AI; không kéo theo quy tắc hoặc văn phong global.
+- Dự án **tạo mới sau nâng cấp** bắt đầu với quy tắc trống, không chép lại các tệp global đã nghỉ dùng. Sau Gói AU, `shareGlobal` không còn chốt lựa chọn trợ lý AI riêng; không kéo theo quy tắc hoặc văn phong global.
 
 ### AP2 — ngưỡng chống giọng văn máy
 
@@ -369,8 +369,19 @@ Hosted: hai API nền truyện đọc kho fact PG theo quyền dự án trước
 
 ## Sao chép quy tắc và lịch sử luồng viết
 
-- `POST /api/projects` nhận `copyRulesFrom?: string` là slug dự án có quyền đọc. Sao chép một lần các tệp quy tắc dự án và `config.style`, không liên kết hai dự án. `shareGlobal` vẫn chỉ điều khiển cấu hình trợ lý. `GET /api/library` và `GET /api/projects` trả mỗi dự án thêm `ruleCount: number` và `style: string` (rỗng là mặc định). `ruleCount` đếm từng dòng quy tắc trong `quy-tac.md`, cộng một cho mỗi tệp quy tắc khác có nội dung; tệp trống không tính.
+- `POST /api/projects` nhận `copyRulesFrom?: string` là slug dự án có quyền đọc. Sao chép một lần các tệp quy tắc dự án và `config.style`, không liên kết hai dự án. `shareGlobal` không còn tách cấu hình trợ lý AI; các thiết lập khác giữ hợp đồng phạm vi hiện có (xem §AU). `GET /api/library` và `GET /api/projects` trả mỗi dự án thêm `ruleCount: number` và `style: string` (rỗng là mặc định). `ruleCount` đếm từng dòng quy tắc trong `quy-tac.md`, cộng một cho mỗi tệp quy tắc khác có nội dung; tệp trống không tính.
 - `GET S/live-history?beforeRound=&limit=20` trả `{rounds, nextBeforeRound}`; `beforeRound` là mốc loại trừ, mặc định tải 20 vòng mới nhất, từng trang sắp theo vòng tăng dần, `nextBeforeRound: number | null`.
 - Mỗi vòng: `{round: number, roundId: string, role: string, title?: string, startedAt: string, operations: []}`; `roundId` là id sự kiện điều phối của vòng (live SSE gửi kèm). `title` chỉ có khi dữ kiện điều phối có cấu trúc đủ xác định; vòng cũ không có thì bỏ qua.
 - Mỗi thao tác: `{id, role, round, roundId?, startedAt, durationMs, status, error, key, params, result}`; `status` là `done | running | error`, `error` là câu tiếng Việt an toàn được dựng từ loại lỗi và ngữ cảnh số chương/cung/tập, không chép lỗi gốc hay khoá, bí mật, đường dẫn. Lỗi không phân loại dùng câu chung; `params` và `result` giữ dữ liệu thô trong chi tiết kỹ thuật. Lịch sử dùng hàng đợi runtime bền sẵn có, không thêm kho thứ hai.
 - SSE `event` loại DISPATCH/TOOL trong Luồng viết mang `id` (id thao tác; DISPATCH trùng `roundId`), `agent`, `role`, `roundId`, `roundStartedAt`, `roundTitle?` để gộp live vào đúng vòng/thẻ; TOOL lỗi có thêm `error` an toàn và lưu bền cùng sự kiện. Các sự kiện khác không bắt buộc có các trường này.
+
+## AU — Lựa chọn AI toàn ứng dụng <a id="au"></a>
+
+Phạm vi và lý do sản phẩm ở [20 · Nhà cung cấp AI](20-settings-rules.md#au-settings). Các kiểu và hành vi máy là nguồn sự thật, không có bản schema viết tay thứ hai:
+
+- Lựa chọn AI và model đang có: [types.ts](../../../web/src/api/types.ts) (`ModelsResponse`, cấu hình toàn cục, kết quả đổi/hoàn tác); [client.ts](../../../web/src/api/client.ts) là các đường gọi của UI. Các API ghi model/mức suy luận theo truyện đã bỏ; `GET /models` chỉ đọc.
+- Máy chủ kiểm quyền quản trị, phạm vi và phiên bản tại [config.go](../../../internal/entry/web/config.go), [version.go](../../../internal/entry/web/version.go). Chỉ ghi AI ở toàn cục; ngân sách và các thiết lập còn lại không mất phạm vi.
+- Đổi hàng loạt/hoàn tác thuộc [config_swap.go](../../../internal/entry/web/config_swap.go). Kết quả chứa các lựa chọn đổi và quyền hoàn tác có hạn; cảnh báo tải lại runtime không được giả thành “chưa lưu” nếu cấu hình đã ghi thành công.
+- Các lựa chọn suy luận lấy từ khả năng của từng model, không từ danh sách segment cố định ở UI. Tên máy và nhãn hiển thị là hai việc khác nhau; giữ giá trị mà model hỗ trợ.
+- `providerError` phân biệt `expired`, `key`, `quota`; `fallback.active` thông báo model dự phòng thực sự đang dùng. Nguồn phân loại tại [provider_failure.go](../../../internal/host/provider_failure.go), định danh yêu cầu/generation tại [models.go](../../../internal/bootstrap/models.go); lỗi của yêu cầu cũ không được gán cho lựa chọn mới.
+- Di trú và ghi tệp dùng cùng cơ chế khoá/snapshot tại [configfile.go](../../../internal/bootstrap/configfile.go), [model_scope.go](../../../internal/bootstrap/model_scope.go). Xung đột phiên bản không được ghi đè âm thầm thay đổi mới hơn.

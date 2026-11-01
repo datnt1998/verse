@@ -8,7 +8,7 @@ import { setTimeout as sleep } from 'node:timers/promises'
 import type { Plugin } from 'vite'
 import type {
   ChapterFacts, ChapterPlan, ChapterMetric, CoCreateState, Config, ConfigAccount, ConfigDoc, ConfigResponse, ConfigScope, ActivityEvent, ActivityHistory, Frame, HostEvent, JobEvent, LibraryConfig, Outline,
-  ProviderPreset, Snapshot, StorySummary, TiredWord, User, AudioVoice, ReviewDecision, ReviewEntry, ReviewItem, Quality, LessonState,
+  ProviderPreset, Snapshot, StorySummary, SwapRow, TiredWord, User, AudioVoice, ReviewDecision, ReviewEntry, ReviewItem, Quality, LessonState,
 } from '../src/api/types'
 import { CHAPTER_EVENTS, CHAPTER_TITLES, COMMANDS, facts, foreshadow, MOCK_FRAME, MOCK_RETENTION_AT, MOCK_RETENTION_CHECKS, MOCK_RETENTION_ROWS, NOW, plans, review3Blocking, review3Clean, review5, review6RuleAware, review9Blocking, reviewEvent3Items, snapshotTraXanh, TRAXANH_CHAPTERS, users } from './data'
 import { audioExportDuration, audioExportText, audioStateOf, DEFAULT_PRONUNCIATIONS, rangeOf, wavFor } from './audio'
@@ -31,7 +31,7 @@ import {
   diagSent, mockDiagReport, mockExportConflict, mockExportDownload, mockExportPath, mockExportResult, mockModels, storedZip,
   mockCoCreateProposal, mockImportPreview, mockSimulateResult, mockSyncChanged, mockSyncDiff, mockSyncResult, simulateTick,
 } from './cmdresults'
-import type { Character, CharacterKind, DiagReport, ImportState, ModelsResponse } from '../src/api/types'
+import type { Character, CharacterKind, DiagReport, ImportState } from '../src/api/types'
 
 /** Bản sửa loại vai / lộ vai của mock (Gói S · PUT /characters) — mất khi tải lại server. */
 const CHARACTER_EDITS = new Map<string, { kind?: CharacterKind; revealAt?: number | null }>()
@@ -81,7 +81,6 @@ import { asciiFileName } from '../src/lib/audioName'
 import { mockLedger, mockLedgerCheck, mockLedgerSuggest, mockUniverse, mockUnkeep, mockProjectSearch, MOCK_NEW_STORY_BRIEF } from './projbrain'
 
 const mockExportedFiles = new Set<string>()
-const commandModels = new Map<string, ModelsResponse>()
 const diagnosticReports = new Map<string, DiagReport>()
 const paragraphFeedback = new Map<string, ParagraphComment[]>()
 /** D5 — khung truyện đã lưu của từng truyện (PUT …/frame); thiếu = trạng thái gói điền sẵn. */
@@ -1027,6 +1026,36 @@ export function mockApiPlugin(): Plugin {
           }))
           broadcast(st, 'delta', { text: '✻ Đọc chương\nchapter: 2\nsource: draft\n\n**Đã đọc chương.**\n\n- Chưa gọi `save_arc_summary`.\n- Cần chọn hướng đi.\n\nBạn muốn tôi tóm tắt cung hay kiểm tra lại chương?' })
           return json(res, 200, { ok: true, story: `${st.p}/${st.s}`, pending: !!body.pending })
+        }
+        // Dựng lỗi nhà cung cấp phân loại + fallback.active để soi màn hình lỗi:
+        // POST /__mock/au-state {kind?: 'expired'|'key'|'quota'|'', fallback?: bool,
+        //                        retryInMin?: số phút (chỉ quota), provider?: id}
+        // kind rỗng → xoá lỗi; /reset dựng lại trạng thái gieo mầm (không có lỗi).
+        if (req.url?.startsWith('/au-state') && req.method === 'POST') {
+          const body = (await readBody(req)) as { kind?: string; fallback?: boolean; retryInMin?: number; provider?: string; story?: string; warning?: string }
+          const provider = body.provider || 'openai-codex'
+          auState.kind = body.kind === 'expired' || body.kind === 'key' || body.kind === 'quota' ? body.kind : null
+          auState.provider = provider
+          auState.retryAt = auState.kind === 'quota' ? iso(Date.now() + Math.max(1, body.retryInMin ?? 4) * 60_000) : ''
+          auState.warning = body.warning ?? ''
+          auState.fallback = !!body.fallback
+          const st = stories.get(body.story ?? 'dit-dang-audio/01-tra-xanh-cuop-kich-ban')
+          if (st) {
+            st.snapshot = {
+              ...st.snapshot,
+              providerError: auState.kind
+                ? { provider, kind: auState.kind, message: auMessage(auState.kind, provider), retryAt: auState.retryAt || undefined }
+                : null,
+              fallback: auState.fallback
+                ? { active: true, role: 'writer', provider: 'anthropic', model: 'claude-sonnet-4', fromProvider: provider, fromModel: 'gpt-5.4', reason: auState.kind ?? 'quota', since: iso(NOW - 90_000) }
+                : null,
+              isRunning: !auState.kind,
+              runtimeState: auState.kind ? 'idle' : 'running',
+            }
+            broadcast(st, 'snapshot', st.snapshot)
+          }
+          res.writeHead(200, { 'content-type': 'application/json' })
+          return res.end(JSON.stringify({ providerError: auState.kind, fallback: auState.fallback }))
         }
         // POST /__mock/reset {story?: "p/s" hoặc slug} — dựng lại trạng thái gieo mầm.
         if (req.url?.startsWith('/reset') && req.method === 'POST') {
@@ -2744,28 +2773,8 @@ export function mockApiPlugin(): Plugin {
                 return json(res, 200, { ok: true, action: 'start' })
               })
             }
-            if (rest[0] === 'models' || rest[0] === 'thinking') {
-              const key = `${st.p}/${st.s}`
-              const data = commandModels.get(key) ?? mockModels()
-              commandModels.set(key, data)
-              if (req.method === 'POST') {
-                const body = await readBody(req)
-                const role = data.roles.find((entry) => entry.role === body.role)
-                if (!role) return fail(res, 400, 'Vai trợ lý không hợp lệ')
-                if (rest[0] === 'thinking') {
-                  if (!role.thinkingOptions.includes(String(body.level))) return fail(res, 400, 'Model không hỗ trợ mức suy luận này')
-                  role.thinking = String(body.level)
-                } else {
-                  const provider = data.providers.find((entry) => entry.provider === body.provider)
-                  const model = provider?.models.find((entry) => entry.name === body.model)
-                  if (!model) return fail(res, 400, 'Model không có trong danh mục')
-                  role.provider = provider!.provider
-                  role.model = model.name
-                  role.thinkingOptions = model.thinking
-                  if (!model.thinking.includes(role.thinking)) role.thinking = ''
-                }
-                return json(res, 200, { ok: true })
-              }
+            if (rest[0] === 'models' && req.method === 'GET') {
+              const data = mockModels()
               const config = (configStore.get(docKey('global', '', '')) ?? CONFIG_GLOBAL) as Config
               return json(res, 200, { ...data, providers: data.providers.map(provider => ({ ...provider, models: provider.models.map(model => {
                 const own = config.providers?.[provider.provider]?.models?.find(entry => entry.name === model.name)?.context_window
@@ -2825,6 +2834,54 @@ export function mockApiPlugin(): Plugin {
 
         if (seg[0] === 'config') {
           const isAdmin = user!.role === 'admin'
+          if (seg[1] === 'swap-provider' && req.method === 'POST') {
+            if (!isAdmin) return fail(res, 403, 'Chỉ quản trị viên đổi nhà cung cấp')
+            const key = docKey('global', '', '')
+            const versionKey = `config:${key}`
+            const body = await readBody(req)
+            const current = (configStore.get(key) ?? CONFIG_GLOBAL) as Config
+            if (seg[2] === 'undo') {
+              const token = String(body.token ?? '')
+              const saved = mockSwapUndo.get(token)
+              if (!saved || saved.expiresAt < Date.now()) return fail(res, 410, 'Lượt hoàn tác đã hết hạn')
+              if (saved.version !== mockVersion(versionKey)) return fail(res, 409, 'Thiết lập đã thay đổi — không thể hoàn tác lượt này')
+              const restored: Config = { ...current, provider: saved.config.provider, model: saved.config.model, reasoning_effort: saved.config.reasoning_effort, roles: saved.config.roles }
+              configStore.set(key, restored as Record<string, unknown>)
+              mockSwapUndo.delete(token)
+              bumpMockVersion(versionKey)
+              emitGlobalEvent('config.changed', { scope: 'global' })
+              return json(res, 200, { restored: saved.rows.map((row) => ({ role: row.role, from: row.to, to: row.from })), version: mockVersion(versionKey), ...(auState.warning ? { warning: auState.warning } : {}) })
+            }
+            if (mockConflict(req, res, versionKey, configResponse('global', '', ''), body)) return
+            const from = String(body.from ?? '')
+            const to = String(body.to ?? '')
+            const model = String(body.model ?? '') || current.providers?.[to]?.models?.[0]?.name || ''
+            if (!from || from === to || !model || !current.providers?.[to]?.models?.some((entry) => entry.name === model)) return fail(res, 400, 'Chọn nhà cung cấp khác và model đã cấu hình')
+            const next = structuredClone(current)
+            const swapped: SwapRow[] = []
+            if (current.provider === from) {
+              const before = { provider: from, model: current.model ?? '', reasoning_effort: current.reasoning_effort ?? '' }
+              const after = { provider: to, model, reasoning_effort: MOCK_THINKING.get(model)?.includes(before.reasoning_effort) ? before.reasoning_effort : '' }
+              Object.assign(next, after)
+              swapped.push({ role: 'default', from: before, to: after })
+            }
+            for (const [role, entry] of Object.entries(next.roles ?? {})) {
+              if ((!entry.provider && !entry.model) || (entry.provider || current.provider) !== from) continue
+              const before = { provider: entry.provider ?? '', model: entry.model ?? '', reasoning_effort: entry.reasoning_effort ?? '' }
+              const after = { provider: to, model, reasoning_effort: MOCK_THINKING.get(model)?.includes(before.reasoning_effort) ? before.reasoning_effort : '' }
+              Object.assign(entry, after)
+              if (entry.fallbacks) entry.fallbacks = entry.fallbacks.filter((fallback) => fallback.provider !== from && fallback.provider !== to)
+              swapped.push({ role, from: before, to: after })
+            }
+            if (!swapped.length) return fail(res, 400, 'Không có trợ lý nào đang dùng nhà cung cấp này')
+            configStore.set(key, next as Record<string, unknown>)
+            bumpMockVersion(versionKey)
+            const undoToken = crypto.randomUUID()
+            const expiresAt = Date.now() + 30 * 60_000
+            mockSwapUndo.set(undoToken, { config: structuredClone(current), rows: swapped, version: mockVersion(versionKey), expiresAt })
+            emitGlobalEvent('config.changed', { scope: 'global' })
+            return json(res, 200, { swapped, skipped: [], undoToken, expiresAt: iso(expiresAt), version: mockVersion(versionKey), ...(auState.warning ? { warning: auState.warning } : {}) })
+          }
           if (seg[1] === 'presets') {
             return json(res, 200, {
               providers: MOCK_PROVIDER_PRESETS,
@@ -2915,7 +2972,7 @@ export function mockApiPlugin(): Plugin {
             return json(res, 200, { models: entries.map((model) => {
               const own = configured.find((entry) => entry.name === model.name)?.context_window
               const contextWindow = own || config.context_window || model.contextWindow || 200000
-              return { ...model, contextWindow, registryWindow: model.contextWindow, contextSource: own ? 'model_config' : config.context_window ? 'config' : model.contextWindow ? 'registry' : 'default', summaryThreshold: Math.max(0, contextWindow - Math.max(8000, contextWindow - Math.floor(contextWindow * .85))), automaticWindow: config.context_window || model.contextWindow || 200000, automaticSource: config.context_window ? 'config' : model.contextWindow ? 'registry' : 'default' }
+              return { ...model, thinking: MOCK_THINKING.get(model.name) ?? [''], contextWindow, registryWindow: model.contextWindow, contextSource: own ? 'model_config' : config.context_window ? 'config' : model.contextWindow ? 'registry' : 'default', summaryThreshold: Math.max(0, contextWindow - Math.max(8000, contextWindow - Math.floor(contextWindow * .85))), automaticWindow: config.context_window || model.contextWindow || 200000, automaticSource: config.context_window ? 'config' : model.contextWindow ? 'registry' : 'default' }
             }) })
           }
           if (seg[1] === 'account') {
@@ -3202,6 +3259,12 @@ const projectDrafts = new Map<string, CoCreateState>()
 let draftSeq = 0
 // Trạng thái kết nối tài khoản nhà cung cấp: logout → false, OAuth xong → true
 const accountConnected = new Map<string, boolean>()
+// Lỗi nhà cung cấp đã phân loại + dải fallback dùng để soi màn; /__mock/au-state đổi.
+const auState = { kind: null as 'expired' | 'key' | 'quota' | null, provider: 'openai-codex', retryAt: '', fallback: false, warning: '' }
+const auMessage = (kind: string, provider: string): string =>
+  kind === 'expired' ? `${provider} đã hết hạn gói — đăng nhập lại`
+    : kind === 'key' ? `khoá ${provider} không còn dùng được`
+      : `${provider} tạm hết lượt — máy chủ trả Retry-After`
 // Tên hiển thị dự án (project.json › name); tạo mới qua POST /api/projects.
 // Dự án `_` (legacy) không có project.json — serve thật trả name = "_" (11-api-contract.md §3).
 const projectsExtra = new Map<string, string>([['dit-dang-audio', 'Đít Đang Audio'], ['cu-dan', 'Cư Dân'], ['_', '_']])
@@ -3285,6 +3348,16 @@ const MOCK_KEY_PROVIDER_MODELS: Record<string, MockListedModel[]> = {
 const modelListCache = new Map<string, string>()
 
 /**
+ * Mức suy luận model nhận ('' = Tự động) — cùng fixture với /api/models để hai màn
+ * Tuỳ chỉnh và Ghép lệnh thử không lệch nhau. o4-mini chỉ có trong danh sách model
+ * của Codex nên khai báo thêm ở đây.
+ */
+const MOCK_THINKING = new Map<string, string[]>([
+  ...mockModels().providers.flatMap((entry) => entry.models.map((model) => [model.name, model.thinking] as const)),
+  ['o4-mini', ['', 'low', 'medium', 'high']],
+])
+
+/**
  * ProviderModelList của mock: registryWindow = danh mục Noverse (mockModels); recommended =
  * danh mục biết / defaultModel của preset / cờ `sug` của fixture; contextSource =
  * model_config (context_window trong bản nháp) > provider (danh sách báo) > registry > default.
@@ -3325,6 +3398,7 @@ const projectList = () => [...projectsExtra.entries()].map(([id, name]) => {
 // Tên/mô tả/ghi chú/tên vũ trụ của dự án đã PUT (project form auto-save)
 const projectMeta = new Map<string, { description: string; notes: string; universeName: string }>()
 const configStore = new Map<string, Record<string, unknown>>()
+const mockSwapUndo = new Map<string, { config: Config; rows: SwapRow[]; version: string; expiresAt: number }>()
 
 /** OAuth xong/logout: ghi trạng thái kết nối vào config global để GET /api/config thấy sau khi tải lại. */
 const setProviderConnected = (id: string, connected: boolean) => {
@@ -3348,7 +3422,6 @@ const CONFIG_GLOBAL: Config = {
     anthropic: { type: 'anthropic', api: 'chat', base_url: 'https://api.anthropic.com', models: [{ name: 'claude-sonnet-4', context_window: 200000 }], api_key_set: false },
   },
   roles: {
-    default: { provider: 'openai-codex', model: 'gpt-5.4', reasoning_effort: 'high', fallbacks: [{ provider: 'anthropic', model: 'claude-sonnet-4' }] },
     architect: { provider: 'openai-codex', model: 'o4-mini', reasoning_effort: 'medium' },
     writer: { provider: 'openai-codex', model: 'gpt-5.4', reasoning_effort: 'high' },
     editor: { provider: 'openai-codex', model: 'gpt-5.4', reasoning_effort: 'medium' },
@@ -3468,7 +3541,11 @@ function withAccounts(response: ConfigResponse, admin: boolean): ConfigResponse 
       ? { connected: false, label: '', email: '', plan: '', expiresAt: null }
       : mockAccount(id)
   }
-  return { ...response, accounts }
+  if (!auState.kind) return { ...response, accounts }
+  const providerErrors: Record<string, { kind: 'expired' | 'key' | 'quota'; message: string; retryAt?: string }> = {
+    [auState.provider]: { kind: auState.kind, message: auMessage(auState.kind, auState.provider), retryAt: auState.retryAt || undefined },
+  }
+  return { ...response, accounts, providerErrors }
 }
 
 /** Người không phải admin chỉ thấy tên/type/models của provider (11-api-contract.md §6). */
@@ -3602,7 +3679,6 @@ async function deleteMockStory(req: IncomingMessage, res: ServerResponse, user: 
   for (const key of deletedRuleFiles) if (key.startsWith(`${docKey('story', st.p, st.s)}:`)) deletedRuleFiles.delete(key)
   for (const key of paragraphFeedback.keys()) if (key.startsWith(`${id}/`)) paragraphFeedback.delete(key)
   for (const key of mockExportedFiles) if (key.startsWith(`${id}/`)) mockExportedFiles.delete(key)
-  for (const key of commandModels.keys()) if (key === id || key.startsWith(`${id}/`)) commandModels.delete(key)
   for (const key of diagnosticReports.keys()) if (key === id || key.startsWith(`${id}/`)) diagnosticReports.delete(key)
   emitGlobalEvent('library.changed', {})
   emitGlobalEvent('project.changed', { project: st.p })

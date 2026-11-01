@@ -365,7 +365,7 @@ function WorkspaceBody({ project, story }: { project: string; story: string }) {
       if (mobileTab === 'stream') {
         return planning
           ? <PlanPanel snapshot={snapshot} loading={loading} mobile />
-          : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} mobile idleActions={idleActions}
+          : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} mobile idleActions={idleActions} onResume={writable ? resume : undefined}
             gate={gate} review={gateReview} reviewLoading={gateReviewResource.initialLoading}
             gateChapter={gateChapter} onOpenReader={openGateReader} />
       }
@@ -423,7 +423,7 @@ function WorkspaceBody({ project, story }: { project: string; story: string }) {
             results={<CommandResults ctl={commandResults} jobs={jobs} project={project} story={story} />} />
           {planning
             ? <PlanPanel snapshot={snapshot} loading={loading} />
-            : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} idleActions={idleActions}
+            : <LiveStream project={project} story={story} streamText={streamText} isRunning={running} snapshot={snapshot} idleActions={idleActions} onResume={writable ? resume : undefined}
               gate={gate} review={gateReview} reviewLoading={gateReviewResource.initialLoading}
               gateChapter={gateChapter} onOpenReader={openGateReader} />}
         </div>

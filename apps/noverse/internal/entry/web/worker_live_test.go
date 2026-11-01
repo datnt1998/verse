@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -135,17 +134,9 @@ func (h *liveFakeHost) ModelCatalog() []host.CatalogProvider {
 		},
 	}}
 }
-func (h *liveFakeHost) SwitchModel(role, p, m string) error {
-	h.call(fmt.Sprintf("model:%s/%s/%s", role, p, m))
-	return nil
-}
 func (h *liveFakeHost) CurrentThinking(role string) string { return "medium" }
 func (h *liveFakeHost) AvailableThinkingLevels(role string) []string {
 	return []string{"off", "low", "medium", "high"}
-}
-func (h *liveFakeHost) SetRoleThinking(role, level string) error {
-	h.call(fmt.Sprintf("thinking:%s/%s", role, level))
-	return nil
 }
 
 // newLiveServer 直接构造 workerServer（不经 SSE fan-out），供纯 handler 测试。
@@ -596,23 +587,13 @@ func TestModelsEndpoints(t *testing.T) {
 		t.Fatalf("base thinking: %v", th)
 	}
 
-	w = doReq(t, s, "POST", "/api/models", `{"role":"writer","provider":"openrouter","model":"base-model"}`)
-	if w.Code != 200 {
-		t.Fatalf("post models %d: %s", w.Code, w.Body.String())
-	}
-	if got := callsJoined(h); !strings.Contains(got, "model:writer/openrouter/base-model") {
-		t.Fatalf("SwitchModel not called: %s", got)
-	}
-	if w := doReq(t, s, "POST", "/api/models", `{"role":"bogus","provider":"x","model":"y"}`); w.Code != 400 {
-		t.Fatalf("invalid role should 400, got %d", w.Code)
-	}
-
-	w = doReq(t, s, "POST", "/api/thinking", `{"role":"editor","level":"high"}`)
-	if w.Code != 200 {
-		t.Fatalf("thinking %d", w.Code)
-	}
-	if got := callsJoined(h); !strings.Contains(got, "thinking:editor/high") {
-		t.Fatalf("SetRoleThinking not called: %s", got)
+	for _, action := range []struct{ path, body string }{
+		{"models", `{"role":"writer","provider":"openrouter","model":"base-model"}`},
+		{"thinking", `{"role":"editor","level":"high"}`},
+	} {
+		if response := doReq(t, s, "POST", "/api/"+action.path, action.body); response.Code != http.StatusNotFound {
+			t.Fatalf("story AI write through %s: %d %s", action.path, response.Code, response.Body.String())
+		}
 	}
 }
 

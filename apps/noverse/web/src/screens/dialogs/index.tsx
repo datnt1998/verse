@@ -84,7 +84,7 @@ export function AppDialogs({ dialog, route }: { dialog: string; route: Parsed['r
     default:
       // /model hoặc /model:<vai> (14-jobs-dock §2)
       if (dialog === 'model' || dialog.startsWith('model:')) {
-        return withStory((p, s) => <ModelPanel project={p} story={s} role={dialog.slice(6) || undefined} onClose={close} />)
+        return withStory(() => <ModelPanel role={dialog.slice(6) || undefined} onClose={close} />)
       }
       return null
   }

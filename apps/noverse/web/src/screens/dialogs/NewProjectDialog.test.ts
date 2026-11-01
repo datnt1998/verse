@@ -30,12 +30,14 @@ describe('Dự án mới · trùng tên và danh sách có sẵn', () => {
 
   it('tóm tắt theo nguồn quy tắc và trợ lý', () => {
     const shared = newProjectContents(true, null)
-    expect(shared.map((item) => item.name)).toEqual(['Ý tưởng', 'Tư liệu', 'Truyện', 'Quy tắc viết', 'Văn phong', 'Trợ lý AI'])
+    expect(shared.map((item) => item.name)).toEqual(['Ý tưởng', 'Tư liệu', 'Truyện', 'Quy tắc viết', 'Văn phong', 'Trợ lý AI', 'Ngân sách'])
     expect(shared[3].note).toBe('trống')
     expect(shared[4].note).toBe('Chung · mặc định')
-    expect(shared[5].note).toBe('theo “Mọi truyện”')
+    expect(shared[5].note).toBe('dùng chung cho cả app')
+    expect(shared[6].note).toBe('theo “Mọi truyện”')
     expect(newProjectContents(false, { ruleCount: 5, style: 'Trữ tình' })[3].note).toBe('chép 5 quy tắc')
     expect(newProjectContents(false, { ruleCount: 5, style: 'Trữ tình' })[4].note).toBe('Trữ tình')
-    expect(newProjectContents(false, null)[5].note).toBe('bản riêng')
+    expect(newProjectContents(false, null)[5].note).toBe('dùng chung cho cả app')
+    expect(newProjectContents(false, null)[6].note).toBe('bản riêng')
   })
 })

@@ -1,8 +1,10 @@
 package host
 
 import (
+	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/datnt1998/verse/apps/noverse/internal/agents"
 	"github.com/datnt1998/verse/apps/noverse/internal/bootstrap"
@@ -51,6 +53,95 @@ func (h *Host) ModelCatalog() []CatalogProvider {
 	}
 	sort.SliceStable(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out
+}
+
+// ReloadModelSelection applies the app-wide provider/model/thinking selection
+// saved by the settings screen to this running story: the provider choice no
+// longer belongs to a story, so a story that is running or paused must adopt
+// the shared one on the next turn instead of keeping the provider it booted
+// with (e.g. a subscription that has just expired). In-flight requests finish
+// on the old client; SwappableModel addresses stay stable for assembled
+// workers and the Arbiter.
+func (h *Host) ReloadModelSelection() error {
+	h.modelSelectionMu.Lock()
+	defer h.modelSelectionMu.Unlock()
+	// Capture before loading: a save racing this load remains detectable at the
+	// following boundary rather than stamping newer data we did not read.
+	fileInfo, _ := os.Stat(bootstrap.DefaultConfigPath())
+	var cfg bootstrap.Config
+	var err error
+	if h.configLoader != nil {
+		cfg, err = h.configLoader()
+	} else {
+		cfg, err = bootstrap.LoadConfigAt(h.Dir())
+	}
+	if err != nil {
+		return err
+	}
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	if h.models == nil {
+		return nil
+	}
+	// OutputDir là trường runtime (json:"-"), không có trong tệp cấu hình.
+	cfg.OutputDir = h.cfg.OutputDir
+	if err := cfg.ValidateModelReady(); err != nil {
+		return err
+	}
+	prepared, err := bootstrap.NewModelSet(cfg)
+	if err != nil {
+		return err
+	}
+	before := selectionSummary(h.models)
+	h.models.ApplyPrepared(prepared)
+	h.cfg = cfg
+	h.selectionFileInfo = fileInfo
+	// Lựa chọn mới từ cài đặt thắng fallback tạm thời: người dùng vừa chọn
+	// provider/model thì không giữ model dự phòng cũ.
+	h.fallbacks = nil
+	h.lastFallback = nil
+	// Model client vừa đổi →下发 lại mức suy luận theo năng lực model mới
+	// (ý định đã lưu giữ nguyên, chỉ giá trị hiệu lực bị kẹp lại).
+	h.applyThinkingLocked("default")
+	if after := selectionSummary(h.models); after != before {
+		h.emitEvent(Event{
+			Time: time.Now(), Category: "SYSTEM", Level: "info",
+			Summary: "Đã áp dụng nhà cung cấp và model dùng chung mới: " + after,
+		})
+	}
+	return nil
+}
+
+// refreshModelSelectionForTurn is the recovery path when an immediate gateway
+// reload failed. A cheap stat at each worker boundary detects a committed
+// global save; clients are rebuilt only after the file actually changed.
+func (h *Host) refreshModelSelectionForTurn() error {
+	info, err := os.Stat(bootstrap.DefaultConfigPath())
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	h.mu.Lock()
+	prior := h.selectionFileInfo
+	unchanged := prior != nil && prior.Size() == info.Size() && prior.ModTime().Equal(info.ModTime())
+	h.mu.Unlock()
+	if unchanged {
+		return nil
+	}
+	return h.ReloadModelSelection()
+}
+
+func selectionSummary(models *bootstrap.ModelSet) string {
+	parts := make([]string, 0, len(concreteThinkingRoles)+1)
+	for _, role := range append([]string{"default"}, concreteThinkingRoles...) {
+		if provider, model, ok := models.CurrentSelection(role); ok {
+			parts = append(parts, role+"="+provider+"/"+model)
+		}
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, " ")
 }
 
 // RefreshModelContexts reloads context metadata without changing active model

@@ -13,6 +13,19 @@ import (
 // Refresh already-running workers only; a new worker reads the config chain at
 // startup. Never restart a model-backed engine or change its active selection.
 func (g *Gateway) refreshWorkerModelContexts(ctx context.Context, scope, project, story string) error {
+	return g.postWorkerModelPath(ctx, scope, project, story, "models/context-reload", "cập nhật ngữ cảnh")
+}
+
+// syncWorkerModelSelection pushes the app-wide provider/model/thinking choice
+// into running workers. Without it a story that booted with a provider whose
+// subscription has expired keeps using that provider after the user switches
+// the shared one in settings. Workers apply it to the next turn; an in-flight
+// request finishes on the old client.
+func (g *Gateway) syncWorkerModelSelection(ctx context.Context, scope, project, story string) error {
+	return g.postWorkerModelPath(ctx, scope, project, story, "models/selection-reload", "cập nhật nhà cung cấp và model")
+}
+
+func (g *Gateway) postWorkerModelPath(ctx context.Context, scope, project, story, path, failureLabel string) error {
 	g.mu.Lock()
 	slots := make([]*storyWorker, 0, len(g.workers))
 	for key, slot := range g.workers {
@@ -32,7 +45,7 @@ func (g *Gateway) refreshWorkerModelContexts(ctx context.Context, scope, project
 			continue
 		}
 		// Worker POSTs are JSON-only (webguard.JSONContent); a bodyless POST is rejected with 400.
-		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+worker.addr+"/api/models/context-reload", strings.NewReader("{}"))
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, "http://"+worker.addr+"/api/"+path, strings.NewReader("{}"))
 		if err != nil {
 			failures = append(failures, err)
 			continue
@@ -44,10 +57,10 @@ func (g *Gateway) refreshWorkerModelContexts(ctx context.Context, scope, project
 			failures = append(failures, err)
 			continue
 		}
-		io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
 		resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
-			failures = append(failures, fmt.Errorf("cập nhật ngữ cảnh: %d", resp.StatusCode))
+			failures = append(failures, fmt.Errorf("%s: %d %s", failureLabel, resp.StatusCode, strings.TrimSpace(string(body))))
 		}
 	}
 	return errors.Join(failures...)

@@ -1,12 +1,15 @@
 // M4 · Thêm — các trang độc lập trên điện thoại (18-mobile.md / MMore.dc.html).
 import { useEffect, useState } from 'react'
-import { canCreateStory, canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getModels, getProject, mySessions, revokeSession } from '../../../api/client'
+import { canCreateStory, canReadProject, canReadStory, canWriteStory, getConfig, getConfigPresets, getLibrary, getProject, mySessions, revokeSession } from '../../../api/client'
 import { useSession } from '../../../api/session'
 import type { ModelRoleKey, ProjectSummary, Session, StorySummary } from '../../../api/types'
 import { cache, invalidate } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { useAction } from '../../../data/useAction'
 import { useResource } from '../../../data/useResource'
+import { appConfigDoc, useAppConfig } from '../../../data/appModels'
+import { roleModel } from '../../settings/lib/config'
+import { issueOf, issueShort } from '../../settings/lib/providerError'
 import { ConfirmSheet, MobilePage, useMobileToast } from '../../../mobile'
 import { navigate, paths } from '../../../router'
 import { AgentOrb } from '@noverse/ui'
@@ -14,7 +17,7 @@ import { Icon } from '@noverse/ui'
 import { relativeTime } from '../../auth/parts'
 import { sessionIcon } from '../../account/shared'
 import { ROLE_META } from '../../cmdresults/logic'
-import { Models, modelsKey } from './Models'
+import { Models } from './Models'
 import { ResourceNotice } from './parts'
 import { MobileStorySet } from './StorySet'
 import { rulesSub } from './rulesSummary'
@@ -97,7 +100,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
   const library = useResource(keys.library(), getLibrary)
   const selected = useResource(keys.project(project ?? '', 'meta'), () => getProject(project!), { enabled: !!project })
   const config = useResource(keys.config('story', project ?? '', story ?? ''), () => getConfig('story', project!, story!), { enabled: canWrite })
-  const models = useResource(modelsKey(project ?? '', story ?? ''), () => getModels(project!, story!), { enabled: canWrite })
+  const appConfig = useAppConfig()
   const devices = useResource(keys.sessions(), mySessions)
   const currentStory = selected.data?.stories.find((item) => item.story === story)
   const sessions = devices.data?.sessions ?? []
@@ -108,9 +111,11 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
   const notifyPrefs = useNotifyPrefs()
   const notifyCount = notifyPrefs.data ? (notifyPrefs.data.enabled ? Object.values(notifyPrefs.data.types).filter(Boolean).length : 0) : undefined
   const commandCount = useCommands().specs.length
-  const writerModel = models.data?.roles.find((item) => item.role === 'writer')?.model
-  const showModel = !hasStory || canWrite || !!writerModel
-  const modelLabel = writerModel || (!hasStory ? 'Chưa chọn truyện' : models.error ? 'Không tải được model' : models.initialLoading ? 'Đang tải…' : 'Chưa chọn model')
+  const appDoc = appConfigDoc(appConfig.data)
+  const writerPick = roleModel(appDoc, 'writer')
+  const writerModel = writerPick.model
+  const writerIssue = issueOf(appConfig.data, writerPick.provider)
+  const modelLabel = writerModel || (appConfig.error ? 'Không tải được model' : appConfig.initialLoading ? 'Đang tải…' : 'Chưa chọn model')
 
   useEffect(() => {
     const update = () => { setOnline(navigator.onLine) }
@@ -194,12 +199,17 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           {!!project && <ResourceNotice resource={selected} label="truyện đang mở" />}
           <div className="mm-heading">Trợ lý</div>
           <div className="mm-group">
-            {showModel && <button className="mm-row" type="button" disabled={!canWrite} onClick={() => push('model')}>
+            <button className="mm-row" type="button" disabled={!online} onClick={() => push('model')}>
               <span className="mm-orbs"><AgentOrb agent="architect" size={14} /><AgentOrb agent="writer" size={14} style={{ marginLeft: -5 }} /></span>
-              <span className="mm-copy"><span>Model cho từng trợ lý</span><span className="mm-sub">Người viết · <span className="mm-mono">{modelLabel}</span></span>{hasStory && !canWrite && <span className="mm-sub">Chỉ người có quyền viết mới đổi được</span>}</span>{canWrite && <Icon name="arrow-right-2" size={16} className="mm-chevron" />}
-            </button>}
+              <span className="mm-copy"><span>Model cho từng trợ lý</span><span className="mm-sub">Dùng chung cho cả app · Người viết <span className="mm-mono">{modelLabel}</span></span>
+                {!!writerIssue && <span className="mm-sub" style={{ color: writerIssue.kind === 'quota' ? 'var(--color-warn)' : 'var(--color-err)' }}>{issueShort(writerIssue.kind)}</span>}
+              </span>
+              {writerIssue
+                ? <span aria-label="Có trợ lý không chạy được" style={{ width: 8, height: 8, borderRadius: '50%', background: writerIssue.kind === 'quota' ? 'var(--color-warn)' : 'var(--color-err)', flex: '0 0 auto' }} />
+                : <Icon name="arrow-right-2" size={16} className="mm-chevron" />}
+            </button>
           </div>
-          {canWrite && <ResourceNotice resource={models} label="model trợ lý" />}
+          <ResourceNotice resource={appConfig} label="model trợ lý" />
           {logoutAction.error != null && <p className="mm-error" role="alert">{logoutAction.error instanceof Error ? logoutAction.error.message : 'Không thực hiện được. Vui lòng thử lại.'}</p>}
           <AppSwitcher mobile />
           <div className="mm-heading">Tài khoản</div>
@@ -224,7 +234,7 @@ export function MobileMore({ project, story, initialPage, initialCommand, onStor
           {library.data?.projects.length === 0 && <p className="mm-note">Chưa có dự án nào trong thư viện.</p>}
           <p className="mm-note mm-center">Tạo truyện mới hoặc nhập truyện có sẵn trên máy tính.</p>
         </>}
-        {(page === 'model' || page === 'pick') && project && story && (canWrite ? <Models project={project} story={story} active={page === 'pick' ? role : null} onPick={(next) => { setRole(next); push('pick') }} disabled={!online} toast={toast} /> : <p className="mm-note">Chỉ người có quyền viết mới đổi được model.</p>)}
+        {(page === 'model' || page === 'pick') && <Models active={page === 'pick' ? role : null} onPick={(next) => { setRole(next); push('pick') }} disabled={!online} toast={toast} />}
         {page === 'devices' && <>
           <ResourceNotice resource={devices} label="thiết bị" />
           {user?.grants != null && <p className="mm-note">{ssoCopy.devices}</p>}

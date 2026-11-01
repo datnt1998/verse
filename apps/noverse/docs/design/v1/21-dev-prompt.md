@@ -1573,6 +1573,19 @@ Canvas bản 137. Đặc tả đầy đủ + câu chữ: `10-audio.md` §8. Tr�
 - Không chữ worker/container/uv/python/ffmpeg/đường dẫn ngoài Nâng cao.
 - Ghi “Gói AT” vào `19-gap-closure.md`.
 
+## Gói AU — Nhà cung cấp AI dùng chung cho cả ứng dụng <a id="goi-au"></a>
+
+Canvas bản 138. Phạm vi đã chốt ở [20 §12](20-settings-rules.md#au-settings), hợp đồng máy ở [06 §AU](06-data-contract.md#au). Không chia model/nhà cung cấp/mức suy luận/dự phòng theo dự án hoặc truyện nữa; không gộp các thiết lập khác theo.
+
+### Nghiệm thu
+
+- Chỉ quản trị đổi Trợ lý AI trong Hệ thống; chọn là hiện ngay và tự lưu, lỗi lưu phải thật, áp dụng từ lượt kế tiếp.
+- Mức suy luận lấy theo model từ máy chủ, có đủ từ vựng tám nhãn; không còn `reasoningSegments` bốn mức cố định.
+- Hết hạn gói/khoá hỏng dừng để sửa; tạm hết lượt cảnh báo và tự thử lại. Có dải lỗi Kết nối AI và thẻ Đổi và viết tiếp trên cả màn viết máy tính lẫn tab Viết điện thoại.
+- Đổi hàng loạt có Hoàn tác còn dùng được sau khi lỗi cũ đã hết; không ghi đè thiết lập khác, không phục hồi kết nối/model đã xoá.
+- Đổi A sang B khi yêu cầu A chưa trả về: lỗi muộn của A không làm hỏng B; chương, bản nháp và lịch sử không đổi.
+- Di trú giữ thiết lập không phải AI và thay đổi đồng thời. Kiểm cả admin/thành viên, lỗi lưu, phản hồi chậm, hết hạn, khoá hỏng, quota và dự phòng; ghi chứng cứ tại [19 · Gói AU](19-gap-closure.md#goi-au).
+
 ## 2. Tổng hợp GAP backend của đợt này
 
 | GAP | Gói | Việc |
@@ -1585,6 +1598,10 @@ Canvas bản 137. Đặc tả đầy đủ + câu chữ: `10-audio.md` §8. Tr�
 | GAP-35…40 | L | Văn mẫu trên web · mục thẩm duyệt có `level/ref/quote/fix` · khung truyện & bản đồ giữ chân · xưng hô/quan hệ (khoá, 409 kèm chương bị chạm) · thực thể & cạnh có `phases` · `narration`/`doc-so`/`--keep` qua API (chi tiết `06-data-contract.md`) |
 | GAP-41…46 | M | Mã thiết lập & tạo quản trị đầu tiên · ma trận chất lượng · sổ cái 10 trục & luật khoảng cách · vũ trụ chung · tìm trong dự án · bài học hệ thống & mục hay vấp theo gói (chi tiết `06-data-contract.md`) |
 | GAP-22…29 | G | Kiểm tra đã đóng chưa |
+| GAP-AU1 | AU | Bỏ lựa chọn AI ở cấp dự án/truyện, di trú dữ liệu cũ mà giữ tuỳ chỉnh khác |
+| GAP-AU2 | AU | Khả năng suy luận theo model trong presets, không cố định bốn mức |
+| GAP-AU3 | AU | Phân loại `providerError`: hết hạn gói / khoá / tạm hết lượt |
+| GAP-AU4 | AU | Đổi nhà cung cấp hàng loạt, Hoàn tác và sự kiện `fallback.active` |
 
 ## 3. Quyết định sản phẩm đã chốt (đừng đổi)
 

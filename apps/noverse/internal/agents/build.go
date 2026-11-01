@@ -155,9 +155,9 @@ func BuildWorkers(
 		)
 	}
 
-	architectModel := models.ForRoleWithFailover("architect", reportFailover)
-	writerModel := models.ForRoleWithFailover("writer", reportFailover)
-	editorModel := models.ForRoleWithFailover("editor", reportFailover)
+	architectModel := models.ForWorkerRole("architect", reportFailover)
+	writerModel := models.ForWorkerRole("writer", reportFailover)
+	editorModel := models.ForWorkerRole("editor", reportFailover)
 
 	// P0-3/P0-6: gói thể loại được chọn qua cfg.Style (bundle.Pack != nil)。
 	// Ba vai đều nhận nguyên văn luat/*.md ở cuối system prompt（不经过
