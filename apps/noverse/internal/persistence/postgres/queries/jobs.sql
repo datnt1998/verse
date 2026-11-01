@@ -272,3 +272,10 @@ RETURNING *;
 SELECT * FROM job_events
 WHERE project_id = $1 AND job_id = $2 AND seq > $3
 ORDER BY seq;
+
+-- name: CountQueuedJobs :one
+-- Số việc của một loại đang xếp hàng trên toàn máy chủ (không lọc project):
+-- GET /api/tts/status dùng nó cho `queueWaiting` khi máy đọc chưa sẵn sàng.
+SELECT count(*)::int
+FROM jobs
+WHERE kind = $1 AND state = 'queued';

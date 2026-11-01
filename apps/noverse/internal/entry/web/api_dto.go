@@ -9,6 +9,7 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/ledger"
 	"github.com/datnt1998/verse/apps/noverse/internal/lessons"
 	"github.com/datnt1998/verse/apps/noverse/internal/rules"
+	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 )
 
 // api_dto.go is the input of the TypeScript generator (gentypes):
@@ -40,6 +41,10 @@ var APIDTOs = []APIDTO{
 	{TS: "LessonsResponse", Value: lessonsResponse{}},
 	{TS: "ViolationsResponse", Value: violationsResponse{}},
 	{TS: "RuleViolationsResponse", Value: ruleViolationsResponse{}},
+	{TS: "TtsStatus", Value: ttsStatusResponse{}},
+	{TS: "TtsStatusError", Value: ttsStatusError{}},
+	{TS: "TtsMachine", Value: ttsMachine{}},
+	{TS: "TtsCapabilities", Value: ttsCapabilities{}},
 }
 
 // APITSTypeNames pins the TypeScript name of every nested Go struct. The
@@ -103,6 +108,18 @@ type APIEnum struct {
 // APIEnums is the complete enum table. "Normalised by the backend" fields are
 // listed.
 var APIEnums = []APIEnum{
+	{
+		// Các trạng thái của thẻ Máy đọc (10-audio.md §8.1): đã thu gọn về sáu
+		// từ — `offline` là máy chủ suy ra, `provisioning` gồm cả engine
+		// `installing`/`stopped` của bản cá nhân.
+		TS:     "TtsStatusState",
+		Values: []string{
+			voice.ProvisionStateMissing, voice.ProvisionStateProvisioning,
+			voice.ProvisionStateStarting, voice.ProvisionStateReady,
+			voice.ProvisionStateError, voice.ProvisionStateOffline,
+		},
+		Fields: []APIEnumField{{reflect.TypeOf(ttsStatusResponse{}), "State"}},
+	},
 	{
 		TS:     "ReviewLevel",
 		Values: []string{reviewLevelError, reviewLevelWarning},

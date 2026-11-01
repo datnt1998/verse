@@ -306,7 +306,7 @@ func newGateway(root string, accounts *identity.Store, backend accountBackend, b
 		}
 	}
 	g.initNotifications()
-	g.jobsHub().addProvider(newAudioJobsProvider())
+	g.jobsHub().addProvider(newAudioJobsProvider(g))
 	g.jobsHub().addProvider(newVoiceJobsProvider(g))
 	g.resumeAudioQueues()
 	if g.build.Version != "dev" {

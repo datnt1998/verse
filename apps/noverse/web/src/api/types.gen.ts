@@ -2,6 +2,9 @@
 // Source: internal/entry/web/api_dto.go and the Go DTOs it names.
 // Regenerate: go generate ./internal/entry/web
 
+// TtsStatusState is the closed set of values the backend writes for these fields.
+export type TtsStatusState = 'error' | 'missing' | 'offline' | 'provisioning' | 'ready' | 'starting'
+
 // ReviewLevel is the closed set of values the backend writes for these fields.
 export type ReviewLevel = 'error' | 'warning'
 
@@ -135,6 +138,54 @@ export type ViolationsResponse = {
 
 export type RuleViolationsResponse = {
   chapters: RuleViolationChapter[]
+}
+
+export type TtsStatus = {
+  mode: string
+  ready: boolean
+  engine: string
+  model: string
+  device: string
+  quality: string
+  state: TtsStatusState
+  step: string
+  percent: number | null
+  bytesDone: number
+  bytesTotal: number
+  etaSec: number
+  error: TtsStatusError | null
+  lastSeenAt: string | null
+  machine: TtsMachine | null
+  version: string
+  diskBytes: number
+  rtf: number | null
+  capabilities: TtsCapabilities
+  queueWaiting: number
+  ffmpeg: boolean
+  sampleRate: number
+  cloning: boolean
+  qualities: string[]
+  installed: boolean
+  installedBytes: number
+  note?: string
+  logTail?: string[]
+  channel?: string
+}
+
+export type TtsStatusError = {
+  code: string
+  message: string
+}
+
+export type TtsMachine = {
+  name: string
+  revokedAt: string | null
+  grantedAt: string | null
+  capabilities: string[]
+}
+
+export type TtsCapabilities = {
+  preview: boolean
 }
 
 export type ConsistencyIssue = {

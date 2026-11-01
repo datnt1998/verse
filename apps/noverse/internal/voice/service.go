@@ -39,18 +39,41 @@ type JobState struct {
 }
 
 // InstallProgress là một mốc tiến độ cài bộ đọc.
+//
+// Percent là nil khi bước đang chạy không đo được (UI hiện vòng xoay, không
+// bao giờ 0 thay thế). BytesDone/BytesTotal/EtaSec chỉ có ở bước tải mẫu giọng.
+// ErrorCode là mã 8.2 — UI dịch sang câu, không hiện mã (mã chỉ ở Nâng cao).
 type InstallProgress struct {
-	State   string    `json:"state"` // idle | running | done | error
-	Step    string    `json:"step"`
-	Percent int       `json:"percent"`
-	Message string    `json:"message"`
-	Bytes   int64     `json:"bytes"` // dung lượng đã tải (mô hình) tại mốc này
-	Error   string    `json:"error,omitempty"`
-	Updated time.Time `json:"updated"`
+	State      string    `json:"state"` // idle | running | done | error
+	Step       string    `json:"step"`
+	Percent    *int      `json:"percent"`
+	BytesDone  int64     `json:"bytesDone"`
+	BytesTotal int64     `json:"bytesTotal"`
+	EtaSec     int       `json:"etaSec"`
+	Version    string    `json:"version,omitempty"`
+	Message    string    `json:"message"`
+	Error      string    `json:"error,omitempty"`
+	ErrorCode  string    `json:"errorCode,omitempty"`
+	Updated    time.Time `json:"updated"`
 }
 
 // InstallRunning cho biết tiến độ có đang chạy hay không.
 func (p InstallProgress) InstallRunning() bool { return p.State == "running" }
+
+// Same báo hai mốc giống hệt nhau (Percent là con trỏ nên không so sánh ==).
+func (p InstallProgress) Same(o InstallProgress) bool {
+	if p.State != o.State || p.Step != o.Step || p.Message != o.Message ||
+		p.BytesDone != o.BytesDone || p.BytesTotal != o.BytesTotal || p.EtaSec != o.EtaSec ||
+		p.Error != o.Error || p.ErrorCode != o.ErrorCode || p.Version != o.Version {
+		return false
+	}
+	switch {
+	case p.Percent == nil || o.Percent == nil:
+		return p.Percent == o.Percent
+	default:
+		return *p.Percent == *o.Percent
+	}
+}
 
 type taskResult struct {
 	audio Audio
@@ -644,16 +667,22 @@ func (s *Service) StartInstall(ctx context.Context) error {
 			p.State = "running"
 			s.setInstall(p)
 		})
-		final := InstallProgress{State: "done", Step: "done", Percent: 100, Message: "Đã cài xong bộ đọc"}
+		final := InstallProgress{State: "done", Step: "done", Percent: new(100), Message: "Đã cài xong bộ đọc"}
 		if installErr != nil {
 			final = InstallProgress{State: "error", Step: "error", Message: "Cài bộ đọc thất bại", Error: installErr.Error()}
+			var pe *ProvisionError
+			if errors.As(installErr, &pe) && pe != nil {
+				final.ErrorCode, final.Message = pe.Code, pe.Error()
+			}
 			switch {
 			case errors.Is(installErr, context.Canceled):
 				final.Message = "Đã dừng cài bộ đọc"
 				final.Error = ""
+				final.ErrorCode = ""
 			case errors.Is(installErr, context.DeadlineExceeded):
 				final.Message = "Cài bộ đọc quá lâu"
 				final.Error = "Quá 30 phút mà chưa cài xong — kiểm tra mạng rồi thử lại"
+				final.ErrorCode = ProvisionErrDownloadFailed
 			}
 		}
 		s.mu.Lock()
@@ -705,11 +734,14 @@ func (s *Service) SubscribeInstall(fn func(InstallProgress)) func() {
 }
 
 func (s *Service) setInstall(p InstallProgress) {
-	if p.Percent < 0 {
-		p.Percent = 0
-	}
-	if p.Percent > 100 {
-		p.Percent = 100
+	if p.Percent != nil {
+		if *p.Percent < 0 {
+			// Bước không đo được: không có %, UI tự hiện vòng xoay.
+			p.Percent = nil
+		} else if *p.Percent > 100 {
+			clamped := 100
+			p.Percent = &clamped
+		}
 	}
 	p.Updated = time.Now()
 	s.mu.Lock()

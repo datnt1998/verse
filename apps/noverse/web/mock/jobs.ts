@@ -249,7 +249,7 @@ export function mirrorVoiceInstallJob(progress: TtsInstallProgress, control?: (a
   const job: Job = {
     id: VOICE_INSTALL_ID, kind: 'voice', title: 'Cài bộ đọc trên máy',
     status: progress.state === 'running' ? 'running' : progress.state === 'error' ? 'failed' : 'done',
-    progress: progress.state === 'running' ? Math.min(1, progress.percent / 100) : progress.state === 'done' ? 1 : null,
+    progress: progress.state === 'running' ? Math.min(1, (progress.percent ?? 0) / 100) : progress.state === 'done' ? 1 : null,
     href: '/settings/voice', project: '', story: '', startedAt: prev?.startedAt ?? progress.updated,
     ...(progress.state === 'running' ? { step: progress.message } : {}),
     ...(progress.state === 'error' ? { step: progress.message, error: progress.error ?? progress.message } : {}),

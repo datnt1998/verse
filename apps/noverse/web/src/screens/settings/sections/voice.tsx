@@ -30,11 +30,11 @@ const QUALITY = [
 
 const STATE_LABEL: Record<TtsStatus['state'], string> = {
   missing: t.audio.settings.chuaCai,
-  installing: t.audio.settings.dangCai2,
-  stopped: t.audio.settings.dangTat,
+  provisioning: t.audio.settings.dangCai2,
   starting: t.audio.settings.dangKhoiDong,
   ready: t.audio.settings.sanSang,
   error: t.audio.settings.loi,
+  offline: 'Máy đọc chưa kết nối',
 }
 
 const errText = (error: unknown) => error instanceof Error ? error.message : t.audio.settings.khongKetNoiDuoc
@@ -185,7 +185,7 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
   const installSlow = useDelayedNotice(install.busy, 2000)
   const refreshStatus = statusResource.refresh
   useEffect(() => {
-    if (status?.state !== 'installing' && status?.state !== 'starting') return
+    if (status?.state !== 'provisioning' && status?.state !== 'starting') return
     const timer = window.setInterval(() => { void refreshStatus() }, 1500)
     return () => window.clearInterval(timer)
   }, [status?.state, refreshStatus])
@@ -204,7 +204,7 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
   const autoOnLock = ctx.audioSettings?.autoOnLock ?? true
   const engine = tts.engine ?? status?.engine ?? 'vieneu'
   const canEdit = ctx.canEdit
-  const installingNow = status?.state === 'installing' || install.busy
+  const installingNow = status?.state === 'provisioning' || install.busy
 
   return (
     <Section id="voice" title={t.audio.settings.giongDoc} icon="microphone-2" keyName="tts"
@@ -230,7 +230,7 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
                 {status.state === 'missing'
                   ? t.audio.settings.caiMotLanSau
                   : status.state === 'error'
-                    ? status.error
+                    ? status.error?.message ?? t.audio.settings.loi
                     : `${status.model} · ${status.device === 'gpu' ? t.audio.settings.cardDoHoa : 'CPU'} · ${Math.round(status.sampleRate / 1000)} kHz${status.rtf !== null ? t.audio.settings.n1PhutAudioGiay(Math.round(status.rtf * 60)) : ''}`}
               </span>
             </span>
@@ -251,7 +251,7 @@ export function VoiceSection({ ctx }: { ctx: SettingsContext }) {
           <span role="status" aria-live="polite" style={{ fontSize: 12, color: 'var(--color-fg-3)' }}>
             {installSlow ? 'Đang chuẩn bị bộ đọc và tạo việc cài đặt…' : install.success ? 'Đã chuyển việc cài bộ đọc sang việc chạy nền.' : ''}
           </span>
-          {(status.state === 'installing' || status.state === 'starting') && (
+          {(status.state === 'provisioning' || status.state === 'starting') && (
             <Button size="sm" icon={<Icon name="arrow-right-2" size={14} />}
               onClick={() => dispatchDock({ type: 'open' })} style={{ alignSelf: 'flex-start' }}>
               Xem tiến độ trong việc chạy nền

@@ -288,6 +288,16 @@ func (j *Jobs) List(ctx context.Context, scope ScopeRef) ([]Job, error) {
 // Claim takes the oldest claimable job of the given kind for one worker.
 // projectFilter may be zero to claim across the whole installation (the TTS
 // worker does this); any other value limits the claim to that project.
+// CountQueued đếm việc của một loại đang xếp hàng trên toàn máy chủ: số chương
+// tạo giọng đang chờ máy đọc (trường `queueWaiting` của GET /api/tts/status).
+func (j *Jobs) CountQueued(ctx context.Context, kind JobKind) (int, error) {
+	n, err := gen.New(j.pool).CountQueuedJobs(ctx, string(kind))
+	if err != nil {
+		return 0, fmt.Errorf("đếm việc xếp hàng: %w", err)
+	}
+	return int(n), nil
+}
+
 func (j *Jobs) Claim(ctx context.Context, kind JobKind, workerID pgtype.UUID, lease time.Duration, projectFilter pgtype.UUID) (Job, error) {
 	if lease <= 0 {
 		lease = DefaultLease

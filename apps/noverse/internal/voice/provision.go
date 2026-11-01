@@ -23,14 +23,23 @@ const (
 	ProvisionStateOffline = "offline"
 )
 
-// Các bước của lượt chuẩn bị, theo thứ tự cố định.
+// Các bước của lượt chuẩn bị, theo thứ tự cố định (Gói AT: sáu bước trên thẻ
+// Máy đọc — Tải công cụ · Môi trường chạy · Tải bộ đọc · Cài thư viện · Tải mẫu
+// giọng · Khởi động bộ đọc).
 const (
 	ProvisionStepTools  = "tools"  // uv ghim
 	ProvisionStepPython = "python" // CPython 3.12 do uv tải
 	ProvisionStepSource = "source" // mã nguồn VieNeu đúng tag ghim
 	ProvisionStepDeps   = "deps"   // uv sync --frozen
 	ProvisionStepModel  = "model"  // tải mô hình giọng đọc
+	ProvisionStepStart  = "start"  // bật máy đọc, chờ /health
 )
+
+// ProvisionSteps là thứ tự sáu bước; UI đánh số "Bước i/6" theo đúng thứ tự này.
+var ProvisionSteps = []string{
+	ProvisionStepTools, ProvisionStepPython, ProvisionStepSource,
+	ProvisionStepDeps, ProvisionStepModel, ProvisionStepStart,
+}
 
 // Mã lỗi ổn định của lượt chuẩn bị. UI dịch sang câu tiếng Việt, không hiện mã.
 const (
@@ -73,6 +82,12 @@ type ProvisionState struct {
 	Message string          `json:"message,omitempty"`
 	Error   *ProvisionError `json:"error,omitempty"`
 
+	// Số đo của bước đang tải (hiện là mẫu giọng): đã tải / tổng / còn bao lâu.
+	// Bước không đo được thì Percent = ProvisionPercentUnknown và ba số này = 0.
+	BytesDone  int64 `json:"bytesDone,omitempty"`
+	BytesTotal int64 `json:"bytesTotal,omitempty"`
+	EtaSec     int   `json:"etaSec,omitempty"`
+
 	Engine  string `json:"engine"`
 	Model   string `json:"model"`
 	Version string `json:"version"`
@@ -81,7 +96,18 @@ type ProvisionState struct {
 	DiskBytes int64   `json:"diskBytes,omitempty"`
 	Attempts  int     `json:"attempts,omitempty"`
 
+	// Channel là địa chỉ máy đọc dùng để nối tới máy chủ ("Kênh nối" ở Nâng cao).
+	Channel string `json:"channel,omitempty"`
+	// Capabilities là việc máy đọc nhận làm thêm ngoài tạo hàng loạt.
+	Capabilities *ProvisionCapabilities `json:"capabilities,omitempty"`
+
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// ProvisionCapabilities là những gì máy đọc nhận làm thêm. Preview = nghe thử
+// giọng theo yêu cầu; UI ẩn nút Nghe thử ở bản máy chủ tới khi có cờ này.
+type ProvisionCapabilities struct {
+	Preview bool `json:"preview"`
 }
 
 // ProvisionReporter nhận từng mốc trạng thái của lượt chuẩn bị. Engine gọi

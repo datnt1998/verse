@@ -24,18 +24,31 @@ func (e *Engine) Install(ctx context.Context, report func(voice.InstallProgress)
 	}
 	err := e.Provision(ctx, func(st voice.ProvisionState) {
 		report(voice.InstallProgress{
-			State:   "running",
-			Step:    st.Step,
-			Percent: st.Percent,
-			Message: st.Message,
-			Updated: st.UpdatedAt,
+			State:      "running",
+			Step:       st.Step,
+			Percent:    installPercent(st.Percent),
+			BytesDone:  st.BytesDone,
+			BytesTotal: st.BytesTotal,
+			EtaSec:     st.EtaSec,
+			Version:    st.Version,
+			Message:    st.Message,
+			Updated:    st.UpdatedAt,
 		})
 	})
 	if err != nil {
 		return err
 	}
-	report(voice.InstallProgress{State: "done", Step: "done", Percent: 100, Message: "Đã cài xong bộ đọc trên máy"})
+	report(voice.InstallProgress{State: "done", Step: "done", Percent: new(100), Message: "Đã cài xong bộ đọc trên máy"})
 	return nil
+}
+
+// installPercent đổi sentinel "không đo được" của ProvisionState thành nil: UI
+// hiện vòng xoay thay vì một con số bịa.
+func installPercent(v int) *int {
+	if v < 0 {
+		return nil
+	}
+	return &v
 }
 
 // runQuiet chạy lệnh, ghi toàn bộ output vào log của bộ đọc.

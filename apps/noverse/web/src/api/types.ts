@@ -915,6 +915,8 @@ export type AudioQueueJob = {
   error?: string
   errorAt?: string
   percent: number
+  /** §AT §8.3 — đang xếp hàng vì chưa có máy đọc sẵn sàng (bản máy chủ). */
+  waitingMachine?: boolean
 }
 
 export type AudioTimelineChapter = {
@@ -936,6 +938,8 @@ export type AudioTimelineChapter = {
   /** §AK — copy từ job: `queued` + cờ đổi = “chờ cập nhật”. */
   kind?: 'create' | 'update' | 'redo'
   position?: number
+  /** §AT §8.3 — đang xếp hàng vì chưa có máy đọc sẵn sàng (bản máy chủ). */
+  waitingMachine?: boolean
 }
 
 export type AudioQueue = {
@@ -1016,6 +1020,8 @@ export type AudioCandidate = {
   previousDurationSec?: number
 }
 
+/** Trạng thái của lượt cài engine cục bộ (S/audio/ready): vẫn dùng từ khoá cũ,
+ * KHÔNG phải trạng thái của thẻ Máy đọc §AT. */
 export type TtsState = 'missing' | 'installing' | 'stopped' | 'starting' | 'ready' | 'error'
 
 /** GAP-21 — bộ đọc trên máy (`tts` trong config.json). */
@@ -1030,33 +1036,25 @@ export type AudioEngineStatus = {
   rtf: number | null
 }
 
-export type TtsStatus = {
-  ready: boolean
-  engine: string
-  model: string
-  device: string
-  state: TtsState
-  error: string
-  rtf: number | null
-  sampleRate: number
-  /** ffmpeg có trên máy chủ — thiếu thì chỉ soạn/duyệt bản đọc được */
-  ffmpeg: boolean
-  installedBytes?: number
-  /** tiến độ cài khi `state: 'installing'` (A1Voice: bổ sung cho SSE `audio.install`) */
-  install?: { percent: number; message: string } | null
-}
+// TtsStatus — hình dạng của GET /api/tts/status (§AT) — đi qua types.gen.ts
+// (một nguồn sự thật từ `web.ttsStatusResponse`). Không còn khai báo tay ở đây.
 
 export type TtsEngine = { id: string; name: string; description: string; installed: boolean }
 
 /** GET /api/tts/install — mốc của lượt cài bộ đọc trên máy (voice.InstallProgress).
- * `state: 'idle'` = chưa từng cài; 'error' kèm `error` là câu lỗi cho người dùng. */
+ * `state: 'idle'` = chưa từng cài; `percent: null` = bước đang chạy không đo được
+ * (§AT: chỉ vòng xoay, không %); `errorCode` là mã 8.2 — dịch sang câu, không hiện. */
 export type TtsInstallProgress = {
   state: 'idle' | 'running' | 'done' | 'error'
   step: string
-  percent: number
+  percent: number | null
+  bytesDone: number
+  bytesTotal: number
+  etaSec: number
+  version?: string
   message: string
-  bytes: number
   error?: string
+  errorCode?: string
   updated: string
 }
 
@@ -1129,6 +1127,8 @@ export type Job = {
   agent?: JobAgent
   startedAt: string
   finishedAt?: string
+  /** §AT §8.3 — việc tạo giọng đang xếp hàng vì chưa có máy đọc sẵn sàng. */
+  waitingMachine?: boolean
 }
 /** SSE /api/events: `job.created|job.progress|job.waiting|job.failed|job.done` mang Job đầy đủ; `job.removed` mang {id}. */
 export type JobsResponse = { jobs: Job[] }

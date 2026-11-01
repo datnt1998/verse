@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os/exec"
 	"time"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -22,14 +23,20 @@ import (
 // không đổi một dòng nào.
 
 // workerSnapshot là trạng thái mới nhất của máy đọc còn hiệu lực, kèm nhịp sống
-// do máy chủ tự suy ra.
+// do máy chủ tự suy ra. Revoked = credential đã bị thu hồi: chỉ dùng để Nâng cao
+// còn thấy máy đó (trạng thái `error · token_rejected`) thay vì biến mất.
 type workerSnapshot struct {
-	Found     bool
-	ID        pgtype.UUID
-	Name      string
-	State     voice.ProvisionState
-	UpdatedAt time.Time
-	LastSeen  *time.Time
+	Found        bool
+	Revoked      bool
+	ID           pgtype.UUID
+	Name         string
+	State        voice.ProvisionState
+	FFmpeg       bool
+	UpdatedAt    time.Time
+	LastSeen     *time.Time
+	GrantedAt    time.Time
+	RevokedAt    *time.Time
+	Capabilities []string
 }
 
 // offline là "máy đọc đã ngừng nói chuyện": lần kết nối cuối cũ hơn lease +
@@ -41,6 +48,11 @@ func (s workerSnapshot) offline(now time.Time) bool {
 	return now.Sub(*s.LastSeen) > postgres.DefaultLease+2*postgres.DefaultHeartbeat
 }
 
+// previewSupported: máy đọc tự báo có nhận nghe thử theo yêu cầu hay không.
+func (s workerSnapshot) previewSupported() bool {
+	return s.Found && !s.Revoked && s.State.Capabilities != nil && s.State.Capabilities.Preview
+}
+
 // installedStates là các trạng thái nghĩa là "bộ đọc đã có trên máy".
 var installedStates = map[string]bool{
 	voice.ProvisionStateProvisioning: true,
@@ -48,17 +60,9 @@ var installedStates = map[string]bool{
 	voice.ProvisionStateReady:        true,
 }
 
-// hostedStateNames đổi enum worker sang enum trạng thái engine mà UI đã dùng.
-var hostedStateNames = map[string]string{
-	voice.ProvisionStateMissing:      voice.StateMissing,
-	voice.ProvisionStateProvisioning: voice.StateInstalling,
-	voice.ProvisionStateStarting:     voice.StateStarting,
-	voice.ProvisionStateReady:        voice.StateReady,
-	voice.ProvisionStateError:        voice.StateError,
-}
-
 // workerSnapshot trả máy đọc có trạng thái mới nhất trong số credential 'tts'
-// còn hiệu lực.
+// còn hiệu lực; không còn máy nào sống thì lấy credential đã thu hồi gần nhất để
+// Nâng cao vẫn thấy nó (trạng thái `error · token_rejected`).
 func (g *Gateway) workerSnapshot(ctx context.Context) workerSnapshot {
 	if g.pgAudio == nil || g.pgAudio.Jobs == nil {
 		return workerSnapshot{}
@@ -77,15 +81,38 @@ func (g *Gateway) workerSnapshot(ctx context.Context) workerSnapshot {
 			best, found = w, true
 		}
 	}
+	revoked := false
+	if !found {
+		for _, w := range workers {
+			if w.RevokedAt == nil || !hasWorkerCapability(w.Capabilities, "tts") {
+				continue
+			}
+			if !found || fresherWorker(w, best) {
+				best, found, revoked = w, true, true
+			}
+		}
+	}
 	if !found {
 		return workerSnapshot{}
 	}
-	snap := workerSnapshot{Found: true, ID: best.ID, Name: best.Name, LastSeen: best.LastSeenAt}
+	snap := workerSnapshot{
+		Found: true, Revoked: revoked, ID: best.ID, Name: best.Name,
+		LastSeen: best.LastSeenAt, GrantedAt: best.CreatedAt,
+		RevokedAt: best.RevokedAt, Capabilities: best.Capabilities,
+	}
 	if best.StateUpdatedAt != nil {
 		snap.UpdatedAt = *best.StateUpdatedAt
 	}
 	if len(best.State) > 0 {
-		_ = json.Unmarshal(best.State, &snap.State)
+		// Cột state chứa cả phần chỉ máy này trả lời (ffmpeg) bên cạnh
+		// voice.ProvisionState; giải mã cùng một lượt để không mất phần nào.
+		var payload struct {
+			voice.ProvisionState
+			FFmpeg bool `json:"ffmpeg"`
+		}
+		if json.Unmarshal(best.State, &payload) == nil {
+			snap.State, snap.FFmpeg = payload.ProvisionState, payload.FFmpeg
+		}
 	}
 	if snap.State.State == "" {
 		snap.State.State = voice.ProvisionStateMissing
@@ -121,54 +148,152 @@ func hasWorkerCapability(caps []string, want string) bool {
 	return false
 }
 
-// hostedTTSStatus dựng GET /api/tts/status từ trạng thái máy đọc.
-func (g *Gateway) hostedTTSStatus(ctx context.Context) ttsStatusResponse {
+// hostedTTSStatus dựng GET /api/tts/status từ trạng thái máy đọc (Gói AT).
+func (g *Gateway) hostedTTSStatus(ctx context.Context, user identity.User) ttsStatusResponse {
 	svc := ttsService()
 	caps := svc.Capabilities()
 	snap := g.workerSnapshot(ctx)
 	now := time.Now()
 	resp := ttsStatusResponse{
+		Mode:       "hosted",
 		Engine:     "remote",
-		State:      voice.StateMissing,
+		State:      voice.ProvisionStateMissing,
 		Quality:    svc.Config().Quality,
 		SampleRate: caps.SampleRate,
 		Cloning:    caps.Cloning,
 		Qualities:  caps.Qualities,
-		FFmpeg:     ffmpegOnPath(),
 	}
 	if !snap.Found {
-		resp.Note = "Chưa có máy đọc từ xa nào kết nối"
+		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
+		resp.Note = "Chưa có máy đọc nào kết nối"
 		return resp
 	}
+	resp.Machine = &ttsMachine{Name: snap.Name}
+	if user.Role == identity.RoleAdmin {
+		// Chi tiết kỹ thuật chỉ có ở Tuỳ chỉnh › Nâng cao (10-audio.md §8.5).
+		resp.Machine.RevokedAt, resp.Machine.GrantedAt = snap.RevokedAt, &snap.GrantedAt
+		resp.Machine.Capabilities = snap.Capabilities
+		resp.Channel = snap.State.Channel
+		resp.LogTail = workerLogTail(snap.State.Error, 6)
+	}
+	resp.LastSeenAt = snap.LastSeen
+	resp.FFmpeg = snap.FFmpeg
+	resp.Capabilities = ttsCapabilities{Preview: snap.previewSupported()}
+	resp.Version = snap.State.Version
 	resp.Model = snap.State.Model
-	resp.Installed = installedStates[snap.State.State]
+	resp.DiskBytes = snap.State.DiskBytes
 	resp.InstalledBytes = snap.State.DiskBytes
+	resp.Installed = installedStates[snap.State.State]
 	if snap.State.RTF > 0 {
 		rtf := snap.State.RTF
 		resp.RTF = &rtf
 	}
-	if snap.offline(now) {
-		resp.State = voice.ProvisionStateOffline
-		if snap.LastSeen != nil {
-			resp.Note = "Máy đọc từ xa lần cuối kết nối lúc " + snap.LastSeen.Format("15:04")
-		} else {
-			resp.Note = "Chưa có máy đọc từ xa nào kết nối"
-		}
+	if snap.Revoked {
+		// Credential đã bị thu hồi: máy không còn được nhận việc, và câu 8.2
+		// `token_rejected` nói đúng việc phải làm (cấp lại quyền ở Nâng cao).
+		resp.State = voice.ProvisionStateError
+		resp.Error = &ttsStatusError{Code: voice.ProvisionErrTokenRejected, Message: "Máy đọc đã bị thu hồi quyền"}
+		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
 		return resp
 	}
-	resp.Note = "Máy đọc từ xa đang kết nối"
-	resp.State = hostedStateNames[snap.State.State]
-	if resp.State == "" {
-		resp.State = voice.StateMissing
+	if snap.offline(now) {
+		resp.State = voice.ProvisionStateOffline
+		resp.Note = "Máy đọc chưa kết nối"
+		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
+		return resp
 	}
-	resp.Ready = snap.State.State == voice.ProvisionStateReady
-	if snap.State.Error != nil {
-		resp.Error = snap.State.Error.Message
-		if resp.Error == "" {
-			resp.Error = snap.State.Error.Code
-		}
+	resp.Note = "Máy đọc đang kết nối"
+	switch snap.State.State {
+	case voice.ProvisionStateReady:
+		resp.State, resp.Ready = voice.ProvisionStateReady, true
+	case voice.ProvisionStateProvisioning:
+		resp.State = voice.ProvisionStateProvisioning
+		resp.Step, resp.Percent = snap.State.Step, statePercent(snap.State.Percent)
+		resp.BytesDone, resp.BytesTotal, resp.EtaSec = snap.State.BytesDone, snap.State.BytesTotal, snap.State.EtaSec
+	case voice.ProvisionStateStarting:
+		resp.State, resp.Step = voice.ProvisionStateStarting, voice.ProvisionStepStart
+	case voice.ProvisionStateError:
+		resp.State = voice.ProvisionStateError
+		resp.Error = statusErrorOf(snap.State)
+	default:
+		resp.State = voice.ProvisionStateMissing
+	}
+	if resp.State != voice.ProvisionStateReady {
+		resp.QueueWaiting = g.queuedVoiceChapters(ctx)
 	}
 	return resp
+}
+
+// statePercent đổi sentinel -1 ("bước không đo được") thành nil: UI không vẽ %.
+func statePercent(v int) *int {
+	if v < 0 || v > 100 {
+		return nil
+	}
+	return &v
+}
+
+// statusErrorOf lấy mã + câu của một lượt chuẩn bị hỏng. Thiếu mã nghĩa là máy
+// đọc không nói rõ lý do — quy về start_failed, đúng câu "không khởi động được".
+func statusErrorOf(st voice.ProvisionState) *ttsStatusError {
+	if st.Error == nil {
+		return &ttsStatusError{Code: voice.ProvisionErrStartFailed, Message: st.Message}
+	}
+	msg := firstNonEmpty(st.Error.Message, st.Message)
+	return &ttsStatusError{Code: st.Error.Code, Message: msg}
+}
+
+// workerLogTail cắt nhật ký máy đọc thành tối đa n dòng cuối, bỏ dòng trống.
+func workerLogTail(pe *voice.ProvisionError, n int) []string {
+	if pe == nil || strings.TrimSpace(pe.LogTail) == "" {
+		return nil
+	}
+	lines := strings.Split(strings.TrimRight(pe.LogTail, "\n"), "\n")
+	out := make([]string, 0, n)
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		out = append(out, line)
+	}
+	if len(out) > n {
+		out = out[len(out)-n:]
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+// hostedPreviewSupported: máy đọc báo nhận nghe thử thì endpoint mới đi tiếp
+// (đường đọc vẫn là engine đã cấu hình, không phải một kênh riêng).
+func (g *Gateway) hostedPreviewSupported(ctx context.Context) bool {
+	return g.workerSnapshot(ctx).previewSupported()
+}
+
+// queuedVoiceChapters đếm số chương tạo giọng đang xếp hàng trên toàn máy chủ:
+// đó là số việc người dùng đang mất khi máy đọc chưa sẵn sàng (cờ Cảnh báo của
+// thẻ Máy đọc và `waitingMachine` của từng việc).
+func (g *Gateway) queuedVoiceChapters(ctx context.Context) int {
+	if g.pgAudio == nil || g.pgAudio.Jobs == nil {
+		return 0
+	}
+	n, err := g.pgAudio.Jobs.CountQueued(ctx, postgres.JobTTS)
+	if err != nil {
+		return 0
+	}
+	return n
+}
+
+// voiceMachineReady là "có máy đọc đang sẵn sàng tạo giọng" — trạng thái ready
+// VÀ đã kết nối. Bản cá nhân tự đọc trên máy này nên luôn có thể nhận việc;
+// hàng/chương xếp hàng không cần cờ waitingMachine ở đó.
+func (g *Gateway) voiceMachineReady(ctx context.Context) bool {
+	if g.pgAudio == nil {
+		return true
+	}
+	snap := g.workerSnapshot(ctx)
+	return snap.Found && !snap.Revoked && !snap.offline(time.Now()) &&
+		snap.State.State == voice.ProvisionStateReady
 }
 
 // hostedInstallProgress đổi trạng thái máy đọc sang InstallProgress — đúng
@@ -178,22 +303,22 @@ func hostedInstallProgress(snap workerSnapshot, now time.Time) voice.InstallProg
 		return voice.InstallProgress{State: "idle"}
 	}
 	p := voice.InstallProgress{
-		Step:    snap.State.Step,
-		Percent: snap.State.Percent,
-		Message: snap.State.Message,
-		Bytes:   snap.State.DiskBytes,
-		Updated: snap.State.UpdatedAt,
-	}
-	if p.Percent < 0 {
-		p.Percent = 0
+		Step:       snap.State.Step,
+		Percent:    statePercent(snap.State.Percent),
+		BytesDone:  snap.State.BytesDone,
+		BytesTotal: snap.State.BytesTotal,
+		EtaSec:     snap.State.EtaSec,
+		Version:    snap.State.Version,
+		Message:    snap.State.Message,
+		Updated:    snap.State.UpdatedAt,
 	}
 	switch snap.State.State {
 	case voice.ProvisionStateReady:
-		p.State, p.Percent = "done", 100
+		p.State, p.Percent = "done", new(100)
 	case voice.ProvisionStateError:
 		p.State = "error"
 		if snap.State.Error != nil {
-			p.Error = snap.State.Error.Message
+			p.Error, p.ErrorCode = snap.State.Error.Message, snap.State.Error.Code
 			if p.Error == "" {
 				p.Error = snap.State.Error.Code
 			}
@@ -201,13 +326,20 @@ func hostedInstallProgress(snap workerSnapshot, now time.Time) voice.InstallProg
 	case voice.ProvisionStateProvisioning, voice.ProvisionStateStarting:
 		p.State = "running"
 	default:
+		// Chưa từng chuẩn bị: không có hàng nào trong dock để nói.
 		p.State = "idle"
 	}
-	if snap.offline(now) && p.State != "done" {
+	if snap.Revoked && p.State != "idle" {
 		p.State = "error"
-		if p.Error == "" {
-			p.Error = "Máy đọc chưa kết nối"
-		}
+		p.ErrorCode = voice.ProvisionErrTokenRejected
+		p.Error = "Máy đọc đã bị thu hồi quyền"
+		p.Percent = nil
+	}
+	if snap.offline(now) && (p.State == "running" || snap.State.State == voice.ProvisionStateProvisioning) {
+		p.State = "error"
+		p.ErrorCode = voice.ProvisionErrStartFailed
+		p.Error = "Máy đọc chưa kết nối"
+		p.Percent = nil
 	}
 	if p.Updated.IsZero() {
 		p.Updated = now
@@ -277,7 +409,7 @@ func (g *Gateway) hostedTTSInstallEvents(w http.ResponseWriter, r *http.Request)
 	have := false
 	for {
 		p := hostedInstallProgress(g.workerSnapshot(ctx), time.Now())
-		if !have || p != last {
+		if !have || !p.Same(last) {
 			if !send(p) {
 				return
 			}

@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"fmt"
 	"errors"
 	"strings"
 	"time"
@@ -80,7 +81,7 @@ func (p voiceJobsProvider) watchHosted(ctx context.Context, emit func(JobChange)
 	have := false
 	for {
 		progress := p.progress()
-		if !have || progress != last {
+		if !have || !progress.Same(last) {
 			emitVoiceInstall(emit, progress)
 			last, have = progress, true
 		}
@@ -99,6 +100,62 @@ func emitVoiceInstall(emit func(JobChange), progress voice.InstallProgress) {
 		return
 	}
 	emit(JobChange{Job: row})
+}
+
+// voiceStepIndex là số thứ tự bước chuẩn bị trên thẻ Máy đọc (Bước i/6):
+// tools · python · source · deps · model · start.
+func voiceStepIndex(step string) (idx, total int) {
+	total = len(voice.ProvisionSteps)
+	for i, s := range voice.ProvisionSteps {
+		if s == step {
+			return i + 1, total
+		}
+	}
+	return 0, total
+}
+
+// voiceInstallStepText là dòng bước của hàng dock: "Bước 3/6 · Tải bộ đọc…" ở
+// bước không đo được, "Bước 5/6 · Tải mẫu giọng · 299/581 MB" ở bước mẫu giọng.
+func voiceInstallStepText(p voice.InstallProgress) string {
+	idx, total := voiceStepIndex(p.Step)
+	label := voiceStepLabel(p.Step)
+	if label == "" {
+		return p.Message
+	}
+	step := fmt.Sprintf("Bước %d/%d · %s", idx, total, label)
+	if p.Step == voice.ProvisionStepModel && p.BytesDone > 0 && p.BytesTotal > 0 {
+		return fmt.Sprintf("%s · %s", step, audioHumanBytes(p.BytesDone)+"/"+audioHumanBytes(p.BytesTotal))
+	}
+	return step
+}
+
+// voiceStepLabel là nhãn một bước chuẩn bị; đây là câu hiển thị, không phải mã,
+// nên giữ tiếng Việt ngay đây (UI chỉ hiển thị).
+func voiceStepLabel(step string) string {
+	switch step {
+	case voice.ProvisionStepTools:
+		return "Tải công cụ cài đặt"
+	case voice.ProvisionStepPython:
+		return "Chuẩn bị môi trường chạy"
+	case voice.ProvisionStepSource:
+		return "Tải bộ đọc"
+	case voice.ProvisionStepDeps:
+		return "Cài thư viện"
+	case voice.ProvisionStepModel:
+		return "Tải mẫu giọng"
+	case voice.ProvisionStepStart:
+		return "Khởi động bộ đọc"
+	default:
+		return ""
+	}
+}
+
+// audioHumanBytes in một dung lượng gọn như "299 MB" cho dòng bước của dock.
+func audioHumanBytes(v int64) string {
+	if v >= 1<<30 {
+		return fmt.Sprintf("%.0f GB", float64(v)/(1<<30))
+	}
+	return fmt.Sprintf("%.0f MB", float64(v)/(1<<20))
 }
 
 // Control: retry chạy lại lượt cài, cancel dừng lượt đang chạy.
@@ -156,22 +213,25 @@ func (p voiceJobsProvider) controlHosted(ctx context.Context, op string) error {
 	}
 }
 
-// voiceInstallRow đổi một mốc tiến độ thành hàng của dock. state rỗng/idle = chưa
-// từng cài nên không có hàng nào (ok=false).
+// voiceInstallRow đổi một mốc tiến độ thành hàng của dock (hàng prepErr của
+// 10-audio.md §8.6: "Đang chuẩn bị máy đọc" + bước i/6 + % khi bước đo được,
+// vòng xoay thôi khi không). state rỗng/idle = chưa từng cài nên không có hàng.
 func voiceInstallRow(p voice.InstallProgress) (Job, bool) {
 	job := Job{
 		ID:        voiceInstallJobID,
 		Kind:      voiceJobsKind,
-		Title:     "Cài bộ đọc trên máy",
+		Title:     "Đang chuẩn bị máy đọc",
 		Href:      voiceSettingsRoute,
 		StartedAt: p.Updated,
 	}
 	switch p.State {
 	case "running":
 		job.Status = JobRunning
-		percent := float64(p.Percent) / 100
-		job.Progress = &percent
-		job.Step = strings.TrimSpace(p.Message)
+		if p.Percent != nil {
+			percent := float64(*p.Percent) / 100
+			job.Progress = &percent
+		}
+		job.Step = strings.TrimSpace(voiceInstallStepText(p))
 	case "done":
 		finished := p.Updated
 		job.Status = JobDoneS
@@ -181,9 +241,15 @@ func voiceInstallRow(p voice.InstallProgress) (Job, bool) {
 	case "error":
 		job.Status = JobFailed
 		job.Step = strings.TrimSpace(p.Message)
-		job.Error = strings.TrimSpace(p.Error)
-		if job.Error == "" || job.Error == nil {
-			job.Error = job.Step
+		errText := strings.TrimSpace(p.Error)
+		if errText == "" {
+			errText = job.Step
+		}
+		// Mã lỗi 8.2 giúp FE chọn đúng câu và giữ nút Thử lại/Huỷ (prepErr).
+		if p.ErrorCode != "" {
+			job.Error = JobErrorInfo{Message: errText, Cause: p.ErrorCode}
+		} else {
+			job.Error = errText
 		}
 	default:
 		return Job{}, false

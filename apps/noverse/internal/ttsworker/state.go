@@ -33,6 +33,16 @@ var defaultProvisionBackoff = []time.Duration{
 // stall the install for the length of the media client timeout.
 const stateRequestTimeout = 15 * time.Second
 
+// channel is the address this worker dials (the "Kênh nối" line in Nâng cao).
+// It is the configured API URL with credentials stripped: it identifies the
+// server, not the machine.
+func (w *Worker) channel() string {
+	if w.base == nil {
+		return ""
+	}
+	return w.base.Scheme + "://" + w.base.Host
+}
+
 // statePayload is the POST /internal/worker/state body: the shared provision
 // state plus what only this machine can answer.
 type statePayload struct {
@@ -98,8 +108,9 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	// the model is downloaded, so it can take minutes.
 	attempt := w.beginAttempt()
 	w.setState(voice.ProvisionState{
-		State: voice.ProvisionStateStarting, Percent: voice.ProvisionPercentUnknown,
-		Engine: w.cfg.Engine.Name(), Model: st.Model, Attempts: attempt,
+		State: voice.ProvisionStateStarting, Step: voice.ProvisionStepStart,
+		Percent: voice.ProvisionPercentUnknown,
+		Engine:  w.cfg.Engine.Name(), Model: st.Model, Attempts: attempt,
 		Message: "Đang khởi động bộ đọc…",
 	})
 	_ = w.publishState(ctx)
@@ -214,6 +225,10 @@ func (w *Worker) publishState(ctx context.Context) error {
 		return nil
 	}
 	next.UpdatedAt = w.now().UTC()
+	// Hai sự thật chỉ máy này biết, luôn đi kèm mỗi lần công bố: kênh nối (chỗ
+	// Nâng cao hiện "Kênh nối") và việc máy nhận làm thêm ngoài tạo hàng loạt.
+	next.Channel = w.channel()
+	next.Capabilities = &voice.ProvisionCapabilities{Preview: w.cfg.Preview}
 	body, err := json.Marshal(statePayload{ProvisionState: next, FFmpeg: w.ffmpeg})
 	if err != nil {
 		return err
@@ -348,13 +363,21 @@ func (w *Worker) beginAttempt() int {
 
 // fail records a failed attempt and schedules the next one, or stops retrying
 // once the budget for this start is spent.
+//
+// hash_mismatch never auto-retries: the file that arrived did not match the pin,
+// which is a safety signal (a broken mirror, a proxy rewriting bytes), not a
+// transient network glitch. The worker keeps the error and waits for an operator
+// click, exactly as 10-audio.md §8.2 promises the user.
 func (w *Worker) fail(p *voice.ProvisionError) {
 	w.mu.Lock()
 	attempt := w.attempts
 	delay := time.Duration(0)
-	if attempt <= len(w.cfg.ProvisionBackoff) {
+	switch {
+	case p != nil && p.Code == voice.ProvisionErrHashMismatch:
+		w.exhausted = true
+	case attempt <= len(w.cfg.ProvisionBackoff):
 		delay = w.cfg.ProvisionBackoff[attempt-1]
-	} else {
+	default:
 		w.exhausted = true
 	}
 	if delay > 0 {

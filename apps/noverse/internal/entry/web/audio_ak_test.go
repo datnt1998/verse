@@ -137,7 +137,7 @@ func TestAudioJobRowsShowUpdate(t *testing.T) {
 		}
 	}
 
-	rows := audioRows(entry.(audioEntry), time.Now())
+	rows := audioRows(entry.(audioEntry), time.Now(), true)
 	var found bool
 	for _, row := range rows {
 		if row.ID != "proj/01-tra-xanh/audio/1" {
@@ -177,7 +177,7 @@ func TestAudioJobRowsShowUpdate(t *testing.T) {
 	f.queueBody(t, `{"chapters":[1],"lock":false}`)
 	deadline := time.Now().Add(20 * time.Second)
 	for time.Now().Before(deadline) {
-		for _, row := range audioRows(entry.(audioEntry), time.Now()) {
+		for _, row := range audioRows(entry.(audioEntry), time.Now(), true) {
 			if row.ID == "proj/01-tra-xanh/audio/1/1" && row.Status == "failed" {
 				if row.Title != "Cập nhật giọng chương 1" {
 					t.Fatalf("error row title = %q", row.Title)

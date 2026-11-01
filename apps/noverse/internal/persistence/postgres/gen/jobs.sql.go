@@ -232,6 +232,21 @@ func (q *Queries) CompleteJob(ctx context.Context, arg CompleteJobParams) (Job, 
 	return i, err
 }
 
+const countQueuedJobs = `-- name: CountQueuedJobs :one
+SELECT count(*)::int
+FROM jobs
+WHERE kind = $1 AND state = 'queued'
+`
+
+// Số việc của một loại đang xếp hàng trên toàn máy chủ (không lọc project):
+// GET /api/tts/status dùng nó cho `queueWaiting` khi máy đọc chưa sẵn sàng.
+func (q *Queries) CountQueuedJobs(ctx context.Context, kind string) (int32, error) {
+	row := q.db.QueryRow(ctx, countQueuedJobs, kind)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const failJob = `-- name: FailJob :one
 UPDATE jobs
 SET state = 'failed',

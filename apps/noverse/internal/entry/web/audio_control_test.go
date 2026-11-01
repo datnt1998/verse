@@ -52,11 +52,11 @@ func TestAudioExportProviderCancelsWaitingRequest(t *testing.T) {
 	if conflictBody["jobId"] != "proj/01-tra-xanh/audio/1/export" || conflictBody["error"] == "" {
 		t.Fatalf("409 must carry jobId+message: %s", conflict.Body.String())
 	}
-	if err := newAudioJobsProvider().Control(context.Background(), "proj/01-tra-xanh/audio/1/export", "cancel"); err != nil {
+	if err := newAudioJobsProvider(nil).Control(context.Background(), "proj/01-tra-xanh/audio/1/export", "cancel"); err != nil {
 		t.Fatalf("export provider cancel: %v", err)
 	}
 	waitAudioExportState(t, f.svc, audio.JobCanceled)
-	for _, row := range audioRows(audioEntry{svc: f.svc, project: "proj", story: "01-tra-xanh"}, time.Now()) {
+	for _, row := range audioRows(audioEntry{svc: f.svc, project: "proj", story: "01-tra-xanh"}, time.Now(), true) {
 		if strings.HasSuffix(row.ID, "/export") {
 			t.Fatalf("canceled export still visible: %+v", row)
 		}
@@ -110,7 +110,7 @@ func TestAudioExportProviderRetriesFailedSelection(t *testing.T) {
 	if err := os.Remove(existing); err != nil {
 		t.Fatal(err)
 	}
-	if err := newAudioJobsProvider().Control(context.Background(), "proj/01-tra-xanh/audio/1/export", "retry"); err != nil {
+	if err := newAudioJobsProvider(nil).Control(context.Background(), "proj/01-tra-xanh/audio/1/export", "retry"); err != nil {
 		t.Fatalf("export provider retry: %v", err)
 	}
 	request := waitAudioExportState(t, f.svc, audio.JobDone)

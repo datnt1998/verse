@@ -46,6 +46,7 @@ var workerStepValues = map[string]bool{
 	voice.ProvisionStepSource: true,
 	voice.ProvisionStepDeps:   true,
 	voice.ProvisionStepModel:  true,
+	voice.ProvisionStepStart:  true,
 }
 
 // normalized validates the payload and returns the JSON to store. An unknown
@@ -61,6 +62,9 @@ func (b workerStateBody) normalized() ([]byte, error) {
 	if b.Percent < voice.ProvisionPercentUnknown || b.Percent > 100 {
 		return nil, fmt.Errorf("phần trăm ngoài khoảng: %d", b.Percent)
 	}
+	if b.BytesDone < 0 || b.BytesTotal < 0 || b.EtaSec < 0 {
+		return nil, fmt.Errorf("số đo tải không hợp lệ: %d/%d, còn %ds", b.BytesDone, b.BytesTotal, b.EtaSec)
+	}
 	if b.Error != nil {
 		if strings.TrimSpace(b.Error.Code) == "" {
 			return nil, fmt.Errorf("lỗi chuẩn bị phải có mã")
@@ -70,6 +74,7 @@ func (b workerStateBody) normalized() ([]byte, error) {
 	b.Message = strings.TrimSpace(b.Message)
 	b.Model = strings.TrimSpace(b.Model)
 	b.Version = strings.TrimSpace(b.Version)
+	b.Channel = strings.TrimSpace(b.Channel)
 	if b.UpdatedAt.IsZero() {
 		b.UpdatedAt = time.Now().UTC()
 	}

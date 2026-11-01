@@ -35,7 +35,7 @@ func TestAudioRowsGroupVolumesAndFailedChapters(t *testing.T) {
 	}
 	defer svc.Close()
 
-	rows := audioRows(audioEntry{svc: svc, project: "p", story: "s"}, time.Now())
+	rows := audioRows(audioEntry{svc: svc, project: "p", story: "s"}, time.Now(), true)
 	byID := map[string]Job{}
 	for _, r := range rows {
 		byID[r.ID] = r

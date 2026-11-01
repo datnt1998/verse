@@ -25,23 +25,64 @@ import (
 // polling GET /api/tts/install (cùng một InstallProgress) — UI dùng SSE, tự
 // polling làm dự phòng khi mạng chập chờn.
 
-// ttsStatusResponse là JSON của GET /api/tts/status.
+// ttsStatusResponse là JSON của GET /api/tts/status (Gói AT, 10-audio.md §8).
+//
+// Một hình dạng cho cả hai bản chạy: `mode` nói số liệu đến từ đâu — bản máy
+// chủ đọc trạng thái do máy đọc công bố, bản cá nhân đọc lượt chuẩn bị cục bộ.
+// `percent` là null khi bước đang chạy không đo được (không bao giờ 0 thay thế);
+// `error` chỉ có mã + câu, UI tự dịch mã sang câu 8.2.
 type ttsStatusResponse struct {
-	Ready          bool     `json:"ready"`
-	Engine         string   `json:"engine"`
-	Model          string   `json:"model"`
-	Device         string   `json:"device"`
-	Quality        string   `json:"quality"`
-	State          string   `json:"state"`
-	Error          string   `json:"error"`
-	Note           string   `json:"note,omitempty"`
-	RTF            *float64 `json:"rtf"`
-	SampleRate     int      `json:"sampleRate"`
-	Cloning        bool     `json:"cloning"`
-	Qualities      []string `json:"qualities"`
-	FFmpeg         bool     `json:"ffmpeg"`
-	Installed      bool     `json:"installed"`
-	InstalledBytes int64    `json:"installedBytes"`
+	Mode           string          `json:"mode"` // hosted | local
+	Ready          bool            `json:"ready"`
+	Engine         string          `json:"engine"`
+	Model          string          `json:"model"`
+	Device         string          `json:"device"`
+	Quality        string          `json:"quality"`
+	State          string          `json:"state"`
+	Step           string          `json:"step"`
+	Percent        *int            `json:"percent"`
+	BytesDone      int64           `json:"bytesDone"`
+	BytesTotal     int64           `json:"bytesTotal"`
+	EtaSec         int             `json:"etaSec"`
+	Error          *ttsStatusError `json:"error"`
+	LastSeenAt     *time.Time      `json:"lastSeenAt"`
+	Machine        *ttsMachine     `json:"machine"`
+	Version        string          `json:"version"`
+	DiskBytes      int64           `json:"diskBytes"`
+	RTF            *float64        `json:"rtf"`
+	Capabilities   ttsCapabilities `json:"capabilities"`
+	QueueWaiting   int             `json:"queueWaiting"`
+	FFmpeg         bool            `json:"ffmpeg"`
+	SampleRate     int             `json:"sampleRate"`
+	Cloning        bool            `json:"cloning"`
+	Qualities      []string        `json:"qualities"`
+	Installed      bool            `json:"installed"`
+	InstalledBytes int64           `json:"installedBytes"`
+	Note           string          `json:"note,omitempty"`
+	// Chỉ quản trị (Tuỳ chỉnh › Nâng cao): 6 dòng nhật ký gần nhất và kênh nối.
+	LogTail []string `json:"logTail,omitempty"`
+	Channel string   `json:"channel,omitempty"`
+}
+
+// ttsStatusError là lý do một lượt chuẩn bị thất bại. Mã chỉ hiện ở Nâng cao.
+type ttsStatusError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+// ttsMachine là máy đọc đang phục vụ. Bản cá nhân không có máy đọc riêng
+// (`mode: "local"`, `machine: null` — UI tự ghi "Máy này").
+type ttsMachine struct {
+	Name         string     `json:"name"`
+	RevokedAt    *time.Time `json:"revokedAt"`
+	GrantedAt    *time.Time `json:"grantedAt"`
+	Capabilities []string   `json:"capabilities"`
+}
+
+// ttsCapabilities là những gì máy đọc nhận làm thêm ngoài tạo hàng loạt.
+// `preview` = nghe thử giọng theo yêu cầu; UI ẩn nút Nghe thử tới khi có.
+type ttsCapabilities struct {
+	Preview bool `json:"preview"`
 }
 
 // ttsEngineInfo là một mục trong GET /api/tts/engines.
@@ -61,7 +102,9 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 	path, get, post := r.URL.Path, r.Method == http.MethodGet, r.Method == http.MethodPost
 	switch {
 	case path == "/api/tts/status" && get:
-		g.ttsStatus(w, r)
+		g.ttsStatus(w, r, user)
+	case path == "/api/tts/machine/revoke" && post:
+		g.ttsRevokeMachine(w, r, user)
 	case path == "/api/tts/engines" && get:
 		if g.pgAudio != nil {
 			writeJSON(w, 200, g.hostedTTSEngines(r.Context()))
@@ -106,24 +149,50 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 	return true
 }
 
-func (g *Gateway) ttsStatus(w http.ResponseWriter, r *http.Request) {
+func (g *Gateway) ttsStatus(w http.ResponseWriter, r *http.Request, user identity.User) {
 	if g.pgAudio != nil {
-		writeJSON(w, 200, g.hostedTTSStatus(r.Context()))
+		writeJSON(w, 200, g.hostedTTSStatus(r.Context(), user))
 		return
 	}
+	writeJSON(w, 200, g.localTTSStatus(r.Context()))
+}
+
+// localTTSState đổi trạng thái engine cục bộ sang enum của thẻ Máy đọc
+// (missing | provisioning | starting | ready | error). `stopped` = đã cài nhưng
+// tiến trình đang tắt, tự bật lại khi cần — với người dùng đó là "chưa chuẩn bị".
+func localTTSState(state string) string {
+	switch state {
+	case voice.StateInstalling:
+		return voice.ProvisionStateProvisioning
+	case voice.StateStarting:
+		return voice.ProvisionStateStarting
+	case voice.StateReady:
+		return voice.ProvisionStateReady
+	case voice.StateError:
+		return voice.ProvisionStateError
+	default:
+		return voice.ProvisionStateMissing
+	}
+}
+
+// localTTSStatus dựng cùng hình dạng với bản máy chủ từ lượt chuẩn bị cục bộ:
+// `mode: "local"`, không có `machine` (UI ghi "Máy này"), Nghe thử luôn có vì
+// chính tiến trình này đọc được.
+func (g *Gateway) localTTSStatus(ctx context.Context) ttsStatusResponse {
 	svc := ttsService()
-	ctx, cancel := context.WithTimeout(r.Context(), 15*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
 	st := svc.Status(ctx)
 	caps := svc.Capabilities()
-	writeJSON(w, 200, ttsStatusResponse{
+	inst := svc.InstallState()
+	resp := ttsStatusResponse{
+		Mode:           "local",
 		Ready:          st.Ready,
 		Engine:         st.Engine,
 		Model:          st.Model,
 		Device:         st.Device,
 		Quality:        svc.Config().Quality,
-		State:          st.State,
-		Error:          st.Error,
+		State:          localTTSState(st.State),
 		Note:           st.Note,
 		RTF:            st.RTF,
 		SampleRate:     caps.SampleRate,
@@ -132,7 +201,70 @@ func (g *Gateway) ttsStatus(w http.ResponseWriter, r *http.Request) {
 		FFmpeg:         ffmpegOnPath(),
 		Installed:      svc.Installed(),
 		InstalledBytes: svc.DiskUsage(),
-	})
+		DiskBytes:      svc.DiskUsage(),
+		Capabilities:   ttsCapabilities{Preview: true},
+	}
+	switch inst.State {
+	case "running":
+		resp.State = voice.ProvisionStateProvisioning
+		resp.Step = inst.Step
+		resp.Percent = installPercentValue(inst.Percent)
+		resp.BytesDone, resp.BytesTotal, resp.EtaSec = inst.BytesDone, inst.BytesTotal, inst.EtaSec
+		resp.Version = inst.Version
+		if resp.Version == "" {
+			resp.Version = st.Model
+		}
+	case "error":
+		if !st.Ready {
+			resp.State = voice.ProvisionStateError
+			resp.Error = &ttsStatusError{Code: inst.ErrorCode, Message: firstNonEmpty(inst.Message, inst.Error)}
+			resp.Version = inst.Version
+		}
+	case "done":
+		resp.Version = firstNonEmpty(inst.Version, resp.Version)
+	}
+	return resp
+}
+
+// installPercentValue đổi con trỏ phần trăm của lượt cài sang hình dạng API:
+// nil = bước không đo được (không bao giờ 0 thay thế).
+func installPercentValue(p *int) *int {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+
+
+// ttsRevokeMachine thu hồi quyền của máy đọc đang phục vụ (một bước, Nâng cao):
+// credential ngừng nhận việc ngay, máy không còn claim/heartbeat/publish được,
+// và trạng thái chuyển sang `error · token_rejected` để cấp lại quyền là việc
+// tiếp theo. Không xoá dữ liệu nào — cấp lại quyền là dùng lại được.
+func (g *Gateway) ttsRevokeMachine(w http.ResponseWriter, r *http.Request, user identity.User) {
+	if !canControlMachineJobs(user) {
+		jsonError(w, http.StatusForbidden, "Không có quyền")
+		return
+	}
+	if g.pgAudio == nil || g.pgAudio.Jobs == nil {
+		jsonError(w, http.StatusNotFound, "Bản này không có máy đọc nào để thu hồi quyền")
+		return
+	}
+	ctx := r.Context()
+	snap := g.workerSnapshot(ctx)
+	if !snap.Found {
+		jsonError(w, http.StatusNotFound, "Chưa có máy đọc nào kết nối")
+		return
+	}
+	if snap.Revoked {
+		writeJSON(w, http.StatusOK, map[string]any{"ok": true, "machine": snap.Name})
+		return
+	}
+	if err := g.pgAudio.Jobs.RevokeWorker(ctx, snap.ID); err != nil {
+		jsonError(w, http.StatusInternalServerError, "Chưa thu hồi được quyền của máy đọc")
+		return
+	}
+	writeJSON(w, http.StatusOK, map[string]any{"ok": true, "machine": snap.Name})
 }
 
 // ttsEngineDescriptions là tên + mô tả tiếng Việt của engine đã biết.
@@ -307,6 +439,15 @@ type ttsPreviewRequest struct {
 
 // ttsPreview đọc thử một đoạn và trả thẳng audio/wav.
 func (g *Gateway) ttsPreview(w http.ResponseWriter, r *http.Request) {
+	if g.pgAudio != nil {
+		// Bản máy chủ chỉ nghe thử được khi máy đọc báo nhận việc này
+		// (`capabilities.preview`); không thì UI ẩn nút và endpoint nói thẳng
+		// thay vì treo một lời gọi không bao giờ xong (10-audio.md §8.4 #6).
+		if !g.hostedPreviewSupported(r.Context()) {
+			jsonError(w, http.StatusServiceUnavailable, "Máy đọc chưa hỗ trợ nghe thử")
+			return
+		}
+	}
 	var req ttsPreviewRequest
 	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&req); err != nil {
 		jsonError(w, 400, "Dữ liệu gửi lên không đọc được")

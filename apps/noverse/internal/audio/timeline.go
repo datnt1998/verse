@@ -24,6 +24,9 @@ type TimelineChapter struct {
 	ChapterChanged bool       `json:"chapterChanged"`
 	ScriptChanged  bool       `json:"scriptChanged"`
 	StaleReason    string     `json:"staleReason"`
+	// WaitingMachine đúng khi chương đang xếp hàng tạo giọng nhưng chưa có máy
+	// đọc nào sẵn sàng (10-audio.md §8.3); lớp web đặt cờ khi phục vụ.
+	WaitingMachine bool `json:"waitingMachine,omitempty"`
 }
 
 type QueueView struct {

@@ -64,6 +64,11 @@ type Config struct {
 	// ProvisionBackoff is the wait before each retry of a failed provision; the
 	// number of delays + 1 bounds the attempts of one start.
 	ProvisionBackoff []time.Duration
+	// Preview advertises whether the server may ask this machine for an
+	// on-demand voice preview (`capabilities.preview`). The Mac build leaves it
+	// false until the server has a reverse preview path: the UI then hides
+	// Nghe thử instead of offering a button that cannot work (10-audio.md §8.4).
+	Preview bool
 	// StateEvery throttles percent-only state posts (default 2 s).
 	StateEvery time.Duration
 	// Now is the clock; tests replace it.

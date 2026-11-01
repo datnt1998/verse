@@ -12,18 +12,26 @@ import (
 	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 )
 
-// audioJobsProvider 把各故事的音频生成队列汇总进任务中心（14-jobs-dock）：
-// 每个正在生成的卷一行，出错的章节另起一行。
-type audioJobsProvider struct{}
+type audioJobsProvider struct{ g *Gateway }
 
-func newAudioJobsProvider() JobsProvider { return audioJobsProvider{} }
+func newAudioJobsProvider(g *Gateway) JobsProvider { return audioJobsProvider{g: g} }
+
+// machineReady: chương tạo giọng xếp hàng có phải đang chờ máy đọc không.
+// Bản cá nhân đọc bằng máy này nên luôn "có máy"; chỉ bản máy chủ mới chờ.
+func (p audioJobsProvider) machineReady(ctx context.Context) bool {
+	if p.g == nil {
+		return true
+	}
+	return p.g.voiceMachineReady(ctx)
+}
 
 func (audioJobsProvider) Kind() string { return "audio" }
 
-func (audioJobsProvider) Jobs() []Job {
+func (p audioJobsProvider) Jobs() []Job {
 	var out []Job
+	machineReady := p.machineReady(context.Background())
 	audioServices.Range(func(_, v any) bool {
-		out = append(out, audioRows(v.(audioEntry), time.Now())...)
+		out = append(out, audioRows(v.(audioEntry), time.Now(), machineReady)...)
 		return true
 	})
 	return out
@@ -71,7 +79,7 @@ func (p audioJobsProvider) Watch(ctx context.Context, emit func(JobChange)) {
 			v, ok := audioServices.Load(dir)
 			now := map[string]Job{}
 			if ok {
-				for _, row := range audioRows(v.(audioEntry), time.Now()) {
+				for _, row := range audioRows(v.(audioEntry), time.Now(), p.machineReady(ctx)) {
 					now[row.ID] = row
 					emit(JobChange{Job: row})
 				}
@@ -201,8 +209,9 @@ func audioJobActive(state string) bool {
 	return state == audio.JobQueued || state == audio.JobRendering || state == audio.JobPaused
 }
 
-// audioRows 把一个故事的队列折成任务中心的行。
-func audioRows(entry audioEntry, now time.Time) []Job {
+// audioRows 把一个故事的队列折成任务中心的行。machineReady=false 时，
+// 还在 xếp hàng 的生成行带上 waitingMachine=true（§AT §8.3：等的是 máy đọc）。
+func audioRows(entry audioEntry, now time.Time, machineReady bool) []Job {
 	jobs := entry.svc.Queue()
 	spa := "/p/" + url.PathEscape(entry.project) + "/s/" + url.PathEscape(entry.story) + "/audio/"
 	idBase := entry.project + "/" + entry.story + "/audio/"
@@ -332,9 +341,24 @@ func audioRows(entry audioEntry, now time.Time) []Job {
 		default:
 			row.Status = "running"
 		}
+		// Việc còn xếp hàng nhưng không có máy đọc sẵn sàng: báo thẳng
+		// "đang chờ máy đọc" thay vì giả vờ đang đọc (§AT §8.3).
+		if !machineReady && audioHasQueued(run) {
+			row.WaitingMachine = true
+		}
 		rows = append(rows, row)
 	}
 	return rows
+}
+
+// audioHasQueued: trong lượt có chương đang chờ claim (queued, không paused).
+func audioHasQueued(run []audio.Job) bool {
+	for _, j := range run {
+		if j.State == audio.JobQueued {
+			return true
+		}
+	}
+	return false
 }
 
 // exportJobRow 折出一条 §AE 的导出任务行：kind=export、title="Ghép Tập N"、

@@ -76,7 +76,13 @@ type provisionRun struct {
 	deps   *provisionDeps
 	report voice.ProvisionReporter
 	uv     string
-	last   int
+	// step/last là mốc của bước đang chạy: phần trăm là phần trăm CỦA BƯỚC
+	// (bước sau bắt đầu lại từ 0), chỉ không được lùi trong cùng một bước.
+	step string
+	last int
+	// Mốc đo bước tải mẫu giọng để quy ra tốc độ và thời gian còn lại.
+	modelStart   time.Time
+	modelStartAt int64
 }
 
 // Provision chuẩn bị bộ đọc để worker dùng được: uv ghim, Python 3.12, mã
@@ -134,18 +140,18 @@ func (r *provisionRun) run(ctx context.Context) error {
 			fmt.Errorf("cần ít nhất 4 GB trống để cài bộ đọc, chỉ còn %.1f GB", float64(free)/(1<<30)))
 	}
 
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, 0, "Đang chuẩn bị công cụ tải (uv)…")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "Đang chuẩn bị công cụ tải (uv)…")
 	if err := r.deps.ensureTools(r, ctx); err != nil {
 		return r.fail(ctx, voice.ProvisionErrUVFailed, err)
 	}
 
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, 8, "Đang chuẩn bị Python "+provisionPythonVersion+"…")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Đang chuẩn bị Python "+provisionPythonVersion+"…")
 	if err := r.deps.ensurePython(r, ctx); err != nil {
 		return r.fail(ctx, voice.ProvisionErrUVFailed, err)
 	}
 
 	if !installed || !atPin {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, 15, "Đang tải mã nguồn VieNeu-TTS…")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Đang tải mã nguồn VieNeu-TTS…")
 		if err := r.deps.syncSource(r, ctx); err != nil {
 			return r.fail(ctx, sourceErrorCode(err), err)
 		}
@@ -154,17 +160,21 @@ func (r *provisionRun) run(ctx context.Context) error {
 			return r.fail(ctx, voice.ProvisionErrDepsFailed, err)
 		}
 	} else {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, 15, "Mã nguồn đã đúng bản ghim")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Mã nguồn đã đúng bản ghim")
 		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepDeps, 65, "Thư viện Python đã sẵn sàng")
 	}
 
 	if !modelReady {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, 65, "Đang tải mô hình giọng đọc (~600 MB)…")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, voice.ProvisionPercentUnknown, "Đang tải mẫu giọng…")
 		if err := r.deps.startModel(r, ctx); err != nil {
 			return r.fail(ctx, voice.ProvisionErrModelFailed, err)
 		}
 	} else {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, 99, "Mô hình đã có sẵn trên máy")
+		r.emitMeasured(voice.ProvisionState{
+			State: voice.ProvisionStateProvisioning, Step: voice.ProvisionStepModel,
+			Percent: 100, BytesDone: modelBytes, BytesTotal: modelBytes,
+			Message: "Mẫu giọng đã có sẵn trên máy",
+		})
 	}
 
 	st := installState{
@@ -193,25 +203,29 @@ func sourceErrorCode(err error) string {
 	return voice.ProvisionErrDownloadFailed
 }
 
-// emit phát một mốc trạng thái. Phần trăm chỉ tăng: mốc sau thấp hơn mốc
-// trước bị kéo lên, còn -1 (không đo được) không làm đổi mốc đã phát.
+// emit phát một mốc trạng thái. Phần trăm là phần trăm CỦA BƯỚC đang chạy
+// (bước mới bắt đầu lại từ 0) và không lùi trong cùng một bước; -1 = bước không
+// đo được, UI hiện vòng xoay thay vì một con số bịa.
 func (r *provisionRun) emit(state, step string, percent int, msg string) {
-	if percent >= 0 {
-		if percent < r.last {
-			percent = r.last
-		}
-		r.last = percent
+	r.emitMeasured(voice.ProvisionState{State: state, Step: step, Percent: percent, Message: msg})
+}
+
+// emitMeasured như emit nhưng mang thêm số đo của bước tải (đã tải / tổng / còn lại).
+func (r *provisionRun) emitMeasured(st voice.ProvisionState) {
+	if st.Step != r.step {
+		r.step, r.last = st.Step, -1
 	}
-	r.report(voice.ProvisionState{
-		State:     state,
-		Step:      step,
-		Percent:   percent,
-		Message:   msg,
-		Engine:    r.e.Name(),
-		Model:     r.e.cfg.Quality,
-		Version:   pinnedTag,
-		UpdatedAt: time.Now().UTC(),
-	})
+	if st.Percent >= 0 {
+		if st.Percent < r.last {
+			st.Percent = r.last
+		}
+		r.last = st.Percent
+	}
+	st.Engine = r.e.Name()
+	st.Model = r.e.cfg.Quality
+	st.Version = pinnedTag
+	st.UpdatedAt = time.Now().UTC()
+	r.report(st)
 }
 
 // fail phát trạng thái lỗi và trả lỗi mang mã. Huỷ của ctx được giữ trong
@@ -273,7 +287,7 @@ func (r *provisionRun) ensureTools(ctx context.Context) error {
 	spec := toolchain.UvInstallSpec(nil)
 	selfCheck := spec.SelfCheck
 	spec.SelfCheck = func(ctx context.Context, ic *toolchain.InstallContext, staging string) (string, error) {
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, 4, "Đang cài uv (bộ tải Python)…")
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "Đang cài uv (bộ tải Python)…")
 		return selfCheck(ctx, ic, staging)
 	}
 	inst := &toolchain.Installer{BaseDir: home}
@@ -285,7 +299,7 @@ func (r *provisionRun) ensureTools(ctx context.Context) error {
 		return errors.New("cài uv xong nhưng không tìm thấy binary")
 	}
 	r.uv = exe
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, 8, "Đã có uv "+toolchain.UvPin().Version)
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepTools, voice.ProvisionPercentUnknown, "Đã có uv "+toolchain.UvPin().Version)
 	return nil
 }
 
@@ -295,11 +309,11 @@ func (r *provisionRun) ensurePython(ctx context.Context) error {
 	if err := os.MkdirAll(filepath.Join(home, "python"), 0o755); err != nil {
 		return err
 	}
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, 10, "Đang tải Python "+provisionPythonVersion+"…")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Đang tải Python "+provisionPythonVersion+"…")
 	if err := r.runUV(ctx, home, nil, "python", "install", provisionPythonVersion); err != nil {
 		return fmt.Errorf("cài Python %s thất bại: %w · %s", provisionPythonVersion, err, r.e.logTail(4))
 	}
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, 15, "Python "+provisionPythonVersion+" đã sẵn sàng")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepPython, voice.ProvisionPercentUnknown, "Python "+provisionPythonVersion+" đã sẵn sàng")
 	return nil
 }
 
@@ -312,12 +326,10 @@ func (r *provisionRun) syncSource(ctx context.Context) error {
 	}
 	archive := filepath.Join(dlDir, sourcePin.Name)
 	inst := &toolchain.Installer{BaseDir: r.e.cfg.Home}
-	tick := func(done int64) error {
-		pct := 15
-		if sourcePin.SizeBytes > 0 {
-			pct = 15 + int(min(done*10/sourcePin.SizeBytes, 10))
-		}
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, pct, "Đang tải mã nguồn VieNeu-TTS…")
+	tick := func(int64) error {
+		// "Tải bộ đọc" là bước không đo được trên thẻ Máy đọc (10-audio.md §8.1):
+		// chỉ vòng xoay + một dòng, không %.
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Đang tải mã nguồn VieNeu-TTS…")
 		return nil
 	}
 	if err := inst.DownloadVerified(ctx, sourcePin, archive, tick); err != nil {
@@ -369,7 +381,7 @@ func (r *provisionRun) installSourceArchive(archive string) error {
 	if old != "" {
 		_ = os.RemoveAll(old)
 	}
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, 25, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
 	return nil
 }
 
@@ -383,7 +395,7 @@ func (r *provisionRun) cloneSource(ctx context.Context) error {
 	if _, err := os.Stat(filepath.Join(src, ".git")); err == nil {
 		if err := runQuiet(ctx, src, r.e.logPath(), "git", "fetch", "--depth", "1", "origin", "refs/tags/"+pinnedTag); err == nil {
 			if err := runQuiet(ctx, src, r.e.logPath(), "git", "checkout", "-f", "FETCH_HEAD"); err == nil {
-				r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, 25, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
+				r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
 				return nil
 			}
 		}
@@ -398,7 +410,7 @@ func (r *provisionRun) cloneSource(ctx context.Context) error {
 		"clone", "--depth", "1", "--branch", pinnedTag, repoURL, src); err != nil {
 		return fmt.Errorf("tải mã nguồn VieNeu-TTS thất bại: %w", err)
 	}
-	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, 25, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
+	r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepSource, voice.ProvisionPercentUnknown, "Mã nguồn VieNeu-TTS "+pinnedTag+" đã sẵn sàng")
 	return nil
 }
 
@@ -425,15 +437,50 @@ func (r *provisionRun) syncDeps(ctx context.Context) error {
 // startModel bật máy đọc; lần đầu máy đọc tự tải mô hình về hf/ và /health chỉ
 // trả ok sau khi mô hình sẵn sàng.
 func (r *provisionRun) startModel(ctx context.Context) error {
+	r.modelStart, r.modelStartAt = time.Time{}, 0
 	_, err := r.e.ensureStarted(ctx, r.e.cfg.Quality, func(bytes int64) {
-		pct := 65 + int(min(bytes*34/modelBytes, 34))
-		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, pct,
-			fmt.Sprintf("Đang tải mô hình giọng đọc… (%.0f MB)", float64(bytes)/(1<<20)))
+		r.emitModel(bytes, modelBytes)
 	})
 	if err != nil {
 		return fmt.Errorf("khởi động bộ đọc thất bại: %w · %s", err, r.e.logTail(6))
 	}
 	return nil
+}
+
+// emitModel phát mốc của bước tải mẫu giọng: % theo số byte đã tải và thời gian
+// còn lại ước từ tốc độ đo được. Bước này là bước duy nhất có cả % lẫn MB.
+func (r *provisionRun) emitModel(done, total int64) {
+	if total <= 0 {
+		r.emit(voice.ProvisionStateProvisioning, voice.ProvisionStepModel, voice.ProvisionPercentUnknown,
+			"Đang tải mẫu giọng…")
+		return
+	}
+	if done < 0 {
+		done = 0
+	}
+	if done > total {
+		done = total
+	}
+	now := time.Now()
+	if r.modelStart.IsZero() {
+		r.modelStart, r.modelStartAt = now, done
+	}
+	eta := 0
+	if elapsed := now.Sub(r.modelStart).Seconds(); elapsed >= 1 && done > r.modelStartAt {
+		rate := float64(done-r.modelStartAt) / elapsed // byte/giây
+		if rate > 0 {
+			eta = int(float64(total-done) / rate)
+		}
+	}
+	r.emitMeasured(voice.ProvisionState{
+		State:      voice.ProvisionStateProvisioning,
+		Step:       voice.ProvisionStepModel,
+		Percent:    int(done * 100 / total),
+		BytesDone:  done,
+		BytesTotal: total,
+		EtaSec:     eta,
+		Message: fmt.Sprintf("Đang tải mẫu giọng… (%.0f MB)", float64(done)/(1<<20)),
+	})
 }
 
 // runUV chạy binary uv app quản với môi trường UV_* trỏ vào thư mục dữ liệu

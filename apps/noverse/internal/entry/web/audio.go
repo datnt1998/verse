@@ -465,6 +465,20 @@ func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user i
 			audioError(w, err)
 			return true
 		}
+		// Việc tạo giọng xếp hàng mà không có máy đọc sẵn sàng: đánh dấu từng
+		// chương/việc `waitingMachine` để UI ghi "đang chờ máy đọc" (§AT §8.3).
+		if !g.voiceMachineReady(r.Context()) {
+			for i := range view.Jobs {
+				if view.Jobs[i].State == audio.JobQueued {
+					view.Jobs[i].WaitingMachine = true
+				}
+			}
+			for i := range view.Chapters {
+				if view.Chapters[i].State == "queued" {
+					view.Chapters[i].WaitingMachine = true
+				}
+			}
+		}
 		writeJSON(w, http.StatusOK, view)
 		return true
 	case "renders":
