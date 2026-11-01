@@ -316,6 +316,9 @@ export const channelsCopy = {
   },
 
   settings: {
+    sectionLabel: 'Thông tin và cài đặt kênh',
+    identityLabel: 'Nhận diện kênh',
+    navLabel: 'Lối tắt trong kênh',
     infoTitle: 'Thông tin kênh',
     name: 'Tên kênh',
     namePlaceholder: 'Tên kênh',
@@ -346,8 +349,12 @@ export const channelsCopy = {
     writingHint: 'Tự lưu khi rời ô. Áp dụng cho video viết sau đó. Video đã có tiêu đề giữ nguyên; muốn áp thì bấm Viết lại ở Bàn dựng › Nội dung. Vẫn giữ giới hạn YouTube: mô tả 5.000 ký tự, tối đa 30 tag, tổng 500 ký tự.',
     linkSources: 'Nguồn & tự động',
     linkTemplates: 'Template luân phiên',
+    linkAssistant: 'Trợ lý AI',
     linkSourcesSub: (rivals: number, pace: number) => `${rivals} đối thủ · Nhịp ${pace}/ngày`,
     linkTemplatesSub: (n: number) => `${n} template`,
+    linkAssistantSub: 'Dùng chung mọi kênh',
+    linkAssistantModels: (director: string, provider: string) =>
+      provider ? `Dùng chung mọi kênh · Đạo diễn ${director} · vẽ bằng ${provider}` : `Dùng chung mọi kênh · Đạo diễn ${director}`,
     deleteTitle: 'Xoá kênh khỏi Viderse',
     deleteBody: 'Bỏ kênh, lịch tự lấy video và thứ tự template. Video đã làm vẫn còn trong Bàn dựng; template và kênh đối thủ giữ nguyên. Kênh trên YouTube không bị đụng tới.',
     deleteConsequence: 'Đối thủ đã theo dõi vẫn ở Khám phá; template dùng chung giữ nguyên.',

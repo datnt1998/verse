@@ -1,7 +1,7 @@
 // Kiểu banner học (.vv-learn, .vv-banner--ready) và dòng quy tắc (.vv-rule) — số đo từ
 // getComputedStyle của artboard Main `agent=learn`, Review `state=learn`, Channel `tab=settings`.
 import * as stylex from '@stylexjs/stylex'
-import { color } from '@noverse/ui/tokens.stylex'
+import { color, kit } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
@@ -53,7 +53,7 @@ export const learnStyles = stylex.create({
     transition: { default: 'background-color .2s', [NO_MOTION]: 'none' },
     ':disabled': { opacity: 0.4, cursor: 'not-allowed' },
   },
-  ruleSwitchOn: { backgroundColor: color['--color-accent'] },
+  ruleSwitchOn: { backgroundColor: kit['--kit-switch-on'] },
   knob: {
     position: 'absolute', top: s['--vv-s-3'], left: s['--vv-s-3'], width: 16, height: 16, borderRadius: '50%', backgroundColor: color['--color-fg'],
     boxShadow: 'var(--vv-knob-shadow)', transition: { default: 'left .3s ease', [NO_MOTION]: 'none' },
