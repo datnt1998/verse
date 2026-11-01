@@ -86,11 +86,13 @@ describe('MobileShell — MMain', () => {
     expect([...tabs].every((tab) => tab.classList.contains('vv-tabbar__item'))).toBe(true)
     expect(c.querySelector('.vv-tabbar__new')?.closest('a')?.getAttribute('href')).toBe('#/new')
   })
-  it('opens settings from the avatar while keeping the compact real jobs counts', async () => {
+  it('opens settings from the avatar while keeping the real running count on the round jobs button', async () => {
     const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online userName="Linh"><p>x</p></MobileShell>)
     expect(c.querySelector('.vv-mavatar')?.getAttribute('href')).toBe('#/settings')
-    expect(c.querySelector('.vv-mavatar')?.getAttribute('aria-label')).toBe(t.shell.settings)
-    expect(c.querySelector('.vv-jobs .num')?.textContent).toBe(t.shell.jobsCompact(2, 5))
+    expect(c.querySelector('.vv-mavatar')?.getAttribute('aria-label')).toBe(t.shell.accountSettings)
+    // Điện thoại: nút tròn — số việc đang chạy ở giữa, không còn viên chữ “2 · 5”.
+    expect(c.querySelector('.vv-jobsbtn__n')?.textContent).toBe('2')
+    expect(c.querySelector('.vv-jobs .num')).toBeNull()
   })
 })
 

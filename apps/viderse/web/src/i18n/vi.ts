@@ -81,13 +81,34 @@ export const vi = {
     jobsAriaLabel: 'Việc nền',
     jobsUnread: 'Có thông báo chưa đọc',
     jobsTip: (running: number, lanes: number, queued = 0) => `Máy đang chạy ${running}/${lanes} luồng · ${queued} video chờ lượt`,
+    // Nút Việc nền trên điện thoại (06-copy › Thanh trên điện thoại) — câu đầy
+    // đủ nằm ở aria-label vì nút tròn không có chữ.
+    jobsMobileRunning: (running: number, queued: number) => `Việc nền: ${running} đang chạy, ${queued} chờ lượt`,
+    jobsMobileIdle: 'Việc nền: máy rảnh',
+    jobsMobilePaused: (queued: number, time?: string) => `Việc nền: đã tạm dừng${time ? ` lúc ${time}` : ''}, ${queued} chờ lượt`,
+    jobsMobileOffline: 'Việc nền: mất kết nối máy chủ, đang thử lại',
+    /** thêm sau câu trên khi có chấm vàng */
+    jobsUnreadCount: (n: number) => `${n} thông báo cần bạn`,
+    /** chấm vàng nhưng chưa biết số (artboard MKit › Thanh trên) */
+    jobsUnreadHint: 'có thông báo cần bạn',
+    // Sheet Việc nền điện thoại (06-copy › Thanh trên điện thoại và Thông báo).
+    jobsSheetTabs: { running: 'Đang chạy', inbox: 'Thông báo' },
+    jobsSheetInboxSub: (n: number) => `${n} chưa đọc`,
+    jobsSheetInboxReadAll: 'Đã đọc hết',
+    jobsSheetInboxEmpty: 'Chưa có thông báo',
+    markAllRead: 'Đánh dấu đã đọc',
+    notificationSettings: 'Cài đặt thông báo',
+    notificationsEmptyBody: 'Khi video chờ bạn duyệt, cần xử lý hay sẵn sàng đăng, Viderse báo ở đây.',
     openQueue: 'Mở Hàng chờ',
     settings: 'Cài đặt',
     settingsCrumb: 'Cài đặt · máy này',
     settingsAttention: (n: number) => `Cài đặt · ${n} việc cần xem`,
     account: 'Tài khoản của bạn',
+    /** aria của avatar trên thanh trên điện thoại (06-copy › Thanh trên điện thoại) */
+    accountSettings: 'Tài khoản và cài đặt',
     channelSwitcher: 'Đổi kênh',
     viewingAllChannels: 'đang xem Mọi kênh',
+    selectingChannel: (name: string) => `đang chọn ${name}`,
   },
 
   // Dải mất kết nối (System artboard · state=offline).

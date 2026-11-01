@@ -10,6 +10,9 @@ import { Icon, type IconName } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { JobsPill } from './JobsPill'
 import type { Status } from '../api/status'
+import { getActivity } from '../api/activity'
+import { keys } from '../data/keys'
+import { useResource } from '../data/useResource'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
@@ -76,10 +79,15 @@ export function MobileShell({ route, status, online, userName, channels, channel
   children: ReactNode
 }) {
   const [jobsOpen, setJobsOpen] = useState(false)
+  const [jobsTab, setJobsTab] = useState<'running' | 'inbox'>('running')
+  const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   if (route.name === 'queue') return <div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>{children}</div>
   const running = status?.running ?? 0
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
+  /* Chấm vàng đếm đúng thông báo cần bạn chưa đọc — cùng nguồn với sheet Việc nền
+     (§11 GET /api/activity), nên “Đánh dấu đã đọc” là chấm mất. */
+  const unread = activity.data?.unread.length ?? 0
   const isNew = route.name === 'new'
   // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
   if (isNew) {
@@ -99,22 +107,23 @@ export function MobileShell({ route, status, online, userName, channels, channel
   return (
     <div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
       <header role="banner" className={`vv-mbar ${stylex.props(mobileShellStyles.bar).className}`}>
+        {/* Logo không phải nút chạm riêng (AppBar đợt 36) — bộ đổi kênh đứng cạnh nó. */}
         <a href={`#${paths.workbench()}`} aria-label={t.brand.name} {...stylex.props(mobileShellStyles.logo)}>
           <LensLogo size={24} spinning={online && running > 0} />
-          <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
         </a>
         {showSwitcher && <ChannelSwitcher mobileBar channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
-        <span {...stylex.props(mobileShellStyles.grow)} />
-        <JobsPill mobileBar status={status} online={online} compact unread={(status?.attention.length ?? 0) > 0} onOpen={() => setJobsOpen(true)} expanded={jobsOpen} />
-        <a href={`#${paths.settings()}`} aria-label={t.shell.settings} className={`vv-mavatar ${stylex.props(mobileShellStyles.avatar).className}`}>
-          {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
-          <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
-        </a>
+        <div {...stylex.props(mobileShellStyles.end)}>
+          <JobsPill mobileBar status={status} online={online} unread={unread} onOpen={() => { setJobsTab(unread > 0 ? 'inbox' : 'running'); setJobsOpen(true) }} expanded={jobsOpen} />
+          <a href={`#${paths.settings()}`} aria-label={t.shell.accountSettings} title={t.shell.settings} className={`vv-mavatar vv-mbtn vv-mbtn--av ${stylex.props(mobileShellStyles.avatar).className}`}>
+            {(userName ?? t.shell.account).slice(0, 1).toLocaleUpperCase('vi-VN')}
+            <span aria-hidden="true" {...stylex.props(mobileShellStyles.touchHalo)} />
+          </a>
+        </div>
       </header>
       {children}
       <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
       <Suspense fallback={null}>
-        <QueueSummarySheet open={jobsOpen} onClose={() => setJobsOpen(false)} />
+        <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
       </Suspense>
     </div>
   )
@@ -123,13 +132,17 @@ export function MobileShell({ route, status, online, userName, channels, channel
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 export const mobileShellStyles = stylex.create({
   shell: { height: '100dvh', display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)', lineHeight: 1.5 },
+  /* AppBar đợt 36: một hàng 52px, đệm 0 12 0 16, khe 10; phải đẩy sát mép khe 8. */
   bar: { position: 'relative', zIndex: 30, flex: '0 0 52px', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], height: 52, padding: `0 ${s['--vv-s-12']} 0 ${s['--vv-s-16']}`, backgroundColor: color['--color-bg'] },
   newBar: { padding: `0 ${s['--vv-s-6']}`, gap: 0 },
   close: { width: 44, height: 44, display: 'grid', placeItems: 'center', borderRadius: radius['--radius-tile'], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color['--color-fg-2'], cursor: 'pointer' },
   newTitle: { flex: 1, minWidth: 0, paddingLeft: s['--vv-s-2'], fontSize: 16, fontWeight: 600 },
-  avatar: { width: 34, height: 34, borderRadius: '50%', flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12.5, fontWeight: 600, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-3'], color: color['--color-fg'], backgroundColor: color['--color-surface-6'], position: { default: null, [TOUCH]: 'relative' }, overflow: { default: null, [TOUCH]: 'visible' } },
-  logo: { display: 'flex', alignItems: 'center', flex: '0 0 auto', position: { default: null, [TOUCH]: 'relative' } },
-  grow: { flex: 1 },
+  /* Nhóm phải: nút Việc nền + avatar, không co, đẩy sát mép phải. */
+  end: { marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flex: '0 0 auto' },
+  /* Mọi phần tử thanh trên cao 36, nền surface-1, viền line-2 (artboard .vv-mbtn). */
+  avatar: { width: 36, height: 36, borderRadius: '50%', flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, letterSpacing: '.02em', borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-2'], color: color['--color-fg'], backgroundColor: color['--color-surface-6'], textDecoration: 'none', position: { default: null, [TOUCH]: 'relative' }, overflow: { default: null, [TOUCH]: 'visible' } },
+  /* Logo 24px không phải nút chạm riêng — chỉ canh giữa theo hàng 36px. */
+  logo: { display: 'flex', alignItems: 'center', flex: '0 0 auto', height: 36 },
   touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2)` },
   tabbar: { position: 'fixed', left: s['--vv-s-14'], right: s['--vv-s-14'], bottom: `calc(${s['--vv-s-4']} + env(safe-area-inset-bottom))`, zIndex: 30, height: 64, display: 'flex', alignItems: 'stretch', justifyContent: 'space-around', padding: s['--vv-s-5'], borderRadius: pipeline.mobileDockRadius, backgroundColor: "var(--vv-glass)", backdropFilter: 'blur(26px) saturate(180%)', borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], boxShadow: '0 22px 44px -14px rgb(from var(--vv-thumb-veil) r g b / .85), 0 2px 8px rgb(from var(--vv-thumb-veil) r g b / .35), inset 0 1px 0 color-mix(in srgb, var(--line-3), var(--line-4))' },
   embeddedTabbar: { position: 'absolute' },
