@@ -141,7 +141,7 @@ func runServe(args []string) error {
 			slog.Warn("serve: ghi thông báo mục không khớp nội dung", "err", err)
 		}
 	}
-	mountServerStorage(gateway, mediaManager, activities, hub, statusSvc, serverCleanup)
+	mountServerStorage(gateway, mediaManager, storageSvc, activities, hub, statusSvc, serverCleanup)
 	// Máy: việc nền, công cụ, nhật ký và bước Chuẩn bị máy. Probe nền và
 	// lượt cài đi theo vòng đời serve — dừng khi serve tắt.
 	machineCtx, machineStop := context.WithCancel(context.Background())

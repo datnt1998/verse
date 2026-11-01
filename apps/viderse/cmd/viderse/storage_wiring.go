@@ -118,13 +118,16 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, activities *activity.Service, hub *events.Hub, statusSvc *status.Service, cleanup *serverstorage.Cleanup) {
+func mountServerStorage(g *web.Gateway, manager *serverstorage.Service, local *storage.Service, activities *activity.Service, hub *events.Hub, statusSvc *status.Service, cleanup *serverstorage.Cleanup) {
 	manager.BindRuntime(activities, func(ctx context.Context, text string) error {
 		_, err := activities.NotifyScoped(ctx, activity.NotificationSpec{Kind: "needs_attention", Text: text, Href: "/settings?section=storage", ActionLabel: "Mở lưu trữ", Audience: activity.AudienceAdmin, Object: &domain.ObjectRef{Type: "storage", ID: "server", Label: "Lưu trữ trên máy chủ"}})
 		return err
 	}, func() { web.Notifier(hub, "storage")(""); statusSvc.Bump() })
 	statusSvc.SetStorageHealthSource(manager)
-	g.SetServerStorageMode(func() bool { return true })
+	// Cổng chỉ khoá thao tác thư mục khi kho media đang ở S3 — máy để kho
+	// local vẫn dùng được Cài đặt › Lưu trữ. `remoteStorage` cập nhật theo nhịp
+	// health của kho (SetStorageWatcher), không phải hằng số.
+	g.SetServerStorageMode(local.RemoteStorage)
 	web.MountServerStorage(g, manager)
 	manager.Start()
 	cleanup.BindManager(manager)
