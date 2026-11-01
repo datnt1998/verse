@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
 const mocks = vi.hoisted(() => ({
-  changePassword: vi.fn(), endSession: vi.fn(), toast: vi.fn(), onDone: vi.fn(), onSkip: vi.fn(), invalidate: vi.fn(async () => {}),
+  changePassword: vi.fn(), endSession: vi.fn(), toast: vi.fn(), onDone: vi.fn(), invalidate: vi.fn(async () => {}),
 }))
 vi.mock('../../../api/client', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../../api/client')>()),
@@ -42,7 +42,7 @@ beforeEach(async () => {
   Object.defineProperty(navigator, 'onLine', { value: true, configurable: true })
   mocks.changePassword.mockResolvedValue({ ok: true, reauthenticate: true })
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
-  await act(async () => root.render(<MobilePassword onDone={mocks.onDone} onSkip={mocks.onSkip} />))
+  await act(async () => root.render(<MobilePassword onDone={mocks.onDone} />))
 })
 afterEach(async () => { await act(async () => root.unmount()); document.body.replaceChildren() })
 

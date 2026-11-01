@@ -20,7 +20,7 @@ import { Icon } from '@noverse/ui'
 import { StepBody } from './OnboardSteps'
 import { WritePreview } from './WritePreview'
 import {
-  USERNAME_RE, OPTIONAL_STEPS, PROVIDER_PRESENTATION, buildPreview, canAdvance, clearFromSetup, configFileOf, configuredProviderId, draftProvider, fromSetup, humanizeSlug,
+  USERNAME_RE, PROVIDER_PRESENTATION, buildPreview, canAdvance, canSkipStep, clearFromSetup, configFileOf, configuredProviderId, draftProvider, fromSetup, humanizeSlug,
   makePassword, libraryStoryCount, onboardProject, passwordStepCopy, projectDefaults, projectSlugError, providerConnection, providerStatusLabel, stepLabel, stepsFor, takeSetupRecovery,
   writableConfig, type OAuthUi, type OnboardFormat, type OnboardModel, type PreviewInput, type RoleModelDraft, type StepKey,
 } from './model'
@@ -687,7 +687,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
                           <span style={{ fontSize: 13, fontWeight: current ? 600 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stepLabel(key, user.role)}</span>
                           <span style={{ fontSize: 11.5, color: '#7E7E8A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</span>
                         </span>
-                        {todo && OPTIONAL_STEPS.includes(key) && (
+                        {todo && canSkipStep(key, user.mustChangePassword && !pwChanged) && (
                           <span style={{ flex: '0 0 auto', fontSize: 10.5, color: '#7E7E8A', marginTop: 2, whiteSpace: 'nowrap' }}>tùy chọn</span>
                         )}
                       </button>
@@ -747,7 +747,7 @@ export function OnboardScreen({ step }: { step: string | null }) {
             )}
             <span style={{ flex: 1 }} />
             {!narrow && <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#7E7E8A' }}><Kbd>Enter</Kbd>tiếp tục</span>}
-            {OPTIONAL_STEPS.includes(stepKey) && (
+            {canSkipStep(stepKey, user.mustChangePassword && !pwChanged) && (
               <Button variant="ghost" onClick={() => void advance(true)} disabled={busy} style={{ height: 38, padding: '0 14px', borderRadius: 10, border: 'none', color: '#A0A0AB', fontSize: 13.5 }}>Để sau</Button>
             )}
             {last && (

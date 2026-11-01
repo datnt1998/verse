@@ -14,6 +14,9 @@ export type StepKey = 'profile' | 'password' | 'provider' | 'model' | 'library' 
 export const ADMIN_STEPS: StepKey[] = ['profile', 'provider', 'model', 'library', 'project', 'mobile', 'done']
 export const BASIC_STEPS: StepKey[] = ['profile', 'password', 'mobile', 'done']
 export const OPTIONAL_STEPS: StepKey[] = ['password', 'project', 'mobile']
+/** Mật khẩu tạm không được bỏ qua: máy chủ chặn mọi API (403 password_change_required) tới khi đổi. */
+export const canSkipStep = (key: StepKey, mustChangePassword: boolean) =>
+  OPTIONAL_STEPS.includes(key) && !(key === 'password' && mustChangePassword)
 
 /** Bản xuất tự động khi xong một tập (Onboard.dc.html › formats) — `narration` là bản đọc TTS. */
 export type OnboardFormat = 'txt' | 'epub' | 'narration'

@@ -65,11 +65,9 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   const { route } = parsed
   useDocumentTitle(route)
   useStorage(false, true, true)
-  const { user } = useSession()
+  const { user, refresh } = useSession()
   const runtime = useMobileRuntime()
   const [target, setTarget] = useState(helpTarget)
-  const [passwordSkipped, setPasswordSkipped] = useState(false)
-  useEffect(() => { setPasswordSkipped(false) }, [user?.username])
   useEffect(() => subscribeHelpTarget(() => setTarget(helpTarget())), [])
   useEffect(() => {
     if ('story' in route) { rememberHelpTarget(); setTarget({ project: route.project, story: route.story }); if (user) setLastStory(user.username, { project: route.project, story: route.story }) }
@@ -89,7 +87,7 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   const canWrite = !!user && !!project && !!story && canWriteStory(user, `${project}/${story}`)
   const selectReviewDot = useCallback((snapshot: Snapshot | undefined) => showReviewDot(snapshot ?? null, user, `${project ?? ''}/${story ?? ''}`), [user, project, story])
   const needYou = useResourceValue(keys.story(project ?? '', story ?? '', 'snapshot'), ({ signal }) => getSnapshot(project ?? '', story ?? '', signal), selectReviewDot, { enabled: !!project && !!story })
-  const firstPassword = Boolean(user?.mustChangePassword && !passwordSkipped)
+  const firstPassword = Boolean(user?.mustChangePassword)
   // M11 · Truyện mới là màn đẩy: không thanh tab, ‹ về nơi mở.
   const subpage = route.name === 'activity' || route.name === 'projbrain' || route.name === 'notifications' || route.name === 'newstory' || (route.name === 'settings' && route.section === 'notify')
   useTabMode(firstPassword || subpage ? 'hide' : undefined)
@@ -145,7 +143,8 @@ function MobileContent({ parsed }: { parsed: Parsed }) {
   }, [project, story, canWrite])
   const chooseStory = useCallback((chosen: { project: string; story: string }) => { rememberHelpTarget(`#${paths.workspace(chosen.project, chosen.story)}`); setTarget(chosen) }, [])
   let screen: ReactNode = null
-  if (firstPassword) screen = <MobileFirstPassword onDone={() => { setPasswordSkipped(true); navigate('/') }} onSkip={() => { setPasswordSkipped(true); navigate('/') }} />
+  // Đổi xong mà không phải đăng nhập lại: tải lại /api/me để bỏ cờ mật khẩu tạm (luồng SSE mở theo cờ này).
+  if (firstPassword) screen = <MobileFirstPassword onDone={() => { void refresh(); navigate('/') }} />
   else if (route.name === 'activity') screen = <MobileActivity project={route.project} story={route.story} />
   // M8 · Não truyện: mở đúng chương đang đọc (`?ch=N`), không mở chương mới nhất; `?person=` mở sẵn tấm kéo lên.
   else if (route.name === 'brain') screen = <MobileBrain key={`${route.project}/${route.story}`} project={route.project} story={route.story} chapter={Number.parseInt(parsed.search.get('ch') ?? '', 10) || null} person={parsed.search.get('person')} />

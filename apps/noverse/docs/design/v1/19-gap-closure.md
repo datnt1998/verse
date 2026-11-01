@@ -972,3 +972,11 @@ Phía máy chủ: bỏ `PUT /api/system/network`, cờ `--lan`, khoá `lan` tron
 - Máy tính › *Mô phỏng văn phong*: mở hộp thoại dán văn mẫu (cùng nội dung ngăn M11) → tạo truyện → gửi từng đoạn → học văn phong; lỗi giữa chừng *Thử lại* không tạo truyện thứ hai. **GAP:** hộp thoại máy tính chưa có artboard — dùng Dialog có sẵn với nội dung ngăn `sheet=samples`.
 - Token `--role-accomplice-fg/bg` dùng ở Nhân vật (máy tính) và M9; huy hiệu Quản trị trên M4 dùng `--members-admin-*`.
 - Chưa kiểm trên bàn phím ảo thật (chỉ DOM + test); GAP-AR1 (danh sách tệp thiết lập) chưa làm — không bắt buộc.
+
+## Mật khẩu tạm bắt buộc đổi — bỏ “Để sau” (01/11/2026, quyết định của chủ dự án) <!-- temp-password-required -->
+
+- Lệch so với `18-mobile.md` › Thêm › mật khẩu tạm lần đầu, `21-dev-prompt.md` M4 và bước Mật khẩu ở `09-auth-onboard.md`: tài khoản còn mật khẩu tạm **không có “Để sau”**, cả điện thoại lẫn máy tính.
+- Lý do: máy chủ trả `403 password_change_required` cho mọi API (kể cả luồng sự kiện) tới khi đổi, nên “Để sau” chỉ đưa người dùng vào một app báo lỗi khắp nơi và băng “Mất kết nối” không tắt.
+- App không mở luồng sự kiện khi còn mật khẩu tạm; đổi xong (không phải đăng nhập lại) thì tải lại phiên rồi mới mở.
+- Bước Mật khẩu ở onboard vẫn “tùy chọn” với tài khoản đã có mật khẩu riêng.
+- Artboard `MMore` (`page=firstPw`) và `Onboard` còn vẽ dòng “Để sau” — cần design xoá ở lần cập nhật canvas tới.

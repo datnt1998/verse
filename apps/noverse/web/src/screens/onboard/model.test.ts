@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ConfigResponse, ProjectSummary, ProviderConfig, ProviderPreset, User } from '../../api/types'
 import {
-  ADMIN_STEPS, FORMAT_LABEL, ONBOARD_FORMATS, PROVIDER_INTRO, PROVIDER_PRESENTATION, buildPreview, canAdvance, configFileOf, configuredProviderId, deviceCodeHint, draftProvider, libraryStoryCount, oauthChoices, oauthDescription, onboardProject,
+  ADMIN_STEPS, FORMAT_LABEL, ONBOARD_FORMATS, PROVIDER_INTRO, PROVIDER_PRESENTATION, buildPreview, canAdvance, canSkipStep, configFileOf, configuredProviderId, deviceCodeHint, draftProvider, libraryStoryCount, oauthChoices, oauthDescription, onboardProject,
   passwordStepCopy, projectDefaults, projectSlugError,
   providerConnection, providerStatusLabel, stepsFor, writableConfig, type AdvanceInput, type PreviewInput,
 } from './model'
@@ -351,5 +351,14 @@ describe('Gói thuê bao Claude Pro/Max (anthropic-oauth)', () => {
   it('có cả “Mở trang đăng nhập” (cùng máy) và “Dùng mã thiết bị” (dán mã)', () => {
     const claude = { ...oauthPreset, id: 'anthropic-oauth', pasteCode: true }
     expect(oauthChoices(claude).map((choice) => choice.device)).toEqual([false, true])
+  })
+})
+
+describe('canSkipStep', () => {
+  it('never lets a temporary password be skipped: the server blocks everything until it changes', () => {
+    expect(canSkipStep('password', true)).toBe(false)
+    expect(canSkipStep('password', false)).toBe(true)
+    expect(canSkipStep('project', true)).toBe(true)
+    expect(canSkipStep('profile', false)).toBe(false)
   })
 })

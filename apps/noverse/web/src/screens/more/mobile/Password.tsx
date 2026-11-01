@@ -10,7 +10,7 @@ import { passwordChecklist, passwordStrength } from './passwordLogic'
 import './more.css'
 import { ssoCopy } from '../../../i18n/sso'
 
-export function MobilePassword({ first = false, onDone, onSkip }: { first?: boolean; onDone: () => void; onSkip?: () => void }) {
+export function MobilePassword({ first = false, onDone }: { first?: boolean; onDone: () => void }) {
   const { user, endSession } = useSession()
   useTabMode('hide')
   const toast = useMobileToast()
@@ -42,7 +42,8 @@ export function MobilePassword({ first = false, onDone, onSkip }: { first?: bool
       onDone()
     } catch (failure) { setError(failure) } finally { setPending(false) }
   }
-  const footer = <div className="mm-cta"><button className="mm-primary" type="submit" form={`${id}-form`} disabled={!valid} aria-busy={pending}>{pending ? 'Đang lưu…' : first ? 'Lưu & vào Noverse' : 'Đổi mật khẩu'}</button>{first && <p><button type="button" disabled={pending} onClick={onSkip}>Để sau</button> · sẽ nhắc lại mỗi lần mở cho tới khi đổi</p>}</div>
+  // Mật khẩu tạm bắt buộc đổi: máy chủ chặn mọi API tới khi đổi, nên không có “Để sau”.
+  const footer = <div className="mm-cta"><button className="mm-primary" type="submit" form={`${id}-form`} disabled={!valid} aria-busy={pending}>{pending ? 'Đang lưu…' : first ? 'Lưu & vào Noverse' : 'Đổi mật khẩu'}</button></div>
   return <MobilePage title={first ? '' : 'Đổi mật khẩu'} backTitle="Thêm" onBack={first ? undefined : onDone} footer={footer}>
     <form id={`${id}-form`} className="mm-password mm-root" onSubmit={(event) => { event.preventDefault(); void submit() }}>
       {first && <div className="mm-first"><span className="mm-key"><Icon name="key" size={26} /></span><h1>Chào {user?.name || user?.username}, đặt mật khẩu của bạn</h1><p>Quản trị viên đã tạo tài khoản cho bạn bằng mật khẩu tạm. Nên đặt mật khẩu riêng ngay — người biết mật khẩu tạm vẫn đăng nhập được cho tới khi bạn đổi.</p></div>}
@@ -65,6 +66,6 @@ export function MobilePassword({ first = false, onDone, onSkip }: { first?: bool
   </MobilePage>
 }
 
-export function MobileFirstPassword({ onDone, onSkip }: { onDone: () => void; onSkip: () => void }) {
-  return <MobilePassword first onDone={onDone} onSkip={onSkip} />
+export function MobileFirstPassword({ onDone }: { onDone: () => void }) {
+  return <MobilePassword first onDone={onDone} />
 }
