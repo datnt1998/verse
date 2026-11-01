@@ -82,6 +82,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
 
   const previewKey = detail.preview.state === 'none' ? 'none' : detail.preview.state === 'fresh' && !draft.dirty ? 'fresh' : 'stale'
   const stalePreview = previewKey !== 'fresh'
+  const previewStateText = copy.previewState[previewKey]
 
   const saveRename = async () => {
     const name = renameName.trim()
@@ -168,8 +169,8 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
               <Button variant="primary" onClick={() => void saveRename()}>{t.library.templates.renameAction}</Button>
             </>}>
             <div className={stylex.props(mtpl.field).className}>
-              <label htmlFor="mtpl-rename" {...stylex.props(mtpl.fieldLabel)}>{t.library.templates.nameLabel}</label>
-              <TextField id="mtpl-rename" value={renameName} maxLength={60} invalid={Boolean(renameError)} onChange={setRenameName} />
+              <label htmlFor="mtpl-rename" {...stylex.props(mtpl.fieldLabel)}>{t.library.nameLabel}</label>
+              <TextField id="mtpl-rename" value={renameName} maxLength={60} aria-invalid={Boolean(renameError) || undefined} onChange={setRenameName} />
               {renameError && <span role="alert" {...stylex.props(mtpl.fieldLabel)}>{renameError}</span>}
             </div>
           </Dialog>
@@ -177,7 +178,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
         <ConfirmSheet open={deleting} onClose={() => setDeleting(false)} title={t.library.template.deleteTitle(detail.name)}
           description={t.library.template.deleteBody} tone="danger"
           action={{ label: t.library.template.deleteAction, destructive: true, onSelect: remove }} cancel={t.library.cancel} />
-        {attaching && <AttachChannelDialog channels={ownerChannels.data ?? []} inLibrary onClose={() => setAttaching(null)} />}
+        {attaching && <AttachChannelDialog channels={ownerChannels.data?.channels ?? []} inLibrary onClose={() => setAttaching(false)} />}
       </MobilePage>
     )
   }
@@ -203,7 +204,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
             </span>
             <p {...stylex.props(mtpl.help)}>{t.library.template.preview.effect}</p>
             <div className={stylex.props(mtpl.actions).className}>
-              <Button size="lg" variant="outline" aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
+              <Button size="lg" variant="ghost" aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
                 {stalePreview ? t.library.template.preview.rebuildStale : t.library.template.preview.rebuild}
               </Button>
             </div>
@@ -241,8 +242,8 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
             <Button variant="primary" onClick={() => void saveRename()}>{t.library.templates.renameAction}</Button>
           </>}>
           <div className={stylex.props(mtpl.field).className}>
-            <label htmlFor="mtpl-rename" {...stylex.props(mtpl.fieldLabel)}>{t.library.templates.nameLabel}</label>
-            <TextField id="mtpl-rename" value={renameName} maxLength={60} invalid={Boolean(renameError)} onChange={setRenameName} />
+            <label htmlFor="mtpl-rename" {...stylex.props(mtpl.fieldLabel)}>{t.library.nameLabel}</label>
+            <TextField id="mtpl-rename" value={renameName} maxLength={60} aria-invalid={Boolean(renameError) || undefined} onChange={setRenameName} />
             {renameError && <span role="alert" {...stylex.props(mtpl.fieldLabel)}>{renameError}</span>}
           </div>
         </Dialog>
@@ -250,7 +251,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
       <ConfirmSheet open={deleting} onClose={() => setDeleting(false)} title={t.library.template.deleteTitle(detail.name)}
         description={t.library.template.deleteBody} tone="danger"
         action={{ label: t.library.template.deleteAction, destructive: true, onSelect: remove }} cancel={t.library.cancel} />
-      {attaching && <AttachChannelDialog channels={ownerChannels.data ?? []} inLibrary onClose={() => setAttaching(null)} />}
+      {attaching && <AttachChannelDialog channels={ownerChannels.data?.channels ?? []} inLibrary onClose={() => setAttaching(false)} />}
     </MobilePage>
   )
 }

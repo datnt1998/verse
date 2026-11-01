@@ -221,7 +221,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
 
   const newItems: MobileSheetAction[] = [
     { key: 'template', icon: 'add', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => openName(null) },
-    { key: 'import', icon: 'document-download', label: t.library.templates.import, description: copy.importTemplateHint, onSelect: () => setImporting(true) },
+    { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => setImporting(true) },
     { key: 'prompt', icon: 'gallery', label: copy.newPrompt, onSelect: () => setEditingPrompt(null) },
     { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => setAddingBackdrop(true) },
   ]
@@ -263,7 +263,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                   <p {...stylex.props(mlib.emptyText)}>{copy.templateEmptyText}</p>
                   <div className={stylex.props(mlib.emptyActions).className}>
                     <Button size="lg" variant="primary" onClick={() => openName(null)}>{t.library.templates.newTemplate}</Button>
-                    <Button size="lg" variant="ghost" onClick={() => setImporting(true)}>{t.library.templates.import}</Button>
+                    <Button size="lg" variant="ghost" onClick={() => setImporting(true)}>{t.library.templates.importTemplate}</Button>
                   </div>
                 </div>
               ) : (
@@ -384,7 +384,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
           </>}>
           <div className={stylex.props(mlib.field).className}>
             {!naming.template && <p {...stylex.props(mlib.fieldLabel)}>{t.library.templates.createBody}</p>}
-            <TextField label={t.library.templates.nameLabel} value={nameDraft} maxLength={60}
+            <TextField label={t.library.nameLabel} value={nameDraft} maxLength={60}
               placeholder={naming.template ? undefined : t.library.templates.createPlaceholder}
               error={nameError ?? undefined} onChange={setNameDraft} />
           </div>

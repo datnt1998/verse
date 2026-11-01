@@ -238,7 +238,7 @@ export const mlib = stylex.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: s['--vv-s-8'],
-    minHeight: s['--vv-s-120'],
+    minHeight: s['--vv-s-132'],
     borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: line['--line-3'],
