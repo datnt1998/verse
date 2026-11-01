@@ -288,3 +288,38 @@ func TestAIConnManualFlagSurvivesCatalogRefresh(t *testing.T) {
 		t.Fatal("cờ manual bị hạ sau lần refresh danh mục")
 	}
 }
+
+// Danh sách theo thứ tự thêm: thẻ cũ nhất đứng đầu (web đưa thẻ lỗi lên trước,
+// còn lại giữ thứ tự này).
+func TestAIConnListProvidersOldestFirst(t *testing.T) {
+	store := postgres.NewAIConnStore(provision(t))
+	ctx := context.Background()
+	for _, id := range []string{"openai-first", "deepseek-second", "openrouter-third"} {
+		kind := domain.KindOpenAI
+		if strings.HasPrefix(id, "deepseek") {
+			kind = domain.KindDeepSeek
+		} else if strings.HasPrefix(id, "openrouter") {
+			kind = domain.KindOpenRouter
+		}
+		p := domain.Provider{ID: id, Kind: kind, Auth: domain.AuthAPIKey, Label: id,
+			EncKey: []byte{1}, KeyHint: "••••0001", BaseURL: "https://example.test/v1", Status: domain.StatusReady}
+		if err := store.UpsertProvider(ctx, p); err != nil {
+			t.Fatal(err)
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	rows, err := store.ListProviders(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for _, row := range rows {
+		if strings.HasSuffix(row.Provider.ID, "-first") || strings.HasSuffix(row.Provider.ID, "-second") || strings.HasSuffix(row.Provider.ID, "-third") {
+			got = append(got, row.Provider.ID)
+		}
+	}
+	want := []string{"openai-first", "deepseek-second", "openrouter-third"}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("thứ tự = %v, muốn %v", got, want)
+	}
+}

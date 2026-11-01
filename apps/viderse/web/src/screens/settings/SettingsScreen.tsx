@@ -9,6 +9,7 @@ import { Suspense, lazy, useMemo } from 'react'
 import { Icon, Spinner } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { semverOf } from '../../lib/version'
+import { strongestTone, type AttentionTone } from '../../lib/attentionTone'
 import { navigate, paths, routePath, type SettingsSection } from '../../router'
 import { vi as t } from '../../i18n/vi'
 import { useStatus } from '../../data/status'
@@ -46,20 +47,26 @@ type NavItem = {
   count?: string
 }
 
+/** Tông chấm của từng mục — bảng kind → tông ở lib/attentionTone (hỏi đáp #30). */
+const DOT_STYLE: Record<AttentionTone, stylex.StyleXStyles> = {
+  err: settingsStyles.dotErr,
+  warn: settingsStyles.dotWarn,
+  info: settingsStyles.dotInfo,
+}
+
 /** Mục nào đang có chấm attention — lấy từ href #/settings?section= của /api/status.
- *  Tông theo việc: hỏng/hết hạn là cam (--color-err), còn lại là vàng cập nhật
- *  (artboard Settings: chấm cam --color-err khi công cụ lỗi, vàng --color-warn
- *  khi có bản mới). */
-function useSectionDots(): Map<string, 'warn' | 'err'> {
+ *  Mỗi mục nhận tông của việc khẩn nhất đang trỏ vào nó. */
+function useSectionDots(): Map<string, AttentionTone> {
   const status = useStatus()
   return useMemo(() => {
-    const dots = new Map<string, 'warn' | 'err'>()
+    const kindsBySection = new Map<string, string[]>()
     for (const a of status.data?.attention ?? []) {
       const match = a.href.match(/section=(\w+)/)
       if (!match) continue
-      const err = a.kind === 'tool_failed' || a.kind === 'login_expired'
-      if (err || !dots.has(match[1])) dots.set(match[1], err ? 'err' : 'warn')
+      kindsBySection.set(match[1], [...(kindsBySection.get(match[1]) ?? []), a.kind])
     }
+    const dots = new Map<string, AttentionTone>()
+    for (const [id, kinds] of kindsBySection) dots.set(id, strongestTone(kinds)!)
     return dots
   }, [status])
 }
@@ -148,7 +155,7 @@ function useFrameFacts(): FrameFacts {
 
 function NavList({ section, dots, facts, onPick }: {
   section: SettingsSection | null
-  dots: Map<string, 'warn' | 'err'>
+  dots: Map<string, AttentionTone>
   facts: FrameFacts
   onPick: (id: SettingsSection) => void
 }) {
@@ -176,7 +183,7 @@ function NavList({ section, dots, facts, onPick }: {
       >
         <Icon name={n.icon} size={17} className="vv-ic" xstyle={[settingsStyles.ic]} />
         <span className={`vv-set__nav-label ${stylex.props(settingsStyles.setNavLabel).className}`}>{n.label}</span>
-        {dots.has(n.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, dots.get(n.id) === 'err' ? settingsStyles.dotErr : settingsStyles.dotWarn).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
+        {dots.has(n.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dots.get(n.id)!]).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
         {/* Artboard luôn giữ span số ở cuối (kể cả rỗng) nên chấm không bị đẩy sát mép. */}
         <span className={`vv-set__nav-num ${stylex.props(settingsStyles.setNavNum).className}`}>{n.count ?? ''}</span>
       </button>
@@ -225,7 +232,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
           <span className={`vv-set__foot-ver num ${stylex.props(settingsStyles.setFootVer).className}`}>{fill(t.settings.nav.version, { version: facts.version })}</span>
         </div>
       </aside>
-      <main className={`vv-set__center ${stylex.props(settingsStyles.setCenter).className}`}>
+      <main className={`vv-set__center vv-wide vv-wide--read ${stylex.props(settingsStyles.setCenter).className}`}>
         <div className={`vv-set__body ${stylex.props(settingsStyles.setBody).className}`}>
           {!(facts.server && active === 'storage') ? <div>
             <h1 className={`vv-set__title ${stylex.props(settingsStyles.setTitle).className}`}>{meta.title}</h1>
@@ -254,7 +261,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
 
 /** MSettings — thẻ tổng, danh sách mục kèm giá trị, thẻ Hàng chờ, chân bản. */
-function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, 'warn' | 'err'>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
+function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, AttentionTone>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
   const { user, apps } = useSession()
   const memberHref = membersUrl(apps)
   const status = useStatus()
@@ -334,7 +341,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
               <Icon name={r.icon} size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />
               <span className={`vv-mset__row-label ${stylex.props(settingsStyles.msetRowLabel).className}`}>{r.title}</span>
               <span className={`vv-mset__row-value-wrap ${stylex.props(settingsStyles.msetRowValueWrap).className}`}>
-                {dots.has(r.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, dots.get(r.id) === 'err' ? settingsStyles.dotErr : settingsStyles.dotWarn).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
+                {dots.has(r.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dots.get(r.id)!]).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
                 <span className={`vv-mset__row-value ${stylex.props(settingsStyles.msetRowValue, (r.warm) && settingsStyles.msetRowValueIsWarm).className}`}>{r.value}</span>
               </span>
               <Icon name="arrow-r" size={15} className="vv-ic vv-mset__row-caret" xstyle={[settingsStyles.ic, settingsStyles.msetRowCaret]} />

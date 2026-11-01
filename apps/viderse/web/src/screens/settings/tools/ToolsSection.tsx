@@ -153,6 +153,12 @@ function ToolRowView({ tool, mobile, queued = false }: { tool: ToolRow; mobile: 
               <span className={`vv-tools__shimmer ${stylex.props(settingsStyles.toolsShimmer).className}`}>{tool.progress?.phaseLabel || tool.progress?.phase || t.tools.pills.installing}</span>
               <span>{bytes || (pct != null ? `${pct}%` : '')}</span>
             </span>
+            {/* Pha chưa biết tổng (hỏi đáp #30): thanh chạy vô định dưới tên pha, không ghi % */}
+            {pct == null ? (
+              <div role="progressbar" aria-label={tool.progress?.phaseLabel || tool.progress?.phase || t.tools.pills.installing} className={`vv-progress vv-progress--working ${stylex.props(settingsStyles.toolsIndet).className}`}>
+                <span className={stylex.props(settingsStyles.toolsIndetFill).className} />
+              </div>
+            ) : null}
           </div>
         ) : null}
       </div>

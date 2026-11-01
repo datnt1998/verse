@@ -51,12 +51,6 @@ function capMessage(err: CapError): string | null {
 
 const nf = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 3 })
 const usd = (v: number) => `$${nf.format(v)}`
-/** Giá video trong thẻ nguồn vẽ — artboard làm tròn 2 chữ số (“≈ $0,27”). */
-const nf2 = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 })
-const usd2 = (v: number) => `$${nf2.format(v)}`
-/** Số ảnh của một video điển hình (design: “~7 ảnh” mỗi video), dùng cho giá
- *  ước tính mỗi video ở thẻ nguồn vẽ. */
-const IMAGES_PER_VIDEO = 7
 
 /** Catalog model ĐÃ CHỌN của một provider — tài nguyên dùng chung (SSE 'ai'
  *  invalidate đúng key này), đẩy kết quả lên parent qua onLoaded. */
@@ -208,7 +202,8 @@ export function AgentsSection() {
   )
 
   /** Dòng thông tin của thẻ nguồn vẽ: gói/hạn mức từ wire; thẻ không có hạn mức
-   *  thì ghi giá — “$0,039 mỗi ảnh” và “≈ $0,27 mỗi video”. */
+   *  thì ghi giá mỗi ảnh (“$0,039 mỗi ảnh”). Không ghi giá mỗi video — giá đó
+   *  thuộc template của kênh (hỏi đáp #28). */
   const drawMeta = (provider: AiProvider, perImage: number | undefined) => {
     const q = provider.quota
     const period = q?.period === 'week' ? 'week' : 'day'
@@ -226,7 +221,6 @@ export function AgentsSection() {
       reset = period === 'week' ? a.resetWeekAt(new Date(q.resetAt).getDay()) : a.resetAt(clockOf(q.resetAt))
     } else {
       used = provider.auth === 'local' ? a.planLocal : perImage ? a.usedPrice(usd(perImage)) : ''
-      reset = perImage ? a.perVideo(usd2(perImage * IMAGES_PER_VIDEO)) : ''
     }
     return { plan, used, reset, pct, hasQuota: !!q }
   }
@@ -239,7 +233,7 @@ export function AgentsSection() {
   }
 
   const drawSources = imageSources.length > 0 ? (
-    <div className={`agt-drawgrid ${stylex.props(settingsStyles.agtDrawgrid).className}`}>
+    <div className={`agt-drawgrid ${stylex.props(settingsStyles.agtDrawgrid, imageSources.length === 4 && settingsStyles.agtDrawgridQuad).className}`}>
       {imageSources.map(({ model, provider }) => {
         const on = view.artist.draw.provider === provider.id
         const meta = drawMeta(provider, model.perImage)

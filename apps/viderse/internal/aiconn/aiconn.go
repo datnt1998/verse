@@ -728,6 +728,9 @@ func (s *Service) CreateProvider(ctx context.Context, in CreateProviderInput) (P
 		}
 		in.BaseURL = base
 	}
+	if err := s.rejectDuplicate(ctx, in.Kind, in.BaseURL, ""); err != nil {
+		return ProviderView{}, err
+	}
 
 	var enc []byte
 	var hint string
@@ -787,6 +790,35 @@ func (s *Service) CreateProvider(ctx context.Context, in CreateProviderInput) (P
 		return view, apiErr
 	}
 	return view, nil
+}
+
+// rejectDuplicate chặn thẻ trùng loại (hỏi đáp #27): mỗi loại nhà cung cấp chỉ
+// có một thẻ, muốn đổi thì Đổi khoá trên thẻ cũ. Riêng Ollama và Tương thích
+// OpenAI được có nhiều thẻ khi khác địa chỉ. `exceptID` là thẻ đang được sửa.
+// Thẻ lỗi vẫn tính — dán khoá mới vào thẻ lỗi chứ không mở thẻ thứ hai.
+func (s *Service) rejectDuplicate(ctx context.Context, kind domain.ProviderKind, baseURL, exceptID string) error {
+	info := kindTable[kind]
+	rows, err := s.o.Store.ListProviders(ctx)
+	if err != nil {
+		return err
+	}
+	for _, row := range rows {
+		p := row.Provider
+		if p.ID == exceptID || p.Kind != kind {
+			continue
+		}
+		if info.customURL && !strings.EqualFold(p.BaseURL, baseURL) {
+			continue
+		}
+		msg := "Đã có kết nối " + info.label + ". Dùng Đổi khoá trên thẻ đó."
+		if info.customURL {
+			msg = "Đã có kết nối " + info.label + " với địa chỉ này. Dùng Đổi địa chỉ trên thẻ đó."
+		}
+		ae := apiError(http.StatusConflict, domain.ReasonDuplicate, msg)
+		ae.Fields = map[string]any{"id": p.ID}
+		return ae
+	}
+	return nil
 }
 
 // PatchProviderInput là đầu vào PATCH /api/ai/providers/:id.
@@ -849,6 +881,9 @@ func (s *Service) PatchProvider(ctx context.Context, id string, in PatchProvider
 		valid, err := validateBaseURL(base)
 		if err != nil {
 			return ProviderView{}, apiError(http.StatusBadRequest, domain.ReasonInvalidBaseURL, err.Error())
+		}
+		if err := s.rejectDuplicate(ctx, p.Kind, valid, p.ID); err != nil {
+			return ProviderView{}, err
 		}
 		p.BaseURL = valid
 		keyChanged = true
