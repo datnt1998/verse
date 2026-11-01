@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // ffmpegRunner trả banner giả theo lệnh được gọi.
@@ -124,14 +126,14 @@ func TestFfmpegProbeNilOnFailure(t *testing.T) {
 func TestFfmpegResolveOrderConfiguredSystemManaged(t *testing.T) {
 	base := t.TempDir()
 	// Managed: dựng một bản active.
-	verDir := ToolVersionDir(base, ffmpegToolID, FfmpegPin().Version)
+	verDir := toolchain.ToolVersionDir(base, ffmpegToolID, toolchain.FfmpegPin().Version)
 	if err := os.MkdirAll(verDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(filepath.Join(verDir, "ffmpeg"), []byte("x"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(ToolRoot(base, ffmpegToolID), "current"), []byte("v-"+FfmpegPin().Version), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(toolchain.ToolRoot(base, ffmpegToolID), "current"), []byte("v-"+toolchain.FfmpegPin().Version), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	// System: một dir trong PATH.

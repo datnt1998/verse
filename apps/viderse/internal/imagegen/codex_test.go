@@ -19,6 +19,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // runnerCall ghi lại một lần Runner.Run.
@@ -309,7 +310,7 @@ func TestCodexQuotaEventMapsRetryAt(t *testing.T) {
 func TestCodexCancelledRun(t *testing.T) {
 	fx := newCodexFixture(t, func(call runnerCall) (tools.Result, error) {
 		emit(call.Spec, tools.StreamStdout, map[string]any{"type": "thread.started", "thread_id": "sess-4"})
-		return tools.Result{}, tools.ErrCancelled
+		return tools.Result{}, toolchain.ErrCancelled
 	})
 	_, err := fx.drawThrough(t, imagegen.Request{
 		Key: "c5", Prompt: "x", Output: filepath.Join(t.TempDir(), "o.png"),

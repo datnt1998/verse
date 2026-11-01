@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // codexRunner mô phỏng các lời gọi probe: `--version`, `login status`,
@@ -76,7 +78,7 @@ func TestCodexResolvePrefersConfigured(t *testing.T) {
 
 func TestCodexResolvePicksManaged(t *testing.T) {
 	base := t.TempDir()
-	verDir := ToolVersionDir(base, codexToolID, CodexPin().Version)
+	verDir := toolchain.ToolVersionDir(base, codexToolID, CodexPin().Version)
 	if err := os.MkdirAll(verDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +86,7 @@ func TestCodexResolvePicksManaged(t *testing.T) {
 	if err := os.WriteFile(managed, []byte("x"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(ToolRoot(base, codexToolID), "current"), []byte("v-"+CodexPin().Version), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(toolchain.ToolRoot(base, codexToolID), "current"), []byte("v-"+CodexPin().Version), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	c := newTestCodex(t, okCodexRunner(), base)

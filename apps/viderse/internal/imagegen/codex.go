@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // codexScratch là con trỏ phục hồi của một invocation Codex — phần tương
@@ -491,7 +492,7 @@ func (p *CodexProvider) Draw(ctx context.Context, req Request, journal JournalHa
 				"Codex startup: "+msg, "Kiểm tra binary và cách ly Codex trong Cài đặt")
 		}
 	}
-	if errors.Is(failed, tools.ErrCancelled) {
+	if errors.Is(failed, toolchain.ErrCancelled) {
 		return Receipt{}, ClassifyImageFailure("timeout", nil)
 	}
 	var retryAt *time.Time

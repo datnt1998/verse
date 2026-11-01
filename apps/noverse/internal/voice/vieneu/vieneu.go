@@ -74,6 +74,9 @@ type Engine struct {
 	rtfMu   sync.Mutex
 	rtf     float64
 	rtfSeen bool
+
+	// prov là điểm tiêm cho test của lượt chuẩn bị; nil = dùng bản thật.
+	prov *provisionDeps
 }
 
 func newEngine(cfg voice.Config) (voice.Engine, error) {

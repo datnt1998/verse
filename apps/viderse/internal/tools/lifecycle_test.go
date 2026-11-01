@@ -11,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // fakeClock điều khiển thời gian ảo: Sleep tăng đồng hồ ngay nên ân hạn không
@@ -348,7 +350,7 @@ func TestReapingStopsRecordedGroupsOfDeadOwnersOnly(t *testing.T) {
 	if len(ours.signals) != 0 {
 		t.Fatal("dry run vẫn signal")
 	}
-	if !fileExists(ownerOfBoth) {
+	if !toolchain.FileExists(ownerOfBoth) {
 		t.Fatal("dry run xoá bản ghi")
 	}
 
@@ -365,10 +367,10 @@ func TestReapingStopsRecordedGroupsOfDeadOwnersOnly(t *testing.T) {
 	if len(reused.signals) != 0 {
 		t.Fatal("pgid dùng lại bị signal")
 	}
-	if fileExists(ownerOfBoth) {
+	if toolchain.FileExists(ownerOfBoth) {
 		t.Fatal("bản ghi đã xử lý còn sót")
 	}
-	if !fileExists(liveOwner) {
+	if !toolchain.FileExists(liveOwner) {
 		t.Fatal("bản ghi của owner còn sống bị đụng")
 	}
 }
@@ -389,7 +391,7 @@ func TestReapingOneOwnerStopsThatOwnersGroups(t *testing.T) {
 	if len(reaped) != 1 || reaped[0].Label != "ffmpeg" {
 		t.Fatalf("reaped = %+v", reaped)
 	}
-	if fileExists(file) {
+	if toolchain.FileExists(file) {
 		t.Fatal("bản ghi còn sót")
 	}
 }
@@ -427,7 +429,7 @@ func TestTrackedChildRecordedThenForgottenOnceGroupGone(t *testing.T) {
 	}
 	_ = cmd.Wait()
 	reg.UntrackForget(cmd.Process.Pid)
-	if fileExists(file) {
+	if toolchain.FileExists(file) {
 		t.Fatal("bản ghi sống lâu hơn nhóm của nó")
 	}
 }

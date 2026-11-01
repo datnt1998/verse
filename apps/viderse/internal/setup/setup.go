@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // Tools là phần của toolsvc mà orchestrator cần — khai ở phía dùng.
@@ -191,7 +191,7 @@ func (s *Service) Status(ctx context.Context, fresh bool) (Status, error) {
 	}
 	free := int64(-1)
 	if s.baseDir != "" {
-		free = tools.FreeDiskBytes(s.baseDir)
+		free = toolchain.FreeDiskBytes(s.baseDir)
 	}
 	complete := true
 	hasRunning, hasFailed, hasLogin := false, false, false

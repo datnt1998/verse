@@ -18,6 +18,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/netguard"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const progressLine = "YTFPROG|downloading|524288|2097152|NA|102400|18"
@@ -663,13 +664,13 @@ func TestHandlerRejectsLivestream(t *testing.T) {
 func TestHandlerAbortsCancelledRun(t *testing.T) {
 	ctx, _ := fakeCtx(t)
 	runner := &scriptedRunner{yt: func(args []string, emit func(string)) (string, error) {
-		return "", tools.ErrCancelled
+		return "", toolchain.ErrCancelled
 	}}
 	deps := fakeDeps(func(d *Deps) {
 		d.Tools.Runner = runner
 	})
 	_, err := New(deps).Run(context.Background(), ctx)
-	if !errors.Is(err, tools.ErrCancelled) {
+	if !errors.Is(err, toolchain.ErrCancelled) {
 		t.Fatalf("cancelled swallowed: %v", err)
 	}
 }

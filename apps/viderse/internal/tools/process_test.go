@@ -13,6 +13,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 const testShell = "/bin/sh"
@@ -80,8 +82,8 @@ func TestRunProcessAbortKillsWholeProcessGroup(t *testing.T) {
 	}()
 	time.Sleep(150 * time.Millisecond)
 	cancel()
-	if err := <-done; !errors.Is(err, ErrCancelled) {
-		t.Fatalf("err = %v, muốn ErrCancelled", err)
+	if err := <-done; !errors.Is(err, toolchain.ErrCancelled) {
+		t.Fatalf("err = %v, muốn toolchain.ErrCancelled", err)
 	}
 	time.Sleep(300 * time.Millisecond)
 	if _, err := os.Stat(marker); err == nil {
@@ -156,7 +158,7 @@ func TestFindOnPathResolvesRealBinaries(t *testing.T) {
 		name = "cmd.exe"
 	}
 	found := FindOnPath(name, os.Getenv("PATH"))
-	if found != "" && !fileExists(found) {
+	if found != "" && !toolchain.FileExists(found) {
 		t.Fatalf("FindOnPath trả %q không tồn tại", found)
 	}
 	if FindOnPath("viderse-definitely-not-a-binary-xyz", os.Getenv("PATH")) != "" {
@@ -165,8 +167,8 @@ func TestFindOnPathResolvesRealBinaries(t *testing.T) {
 }
 
 func TestFreeDiskBytesPositiveForExistingDir(t *testing.T) {
-	if free := freeDiskBytes(t.TempDir()); free <= 0 {
-		t.Fatalf("freeDiskBytes = %d", free)
+	if free := toolchain.FreeDiskBytes(t.TempDir()); free <= 0 {
+		t.Fatalf("FreeDiskBytes = %d", free)
 	}
 }
 
@@ -330,7 +332,7 @@ func TestRunProcessStopLetsChildFinalizeBeforeKill(t *testing.T) {
 		})
 		done <- err
 	}()
-	if err := <-done; !errors.Is(err, ErrCancelled) {
+	if err := <-done; !errors.Is(err, toolchain.ErrCancelled) {
 		t.Fatalf("err = %v", err)
 	}
 	if _, err := os.Stat(marker); err != nil {
@@ -364,8 +366,8 @@ func TestCancelLeavesNoSurvivingChild(t *testing.T) {
 		})
 		done <- err
 	}()
-	if err := <-done; !errors.Is(err, ErrCancelled) {
-		t.Fatalf("err = %v, muốn ErrCancelled", err)
+	if err := <-done; !errors.Is(err, toolchain.ErrCancelled) {
+		t.Fatalf("err = %v, muốn toolchain.ErrCancelled", err)
 	}
 	if grandchildPID == 0 {
 		t.Fatal("không đọc được pid con cháu")

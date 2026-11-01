@@ -22,6 +22,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
 	"github.com/datnt1998/verse/apps/viderse/internal/storage"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // Deps supplies application services, not alternative implementations of
@@ -146,7 +147,7 @@ func (h *Handler) Run(ctx context.Context, step *pipeline.StepContext) (result p
 		}
 	}()
 	if err := runCtx.Err(); err != nil {
-		return result, fmt.Errorf("%w: %w", tools.ErrCancelled, err)
+		return result, fmt.Errorf("%w: %w", toolchain.ErrCancelled, err)
 	}
 	if err := os.MkdirAll(step.StagingDir, 0o700); err != nil {
 		return result, err
@@ -170,7 +171,7 @@ func (h *Handler) Run(ctx context.Context, step *pipeline.StepContext) (result p
 		ff = managed.Ffmpeg.Resolve(runCtx)
 	}
 	if err := runCtx.Err(); err != nil {
-		return result, fmt.Errorf("%w: %w", tools.ErrCancelled, err)
+		return result, fmt.Errorf("%w: %w", toolchain.ErrCancelled, err)
 	}
 	if ff == nil || ff.Ffmpeg == "" {
 		return result, stepError(domain.CloneErrToolMissing, "ffmpeg/ffprobe chưa sẵn sàng", "Mở Cài đặt → Công cụ và cài ffmpeg")
@@ -446,7 +447,7 @@ func (h *Handler) download(ctx context.Context, step *pipeline.StepContext, y *t
 			return callbackErr
 		}
 		if ctx.Err() != nil {
-			return fmt.Errorf("%w: %w", tools.ErrCancelled, ctx.Err())
+			return fmt.Errorf("%w: %w", toolchain.ErrCancelled, ctx.Err())
 		}
 		if why := g.why(); why != "" {
 			message := "ngừng tiến triển"
@@ -608,7 +609,7 @@ func (h *Handler) guardDisk(ctx context.Context, path string, needed float64) er
 	return nil
 }
 func (h *Handler) mapError(err error) error {
-	if errors.Is(err, tools.ErrCancelled) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+	if errors.Is(err, toolchain.ErrCancelled) || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
 		return err
 	}
 	if isDiskFailure(err) {

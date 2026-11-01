@@ -17,6 +17,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/logs"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // versionRunner trả phiên bản cho `--version` (yt-dlp, codex) và “chưa đăng
@@ -55,6 +56,18 @@ type failTransport struct{}
 
 func (failTransport) RoundTrip(*http.Request) (*http.Response, error) {
 	return &http.Response{StatusCode: http.StatusInternalServerError, Header: http.Header{}, Body: http.NoBody}, nil
+}
+
+// gatedTransport giữ mọi request lại tới khi release đóng, rồi trả 500.
+type gatedTransport struct{ release <-chan struct{} }
+
+func (g gatedTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	select {
+	case <-g.release:
+	case <-req.Context().Done():
+		return nil, req.Context().Err()
+	}
+	return failTransport{}.RoundTrip(req)
 }
 
 type fakeTasks struct {
@@ -141,8 +154,8 @@ func TestCodexFoundOnMachineIsProvidedButManagedIsNot(t *testing.T) {
 	svc, _, kit := newService(t, &http.Client{Transport: redirectTransport{tag: "2025.01.01"}}, fakeChatGPT{login: "not_logged_in"})
 	base := filepath.Dir(kit.Codex.DefaultHome())
 	pin := tools.CodexPin().Version
-	fakeExe(t, filepath.Join(tools.ToolVersionDir(base, "codex", pin), "codex"))
-	if err := os.WriteFile(filepath.Join(tools.ToolRoot(base, "codex"), "current"), []byte("v-"+pin), 0o644); err != nil {
+	fakeExe(t, filepath.Join(toolchain.ToolVersionDir(base, "codex", pin), "codex"))
+	if err := os.WriteFile(filepath.Join(toolchain.ToolRoot(base, "codex"), "current"), []byte("v-"+pin), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	snap, err := svc.Snapshot(ctx, true)
@@ -399,7 +412,7 @@ func TestInstalledSizeIsMeasuredNotReserved(t *testing.T) {
 	if measured == svc.RequiredBytes(ToolYtDlp) {
 		t.Fatal("không được đo ra đúng RequiredBytes — hai con số phải khác biệt")
 	}
-	if got := tools.ReadInstalledSize(base, "yt-dlp"); got != measured {
+	if got := toolchain.ReadInstalledSize(base, "yt-dlp"); got != measured {
 		t.Fatalf("ghi số đo = %d, muốn %d", got, measured)
 	}
 	// Hàng ready phải lấy số đo, không fallback sang xấp xỉ hay required.
@@ -430,7 +443,7 @@ func TestSnapshotReadsPersistedSizeNotTreeWalk(t *testing.T) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := tools.WriteInstalledSize(base, "yt-dlp", 111*1024*1024); err != nil {
+	if err := toolchain.WriteInstalledSize(base, "yt-dlp", 111*1024*1024); err != nil {
 		t.Fatal(err)
 	}
 	// Bỏ thêm 200 MB sau khi ghi — nếu GET đo cây thì sẽ lớn hơn; chỉ khi đọc
@@ -438,7 +451,7 @@ func TestSnapshotReadsPersistedSizeNotTreeWalk(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(dir, "payload"), make([]byte, 200*1024*1024), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if got := tools.ReadInstalledSize(base, "yt-dlp"); got != 111*1024*1024 {
+	if got := toolchain.ReadInstalledSize(base, "yt-dlp"); got != 111*1024*1024 {
 		t.Fatalf("đọc số đo = %d, muốn 111 MB (đã ghi, không đo cây)", got)
 	}
 }
@@ -480,7 +493,11 @@ func TestRowCheckInstallingIsNotReady(t *testing.T) {
 
 // Hai lượt StartInstall đồng thời chỉ tạo một việc nền và một lượt cài.
 func TestConcurrentStartInstallSingleRun(t *testing.T) {
-	svc, tasks, _ := newService(t, &http.Client{Transport: failTransport{}}, fakeChatGPT{login: "chatgpt"})
+	// Lượt cài phải còn đang chạy khi lượt StartInstall thứ hai tới: giữ
+	// request lại tới khi cả hai đã vào, nếu không việc nền kịp xong và lượt
+	// sau mở việc mới (đua theo thời gian).
+	gate := make(chan struct{})
+	svc, tasks, _ := newService(t, &http.Client{Transport: gatedTransport{release: gate}}, fakeChatGPT{login: "chatgpt"})
 	var wg sync.WaitGroup
 	ids := make([]string, 2)
 	for i := 0; i < 2; i++ {
@@ -499,6 +516,7 @@ func TestConcurrentStartInstallSingleRun(t *testing.T) {
 	if ids[0] == "" || ids[0] != ids[1] {
 		t.Fatalf("task ids = %v, muốn cùng một", ids)
 	}
+	close(gate)
 	tasks.mu.Lock()
 	n := len(tasks.specs)
 	tasks.mu.Unlock()

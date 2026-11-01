@@ -6,6 +6,8 @@ package tools
 import (
 	"errors"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // Mã lỗi do gói tools sinh.
@@ -43,7 +45,7 @@ func AsToolError(err error) *ToolError {
 	if errors.As(err, &te) {
 		return te
 	}
-	if errors.Is(err, ErrCancelled) {
+	if errors.Is(err, toolchain.ErrCancelled) {
 		return &ToolError{Code: "cancelled", Message: err.Error()}
 	}
 	return &ToolError{Code: ErrCodeInternal, Message: err.Error()}

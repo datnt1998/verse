@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 // transcriptRequirements là khoá requirements của env tách tiếng (bản
@@ -61,13 +63,13 @@ type TranscriptionStatus struct {
 type Transcription struct {
 	d         Deps
 	uv        *Uv
-	installer *Installer
+	installer *toolchain.Installer
 }
 
-// NewTranscription dựng bộ quản lý; installer nil → Installer trên d.BaseDir.
-func NewTranscription(d Deps, uv *Uv, installer *Installer) *Transcription {
+// NewTranscription dựng bộ quản lý; installer nil → bộ cài trên d.BaseDir.
+func NewTranscription(d Deps, uv *Uv, installer *toolchain.Installer) *Transcription {
 	if installer == nil {
-		installer = &Installer{Client: d.Client, BaseDir: d.BaseDir}
+		installer = &toolchain.Installer{Client: d.Client, BaseDir: d.BaseDir}
 	}
 	return &Transcription{d: d, uv: uv, installer: installer}
 }
@@ -133,7 +135,7 @@ func (t *Transcription) ModelsPresent() bool {
 		}
 		ok := false
 		for _, rev := range entries {
-			if fileExists(filepath.Join(snapshots, rev.Name(), "model.bin")) {
+			if toolchain.FileExists(filepath.Join(snapshots, rev.Name(), "model.bin")) {
 				ok = true
 				break
 			}
@@ -172,7 +174,7 @@ func (t *Transcription) Status(ctx context.Context) TranscriptionStatus {
 		return TranscriptionStatus{State: TranscriptionBroken, EnvDir: t.EnvDir(), Error: err.Error()}
 	}
 	built := t.uv.EnvBuiltFingerprint(info)
-	if built != info.Fingerprint || !fileExists(info.Python) || !t.ModelsPresent() {
+	if built != info.Fingerprint || !toolchain.FileExists(info.Python) || !t.ModelsPresent() {
 		return TranscriptionStatus{State: TranscriptionMissing, UvReady: t.uv.Resolve(ctx) != ""}
 	}
 	res, err := t.d.Runner.Run(ctx, info.Python,
@@ -195,11 +197,11 @@ func (t *Transcription) Status(ctx context.Context) TranscriptionStatus {
 // Managed.RegisterLifecycle: uv (tự cài nếu thiếu) → venv ghim → tải mô hình
 // → tự kiểm. Cài uv lồng trong lượt của transcription qua spec trực tiếp,
 // không qua lượt riêng của sổ công cụ.
-func (t *Transcription) Install(ctx context.Context, lc *LifecycleContext) error {
-	lc.State(PhaseChecking, transcriptionStageUv, "")
+func (t *Transcription) Install(ctx context.Context, lc *toolchain.LifecycleContext) error {
+	lc.State(toolchain.PhaseChecking, transcriptionStageUv, "")
 	uvBin := t.uv.Resolve(ctx)
 	if uvBin == "" {
-		lc.State(PhaseInstalling, transcriptionStageUv, "")
+		lc.State(toolchain.PhaseInstalling, transcriptionStageUv, "")
 		spec := t.uv.InstallSpec()
 		result, err := t.installer.Install(ctx, spec)
 		if err != nil {
@@ -211,14 +213,14 @@ func (t *Transcription) Install(ctx context.Context, lc *LifecycleContext) error
 		return err
 	}
 
-	lc.State(PhaseInstalling, transcriptionStageEnv, "")
+	lc.State(toolchain.PhaseInstalling, transcriptionStageEnv, "")
 	requirements, err := t.ensureRequirementsFile()
 	if err != nil {
 		return err
 	}
 	info, err := t.uv.EnsurePythonEnv(ctx, uvBin, t.EnvDir(), requirements,
 		func(detail string) {
-			lc.State(PhaseInstalling, transcriptionStageEnv+": "+detail, "")
+			lc.State(toolchain.PhaseInstalling, transcriptionStageEnv+": "+detail, "")
 		})
 	if err != nil {
 		return err
@@ -227,7 +229,7 @@ func (t *Transcription) Install(ctx context.Context, lc *LifecycleContext) error
 		return err
 	}
 
-	lc.State(PhaseDownloading, transcriptionStageModels, "")
+	lc.State(toolchain.PhaseDownloading, transcriptionStageModels, "")
 	if _, err := t.d.Runner.Run(ctx, info.Python, []string{"-c", downloadModelsScript},
 		Spec{Env: t.RunEnv(), Timeout: time.Hour}); err != nil {
 		return err
@@ -236,7 +238,7 @@ func (t *Transcription) Install(ctx context.Context, lc *LifecycleContext) error
 		return err
 	}
 
-	lc.State(PhaseSelfCheck, transcriptionStageSelfCheck, "")
+	lc.State(toolchain.PhaseSelfCheck, transcriptionStageSelfCheck, "")
 	if _, err := t.d.Runner.Run(ctx, info.Python, []string{"-c", selfCheckScript},
 		Spec{Env: t.RunEnv(), Timeout: 10 * time.Minute}); err != nil {
 		return err

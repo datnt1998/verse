@@ -8,13 +8,15 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/datnt1998/verse/platform/toolchain"
 )
 
 func TestParseUvVersion(t *testing.T) {
-	if v := ParseUvVersion("uv 0.13.0 (d5b9d49f0 2025-10-08)\n"); v != "0.13.0" {
+	if v := toolchain.ParseUvVersion("uv 0.13.0 (d5b9d49f0 2025-10-08)\n"); v != "0.13.0" {
 		t.Fatalf("version = %q", v)
 	}
-	if v := ParseUvVersion("garbage"); v != "" {
+	if v := toolchain.ParseUvVersion("garbage"); v != "" {
 		t.Fatalf("version = %q", v)
 	}
 }
@@ -112,11 +114,11 @@ func TestUvEnsurePythonEnvBuildsAndCaches(t *testing.T) {
 	if !sawFind || !sawVenv || !sawSync {
 		t.Fatalf("ran = %v", ran)
 	}
-	if !fileExists(info.Python) {
+	if !toolchain.FileExists(info.Python) {
 		t.Fatal("python của env không có mặt")
 	}
 	meta := filepath.Join(envDir, "env-meta.json")
-	if !fileExists(meta) {
+	if !toolchain.FileExists(meta) {
 		t.Fatal("env-meta.json vắng")
 	}
 	// Lần gọi thứ hai cùng requirements → dùng lại env, không chạy thêm lệnh.
@@ -155,7 +157,7 @@ func TestUvEnsurePythonEnvPropagatesFailure(t *testing.T) {
 	if !errors.As(err, &pfe) {
 		t.Fatalf("err = %v", err)
 	}
-	if fileExists(envDir) {
+	if toolchain.FileExists(envDir) {
 		t.Fatal("staging hỏng còn sót thành env")
 	}
 }
