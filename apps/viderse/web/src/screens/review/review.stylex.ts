@@ -15,7 +15,10 @@ export const sx = stylex.create({
   heading: { display: 'flex', alignItems: 'center', gap: 10 },
   title: { flex: '1 1 160px', minWidth: 0, margin: 0, fontSize: 17, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   chip: { display: 'inline-flex', alignItems: 'center', gap: 6, height: 26, padding: '0 9px', borderRadius: 7, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', fontSize: 12, whiteSpace: 'nowrap' },
-  button: { height: 36, padding: '0 12px', borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'transparent', color: 'var(--color-fg)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' },
+  // `display` + `alignItems` cũng áp cho <a> dùng chung kiểu này: một liên kết là hộp flex
+  // thì nhãn mới nằm giữa chiều cao, không dính mép trên (Review.dc.html, trạng thái Đã duyệt hết).
+  button: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: 36, padding: '0 12px', borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'transparent', color: 'var(--color-fg)', fontFamily: 'inherit', fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' },
+  emptyLink: { padding: '0 14px' },
   short: { height: 30, borderRadius: 8, fontSize: 12.5 },
   primary: { backgroundColor: 'var(--color-fg)', color: 'var(--color-bg)', borderColor: 'transparent', fontWeight: 600 },
   disabled: { backgroundColor: 'var(--color-surface-6)', color: 'var(--vv-fg-note)', cursor: 'not-allowed' },
