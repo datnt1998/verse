@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Dialog, Icon, Segmented } from '@noverse/ui'
+import { Button, Dialog, Icon, Segmented, TextField } from '@noverse/ui'
 import { z } from 'zod'
 import { executeCommands, type SerializedCommand } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
@@ -479,10 +479,7 @@ export function ContentPanels({ panel, onSelectItem, jobId, beforeMutation, onPr
     </>}
     {panel === 'subs' && <>
       <div {...stylex.props(sx.padded, sx.subtitleSearch)}>
-        <div {...stylex.props(sx.searchWrap)}>
-          <span {...stylex.props(sx.searchIcon)}><Icon name="search" size={14} /></span>
-          <input {...stylex.props(sx.input, sx.search)} aria-label="Tìm trong phụ đề" placeholder="Tìm trong phụ đề" value={query} onChange={event => setQuery(event.target.value)} />
-        </div>
+        <TextField aria-label="Tìm trong phụ đề" placeholder="Tìm trong phụ đề" value={query} onChange={setQuery} prefix={<Icon name="search" size={14} />} />
         <span {...stylex.props(sx.meta)}>{captions.length} đoạn phụ đề</span>
       </div>
       <div role="list" {...stylex.props(sx.list, sx.subtitleList)}>
