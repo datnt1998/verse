@@ -2,6 +2,12 @@
 
 Mỗi đợt ghi: ngày, gói, thay đổi trên artboard và tài liệu, phiên bản canvas. Mới nhất ở trên. Các gói trước Gói AO ghi trong `21-dev-prompt.md` và `19-gap-closure.md`.
 
+## 01/11/2026 — Gói AS + AT: Luồng viết trực tiếp gọn · Máy đọc <!-- r-at -->
+
+- AS: `Main` khung Luồng viết trực tiếp — lọc trợ lý gọn, vòng có đường nối, vòng cũ thu gọn, thẻ đang chạy dính đáy (canvas 136).
+- AT: `Settings` mục **Giọng đọc** (5 trạng thái máy đọc, 7 câu lỗi, bản máy chủ/cá nhân) + Nâng cao chi tiết máy đọc & thu hồi quyền; thẻ máy đọc ở `Transcript`, `AudioExport` (+ khung đang chờ máy đọc, khoá Ghép & xuất khi thiếu công cụ ghép); dock Chuẩn bị bộ đọc ở `Jobs`; `MAudio`, `MVoiceGen` đang chờ máy đọc (canvas 137).
+- Tài liệu: `10-audio.md` §8, `21-dev-prompt.md` › Gói AS, AT, `06` §AT, `07`, `18`, `19`, `artboards/README.md`.
+
 ## 01/11/2026 — Gói AR: tạo truyện mới trên điện thoại <!-- r-ar -->
 
 - Mới: `MNewStory` (M11) — Bắt đầu nhanh, Đồng sáng tác, so với truyện trước (lưới 2 cột), Bắt đầu từ tệp, Nhập bản thảo, Mô phỏng văn phong (dán văn mẫu trước).

@@ -374,7 +374,7 @@ input[type=checkbox]:checked{animation:mo-pop .34s cubic-bezier(.34,1.56,.64,1)}
 </section>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["running","expanded","finishing","attention","error","mini","empty"],"default":"running","section":"Kịch bản"},"screen":{"editor":"enum","options":["reader","outline","audio","settings","workspace"],"default":"reader","section":"Đang ở màn"},"$preview":{"width":1440,"height":900}}'>
+<script type="text/x-dc" data-dc-script data-props='{"scenario": {"editor": "enum", "options": ["running", "expanded", "finishing", "attention", "error", "mini", "empty", "prep", "prepStart", "prepDone", "prepErr"], "default": "running", "section": "Kịch bản"}, "screen": {"editor": "enum", "options": ["reader", "outline", "audio", "settings", "workspace"], "default": "reader", "section": "Đang ở màn"}, "$preview": {"width": 1440, "height": 900}}'>
 const TICK = 120;
 const AG = {
   writer: { orb: 'o-writer', name: 'Người viết', c1: '#C9A6F5', c2: '#9A63E3', c3: '#C9457F', aura: '154,99,227' },
@@ -402,7 +402,10 @@ const T = {
     done: { title: 'Đã cập nhật hồ sơ văn phong', sub: 'Học từ 6 văn mẫu', acts: [['i-arrow-r', 'Xem hồ sơ', 'Settings.dc.html', 1]] } },
   import: { icon: 'i-doc', c: '#F6CB8C', title: 'Nhập truyện tra-xanh.txt', short: 'Xác nhận cách chia chương', wait: 'Đã chia 42 chương — chờ bạn xác nhận', cta: [['i-arrow-r', 'Xem & xác nhận', 'Dialogs.dc.html', 1]] },
   review: { icon: 'i-book', c: '#F6CB8C', title: 'Chương 24 chờ bạn duyệt', short: 'Duyệt chương 24', wait: 'Đang bật duyệt từng chương — đọc rồi cho viết tiếp', cta: [['i-book', 'Đọc & duyệt', 'Reader.dc.html', 1]] },
-  audioErr: { icon: 'i-voice', c: '#FF9FA8', title: 'Tạo giọng chương 7', err: 'Bộ đọc trên máy không phản hồi sau 3 lần thử' }
+  audioErr: { icon: 'i-voice', c: '#FF9FA8', title: 'Tạo giọng chương 7', err: 'Bộ đọc trên máy không phản hồi sau 3 lần thử' },
+  vprep: { icon: 'i-headphone', c: '#9DB0F7', title: 'Chuẩn bị bộ đọc', prep: true, mins: 10, rate: 0.0016, href: 'Settings.dc.html',
+    done: { title: 'Bộ đọc đã sẵn sàng', sub: 'Mac mini ở nhà · 1 phút audio ≈ 25 giây · 3 chương đang chờ bắt đầu tạo giọng', acts: [['i-arrow-r', 'Mở Giọng đọc', 'Settings.dc.html', 1]] } },
+  vprepErr: { icon: 'i-headphone', c: '#FF9FA8', title: 'Chuẩn bị bộ đọc', prepErr: true, err: 'Không tải được mẫu giọng — phần đã tải được giữ, bấm Thử lại để tải tiếp.' }
 };
 const SCEN = {
   running: { mode: 'pill', jobs: [['write', 0.46], ['audio', 0.38], ['export', 0.62]] },
@@ -411,7 +414,11 @@ const SCEN = {
   attention: { mode: 'pill', jobs: [['import', 'wait'], ['audio', 0.52]] },
   error: { mode: 'pill', jobs: [['audioErr', 'err'], ['export', 0.3]], toast: 'audioErr' },
   mini: { mode: 'mini', jobs: [['write', 0.46], ['audio', 0.38], ['export', 0.62]] },
-  empty: { mode: 'hidden', jobs: [] }
+  empty: { mode: 'hidden', jobs: [] },
+  prep: { mode: 'panel', jobs: [['vprep', 0.79], ['export', 0.62]] },
+  prepStart: { mode: 'panel', jobs: [['vprep', 0.18]] },
+  prepDone: { mode: 'pill', jobs: [['vprep', 0.993]] },
+  prepErr: { mode: 'panel', jobs: [['vprepErr', 'err'], ['export', 0.3]] }
 };
 const POOL = ['plan', 'grade', 'steer', 'sync', 'simulate', 'export', 'audio'];
 let UID = 1;
@@ -470,6 +477,8 @@ class Component extends DCLogic {
     const pct = (j) => Math.round(j.p * 100) + '%';
     const unitTxt = (j) => { const d = T[j.t]; return d.unit ? d.unit + ' ' + Math.max(1, Math.ceil(j.p * d.total)) + '/' + d.total : ''; };
     const eta = (j) => { const m = (1 - j.p) * T[j.t].mins; return m < 1 ? 'dưới 1 phút' : 'còn khoảng ' + Math.ceil(m) + ' phút'; };
+    // Chuẩn bị bộ đọc (Gói AT): p 0–.25 bước không đo được (spinner), .25–.65 Cài thư viện, .65–1 Tải mẫu giọng
+    const prepOf = (j) => { const p = j.p; if (p < 0.25) { const k = p < 0.08 ? 0 : (p < 0.15 ? 1 : 2); return { meas: false, pct: 0, line: 'Bước ' + (k + 1) + '/6 · ' + ['Tải công cụ cài đặt', 'Chuẩn bị môi trường chạy', 'Tải bộ đọc'][k] + '…' }; } if (p < 0.65) { const q = Math.round((p - 0.25) / 0.4 * 100); return { meas: true, pct: Math.round(p * 100), line: 'Bước 4/6 · Cài thư viện · ' + q + '%' }; } const mb = Math.round((p - 0.65) / 0.35 * 581); return { meas: true, pct: Math.round(p * 100), line: 'Bước 5/6 · Tải mẫu giọng · ' + mb + '/581 MB' }; };
     const step = (j) => { const st = T[j.t].steps; const i = Math.min(st.length - 1, Math.floor(j.p * st.length)); return 'Bước ' + (i + 1) + '/' + st.length + ' · ' + st[i]; };
     // RING v2: trả {pv: 0–100, c: màu}; vẽ bằng SVG đầu bo tròn
     const ringBg = (j) => { const pv = Math.round(j.p * 100);
@@ -478,6 +487,7 @@ class Component extends DCLogic {
       if (j.st === 'done') return { pv: 100, c: '#A6EDC1' };
       if (j.st === 'paused') return { pv, c: '#5E5E68' };
       if (T[j.t].indet) return { pv: 25, c: '#F6CB8C' };
+      if (T[j.t].prep && !prepOf(j).meas) return { pv: 25, c: '#9DB0F7' };
       if (T[j.t].agent) return { pv, c: AG[T[j.t].agent].c2 };
       return { pv, c: T[j.t].c }; };
     // ---------- pill ----------
@@ -489,6 +499,7 @@ class Component extends DCLogic {
       if (j.st === 'paused') return { a: d.title + ' · đã tạm dừng', b: unitTxt(j) || pct(j), fg: '#C9C9D1' };
       if (d.agent) return { a: d.title + ' · ' + pct(j), b: AG[d.agent].name + ' · ' + step(j), fg: '#EDEDEF' };
       if (d.indet) return { a: d.title, b: 'Đang phân tích văn mẫu…', fg: '#EDEDEF' };
+      if (d.prep) { const ps = prepOf(j); return { a: d.title + (ps.meas ? ' · ' + ps.pct + '%' : ''), b: ps.line, fg: '#EDEDEF' }; }
       return { a: d.title + ' · ' + pct(j), b: unitTxt(j) + ' · ' + eta(j), fg: '#EDEDEF' };
     });
     const lastDone = vis.filter((j) => j.st === 'done').slice(-1)[0];
@@ -500,7 +511,7 @@ class Component extends DCLogic {
       return { A, deg: Math.round(j.p * 360) + 'deg', hasHead: runLike && !d.indet && j.p > 0.02, headC: '#FFFFFF', headG: '0 0 6px 2px ' + headC,
         chip: A ? 'radial-gradient(circle at 50% 55%, rgba(' + rgb + ',0.32) 0%, rgba(20,20,22,0) 70%), #141416' : (j.st === 'done' ? 'rgba(166,237,193,0.1)' : '#141416'),
         orbCls: A ? A.orb : '', live: (A && j.st === 'run') ? 'live' : '', orbG: A ? ORB_IN + ', 0 0 12px rgba(' + rgb + ',0.55)' : ORB_IN, auraBg: A ? 'radial-gradient(circle, rgba(' + rgb + ',0.35) 0%, rgba(' + rgb + ',0) 68%)' : 'none' }; };
-    const rings = sorted.slice(0, mini ? 1 : 3).map((j, i) => { const x = vis3(j); return { bg: ringBg(j), spin: (T[j.t].indet && j.st === 'run') ? 'spin' : '', orb: !!T[j.t].agent, isIcon: !T[j.t].agent, icon: T[j.t].icon || '', c: j.st === 'err' ? '#FF9FA8' : (j.st === 'wait' ? '#F6CB8C' : (T[j.t].c || '#C9C9D1')), ml: i ? '-12px' : '0', z: 5 - i, op: (sorted.length > 1 && i !== tickI % Math.max(1, Math.min(3, sorted.length)) && !mini) ? 0.5 : 1,
+    const rings = sorted.slice(0, mini ? 1 : 3).map((j, i) => { const x = vis3(j); return { bg: ringBg(j), spin: ((T[j.t].indet || (T[j.t].prep && !prepOf(j).meas)) && j.st === 'run') ? 'spin' : '', orb: !!T[j.t].agent, isIcon: !T[j.t].agent, icon: T[j.t].icon || '', c: j.st === 'err' ? '#FF9FA8' : (j.st === 'wait' ? '#F6CB8C' : (T[j.t].c || '#C9C9D1')), ml: i ? '-12px' : '0', z: 5 - i, op: (sorted.length > 1 && i !== tickI % Math.max(1, Math.min(3, sorted.length)) && !mini) ? 0.5 : 1,
       chip: x.chip, hasHead: x.hasHead, deg: x.deg, headC: x.headC, headG: x.headG, orbCls: x.orbCls, live: x.live, orbG: x.orbG }; });
     const runs = act.filter((j) => j.st === 'run');
     const agg = runs.length ? runs.reduce((a, j) => a + j.p, 0) / runs.length : (act.length ? 0 : 1);
@@ -515,7 +526,7 @@ class Component extends DCLogic {
         isAgent: !!A && t.kind === 'done', agOrb: A ? A.orb : '', agGlow: A ? ORB_IN + ', 0 0 14px rgba(' + A.aura + ',0.6)' : '' };
       const acts = (list) => list.map(([icon, label, href, primary]) => ({ icon, label, bg: primary ? '#EDEDEF' : 'transparent', fg: primary ? '#0B0B0D' : '#EDEDEF', run: () => this.dismiss(t.id) }));
       if (t.kind === 'err') return Object.assign(base, { ok: false, bad: true, wait: false, title: d.title + ' dừng lại', sub: d.err, tint: 'rgba(255,159,168,0.12)', iconBg: 'rgba(255,159,168,0.12)', cdc: '#FF9FA8',
-        acts: [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => { this.setJob(j.id, () => ({ st: 'run', p: 0.2, t: 'audio' })); this.dismiss(t.id); } }, { icon: 'i-arrow-r', label: 'Chi tiết', bg: 'transparent', fg: '#EDEDEF', run: () => { this.dismiss(t.id); this.openPanel(); } }] });
+        acts: [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => { this.setJob(j.id, () => (d.prepErr ? { st: 'run', p: 0.66, t: 'vprep' } : { st: 'run', p: 0.2, t: 'audio' })); this.dismiss(t.id); } }, { icon: 'i-arrow-r', label: 'Chi tiết', bg: 'transparent', fg: '#EDEDEF', run: () => { this.dismiss(t.id); this.openPanel(); } }] });
       if (t.kind === 'wait') return Object.assign(base, { ok: false, bad: false, wait: true, title: d.title, sub: d.wait, tint: 'rgba(246,203,140,0.12)', iconBg: 'rgba(246,203,140,0.12)', cdc: '#F6CB8C', acts: acts(d.cta) });
       return Object.assign(base, { ok: !A, bad: false, wait: false, title: d.done.title, sub: d.done.sub, tint: A ? 'rgba(' + A.aura + ',0.16)' : 'rgba(166,237,193,0.12)', iconBg: A ? 'radial-gradient(circle, rgba(' + A.aura + ',0.3), rgba(20,20,22,0) 70%)' : 'rgba(166,237,193,0.12)', cdc: A ? A.c1 : '#A6EDC1', acts: acts(d.done.acts) });
     });
@@ -533,14 +544,16 @@ class Component extends DCLogic {
       if (st === 'run' || st === 'paused') { hasBar = true; w = (j.p * 100).toFixed(1) + '%';
         if (d.agent) { const A = AG[d.agent]; sub = A.name + ' · ' + step(j); barBg = 'linear-gradient(90deg,' + A.c1 + ',' + A.c2 + ',' + A.c3 + ')'; meta = pct(j); }
         else if (d.indet) { sub = 'Đang phân tích văn mẫu…'; indet = 'indet'; barBg = d.c; meta = eta(j); }
+        else if (d.prep) { const ps = prepOf(j); sub = ps.line; barBg = 'linear-gradient(90deg,#7C93F3,#9DB0F7)'; if (ps.meas) { w = ps.pct + '%'; meta = ps.pct + '%'; } else { indet = 'indet'; meta = ''; } }
         else { sub = unitTxt(j); barBg = d.c; meta = pct(j) + ' · ' + eta(j); }
         if (st === 'paused') { sub = 'Đã tạm dừng · ' + (unitTxt(j) || pct(j)); barBg = '#5E5E68'; meta = pct(j); } }
       if (st === 'wait') { sub = d.wait; subFg = '#E9D9BD'; ctas = cta(d.cta); }
-      if (st === 'err') { sub = d.err; subFg = '#FFC9CE'; ctas = [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => this.setJob(j.id, () => ({ st: 'run', p: 0.2, t: 'audio' })) }, { icon: 'i-add', label: 'Bỏ qua chương này', bg: 'transparent', fg: '#EDEDEF', run: () => this.removeJob(j.id) }]; }
+      if (st === 'err' && d.prepErr) { sub = d.err; subFg = '#FFC9CE'; ctas = [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => this.setJob(j.id, () => ({ st: 'run', p: 0.66, t: 'vprep' })) }, { icon: 'i-add', label: 'Huỷ', bg: 'transparent', fg: '#EDEDEF', run: () => this.removeJob(j.id) }]; }
+      else if (st === 'err') { sub = d.err; subFg = '#FFC9CE'; ctas = [{ icon: 'i-refresh', label: 'Thử lại', bg: '#EDEDEF', fg: '#0B0B0D', run: () => this.setJob(j.id, () => ({ st: 'run', p: 0.2, t: 'audio' })) }, { icon: 'i-add', label: 'Bỏ qua chương này', bg: 'transparent', fg: '#EDEDEF', run: () => this.removeJob(j.id) }]; }
       if (st === 'done') { sub = d.done.sub; ctas = cta(d.done.acts); }
       return { title: st === 'done' ? d.done.title : d.title, sub, subFg, hasBar, meta, w, barBg, indet, hasCta: ctas.length > 0, ctas, icons,
         orb: !!d.agent && st !== 'done', isIcon: !d.agent && st !== 'done', isDone: st === 'done', icon: d.icon || '', c: st === 'err' ? '#FF9FA8' : (st === 'wait' ? '#F6CB8C' : d.c),
-        ring: ringBg(j), spin: (d.indet && st === 'run') ? 'spin' : '', chipBg: X.chip, hasEq: !!d.eq && st === 'run', hasHead: X.hasHead, deg: X.deg, headC: X.headC, headG: X.headG, orbCls: X.orbCls, live: X.live, orbG: X.orbG, auraBg: X.auraBg, auraPlay: st === 'run' ? 'running' : 'paused', dim: st === 'paused' ? 'dimmed' : '',
+        ring: ringBg(j), spin: ((d.indet || (d.prep && !prepOf(j).meas)) && st === 'run') ? 'spin' : '', chipBg: X.chip, hasEq: !!d.eq && st === 'run', hasHead: X.hasHead, deg: X.deg, headC: X.headC, headG: X.headG, orbCls: X.orbCls, live: X.live, orbG: X.orbG, auraBg: X.auraBg, auraPlay: st === 'run' ? 'running' : 'paused', dim: st === 'paused' ? 'dimmed' : '',
         out: j.out ? 'row-out' : '', flash: j.flash ? (j.flash % 2 ? 'flash-row' : '') : '', delay: (0.12 + (gi * 3 + ri) * 0.045).toFixed(3) + 's' };
     };
     const G = [

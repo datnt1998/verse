@@ -322,3 +322,59 @@ Nguồn tham khảo mô hình: [VieNeu-TTS (PyPI)](https://pypi.org/project/vien
 - **AudioExport:** thẻ Giọng đọc “Một giọng kể” + badge “theo gói”, liên kết “Gói chọn sẵn · đổi gói trong Cách viết”; làn giọng “Giọng kể của gói”.
 - **MAudio:** “~2 giờ 41 phút · một giọng kể” + badge “theo gói”.
 - Nguyên tắc 7: không hiện tên tệp mẫu giọng (`giong-tri-ha.wav` → “Mẫu giọng Tri Hạ · Bạn tải lên · 18 giây · nữ”). Nhạc nền không làm trong công cụ (Quyết định 10).
+
+## 8. Máy đọc — bản chạy trên máy chủ (Gói AT, 01/11) <!-- at-spec -->
+
+Nguồn: `plans/reports/noverse-tts-autosetup.md` (§4.3 enum trạng thái, §5b yêu cầu). Bộ đọc không chạy trong máy chủ mà trên **máy đọc** (một máy luôn bật, hiện là Mac mini). Máy đọc tự **chuẩn bị bộ đọc** khi chưa có. Bản cài trên máy tính cá nhân dùng **cùng khung**, chỉ khác nguồn số liệu (“Máy này”).
+
+**Từ dùng trên giao diện:** máy đọc · bộ đọc · chuẩn bị bộ đọc · máy đọc chưa kết nối · đang chờ máy đọc. **Không** hiện: worker, container, launchd, uv, python, ffmpeg, đường dẫn, tên tệp, mã lỗi, nhật ký — trừ **Tuỳ chỉnh › Nâng cao** (quản trị).
+
+### 8.1 Năm trạng thái (`Settings` › Giọng đọc, tweak `voice`)
+
+| Trạng thái | Nhãn trạng thái | Mức độ | Nội dung | Hành động |
+|---|---|---|---|---|
+| `noMachine` | Chưa có máy đọc (bản cá nhân: Chưa chuẩn bị) | — | Máy đọc là gì + 3 bước | Bản máy chủ: *Cách bật máy đọc* → Nâng cao. Bản cá nhân: **Chuẩn bị bộ đọc** |
+| `offline` | Chưa kết nối (xám) | **Cảnh báo** chỉ khi có chương đang chờ: “n chương đang chờ” | “Lần cuối kết nối {giờ}. Có thể máy đang ngủ hoặc tắt — không phải lỗi…” | không nút; tự làm mới |
+| `provisioning` | Đang chuẩn bị (xanh dương) | — | “Bước i/6 · {bước}” + danh sách 6 bước; bước đo được có thanh + % (Cài thư viện, Tải mẫu giọng: “244 / 581 MB · còn khoảng 4 phút”); bước không đo được: spinner + một dòng | không nút |
+| `provisionFailed` | Chuẩn bị chưa xong (đỏ) | **Bắt sửa** | tiêu đề = lý do ngắn; một câu lý do (bảng 8.2) | **Thử lại** (bị thu hồi quyền: *Mở Nâng cao*) |
+| `ready` | Sẵn sàng (xanh lá) | — | 4 ô: Máy đọc · Mẫu giọng · Tốc độ tạo (“1 phút audio ≈ 25 giây”) · Dung lượng đang dùng | — |
+
+Sáu bước (`step`): Tải công cụ cài đặt · Chuẩn bị môi trường chạy · Tải bộ đọc · **Cài thư viện (%)** · **Tải mẫu giọng (% + MB)** · Khởi động bộ đọc. % chỉ hiện ở hai bước đo được; không có % giả. Tweak `vstep`: `source` (spinner) · `model` (42 %).
+
+Dưới thẻ: **Chất lượng giọng** (Nghe thử nhanh · Chuẩn · Cao nhất) ghi “Mặc định cho truyện mới; từng truyện chỉnh ở Phòng thu”. Bản máy chủ **ẩn** Thiết bị và Bộ đọc; bản cá nhân giữ “Chạy bằng” (Tự chọn · Bộ xử lý · Card đồ hoạ). **Giọng có sẵn** chỉ hiện khi sẵn sàng; nút Nghe thử theo tweak `vprev` (8.4).
+
+### 8.2 Câu lý do lỗi (tweak `vfail`)
+
+| Mã (chỉ ở Nâng cao) | Tiêu đề | Câu | Hành động |
+|---|---|---|---|
+| `no_disk` | Máy đọc không đủ chỗ trống | Cần ít nhất 4 GB trống để chuẩn bị bộ đọc, máy đọc chỉ còn {x} GB. Dọn bớt tệp trên máy đọc rồi thử lại. | Thử lại |
+| `download_failed` (cả `uv_failed`) | Không tải được bộ đọc | Mạng của máy đọc bị ngắt giữa chừng. Máy đọc tự thử lại sau {n} phút; bấm Thử lại để thử ngay. | Thử lại |
+| `hash_mismatch` | Tệp tải về không khớp bản gốc | Tệp vừa tải khác bản Noverse đã kiểm nên đã bị bỏ để giữ an toàn. Máy đọc không tự thử tiếp; thử lại khi mạng ổn định, vẫn lỗi thì báo quản trị. | Thử lại |
+| `deps_failed` | Không chuẩn bị được thư viện | Bước cài thư viện cho bộ đọc dừng giữa chừng, thường do mạng chập chờn. Phần đã tải được giữ lại nên lần sau nhanh hơn. | Thử lại |
+| `model_failed` | Không tải được mẫu giọng | Mẫu giọng (khoảng 580 MB) mới tải được một phần. Phần đã tải được giữ, bấm Thử lại để tải tiếp. | Thử lại |
+| `start_failed` | Bộ đọc không khởi động được | Bộ đọc đã chuẩn bị xong nhưng không bật lên được, thường do máy đọc thiếu bộ nhớ. Đóng bớt ứng dụng trên máy đọc rồi thử lại. | Thử lại |
+| `token_rejected` | Máy đọc đã bị thu hồi quyền | Máy đọc này không còn được nhận việc tạo giọng. Quản trị cấp lại quyền ở Nâng cao. | Mở Nâng cao |
+
+### 8.3 Thẻ đầu màn Nghe / Phòng thu / Bản đọc (tweak `machine`)
+
+Cùng một thẻ cho `Transcript` (Bản đọc), `AudioExport` (Phòng thu, Nghe & xuất), `MAudio` (điện thoại). Biến thể: `noMachine` · `offline` · `provisioning` (thanh % + “vẫn soạn bản đọc được”) · `provisionFailed` (lý do + Thử lại) · `missingFfmpeg` (chỉ máy tính, Cảnh báo: “Chưa ghép và xuất tập được” — chỉ khoá nút **Ghép & xuất**, có ổ khoá + thẻ trong hộp xuất; tạo giọng và nghe vẫn chạy). Bản máy chủ **không** có nút “Cài bộ đọc trên máy”.
+
+Khi máy đọc chưa sẵn sàng mà có chương xếp hàng, Phòng thu thay khung “đang đọc %” bằng khung **“n chương đang chờ máy đọc”**: biểu tượng đồng hồ, danh sách thứ tự với nhãn trung tính *Đang chờ máy đọc*, nút *Báo khi bắt đầu*, câu “Không phải lỗi…”. Dải chương không còn ô “đang tạo”. Cột phải “Máy của bạn” đổi thành **Máy đọc** (dòng đầu: tên máy đọc hoặc trạng thái).
+
+### 8.4 Trả lời câu hỏi của dev
+
+1. **Máy đọc offline:** trạng thái **trung tính** (chấm xám, không đỏ). Chỉ khi có chương đang chờ mới gắn **Cảnh báo** “n chương đang chờ”, vì lúc đó người dùng đang mất việc.
+2. **Kiểm tra lại:** **không** có nút; tự làm mới (luồng sự kiện + khi quay lại tab). Điện thoại bỏ nút cũ, dùng kéo để làm mới sẵn có. Chỉ trạng thái lỗi có **Thử lại**.
+3. **Đang chuẩn bị lần đầu:** **cho xếp hàng**, hiện “Đang chờ máy đọc” (không khoá nút Tạo giọng).
+4. **Thu hồi quyền:** xác nhận **một bước** (hộp nêu hậu quả, nút đỏ “Thu hồi quyền”). Không mất dữ liệu, cấp lại được — gõ tên chỉ dành cho thao tác mất dữ liệu.
+5. **Chất lượng / Thiết bị / Bộ đọc ở bản máy chủ:** ẩn **Thiết bị** và **Bộ đọc**; giữ **Chất lượng** với nhãn “Mặc định cho truyện mới; từng truyện chỉnh ở Phòng thu”.
+6. **Nghe thử giọng ở bản máy chủ:** **ẩn** cho tới khi máy đọc báo hỗ trợ (`capabilities.preview`); khi có thì hiện, bấm là “Đang nhờ máy đọc…” (tweak `vprev`: hidden · supported · waiting). Bản cá nhân giữ như cũ.
+
+### 8.5 Nâng cao (quản trị) — chỗ duy nhất có chi tiết kỹ thuật
+
+Khối **Máy đọc · chi tiết kỹ thuật** đầu trang Nâng cao: Tên máy đọc · Lần cuối kết nối · Phiên bản bộ đọc · Dung lượng (+ thư mục) · Kênh nối · Quyền · Trạng thái gửi về (giá trị kỹ thuật mono, chú thích tiếng Việt chữ thường) + **6 dòng nhật ký gần nhất** + *Chép nhật ký* + **Thu hồi quyền máy đọc** (viền đỏ). Chưa có máy đọc: hướng dẫn và lệnh bật một lần. Tweak `vadv`: none · confirm · revoked.
+
+### 8.6 Dock & điện thoại
+
+- **Dock** (`Jobs`, tweak `scenario`: prep · prepStart · prepDone · prepErr): hàng **Chuẩn bị bộ đọc** — bước không đo được thì vòng xoay + “Bước 3/6 · Tải bộ đọc…”; bước đo được có % và “Bước 5/6 · Tải mẫu giọng · 299/581 MB”; xong: “Bộ đọc đã sẵn sàng” + *Mở Giọng đọc*; lỗi: lý do + **Thử lại** + **Huỷ**. Khác `audioErr` (lỗi tạo giọng một chương).
+- **Điện thoại:** `MAudio` tweak `machine` (noMachine · offline · provisioning · provisionFailed) — thẻ đầu tab Nghe; thẻ tổng “Chương 10 đang chờ máy đọc” (không vòng sóng). Bỏ câu “Cài bộ đọc trên máy tính để tạo giọng”. `MVoiceGen` tweak `gk`: `waiting` · `waitPrep` — nhóm **Đang chờ máy đọc · n** (trung tính, đồng hồ, “không phải lỗi · giữ nguyên thứ tự”), ghi chú máy đọc, nút *Báo khi bắt đầu*; khác hẳn `error` (“Dừng do lỗi”).
