@@ -13,7 +13,7 @@ export const space = stylex.defineVars({
   '--vv-s-46': '46px', '--vv-s-48': '48px', '--vv-s-56': '56px', '--vv-s-58': '58px',
   '--vv-s-60': '60px', '--vv-s-64': '64px', '--vv-s-76': '76px', '--vv-s-80': '80px',
   '--vv-s-132': '132px', '--vv-s-160': '160px', '--vv-s-232': '232px',
-  '--vv-s-240': '240px', '--vv-s-250': '250px', '--vv-s-400': '400px',
+  '--vv-s-240': '240px', '--vv-s-250': '250px', '--vv-s-280': '280px', '--vv-s-400': '400px',
 })
 
 export const corners = stylex.defineVars({
