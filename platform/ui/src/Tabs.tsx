@@ -158,6 +158,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   const btnH = typeof size === 'number' ? size : { sm: 28, md: 30, lg: 36, xl: 40 }[size]
   const btnR = radius ?? (xl ? 9 : 7)
   const itemRole = tabs ? 'tab' : 'radio'
+  const tabStop = options.find(option => option.id === value && !option.disabled)?.id ?? options.find(option => !option.disabled)?.id
   const groupRef = useRef<HTMLDivElement>(null)
   const [thumb, setThumb] = useState<SegRect | null>(null)
   useLayoutEffect(() => {
@@ -208,7 +209,9 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
       event.preventDefault()
       const enabled = options.filter((option) => !option.disabled)
-      const index = enabled.findIndex((option) => option.id === value)
+      const selectedIndex = enabled.findIndex((option) => option.id === value)
+      const focusedIndex = Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')).indexOf(document.activeElement as HTMLButtonElement)
+      const index = selectedIndex >= 0 ? selectedIndex : focusedIndex
       const next = enabled[event.key === 'Home' ? 0 : event.key === 'End' ? enabled.length - 1 : (index + (event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : enabled.length - 1)) % enabled.length]
       if (next) { onChange(next.id); event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')[enabled.indexOf(next)]?.focus() }
     }} className={`kit-seg ${root.className}`} style={{ ...root.style, ...style }}>
@@ -227,7 +230,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
             {...(tabs
               ? { id: `${tabs.id}-${option.id}`, 'aria-selected': on, 'aria-controls': tabs.panel }
               : { 'aria-checked': on })}
-            tabIndex={on ? 0 : -1} disabled={option.disabled}
+            tabIndex={option.id === tabStop ? 0 : -1} disabled={option.disabled}
             className={button.className} onClick={() => onChange(option.id)} style={{ ...button.style, ...option.style }}>
             {option.icon && <span style={{ display: 'inline-flex', flex: '0 0 auto' }}>{option.icon}</span>}
             {simple

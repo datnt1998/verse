@@ -8,7 +8,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Dropzone, FileRow } from './Dropzone'
 import { ProgressBar } from './feedback'
 import { ChipSelect } from './Selects'
-import { Tabs } from './Tabs'
+import { Segmented, Tabs } from './Tabs'
 import { ActionMenu } from './Menus'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -43,6 +43,22 @@ describe('Tabs gạch chân', () => {
     await act(async () => { tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })) })
     expect(onChange).toHaveBeenCalledWith('prompts')
   })
+})
+
+it('keeps custom values unselected but keyboard reachable, skipping disabled choices', async () => {
+  const onChange = vi.fn()
+  const container = await mount(<Segmented label="Motion" value="custom" onChange={onChange} options={[
+    { id: 'locked', label: 'Locked', disabled: true },
+    { id: 'still', label: 'Still' },
+    { id: 'zoom', label: 'Zoom' },
+  ]} />)
+  const choices = [...container.querySelectorAll<HTMLButtonElement>('[role="radio"]')]
+  expect(choices.every(choice => choice.getAttribute('aria-checked') === 'false')).toBe(true)
+  expect(choices.filter(choice => choice.tabIndex === 0)).toEqual([choices[1]])
+  choices[1].focus()
+  await act(async () => { choices[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })) })
+  expect(onChange).toHaveBeenLastCalledWith('zoom')
+  expect(document.activeElement).toBe(choices[2])
 })
 
 describe('ChipSelect', () => {

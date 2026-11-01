@@ -229,6 +229,8 @@ Notable behaviours:
   `fit: 'equal'` (default — segments split the track, long labels ellipsize)
   or `'content'` (one-line groups size each segment to its label, padding 12
   per segment — override with `options[].style.paddingInline`).
+  If the controlled value is custom or unmatched, no choice is marked selected;
+  the first enabled choice remains keyboard-reachable and arrows move from focus.
 - `Switch`, `Checkbox`, `Radio`, `RadioCard` — motion:controls v1 (no replay
   on re-render), roving arrow keys with `radioGroupKeys`.
 - `ToastHost` + `toast()` — imperative toast API; mount one host per app.
