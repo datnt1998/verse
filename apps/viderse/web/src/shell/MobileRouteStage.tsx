@@ -112,7 +112,7 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
       />
     </div>
     {pushed && <div {...stylex.props(stageStyles.push, route.name === 'queue' && stageStyles.fullBleed)}>
-      <div {...stylex.props(stageStyles.paneBody)}>
+      <div {...stylex.props(stageStyles.paneBody, route.name === 'queue' && stageStyles.paneBodyFill)}>
         <Suspense fallback={null}>{renderScreen(route)}</Suspense>
       </div>
     </div>}

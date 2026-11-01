@@ -32,6 +32,8 @@ export const stageStyles = stylex.create({
   },
   /** Cột flex của màn trong vùng cuộn: đủ cao bằng khung, cao hơn khi nội dung dài. */
   paneBody: { display: 'flex', flexDirection: 'column', minHeight: '100%' },
+  /** Màn tự quản vùng cuộn (fullBleed, ví dụ Hàng chờ): đúng bằng khung, không nới. */
+  paneBodyFill: { height: '100%' },
   /** Màn không có thanh tab dưới (Video mới): không cần đệm. */
   noPad: { paddingBottom: 0 },
   push: {
