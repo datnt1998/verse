@@ -3,10 +3,8 @@ package web
 import (
 	"errors"
 	"math"
-	"net"
 	"net/http"
 	"net/url"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -371,52 +369,37 @@ type pairingLink struct {
 	SVG   string `json:"svg"`
 }
 
-// pairingBases 返回手机可达的地址：serve 公布的局域网/Tailscale 地址，外加当前请求的非回环地址。
-func (g *Gateway) pairingBases(r *http.Request) []string {
-	bases := slices.Clone(g.PublicURLs)
-	if g.network != nil {
-		for _, u := range g.network.URLs() {
-			if !slices.Contains(bases, u) {
-				bases = append(bases, u)
-			}
-		}
+// pairingBase 返回手机该打开的唯一地址：PUBLIC_URL khi đã cấu hình (hosted
+// sau proxy), ngược lại là gốc của chính request. Không dò card mạng: địa chỉ
+// 172.x trong container không mở được từ ngoài.
+func (g *Gateway) pairingBase(r *http.Request) string {
+	if g.proxy != nil && g.proxy.PublicURL != nil {
+		return strings.TrimRight(g.proxy.PublicURL.Scheme+"://"+g.proxy.PublicURL.Host, "/")
 	}
-	host := r.Host
-	if h, _, err := net.SplitHostPort(host); err == nil {
-		host = h
+	scheme := "http"
+	if secureRequest(r) {
+		scheme = "https"
 	}
-	ip := net.ParseIP(host)
-	if host != "" && host != "localhost" && (ip == nil || !ip.IsLoopback()) {
-		scheme := "http"
-		if secureRequest(r) {
-			scheme = "https"
-		}
-		current := scheme + "://" + r.Host
-		bases = append([]string{current}, slices.DeleteFunc(bases, func(b string) bool { return b == current })...)
-	}
-	return bases
+	return scheme + "://" + r.Host
 }
 
-// pairingLinks 生成一次性配对码，并为每个手机可达的地址构造二维码链接（createPairing 与 PUT /api/system/network 共用）。
+// pairingLinks 生成一次性配对码和二维码链接（createPairing 共用）；luôn đúng một link.
 func (g *Gateway) pairingLinks(r *http.Request, username, createdBy string) (string, time.Time, []pairingLink, error) {
 	code, expires, err := g.accounts.NewPairing(username, createdBy)
 	if err != nil {
 		return "", time.Time{}, nil, err
 	}
-	links := []pairingLink{}
-	for _, base := range g.pairingBases(r) {
-		link := strings.TrimRight(base, "/") + pairShortPath + code
-		svg, err := identity.QRSVG(link)
-		if err != nil {
-			return "", time.Time{}, nil, err
-		}
-		label := base
-		if u, err := url.Parse(base); err == nil {
-			label = u.Host
-		}
-		links = append(links, pairingLink{Label: label, URL: link, SVG: svg})
+	base := g.pairingBase(r)
+	link := base + pairShortPath + code
+	svg, err := identity.QRSVG(link)
+	if err != nil {
+		return "", time.Time{}, nil, err
 	}
-	return code, expires, links, nil
+	label := base
+	if u, err := url.Parse(base); err == nil {
+		label = u.Host
+	}
+	return code, expires, []pairingLink{{Label: label, URL: link, SVG: svg}}, nil
 }
 
 // pairShortPath 是二维码里的短地址前缀：链接越短，二维码版本越低、模块越大，手机越容易扫。

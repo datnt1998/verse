@@ -4,7 +4,7 @@ import { createElement, useEffect, useRef, useState, type KeyboardEvent, type Re
 import {
   ApiError, ConflictError, adoptProject, canReadStory, cancelOAuth, changePassword, completeOAuth, createProject, createUser,
   getConfig, getConfigModels, getConfigPresets, getLibrary, getOAuthStatus, getProject, issueRecovery, logoutOAuth,
-  markOnboarded, myPairing, mySessions, putConfig, putLibrary, setLanAccess, startOAuth, testConfig, updateMe,
+  markOnboarded, myPairing, mySessions, putConfig, putLibrary, startOAuth, testConfig, updateMe,
 } from '../../api/client'
 import { PASTE_CODE_EMPTY_ERROR, parseAuthCode } from '../../lib/authCode'
 import { useSession } from '../../api/session'
@@ -413,10 +413,6 @@ export function OnboardScreen({ step }: { step: string | null }) {
     return created
   }, { success: 'Đã tạo tài khoản', error: false, invalidate: [keys.users(), keys.library()] })
   useEffect(() => { if (inviteAction.error instanceof Error) setInviteError(inviteAction.error.message) }, [inviteAction.error])
-  const lanAction = useAction(async () => {
-    await setLanAccess(true)
-    await pairingAction.run()
-  }, { error: false })
 
   const primaryProject = serverProject ?? projects.find((project) => !project.legacy) ?? projects[0] ?? null
   const primaryTarget = isAdmin
@@ -582,9 +578,6 @@ export function OnboardScreen({ step }: { step: string | null }) {
     createInvite: async () => { await inviteAction.run() },
     inviteError, invited,
     inviteStories: inviteStoriesResource.data ?? [],
-    enableLan: () => { void lanAction.run() },
-    lanBusy: lanAction.busy,
-    lanError: lanAction.error instanceof Error ? lanAction.error.message : '',
     assigned, assignedLoading: !assignedResource.data && assignedResource.initialLoading,
     go,
     mustChangePassword: user.mustChangePassword && !pwChanged,

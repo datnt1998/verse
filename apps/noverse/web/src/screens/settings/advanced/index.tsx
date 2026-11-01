@@ -37,7 +37,7 @@ export function AdvancedSection({ ctx, open: openId, onWhatsNew }: {
     { id: 'location', icon: 'folder-open', ...t.adv.location, body: <LocationRows ctx={ctx} /> },
     { id: 'names', icon: 'tag', ...t.adv.names, body: <NamesRows ctx={ctx} /> },
     { id: 'tuning', icon: 'cpu', ...t.adv.tuning, body: <TuningRows ctx={ctx} /> },
-    { id: 'access', icon: 'wifi', title: t.adv.access.title, note: t.adv.access.note, body: <AccessRows /> },
+    { id: 'access', icon: 'shield-tick', title: t.adv.access.title, note: t.adv.access.note, body: <AccessRows /> },
     { id: 'command', icon: 'code', ...t.adv.command, body: <CommandRows ctx={ctx} /> },
   ]
   return (

@@ -1,22 +1,20 @@
 // A1 › qr · Đăng nhập điện thoại bằng QR (Login.dc.html + LoginQR.dc.html).
-// Mã QR vẽ ở trình duyệt từ liên kết ngắn /p/<mã> (ui/QrCode) · tab theo links[] · hết hạn sau 5 phút · phiên mới cập nhật qua sự kiện.
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { listUsers, myPairing, mySessions, setLanAccess, userPairing, userSessions } from '../../api/client'
+// Mã QR vẽ ở trình duyệt từ liên kết ngắn /p/<mã> (ui/QrCode) · một liên kết duy nhất · hết hạn sau 5 phút · phiên mới cập nhật qua sự kiện.
+import { useEffect, useRef, useState } from 'react'
+import { listUsers, myPairing, mySessions, userPairing, userSessions } from '../../api/client'
 import { useSession } from '../../api/session'
 import type { Pairing, Session } from '../../api/types'
 import { t } from '../../i18n/vi'
-import { Segmented } from '@noverse/ui'
 import { Dialog } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { Skeleton, Spinner } from '@noverse/ui'
 import { toast } from '@noverse/ui'
-import { fmtDate, linkKind } from '../auth/parts'
+import { fmtDate } from '../auth/parts'
 import { SessionList } from './shared'
 import { keys, useAction, useConnection, useResource } from '../../data'
 import { Combobox } from '@noverse/ui'
 import { StaleBanner } from '@noverse/ui'
 import { QrCode, QrZoom, QrZoomButton } from '@noverse/ui'
-import { QrNoLan } from './QrNoLan'
 import { Button } from '@noverse/ui'
 import { PanelRefreshBar } from '../../ui/PanelRefreshBar'
 
@@ -40,14 +38,13 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
   const connection = useConnection()
   const [baseline, setBaseline] = useState<Set<string>>(new Set())
   const [pairedSession, setPairedSession] = useState<Session | null>(null)
-  const [linkIndex, setLinkIndex] = useState(0)
   const [qrZoom, setQrZoom] = useState(false)
   const generatedFor = useRef('')
   const [now, setNow] = useState(Date.now())
   const pairingAction = useAction(async () => {
     setBaseline(new Set(sessions.map((session) => session.id)))
     const created = target === me?.username ? await myPairing() : await userPairing(target)
-    setPairing(created); setPairedSession(null); setLinkIndex(0); setNow(Date.now())
+    setPairing(created); setPairedSession(null); setNow(Date.now())
     return created
   })
   const loading = pairingAction.busy || sessionsResource.initialLoading
@@ -85,8 +82,7 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
     if (fresh) setPairedSession(fresh)
   }, [sessions, pairing, baseline, expired])
 
-  const link = pairing && pairing.links.length > 0 ? pairing.links[Math.min(linkIndex, pairing.links.length - 1)] : null
-  const kinds = useMemo(() => (pairing?.links ?? []).map((item) => linkKind(item)), [pairing])
+  const link = pairing?.links[0] ?? null
   const targetName = accounts.find((account) => account.username === target)?.name || target
   const ttlColor = expired ? 'var(--color-err)' : 'var(--color-ok)'
 
@@ -94,10 +90,6 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
     if (!link) return
     void navigator.clipboard?.writeText(link.url).then(() => toast.ok('Đã sao chép liên kết đăng nhập')).catch(() => toast.err('Trình duyệt chặn sao chép — hãy chọn liên kết bằng tay'))
   }
-  const lanAction = useAction(async () => {
-    await setLanAccess(true)
-    await pairingAction.run()
-  })
 
   return (
     <Dialog
@@ -117,22 +109,9 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
             </div>
           )}
 
-          {pairing && pairing.links.length > 0 ? (
+          {link ? (
             <>
-              <Segmented
-                label="Địa chỉ máy chủ"
-                columns={pairing.links.length}
-                value={String(linkIndex)}
-                onChange={(id) => setLinkIndex(Number(id))}
-                options={pairing.links.map((item, index) => ({
-                  id: String(index),
-                  icon: <Icon name={kinds[index].kind === 'tailscale' ? 'global' : 'wifi'} size={13} />,
-                  label: kinds[index].kindLabel,
-                  hint: kinds[index].sub,
-                }))}
-                style={{ background: 'var(--color-surface-0)' }}
-              />
-              <QrCode value={link?.url ?? ''} variant="dialog" expired={expired} renew={{ onClick: () => { void pairingAction.run() }, disabled: pairingAction.busy || !connection.writable, pending: pairingAction.pending, success: pairingAction.success }} />
+              <QrCode value={link.url} variant="dialog" expired={expired} renew={{ onClick: () => { void pairingAction.run() }, disabled: pairingAction.busy || !connection.writable, pending: pairingAction.pending, success: pairingAction.success }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--color-fg-3)' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><Icon name="timer-1" size={14} />{t.qr.singleUse}</span>
@@ -159,14 +138,11 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
               <Skeleton height={260} radius={18} />
             </div>
           ) : (
-            <QrNoLan
-              height={384}
-              canEnable={isAdmin && connection.writable}
-              busy={lanAction.busy}
-              error={lanAction.error instanceof Error ? lanAction.error.message : ''}
-              onEnable={() => { void lanAction.run() }}
-              onRetry={error ? () => { void pairingAction.run() } : undefined}
-            />
+            <div style={{ minHeight: 384, borderRadius: 18, border: '1.5px dashed rgba(255,255,255,0.14)', padding: 22, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12 }}>
+              <Icon name="link-2" size={28} style={{ color: 'var(--color-warn)' }} />
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{t.qr.linkFailed}</span>
+              <Button variant="ghost" disabled={pairingAction.busy || !connection.writable} onClick={() => { void pairingAction.run() }} style={{ alignSelf: 'flex-start' }}>{t.qr.renew}</Button>
+            </div>
           )}
           {error && (
             <span role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--color-err)' }}>
@@ -178,7 +154,7 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
         <div style={{ flex: '1 1 360px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              { title: 'Cùng mạng với máy này', desc: pairing && pairing.links.length === 0 ? 'Cần bật chế độ cho phép Wi-Fi nhà (xem bên trái).' : 'Điện thoại dùng chung Wi-Fi với máy tính này, hoặc bật Tailscale khi ra ngoài.' },
+              { title: 'Mở camera trên điện thoại', desc: 'Điện thoại chỉ cần Internet — không phải cùng mạng với máy tính.' },
               { title: 'Mở Camera và quét mã', desc: 'Trang Noverse mở ra trên trình duyệt điện thoại.' },
               { title: 'Bấm “Đăng nhập” trên điện thoại', desc: 'Phiên mới giữ 30 ngày, quản lý được ở “Thiết bị đang đăng nhập”.' },
             ].map((step, index) => (
@@ -196,7 +172,7 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
             ))}
           </ol>
 
-          {pairing && pairing.links.length > 0 && (
+          {link && (
             <div role="status" className="card" style={{
               borderRadius: 14, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12,
               borderColor: pairedSession ? 'rgba(166,237,193,0.35)' : 'var(--line-2)',
@@ -239,7 +215,7 @@ export function PairingDialog({ onClose, forUser }: { onClose: () => void; forUs
             fontSize: 12, color: 'var(--color-fg-2)',
           }}>
             <Icon name="warning-2" size={15} style={{ color: 'var(--color-warn)', marginTop: 1 }} />
-            <span>Đừng chia sẻ mã này — ai quét được sẽ vào được tài khoản <span className="mono">@{target}</span> trong 5 phút. Khi ở ngoài nhà, hãy kết nối qua Tailscale thay vì Wi-Fi công cộng.</span>
+            <span>Đừng chia sẻ mã này — ai quét được sẽ vào được tài khoản <span className="mono">@{target}</span> trong 5 phút.</span>
           </div>
         </div>
       </div>

@@ -95,8 +95,6 @@ type Gateway struct {
 	// Root 是书库根；运行时可用 PUT /api/library 换，读写一律走 RootPath。
 	// 为空表示尚未选择（全新安装）：依赖书库的接口一律回 409 errNoLibrary，不会落到当前目录。
 	Root string
-	// PublicURLs 是手机可访问的基础地址（局域网 / Tailscale），用于生成扫码登录链接。
-	PublicURLs []string
 	// backend 是账号后端选择（serve 传 STORE_DRIVER）：决定 session cookie
 	// 名与 app-grant gate。构造后不可变，不受请求影响。
 	backend     accountBackend
@@ -128,10 +126,8 @@ type Gateway struct {
 	notifications *gatewayNotifications
 	closeOnce     sync.Once
 	storageTests  map[string][]time.Time
-	// recoverLimiter 限制 POST /api/recover（每 IP 每小时 5 次，recovery.go）；
-	// network 控制运行时的局域网监听（network.go），未启用时为 nil。
+	// recoverLimiter 限制 POST /api/recover（每 IP 每小时 5 次，recovery.go）。
 	recoverLimiter identity.RecoveryLimiter
-	network        *Network
 	// build 是 ldflags 构建身份（/api/system 的 version/commit/built）；
 	// latest 是被动检查新版本的结果，由后台 goroutine 写入。
 	build    version.Info
@@ -609,7 +605,6 @@ func (g *Gateway) closeWorkers() {
 
 func (g *Gateway) Close() {
 	g.closeOnce.Do(func() {
-		g.closeNetwork()
 		g.stopWatcher()
 		g.closeWorkers()
 		g.jobsHub().close()
@@ -736,7 +731,7 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if g.serveAccount(w, r, user, current) {
 		return
 	}
-	if g.serveRecovery(w, r, user) || g.serveNetwork(w, r, user) {
+	if g.serveRecovery(w, r, user) {
 		return
 	}
 	if g.serveStorageMetrics(w, r, user) || g.serveLessons(w, r, user) {

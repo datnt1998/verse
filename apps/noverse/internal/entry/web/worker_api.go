@@ -19,12 +19,12 @@ import (
 
 // WorkerAPI is the private pull API the Mac TTS worker talks to (phase 07).
 //
-// It is served on the private listener only (default :8081, bound to the
-// Tailscale host IP); it must never be registered on the public :8080 mux or
-// routed by Traefik. Authentication is a least-privilege service token with
-// the 'tts' capability — never a user session or an admin token — and every
-// mutating call presents the job's fencing token, so a worker that lost its
-// lease cannot publish.
+// It is served on the private listener only (default :8081, bound to a
+// private-network address); it must never be registered on the public :8080
+// mux or routed by Traefik. Authentication is a least-privilege service token
+// with the 'tts' capability — never a user session or an admin token — and
+// every mutating call presents the job's fencing token, so a worker that lost
+// its lease cannot publish.
 //
 // Protocol (claim → snapshot → upload → ACK):
 //

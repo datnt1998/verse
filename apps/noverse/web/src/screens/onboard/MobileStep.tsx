@@ -9,17 +9,11 @@ import { KitSelect, type Option } from '@noverse/ui'
 import { Tooltip } from '@noverse/ui'
 import { toast } from '@noverse/ui'
 import { QR_RANGE, QrCode, QrCountdown, QrZoom, QrZoomButton, qrMetrics } from '@noverse/ui'
-import { AuthInput, fmtDate, linkKind } from '../auth/parts'
-import { QrNoLan } from '../account/QrNoLan'
+import { AuthInput, fmtDate } from '../auth/parts'
 import { projectLabel, storyLabel } from '../../shell/labels'
 import { USERNAME_RE, type OnboardModel } from './model'
 import { copyText as writeClipboard } from '../../lib/clipboard'
-
-const WHERE = [
-  { key: 'home', label: 'Ở nhà', sub: 'cùng Wi-Fi', icon: 'wifi' },
-  { key: 'out', label: 'Ra ngoài', sub: 'qua Tailscale', icon: 'global' },
-] as const
-type Where = (typeof WHERE)[number]['key']
+import { t } from '../../i18n/vi'
 
 const ROLES = [
   { key: 'collab', label: 'Cộng tác', sub: 'viết & góp ý' },
@@ -33,7 +27,7 @@ const mmss = (ms: number) => {
   return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
 }
 
-/** Chép vào clipboard; trình duyệt chặn (http qua Wi-Fi nhà) thì báo để người dùng chọn tay. */
+/** Chép vào clipboard; trình duyệt chặn (trang http) thì báo để người dùng chọn tay. */
 async function copyText(text: string): Promise<boolean> {
   try {
     if (!navigator.clipboard) throw new Error('no clipboard')
@@ -87,7 +81,6 @@ export function MobileStep({ model }: { model: OnboardModel }) {
 function PhoneCard({ model }: { model: OnboardModel }) {
   const { pairing, pairedSession } = model
   const [now, setNow] = useState(Date.now())
-  const [where, setWhere] = useState<Where>('home')
   const [zoom, setZoom] = useState(false)
   const [copied, markCopied] = useCopied()
   useEffect(() => {
@@ -95,15 +88,8 @@ function PhoneCard({ model }: { model: OnboardModel }) {
     return () => clearInterval(timer)
   }, [])
 
-  const links = pairing?.links ?? []
-  const byKind: Partial<Record<Where, (typeof links)[number]>> = {}
-  for (const entry of links) {
-    const kind: Where = linkKind(entry).kind === 'tailscale' ? 'out' : 'home'
-    byKind[kind] ??= entry
-  }
-  const available = WHERE.filter((entry) => byKind[entry.key])
-  const current: Where | undefined = byKind[where] ? where : available[0]?.key
-  const link = current ? byKind[current] : undefined
+  // Server trả đúng một liên kết (PUBLIC_URL hoặc địa chỉ đang mở): không còn tab theo mạng.
+  const link = pairing?.links[0]
   const left = pairing ? Math.max(0, new Date(pairing.expiresAt).getTime() - now) : 0
   const expired = pairing !== null && left <= 0
   const renew = { onClick: model.renewPairing, disabled: model.pairingLoading, pending: model.pairingLoading }
@@ -118,15 +104,6 @@ function PhoneCard({ model }: { model: OnboardModel }) {
       {link ? (
         <>
           <QrCode value={link.url} variant="card" expired={expired} renew={renew} />
-          {available.length > 1 && (
-            <Segmented label="Điện thoại đang ở đâu" size={40} radius={8}
-              value={current} onChange={(next) => setWhere(next as Where)}
-              style={{ alignSelf: 'stretch', gap: 2, borderRadius: 11, background: 'var(--color-surface-0)', border: '1px solid var(--line-1)' }}
-              options={WHERE.map((entry) => ({
-                id: entry.key, label: <span style={{ fontSize: 12.5, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}><Icon name={entry.icon} size={13} />{entry.label}</span>,
-                hint: entry.sub,
-              }))} />
-          )}
           <ol style={{ alignSelf: 'stretch', margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: '#B8B8C2' }}>
             {GUIDE.map((text, index) => (
               <li key={text} style={{ display: 'flex', gap: 8 }}>
@@ -157,7 +134,10 @@ function PhoneCard({ model }: { model: OnboardModel }) {
       ) : model.pairingLoading ? (
         <Skeleton width={qrMetrics(33, QR_RANGE.card).size} height={qrMetrics(33, QR_RANGE.card).size} radius={16} />
       ) : (
-        <QrNoLan canEnable={model.isAdmin} busy={model.lanBusy} error={model.lanError} onEnable={model.enableLan} onRetry={pairing ? undefined : model.renewPairing} />
+        <div style={{ alignSelf: 'stretch', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <span role="alert" style={{ fontSize: 13, color: '#FF9AA2' }}>{t.qr.linkFailed}</span>
+          <Button variant="ghost" disabled={model.pairingLoading} onClick={model.renewPairing} style={{ alignSelf: 'flex-start' }}>{t.qr.renew}</Button>
+        </div>
       )}
       {zoom && link && <QrZoom value={link.url} onClose={() => setZoom(false)} />}
     </section>

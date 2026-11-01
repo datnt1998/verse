@@ -60,6 +60,18 @@ describe('Thành viên §AD', () => {
     await click('Thêm thành viên')
     expect(document.querySelector<HTMLInputElement>('input[aria-label="Mật khẩu tạm"]')!.value).not.toBe(temporary)
   })
+  it('hộp tạo xong hiện địa chỉ thật của Noverse và lời nhắn chép kèm địa chỉ đó', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    await click('Thêm thành viên'); await fill('Tên hiển thị', 'Ngọc')
+    const temporary = document.querySelector<HTMLInputElement>('input[aria-label="Mật khẩu tạm"]')!.value
+    await click('Tạo tài khoản')
+    const dialog = document.querySelector('[role="dialog"]')!.textContent
+    expect(dialog).toContain(location.origin)
+    expect(dialog).not.toMatch(/Wi-Fi|quét QR/)
+    await click('Chép lời nhắn gửi Linh')
+    expect(writeText).toHaveBeenCalledWith(`Tên đăng nhập: ngoc\nMật khẩu tạm: ${temporary}\nMở Noverse: ${location.origin}`)
+  })
   it('luôn có lý do khoá, không bắt buộc, và gửi lý do đã nhập', async () => {
     await click('Khoá')
     expect(document.querySelector('[role="alertdialog"]')?.textContent).toContain('Lý do (ghi vào nhật ký, không bắt buộc)')

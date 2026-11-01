@@ -12,7 +12,7 @@ import { BrandLockup } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
 import { Spinner } from '@noverse/ui'
 import { loginPublic, pairPublic } from './publicApi'
-import { AuthInput, OrbHero, authDestination, detectDevice, fmtDate, useServerKind } from './parts'
+import { AuthInput, OrbHero, authDestination, detectDevice, fmtDate } from './parts'
 import { Scanner } from './Scanner'
 import { toast } from '@noverse/ui'
 import { useAction } from '../../data'
@@ -24,11 +24,10 @@ type View = 'confirm' | 'pairing' | 'invalid' | 'login' | 'scan' | 'cameraBlocke
 const SESSION_DAYS = 30
 const USERNAME_RE = /^[a-z0-9._-]{2,32}$/
 
-function PhoneHeader({ chip }: { chip?: ReactNode }) {
+function PhoneHeader() {
   return (
-    <header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '14px 16px 6px' }}>
+    <header style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: '14px 16px 6px' }}>
       <BrandLockup size={20} gap={8} />
-      {chip}
     </header>
   )
 }
@@ -52,7 +51,6 @@ function PhoneShell({ children, footer, header }: { children: ReactNode; footer?
 
 export function PairScreen({ code = '', initialView, onAuthenticated }: { code?: string; initialView?: 'login' | 'scan' | 'confirm'; onAuthenticated?: (user: User) => void }) {
   const { setUser, setDeniedUser, refresh, sharedAccounts } = useSession()
-  const { label: serverLabel } = useServerKind()
   const [view, setView] = useState<View>(initialView ?? (code ? 'confirm' : 'login'))
   const [activeCode, setActiveCode] = useState(code)
   // Lỗi hiện tại chỗ (thẻ invalid / dòng lỗi dưới form) — không toast trùng (16 §3).
@@ -171,7 +169,7 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '12px 14px', borderRadius: 14, border: '1px solid var(--line-2)', fontSize: 12.5, color: 'var(--color-fg-3)' }}>
           <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-fg-2)' }}>Vì sao không mở được?</span>
           <span>• Bạn đã chặn quyền camera cho trang này — bật lại trong phần cài đặt trang web của trình duyệt.</span>
-          <span>• Trình duyệt chỉ cho dùng camera khi kết nối được bảo mật, nên khi mở Noverse qua Wi-Fi nhà có thể không dùng được.</span>
+          <span>• Trình duyệt chỉ cho dùng camera khi kết nối được bảo mật (https), nên trang mở qua địa chỉ http thường sẽ không dùng được camera.</span>
         </div>
       </PhoneShell>
     )
@@ -185,12 +183,7 @@ export function PairScreen({ code = '', initialView, onAuthenticated }: { code?:
 
   return (
     <PhoneShell
-      header={<PhoneHeader chip={(
-        <span style={{
-          display: 'flex', alignItems: 'center', gap: 6, height: 28, padding: '0 10px', borderRadius: 999,
-          background: 'var(--color-surface-1)', border: '1px solid var(--line-2)', fontSize: 11.5, color: 'var(--color-fg-3)',
-        }}><Icon name={serverLabel === 'Tailscale' ? 'global' : 'wifi'} size={13} />{serverLabel}</span>
-      )} />}
+      header={<PhoneHeader />}
       footer={(
         <>
           {isLogin ? (

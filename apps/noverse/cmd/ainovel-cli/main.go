@@ -27,7 +27,7 @@ var (
 
 const cliUsage = `Cách dùng:
   ainovel-cli                              Mở giao diện viết truyện trong terminal
-  ainovel-cli serve [--root DIR] [--addr HOST:PORT] [--lan]
+  ainovel-cli serve [--root DIR] [--addr HOST:PORT]
                                            Mở giao diện web
   ainovel-cli serve user add|list|passwd|rm  Quản lý tài khoản web
   ainovel-cli login [provider] [--device]    Đăng nhập gói thuê bao AI

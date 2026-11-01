@@ -93,7 +93,7 @@ export function MobileRuntimeProvider({ children }: { children: ReactNode }) {
     window.addEventListener('online', online); window.addEventListener('offline', offline)
     return () => { window.removeEventListener('online', online); window.removeEventListener('offline', offline) }
   }, [])
-  // Rớt một nhịp (iOS khoá luồng khi chuyển nền, Wi-Fi chuyển cell) không nên
+  // Rớt một nhịp (iOS khoá luồng khi chuyển nền, đổi mạng giữa chừng) không nên
   // làm cả màn tối đi: chỉ báo mất kết nối khi đã hỏng liên tục ≥ 3 s.
   const flap = !connection.online || connection.state === 'retrying' || Boolean(worker && !worker.connected && worker.reconnectAt !== null && !worker.blocked)
   const offline = useSustained(flap, 3000)

@@ -42,7 +42,7 @@ func runWorkerCommand(args []string, out, errw io.Writer) int {
 	}
 	fs := flag.NewFlagSet("worker tts", flag.ContinueOnError)
 	fs.SetOutput(errw)
-	api := fs.String("api", os.Getenv("TTS_WORKER_API_URL"), "địa chỉ listener worker riêng (Tailscale), ví dụ http://100.x.y.z:8081")
+	api := fs.String("api", os.Getenv("TTS_WORKER_API_URL"), "địa chỉ listener worker riêng, ví dụ http://10.0.0.5:8081")
 	project := fs.String("project", "", "chỉ nhận việc của dự án này (không bắt buộc)")
 	lease := fs.Duration("lease", 120*time.Second, "thời hạn thuê MONG MUỐN cho mỗi việc; server kẹp trong 30s..10m")
 	if err := fs.Parse(args[1:]); err != nil {
