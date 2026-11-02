@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
 
@@ -72,7 +73,11 @@ func (w *Worker) now() time.Time { return w.cfg.Now() }
 func (w *Worker) State() voice.ProvisionState {
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	return w.state
+	next := w.state
+	if w.ready && len(w.voices) > 0 {
+		next.Voices = append([]voice.Voice(nil), w.voices...)
+	}
+	return next
 }
 
 // Ready reports whether the reader is serving, i.e. whether the worker may
@@ -103,9 +108,12 @@ func (w *Worker) refreshReady(ctx context.Context) bool {
 	if st.Ready {
 		if !w.Ready() {
 			w.markReady(st)
+			w.refreshVoices(ctx)
 			// A reader that came up while a stop was reported must not keep the
 			// stale error on the server: publish the transition now, since the
 			// run loop may not call prepare again while it is serving.
+			_ = w.publishState(ctx)
+		} else if w.refreshVoices(ctx) {
 			_ = w.publishState(ctx)
 		}
 		return true
@@ -170,6 +178,7 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	}
 	if st.Ready {
 		w.markReady(st)
+		w.refreshVoices(ctx)
 		return
 	}
 	if !w.due() {
@@ -194,7 +203,8 @@ func (w *Worker) ensureReady(ctx context.Context) {
 		Message: "Đang khởi động bộ đọc…",
 	})
 	_ = w.publishState(ctx)
-	if _, err := w.cfg.Engine.Voices(ctx); err != nil {
+	list, err := w.cfg.Engine.Voices(ctx)
+	if err != nil {
 		if ctx.Err() != nil {
 			return
 		}
@@ -204,6 +214,7 @@ func (w *Worker) ensureReady(ctx context.Context) {
 	w.resetAttempts()
 	if st := w.cfg.Engine.Status(ctx); st.Ready {
 		w.markReady(st)
+		w.setVoices(list)
 	}
 }
 
@@ -251,6 +262,7 @@ func (w *Worker) provision(ctx context.Context) {
 			// The reader is already serving: claim without waiting for the next
 			// poll tick.
 			w.markReady(st)
+			w.refreshVoices(ctx)
 			return
 		}
 		// Provision reports the install as ready, not the engine. Until it
@@ -377,7 +389,7 @@ func (w *Worker) shouldSend(next voice.ProvisionState) bool {
 	if !w.sentOnce {
 		return true
 	}
-	if next.State != w.sent.State || next.Step != w.sent.Step {
+	if next.State != w.sent.State || next.Step != w.sent.Step || !slices.Equal(next.Voices, w.sent.Voices) {
 		return true
 	}
 	if next.Percent == w.sent.Percent && next.Message == w.sent.Message && sameProvisionError(next.Error, w.sent.Error) {
@@ -401,6 +413,9 @@ func (w *Worker) setState(next voice.ProvisionState) {
 	w.mu.Lock()
 	w.state = next
 	w.ready = next.State == voice.ProvisionStateReady
+	if !w.ready {
+		w.voices, w.voicesAt = nil, time.Time{}
+	}
 	w.mu.Unlock()
 }
 
@@ -418,7 +433,44 @@ func (w *Worker) markReady(st voice.Status) {
 	}
 	w.mu.Lock()
 	w.state, w.ready = next, true
+	// A restart may serve a different catalogue; refetch instead of publishing
+	// the previous process's list.
+	w.voices, w.voicesAt = nil, time.Time{}
 	w.attempts, w.exhausted, w.nextAttempt = 0, false, time.Time{}
+	w.mu.Unlock()
+}
+
+// refreshVoices asks the serving reader for its real catalogue and caches it on
+// the state the server reads. It is throttled and never blocks readiness: a
+// reader that cannot list voices still claims jobs, it just publishes no list.
+func (w *Worker) refreshVoices(ctx context.Context) bool {
+	if !w.Ready() {
+		return false
+	}
+	w.mu.Lock()
+	fresh := !w.voicesAt.IsZero() && w.now().Sub(w.voicesAt) < 5*time.Minute
+	w.mu.Unlock()
+	if fresh {
+		return false
+	}
+	callCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	list, err := w.cfg.Engine.Voices(callCtx)
+	if err != nil {
+		w.mu.Lock()
+		w.voicesAt = w.now()
+		w.mu.Unlock()
+		return false
+	}
+	w.setVoices(list)
+	return true
+}
+
+// setVoices caches a catalogue the caller already fetched (the start path gets
+// it from the same Voices call that proves the reader can serve).
+func (w *Worker) setVoices(list []voice.Voice) {
+	w.mu.Lock()
+	w.voices, w.voicesAt = append([]voice.Voice(nil), list...), w.now()
 	w.mu.Unlock()
 }
 

@@ -1,7 +1,7 @@
 ---
 title: "Viderse mobile: chuẩn mobile chung với Noverse, khớp artboard từng màn"
 description: "Đưa hợp đồng safe-area, thanh tab, giữ màn, bàn phím và component mobile lên platform/ui; sửa mọi màn điện thoại Viderse theo artboard M*; hết cảnh thanh tab đè nội dung; đạt ngân sách hiệu năng."
-status: in_progress
+status: completed
 priority: P0
 branch: main
 tags: [frontend, mobile, design-system]
@@ -34,9 +34,9 @@ Mọi màn điện thoại Viderse (< 768 px) khớp artboard `apps/viderse/docs
 |---|---|---|---|
 | 1a | **Nền safe-area + thanh tab không đè** (kit tokens, Noverse cutover, Viderse shell/tab bar 30 px, đệm cuộn, mọi thanh dính đáy, `.vv-mset` dưới notch, sheet padding, toast neo, `--kb`, tab mode `hide`/`mini`) | — | đã tích hợp; sửa vùng cuộn có 220 phép đo cuối màn không che khuất, kiểm lại sau đổi bố cục |
 | 1b | **Giữ màn khi đổi tab** (`KeepAlive` lên kit, Viderse pane keep-alive, giữ cuộn, 0 request khi cache còn, prefetch idle) | — | đã tích hợp |
-| 1c | **Component mobile hệ thống** theo MKit (kích thước 44/46/48, sheet title 18, chip 36/44, field 16 px…) + Noverse cutover | — | đã tích hợp V33; kiểm kit233 test, native và focus/menu/segmented đạt |
+| 1c | **Component mobile hệ thống** theo MKit (kích thước 44/46/48, sheet title 18, chip 36/44, field 16 px…) + Noverse cutover | — | đã tích hợp V33; UIKit 239 test, native focus/menu/segmented đạt |
 | 2 | **Màn theo artboard**: MMain (Bàn dựng 1 cột + chi tiết + kế hoạch + bản tin + việc nền), MReview (8 trạng thái), MExplore + MCompVideo (B2 màn riêng), MCreate + MChannel + MSettings, MNew + MQueue + MAuth polish | 1a, 1c | đã tích hợp; có báo cáo/ảnh native từng slice và lượt kiểm bản production tích hợp 390/360 trong `plans/reports/261102-final-built-mobile/` |
-| 3 | **Hiệu năng** theo báo cáo 02 (ngân sách JS màn đầu, TBT, render storm, ảnh) | 1b | đang tối ưu tiếp theo lựa chọn rõ ràng của chủ dự án, **không chấp nhận ngoại lệ**: CSS theo route giữ cascade, gộp dependency màn đầu/inline sáu icon, khử request trùng nhưng giữ prefetch; sau đó đo cold production và deploy lại. Baseline ở báo cáo02 §10 |
+| 3 | **Hiệu năng** theo báo cáo 02 (ngân sách JS màn đầu, TBT, render storm, ảnh) | 1b | đạt gate: entry 141,7 KiB, initial JS 191,3 KiB, CSS 33,8 KiB gzip; cold ba lượt xấu nhất FCP 768 ms, TBT 26 ms, 25 request, CLS 0. Danh sách thật nạp 5.000 video vẫn chỉ gắn 10 thẻ, 1.107 nút DOM, tăng heap 5,15 MiB, 60 fps |
 | 4 | **GAP design** → làm màn khi artboard về | design | V34 đã tích hợp; còn các GAP API nêu trên |
 
 # Nghiệm thu mỗi màn
@@ -45,3 +45,10 @@ Mọi màn điện thoại Viderse (< 768 px) khớp artboard `apps/viderse/docs
 - Không phần tử tương tác nào bị thanh tab/notch/home indicator che (kiểm bằng `elementFromPoint` ở tâm từng nút/hàng cuối); vùng chạm ≥ 44 px.
 - `src/checks/design-rules.test.ts` + test hợp đồng safe-area xanh; typecheck; vitest Viderse + Noverse + platform/ui đầy đủ.
 - Dist nhúng build lại, deploy, kiểm trên production.
+
+## Kết quả triển khai
+
+- Noverse đã triển khai bản `ec3d2aed`, public entry `index-CqmhAx93.js`; Viderse đã triển khai `ac352770`, public entry `index-BuCmsTN2.js`. Hai ứng dụng dùng chung sửa keyboard/viewport và safe-area; chưa kiểm bàn phím Safari trên iPhone thật.
+- Native mobile cuối: 253/253 kiểm tra tại 360/390/430 và hai bộ inset; motion 23 mẫu gồm Segmented 320 ms và reduced-motion 0. Không lỗi JavaScript hay tràn ngang trong smoke public.
+- Avatar thumbnail mobile đã sửa overflow: smoke public với ảnh thật tại 360/390/430 xác nhận badge nhìn thấy ngoài cạnh trái/dưới, ảnh giữ bo góc 8 px; desktop 1280/1440 vẫn nhìn thấy avatar.
+- Biên bản PC, giới hạn dữ liệu và các lỗi người dùng báo tiếp được theo dõi riêng tại [kế hoạch desktop](../261102-viderse-desktop-artboard-parity/plan.md); hoàn thành đợt mobile không khẳng định mọi trạng thái trả phí hay mọi thiết bị vật lý đã được kiểm.

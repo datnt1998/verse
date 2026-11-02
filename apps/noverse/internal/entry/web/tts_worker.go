@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"github.com/datnt1998/verse/apps/noverse/internal/audio"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/noverse/internal/voice"
 	"github.com/datnt1998/verse/platform/identity"
@@ -140,6 +142,57 @@ func hasWorkerCapability(caps []string, want string) bool {
 		}
 	}
 	return false
+}
+
+// remoteProjectVoices turns the worker's published engine catalogue into the
+// project-voice shape the audio UI already renders. Only built-in presets are
+// exposed: worker-local clones belong to no project, while uploaded samples
+// travel through the audio_voices table and are merged separately.
+func remoteProjectVoices(state voice.ProvisionState) []audio.ProjectVoice {
+	if state.State != voice.ProvisionStateReady {
+		return nil
+	}
+	out := make([]audio.ProjectVoice, 0, len(state.Voices))
+	seen := make(map[string]bool, len(state.Voices))
+	for _, v := range state.Voices {
+		if v.Source == voice.SourceClone || v.Source == voice.SourceProject || v.ID == "" || seen[v.ID] {
+			continue
+		}
+		seen[v.ID] = true
+		gender := ""
+		switch strings.ToLower(strings.TrimSpace(v.Gender)) {
+		case "female", "f", "nữ", "nu":
+			gender = "nu"
+		case "male", "m", "nam":
+			gender = "nam"
+		}
+		out = append(out, audio.ProjectVoice{ID: v.ID, Name: v.Name, Gender: gender, BuiltIn: true})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	return out
+}
+
+// remoteVoices returns the catalogue of the freshest live TTS worker. An
+// offline/revoked worker advertises nothing: its voice ids cannot synthesize,
+// so offering them would only produce a save that later fails.
+func (g *Gateway) remoteVoices(ctx context.Context) []audio.ProjectVoice {
+	g.remoteVoicesMu.Lock()
+	if !g.remoteVoicesAt.IsZero() && time.Since(g.remoteVoicesAt) < 5*time.Second {
+		list := g.remoteVoicesList
+		g.remoteVoicesMu.Unlock()
+		return list
+	}
+	g.remoteVoicesMu.Unlock()
+
+	snap := g.workerSnapshot(ctx)
+	var list []audio.ProjectVoice
+	if snap.Found && !snap.Revoked && !snap.offline(time.Now()) {
+		list = remoteProjectVoices(snap.State)
+	}
+	g.remoteVoicesMu.Lock()
+	g.remoteVoicesAt, g.remoteVoicesList = time.Now(), list
+	g.remoteVoicesMu.Unlock()
+	return list
 }
 
 // hostedTTSStatus dựng GET /api/tts/status từ trạng thái máy đọc (Gói AT).

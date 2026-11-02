@@ -166,6 +166,11 @@ type Gateway struct {
 	// 的池）拿同一个 slug 绝不能共用服务。
 	pgAudioMu   sync.Mutex
 	pgAudioSvcs map[string]*audio.PGService
+	// remoteVoices caches the worker's published catalogue so render/view paths
+	// that ask PGService.Voices repeatedly do not list workers each time.
+	remoteVoicesMu   sync.Mutex
+	remoteVoicesAt   time.Time
+	remoteVoicesList []audio.ProjectVoice
 	// Hosted "AI sẽ soạn bản đọc" runner (audio_prepare.go): one sequential
 	// compose loop per story, woken by the audio service (enqueue/retry/resume)
 	// or by startup recovery. It never polls when idle; a live preparation

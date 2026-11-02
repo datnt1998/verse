@@ -32,6 +32,7 @@ type Service                                  // hàng đợi duy nhất mỗi e
 - Cấu hình `tts: {engine: "vieneu"|"openai-speech", model, device: cpu|gpu, quality, endpoint?, api_key?}` trong `config.json`, kế thừa 3 cấp như mọi khoá khác (`api_key` chỉ ở cấp toàn cục, không gửi ra trình duyệt).
 - CLI: `ainovel-cli voice install | status | voices | say "<chữ>" [--voice] [-o file.wav]`.
 - API: `GET /api/tts/status` · `GET /api/tts/engines` · `POST /api/tts/install` (job, tiến độ qua SSE `tts.install`) · `GET /api/tts/voices` · `POST /api/tts/preview {voiceId, text, tone?}` → `audio/wav`.
+- **Hosted không có engine cục bộ:** worker TTS công bố danh mục thật (`voice.Voice`) trong `state.voices` của heartbeat/state (`voice.ProvisionState`). Máy chủ đọc trạng thái worker đã lưu, lọc `source=builtin`, rồi gộp vào `GET /api/projects/:p/voices` (sau giọng dự án, khử trùng theo `id`), `GET /api/tts/voices` và `PGService.Voices` để phân vai/ResolveVoice thấy cùng một danh mục. Worker offline/thu hồi hoặc chưa báo cáo ⇒ không có giọng có sẵn, không bịa danh mục; worker chỉ lấy lại danh mục khi sẵn sàng và cache 5 phút.
 
 ## 2. Audio truyện — `internal/audio`
 

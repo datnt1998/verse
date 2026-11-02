@@ -68,6 +68,10 @@ type PGDeps struct {
 	// Keys builds BlobStore object keys for the process STORAGE_ENV. The zero
 	// value is the dev environment; hosted wiring passes blobkey.FromEnv().
 	Keys blobkey.Keys
+	// RemoteVoices returns the real catalogue advertised by the connected TTS
+	// worker. Hosted has no local engine, so without this the picker only sees
+	// uploaded project samples and a cast cannot reference an engine preset.
+	RemoteVoices func(context.Context) []ProjectVoice
 }
 
 // PGService is the hosted sibling of Service: same HTTP surface, durable rows.

@@ -1008,3 +1008,49 @@ func TestAudioCastVersionConflictAndChangeEvent(t *testing.T) {
 		}
 	}
 }
+
+// The browser GETs a versioned resource and sends the same object back on PUT
+// (the mobile/desktop save path spreads the GET model). The contract allows
+// `version` in the body, so strict decoding must accept it instead of returning
+// 400 and rolling the mode/settings change back.
+func TestAudioPutAcceptsVersionInGetRepresentation(t *testing.T) {
+	f := newAudioFixture(t)
+
+	w := f.do("GET", "/audio/cast", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("cast get: %d %s", w.Code, w.Body.String())
+	}
+	var cast map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &cast); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := cast["version"]; !ok {
+		t.Fatalf("cast GET lost version: %s", w.Body.String())
+	}
+	cast["mode"] = audio.ModeSingle
+	raw, _ := json.Marshal(cast)
+	if w = f.do("PUT", "/audio/cast", string(raw)); w.Code != http.StatusOK {
+		t.Fatalf("cast PUT with version: %d %s", w.Code, w.Body.String())
+	}
+	got, err := audio.ReadCast(f.svc.Layout())
+	if err != nil || got.Mode != audio.ModeSingle {
+		t.Fatalf("cast = %+v, err %v, want single", got, err)
+	}
+
+	w = f.do("GET", "/audio/settings", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("settings get: %d %s", w.Code, w.Body.String())
+	}
+	var settings map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &settings); err != nil {
+		t.Fatal(err)
+	}
+	settings["quality"] = "high"
+	raw, _ = json.Marshal(settings)
+	if w = f.do("PUT", "/audio/settings", string(raw)); w.Code != http.StatusOK {
+		t.Fatalf("settings PUT with version: %d %s", w.Code, w.Body.String())
+	}
+	if got := f.svc.Settings(); got.Quality != "high" {
+		t.Fatalf("saved quality = %q, want high", got.Quality)
+	}
+}

@@ -26,6 +26,7 @@ type stateEngine struct {
 	startErr  string
 	voices    int
 	voicesErr error
+	voiceList []voice.Voice
 }
 
 func (e *stateEngine) Name() string                     { return "state-test" }
@@ -68,7 +69,7 @@ func (e *stateEngine) Voices(context.Context) ([]voice.Voice, error) {
 	if e.installed {
 		e.ready, e.starting = true, false
 	}
-	return nil, nil
+	return append([]voice.Voice(nil), e.voiceList...), nil
 }
 
 func (e *stateEngine) Installed() bool {
@@ -874,5 +875,32 @@ func TestWorkerUnresolvedAttemptStaysUnsafeAfterRecovery(t *testing.T) {
 	runFor(t, w2, 150*time.Millisecond)
 	if got := second.count(); got != 1 {
 		t.Fatalf("authorized attempts = %d, want exactly 1", got)
+	}
+}
+
+func TestWorkerRecoversVoiceCatalogueWhileReaderRemainsReady(t *testing.T) {
+	srv := newStateServer(t)
+	eng := &stateEngine{installed: true, ready: true, voicesErr: errors.New("catalogue temporarily unavailable")}
+	w := newStateWorker(t, srv, eng, nil)
+	now := time.Now()
+	w.cfg.Now = func() time.Time { return now }
+	if !w.refreshReady(context.Background()) {
+		t.Fatal("catalogue failure must not stop a serving reader")
+	}
+	eng.set(func(e *stateEngine) {
+		e.voicesErr = nil
+		e.voiceList = []voice.Voice{{ID: "preset-1", Name: "Giọng A", Source: voice.SourceBuiltin}}
+	})
+	now = now.Add(24 * time.Hour)
+	if !w.refreshReady(context.Background()) {
+		t.Fatal("reader lost readiness while recovering its catalogue")
+	}
+	states, _ := srv.snapshot()
+	if len(states) == 0 {
+		t.Fatal("worker published no state")
+	}
+	last := states[len(states)-1]
+	if len(last.Voices) != 1 || last.Voices[0].ID != "preset-1" {
+		t.Fatalf("recovered catalogue = %+v, want preset-1 without a reader restart", last.Voices)
 	}
 }

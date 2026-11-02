@@ -394,15 +394,6 @@ func (g *Gateway) ttsInstallEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 func (g *Gateway) ttsVoices(w http.ResponseWriter, r *http.Request) {
-	svc := ttsService()
-	// Lần đầu gọi có thể phải bật máy đọc và nạp mô hình (~1 phút).
-	ctx, cancel := context.WithTimeout(r.Context(), 9*time.Minute)
-	defer cancel()
-	list, err := svc.Voices(ctx)
-	if err != nil {
-		ttsEngineError(w, err)
-		return
-	}
 	type row struct {
 		ID          string  `json:"id"`
 		Name        string  `json:"name"`
@@ -411,6 +402,30 @@ func (g *Gateway) ttsVoices(w http.ResponseWriter, r *http.Request) {
 		BuiltIn     bool    `json:"builtIn"`
 		File        string  `json:"file,omitempty"`
 		DurationSec float64 `json:"durationSec,omitempty"`
+	}
+	if g.pgAudio != nil {
+		// Hosted: the local reader does not exist, so the worker's published
+		// catalogue is the only real answer. An empty list means the worker has
+		// not reported yet; never fall back to fabricated presets.
+		list := g.remoteVoices(r.Context())
+		rows := make([]row, 0, len(list))
+		for _, v := range list {
+			rows = append(rows, row{
+				ID: v.ID, Name: v.Name, Gender: v.Gender,
+				Source: voice.SourceBuiltin, BuiltIn: true, DurationSec: v.DurationSec,
+			})
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"voices": rows})
+		return
+	}
+	svc := ttsService()
+	// Lần đầu gọi có thể phải bật máy đọc và nạp mô hình (~1 phút).
+	ctx, cancel := context.WithTimeout(r.Context(), 9*time.Minute)
+	defer cancel()
+	list, err := svc.Voices(ctx)
+	if err != nil {
+		ttsEngineError(w, err)
+		return
 	}
 	rows := make([]row, 0, len(list))
 	for _, v := range list {

@@ -105,9 +105,13 @@ type Worker struct {
 
 	// mu guards the provision state the run loop publishes and the operator
 	// command sequence it has already executed.
-	mu          sync.Mutex
-	state       voice.ProvisionState
-	ready       bool
+	mu    sync.Mutex
+	state voice.ProvisionState
+	ready bool
+	// voices is the reader's real catalogue published with the state; voicesAt
+	// throttles the engine call so a claim loop cannot hammer /v1/voices.
+	voices      []voice.Voice
+	voicesAt    time.Time
 	pinDone     bool
 	attempts    int
 	exhausted   bool

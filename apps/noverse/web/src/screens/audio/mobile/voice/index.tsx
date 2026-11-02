@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { getConfig, getConfigPresets, getProjectVoices, putAudioRoleVoice, uploadAudioVoice } from '../../../../api/client'
 import type { AudioCastSpeaker, AudioVoice } from '../../../../api/types'
@@ -39,10 +39,17 @@ function VoiceContent({ project, story, volume, open, onClose, initial }: { proj
   const voiceLabel = (id: string) => id === 'same' ? c.same : voice(id)?.name ?? c.noVoice
   const close = () => { preview.stop(); setPage('voice'); setRole(''); setDraft(null); setError(''); onClose() }
   useEffect(() => { if (!open) preview.stop() }, [open, preview.stop])
+  // The hosted worker can publish its catalogue after this tab loaded (or
+  // reconnect). Re-read the project voice list whenever the sheet opens so the
+  // picker is never stuck on a cached empty list; no page reload required.
+  const reloadVoices = useRef(data.reloadVoices)
+  reloadVoices.current = data.reloadVoices
+  useEffect(() => { if (open) void reloadVoices.current() }, [open])
   const play = (item?: AudioVoice) => {
-    if (!item) return
+    const url = item?.sampleUrl
+    if (!item || !url) return
     setError('')
-    void preview.play(item.id, async () => item.sampleUrl ?? `/api/projects/${encodeURIComponent(project)}/voices/${encodeURIComponent(item.id)}/sample`).catch(cause => setError(errText(cause)))
+    void preview.play(item.id, async () => url).catch(cause => setError(errText(cause)))
   }
   const pickRole = (speaker: AudioCastSpeaker) => { preview.stop(); setRole(speaker.id); setDraft(null); setRedo(false); setError(''); setPage('pick') }
   const apply = async () => {
@@ -72,7 +79,7 @@ function VoiceContent({ project, story, volume, open, onClose, initial }: { proj
       setDraft(added.id); setPage('pick')
     } catch (cause) { setError(errText(cause)) } finally { setBusy(false) }
   }
-  const previewButton = (item?: AudioVoice) => <button type="button" {...stylex.props(s.icon, preview.playingId === item?.id && s.playing)} style={page === 'pick' ? { width: 38, height: 38 } : undefined} aria-label={preview.playingId === item?.id ? c.stopSample(item?.name ?? '') : c.play(item?.name ?? '')} disabled={!item} onClick={() => play(item)}>{preview.playingId === item?.id ? <span className="ma-eq" aria-hidden="true"><i /><i /><i /></span> : <Icon name="play" size={14} />}</button>
+  const previewButton = (item?: AudioVoice) => <button type="button" {...stylex.props(s.icon, preview.playingId === item?.id && s.playing)} style={page === 'pick' ? { width: 38, height: 38 } : undefined} aria-label={preview.playingId === item?.id ? c.stopSample(item?.name ?? '') : c.play(item?.name ?? '')} disabled={!item || !item.sampleUrl} onClick={() => play(item)}>{preview.playingId === item?.id ? <span className="ma-eq" aria-hidden="true"><i /><i /><i /></span> : <Icon name="play" size={14} />}</button>
   const own = data.voices.filter(item => !item.builtIn), builtins = data.voices.filter(item => item.builtIn)
   const sameAllowed = selected?.id !== 'dan' && selected?.id !== 'single' && (selected?.sameAs === 'dan' || narrator?.sameAs === selected?.id || cast?.narratorCharacterId === selected?.id)
   const options = (items: AudioVoice[], mine: boolean) => <div {...stylex.props(s.group, s.inset)} role="radiogroup" aria-label={mine ? c.mine : c.builtin}>
@@ -84,7 +91,7 @@ function VoiceContent({ project, story, volume, open, onClose, initial }: { proj
   return <BottomSheet open={open} onClose={busy ? () => {} : close} label={page === 'record' ? c.recTitle : page === 'pick' ? c.forRole(selected?.name ?? '') : c.title} height={page === 'pick' ? 800 : 'auto'} style={{ paddingBottom: 0, maxHeight: 'calc(100dvh - 28px)' }}>
     {page === 'record' ? <><Recorder onBack={() => { setError(''); setPage('pick') }} onUse={addSample} busy={busy} />{error && <p {...stylex.props(s.error, s.inset)} role="alert">{error}</p>}</> : page === 'voice' ? <div {...stylex.props(s.content)}>
       <header {...stylex.props(s.header)}><button type="button" {...stylex.props(s.icon)} onClick={close} aria-label={c.back}><Icon name="arrow-left-2" size={17} /></button><h2 {...stylex.props(s.title)}>{c.title}</h2></header>
-      <div {...stylex.props(s.modeList)} role="radiogroup" aria-label={c.title}>{c.modes.map(([id, label, description]) => <button type="button" key={id} role="radio" aria-checked={mode === id} {...stylex.props(s.mode, mode === id && s.selectedMode)} onClick={() => { void saveMode(id) }} disabled={!cast || !access.writable || busy}><span {...stylex.props(s.radio, mode === id && s.selectedRadio)} style={{ marginTop: 2 }}>{mode === id && <i {...stylex.props(s.dot)} />}</span><span {...stylex.props(s.column)} style={{ gap: 2, lineHeight: 1.4 }}><span {...stylex.props(s.name)}>{id === 'cast' && cast ? c.modeCast(cast.speakers.length) : id === 'pack' && pack ? c.modePack(packLabel(pack)) : label}</span><span {...stylex.props(s.small)} style={{ whiteSpace: 'normal' }}>{description}</span></span></button>)}</div>
+      <div {...stylex.props(s.modeList)} role="radiogroup" aria-label={c.title}>{c.modes.map(([id, label, description]) => <button type="button" key={id} role="radio" aria-checked={mode === id} {...stylex.props(s.mode, mode === id && s.selectedMode)} onClick={() => { void saveMode(id) }} disabled={!cast || !access.writable || busy || (id === 'pack' && !pack)}><span {...stylex.props(s.radio, mode === id && s.selectedRadio)} style={{ marginTop: 2 }}>{mode === id && <i {...stylex.props(s.dot)} />}</span><span {...stylex.props(s.column)} style={{ gap: 2, lineHeight: 1.4 }}><span {...stylex.props(s.name)}>{id === 'cast' && cast ? c.modeCast(cast.speakers.length) : id === 'pack' && pack ? c.modePack(packLabel(pack)) : label}</span><span {...stylex.props(s.small)} style={{ whiteSpace: 'normal' }}>{id === 'pack' && !pack ? c.packUnavailable : description}</span></span></button>)}</div>
       <div {...stylex.props(s.heading)}>{mode === 'cast' ? c.cast : c.used}</div>
       <div {...stylex.props(s.group)}>{rows.map(speaker => { const actual = voice(speaker.sameAs ? cast?.speakers.find(item => item.id === speaker.sameAs)?.voiceId : speaker.voiceId); return <div {...stylex.props(s.row)} key={speaker.id}>{previewButton(actual)}<button type="button" {...stylex.props(s.pick)} aria-label={c.changeFor(speaker.name)} onClick={() => pickRole(speaker)}><span {...stylex.props(s.avatar)}>{speaker.ini ?? charInitials(speaker.name)}</span><span {...stylex.props(s.column)}><span {...stylex.props(s.name)}>{mode === 'pack' ? c.packNarrator : speaker.name}</span><small {...stylex.props(s.small, changed.includes(speaker.id) && s.changed)} title={actual?.name}>{speaker.sameAs === 'dan' ? c.same : actual?.name ?? c.noVoice}{actual && !actual.builtIn ? c.voiceSeconds(actual.durationSec ?? 0) : ''}</small></span><span {...stylex.props(s.small, s.changed)}>{c.change}</span><Icon name="arrow-right-2" size={15} /></button></div> })}{mode === 'pack' && <div {...stylex.props(s.row)}><span {...stylex.props(s.avatar)}>…</span><span {...stylex.props(s.column)}><span {...stylex.props(s.name)}>{c.talk}</span><small {...stylex.props(s.small)}>{c.talkNote}</small></span></div>}</div>
       {(error || data.error) && <p {...stylex.props(s.error)} role="alert">{error || data.error}</p>}<span {...stylex.props(s.explanation)}>{c.explanation}</span><button type="button" {...stylex.props(s.primary)} disabled={busy} onClick={close}>{c.done}</button>

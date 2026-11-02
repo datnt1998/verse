@@ -154,6 +154,7 @@ func (g *Gateway) pgAudioService(st library.Story) (*audio.PGService, error) {
 		Keys:    g.pgAudio.Keys,
 		Project: st.Project, Story: st.Story,
 		Engine: g.pgAudio.Engine, Model: g.pgAudio.Model,
+		RemoteVoices: g.remoteVoices,
 	})
 	svc.SetBasePath(audioBasePath(st))
 	// A queued needsScript row starts composing immediately instead of waiting
@@ -974,6 +975,19 @@ func (g *Gateway) serveAudioCast(w http.ResponseWriter, r *http.Request, st libr
 		}
 		writeJSON(w, http.StatusOK, versionedCast{cast, writeVersionToken(w, svc.CastVersion())})
 	case http.MethodPut:
+		var body struct {
+			audio.Cast
+			Version string `json:"version,omitempty"`
+		}
+		if !decodeJSON(w, r, &body) {
+			return
+		}
+		// The contract allows the version in the JSON body as well as If-Match
+		// (11-api-contract). Honour the body token when the header is absent;
+		// otherwise strict decoding would reject the GET representation.
+		if r.Header.Get("If-Match") == "" && body.Version != "" {
+			r.Header.Set("If-Match", body.Version)
+		}
 		if !checkIfMatchV(w, r, svc.CastVersion(), func() (any, error) {
 			ref, err := storyCharacters(sr)
 			if err != nil {
@@ -984,10 +998,7 @@ func (g *Gateway) serveAudioCast(w http.ResponseWriter, r *http.Request, st libr
 		}) {
 			return
 		}
-		var cast audio.Cast
-		if !decodeJSON(w, r, &cast) {
-			return
-		}
+		cast := body.Cast
 		if err := svc.ApplyPackVoice(&cast); err != nil {
 			audioError(w, err)
 			return
@@ -1009,16 +1020,22 @@ func (g *Gateway) serveAudioSettings(w http.ResponseWriter, r *http.Request, st 
 	case http.MethodGet:
 		writeJSON(w, http.StatusOK, versionedSettings{svc.Settings(), writeVersionToken(w, svc.SettingsVersion())})
 	case http.MethodPut:
+		body := struct {
+			audio.Settings
+			Version string `json:"version,omitempty"`
+		}{Settings: svc.Settings()}
+		if !decodeJSON(w, r, &body) {
+			return
+		}
+		if r.Header.Get("If-Match") == "" && body.Version != "" {
+			r.Header.Set("If-Match", body.Version)
+		}
 		if !checkIfMatchV(w, r, svc.SettingsVersion(), func() (any, error) {
 			return versionedSettings{svc.Settings(), svc.SettingsVersion()}, nil
 		}) {
 			return
 		}
-		in := svc.Settings()
-		if !decodeJSON(w, r, &in) {
-			return
-		}
-		saved, err := svc.SaveSettings(in)
+		saved, err := svc.SaveSettings(body.Settings)
 		if err != nil {
 			audioError(w, err)
 			return
@@ -1094,9 +1111,40 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 	}
 	switch r.Method {
 	case http.MethodGet:
-		list, err := audio.ListVoices(r.Context(), layout, audioSynthesizer())
+		var list []audio.ProjectVoice
+		if files.projectID.Valid {
+			list, err = audio.ReadProjectVoices(layout)
+		} else {
+			list, err = audio.ListVoices(r.Context(), layout, audioSynthesizer())
+		}
 		if err != nil {
 			audioError(w, err)
+			return
+		}
+		if files.projectID.Valid {
+			// Hosted has no local engine: the worker's published presets are the
+			// "giọng có sẵn" group. Project samples loaded above shadow by id.
+			projectIDs := make(map[string]bool, len(list))
+			for _, v := range list {
+				projectIDs[v.ID] = true
+			}
+			remote := g.remoteVoices(r.Context())
+			list = audio.MergeVoices(list, remote)
+			projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
+			// A remote preset has no project sample blob and the hosted preview
+			// route is local-engine-only; an empty sampleUrl tells the picker to
+			// skip preview instead of calling an endpoint that would 404. A
+			// project voice with the same id keeps its real sample.
+			remoteIDs := make(map[string]bool, len(remote))
+			for _, v := range remote {
+				remoteIDs[v.ID] = true
+			}
+			for i := range list {
+				if remoteIDs[list[i].ID] && !projectIDs[list[i].ID] {
+					list[i].SampleURL = ""
+				}
+			}
+			writeJSON(w, http.StatusOK, list)
 			return
 		}
 		projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")

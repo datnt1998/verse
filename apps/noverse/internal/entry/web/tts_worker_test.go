@@ -527,3 +527,30 @@ func TestHostedPreviewNeedsWorkerCapability(t *testing.T) {
 		t.Fatalf("preview with capability was refused: %s", rr.Body.String())
 	}
 }
+
+// Hosted catalogue: only a ready worker's built-in presets are exposed, mapped
+// into the project-voice shape (gender values the mobile picker renders).
+func TestRemoteProjectVoicesFromWorkerState(t *testing.T) {
+	state := voice.ProvisionState{
+		State: voice.ProvisionStateReady,
+		Voices: []voice.Voice{
+			{ID: "preset-f", Name: "Nữ trẻ", Gender: "female", Source: voice.SourceBuiltin},
+			{ID: "clone-x", Name: "Bản sao", Source: voice.SourceClone},
+			{ID: "preset-m", Name: "Nam trầm", Gender: "male", Source: voice.SourceBuiltin},
+			{ID: "preset-f", Name: "Trùng", Source: voice.SourceBuiltin},
+		},
+	}
+	got := remoteProjectVoices(state)
+	if len(got) != 2 {
+		t.Fatalf("voices = %+v, want 2 built-ins", got)
+	}
+	if got[0].ID != "preset-m" || got[0].Gender != "nam" || got[1].ID != "preset-f" || got[1].Gender != "nu" {
+		t.Fatalf("mapped voices = %+v", got)
+	}
+	if !got[0].BuiltIn || !got[1].BuiltIn {
+		t.Fatalf("builtIn flag lost: %+v", got)
+	}
+	if notReady := remoteProjectVoices(voice.ProvisionState{State: voice.ProvisionStateProvisioning, Voices: state.Voices}); len(notReady) != 0 {
+		t.Fatalf("not-ready worker exposed %+v", notReady)
+	}
+}

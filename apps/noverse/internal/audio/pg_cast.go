@@ -354,7 +354,9 @@ func (s *PGService) enqueueRoleUpdates(ctx context.Context, role string) (int, e
 	return queued, nil
 }
 
-// Voices merges project voices; hosted has no local engine presets.
+// Voices merges uploaded project voices with the remote worker's real engine
+// catalogue. Hosted has no local engine, so the worker state is the source of
+// the presets a cast may reference.
 func (s *PGService) Voices(ctx context.Context) ([]ProjectVoice, error) {
 	scope, err := s.resolve(ctx)
 	if err != nil {
@@ -380,6 +382,9 @@ func (s *PGService) Voices(ctx context.Context) ([]ProjectVoice, error) {
 			name = row.LegacyID
 		}
 		out = append(out, ProjectVoice{ID: row.LegacyID, Name: name, DurationSec: meta.DurationSec, Gender: meta.Gender, Note: meta.Note})
+	}
+	if s.deps.RemoteVoices != nil {
+		out = MergeVoices(out, s.deps.RemoteVoices(ctx))
 	}
 	return out, nil
 }

@@ -94,6 +94,12 @@ type ProvisionState struct {
 	Model   string `json:"model"`
 	Version string `json:"version"`
 
+	// Voices is the real catalogue the reader advertises while serving. The
+	// hosted server has no local engine, so this state is the only transport
+	// that lets it offer the worker's built-in voices instead of an empty
+	// picker. Empty means "not reported yet" (older worker or reader stopped).
+	Voices []Voice `json:"voices,omitempty"`
+
 	RTF       float64 `json:"rtf,omitempty"`
 	DiskBytes int64   `json:"diskBytes,omitempty"`
 	Attempts  int     `json:"attempts,omitempty"`

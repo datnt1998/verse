@@ -470,6 +470,25 @@ func ListVoices(ctx context.Context, layout Layout, synth Synthesizer) ([]Projec
 	return out, nil
 }
 
+// MergeVoices appends extra voices whose id is not already in base. The first
+// list wins so a project voice always shadows a remote engine preset with the
+// same id (the project sample is the one the user uploaded).
+func MergeVoices(base, extra []ProjectVoice) []ProjectVoice {
+	out := append([]ProjectVoice{}, base...)
+	seen := make(map[string]bool, len(out))
+	for _, v := range out {
+		seen[v.ID] = true
+	}
+	for _, v := range extra {
+		if v.ID == "" || seen[v.ID] {
+			continue
+		}
+		seen[v.ID] = true
+		out = append(out, v)
+	}
+	return out
+}
+
 // synthVoices hỏi giọng có sẵn của máy đọc với trần voiceListTimeout; lỗi hay hết
 // giờ đều trả rỗng. Đây là dữ liệu phụ của màn đọc nên không được phép chặn nó —
 // và việc máy đọc tự bật tiếp tục ở nền (engine giữ lượt bật, không theo ctx này).
