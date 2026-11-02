@@ -2,7 +2,7 @@
 // Đổi dự án CHỈ ở đây; bấm tên truyện mở cùng popover đổi truyện với thẻ truyện cột trái
 // (F2: “Đổi truyện là một cú bấm” — không về Dự án rồi chọn lại).
 // Variant 'link' (Main/NewStory): link về Dự án, không chevron, không popover.
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { useLibrary } from '../api/library'
 import type { StorySummary } from '../api/types'
 import { paths } from '../router'
@@ -15,6 +15,9 @@ const crumbBase: CSSProperties = {
   display: 'flex', alignItems: 'center',
   borderRadius: 8, border: '1px solid var(--line-3)', background: 'var(--color-surface-1)',
   fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', color: 'var(--color-fg)', cursor: 'pointer',
+  // The crumb clips its own text; the header slot must stay unclipped so the
+  // absolutely positioned project popover can extend below the 30px crumb.
+  minWidth: 0, maxWidth: '100%', overflow: 'hidden',
 }
 
 export function ContextCrumb({ project, story, volume, variant = 'link', trailing }: {
@@ -30,24 +33,11 @@ export function ContextCrumb({ project, story, volume, variant = 'link', trailin
 }) {
   const { library, projectDetail, ensureProject } = useLibrary()
   const [open, setOpen] = useState<'' | 'project' | 'story'>('')
-  const projectWrap = useRef<HTMLDivElement>(null)
-  const storyWrap = useRef<HTMLDivElement>(null)
   const switcher = variant === 'switcher'
 
   useEffect(() => {
     if (project) ensureProject(project)
   }, [project, ensureProject])
-  // Đóng popover khi bấm ra ngoài cả hai trigger (popover tự xử lý outside của nó).
-  useEffect(() => {
-    if (!switcher || !open) return
-    const onDoc = (event: MouseEvent) => {
-      const node = event.target as Node
-      if (open === 'project' && projectWrap.current?.contains(node)) setOpen('')
-      if (open === 'story' && storyWrap.current?.contains(node)) setOpen('')
-    }
-    document.addEventListener('mousedown', onDoc)
-    return () => document.removeEventListener('mousedown', onDoc)
-  }, [switcher, open])
 
   const projectName = projectLabel(library?.projects.find((p) => p.id === project), project)
   const title = storyLabel(story)
@@ -65,7 +55,7 @@ export function ContextCrumb({ project, story, volume, variant = 'link', trailin
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: switcher ? 6 : 10, minWidth: 0, maxWidth: '100%', overflow: 'visible' }}>
       {switcher ? (
-        <div ref={projectWrap} style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', minWidth: 0 }}>
           <button type="button" className="hov-ghost pj-crumb" title={t.nav.changeProject}
             aria-expanded={open === 'project'} aria-haspopup="dialog" onClick={() => setOpen(open === 'project' ? '' : 'project')}
             onKeyDown={(event) => { if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && open !== 'project') { event.preventDefault(); setOpen('project') } }}
@@ -85,7 +75,7 @@ export function ContextCrumb({ project, story, volume, variant = 'link', trailin
         <>
           {separator}
           {switcher ? (
-            <div ref={storyWrap} style={{ position: 'relative' }}>
+            <div style={{ position: 'relative', minWidth: 0 }}>
               <button type="button" className="hov-ghost" title={t.nav.changeStory} aria-haspopup="dialog"
                 aria-expanded={open === 'story'} onClick={() => setOpen(open === 'story' ? '' : 'story')}
                 onKeyDown={(event) => { if ((event.key === 'ArrowDown' || event.key === 'ArrowUp') && open !== 'story') { event.preventDefault(); setOpen('story') } }}

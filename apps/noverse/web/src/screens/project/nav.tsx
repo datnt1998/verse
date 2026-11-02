@@ -72,7 +72,7 @@ export function StoryPopover({ project, detail, active, storyView, close }: {
 }) {
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) close() }
+    const outside = (event: PointerEvent) => { if (!root.current?.parentElement?.contains(event.target as Node)) close() }
     document.addEventListener('pointerdown', outside)
     return () => document.removeEventListener('pointerdown', outside)
   }, [close])
@@ -151,7 +151,7 @@ export function ProjectPopover({ current, close }: { current: string | null; clo
   const reveal = useAction((p: string) => revealFolder({ target: 'project', project: p }), { success: 'Đã mở thư mục dự án' })
   const root = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const outside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) close() }
+    const outside = (event: PointerEvent) => { if (!root.current?.parentElement?.contains(event.target as Node)) close() }
     document.addEventListener('pointerdown', outside)
     return () => document.removeEventListener('pointerdown', outside)
   }, [close])

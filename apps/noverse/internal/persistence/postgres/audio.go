@@ -976,6 +976,21 @@ func (a *Audio) BlobProject(ctx context.Context, key string) (string, error) {
 //     as historical candidates, never current audio;
 //   - payload must already carry the caller's assembled script.
 func (a *Audio) SaveScriptBundle(ctx context.Context, scope ScopeRef, script Script, segments []Segment, editedSegmentIDs []string, expectedVersion int64) (Script, error) {
+	var saved Script
+	err := a.tx(ctx, func(tx pgx.Tx) error {
+		var err error
+		saved, err = a.SaveScriptBundleTx(ctx, tx, scope, script, segments, editedSegmentIDs, expectedVersion)
+		return err
+	})
+	return saved, err
+}
+
+// SaveScriptBundleTx is SaveScriptBundle inside a caller-owned transaction
+// (hosted preparation commits the composed script together with the job row).
+// It never begins or commits: the caller owns both, so an error here rolls back
+// the script AND whatever else the caller wrote. Semantics are otherwise
+// identical to SaveScriptBundle.
+func (a *Audio) SaveScriptBundleTx(ctx context.Context, tx pgx.Tx, scope ScopeRef, script Script, segments []Segment, editedSegmentIDs []string, expectedVersion int64) (Script, error) {
 	if len(script.Payload) == 0 {
 		return Script{}, fmt.Errorf("script thiếu payload: %w", errInvalidJobInput)
 	}
@@ -983,104 +998,101 @@ func (a *Audio) SaveScriptBundle(ctx context.Context, scope ScopeRef, script Scr
 		return Script{}, err
 	}
 	var saved Script
-	err := a.tx(ctx, func(tx pgx.Tx) error {
-		q := gen.New(tx)
-		var row gen.AudioScript
-		var err error
-		if expectedVersion == 0 {
-			row, err = q.InsertAudioScript(ctx, gen.InsertAudioScriptParams{
-				ProjectID:      scope.ProjectID,
-				StoryID:        scope.StoryID,
-				ChapterID:      script.ChapterID,
-				RevisionNo:     script.RevisionNo,
-				SourceRevision: script.SourceRevision,
-				SourceSha256:   script.SourceSHA256,
-				Status:         script.Status,
-				Payload:        script.Payload,
-			})
-			if err != nil {
-				if errors.Is(constraintErr(err), errs.ErrStorageConflict) {
-					return fmt.Errorf("tạo bản đọc chương: %w", errs.ErrStorageConflict)
-				}
-				return sanitizeErr(err)
+	q := gen.New(tx)
+	var row gen.AudioScript
+	var err error
+	if expectedVersion == 0 {
+		row, err = q.InsertAudioScript(ctx, gen.InsertAudioScriptParams{
+			ProjectID:      scope.ProjectID,
+			StoryID:        scope.StoryID,
+			ChapterID:      script.ChapterID,
+			RevisionNo:     script.RevisionNo,
+			SourceRevision: script.SourceRevision,
+			SourceSha256:   script.SourceSHA256,
+			Status:         script.Status,
+			Payload:        script.Payload,
+		})
+		if err != nil {
+			if errors.Is(constraintErr(err), errs.ErrStorageConflict) {
+				return Script{}, fmt.Errorf("tạo bản đọc chương: %w", errs.ErrStorageConflict)
 			}
-		} else {
-			row, err = q.UpdateAudioScriptCAS(ctx, gen.UpdateAudioScriptCASParams{
-				ProjectID:      scope.ProjectID,
-				ChapterID:      script.ChapterID,
-				RevisionNo:     script.RevisionNo,
-				Version:        expectedVersion,
-				SourceRevision: script.SourceRevision,
-				SourceSha256:   script.SourceSHA256,
-				Status:         script.Status,
-				Payload:        script.Payload,
-			})
-			if err != nil {
-				if noRows(err) {
-					return fmt.Errorf("ghi bản đọc chương (version %d): %w", expectedVersion, errs.ErrStorageConflict)
-				}
-				return sanitizeErr(err)
-			}
+			return Script{}, sanitizeErr(err)
 		}
-		saved = scriptFromRow(row)
-		oldIDs, err := q.ListAudioSegmentIDs(ctx, gen.ListAudioSegmentIDsParams{
+	} else {
+		row, err = q.UpdateAudioScriptCAS(ctx, gen.UpdateAudioScriptCASParams{
+			ProjectID:      scope.ProjectID,
+			ChapterID:      script.ChapterID,
+			RevisionNo:     script.RevisionNo,
+			Version:        expectedVersion,
+			SourceRevision: script.SourceRevision,
+			SourceSha256:   script.SourceSHA256,
+			Status:         script.Status,
+			Payload:        script.Payload,
+		})
+		if err != nil {
+			if noRows(err) {
+				return Script{}, fmt.Errorf("ghi bản đọc chương (version %d): %w", expectedVersion, errs.ErrStorageConflict)
+			}
+			return Script{}, sanitizeErr(err)
+		}
+	}
+	saved = scriptFromRow(row)
+	oldIDs, err := q.ListAudioSegmentIDs(ctx, gen.ListAudioSegmentIDsParams{
+		ProjectID:      scope.ProjectID,
+		ChapterID:      script.ChapterID,
+		ScriptRevision: script.RevisionNo,
+	})
+	if err != nil {
+		return Script{}, sanitizeErr(err)
+	}
+	keep := map[string]bool{}
+	for _, seg := range segments {
+		keep[seg.SegmentID] = true
+	}
+	for _, id := range oldIDs {
+		if keep[id] {
+			continue
+		}
+		if _, err := q.DeleteAudioSegmentRenders(ctx, gen.DeleteAudioSegmentRendersParams{
 			ProjectID:      scope.ProjectID,
 			ChapterID:      script.ChapterID,
 			ScriptRevision: script.RevisionNo,
-		})
-		if err != nil {
-			return sanitizeErr(err)
+			SegmentID:      id,
+		}); err != nil {
+			return Script{}, sanitizeErr(err)
 		}
-		keep := map[string]bool{}
-		for _, seg := range segments {
-			keep[seg.SegmentID] = true
+		if _, err := q.DeleteAudioSegment(ctx, gen.DeleteAudioSegmentParams{
+			ProjectID:      scope.ProjectID,
+			ChapterID:      script.ChapterID,
+			ScriptRevision: script.RevisionNo,
+			SegmentID:      id,
+		}); err != nil {
+			return Script{}, sanitizeErr(err)
 		}
-		for _, id := range oldIDs {
-			if keep[id] {
-				continue
-			}
-			if _, err := q.DeleteAudioSegmentRenders(ctx, gen.DeleteAudioSegmentRendersParams{
-				ProjectID:      scope.ProjectID,
-				ChapterID:      script.ChapterID,
-				ScriptRevision: script.RevisionNo,
-				SegmentID:      id,
-			}); err != nil {
-				return sanitizeErr(err)
-			}
-			if _, err := q.DeleteAudioSegment(ctx, gen.DeleteAudioSegmentParams{
-				ProjectID:      scope.ProjectID,
-				ChapterID:      script.ChapterID,
-				ScriptRevision: script.RevisionNo,
-				SegmentID:      id,
-			}); err != nil {
-				return sanitizeErr(err)
-			}
+	}
+	for _, seg := range segments {
+		if _, err := q.UpsertAudioSegment(ctx, gen.UpsertAudioSegmentParams{
+			ProjectID:      scope.ProjectID,
+			ChapterID:      script.ChapterID,
+			ScriptRevision: script.RevisionNo,
+			SegmentID:      seg.SegmentID,
+			Ordinal:        seg.Ordinal,
+			Speaker:        seg.Speaker,
+			TextContent:    seg.Text,
+			Payload:        seg.Payload,
+		}); err != nil {
+			return Script{}, sanitizeErr(err)
 		}
-		for _, seg := range segments {
-			if _, err := q.UpsertAudioSegment(ctx, gen.UpsertAudioSegmentParams{
-				ProjectID:      scope.ProjectID,
-				ChapterID:      script.ChapterID,
-				ScriptRevision: script.RevisionNo,
-				SegmentID:      seg.SegmentID,
-				Ordinal:        seg.Ordinal,
-				Speaker:        seg.Speaker,
-				TextContent:    seg.Text,
-				Payload:        seg.Payload,
-			}); err != nil {
-				return sanitizeErr(err)
-			}
+	}
+	for _, id := range editedSegmentIDs {
+		if _, err := q.ClearSelectedAudioRenders(ctx, gen.ClearSelectedAudioRendersParams{
+			ProjectID:      scope.ProjectID,
+			ChapterID:      script.ChapterID,
+			ScriptRevision: script.RevisionNo,
+			SegmentID:      id,
+		}); err != nil {
+			return Script{}, sanitizeErr(err)
 		}
-		for _, id := range editedSegmentIDs {
-			if _, err := q.ClearSelectedAudioRenders(ctx, gen.ClearSelectedAudioRendersParams{
-				ProjectID:      scope.ProjectID,
-				ChapterID:      script.ChapterID,
-				ScriptRevision: script.RevisionNo,
-				SegmentID:      id,
-			}); err != nil {
-				return sanitizeErr(err)
-			}
-		}
-		return nil
-	})
-	return saved, err
+	}
+	return saved, nil
 }

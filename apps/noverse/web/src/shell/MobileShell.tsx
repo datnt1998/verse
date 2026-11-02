@@ -68,7 +68,7 @@ export function MobileShell({ header, children, footer, tabs, style }: {
 }) {
   return (
     <div style={{
-      height: '100dvh', minHeight: '100dvh', display: 'flex', flexDirection: 'column',
+      height: 'max(100dvh, var(--m-viewport-bottom, 0px))', minHeight: 'max(100dvh, var(--m-viewport-bottom, 0px))', display: 'flex', flexDirection: 'column',
       background: 'var(--color-bg)', color: 'var(--color-fg)', overflow: 'hidden', ...style,
     }}>
       {header}

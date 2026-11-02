@@ -109,7 +109,7 @@ export function AppHeader({ route, mobile = false }: { route: Route; mobile?: bo
       alignItems: 'center', columnGap: 16,
       padding: '8px 16px', borderBottom: '1px solid var(--line-1)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: switcher ? 6 : 10, minWidth: 0, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: switcher ? 6 : 10, minWidth: 0 }}>
         {isWorkspace && (
           <PanelToggle side="left" open={panels.left} onClick={() => panels.toggle('left')} />
         )}

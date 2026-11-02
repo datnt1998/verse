@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -31,6 +32,12 @@ type pgTTSInput struct {
 	Quality        string         `json:"quality"`
 	UpdateEtaSec   float64        `json:"updateEtaSec,omitempty"`
 	Segments       []pgTTSSegment `json:"segments"`
+	// NeedsScript marks a preparation row: the chapter was queued before its
+	// bản đọc exists (or the source changed since it was composed), so the web
+	// process must compose + lock the script before the remote worker may claim
+	// the job. Such a row has no segments yet and stays invisible to the
+	// remote claim until CompletePreparationWith replaces this input.
+	NeedsScript bool `json:"needsScript,omitempty"`
 }
 
 // pgTTSSegment is one speakable unit with exact synthesis parameters; the
@@ -181,6 +188,19 @@ func pgJobView(row postgres.Job) Job {
 	if job.Segments > 0 && job.State != JobDone {
 		job.Percent = float64(job.SegmentsDone) / float64(job.Segments) * 100
 	}
+	// GenPickEmpty contract: a preparation row reports the compose step and no
+	// segment/ETA numbers (they do not exist yet); a render row reports render.
+	// Export rows keep their existing shape.
+	if row.Kind == postgres.JobTTS {
+		job.NeedsScript = in.NeedsScript
+		switch {
+		case in.NeedsScript:
+			job.Step = "compose"
+			job.Segments, job.SegmentsDone, job.Percent = 0, 0, 0
+		case job.State != JobDone && job.State != JobCanceled:
+			job.Step = "render"
+		}
+	}
 	return job
 }
 
@@ -216,62 +236,175 @@ var errChapterDone = errors.New("chương này đã có đủ giọng, không c�
 // role-change sweep queues updates chapter by chapter.
 func isNoopEnqueue(err error) bool { return errors.Is(err, errChapterDone) }
 
-// findActiveJob returns the chapter's claimable/in-flight job if one exists.
-func (s *PGService) findActiveJob(ctx context.Context, volume, chapter int) (*Job, error) {
-	jobs, err := s.queueSnapshot(ctx)
-	if err != nil {
-		return nil, err
-	}
-	for i := range jobs {
-		j := &jobs[i]
-		if j.Chapter != chapter || (volume > 0 && j.Volume != volume) {
-			continue
-		}
-		if j.State == JobQueued || j.State == JobRendering || j.State == JobPaused {
-			return j, nil
-		}
-	}
-	return nil, nil
+// pgQueueIntent is the frozen work a caller wants queued for one chapter. A
+// durable row is only reusable when every field that changes what the worker
+// would synthesize still matches: an active row queued before a chapter,
+// script or cast edit renders the old inputs, and its ACK is refused, so the
+// chapter would silently finish with no audio.
+type pgQueueIntent struct {
+	ChapterID      string
+	Volume         int
+	Chapter        int
+	Kind           string
+	Quality        string
+	SourceRevision int32
+	ScriptRevision int32
+	Redo           bool
+	NeedsScript    bool
+	Ownership      string
+	Segments       []pgTTSSegment
 }
 
-// chapterAttempts counts prior durable jobs for one chapter (any state) so the
-// idempotency key names a unique attempt: reuse the active row, never collide
-// with a finished one.
-func (s *PGService) chapterAttempts(ctx context.Context, volume, chapter int) (active *Job, attempts int, err error) {
-	jobs, err := s.queueSnapshot(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-	for i := range jobs {
-		j := &jobs[i]
-		if j.Chapter != chapter || (volume > 0 && j.Volume != volume) {
-			continue
-		}
-		attempts++
-		switch j.State {
-		case JobQueued, JobRendering, JobPaused:
-			active = j
-		}
-	}
-	return active, attempts, nil
+// pgQueueSlot is the enqueue decision for one chapter: reuse an identical
+// active row, rewrite a stale one in place, or insert a new attempt.
+type pgQueueSlot struct {
+	reuse    string
+	replace  pgtype.UUID
+	attempts int
 }
 
-// enqueueTTS writes the durable job. If an active row exists for the chapter
-// it is reused (a paused row resumes); a finished chapter starts a new
-// attempt under a distinct idempotency key.
-func (s *PGService) enqueueTTS(ctx context.Context, scope postgres.ScopeRef, chapter postgres.ChapterRef, script *Script, kind string, segs []pgTTSSegment, quality string, updateEta float64) (string, error) {
-	active, attempts, err := s.chapterAttempts(ctx, script.Volume, script.Chapter)
+func pgJobActiveState(state postgres.JobState) bool {
+	switch state {
+	case postgres.JobQueued, postgres.JobRunning, postgres.JobPaused:
+		return true
+	}
+	return false
+}
+
+func pgSameSegments(a, b []pgTTSSegment) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		x, y := a[i], b[i]
+		if x.ID != y.ID || x.Text != y.Text || x.Speaker != y.Speaker ||
+			x.Voice != y.Voice || x.Tone != y.Tone || x.Quality != y.Quality ||
+			x.Speed != y.Speed || x.Pitch != y.Pitch || x.Engine != y.Engine ||
+			x.Model != y.Model || x.SynthKey != y.SynthKey {
+			return false
+		}
+		if (x.Select == nil) != (y.Select == nil) {
+			return false
+		}
+		if x.Select != nil && *x.Select != *y.Select {
+			return false
+		}
+	}
+	return true
+}
+
+// pgQueueIntentMatches reports whether the frozen row input is exactly the work
+// the caller is asking for now. Preparation rows are compared on the chapter
+// source revision (the script is about to be recomposed and merged); render
+// rows additionally pin the script revision, ownership fingerprint and the
+// segment set so a stale voice/cast/quality can never be reused.
+func pgQueueIntentMatches(in pgTTSInput, want pgQueueIntent) bool {
+	if in.ChapterID != want.ChapterID || in.Chapter != want.Chapter ||
+		(want.Volume > 0 && in.Volume != want.Volume) {
+		return false
+	}
+	kind := in.Kind
+	if kind == "" {
+		kind = JobKindCreate
+	}
+	if kind != want.Kind || in.Quality != want.Quality || in.Redo != want.Redo ||
+		in.NeedsScript != want.NeedsScript {
+		return false
+	}
+	if want.NeedsScript {
+		// A preparation for a later accepted revision already covers this
+		// chapter: the runner composes the current source, so never downgrade
+		// it to an older request that raced AcceptRecord.
+		return in.SourceRevision >= want.SourceRevision
+	}
+	if in.SourceRevision != want.SourceRevision {
+		return false
+	}
+	if in.ScriptRevision != want.ScriptRevision || !pgSameSegments(in.Segments, want.Segments) {
+		return false
+	}
+	return want.Ownership == "" || in.Ownership == want.Ownership
+}
+
+// chapterQueueSlot decides how to enqueue one chapter. An identical active row
+// is reused (resuming a paused one); any other active row is returned for an
+// atomic in-place supersede, so a chapter never keeps two active jobs and the
+// old row's worker/preparation fence dies with it.
+func (s *PGService) chapterQueueSlot(ctx context.Context, scope postgres.ScopeRef, want pgQueueIntent) (pgQueueSlot, error) {
+	var slot pgQueueSlot
+	rows, err := s.deps.Jobs.List(ctx, scope)
+	if err != nil {
+		return slot, pgErr(err)
+	}
+	active := make([]postgres.Job, 0, 2)
+	for _, row := range rows {
+		if row.Kind != postgres.JobTTS {
+			continue
+		}
+		var in pgTTSInput
+		if err := json.Unmarshal(row.Input, &in); err != nil {
+			continue
+		}
+		if in.Chapter != want.Chapter || (want.Volume > 0 && in.Volume != want.Volume) {
+			continue
+		}
+		slot.attempts++
+		if pgJobActiveState(row.State) {
+			active = append(active, row)
+		}
+	}
+	if len(active) == 0 {
+		return slot, nil
+	}
+	newest := active[len(active)-1]
+	var in pgTTSInput
+	if err := json.Unmarshal(newest.Input, &in); err == nil && pgQueueIntentMatches(in, want) {
+		// Duplicate active rows can only come from older bugs or a racing
+		// request; keep the newest matching row and fence the rest out.
+		for _, extra := range active[:len(active)-1] {
+			if _, cerr := s.deps.Jobs.Cancel(ctx, postgres.JobKey{ProjectID: scope.ProjectID, ID: extra.ID}); cerr != nil &&
+				!errors.Is(cerr, postgres.ErrJobState) && !errors.Is(cerr, postgres.ErrJobNotFound) {
+				return slot, pgErr(cerr)
+			}
+		}
+		if newest.State == postgres.JobPaused {
+			if _, rerr := s.resumeJob(ctx, postgres.UUIDString(newest.ID)); rerr != nil {
+				return slot, rerr
+			}
+		}
+		slot.reuse = postgres.UUIDString(newest.ID)
+		return slot, nil
+	}
+	slot.replace = newest.ID
+	return slot, nil
+}
+
+// enqueueTTSRow resolves the chapter slot and either reuses it or hands it to
+// the repository's one-transaction enqueue, then wakes the preparation runner.
+func (s *PGService) enqueueTTSRow(ctx context.Context, scope postgres.ScopeRef, want pgQueueIntent, input pgTTSInput, total int32) (string, error) {
+	slot, err := s.chapterQueueSlot(ctx, scope, want)
 	if err != nil {
 		return "", err
 	}
-	if active != nil {
-		if active.State == JobPaused {
-			if _, err := s.resumeJob(ctx, active.ID); err != nil {
-				return "", err
-			}
-		}
-		return active.ID, nil
+	if slot.reuse != "" {
+		return slot.reuse, nil
 	}
+	chapterID, err := postgres.ParseUUID(want.ChapterID)
+	if err != nil {
+		return "", pgErr(err)
+	}
+	job, err := s.deps.Jobs.EnqueueChapter(ctx, scope,
+		fmt.Sprintf("tts-v%d-c%d-a%d", want.Volume, want.Chapter, slot.attempts+1),
+		input, &total, chapterID, slot.replace)
+	if err != nil {
+		return "", pgErr(err)
+	}
+	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
+	s.wakePreparation()
+	return postgres.UUIDString(job.ID), nil
+}
+
+func (s *PGService) enqueueTTS(ctx context.Context, scope postgres.ScopeRef, chapter postgres.ChapterRef, script *Script, kind string, segs []pgTTSSegment, quality string, updateEta float64) (string, error) {
 	revision, err := s.deps.Audio.PlaybackRevision(ctx, scope, chapter.ID, PlaybackProof{})
 	if err != nil {
 		return "", pgErr(err)
@@ -287,15 +420,41 @@ func (s *PGService) enqueueTTS(ctx context.Context, scope postgres.ScopeRef, cha
 		UpdateEtaSec:   updateEta,
 		Segments:       segs,
 	}
-	total := int32(len(segs))
-	job, err := s.deps.Jobs.Enqueue(ctx, scope, postgres.JobTTS,
-		fmt.Sprintf("tts-v%d-c%d-a%d", script.Volume, script.Chapter, attempts+1),
-		input, &total, pgtype.UUID{})
-	if err != nil {
-		return "", pgErr(err)
+	want := pgQueueIntent{
+		ChapterID: input.ChapterID, Volume: input.Volume, Chapter: input.Chapter,
+		Kind: kind, Quality: quality, SourceRevision: input.SourceRevision,
+		ScriptRevision: input.ScriptRevision, Redo: input.Redo,
+		Ownership: revision.Ownership, Segments: segs,
 	}
-	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
-	return postgres.UUIDString(job.ID), nil
+	return s.enqueueTTSRow(ctx, scope, want, input, int32(len(segs)))
+}
+
+// enqueueTTSPrep queues the same tts kind as a preparation row: no segments,
+// no ownership snapshot yet, needsScript=true. The web process composes and
+// locks the bản đọc first, then CompletePreparationWith turns this row into the
+// render job. The remote worker never sees a needsScript row.
+func (s *PGService) enqueueTTSPrep(ctx context.Context, scope postgres.ScopeRef, volume int, chapter postgres.ChapterRef, script *Script, kind, quality string) (string, error) {
+	scriptRevision := int32(0)
+	if script != nil {
+		scriptRevision = script.pgRevision
+	}
+	input := pgTTSInput{
+		Kind: kind, Chapter: chapter.Number, Volume: volume,
+		ChapterID:      postgres.UUIDString(chapter.ID),
+		ScriptRevision: scriptRevision,
+		SourceRevision: int32(chapter.CurrentRevision),
+		Redo:           kind == JobKindRedo,
+		Quality:        quality,
+		Segments:       []pgTTSSegment{},
+		NeedsScript:    true,
+	}
+	want := pgQueueIntent{
+		ChapterID: input.ChapterID, Volume: volume, Chapter: chapter.Number,
+		Kind: kind, Quality: quality, SourceRevision: input.SourceRevision,
+		ScriptRevision: scriptRevision, Redo: input.Redo,
+		NeedsScript: true, Segments: input.Segments,
+	}
+	return s.enqueueTTSRow(ctx, scope, want, input, 0)
 }
 
 // wantSegments computes which segments a job must synthesize under the
@@ -346,6 +505,13 @@ func (s *PGService) Enqueue(ctx context.Context, volume, chapter int, currentHas
 	if cc, sc, _ := script.freshness(currentHash); cc || sc {
 		kind = JobKindUpdate
 	}
+	settings := s.Settings()
+	if script.needsComposition(currentHash) {
+		// The chapter source changed after this bản đọc was composed: the
+		// worker would synthesize the old text and its ACK would be refused.
+		// The web runner composes + locks first on the same row.
+		return s.enqueueTTSPrep(ctx, scope, volume, ref, script, kind, settings.Quality)
+	}
 	cast, err := s.castForRender(ctx)
 	if err != nil {
 		return "", err
@@ -354,7 +520,6 @@ func (s *PGService) Enqueue(ctx context.Context, volume, chapter int, currentHas
 	if err != nil {
 		return "", err
 	}
-	settings := s.Settings()
 	segs := s.wantSegments(script, cast, VoiceMap(voices), settings, false)
 	if len(segs) == 0 {
 		return "", fmt.Errorf("chương %d: %w", chapter, errChapterDone)
@@ -424,10 +589,17 @@ func (s *PGService) QueueChapters(ctx context.Context, source []SourceChapter, v
 			if redo[n] {
 				return out, conflict("Chương %d chưa có bản đọc để tạo lại từ đầu.", n)
 			}
-			if !sc.Completed || sc.Text == "" {
+			if !sc.Completed || strings.TrimSpace(sc.Text) == "" {
 				return out, conflict("Chương %d chưa nghiệm thu hoặc chưa có chính văn để soạn bản đọc.", n)
 			}
-			return out, conflict("Chương %d chưa có bản đọc — hãy soạn bản đọc trước khi tạo giọng.", n)
+			// GenPickEmpty: an accepted chapter without a bản đọc still enters
+			// the queue. Locking is the caller's explicit "AI sẽ soạn bản đọc
+			// rồi chốt" consent, exactly like the file backend.
+			if !in.Lock {
+				return out, conflict("Chương %d chưa có bản đọc — hãy soạn bản đọc trước khi tạo giọng.", n)
+			}
+			picks = append(picks, picked{n: n, script: nil, ref: ref})
+			continue
 		}
 		if script.Status != StatusLocked && !in.Lock {
 			return out, conflict("Chương %d chưa chốt bản đọc.", n)
@@ -472,7 +644,7 @@ func (s *PGService) QueueChapters(ctx context.Context, source []SourceChapter, v
 	}
 	for _, p := range picks {
 		script := p.script
-		if script.Status != StatusLocked {
+		if script != nil && script.Status != StatusLocked {
 			now := time.Now()
 			script.Status = StatusLocked
 			script.LockedAt = &now
@@ -480,15 +652,26 @@ func (s *PGService) QueueChapters(ctx context.Context, source []SourceChapter, v
 				return out, err
 			}
 		}
+		sourceHash := SourceHash(sourceChapterText(source, p.n))
+		stale := script.needsComposition(sourceHash)
 		kind := JobKindCreate
 		if redo[p.n] {
 			kind = JobKindRedo
 		} else {
 			done, _ := script.AudioStats()
 			_, scriptChanged, _ := script.freshness("")
-			if done > 0 && (script.needsComposition(SourceHash(sourceChapterText(source, p.n))) || scriptChanged) {
+			if done > 0 && (stale || scriptChanged) {
 				kind = JobKindUpdate
 			}
+		}
+		if stale {
+			// The web runner composes this chapter's bản đọc from the accepted
+			// revision, locks it, and swaps the same row into a render job.
+			if _, err := s.enqueueTTSPrep(ctx, scope, volume, p.ref, script, kind, settings.Quality); err != nil {
+				return out, err
+			}
+			out.Chapters = append(out.Chapters, p.n)
+			continue
 		}
 		segs := s.wantSegments(script, cast, voiceMap, settings, kind == JobKindRedo)
 		if len(segs) == 0 {
@@ -563,6 +746,7 @@ func (s *PGService) Resume(jobID string) error {
 		return pgErr(err)
 	}
 	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
+	s.wakePreparation()
 	return nil
 }
 
@@ -596,6 +780,7 @@ func (s *PGService) Retry(ctx context.Context, jobID, quality string) error {
 		return pgErr(err)
 	}
 	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
+	s.wakePreparation()
 	return nil
 }
 

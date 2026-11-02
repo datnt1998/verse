@@ -351,10 +351,10 @@ func audioRows(entry audioEntry, now time.Time, machineReady bool) []Job {
 	return rows
 }
 
-// audioHasQueued: trong lượt có chương đang chờ claim (queued, không paused).
+// audioHasQueued: trong lượt có chương render đang chờ máy đọc, không phải bước soạn.
 func audioHasQueued(run []audio.Job) bool {
 	for _, j := range run {
-		if j.State == audio.JobQueued {
+		if j.State == audio.JobQueued && !j.NeedsScript && j.Step != "compose" {
 			return true
 		}
 	}

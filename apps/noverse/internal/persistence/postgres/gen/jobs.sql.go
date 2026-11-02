@@ -105,6 +105,7 @@ WITH candidate AS (
     WHERE j.kind = $1
       AND j.state IN ('queued', 'running')
       AND (j.state = 'queued' OR j.lease_until IS NULL OR j.lease_until < now())
+      AND (j.input->>'needsScript') IS DISTINCT FROM 'true'
       AND ($2::uuid IS NULL OR j.project_id = $2::uuid)
     ORDER BY j.created_at, j.id
     LIMIT 1
@@ -132,6 +133,9 @@ type ClaimJobParams struct {
 }
 
 // ── claim / lease ────────────────────────────────────────────────────────────
+// Preparation rows (`input.needsScript:true`) are owned by the web compose
+// runner, never by the remote worker: the exclusion is a plain text compare so
+// a malformed/absent flag can never throw while a worker is claiming.
 func (q *Queries) ClaimJob(ctx context.Context, arg ClaimJobParams) (Job, error) {
 	row := q.db.QueryRow(ctx, claimJob,
 		arg.Kind,
@@ -139,6 +143,70 @@ func (q *Queries) ClaimJob(ctx context.Context, arg ClaimJobParams) (Job, error)
 		arg.WorkerID,
 		arg.Column4,
 	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
+const claimPreparation = `-- name: ClaimPreparation :one
+WITH candidate AS (
+    SELECT j.project_id, j.id
+    FROM jobs j
+    WHERE j.project_id = $1 AND j.story_id = $2
+      AND j.kind = 'tts'
+      AND j.worker_id IS NULL
+      AND j.state IN ('queued', 'running')
+      AND (j.lease_until IS NULL OR j.lease_until <= now())
+      AND COALESCE(j.input->>'needsScript', 'false') = 'true'
+    ORDER BY j.created_at, j.id
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+)
+UPDATE jobs
+SET state = 'queued',
+    worker_id = NULL,
+    lease_until = now() + make_interval(secs => $3::int),
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+FROM candidate
+WHERE jobs.project_id = candidate.project_id AND jobs.id = candidate.id
+RETURNING jobs.project_id, jobs.story_id, jobs.id, jobs.kind, jobs.state, jobs.idempotency_key, jobs.input, jobs.result, jobs.error, jobs.progress_done, jobs.progress_total, jobs.requested_by, jobs.worker_id, jobs.lease_until, jobs.fencing_token, jobs.cancelled_at, jobs.started_at, jobs.finished_at, jobs.created_at, jobs.updated_at, jobs.version
+`
+
+type ClaimPreparationParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	StoryID   pgtype.UUID `json:"story_id"`
+	Ttl       int32       `json:"ttl"`
+}
+
+// Oldest preparation of this exact story: queued with no live lease, or a
+// legacy running row whose lease already expired. A live lease is untouched, so
+// two runners cannot compose the same chapter twice.
+func (q *Queries) ClaimPreparation(ctx context.Context, arg ClaimPreparationParams) (Job, error) {
+	row := q.db.QueryRow(ctx, claimPreparation, arg.ProjectID, arg.StoryID, arg.Ttl)
 	var i Job
 	err := row.Scan(
 		&i.ProjectID,
@@ -232,14 +300,155 @@ func (q *Queries) CompleteJob(ctx context.Context, arg CompleteJobParams) (Job, 
 	return i, err
 }
 
+const completePreparation = `-- name: CompletePreparation :one
+UPDATE jobs
+SET input = $5::jsonb - 'needsScript',
+    progress_total = $6::int,
+    progress_done = 0,
+    state = 'queued',
+    worker_id = NULL,
+    lease_until = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+`
+
+type CompletePreparationParams struct {
+	ProjectID     pgtype.UUID `json:"project_id"`
+	StoryID       pgtype.UUID `json:"story_id"`
+	ID            pgtype.UUID `json:"id"`
+	FencingToken  int64       `json:"fencing_token"`
+	Input         []byte      `json:"input"`
+	ProgressTotal int32       `json:"progress_total"`
+}
+
+// Same row, now real TTS work: the composed input replaces the seed, the flag
+// is stripped (so ClaimJob can take it), and the lease/fence move so any late
+// compose output from the previous attempt is rejected. Callers must have locked
+// the row through LockPreparation in this transaction.
+func (q *Queries) CompletePreparation(ctx context.Context, arg CompletePreparationParams) (Job, error) {
+	row := q.db.QueryRow(ctx, completePreparation,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
+		arg.FencingToken,
+		arg.Input,
+		arg.ProgressTotal,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
+const completePreparationEmpty = `-- name: CompletePreparationEmpty :one
+UPDATE jobs
+SET input = $5::jsonb - 'needsScript',
+    progress_total = 0,
+    progress_done = 0,
+    state = 'completed',
+    finished_at = now(),
+    worker_id = NULL,
+    lease_until = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+`
+
+type CompletePreparationEmptyParams struct {
+	ProjectID    pgtype.UUID `json:"project_id"`
+	StoryID      pgtype.UUID `json:"story_id"`
+	ID           pgtype.UUID `json:"id"`
+	FencingToken int64       `json:"fencing_token"`
+	Input        []byte      `json:"input"`
+}
+
+// A prepared script can legitimately need no synthesis: every segment still has
+// a selected render valid for the current parameters (chapter text changed only
+// in ways the spoken text did not). Queuing it would hand the worker a
+// zero-segment job, which it hard-fails forever, so the honest outcome is the
+// file backend's "already voiced": the request completes on the same row.
+func (q *Queries) CompletePreparationEmpty(ctx context.Context, arg CompletePreparationEmptyParams) (Job, error) {
+	row := q.db.QueryRow(ctx, completePreparationEmpty,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
+		arg.FencingToken,
+		arg.Input,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
 const countQueuedJobs = `-- name: CountQueuedJobs :one
 SELECT count(*)::int
 FROM jobs
 WHERE kind = $1 AND state = 'queued'
+  AND (input->>'needsScript') IS DISTINCT FROM 'true'
 `
 
 // Số việc của một loại đang xếp hàng trên toàn máy chủ (không lọc project):
 // GET /api/tts/status dùng nó cho `queueWaiting` khi máy đọc chưa sẵn sàng.
+// needsScript rows belong to the web compose runner, not to the reader
+// machine, so they are not chapters lost while that machine is offline.
 func (q *Queries) CountQueuedJobs(ctx context.Context, kind string) (int32, error) {
 	row := q.db.QueryRow(ctx, countQueuedJobs, kind)
 	var column_1 int32
@@ -279,6 +488,70 @@ func (q *Queries) FailJob(ctx context.Context, arg FailJobParams) (Job, error) {
 		arg.FencingToken,
 		arg.Error,
 		arg.ProgressTotal,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
+const failPreparation = `-- name: FailPreparation :one
+UPDATE jobs
+SET state = 'failed',
+    error = $5,
+    finished_at = now(),
+    lease_until = NULL,
+    worker_id = NULL,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+`
+
+type FailPreparationParams struct {
+	ProjectID    pgtype.UUID `json:"project_id"`
+	StoryID      pgtype.UUID `json:"story_id"`
+	ID           pgtype.UUID `json:"id"`
+	FencingToken int64       `json:"fencing_token"`
+	Error        []byte      `json:"error"`
+}
+
+// Terminal compose error. The row keeps needsScript so Retry re-enters
+// preparation instead of handing a scriptless chapter to the worker.
+func (q *Queries) FailPreparation(ctx context.Context, arg FailPreparationParams) (Job, error) {
+	row := q.db.QueryRow(ctx, failPreparation,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
+		arg.FencingToken,
+		arg.Error,
 	)
 	var i Job
 	err := row.Scan(
@@ -732,11 +1005,13 @@ const listClaimableJobs = `-- name: ListClaimableJobs :many
 SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
 WHERE kind = $1 AND state IN ('queued', 'running')
   AND (state = 'queued' OR lease_until IS NULL OR lease_until < now())
+  AND (input->>'needsScript') IS DISTINCT FROM 'true'
 ORDER BY created_at, id
 `
 
 // Read-only view of what a claim would consider (operators/debug; the claim
-// itself must go through ClaimJob).
+// itself must go through ClaimJob). The needsScript filter mirrors ClaimJob so
+// the debug view never promises work the remote worker cannot take.
 func (q *Queries) ListClaimableJobs(ctx context.Context, kind string) ([]Job, error) {
 	rows, err := q.db.Query(ctx, listClaimableJobs, kind)
 	if err != nil {
@@ -809,6 +1084,67 @@ func (q *Queries) ListJobEvents(ctx context.Context, arg ListJobEventsParams) ([
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Version,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPreparationTargets = `-- name: ListPreparationTargets :many
+
+SELECT DISTINCT j.project_id, j.story_id,
+    p.slug AS project_slug, s.slug AS story_slug
+FROM jobs j
+JOIN projects p ON p.id = j.project_id AND p.deleted_at IS NULL
+JOIN stories s ON s.project_id = j.project_id AND s.id = j.story_id
+    AND s.deleted_at IS NULL AND s.status <> 'draft'
+WHERE j.kind = 'tts'
+  AND j.state IN ('queued', 'running')
+  AND COALESCE(j.input->>'needsScript', 'false') = 'true'
+ORDER BY p.slug, s.slug
+`
+
+type ListPreparationTargetsRow struct {
+	ProjectID   pgtype.UUID `json:"project_id"`
+	StoryID     pgtype.UUID `json:"story_id"`
+	ProjectSlug string      `json:"project_slug"`
+	StorySlug   string      `json:"story_slug"`
+}
+
+// ── hosted preparation (tts kind + input.needsScript) ────────────────────────
+//
+// A missing bản đọc is queued as an ordinary kind='tts' row whose input carries
+// `needsScript:true` (no new kind: the jobs CHECK is closed). The web compose
+// runner owns that row until the script is locked; ClaimJob never sees it.
+//
+// The runner's claim holds a lease on the same row **without** a worker_id: the
+// state stays 'queued' (the tts CHECK only requires a worker when a row is
+// 'running'), and `lease_until` is what serializes two compose attempts. Every
+// publish (fail/release/complete) must present the exact fence while that lease
+// is live, so cancel/pause/retry — which bump the fence — beat a compose that
+// finishes after the user changed their mind.
+// Trusted internal scan (startup/recovery): every active story with TTS work
+// still waiting for a bản đọc. Deleted projects/stories and un-promoted drafts
+// are never resurrected by a restart.
+func (q *Queries) ListPreparationTargets(ctx context.Context) ([]ListPreparationTargetsRow, error) {
+	rows, err := q.db.Query(ctx, listPreparationTargets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListPreparationTargetsRow{}
+	for rows.Next() {
+		var i ListPreparationTargetsRow
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.StoryID,
+			&i.ProjectSlug,
+			&i.StorySlug,
 		); err != nil {
 			return nil, err
 		}
@@ -911,6 +1247,67 @@ func (q *Queries) ListWorkers(ctx context.Context) ([]Worker, error) {
 	return items, nil
 }
 
+const lockChapterJobs = `-- name: LockChapterJobs :many
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
+  AND input->>'chapterId' = $3::text
+ORDER BY created_at, id
+FOR UPDATE
+`
+
+type LockChapterJobsParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	StoryID   pgtype.UUID `json:"story_id"`
+	ChapterID string      `json:"chapter_id"`
+}
+
+// Every tts row of one chapter, locked so enqueue can keep the "one active
+// job per chapter" invariant when a Generate click races another one: the
+// caller rewrites the stale row (or inserts a new one) and cancels the rest in
+// the same transaction. The chapterId lives in the frozen input, so this is
+// exact for the chapter, not for its number.
+func (q *Queries) LockChapterJobs(ctx context.Context, arg LockChapterJobsParams) ([]Job, error) {
+	rows, err := q.db.Query(ctx, lockChapterJobs, arg.ProjectID, arg.StoryID, arg.ChapterID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Job{}
+	for rows.Next() {
+		var i Job
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.StoryID,
+			&i.ID,
+			&i.Kind,
+			&i.State,
+			&i.IdempotencyKey,
+			&i.Input,
+			&i.Result,
+			&i.Error,
+			&i.ProgressDone,
+			&i.ProgressTotal,
+			&i.RequestedBy,
+			&i.WorkerID,
+			&i.LeaseUntil,
+			&i.FencingToken,
+			&i.CancelledAt,
+			&i.StartedAt,
+			&i.FinishedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Version,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockJob = `-- name: LockJob :one
 SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE
 `
@@ -922,6 +1319,61 @@ type LockJobParams struct {
 
 func (q *Queries) LockJob(ctx context.Context, arg LockJobParams) (Job, error) {
 	row := q.db.QueryRow(ctx, lockJob, arg.ProjectID, arg.ID)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
+const lockPreparation = `-- name: LockPreparation :one
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+FOR UPDATE
+`
+
+type LockPreparationParams struct {
+	ProjectID    pgtype.UUID `json:"project_id"`
+	StoryID      pgtype.UUID `json:"story_id"`
+	ID           pgtype.UUID `json:"id"`
+	FencingToken int64       `json:"fencing_token"`
+}
+
+// Locks the preparation row and validates the caller's exact live lease in the
+// same statement, before any script write happens inside the transaction.
+func (q *Queries) LockPreparation(ctx context.Context, arg LockPreparationParams) (Job, error) {
+	row := q.db.QueryRow(ctx, lockPreparation,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
+		arg.FencingToken,
+	)
 	var i Job
 	err := row.Scan(
 		&i.ProjectID,
@@ -1040,6 +1492,65 @@ func (q *Queries) ReleaseJob(ctx context.Context, arg ReleaseJobParams) (Job, er
 		arg.ProjectID,
 		arg.ID,
 		arg.WorkerID,
+		arg.FencingToken,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
+}
+
+const releasePreparation = `-- name: ReleasePreparation :one
+UPDATE jobs
+SET state = 'queued',
+    lease_until = NULL,
+    worker_id = NULL,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+`
+
+type ReleasePreparationParams struct {
+	ProjectID    pgtype.UUID `json:"project_id"`
+	StoryID      pgtype.UUID `json:"story_id"`
+	ID           pgtype.UUID `json:"id"`
+	FencingToken int64       `json:"fencing_token"`
+}
+
+// Graceful stop: the same row becomes claimable by the next runner pass.
+func (q *Queries) ReleasePreparation(ctx context.Context, arg ReleasePreparationParams) (Job, error) {
+	row := q.db.QueryRow(ctx, releasePreparation,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
 		arg.FencingToken,
 	)
 	var i Job
@@ -1226,6 +1737,76 @@ func (q *Queries) SetWorkerState(ctx context.Context, arg SetWorkerStateParams) 
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const supersedeChapterJob = `-- name: SupersedeChapterJob :one
+UPDATE jobs
+SET input = $4::jsonb,
+    progress_total = $5::int,
+    progress_done = 0,
+    result = NULL,
+    error = NULL,
+    state = 'queued',
+    worker_id = NULL,
+    lease_until = NULL,
+    started_at = NULL,
+    finished_at = NULL,
+    cancelled_at = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND state IN ('queued', 'running', 'paused')
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+`
+
+type SupersedeChapterJobParams struct {
+	ProjectID     pgtype.UUID `json:"project_id"`
+	StoryID       pgtype.UUID `json:"story_id"`
+	ID            pgtype.UUID `json:"id"`
+	Input         []byte      `json:"input"`
+	ProgressTotal int32       `json:"progress_total"`
+}
+
+// A stale active row (queued render from before the chapter changed, a paused
+// or running one) is rewritten in place with the fresh frozen work and put
+// back in the queue under a bumped fence. A worker or preparation runner still
+// holding the old fence can no longer publish, and the chapter never ends up
+// with two active rows.
+func (q *Queries) SupersedeChapterJob(ctx context.Context, arg SupersedeChapterJobParams) (Job, error) {
+	row := q.db.QueryRow(ctx, supersedeChapterJob,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.ID,
+		arg.Input,
+		arg.ProgressTotal,
+	)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+	)
+	return i, err
 }
 
 const touchWorker = `-- name: TouchWorker :execrows

@@ -156,6 +156,9 @@ func (g *Gateway) pgAudioService(st library.Story) (*audio.PGService, error) {
 		Engine: g.pgAudio.Engine, Model: g.pgAudio.Model,
 	})
 	svc.SetBasePath(audioBasePath(st))
+	// A queued needsScript row starts composing immediately instead of waiting
+	// for the next restart; the hook is non-blocking.
+	svc.SetPreparationWake(g.wakeAudioPreparation)
 	if g.pgAudioSvcs == nil {
 		g.pgAudioSvcs = map[string]*audio.PGService{}
 	}
@@ -357,7 +360,7 @@ func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user i
 		serveAudioEvents(w, r, svc)
 		return true
 	case "volumes":
-		return g.serveAudioVolume(w, r, st, svc, sr, segs[1:])
+		return g.serveAudioVolume(w, r, user, st, svc, sr, segs[1:])
 	case "voices":
 		return g.serveStoryVoices(w, r, user, st, svc, segs[1:])
 	case "cast":
@@ -467,14 +470,25 @@ func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user i
 		}
 		// Việc tạo giọng xếp hàng mà không có máy đọc sẵn sàng: đánh dấu từng
 		// chương/việc `waitingMachine` để UI ghi "đang chờ máy đọc" (§AT §8.3).
+		// A needsScript row is the web process composing the bản đọc, not work
+		// waiting for the reader machine, so neither it nor its chapter may
+		// carry the flag (GenPickEmpty: the view already says step=compose).
 		if !g.voiceMachineReady(r.Context()) {
+			composing := map[int]bool{}
 			for i := range view.Jobs {
-				if view.Jobs[i].State == audio.JobQueued {
+				job := view.Jobs[i]
+				if job.NeedsScript || job.Step == "compose" {
+					if job.State == audio.JobQueued || job.State == audio.JobRendering || job.State == audio.JobPaused {
+						composing[job.Chapter] = true
+						continue
+					}
+				}
+				if job.State == audio.JobQueued {
 					view.Jobs[i].WaitingMachine = true
 				}
 			}
 			for i := range view.Chapters {
-				if view.Chapters[i].State == "queued" {
+				if view.Chapters[i].State == "queued" && !composing[view.Chapters[i].Chapter] {
 					view.Chapters[i].WaitingMachine = true
 				}
 			}
@@ -510,7 +524,7 @@ func (g *Gateway) serveStoryAudio(w http.ResponseWriter, r *http.Request, user i
 }
 
 // serveAudioVolume 处理 volumes/:v[/...]。
-func (g *Gateway) serveAudioVolume(w http.ResponseWriter, r *http.Request, st library.Story, svc audioBackend, sr *host.StoryReader, segs []string) bool {
+func (g *Gateway) serveAudioVolume(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, svc audioBackend, sr *host.StoryReader, segs []string) bool {
 	if len(segs) < 1 {
 		return false
 	}
@@ -546,14 +560,10 @@ func (g *Gateway) serveAudioVolume(w http.ResponseWriter, r *http.Request, st li
 		if len(chapters) == 0 {
 			chapters = chaptersWithoutScript(source, volume, svc, r.Context())
 		}
-		var composer audio.Composer
-		if st.Dir != "" {
-			var cerr error
-			composer, cerr = audioComposer(st)
-			if cerr != nil {
-				audioError(w, cerr)
-				return true
-			}
+		composer, cerr := g.audioComposerForStory(r.Context(), user, st)
+		if cerr != nil {
+			audioError(w, cerr)
+			return true
 		}
 		ref, rerr := storyCharacters(sr)
 		if rerr != nil {
@@ -631,7 +641,7 @@ func (g *Gateway) serveAudioVolume(w http.ResponseWriter, r *http.Request, st li
 			}{view, version})
 			return true
 		case len(segs) == 4 && r.Method == http.MethodPost:
-			g.serveAudioScriptAction(w, r, st, svc, sr, source, volume, chapter, segs[3])
+			g.serveAudioScriptAction(w, r, user, st, svc, sr, source, volume, chapter, segs[3])
 			return true
 		}
 		jsonError(w, http.StatusNotFound, "không tìm thấy")
@@ -677,7 +687,7 @@ func (g *Gateway) serveAudioVolume(w http.ResponseWriter, r *http.Request, st li
 }
 
 // serveAudioScriptAction 处理 lock / unlock / refresh。
-func (g *Gateway) serveAudioScriptAction(w http.ResponseWriter, r *http.Request, st library.Story, svc audioBackend, sr *host.StoryReader, source []audio.SourceChapter, volume, chapter int, action string) {
+func (g *Gateway) serveAudioScriptAction(w http.ResponseWriter, r *http.Request, user identity.User, st library.Story, svc audioBackend, sr *host.StoryReader, source []audio.SourceChapter, volume, chapter int, action string) {
 	switch action {
 	case "lock":
 		if _, err := svc.Lock(r.Context(), volume, chapter, chapterHashOf(sr, chapter)); err != nil {
@@ -692,14 +702,10 @@ func (g *Gateway) serveAudioScriptAction(w http.ResponseWriter, r *http.Request,
 		}
 		writeJSON(w, http.StatusOK, map[string]any{"ok": true})
 	case "refresh":
-		var composer audio.Composer
-		var err error
-		if st.Dir != "" {
-			composer, err = audioComposer(st)
-			if err != nil {
-				audioError(w, err)
-				return
-			}
+		composer, err := g.audioComposerForStory(r.Context(), user, st)
+		if err != nil {
+			audioError(w, err)
+			return
 		}
 		ref, err := storyCharacters(sr)
 		if err != nil {
@@ -1378,6 +1384,17 @@ func audioVolumeSource(sr *host.StoryReader, volume int) ([]audio.SourceChapter,
 		if ct, cerr := sr.ChapterText(ch, "committed"); cerr == nil {
 			sc.Text = ct.Text
 			sc.Title = ct.Title
+		} else if rec, rerr := sr.Store().ChapterRecords.Load(ch); rerr == nil && rec != nil &&
+			strings.TrimSpace(rec.Content) != "" {
+			// Hosted chapters can be accepted through the narrative/revision
+			// table without a chapter_text prose artifact (mobile commit). The
+			// accepted record is the authority for that chapter's "chính văn";
+			// without this fallback the compose and queue paths would see an
+			// empty chapter even though it is committed.
+			sc.Text = rec.Content
+			if plan, perr := sr.ChapterPlan(ch); perr == nil && plan != nil {
+				sc.Title = plan.Title
+			}
 		} else if plan, perr := sr.ChapterPlan(ch); perr == nil && plan != nil {
 			sc.Title = plan.Title
 		}
@@ -1445,6 +1462,67 @@ func audioComposer(st library.Story) (audio.Composer, error) {
 	cfg, err := bootstrap.LoadConfigAt(st.Dir)
 	if err != nil {
 		return nil, fmt.Errorf("%w (%v)", audio.ErrNoModel, err)
+	}
+	if strings.TrimSpace(cfg.Provider) == "" || strings.TrimSpace(cfg.ModelName) == "" {
+		return nil, audio.ErrNoModel
+	}
+	models, err := bootstrap.NewModelSet(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("%w (%v)", audio.ErrNoModel, err)
+	}
+	return &audio.ChatComposer{Model: models.Default, ID: cfg.Provider + "/" + cfg.ModelName}, nil
+}
+
+// audioComposerForStory resolves the model that composes bản đọc. A story
+// directory carries its own config file. Hosted stories have no directory, so
+// the gateway reads the same global/project/story chain the engine worker uses
+// from the repository; a missing provider/model is the existing ErrNoModel
+// (409 needsConfig), never a silent fallback.
+func (g *Gateway) audioComposerForStory(ctx context.Context, user identity.User, st library.Story) (audio.Composer, error) {
+	if st.Dir != "" {
+		return audioComposer(st)
+	}
+	if g.pgAudio == nil {
+		// No story directory and no hosted repository: the previous behaviour
+		// (nil composer → 409 needsConfig) is the honest answer.
+		return nil, audio.ErrNoModel
+	}
+	docs, err := g.hostedConfigDocuments()
+	if err != nil {
+		return nil, err
+	}
+	_, cfg, err := bootstrap.LoadHostedConfigChain(ctx, docs, configActor(user), st.Project, st.Story)
+	if err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(cfg.Provider) == "" || strings.TrimSpace(cfg.ModelName) == "" {
+		return nil, audio.ErrNoModel
+	}
+	models, err := bootstrap.NewModelSet(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("%w (%v)", audio.ErrNoModel, err)
+	}
+	return &audio.ChatComposer{Model: models.Default, ID: cfg.Provider + "/" + cfg.ModelName}, nil
+}
+
+// audioComposerInternal resolves the story's compose model for background work
+// that has no request account (the preparation runner): same hosted
+// global/project/story chain, read as the trusted internal actor. A missing
+// provider/model stays ErrNoModel — the retryable job error, never a fallback.
+func (g *Gateway) audioComposerInternal(ctx context.Context, st library.Story) (audio.Composer, error) {
+	if st.Dir != "" {
+		return audioComposer(st)
+	}
+	if g.pgAudio == nil {
+		return nil, audio.ErrNoModel
+	}
+	docs, err := g.hostedConfigDocuments()
+	if err != nil {
+		return nil, err
+	}
+	_, cfg, err := bootstrap.LoadHostedConfigChain(ctx, docs, nil, st.Project, st.Story)
+	if err != nil {
+		return nil, err
 	}
 	if strings.TrimSpace(cfg.Provider) == "" || strings.TrimSpace(cfg.ModelName) == "" {
 		return nil, audio.ErrNoModel

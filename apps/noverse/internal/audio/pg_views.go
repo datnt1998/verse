@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5"
+
 	"github.com/datnt1998/verse/apps/noverse/internal/errs"
 	"github.com/datnt1998/verse/apps/noverse/internal/persistence/postgres"
 )
@@ -191,14 +193,18 @@ func (s *PGService) saveScriptPayload(ctx context.Context, scope postgres.ScopeR
 	return pgErr(err)
 }
 
-// persistScript mirrors WriteScript on the file backend: script payload plus
-// segment rows in one transaction; deleted segments lose their renders,
-// edited segments lose only the selected marker (takes stay as candidates).
-// expected is the row version the write must find; 0 creates a new row.
-func (s *PGService) persistScript(ctx context.Context, scope postgres.ScopeRef, ref postgres.ChapterRef, script *Script, edited []string, expected int64) error {
+// scriptBundle assembles the script row + segment rows for one revision. A new
+// hosted script enters at revision 1 (the file backend's first WriteScript does
+// the same), so the row always carries a positive revision for the storage
+// validation and for the prepared render input.
+func (s *PGService) scriptBundle(ref postgres.ChapterRef, script *Script) (postgres.Script, []postgres.Segment, error) {
 	payload, err := json.Marshal(script)
 	if err != nil {
-		return err
+		return postgres.Script{}, nil, err
+	}
+	revision := script.pgRevision
+	if revision <= 0 {
+		revision = 1
 	}
 	segments := make([]postgres.Segment, 0, len(script.Segments))
 	for i, seg := range script.Segments {
@@ -207,15 +213,42 @@ func (s *PGService) persistScript(ctx context.Context, scope postgres.ScopeRef, 
 			Text: seg.Text, Payload: scriptSegmentPayload(seg),
 		})
 	}
-	_, err = s.deps.Audio.SaveScriptBundle(ctx, scope, postgres.Script{
+	return postgres.Script{
 		ChapterID:      ref.ID,
-		RevisionNo:     script.pgRevision,
+		RevisionNo:     revision,
 		SourceRevision: int32(ref.CurrentRevision),
 		SourceSHA256:   script.SourceHash,
 		Status:         script.Status,
 		Payload:        payload,
-	}, segments, edited, expected)
+	}, segments, nil
+}
+
+// persistScript mirrors WriteScript on the file backend: script payload plus
+// segment rows in one transaction; deleted segments lose their renders,
+// edited segments lose only the selected marker (takes stay as candidates).
+// expected is the row version the write must find; 0 creates a new row.
+func (s *PGService) persistScript(ctx context.Context, scope postgres.ScopeRef, ref postgres.ChapterRef, script *Script, edited []string, expected int64) error {
+	bundle, segments, err := s.scriptBundle(ref, script)
+	if err != nil {
+		return err
+	}
+	_, err = s.deps.Audio.SaveScriptBundle(ctx, scope, bundle, segments, edited, expected)
 	return pgErr(err)
+}
+
+// persistScriptTx is persistScript on the caller's transaction: the hosted
+// preparation runner saves the composed script inside the job publish
+// transaction, so a CAS conflict rolls the job back with it.
+func (s *PGService) persistScriptTx(ctx context.Context, tx pgx.Tx, scope postgres.ScopeRef, ref postgres.ChapterRef, script *Script, edited []string, expected int64) (postgres.Script, error) {
+	bundle, segments, err := s.scriptBundle(ref, script)
+	if err != nil {
+		return postgres.Script{}, err
+	}
+	saved, err := s.deps.Audio.SaveScriptBundleTx(ctx, tx, scope, bundle, segments, edited, expected)
+	if err != nil {
+		return postgres.Script{}, pgErr(err)
+	}
+	return saved, nil
 }
 
 // ScriptView mirrors Service.ScriptView: each segment's state comes from the
@@ -486,17 +519,6 @@ func (s *PGService) Unlock(ctx context.Context, volume, chapter int) (*Script, e
 	return script, nil
 }
 
-// Compose needs the story model (LLM segmentation); hosted keeps it a 501
-// capability instead of pretending a script was composed.
-func (s *PGService) Compose(source []SourceChapter, volume int, chapters []int, composer Composer, ref CharacterRef) error {
-	return pgUnsupported("soạn bản đọc bằng mô hình")
-}
-
-// Refresh re-composes one chapter script: same hosted limitation as Compose.
-func (s *PGService) Refresh(source []SourceChapter, volume, chapter int, composer Composer, ref CharacterRef) error {
-	return pgUnsupported("soạn lại bản đọc bằng mô hình")
-}
-
 // ── views ────────────────────────────────────────────────────────────────────
 
 // Volumes mirrors Service.Volumes with data from the tables; RTF is unknown
@@ -534,7 +556,7 @@ func (s *PGService) Volumes(ctx context.Context, source []SourceChapter, volume 
 		view := ChapterView{
 			Chapter: sc.Chapter,
 			Title:   sc.Title,
-			Status:  DeriveStatus(script, false, hash),
+			Status:  DeriveStatus(script, s.isComposing(volume, sc.Chapter), hash),
 		}
 		if script != nil {
 			view.ChapterChanged, view.ScriptChanged, view.StaleReason = script.freshness(hash)

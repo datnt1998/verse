@@ -166,6 +166,16 @@ type Gateway struct {
 	// 的池）拿同一个 slug 绝不能共用服务。
 	pgAudioMu   sync.Mutex
 	pgAudioSvcs map[string]*audio.PGService
+	// Hosted "AI sẽ soạn bản đọc" runner (audio_prepare.go): one sequential
+	// compose loop per story, woken by the audio service (enqueue/retry/resume)
+	// or by startup recovery. It never polls when idle; a live preparation
+	// lease is waited out with a timer instead.
+	prepMu      sync.Mutex
+	prepWake    chan struct{}
+	prepCancel  context.CancelFunc
+	prepStarted bool
+	prepActive  map[string]bool
+	prepWG      sync.WaitGroup
 	// proxy 是 trusted-proxy 边界（platform/webguard）；nil = 未配置，沿用 loopback 规则。
 	proxy *webguard.Config
 	// sec 是 bộ header bảo mật dùng chung (platform/secheaders): HSTS chỉ khi
@@ -306,7 +316,7 @@ func NewPostgresGateway(root string, accounts *identity.Store, build version.Inf
 }
 
 func newGateway(root string, accounts *identity.Store, backend accountBackend, build version.Info) *Gateway {
-	g := &Gateway{Root: root, backend: backend, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build), audioStoreCh: make(chan struct{})}
+	g := &Gateway{Root: root, backend: backend, accounts: accounts, limiter: accounts.LoginLimiter(), recoverLimiter: accounts.RecoveryLimiter(recoverMaxFails, recoverWindow), workerToken: rand.Text(), workers: make(map[string]*storyWorker), launch: launchWorker, build: version.Resolve(build), audioStoreCh: make(chan struct{}), prepWake: make(chan struct{}, 1), prepActive: map[string]bool{}}
 	g.launchHosted = g.launchHostedWorker
 	accounts.SetProjectSource(func() ([]string, error) {
 		if g.libRepo == nil && g.RootPath() == "" {
@@ -643,6 +653,9 @@ func (g *Gateway) closeWorkers() {
 func (g *Gateway) Close() {
 	g.closeOnce.Do(func() {
 		g.stopWatcher()
+		// Stop composing before the audio services/hub go away: the runner
+		// publishes through the per-story service.
+		g.stopAudioPreparation()
 		g.closeWorkers()
 		g.jobsHub().close()
 		g.closeNotifications()

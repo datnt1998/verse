@@ -32,9 +32,12 @@ import (
 //     (audio_settings.payload) since they are small user-edited JSON docs.
 //
 // The remote TTS worker pulls jobs from the private worker listener; this
-// service never synthesizes, composes, or runs ffmpeg in the web process —
-// the endpoints that need a local engine answer ErrStorageUnsupported (501)
-// instead of pretending.
+// service never synthesizes or runs ffmpeg in the web process — the endpoints
+// that need a local engine answer ErrStorageUnsupported (501) instead of
+// pretending. Script composition ("soạn bản đọc") is a model call, not a
+// local engine: the gateway passes a Composer and the result is persisted in
+// the same script/segment tables as the file backend.
+//
 // Object is a playable audio object handed to the HTTP layer: Path for the
 // file backend, Data for small in-memory payloads, or an immutable blob
 // reference (Store+Key) for the Postgres backend.
@@ -79,11 +82,41 @@ type PGService struct {
 	basePath   string
 	storyTitle string
 	storyShort string
+
+	// compMu guards the in-flight compose set: the same chapter must not be
+	// composed twice concurrently (a second request would overwrite the first
+	// result and burn a model call). compWG lets Close wait briefly.
+	compMu    sync.Mutex
+	composing map[chapterKey]bool
+	compWG    sync.WaitGroup
+
+	// prepWake notifies the hosted preparation runner that a needsScript tts
+	// row is waiting, so a queued composition starts without polling. nil when
+	// no runner is installed (tests, export runner).
+	prepWake func()
 }
 
 // NewPGService builds the Postgres audio service for one story.
 func NewPGService(deps PGDeps) *PGService {
-	return &PGService{deps: deps, hub: NewHub()}
+	return &PGService{deps: deps, hub: NewHub(), composing: map[chapterKey]bool{}}
+}
+
+// SetPreparationWake installs the hosted runner hook. The callback must be
+// non-blocking (a buffered-channel send); it is invoked when a composition row
+// is created or resumed.
+func (s *PGService) SetPreparationWake(fn func()) {
+	s.mu.Lock()
+	s.prepWake = fn
+	s.mu.Unlock()
+}
+
+func (s *PGService) wakePreparation() {
+	s.mu.Lock()
+	fn := s.prepWake
+	s.mu.Unlock()
+	if fn != nil {
+		fn()
+	}
 }
 
 // ── plumbing ─────────────────────────────────────────────────────────────────
@@ -125,8 +158,21 @@ func pgUnsupported(feature string) error {
 	return fmt.Errorf("%s chưa hỗ trợ trên kho dữ liệu Postgres: %w", feature, errs.ErrStorageUnsupported)
 }
 
-// Close stops event subscriptions.
-func (s *PGService) Close() { s.hub.Close() }
+// Close closes the event hub after giving an in-flight compose a short window
+// (a provider call for a whole chapter can outlive a gateway shutdown; the
+// process exit aborts it, exactly like the file backend's independent ctx).
+func (s *PGService) Close() {
+	done := make(chan struct{})
+	go func() {
+		s.compWG.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+	}
+	s.hub.Close()
+}
 
 // SetBasePath sets the API prefix used to build segment URLs.
 func (s *PGService) SetBasePath(p string) {

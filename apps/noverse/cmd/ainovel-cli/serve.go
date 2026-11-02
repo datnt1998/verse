@@ -267,6 +267,12 @@ func runServe(args []string) error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	// Hosted "AI sẽ soạn bản đọc" (GenPickEmpty): audio deps are wired, so
+	// resume every queued or interrupted composition now. Startup recovery
+	// sees queued rows and running rows whose lease has not expired (it waits
+	// out the known expiry), so a restart never strands a job behind a stale
+	// lease. File mode has no hosted deps and this is a no-op.
+	gateway.StartAudioPreparation(ctx)
 	done := make(chan error, 1)
 	go func() { done <- server.Serve(listener) }()
 	select {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -252,6 +253,178 @@ func (j *Jobs) Enqueue(ctx context.Context, scope ScopeRef, kind JobKind, idempo
 	return jobFromRow(row), nil
 }
 
+// EnqueueChapter writes one chapter's tts row while keeping the "one active job
+// per chapter" invariant: a stale active row (replace) is rewritten in place
+// under a bumped fence, any other active row of the same chapter is cancelled,
+// and a missing row is inserted under the caller's idempotency key. All of it
+// is one transaction, so no reader ever sees two active jobs and a worker or
+// preparation runner still holding the old fence cannot publish.
+func (j *Jobs) EnqueueChapter(ctx context.Context, scope ScopeRef, idempotencyKey string, input any, progressTotal *int32, chapterID pgtype.UUID, replace pgtype.UUID) (Job, error) {
+	if idempotencyKey == "" {
+		return Job{}, fmt.Errorf("job cần idempotency key: %w", errInvalidJobInput)
+	}
+	if !chapterID.Valid {
+		return Job{}, fmt.Errorf("job thiếu chương: %w", errInvalidJobInput)
+	}
+	payload, err := json.Marshal(input)
+	if err != nil {
+		return Job{}, fmt.Errorf("marshal job input: %w", errInvalidJobInput)
+	}
+	var total int32
+	if progressTotal != nil {
+		total = *progressTotal
+	}
+	var out gen.Job
+	err = j.tx(ctx, func(tx pgx.Tx) error {
+		// Serialize the enqueue decision for this chapter before any job row is
+		// read. Without it two first enqueues both observe zero rows and the
+		// loser's InsertJob resolves to the winner's frozen input through the
+		// idempotency conflict (or, with different keys, inserts a second
+		// active row). The lock is transaction-scoped, so the winner's row is
+		// visible to the loser's statements. It is keyed by chapter, not a
+		// chapter row lock: preparation completion locks job -> chapter, and
+		// chapter -> job here would invert that order and deadlock.
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`,
+			fmt.Sprintf("noverse:tts-enqueue:%s:%s:%s",
+				UUIDString(scope.ProjectID), UUIDString(scope.StoryID), UUIDString(chapterID))); err != nil {
+			return sanitizeErr(err)
+		}
+		q := gen.New(tx)
+		var kept pgtype.UUID
+		if replace.Valid {
+			row, err := q.SupersedeChapterJob(ctx, gen.SupersedeChapterJobParams{
+				ProjectID: scope.ProjectID, StoryID: scope.StoryID, ID: replace,
+				Input: payload, ProgressTotal: total,
+			})
+			switch {
+			case err == nil:
+				out, kept = row, row.ID
+			case noRows(err):
+				// The row reached a terminal state after the caller's read:
+				// the lock below decides whether to reuse or insert.
+			default:
+				return sanitizeErr(err)
+			}
+		}
+		rows, err := q.LockChapterJobs(ctx, gen.LockChapterJobsParams{
+			ProjectID: scope.ProjectID, StoryID: scope.StoryID, ChapterID: UUIDString(chapterID),
+		})
+		if err != nil {
+			return sanitizeErr(err)
+		}
+		active := make([]gen.Job, 0, len(rows))
+		for _, row := range rows {
+			if jobStateActive(row.State) && row.ID != kept {
+				active = append(active, row)
+			}
+		}
+		if !kept.Valid {
+			// A concurrent enqueue may have landed after this caller's read.
+			// Identical frozen work is the same request: keep that row. The
+			// stored input is jsonb (canonical key order), so compare the
+			// decoded values, not the bytes.
+			for i := range active {
+				if jsonEqual(active[i].Input, payload) {
+					out, kept = active[i], active[i].ID
+					active = append(active[:i], active[i+1:]...)
+					break
+				}
+			}
+		}
+		if !kept.Valid && len(active) > 0 {
+			// Different intent for the same chapter: rewrite the newest active
+			// row instead of inserting a parallel one.
+			last := active[len(active)-1]
+			row, err := q.SupersedeChapterJob(ctx, gen.SupersedeChapterJobParams{
+				ProjectID: scope.ProjectID, StoryID: scope.StoryID, ID: last.ID,
+				Input: payload, ProgressTotal: total,
+			})
+			if err != nil {
+				return sanitizeErr(err)
+			}
+			out, kept = row, row.ID
+			active = active[:len(active)-1]
+		}
+		if !kept.Valid {
+			id, err := randomUUID()
+			if err != nil {
+				return fmt.Errorf("job id: %w", errInvalidJobInput)
+			}
+			var tv pgtype.Int4
+			if progressTotal != nil {
+				tv = pgtype.Int4{Int32: total, Valid: true}
+			}
+			row, err := q.InsertJob(ctx, gen.InsertJobParams{
+				ProjectID:      scope.ProjectID,
+				StoryID:        scope.StoryID,
+				ID:             id,
+				Kind:           string(JobTTS),
+				IdempotencyKey: idempotencyKey,
+				Input:          payload,
+				ProgressTotal:  tv,
+			})
+			if noRows(err) {
+				row, err = q.GetJobByIdempotency(ctx, gen.GetJobByIdempotencyParams{
+					ProjectID:      scope.ProjectID,
+					StoryID:        scope.StoryID,
+					Kind:           string(JobTTS),
+					IdempotencyKey: idempotencyKey,
+				})
+				// The key collided with a row this caller did not write (a
+				// direct enqueue, or a terminal row from a stale attempt
+				// count). Never hand back a frozen input that is not the
+				// requested work: rewrite an active row, fail visibly on a
+				// finished one so the caller retries with a fresh attempt.
+				if err == nil && !jsonEqual(row.Input, payload) {
+					if jobStateActive(row.State) {
+						row, err = q.SupersedeChapterJob(ctx, gen.SupersedeChapterJobParams{
+							ProjectID: scope.ProjectID, StoryID: scope.StoryID, ID: row.ID,
+							Input: payload, ProgressTotal: total,
+						})
+					} else {
+						err = fmt.Errorf("job key thuộc việc khác đã kết thúc: %w", ErrJobState)
+					}
+				}
+			}
+			if err != nil {
+				if noRows(err) {
+					return fmt.Errorf("job %s: %w", JobTTS, ErrJobNotFound)
+				}
+				return sanitizeErr(err)
+			}
+			out, kept = row, row.ID
+		}
+		for _, row := range active {
+			if _, err := q.CancelJob(ctx, gen.CancelJobParams{ProjectID: row.ProjectID, ID: row.ID}); err != nil && !noRows(err) {
+				return sanitizeErr(err)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return Job{}, err
+	}
+	return jobFromRow(out), nil
+}
+
+func jobStateActive(state string) bool {
+	switch JobState(state) {
+	case JobQueued, JobRunning, JobPaused:
+		return true
+	}
+	return false
+}
+
+// jsonEqual compares two JSON documents by value; jsonb reorders object keys on
+// read, so a byte comparison would miss an identical frozen input.
+func jsonEqual(a, b []byte) bool {
+	var x, y any
+	if json.Unmarshal(a, &x) != nil || json.Unmarshal(b, &y) != nil {
+		return false
+	}
+	return reflect.DeepEqual(x, y)
+}
+
 // Get returns one job inside its project scope.
 func (j *Jobs) Get(ctx context.Context, key JobKey) (Job, error) {
 	arg, err := jobKeyUUID(key)
@@ -462,6 +635,219 @@ func (j *Jobs) Release(ctx context.Context, lease WorkerLease) (Job, error) {
 			FencingToken: lease.Fence,
 		})
 	})
+}
+
+// ── hosted preparation (tts needsScript) ─────────────────────────────────────
+
+// PreparationTarget is one active story with TTS work waiting for its bản đọc.
+// The scope is filled so the runner can rebuild a full ScopeRef (including the
+// story slug) without another lookup; it carries no job id — the runner claims
+// the oldest preparation of that story.
+type PreparationTarget struct {
+	Scope       ScopeRef
+	ProjectSlug string
+	StorySlug   string
+}
+
+// ListPreparationTargets is the trusted internal recovery scan: every active
+// project/story with a tts job whose input asks for preparation (queued, or a
+// running row left behind by an interrupted process). Deleted projects and
+// stories — and un-promoted drafts — are never resurrected after a restart.
+func (j *Jobs) ListPreparationTargets(ctx context.Context) ([]PreparationTarget, error) {
+	rows, err := gen.New(j.pool).ListPreparationTargets(ctx)
+	if err != nil {
+		return nil, sanitizeErr(err)
+	}
+	out := make([]PreparationTarget, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, PreparationTarget{
+			Scope: ScopeRef{
+				ProjectID: r.ProjectID,
+				StoryID:   r.StoryID,
+				StorySlug: r.StorySlug,
+			},
+			ProjectSlug: r.ProjectSlug,
+			StorySlug:   r.StorySlug,
+		})
+	}
+	return out, nil
+}
+
+// preparationTx runs one preparation publish against the exact (project,
+// story, job, fence) row. A zero-row match is always a lost lease: pause,
+// cancel, retry or a newer claim moved the fence, so the caller's compose
+// output must not land.
+func (j *Jobs) preparationTx(ctx context.Context, scope ScopeRef, id pgtype.UUID, fn func(*gen.Queries) (gen.Job, error)) (Job, error) {
+	if !scope.ProjectID.Valid || !scope.StoryID.Valid || !id.Valid {
+		return Job{}, ErrJobLeaseLost
+	}
+	var row gen.Job
+	err := j.tx(ctx, func(tx pgx.Tx) error {
+		var err error
+		row, err = fn(gen.New(tx))
+		if noRows(err) {
+			return ErrJobLeaseLost
+		}
+		return sanitizeErr(err)
+	})
+	if err != nil {
+		return Job{}, err
+	}
+	return jobFromRow(row), nil
+}
+
+// ClaimPreparation takes the oldest preparation row of one exact story and
+// leases it to the caller: the row stays 'queued' (the tts CHECK only allows
+// 'running' with a worker, and no worker exists for preparation), the lease
+// serialises two compose attempts, and the fence moves so an older attempt can
+// no longer publish. ErrNoClaimableJob means nothing is waiting or everything
+// still has a live lease.
+func (j *Jobs) ClaimPreparation(ctx context.Context, scope ScopeRef, ttl time.Duration) (Job, error) {
+	if !scope.ProjectID.Valid || !scope.StoryID.Valid {
+		return Job{}, fmt.Errorf("phạm vi chuẩn bị chưa đủ: %w", errInvalidJobInput)
+	}
+	if ttl <= 0 {
+		ttl = DefaultLease
+	}
+	if ttl < time.Second {
+		ttl = time.Second
+	}
+	var row gen.Job
+	err := j.tx(ctx, func(tx pgx.Tx) error {
+		var err error
+		row, err = gen.New(tx).ClaimPreparation(ctx, gen.ClaimPreparationParams{
+			ProjectID: scope.ProjectID,
+			StoryID:   scope.StoryID,
+			Ttl:       int32(ttl / time.Second),
+		})
+		if noRows(err) {
+			return ErrNoClaimableJob
+		}
+		return sanitizeErr(err)
+	})
+	if err != nil {
+		return Job{}, err
+	}
+	return jobFromRow(row), nil
+}
+
+// FailPreparation records a terminal compose error on the preparation row. The
+// needsScript flag stays, so an existing Retry re-enters preparation instead of
+// handing a scriptless chapter to the remote worker. The row keeps its fence;
+// only the exact live lease may fail it.
+func (j *Jobs) FailPreparation(ctx context.Context, scope ScopeRef, id pgtype.UUID, fence int64, cause any) (Job, error) {
+	var errPayload []byte
+	if cause != nil {
+		var err error
+		if errPayload, err = json.Marshal(cause); err != nil {
+			return Job{}, fmt.Errorf("marshal job error: %w", errInvalidJobInput)
+		}
+	}
+	return j.preparationTx(ctx, scope, id, func(q *gen.Queries) (gen.Job, error) {
+		return q.FailPreparation(ctx, gen.FailPreparationParams{
+			ProjectID:    scope.ProjectID,
+			StoryID:      scope.StoryID,
+			ID:           id,
+			FencingToken: fence,
+			Error:        errPayload,
+		})
+	})
+}
+
+// ReleasePreparation hands a preparation back without a result so the next
+// runner pass can pick it up (graceful stop on shutdown).
+func (j *Jobs) ReleasePreparation(ctx context.Context, scope ScopeRef, id pgtype.UUID, fence int64) (Job, error) {
+	return j.preparationTx(ctx, scope, id, func(q *gen.Queries) (gen.Job, error) {
+		return q.ReleasePreparation(ctx, gen.ReleasePreparationParams{
+			ProjectID:    scope.ProjectID,
+			StoryID:      scope.StoryID,
+			ID:           id,
+			FencingToken: fence,
+		})
+	})
+}
+
+// CompletePreparationWith turns a claimed preparation into real TTS work in one
+// transaction:
+//
+//  1. the row is locked and the caller's exact live lease validated *before*
+//     publish runs, so pause/cancel/retry win the race by moving the fence;
+//  2. publish (the caller) saves the locked script on the same tx and returns
+//     the prepared job input plus the segment total;
+//  3. the same row — never a second job — swaps in that input (needsScript is
+//     stripped) and, when there is work, resets progress, returns to 'queued'
+//     with the fence bumped so the remote worker can claim it.
+//
+// A total of 0 means the refreshed script needs no new synthesis (every
+// segment already has a valid selected render). Queuing that row would make the
+// worker fail a zero-segment job forever, so the row becomes terminal
+// 'completed' — the hosted equivalent of the file backend's "already voiced".
+//
+// Any error (including a script CAS conflict) rolls back both the script and
+// the job update; a stale fence/lease is ErrJobLeaseLost.
+func (j *Jobs) CompletePreparationWith(ctx context.Context, scope ScopeRef, id pgtype.UUID, fence int64, publish func(ctx context.Context, tx pgx.Tx, job Job) (any, int32, error)) (Job, error) {
+	if publish == nil {
+		return Job{}, fmt.Errorf("thiếu bước soạn bản đọc: %w", errInvalidJobInput)
+	}
+	if !scope.ProjectID.Valid || !scope.StoryID.Valid || !id.Valid {
+		return Job{}, ErrJobLeaseLost
+	}
+	var row gen.Job
+	err := j.tx(ctx, func(tx pgx.Tx) error {
+		q := gen.New(tx)
+		locked, err := q.LockPreparation(ctx, gen.LockPreparationParams{
+			ProjectID:    scope.ProjectID,
+			StoryID:      scope.StoryID,
+			ID:           id,
+			FencingToken: fence,
+		})
+		if noRows(err) {
+			return ErrJobLeaseLost
+		}
+		if err != nil {
+			return sanitizeErr(err)
+		}
+		input, total, err := publish(ctx, tx, jobFromRow(locked))
+		if err != nil {
+			return err
+		}
+		if input == nil {
+			return fmt.Errorf("bản đọc đã soạn thiếu input việc: %w", errInvalidJobInput)
+		}
+		if total < 0 {
+			return fmt.Errorf("số đoạn của việc không hợp lệ: %w", errInvalidJobInput)
+		}
+		payload, err := json.Marshal(input)
+		if err != nil {
+			return fmt.Errorf("marshal job input: %w", errInvalidJobInput)
+		}
+		if total == 0 {
+			row, err = q.CompletePreparationEmpty(ctx, gen.CompletePreparationEmptyParams{
+				ProjectID:    scope.ProjectID,
+				StoryID:      scope.StoryID,
+				ID:           id,
+				FencingToken: fence,
+				Input:        payload,
+			})
+		} else {
+			row, err = q.CompletePreparation(ctx, gen.CompletePreparationParams{
+				ProjectID:     scope.ProjectID,
+				StoryID:       scope.StoryID,
+				ID:            id,
+				FencingToken:  fence,
+				Input:         payload,
+				ProgressTotal: total,
+			})
+		}
+		if noRows(err) {
+			return ErrJobLeaseLost
+		}
+		return sanitizeErr(err)
+	})
+	if err != nil {
+		return Job{}, err
+	}
+	return jobFromRow(row), nil
 }
 
 // Cancel stops a job from any non-terminal state and invalidates any worker

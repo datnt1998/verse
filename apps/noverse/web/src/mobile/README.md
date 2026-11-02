@@ -6,6 +6,14 @@
 
 Thanh tab là viên nang kính: trái/phải 16 px, đáy 20 px, cao 64 px, bo 32 px, blur 26 px + saturate 180%. `.tind` rộng `(100% - 10px)/4`, trượt theo tab và nảy scale .7→1 trong 550 ms. Tab hiện tại dùng icon bulk tím, chấm cam ở Đọc báo chương cần duyệt. `data-tab-mode` có ba giá trị: `default`, `mini` (cuộn xuống quá 40 px: scale .92, dịch xuống 6 px và ẩn nhãn), `hide` (bàn phím/đọc tập trung/hết phiên/màn con). Phần nổi dùng `bottom:var(--m-float-bottom,92px)`; vùng cuộn có padding cuối để nội dung không bị viên nang che.
 
+Shell điện thoại (`.m-app`, `.vv-mobile-shell`) cao `max(100dvh, var(--m-viewport-bottom, 0px))`, không phải `100dvh` trần. `useVisualViewportKeyboard` ghi mốc đáy này từ `innerHeight` + `visualViewport` và nghe thêm `window.resize`, `orientationchange`, `pageshow`, `focusin/focusout`, `visibilitychange`. Sau mất focus có một lần đo lại sau 350 ms, không polling.
+
+Bàn phím ảo chỉ được nhận khi ô nhập chữ có thể sửa đang focus, chưa thu phóng và phần bị che > 80 px; thanh địa chỉ co giãn không được coi là bàn phím. Khi trình duyệt giữ `offsetTop` hoặc số đo viewport cũ sau khi đóng bàn phím, khung dùng mốc đáy layout để không chờ người dùng cuộn mới khôi phục vị trí.
+
+Thanh tab của cả hai app neo `absolute` trong shell `position: relative; overflow: hidden`, không neo vào lớp `fixed` của viewport. Shell phải cắt phần nav đang trượt ra ngoài khi ẩn, nếu không nó kéo dài vùng cuộn của document. Nội dung vẫn cuộn sau viên nang kính nổi; padding cuối bảo đảm hàng cuối lên được trên nav. Kiểm Chromium không thay thế kiểm thanh địa chỉ/bàn phím trên Safari iPhone thật.
+
+`data-tab-mode` là đầu vào CSS thay đổi padding vùng cuộn, nên kit công bố nó trong `useInsertionEffect`, trước các layout effect đo/khôi phục vị trí. Màn khôi phục scroll phải đợi `useMobileRuntime().tabMode` hết `hide`; không ghi hoặc lưu vị trí lúc padding thanh tab chưa trở lại. Nếu không, trình duyệt kẹp vị trí cũ theo chiều cao tạm thời và người dùng quay lại bị hụt đoạn.
+
 Import từ `mobile/runtime`:
 
 - `MobileRuntimeProvider`: dùng chung bàn phím, kết nối, outbox và sheet hết phiên; `MobileApp` đã gắn, `TabletApp` tự gắn cùng `MobileFeedback`.

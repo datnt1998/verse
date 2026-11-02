@@ -481,6 +481,7 @@ ainovel-cli serve --root DIR --addr 127.0.0.1:9000
   ainovel-cli voice say "Xin chào" --voice "Hải Đăng" -o thu.wav
   ```
   **Tạo lại sau khi sửa**: nút **Tạo lại** ở bản đọc và hàng đợi lấy chính văn hiện tại, soạn lại khi nguồn đã đổi rồi tự chốt và tạo các đoạn cần cập nhật. Bản đọc được mở khoá để sửa vẫn tạo lại được, không cần xoá âm thanh hay tự chốt trước. Cảnh báo phân biệt chương đã đổi với bản đọc đã đổi; dữ liệu cũ thiếu dấu vân tay không bị khẳng định là đã sửa, nhưng lần tạo lại tiếp theo vẫn soạn từ chính văn hiện tại. Khi xong, cảnh báo được cập nhật và trình phát tải phiên bản âm thanh mới.
+  **Kho PostgreSQL hosted** dùng cùng luồng soạn bản đọc, chốt và tạo giọng. Chương đã nghiệm thu nhưng chưa có bản đọc vẫn vào hàng đợi với nhãn **AI sẽ soạn bản đọc**; máy chủ soạn bằng cấu hình AI dùng chung của app rồi chuyển chính công việc đó cho máy đọc. Tạm dừng/huỷ trong lúc soạn không được công bố bản đọc hoặc tạo giọng sau lệnh dừng; lỗi soạn dùng **Thử lại** của hàng đợi. Thiếu cấu hình AI có hướng dẫn sửa, không trả lỗi “tính năng không khả dụng trên kho dữ liệu”.
 - Thiết kế ở `docs/design/v1/` (hợp đồng API: `11-api-contract.md`). Mã nguồn giao diện ở `web/` (React + Vite); bản build nhúng sẵn vào binary từ `internal/entry/web/dist`; `npm run dev:mock` chạy giao diện với dữ liệu giả, không cần server.
 
 ---

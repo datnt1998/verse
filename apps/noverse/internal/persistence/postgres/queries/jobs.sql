@@ -90,11 +90,25 @@ ORDER BY created_at, id;
 
 -- name: ListClaimableJobs :many
 -- Read-only view of what a claim would consider (operators/debug; the claim
--- itself must go through ClaimJob).
+-- itself must go through ClaimJob). The needsScript filter mirrors ClaimJob so
+-- the debug view never promises work the remote worker cannot take.
 SELECT * FROM jobs
 WHERE kind = $1 AND state IN ('queued', 'running')
   AND (state = 'queued' OR lease_until IS NULL OR lease_until < now())
+  AND (input->>'needsScript') IS DISTINCT FROM 'true'
 ORDER BY created_at, id;
+
+-- name: LockChapterJobs :many
+-- Every tts row of one chapter, locked so enqueue can keep the "one active
+-- job per chapter" invariant when a Generate click races another one: the
+-- caller rewrites the stale row (or inserts a new one) and cancels the rest in
+-- the same transaction. The chapterId lives in the frozen input, so this is
+-- exact for the chapter, not for its number.
+SELECT * FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
+  AND input->>'chapterId' = sqlc.arg(chapter_id)::text
+ORDER BY created_at, id
+FOR UPDATE;
 
 -- name: LockJob :one
 SELECT * FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE;
@@ -102,12 +116,16 @@ SELECT * FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE;
 -- ── claim / lease ────────────────────────────────────────────────────────────
 
 -- name: ClaimJob :one
+-- Preparation rows (`input.needsScript:true`) are owned by the web compose
+-- runner, never by the remote worker: the exclusion is a plain text compare so
+-- a malformed/absent flag can never throw while a worker is claiming.
 WITH candidate AS (
     SELECT j.project_id, j.id
     FROM jobs j
     WHERE j.kind = $1
       AND j.state IN ('queued', 'running')
       AND (j.state = 'queued' OR j.lease_until IS NULL OR j.lease_until < now())
+      AND (j.input->>'needsScript') IS DISTINCT FROM 'true'
       AND ($2::uuid IS NULL OR j.project_id = $2::uuid)
     ORDER BY j.created_at, j.id
     LIMIT 1
@@ -181,6 +199,160 @@ WHERE project_id = $1 AND id = $2
   AND state = 'running' AND lease_until > now()
 RETURNING *;
 
+-- ── hosted preparation (tts kind + input.needsScript) ────────────────────────
+--
+-- A missing bản đọc is queued as an ordinary kind='tts' row whose input carries
+-- `needsScript:true` (no new kind: the jobs CHECK is closed). The web compose
+-- runner owns that row until the script is locked; ClaimJob never sees it.
+--
+-- The runner's claim holds a lease on the same row **without** a worker_id: the
+-- state stays 'queued' (the tts CHECK only requires a worker when a row is
+-- 'running'), and `lease_until` is what serializes two compose attempts. Every
+-- publish (fail/release/complete) must present the exact fence while that lease
+-- is live, so cancel/pause/retry — which bump the fence — beat a compose that
+-- finishes after the user changed their mind.
+
+-- name: ListPreparationTargets :many
+-- Trusted internal scan (startup/recovery): every active story with TTS work
+-- still waiting for a bản đọc. Deleted projects/stories and un-promoted drafts
+-- are never resurrected by a restart.
+SELECT DISTINCT j.project_id, j.story_id,
+    p.slug AS project_slug, s.slug AS story_slug
+FROM jobs j
+JOIN projects p ON p.id = j.project_id AND p.deleted_at IS NULL
+JOIN stories s ON s.project_id = j.project_id AND s.id = j.story_id
+    AND s.deleted_at IS NULL AND s.status <> 'draft'
+WHERE j.kind = 'tts'
+  AND j.state IN ('queued', 'running')
+  AND COALESCE(j.input->>'needsScript', 'false') = 'true'
+ORDER BY p.slug, s.slug;
+
+-- name: ClaimPreparation :one
+-- Oldest preparation of this exact story: queued with no live lease, or a
+-- legacy running row whose lease already expired. A live lease is untouched, so
+-- two runners cannot compose the same chapter twice.
+WITH candidate AS (
+    SELECT j.project_id, j.id
+    FROM jobs j
+    WHERE j.project_id = $1 AND j.story_id = $2
+      AND j.kind = 'tts'
+      AND j.worker_id IS NULL
+      AND j.state IN ('queued', 'running')
+      AND (j.lease_until IS NULL OR j.lease_until <= now())
+      AND COALESCE(j.input->>'needsScript', 'false') = 'true'
+    ORDER BY j.created_at, j.id
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+)
+UPDATE jobs
+SET state = 'queued',
+    worker_id = NULL,
+    lease_until = now() + make_interval(secs => sqlc.arg(ttl)::int),
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+FROM candidate
+WHERE jobs.project_id = candidate.project_id AND jobs.id = candidate.id
+RETURNING jobs.*;
+
+-- name: LockPreparation :one
+-- Locks the preparation row and validates the caller's exact live lease in the
+-- same statement, before any script write happens inside the transaction.
+SELECT * FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+FOR UPDATE;
+
+-- name: FailPreparation :one
+-- Terminal compose error. The row keeps needsScript so Retry re-enters
+-- preparation instead of handing a scriptless chapter to the worker.
+UPDATE jobs
+SET state = 'failed',
+    error = $5,
+    finished_at = now(),
+    lease_until = NULL,
+    worker_id = NULL,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING *;
+
+-- name: ReleasePreparation :one
+-- Graceful stop: the same row becomes claimable by the next runner pass.
+UPDATE jobs
+SET state = 'queued',
+    lease_until = NULL,
+    worker_id = NULL,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND lease_until IS NOT NULL AND lease_until > now()
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING *;
+
+-- name: CompletePreparation :one
+-- Same row, now real TTS work: the composed input replaces the seed, the flag
+-- is stripped (so ClaimJob can take it), and the lease/fence move so any late
+-- compose output from the previous attempt is rejected. Callers must have locked
+-- the row through LockPreparation in this transaction.
+UPDATE jobs
+SET input = sqlc.arg(input)::jsonb - 'needsScript',
+    progress_total = sqlc.arg(progress_total)::int,
+    progress_done = 0,
+    state = 'queued',
+    worker_id = NULL,
+    lease_until = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING *;
+
+-- name: CompletePreparationEmpty :one
+-- A prepared script can legitimately need no synthesis: every segment still has
+-- a selected render valid for the current parameters (chapter text changed only
+-- in ways the spoken text did not). Queuing it would hand the worker a
+-- zero-segment job, which it hard-fails forever, so the honest outcome is the
+-- file backend's "already voiced": the request completes on the same row.
+UPDATE jobs
+SET input = sqlc.arg(input)::jsonb - 'needsScript',
+    progress_total = 0,
+    progress_done = 0,
+    state = 'completed',
+    finished_at = now(),
+    worker_id = NULL,
+    lease_until = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND worker_id IS NULL
+  AND state IN ('queued', 'running')
+  AND fencing_token = $4
+  AND COALESCE(input->>'needsScript', 'false') = 'true'
+RETURNING *;
+
 -- ── control ──────────────────────────────────────────────────────────────────
 
 -- name: CancelJob :one
@@ -236,6 +408,32 @@ SET state = 'queued',
 WHERE project_id = $1 AND id = $2 AND state IN ('failed', 'cancelled', 'completed')
 RETURNING *;
 
+-- name: SupersedeChapterJob :one
+-- A stale active row (queued render from before the chapter changed, a paused
+-- or running one) is rewritten in place with the fresh frozen work and put
+-- back in the queue under a bumped fence. A worker or preparation runner still
+-- holding the old fence can no longer publish, and the chapter never ends up
+-- with two active rows.
+UPDATE jobs
+SET input = sqlc.arg(input)::jsonb,
+    progress_total = sqlc.arg(progress_total)::int,
+    progress_done = 0,
+    result = NULL,
+    error = NULL,
+    state = 'queued',
+    worker_id = NULL,
+    lease_until = NULL,
+    started_at = NULL,
+    finished_at = NULL,
+    cancelled_at = NULL,
+    fencing_token = fencing_token + 1,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND story_id = $2 AND id = $3
+  AND kind = 'tts'
+  AND state IN ('queued', 'running', 'paused')
+RETURNING *;
+
 -- name: UpdateJobProgress :one
 UPDATE jobs
 SET progress_done = $3,
@@ -276,6 +474,9 @@ ORDER BY seq;
 -- name: CountQueuedJobs :one
 -- Số việc của một loại đang xếp hàng trên toàn máy chủ (không lọc project):
 -- GET /api/tts/status dùng nó cho `queueWaiting` khi máy đọc chưa sẵn sàng.
+-- needsScript rows belong to the web compose runner, not to the reader
+-- machine, so they are not chapters lost while that machine is offline.
 SELECT count(*)::int
 FROM jobs
-WHERE kind = $1 AND state = 'queued';
+WHERE kind = $1 AND state = 'queued'
+  AND (input->>'needsScript') IS DISTINCT FROM 'true';
