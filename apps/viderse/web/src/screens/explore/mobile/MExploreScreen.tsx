@@ -396,7 +396,8 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               value={String(within)}
               onChange={(value) => setWithin(Number(value) as 0 | 7 | 30 | 90)}
               aria-label={tt.withinLabel}
-              prefix={<><Icon name="calendar" size={15} /> {tt.filterWithin}</>}
+              icon={<Icon name="calendar" size={15} />}
+              prefix={tt.filterWithin}
               custom={within !== 30}
             />
             <ChipSelect
@@ -410,7 +411,8 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               value={status}
               onChange={(value) => setStatus(value as StatusFilter)}
               aria-label={tt.statusLabel}
-              prefix={<><Icon name="filter" size={15} /> {tt.filterStatus}</>}
+              icon={<Icon name="filter" size={15} />}
+              prefix={tt.filterStatus}
               custom={status !== 'all'}
             />
           </div>
