@@ -37,6 +37,9 @@ import (
 //	                                             "result":{...},"attachments":[...]}
 //	POST /internal/worker/jobs/{id}/fail        {"fence":n,"error":{...}}
 //	GET  /internal/worker/jobs/{id}/input       (the frozen job snapshot)
+//	GET  /internal/worker/previews/next         (one on-demand voice preview)
+//	POST /internal/worker/previews/{id}/audio   (raw WAV, X-Sample-Rate)
+//	POST /internal/worker/previews/{id}/fail    {"message":"..."}
 //
 // The upload endpoint derives the object key itself from (project, job, sha256)
 // and verifies the streamed hash, so a worker can neither pick an arbitrary
@@ -157,6 +160,11 @@ func (a *WorkerAPI) Handler() http.Handler {
 	mux.HandleFunc("GET /internal/worker/jobs/{id}/input", a.authenticated(a.handleInput))
 	mux.HandleFunc("POST /internal/worker/state", a.authenticated(a.handleState))
 	mux.HandleFunc("GET /internal/worker/command", a.authenticated(a.handleCommand))
+	// Nghe thử giọng theo yêu cầu (10-audio.md §8.4 #6): máy đọc pull một câu
+	// ngắn rồi trả WAV về, không có hàng đợi bền và không có đường vào máy Mac.
+	mux.HandleFunc("GET /internal/worker/previews/next", a.authenticated(a.handlePreviewNext))
+	mux.HandleFunc("POST /internal/worker/previews/{id}/audio", a.authenticated(a.handlePreviewAudio))
+	mux.HandleFunc("POST /internal/worker/previews/{id}/fail", a.authenticated(a.handlePreviewFail))
 	return mux
 }
 

@@ -72,6 +72,11 @@ type PGDeps struct {
 	// worker. Hosted has no local engine, so without this the picker only sees
 	// uploaded project samples and a cast cannot reference an engine preset.
 	RemoteVoices func(context.Context) []ProjectVoice
+	// RemoteRTF returns the connected worker's measured real-time factor, or
+	// nil when no live worker has measured one. Old-segment ETAs use it exactly
+	// like the file backend uses the local engine's RTF; hosted never invents a
+	// number when the worker has not reported one.
+	RemoteRTF func(context.Context) *float64
 }
 
 // PGService is the hosted sibling of Service: same HTTP surface, durable rows.

@@ -29,6 +29,7 @@
 //	00019 shared session revocation reason/app                           ← verse SSO
 //	00020 known-device tokens for the login limiter                      ← verse SSO
 //	00021 worker provision state + operator command channel              ← TTS autosetup
+//	00022 durable audio queue priority
 //
 // Applied migration numbers are never renamed or edited. New work appends the
 // next free number; postgres.RequiredMigrations derives the required set from

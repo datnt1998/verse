@@ -172,6 +172,8 @@ Phòng thu là nơi xem **hàng đợi tạo giọng chạy nền** của các c
 - Giữa: sóng âm chương (phần đã nghe sáng), cờ cam trên sóng, kim phát; điều khiển: chương trước · lùi 10s · phát/dừng · tới 10s · chương sau · tốc độ (1× → 1,25× → 1,5× → 0,75×) · cờ “Đánh dấu chỗ cần sửa (M)”. Dưới là **bản đọc chạy theo**: mốc thời gian, người nói (màu theo vai), đoạn đang đọc viền tím + sóng nhỏ, đoạn đã qua mờ. Hover đoạn: [Đọc lại đoạn này] · cờ.
 - Phải: **Cần nghe lại** — mỗi cờ: lý do, vị trí, người đọc. Mở ra: chỉnh giọng/tốc độ → so sánh **Bản cũ / Bản mới** → [Dùng bản mới] [Giữ bản cũ]. Chỉ tạo lại đúng đoạn đó (vài giây) rồi ghép vào chương.
 - Chân: “3 chỗ cần nghe lại · vẫn xuất được nếu bạn thấy ổn” · [Ghép & xuất Tập 1].
+- Điện thoại: nút `⋯` riêng từng chương mở thao tác thật theo trạng thái. Chương đã có audio có **Nghe chương này**, **Xuất riêng chương này**, **Chia sẻ tệp audio**, **Tạo lại chương này**; chương cũ có **Cập nhật chương này**. Chương chờ có **Làm trước**, **Tạm dừng**, **Huỷ**; chương lỗi có **Thử lại**. Tạo lại/huỷ phải xác nhận; mở menu hay huỷ xác nhận không tạo việc.
+- Xuất/chia sẻ từ menu chỉ chọn tệp audio và phụ đề đúng chương, không tải nhầm ZIP cả tập. Chưa có tệp thì dẫn sang xuất riêng chương đó. Các nút chạm tối thiểu 44 px; dùng tấm trượt và xác nhận chung của ứng dụng.
 
 ### A6 · Đã xuất (07, `exported`)
 - “Đã xuất audio Tập 1 · 8 chương · 2 giờ 24 phút 31 giây · 6 giọng đọc · xong lúc 23:18”, player cả tập, [Mở thư mục] [Tải xuống] [Sửa & xuất lại].

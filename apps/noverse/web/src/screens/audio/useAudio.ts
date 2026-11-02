@@ -41,6 +41,36 @@ export function unlockMedia(element: HTMLMediaElement) {
 }
 
 /**
+ * Các thẻ audio của màn Audio. Chúng được tạo bằng `new Audio()` nên không nằm
+ * trong DOM: chỉ danh sách này biết thẻ nào đang phát. Nhờ đó nghe thử giọng
+ * tạm dừng chương (và ngược lại) — hai tiếng không bao giờ chồng nhau, đúng
+ * như một trình phát duy nhất.
+ */
+const mediaElements = new Set<HTMLMediaElement>()
+
+function trackMedia(element: HTMLMediaElement) {
+  mediaElements.add(element)
+  return element
+}
+
+function releaseMedia(element: HTMLMediaElement | null) {
+  if (element) mediaElements.delete(element)
+}
+
+function pauseOthers(element: HTMLMediaElement) {
+  for (const other of mediaElements) if (other !== element) other.pause()
+}
+
+/**
+ * Hai mốc "ý định phát" để tệp về muộn không cướp lượt phát: một lượt nghe thử
+ * chen vào lúc chương đang chờ, hoặc người dùng bấm phát chương lúc nghe thử
+ * đang chờ máy đọc. Lượt cũ tự bỏ — và không pause lượt mới.
+ */
+let chapterStarts = 0
+let previewStarts = 0
+
+
+/**
  * Lỗi phát audio → tiếng Việt. DOMException của HTMLMediaElement.play() luôn
  * tiếng Anh (iOS: "The request is not allowed by the user agent…") nên không
  * bao giờ hiện nguyên văn. AbortError = lượt phát bị thao tác khác cắt ngang:
@@ -473,7 +503,7 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
   latest.current = options
   rateRef.current = rate
   const make = () => {
-    const audio = new Audio()
+    const audio = trackMedia(new Audio())
     audio.preload = 'metadata'
     audio.setAttribute('playsinline', '')
     audio.playbackRate = rateRef.current
@@ -537,10 +567,19 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
     const audio = element.current ?? make()
     const url = next ?? loaded.current
     if (!url) throw new Error('Chương này chưa có tệp audio để nghe.')
+    const previews = previewStarts
+    chapterStarts += 1
+    pauseOthers(audio)
     wantsPlay.current = true
     applySrc(audio, url, true)
     if (!next && Date.now() - loadedAt.current > 4 * 60_000) refreshSource(audio)
-    try { await audio.play(); setError('') }
+    try {
+      await audio.play()
+      // Một lượt nghe thử chen vào sau đó: lượt phát chương này không được
+      // tiếp tục chồng lên tiếng mẫu.
+      if (previewStarts !== previews) { audio.pause(); return }
+      setError('')
+    }
     catch (cause) { setError(playError(cause)); throw cause }
   }, [])
   useEffect(() => {
@@ -552,6 +591,7 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
       stopClock()
       audio.removeAttribute('src')
       audio.load()
+      releaseMedia(audio)
       loaded.current = null
       element.current = null
     }
@@ -597,64 +637,128 @@ export function usePlayer(src: string | null, options: PlayerOptions = {}): Play
   return { playing, time, duration, rate, setRate, play, error, toggle, pause, seek, skip }
 }
 
+/** Một URL phát trực tiếp, hoặc hàm nạp URL (đoạn cần gọi API tạo blob). */
+export type PreviewSource = string | (() => Promise<string>)
+
 export type PreviewAudio = {
   playingId: string | null
   loadingId: string | null
-  play: (id: string, resolve: () => Promise<string>) => Promise<void>
+  /** Lỗi phát của thẻ audio (HTTP 5xx, tệp hỏng) — rỗng khi không có. */
+  error: string
+  play: (id: string, source: PreviewSource) => Promise<void>
   stop: () => void
 }
 
-/** Nghe thử đoạn/giọng: nạp URL (có thể gọi API) rồi phát bằng một thẻ audio dùng lại. */
+/**
+ * Nghe thử đoạn/giọng: phát bằng một thẻ audio dùng lại. Truyền thẳng URL thì
+ * `play()` thật được gọi ngay trong cử chỉ chạm; truyền hàm nạp (đoạn cần gọi
+ * API tạo blob) thì thẻ đã được mở khoá đồng bộ trước khi chờ.
+ */
 export function usePreviewAudio(): PreviewAudio {
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const [playingId, setPlayingId] = useState<string | null>(null)
+  const [error, setError] = useState('')
   // Thẻ audio duy nhất, mở khoá bằng play() đồng bộ ngay trong cử chỉ đầu tiên
   // (iOS chặn play() sau await). Giữ thẻ sống để các lượt nghe thử sau phát được.
   const audio = useRef<HTMLAudioElement | null>(null)
   const urls = useRef<string[]>([])
+  // Mỗi lượt play/stop tăng số này. Một lượt chờ máy đọc lâu có thể về sau khi
+  // người dùng đã bấm dừng hoặc chọn giọng khác: kết quả cũ không được phát.
+  const request = useRef(0)
 
   const stop = useCallback(() => {
-    audio.current?.pause()
+    request.current += 1
+    const element = audio.current
+    if (element) {
+      // Bỏ src để đóng luôn request đang chờ máy đọc: máy chủ thấy kết nối
+      // đóng và bỏ lượt nghe thử thay vì đọc tiếp cho một người đã rời đi.
+      element.pause()
+      element.removeAttribute('src')
+      element.load()
+    }
     setPlayingId(null)
+    setLoadingId(null)
+    setError('')
   }, [])
 
-  const play = useCallback(async (id: string, resolve: () => Promise<string>) => {
-    if (playingId === id) { stop(); return }
+  const play = useCallback(async (id: string, source: PreviewSource) => {
+    if (playingId === id || loadingId === id) { stop(); return }
     stop()
+    const ticket = request.current
+    const chapters = chapterStarts
+    previewStarts += 1
     setLoadingId(id)
     if (!audio.current) {
-      const element = new Audio()
+      const element = trackMedia(new Audio())
       element.setAttribute('playsinline', '')
       element.addEventListener('ended', () => setPlayingId(null))
+      // Bị dừng từ bên ngoài (chương bắt đầu phát, đổi tab): nút phải trở lại
+      // trạng thái phát, không kẹt ở “đang phát”.
+      element.addEventListener('pause', () => setPlayingId(null))
+      // HTTP 5xx của một URL media chỉ hiện qua `error` của thẻ, không qua
+      // promise play(); không nghe sự kiện này thì người dùng chỉ thấy im lặng.
+      element.addEventListener('error', () => {
+        const text = mediaErrorText(element)
+        setPlayingId(null)
+        setLoadingId(null)
+        if (text) setError(text)
+      })
       audio.current = element
     }
     const element = audio.current
     // Phát WAV im lặng đồng bộ trong cử chỉ để iOS cho phép thẻ; tệp thật phát
-    // sau khi URL về trên cùng thẻ.
+    // trên cùng thẻ.
+    pauseOthers(element)
     unlockMedia(element)
+    const directURL = typeof source === 'string' ? source : ''
+    const loadURL = typeof source === 'string' ? null : source
     try {
-      const url = await resolve()
-      if (url.startsWith('blob:')) urls.current.push(url)
+      // URL trực tiếp: không await gì trước khi gọi play(), nên nó nằm đúng
+      // trong cử chỉ chạm. Hàm nạp bất đồng bộ (đoạn cần tạo blob) mới chờ.
+      const url = loadURL ? await loadURL() : directURL
+      if (loadURL) {
+        // Đã dừng, chọn giọng khác, hoặc chương đã bắt đầu phát trong lúc chờ:
+        // tệp về muộn không được cướp lượt phát.
+        if (ticket !== request.current || chapterStarts !== chapters) {
+          if (url.startsWith('blob:')) URL.revokeObjectURL(url)
+          return
+        }
+        if (url.startsWith('blob:')) urls.current.push(url)
+      }
       element.src = playbackSource(url)
       await element.play()
+      // Một lượt mới đã chiếm thẻ này: không được pause nó. Chỉ dừng khi chương
+      // đã bắt đầu phát trong lúc chờ.
+      if (ticket !== request.current) return
+      if (chapterStarts !== chapters) { element.pause(); return }
       setPlayingId(id)
     } catch (cause) {
+      if (ticket !== request.current) return
       const text = playError(cause)
       if (!text) return
       throw new Error(text, { cause })
     } finally {
-      setLoadingId(null)
+      if (ticket === request.current) setLoadingId(null)
     }
-  }, [playingId, stop])
+  }, [playingId, loadingId, stop])
 
   useEffect(() => () => {
-    audio.current?.pause()
+    // Rời màn khi đang chờ máy đọc: đóng request (bỏ src + load) để máy chủ bỏ
+    // lượt, và kết quả về sau không được phát. Không setState khi unmount.
+    request.current += 1
+    const element = audio.current
+    if (element) {
+      element.pause()
+      element.removeAttribute('src')
+      element.load()
+      releaseMedia(element)
+    }
     audio.current = null
     for (const url of urls.current) URL.revokeObjectURL(url)
     urls.current = []
   }, [])
 
-  return { playingId, loadingId, play, stop }
+  return { playingId, loadingId, error, play, stop }
 }
 
 /** Đồng hồ đếm giây cho “Đã chạy” của phòng thu. */

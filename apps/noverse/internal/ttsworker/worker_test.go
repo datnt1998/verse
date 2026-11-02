@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -83,7 +84,11 @@ type fakeServer struct {
 	states       []map[string]any
 	commandSeq   int64
 	commandOp    string
-	srv          *httptest.Server
+	// previewEvery keeps one preview available on every poll so the run-loop
+	// starvation test can prove chapters are still claimed and completed.
+	previewEvery  bool
+	previewClaims int
+	srv           *httptest.Server
 }
 
 func newFakeServer(t *testing.T, jobs ...job) *fakeServer {
@@ -98,6 +103,7 @@ func newFakeServer(t *testing.T, jobs ...job) *fakeServer {
 	mux.HandleFunc("POST /internal/worker/jobs/{id}/fail", fs.handleFail)
 	mux.HandleFunc("POST /internal/worker/state", fs.handleState)
 	mux.HandleFunc("GET /internal/worker/command", fs.handleCommand)
+	mux.HandleFunc("GET /internal/worker/previews/next", fs.handlePreviewNext)
 	fs.srv = httptest.NewServer(mux)
 	t.Cleanup(fs.srv.Close)
 	return fs
@@ -121,6 +127,28 @@ const (
 	testProjectID = "11111111-1111-4111-8111-111111111111"
 	testStoryID   = "22222222-2222-4222-8222-222222222222"
 )
+
+// handlePreviewNext always has a preview while previewEvery is on, so the run
+// loop can be checked for chapter starvation.
+func (f *fakeServer) handlePreviewNext(w http.ResponseWriter, r *http.Request) {
+	if !f.authOK(w, r) {
+		return
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if !f.previewEvery {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	f.previewClaims++
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"id":      fmt.Sprintf("preview-%d", f.previewClaims),
+		"voiceId": "vieneu-nu-bac",
+		"text":    "Xin chào",
+		"quality": "standard",
+	})
+}
 
 func (f *fakeServer) handleClaim(w http.ResponseWriter, r *http.Request) {
 	if !f.authOK(w, r) {

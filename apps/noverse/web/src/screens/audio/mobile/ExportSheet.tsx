@@ -19,12 +19,15 @@ import { audioExportOptions } from '../export'
 import { exportStyles as sx } from '../export.stylex'
 import { useStoryShortTitle } from '../../../shell/useNames'
 import { audioChapterFileName } from '../../../lib/audioName'
+import { chapterExportFiles, chapterSubtitleFiles } from './exportFiles'
 
-export function ExportSheet({ project, story, volume, open, onClose, readyChapters, total, queue, writable, initialDone = false, initialView, trialChapter, openDone = 0 }: {
+export function ExportSheet({ project, story, volume, open, onClose, readyChapters, total, queue, writable, initialDone = false, initialView, trialChapter, openDone = 0, focusChapter }: {
   project: string; story: string; volume: number; open: boolean; onClose: () => void
   readyChapters: number[]; total: number; queue: readonly AudioQueueJob[]; writable: boolean; initialDone?: boolean; initialView?: string | null; trialChapter: number
   /** > 0 = mở thẳng view “Đã xuất” (thẻ nổi “Xem tệp”); đổi số mỗi lần yêu cầu. */
   openDone?: number
+  /** Chỉ hiện/chia sẻ tệp của chương được chọn trong menu. */
+  focusChapter?: number
 }) {
   const ready = readyChapters.length
   const notify = useMobileToast()
@@ -52,18 +55,21 @@ export function ExportSheet({ project, story, volume, open, onClose, readyChapte
   // Thẻ nổi §AE: “Xem tệp” mở lại sheet ở view done (openDone = số lần được yêu cầu).
   useEffect(() => {
     if (!open) return
-    setView(openDone > 0 || initialDone ? 'done' : 'form')
+    setView(openDone > 0 || initialDone || initialView === 'exportTrial' || initialView === 'exportChDone' ? 'done' : 'form')
     if (openDone > 0) setTrial(false)
-  }, [open, openDone, initialDone])
+  }, [open, openDone, initialDone, initialView])
   useEffect(() => {
     if (job?.status === 'done') void exported.refresh()
   }, [job?.status, job?.finishedAt, exported.refresh])
   const download = useAction((path: string) => /[?]path=|^https?:/.test(path)
     ? downloadJobFile(path, decodeURIComponent(path.split('path=').at(-1)?.split('&')[0] ?? '') || 'gói.zip')
     : downloadExportFile(project, story, path), { success: 'Đã tải sách nói' })
-  const share = useAction(async (path?: string) => {
+  const share = useAction(async (target?: ExportFile | string) => {
     if (!navigator.share) throw new Error('Trình duyệt chưa hỗ trợ chia sẻ. Hãy dùng Tải xuống.')
-    const choices = files.filter((item) => path ? item.path === path : /\.(m4b|mp3|wav|srt)$/i.test(item.name))
+    // Tệp của chương có thể chỉ nằm trong chapterFiles (không có trong files):
+    // truyền thẳng ExportFile để không rơi về danh sách cả tập.
+    const choices = typeof target === 'object' ? [target]
+      : files.filter((item) => target ? item.path === target : /\.(m4b|mp3|wav|srt)$/i.test(item.name))
     if (!choices.length) throw new Error('Chưa có tệp sách nói để chia sẻ')
     const sharedFiles = await Promise.all(choices.map(async (item) => {
       const response = await fetch(item.url ?? audioExportFileURL(project, story, item.path))
@@ -109,10 +115,15 @@ export function ExportSheet({ project, story, volume, open, onClose, readyChapte
     : exported.data?.files ?? []
   // A7 — bản thử theo quy tắc tên mới: "{Tên ngắn} · Tập N · Chương NN · {tên} (bản thử).ext".
   const trialName = audioChapterFileName(shortTitle, volume, trialChapter, volumeData.data?.chapters.find((item) => item.chapter === trialChapter)?.title ?? '', format, true)
-  const file = files.find((item) => trial ? item.name === trialName || / \(bản thử\)\.(m4b|mp3|wav)$/i.test(item.name) : /\.(m4b|mp3|wav)$/i.test(item.name))
-  const duration = exported.data?.durationSec ?? 0
-  const splitDone = !trial && (exported.data?.split ?? form.split)
   const chapterFiles = exported.data?.chapterFiles ?? files.filter((item) => item.format === 'audio' && /chuong/.test(item.path))
+  const scopedChapterFiles = chapterExportFiles(chapterFiles, focusChapter)
+  const file = focusChapter !== undefined
+    ? scopedChapterFiles[0]
+    : files.find((item) => trial ? item.name === trialName || / \(bản thử\)\.(m4b|mp3|wav)$/i.test(item.name) : /\.(m4b|mp3|wav)$/i.test(item.name))
+  // Chương đã có tệp riêng thì không dùng câu “đã xuất cả tập” chỉ vì split=false.
+  const splitDone = !trial && (focusChapter !== undefined || (exported.data?.split ?? form.split))
+  const scopedSrtFiles = chapterSubtitleFiles(files, scopedChapterFiles, focusChapter)
+  const duration = exported.data?.durationSec ?? 0
   const zipPath = jobData?.zipUrl ?? exported.data?.zipUrl
   const trialPlayer = usePlayer(open && trial && view === 'done' && file ? audioExportFileURL(project, story, file.path) : null)
   const busy = download.busy || share.busy || shared.loading || !!shared.error
@@ -149,21 +160,21 @@ export function ExportSheet({ project, story, volume, open, onClose, readyChapte
         {file ? <>
           <div className="ma-export-status done">
             <span className="ma-export-tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 12.5l4 4 8-9" /></svg></span>
-            <strong>{trial?`Bản thử chương ${trialChapter} ${c.trialReady}`:splitDone ? x.exported(chapterFiles.length, volume) : t.audio.listen.daXuatTap(volume)}</strong>
+            <strong>{trial?`Bản thử chương ${trialChapter} ${c.trialReady}`:splitDone ? x.exported(scopedChapterFiles.length, volume) : t.audio.listen.daXuatTap(volume)}</strong>
             {trial&&<p style={{fontSize:13.5,color:'var(--color-fg-3)',maxWidth:300,margin:0}}>{c.trialNote}</p>}
-            <span title={file.name} style={{ maxWidth: '100%', whiteSpace: 'normal', overflowWrap: 'anywhere', fontSize: 14, color: 'var(--color-fg-3)' }}>{splitDone ? `${chapterFiles.length} tệp .${format}${files.some((item) => item.name.endsWith('.srt')) ? ' + .srt' : ''}` : `${file.name} · ${trial ? 1 : exported.data?.chapterCount ?? ready} chương · ${formatDuration(Math.round(duration / 60) * 60)} · ${formatBytes(file.size)}${files.some((item) => item.name.endsWith('.srt')) ? ' + .srt' : ''}`}</span>
+            <span title={file.name} style={{ maxWidth: '100%', whiteSpace: 'normal', overflowWrap: 'anywhere', fontSize: 14, color: 'var(--color-fg-3)' }}>{splitDone ? `${scopedChapterFiles.length} tệp .${format}${scopedSrtFiles.length ? ' + .srt' : ''}` : `${file.name} · ${trial ? 1 : exported.data?.chapterCount ?? ready} chương · ${formatDuration(Math.round(duration / 60) * 60)} · ${formatBytes(file.size)}${files.some((item) => item.name.endsWith('.srt')) ? ' + .srt' : ''}`}</span>
           </div>
-          {splitDone && <div className="ma-options" style={{ maxHeight: 230, overflowY: 'auto' }}>{chapterFiles.map((item) => <div key={item.path} style={{ minHeight: 56, paddingRight: 8 }}><Icon name="music" size={18} style={{ color: 'var(--color-ok)', flex: '0 0 auto' }} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}><span title={item.name} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 14 }}>{item.name}</span><small style={{ fontSize: 12 }}>{formatDuration(item.durationSec ?? 0)} · {formatBytes(item.size)}</small></span><button type="button" aria-label={`${x.share} ${item.name}`} style={{ width: 38, height: 38, borderRadius: '50%', background: 'var(--line-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => void share.run(item.path)}><Icon name="export-curve" size={16} /></button></div>)}</div>}
+          {splitDone && <div className="ma-options" style={{ maxHeight: 230, overflowY: 'auto' }}>{scopedChapterFiles.map((item) => <div key={item.path} style={{ minHeight: 56, paddingRight: 8 }}><Icon name="music" size={18} style={{ color: 'var(--color-ok)', flex: '0 0 auto' }} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 }}><span title={item.name} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: 14 }}>{item.name}</span><small style={{ fontSize: 12 }}>{formatDuration(item.durationSec ?? 0)} · {formatBytes(item.size)}</small></span><button type="button" aria-label={`${x.share} ${item.name}`} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--line-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => void share.run(item)}><Icon name="export-curve" size={16} /></button><button type="button" aria-label={`${x.download} ${item.name}`} style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--line-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => void download.run(item.path)}><Icon name="document-download" size={16} /></button></div>)}</div>}
           <div className="ma-export-actions">
             {trial ? <>
               <button className="m-button secondary" onClick={()=>trialPlayer.toggle()}><Icon name={trialPlayer.playing?'pause':'play'} size={17}/>{c.listenTrial}</button>
               <button className="m-button" disabled={!canWrite||busy} onClick={()=>{ update('split', false); start(ready<total) }}>{c.fullExport}</button>
             </> : <>
-              <button className="m-button secondary" disabled={share.busy} aria-busy={share.pending} onClick={() => void share.run()}><Icon name="link-2" size={17} />{splitDone ? x.shareAll : x.share}</button>
-              <button className="m-button" disabled={download.busy} aria-busy={download.pending} onClick={() => { if (splitDone) { if (zipPath) void download.run(zipPath); else void (async () => { for (const item of files) await download.run(item.path) })() } else void (async () => { await download.run(file.path); for (const item of files.filter((item) => item.name.endsWith('.srt'))) await download.run(item.path) })() }}><Icon name="document-download" size={17} />{splitDone ? zipPath ? x.downloadZip : x.downloadAll(chapterFiles.length) : 'Tải xuống'}</button>
+              <button className="m-button secondary" disabled={share.busy} aria-busy={share.pending} onClick={() => void share.run(focusChapter !== undefined ? scopedChapterFiles[0] : undefined)}><Icon name="link-2" size={17} />{splitDone && focusChapter === undefined ? x.shareAll : x.share}</button>
+              <button className="m-button" disabled={download.busy} aria-busy={download.pending} onClick={() => { if (splitDone) { if (focusChapter === undefined && zipPath) void download.run(zipPath); else void (async () => { for (const item of [...scopedChapterFiles, ...(focusChapter !== undefined ? scopedSrtFiles : [])]) await download.run(item.path) })() } else void (async () => { await download.run(file.path); for (const item of files.filter((item) => item.name.endsWith('.srt'))) await download.run(item.path) })() }}><Icon name="document-download" size={17} />{focusChapter !== undefined || !splitDone ? 'Tải xuống' : zipPath ? x.downloadZip : x.downloadAll(scopedChapterFiles.length)}</button>
             </>}
           </div>
-        </> : <div className="ma-export-status"><p>{exported.initialLoading ? 'Đang tải bản xuất…' : 'Chưa có sách nói đã xuất'}</p><button className="m-button" onClick={() => setView('form')}>Ghép & xuất</button></div>}
+        </> : <div className="ma-export-status"><p>{exported.initialLoading ? 'Đang tải bản xuất…' : focusChapter !== undefined ? t.audio.chapterActions.noFile(focusChapter) : 'Chưa có sách nói đã xuất'}</p><button className="m-button" onClick={() => setView('form')}>{focusChapter !== undefined ? t.audio.chapterActions.exportChapter(focusChapter) : 'Ghép & xuất'}</button></div>}
       </>}
       {Boolean(postError || exported.error) && <p className="m-error" role="alert">{errText(postError || exported.error)}</p>}
       {shared.error != null && <p className="m-error" role="alert">{errText(shared.error)}</p>}

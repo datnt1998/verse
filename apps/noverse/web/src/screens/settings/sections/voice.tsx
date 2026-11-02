@@ -8,6 +8,7 @@ import {
 } from '../../../api/client'
 import type { AudioVoice } from '../../../api/types'
 import { keys, useAction, useConnection, useResource, type Resource } from '../../../data'
+import { ttsPreviewURL } from '../../audio/voicePreview'
 import { Button } from '@noverse/ui'
 import { Card } from '@noverse/ui'
 import { Icon } from '@noverse/ui'
@@ -71,8 +72,10 @@ function ResourceFeedback({ resource, label, rows = 1 }: { resource: Resource<un
   )
 }
 
-/** Nghe thử một giọng (blob URL) — nút play nhỏ trong danh sách. */
-function PreviewButton({ voiceId, label, hosted }: { voiceId: string; label: string; hosted: boolean }) {
+/** Nghe thử một giọng — nút play nhỏ trong danh sách. Mẫu của dự án phát thẳng
+ * bằng URL; preset của máy đọc dùng URL GET mẫu của chính preset (cũng phát
+ * thẳng); chỉ giọng chưa có tuyến URL nào mới gọi API để tạo blob. */
+function PreviewButton({ voiceId, label, hosted, sampleUrl, builtIn }: { voiceId: string; label: string; hosted: boolean; sampleUrl?: string; builtIn: boolean }) {
   const connection = useConnection()
   const audio = useRef<HTMLAudioElement | null>(null)
   const objectURL = useRef<string | null>(null)
@@ -101,11 +104,18 @@ function PreviewButton({ voiceId, label, hosted }: { voiceId: string; label: str
     if (audio.current !== element) element.addEventListener('ended', () => { if (audio.current === element) release() }, { once: true })
     audio.current = element
     unlockMedia(element)
-    const url = await previewTtsVoice(voiceId, t.audio.settings.xinChaoToiLa)
-    if (!mounted.current) { URL.revokeObjectURL(url); return }
+    // Tệp mẫu của dự án được ưu tiên. Preset của máy đọc dùng URL GET phát
+    // trực tiếp để play() chạy đồng bộ trong cử chỉ, không chờ fetch blob; chỉ
+    // trường hợp không có tuyến nào mới gọi API tạo blob như trước.
+    const blob = !sampleUrl && !builtIn
+    const url = sampleUrl ?? (builtIn ? ttsPreviewURL(voiceId) : await previewTtsVoice(voiceId, t.audio.settings.xinChaoToiLa))
+    if (!mounted.current) {
+      if (blob) URL.revokeObjectURL(url)
+      return
+    }
     release()
     audio.current = element
-    objectURL.current = url
+    if (blob) objectURL.current = url
     element.src = url
     try {
       await element.play()
@@ -145,7 +155,7 @@ function VoiceRow({ voice, first, preview, hosted }: { voice: AudioVoice; first?
         <span style={{ fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{voice.name}</span>
         <span style={{ fontSize: 12, color: 'var(--color-fg-4)' }}>{desc}</span>
       </span>
-      {preview && <PreviewButton voiceId={voice.id} label={voice.name} hosted={hosted} />}
+      {preview && <PreviewButton voiceId={voice.id} label={voice.name} hosted={hosted} sampleUrl={voice.sampleUrl} builtIn={voice.builtIn} />}
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { audioChapterURL, getAudioPeaks, getTtsStatus, installTts } from '../../../api/client'
+import { audioChapterURL, cancelAudioRender, enqueueAudioChapters, getAudioPeaks, getTtsStatus, installTts, pauseAudioRender, prioritizeAudioChapter, resumeAudioRender } from '../../../api/client'
 import type { AudioMode } from '../../../router'
 import { navigate, paths, useRoute } from '../../../router'
-import { keys, useAction, useConnection, useResource } from '../../../data'
+import { invalidate, keys, useAction, useConnection, useResource } from '../../../data'
 import { BottomSheet, MobilePage, useMobileToast } from '../../../mobile/primitives'
 import { useJobSelection } from '../../../shell/jobs/useJobs'
 import { useStoryName } from '../../../shell/useNames'
@@ -24,9 +24,11 @@ import { t } from '../../../i18n/vi'
 import type { JobsState } from '../../../shell/jobs/store'
 import { PanelRefreshBar } from '../../../ui/PanelRefreshBar'
 import { VoiceGenSheet } from './VoiceGenSheet'
-import { genAction, genRows, genStrip, genTag } from '../genWork'
+import { genAction, genQueueInput, genRows, genStrip, genTag } from '../genWork'
 import { VoiceSheet } from './voice'
 import { VolumeSheet } from './VolumeSheet'
+import { ChapterActions } from './ChapterActions'
+import { chapterActions, type ChapterActionId } from './chapter-actions'
 
 function Eq() { return <span className="ma-eq" aria-hidden="true"><i /><i /><i /></span> }
 
@@ -54,6 +56,11 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   const [sheet, setSheet] = useState<'volume' | 'player' | 'voice' | 'export' | 'gen' | null>((initialState?.startsWith('gen') && initialState !== 'genEntry') || initialState?.startsWith('queue') ? 'gen' : initialState?.startsWith('genVoice') ? 'voice' : initialState === 'player' || initialState === 'voice' ? initialState : initialState?.startsWith('export') ? 'export' : null)
   /** > 0: sheet Ghép & xuất mở thẳng view “Đã xuất” (thẻ nổi §AE › Xem tệp). */
   const [exportDone, setExportDone] = useState(0)
+  /** Menu ⋯ của một chương và chương đang được xuất/chia sẻ riêng. */
+  const [menuChapter, setMenuChapter] = useState<number | null>(null)
+  const [exportScope, setExportScope] = useState<number | null>(null)
+  /** true: mở “Đã xuất” của đúng chương để chia sẻ tệp thật; false: mở form xuất riêng chương. */
+  const [exportShare, setExportShare] = useState(false)
   const [voiceOpener, setVoiceOpener] = useState<'gen' | 'player'>('gen')
   const [pickRedo, setPickRedo] = useState<number[]>(initialState === 'genRedo' ? [3] : initialState?.startsWith('genPickRedo') ? [4] : [])
   const openGen = (redo: number[] = []) => { setPickRedo(redo); setSheet('gen') }
@@ -62,6 +69,9 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   useEffect(() => {
     setSelected(requestedChapter)
     setAutoplay(playRequested)
+    setMenuChapter(null)
+    setExportScope(null)
+    setExportShare(false)
     if (playRequested) setSheet('player')
   }, [project, story, volume, requestedChapter, playRequested])
   const [sleep, setSleep] = useState(() => startSleep('off', 0))
@@ -104,8 +114,13 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   /** Trình phát thu nhỏ ghi người đọc thật (MAudio §AE), không dùng tên giọng mẫu. */
   const readerName = narrator?.name || 'Dẫn truyện'
   const initials = narrator?.ini ?? charInitials(voice)
-  // §AK — cùng một bộ trạng thái với ngăn Tạo giọng (genWork.ts).
+  // Dùng chung bộ trạng thái với ngăn Tạo giọng (genWork.ts).
   const genRowList = useMemo(() => genRows(chapters, data.queue), [chapters, data.queue])
+  /** Hàng đang mở menu ⋯; dữ liệu đổi (job xong, chương biến mất) thì menu tự đóng theo. */
+  const menuRow = menuChapter === null ? null : genRowList.find((row) => row.chapter.chapter === menuChapter) ?? null
+  useEffect(() => {
+    if (menuChapter !== null && !genRowList.some((row) => row.chapter.chapter === menuChapter)) setMenuChapter(null)
+  }, [genRowList, menuChapter])
   const genStripData = useMemo(() => genStrip(genRowList), [genRowList])
   const genPending = genRowList.filter((row) => row.state === 'stale' || row.state === 'new')
   const holdCount = genRowList.filter((row) => row.state === 'hold').length
@@ -151,19 +166,69 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
     player, { onPrevious: () => step(-1), onNext: () => step(1) })
   const close = useCallback(() => setSheet(null), [])
   const openVoice = (opener: 'gen' | 'player') => { setVoiceOpener(opener); setSheet('voice') }
-  const openExport = useCallback(() => { setExportDone(0); setSheet('export') }, [])
+  const openExport = useCallback(() => { setExportDone(0); setExportScope(null); setExportShare(false); setSheet('export') }, [])
+  /** “Xuất riêng chương này” mở phạm vi Từng chương với đúng chương đã chọn. */
+  const openChapterExport = (number: number) => { setExportDone(0); setExportScope(number); setExportShare(false); setSheet('export') }
+  /** “Chia sẻ tệp audio” mở view Đã xuất, lọc tệp của chương; chưa xuất thì dẫn sang xuất chương. */
+  const openChapterShare = (number: number) => { setExportDone(0); setExportScope(number); setExportShare(true); setSheet('export') }
   // §AT — Thử lại (và Chuẩn bị bộ đọc ở bản cá nhân) gọi cùng một lượt cài; các lối khác mở màn Thêm
   // (điện thoại chưa có trang Giọng đọc riêng).
   const machineAction = (kind: MachineActionKind) => {
     if (kind === 'retry' || kind === 'prepare') { void retryMachine.run(); return }
     navigate(paths.settings('mobile'))
   }
-  const openExportDone = useCallback(() => { setExportDone((count) => count + 1); setSheet('export') }, [])
+  const openExportDone = useCallback(() => { setExportScope(null); setExportShare(false); setExportDone((count) => count + 1); setSheet('export') }, [])
   const playChapter = (number: number) => {
     setSheet('player')
     // play() đồng bộ trong cử chỉ chạm — iOS mở khoá thẻ audio ngay cả khi đổi chương.
     void player.play(chapterURL(number)).catch(() => {})
     if (chapter !== number) { setAutoplay(true); setSelected(number) }
+  }
+  /**
+   * Thao tác luôn khoanh vào đúng chương đang mở.
+   * Lỗi được ném lại để tấm menu hiện ngay tại chỗ, không đóng mất ngữ cảnh.
+   */
+  const runChapterAction = async (id: ChapterActionId) => {
+    if (!menuRow) return
+    const n = menuRow.chapter.chapter
+    const quality = data.settings?.quality ?? 'standard'
+    const voiceMode = data.cast?.voiceMode ?? data.cast?.mode ?? 'cast'
+    if (id === 'play') { playChapter(n); setMenuChapter(null); return }
+    if (id === 'pausePlayback') { player.pause(); setMenuChapter(null); return }
+    if (id === 'export') { openChapterExport(n); setMenuChapter(null); return }
+    if (id === 'share') { openChapterShare(n); setMenuChapter(null); return }
+    if (id === 'prioritize') {
+      await prioritizeAudioChapter(project, story, volume, n)
+      void invalidate(keys.story(project, story, 'audio'))
+      void invalidate(keys.jobs())
+      notify(t.audio.chapterActions.prioritized(n))
+      setMenuChapter(null)
+      return
+    }
+    if (id === 'update' || id === 'create' || id === 'redo') {
+      const result = await enqueueAudioChapters(project, story, volume, id === 'redo'
+        ? { chapters: [], redo: [n], quality, voiceMode, lock: false }
+        : genQueueInput([menuRow], quality, voiceMode))
+      void invalidate(keys.story(project, story, 'audio'))
+      void invalidate(keys.jobs())
+      notify(result.chapters.includes(n)
+        ? id === 'update' ? t.audio.generation.updQueuedToast : t.audio.generation.queuedToast(1)
+        : t.audio.chapterActions.current)
+      setMenuChapter(null)
+      return
+    }
+    const job = menuRow.job
+    if (!job) throw new Error(t.audio.chapterActions.missingJob)
+    if (id === 'retry' || id === 'resumeJob') await resumeAudioRender(project, story, job.jobId)
+    else if (id === 'pauseJob') await pauseAudioRender(project, story, job.jobId)
+    else await cancelAudioRender(project, story, job.jobId)
+    void invalidate(keys.story(project, story, 'audio'))
+    void invalidate(keys.jobs())
+    notify(id === 'retry' ? t.audio.chapterActions.retried(n)
+      : id === 'resumeJob' ? t.audio.chapterActions.resumed(n)
+      : id === 'pauseJob' ? t.audio.chapterActions.paused(n)
+      : t.audio.chapterActions.cancelled(n))
+    setMenuChapter(null)
   }
   const selectVolume = (next: number) => {
     close()
@@ -175,6 +240,16 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
     navigate(paths.audio(project, story, next, 'listen'))
   }
   const playButton = (large = false) => <button className={large ? 'ma-play-main' : 'ma-icon'} aria-label={player.playing ? 'Tạm dừng' : 'Phát'} disabled={!playable} onClick={player.toggle}><Icon name={player.playing ? 'pause' : 'play'} size={large ? 32 : 24} /></button>
+  // Tiêu đề và dòng phụ luôn theo chương đang mở.
+  const menuQuality = data.settings?.quality ?? 'standard'
+  const menuItems = menuRow ? chapterActions(menuRow, { ready: queue.includes(menuRow.chapter.chapter), playing: chapter === menuRow.chapter.chapter && player.playing, writable: access.writable, quality: menuQuality }) : []
+  const menuTitle = menuRow ? t.audio.chapterActions.heading(menuRow.chapter.chapter, menuRow.chapter.title) : t.audio.chapterActions.title
+  const menuDuration = menuRow ? menuRow.chapter.audio?.durationSec ?? menuRow.chapter.durationSec ?? 0 : 0
+  const menuVoice = data.cast?.mode === 'single' ? t.audio.generation.single
+    : data.cast?.voiceMode === 'pack' ? t.audio.generation.pack
+      : data.cast?.speakers.length ? `${t.audio.generation.cast} · ${data.cast.speakers.length} ${t.audio.generation.voiceCount}`
+        : t.audio.generation.cast
+  const menuMeta = menuRow ? [menuDuration > 0 ? formatMinutes(menuDuration) : genTag(menuRow).text, t.audio.generation[menuQuality], menuVoice].filter(Boolean).join(' · ') : ''
   return <div className="ma-root"><MobilePage title={<button className="ma-heading" aria-haspopup="dialog" aria-expanded={sheet === 'volume'} onClick={() => setSheet('volume')}><span className="ma-heading-text"><small>Sách nói</small><span title={`Tập ${volume} · ${storyTitle}`}>Tập {volume} · {storyTitle}</span></span><Icon name="arrow-down-2" size={15} style={{ color: '#7E7E8A' }} /></button>} actions={<button className="ma-export-button" aria-label="Ghép và xuất tập" onClick={openExport}><Icon name="export-curve" size={16} />Xuất</button>}>
     <PanelRefreshBar resourceKeys={[keys.story(project, story, 'audio')]} updatedAt={data.updatedAt} />
     {data.conflict && <div className="ma-warning" role="alert"><span>Đã có thay đổi từ nơi khác.</span><button onClick={data.viewCurrent}>Xem bản mới</button><button disabled={!connection.writable || data.savePending} onClick={() => void data.overwrite()}>Ghi đè</button></div>}
@@ -209,16 +284,19 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
         const percent = job?.progress ?? (queued?.percent ?? item.audio?.percent ?? 0) / 100
         const tag = row ? genTag(row) : null
         const label = tag?.text || (ready ? formatMinutes(item.audio?.durationSec ?? item.durationSec ?? 0) : t.audio.volumePicker.waiting)
+        // Menu ⋯ chỉ hiện khi chương có thao tác thật (chờ máy đọc / đang soạn thì hàng tự nói trạng thái).
+        const actions = row ? chapterActions(row, { ready, playing: on && player.playing, writable: access.writable, quality: data.settings?.quality ?? 'standard' }) : []
         return <div className={`ma-chapter${on ? ' current' : ''}${!ready && !running ? ' waiting' : ''}`} key={item.chapter}>
           {ready ? <button className="ma-chapter-play" aria-label={`Nghe chương ${item.chapter}`} onClick={() => playChapter(item.chapter)}>{on && player.playing ? <Eq /> : <Icon name="play" size={15} />}</button>
             : running ? <Ring percent={percent}>{Math.round(percent * 100)}%</Ring>
               : <span className="ma-wait-ring" />}
-          <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.title}>{item.chapter}. {item.title}</span>
+          <span className="ma-chapter-text">
+            <span title={item.title}>{item.chapter}. {item.title}</span>
             <small className="ma-ch-meta">
               {label && <span className={`ma-tag${tag?.tone ? ` ${tag.tone}` : ''}`} title={item.staleReason || label}>{label}</span>}
             </small>
           </span>
+          {actions.length > 0 && <button type="button" className="ma-chapter-menu" aria-label={`Thao tác chương ${item.chapter}`} aria-haspopup="dialog" aria-expanded={menuChapter === item.chapter} onClick={(event) => { event.stopPropagation(); setMenuChapter(item.chapter) }}><Icon name="more" size={18} /></button>}
         </div>
       })}</div>
       {!chapters.length && <p className="ma-note">Chưa có chương trong tập này.</p>}
@@ -240,7 +318,8 @@ export default function MobileAudio({ project, story, volume: volumeProp }: { pr
   </BottomSheet>
   <VoiceGenSheet project={project} story={story} volume={volume} data={data} open={sheet==='gen'} onClose={close} onVoice={()=>openVoice('gen')} onExport={openExport} writable={access.writable} initialRedo={pickRedo} machineHold={machineHold}/>
   <VoiceSheet open={sheet==='voice'} onClose={()=>setSheet(voiceOpener)}/>
-  <ExportSheet project={project} story={story} volume={volume} open={sheet === 'export'} onClose={close} readyChapters={queue} total={chapters.length} queue={data.queue} writable={access.writable} initialDone={initialState === 'exportDone'} initialView={initialState} trialChapter={chapter??chapters[0]?.chapter??1} openDone={exportDone}/>
+  <ChapterActions open={menuRow !== null} title={menuTitle} meta={menuMeta} items={menuItems} onClose={() => setMenuChapter(null)} onAction={runChapterAction}/>
+  <ExportSheet project={project} story={story} volume={volume} open={sheet === 'export'} onClose={close} readyChapters={queue} total={chapters.length} queue={data.queue} writable={access.writable} initialDone={initialState === 'exportDone'} initialView={exportScope !== null ? (exportShare ? 'exportChDone' : 'exportCh') : initialState} trialChapter={exportScope ?? chapter ?? chapters[0]?.chapter ?? 1} focusChapter={exportScope ?? undefined} openDone={exportDone}/>
   <ExportJobCard project={project} story={story} volume={volume} onViewFiles={openExportDone}/>
   </div>
 }

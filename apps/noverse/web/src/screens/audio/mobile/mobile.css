@@ -60,17 +60,38 @@
 /* Danh sách chương (.group + .grow) */
 .ma-chapters-label{padding:18px 30px 8px;font-size:12.5px;color:var(--color-fg-4);letter-spacing:.02em}
 .ma-chapters{margin:0 16px;border-radius:16px;background:#141416;border:1px solid rgba(255,255,255,.06);overflow:hidden}
-.ma-chapter{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px}
+.ma-chapter{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 6px 8px 14px}
 .ma-chapter+.ma-chapter{border-top:1px solid rgba(255,255,255,.06)}
 .ma-chapter-play{display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-3px;border-radius:50%;border:3px solid #141416;background:rgba(255,255,255,.07);color:#EDEDEF;flex-shrink:0}
 .ma-chapter.current .ma-chapter-play{background:#C9A6F5;color:#0B0B0D}
-.ma-chapter>span:last-child{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
-.ma-chapter>span:last-child>span{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ma-chapter-text{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.ma-chapter-text>span{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ma-chapter small{font-size:12.5px;color:#8E8E99;font-variant-numeric:tabular-nums}
 .ma-chapter.current small{color:#DCC8F8}
-.ma-chapter.waiting>span:last-child>span{color:#8E8E99}
+.ma-chapter.waiting .ma-chapter-text>span{color:#8E8E99}
+/* ⋯ của hàng chương (MAudio `c.menu`): vùng chạm 44px, tách khỏi nút phát. */
+.ma-chapter-menu{width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;color:var(--color-fg-4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ma-chapter-menu:active{background:var(--kit-wash-6)}
 .ma-wait-ring{width:38px;height:38px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.16);flex-shrink:0}
 .ma-note{margin:14px 30px 0;font-size:12.5px;color:#7E7E8A}
+
+/* Tấm thao tác một chương (MAudio.dc.html › chm): tiêu đề + nhóm mục + Đóng. */
+.ma-chm{display:flex;flex-direction:column;gap:12px;padding:0 16px}
+.ma-chm-head{display:flex;flex-direction:column;line-height:1.35;padding:0 4px}
+.ma-chm-head>span:first-child{font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.ma-chm-meta{font-size:13px;color:var(--color-fg-4);font-variant-numeric:tabular-nums}
+.ma-chm-group{border-radius:16px;background:var(--color-card);border:1px solid var(--kit-wash-7);overflow:hidden}
+.ma-chm-item{display:flex;align-items:center;gap:14px;width:100%;min-height:56px;padding:12px 16px;border:0;background:none;color:var(--color-fg);text-align:left;font:inherit}
+.ma-chm-item+.ma-chm-item{border-top:1px solid var(--kit-wash-7)}
+.ma-chm-item.warn{color:var(--color-warn)}
+.ma-chm-item.danger{color:var(--color-err)}
+.ma-chm-item:disabled{opacity:.4}
+.ma-chm-item:active:not(:disabled){background:var(--kit-wash-6)}
+.ma-chm-text{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35;gap:2px}
+.ma-chm-text>span{font-size:15px}
+.ma-chm-text small{font-size:12.5px;color:var(--color-fg-4);overflow-wrap:anywhere}
+.ma-chm-close{height:50px;padding:0;border-radius:14px;border:1px solid var(--line-4);background:transparent;color:var(--color-fg);font-size:15px;font-weight:600}
+.ma-chm-close:disabled{opacity:.4}
 
 /* Trình phát thu nhỏ: nổi ở --m-float-bottom (92px, trên thanh tab) */
 .ma-mini{position:absolute;left:10px;right:10px;bottom:var(--m-float-bottom,92px);z-index:25;height:64px;padding-right:8px;border-radius:18px;border:1px solid rgba(255,255,255,.09);background:rgba(28,28,31,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 16px 40px -12px rgba(0,0,0,.85);display:flex;align-items:center;overflow:hidden}

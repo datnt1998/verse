@@ -86,7 +86,7 @@ SELECT * FROM jobs WHERE id = $1 AND worker_id = $2;
 -- name: ListStoryJobs :many
 SELECT * FROM jobs
 WHERE project_id = $1 AND story_id = $2
-ORDER BY created_at, id;
+ORDER BY queue_priority DESC, created_at, id;
 
 -- name: ListClaimableJobs :many
 -- Read-only view of what a claim would consider (operators/debug; the claim
@@ -96,7 +96,7 @@ SELECT * FROM jobs
 WHERE kind = $1 AND state IN ('queued', 'running')
   AND (state = 'queued' OR lease_until IS NULL OR lease_until < now())
   AND (input->>'needsScript') IS DISTINCT FROM 'true'
-ORDER BY created_at, id;
+ORDER BY queue_priority DESC, created_at, id;
 
 -- name: LockChapterJobs :many
 -- Every tts row of one chapter, locked so enqueue can keep the "one active
@@ -109,6 +109,35 @@ WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
   AND input->>'chapterId' = sqlc.arg(chapter_id)::text
 ORDER BY created_at, id
 FOR UPDATE;
+
+-- name: LockChapterNumberJobs :many
+-- "Làm trước" targets one chapter by the numbers the UI knows. Lock every tts
+-- row of that chapter so a concurrent enqueue cannot swap the active row
+-- between the state check and the priority write.
+SELECT * FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
+  AND input->>'volume' = sqlc.arg(volume)::text
+  AND input->>'chapter' = sqlc.arg(chapter)::text
+ORDER BY created_at, id
+FOR UPDATE;
+
+-- name: MaxStoryQueuePriority :one
+-- Highest priority already used by this story (including finished rows), so a
+-- new "Làm trước" always sorts ahead of every earlier one. Priority writes are
+-- serialized by the story advisory lock in PrioritizeChapter.
+SELECT COALESCE(MAX(queue_priority), 0)::int
+FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts';
+
+-- name: SetJobQueuePriority :one
+-- Only the queue position moves: state, worker/lease/fence and created_at stay
+-- untouched, so a running render's ownership and the audit timeline survive.
+UPDATE jobs
+SET queue_priority = sqlc.arg(queue_priority)::int,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND id = $2 AND state = 'queued'
+RETURNING *;
 
 -- name: LockJob :one
 SELECT * FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE;
@@ -127,7 +156,7 @@ WITH candidate AS (
       AND (j.state = 'queued' OR j.lease_until IS NULL OR j.lease_until < now())
       AND (j.input->>'needsScript') IS DISTINCT FROM 'true'
       AND ($2::uuid IS NULL OR j.project_id = $2::uuid)
-    ORDER BY j.created_at, j.id
+    ORDER BY j.queue_priority DESC, j.created_at, j.id
     LIMIT 1
     FOR UPDATE SKIP LOCKED
 )
@@ -240,7 +269,7 @@ WITH candidate AS (
       AND j.state IN ('queued', 'running')
       AND (j.lease_until IS NULL OR j.lease_until <= now())
       AND COALESCE(j.input->>'needsScript', 'false') = 'true'
-    ORDER BY j.created_at, j.id
+    ORDER BY j.queue_priority DESC, j.created_at, j.id
     LIMIT 1
     FOR UPDATE SKIP LOCKED
 )

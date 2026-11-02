@@ -139,6 +139,11 @@ func (g *Gateway) serveTTS(w http.ResponseWriter, r *http.Request, user identity
 		g.ttsInstallEvents(w, r)
 	case path == "/api/tts/voices" && get:
 		g.ttsVoices(w, r)
+	case strings.HasPrefix(path, "/api/tts/voices/") && strings.HasSuffix(path, "/sample") && get:
+		// Đường nghe thử dạng URL: thẻ audio gắn src ngay trong cử chỉ chạm rồi
+		// tự phát khi máy đọc trả WAV — Safari không chặn, không cần fetch blob.
+		id := strings.TrimSuffix(strings.TrimPrefix(path, "/api/tts/voices/"), "/sample")
+		g.ttsVoiceSample(w, r, id)
 	case path == "/api/tts/preview" && post:
 		g.ttsPreview(w, r)
 	case strings.HasPrefix(path, "/api/tts"):
@@ -453,7 +458,8 @@ type ttsPreviewRequest struct {
 
 // ttsPreview đọc thử một đoạn và trả thẳng audio/wav.
 func (g *Gateway) ttsPreview(w http.ResponseWriter, r *http.Request) {
-	if g.pgAudio != nil {
+	hosted := g.pgAudio != nil
+	if hosted {
 		// Bản máy chủ chỉ nghe thử được khi máy đọc báo nhận việc này
 		// (`capabilities.preview`); không thì UI ẩn nút và endpoint nói thẳng
 		// thay vì treo một lời gọi không bao giờ xong (10-audio.md §8.4 #6).
@@ -470,6 +476,11 @@ func (g *Gateway) ttsPreview(w http.ResponseWriter, r *http.Request) {
 	text := strings.TrimSpace(req.Text)
 	if text == "" {
 		jsonError(w, 400, "Chưa có chữ để đọc")
+		return
+	}
+	if hosted {
+		// Không có bộ đọc cục bộ trong container: đi qua kênh pull của máy đọc.
+		g.hostedVoicePreview(w, r, req, text)
 		return
 	}
 	if len([]rune(text)) > 20000 {
@@ -491,11 +502,114 @@ func (g *Gateway) ttsPreview(w http.ResponseWriter, r *http.Request) {
 		ttsEngineError(w, err)
 		return
 	}
+	writePreviewWAV(w, audio.WAV, audio.SampleRate)
+}
+
+// previewSampleText là câu cố định của đường nghe thử dạng URL. Client không
+// gửi chữ: thẻ audio chỉ cần một src, và câu mẫu phải ngắn để máy đọc trả lời
+// trong vài giây.
+const previewSampleText = "Xin chào, tôi là giọng đọc của bạn trong truyện này."
+
+// ttsVoiceSample đọc một câu mẫu của một giọng và trả audio/wav. Đây là đường
+// dùng làm src cho thẻ audio: gắn URL ngay trong cử chỉ chạm rồi để trình duyệt
+// tự tải và phát — iOS cho phép, và không phải chờ fetch blob như POST.
+func (g *Gateway) ttsVoiceSample(w http.ResponseWriter, r *http.Request, id string) {
+	id = strings.TrimSpace(id)
+	if id == "" || strings.Contains(id, "/") {
+		jsonError(w, http.StatusNotFound, "không tìm thấy")
+		return
+	}
+	if g.pgAudio != nil {
+		if !g.hostedPreviewSupported(r.Context()) {
+			jsonError(w, http.StatusServiceUnavailable, "Máy đọc chưa hỗ trợ nghe thử")
+			return
+		}
+		if !g.previewVoiceKnown(r.Context(), id) {
+			jsonError(w, http.StatusNotFound, "Giọng này không có trên máy đọc")
+			return
+		}
+		g.hostedVoicePreview(w, r, ttsPreviewRequest{VoiceID: id}, previewSampleText)
+		return
+	}
+	svc := ttsService()
+	ctx, cancel := context.WithTimeout(r.Context(), 9*time.Minute)
+	defer cancel()
+	sample, err := svc.Preview(ctx, voice.SynthRequest{Text: previewSampleText, VoiceID: id})
+	if err != nil {
+		ttsEngineError(w, err)
+		return
+	}
+	writePreviewWAV(w, sample.WAV, sample.SampleRate)
+}
+
+// previewVoiceKnown cho biết id có nằm trong danh mục thật của máy đọc không.
+// Chỉ preset có thật mới được đưa sang máy Mac; giọng mẫu của dự án đi qua
+// đường tệp mẫu của chính dự án đó.
+func (g *Gateway) previewVoiceKnown(ctx context.Context, id string) bool {
+	for _, v := range g.remoteVoices(ctx) {
+		if v.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// writePreviewWAV ghi một lượt nghe thử: WAV, không cache, kèm tần số mẫu.
+func writePreviewWAV(w http.ResponseWriter, wav []byte, sampleRate int) {
 	w.Header().Set("Content-Type", "audio/wav")
-	w.Header().Set("Content-Length", fmt.Sprint(len(audio.WAV)))
+	w.Header().Set("Content-Length", fmt.Sprint(len(wav)))
 	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("X-Sample-Rate", fmt.Sprint(audio.SampleRate))
-	_, _ = w.Write(audio.WAV)
+	w.Header().Set("X-Sample-Rate", fmt.Sprint(sampleRate))
+	_, _ = w.Write(wav)
+}
+
+// hostedVoicePreview đưa một câu nghe thử qua máy đọc pull và chờ tệp WAV.
+// Đây là đường DUY NHẤT nghe thử ở bản máy chủ: container không có bộ đọc, nên
+// gọi svc.Preview ở đây chỉ trả ErrNotInstalled (10-audio.md §8.4 #6).
+func (g *Gateway) hostedVoicePreview(w http.ResponseWriter, r *http.Request, req ttsPreviewRequest, text string) {
+	if len([]rune(text)) > previewTextMaxRunes {
+		jsonError(w, 400, fmt.Sprintf("Đoạn nghe thử quá dài (tối đa %d ký tự)", previewTextMaxRunes))
+		return
+	}
+	voiceID := strings.TrimSpace(req.VoiceID)
+	if len([]rune(voiceID)) > previewVoiceMaxRunes {
+		jsonError(w, 400, "Giọng đọc không hợp lệ")
+		return
+	}
+	if voiceID != "" && !g.previewVoiceKnown(r.Context(), voiceID) {
+		// Chỉ preset có thật trên máy đọc mới đi tiếp; giọng mẫu của dự án phát
+		// bằng tệp mẫu của dự án, không qua máy Mac.
+		jsonError(w, http.StatusBadRequest, "Giọng này không có trên máy đọc")
+		return
+	}
+	tone := strings.TrimSpace(req.Tone)
+	if len([]rune(tone)) > previewToneMaxRunes {
+		jsonError(w, 400, "Sắc thái quá dài")
+		return
+	}
+	ticket, err := hostedPreviews.enqueue(voice.SynthRequest{
+		Text: text, VoiceID: voiceID, Tone: tone,
+		Quality: req.Quality, Speed: req.Speed,
+	}.Normalized())
+	if err != nil {
+		jsonError(w, http.StatusServiceUnavailable, "Đang có nhiều lượt nghe thử khác — thử lại sau ít giây.")
+		return
+	}
+	wav, sampleRate, err := hostedPreviews.wait(r.Context(), ticket.id)
+	if err != nil {
+		switch {
+		case errors.Is(err, context.Canceled):
+			jsonError(w, 499, "Đã huỷ")
+		case errors.Is(err, errPreviewTimeout):
+			jsonError(w, http.StatusServiceUnavailable, "Máy đọc chưa trả lời kịp. Thử lại sau ít giây.")
+		case errors.Is(err, errPreviewFailed):
+			jsonError(w, http.StatusBadGateway, "Máy đọc không đọc được đoạn này. Thử lại hoặc chọn giọng khác.")
+		default:
+			jsonError(w, http.StatusServiceUnavailable, "Lượt nghe thử đã hết hạn. Thử lại.")
+		}
+		return
+	}
+	writePreviewWAV(w, wav, sampleRate)
 }
 
 // ttsEngineError map lỗi engine sang HTTP kèm câu tiếng Việt cho UI.
