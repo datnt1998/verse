@@ -29,6 +29,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!streamUser) return
     return startDataEvents(streamUser)
   }, [streamUser])
+  // A role/project-grant change delivered while the stream was down is not
+  // replayed on reconnect, and cache invalidation alone cannot refresh the
+  // session's own role/projects. Re-read /api/me after every reconnect so
+  // permission filters do not keep running on the identity from before the drop.
+  useEffect(() => {
+    if (!streamUser) return
+    return events.onReconnect(() => { void refresh() })
+  }, [streamUser, refresh])
   useEffect(() => events.subscribe(['account.changed', 'session.revoked'], (payload, meta) => {
     if (accountTransition.isActive()) return
     const data = payload as { username?: string; session?: string } | null

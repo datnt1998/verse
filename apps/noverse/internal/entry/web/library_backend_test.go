@@ -191,6 +191,34 @@ func callProjects(g *Gateway, user identity.User, method, path, body string) *ht
 // only defense is the repository's in-transaction membership check.
 func TestLibraryBackendIDOROverHTTP(t *testing.T) {
 	f := provisionHostedGateway(t, "du-an-a", "truyen-http")
+	// A project with no project_members row: only the admin bypass may expose
+	// it, while members must keep their explicit-membership scope.
+	unowned, err := gen.New(f.pool.Pool()).InsertProject(context.Background(), gen.InsertProjectParams{
+		ID: deterministicLibraryUUID("du-an-khong-thanh-vien"), Slug: "du-an-khong-thanh-vien", Name: "Dự án chưa cấp quyền",
+	})
+	if err != nil {
+		t.Fatalf("insert unowned project: %v", err)
+	}
+
+	t.Run("admin_sees_every_active_project", func(t *testing.T) {
+		w := callLibrary(f.g, f.admin)
+		if w.Code != http.StatusOK {
+			t.Fatalf("admin list: %d %s", w.Code, w.Body.String())
+		}
+		projects, _ := decodeBody(t, w)["projects"].([]any)
+		seen := make(map[string]bool, len(projects))
+		for _, project := range projects {
+			if id, ok := project.(map[string]any)["id"].(string); ok {
+				seen[id] = true
+			}
+		}
+		if !seen[f.project] || !seen[unowned.Slug] {
+			t.Fatalf("admin must see member and unowned projects, got %v", seen)
+		}
+		if w := callProjects(f.g, f.admin, http.MethodGet, "/api/projects/"+unowned.Slug, ""); w.Code != http.StatusOK {
+			t.Fatalf("admin detail on unowned project: %d %s", w.Code, w.Body.String())
+		}
+	})
 
 	t.Run("member_reads", func(t *testing.T) {
 		w := callLibrary(f.g, f.owner)
@@ -204,6 +232,9 @@ func TestLibraryBackendIDOROverHTTP(t *testing.T) {
 		}
 		if projects[0].(map[string]any)["id"] != f.project {
 			t.Fatalf("project id: %v", projects[0])
+		}
+		if w := callProjects(f.g, f.owner, http.MethodGet, "/api/projects/"+unowned.Slug, ""); w.Code != http.StatusNotFound {
+			t.Fatalf("member must not open unowned project: %d %s", w.Code, w.Body.String())
 		}
 
 		w = callProjects(f.g, f.owner, http.MethodGet, "/api/projects/"+f.project, "")
