@@ -30,6 +30,7 @@
 //	00020 known-device tokens for the login limiter                      ← verse SSO
 //	00021 worker provision state + operator command channel              ← TTS autosetup
 //	00022 durable audio queue priority
+//	00023 atomic audio segment reordering
 //
 // Applied migration numbers are never renamed or edited. New work appends the
 // next free number; postgres.RequiredMigrations derives the required set from
