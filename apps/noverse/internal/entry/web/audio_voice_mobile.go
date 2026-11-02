@@ -12,8 +12,13 @@ import (
 	"github.com/datnt1998/verse/platform/identity"
 )
 
-func projectVoiceSamples(voices []audio.ProjectVoice, base string) {
+func (g *Gateway) projectVoiceSamples(voices []audio.ProjectVoice, base string) {
 	for i := range voices {
+		if g.pgAudio != nil && voices[i].BuiltIn {
+			// Remote presets have no project sample blob or hosted preview.
+			voices[i].SampleURL = ""
+			continue
+		}
 		voices[i].SampleURL = base + "/" + url.PathEscape(voices[i].ID) + "/sample"
 	}
 }
@@ -51,7 +56,7 @@ func (g *Gateway) serveStoryVoices(w http.ResponseWriter, r *http.Request, user 
 			audioError(w, err)
 			return true
 		}
-		projectVoiceSamples(voices, "/api/projects/"+url.PathEscape(st.Project)+"/voices")
+		g.projectVoiceSamples(voices, "/api/projects/"+url.PathEscape(st.Project)+"/voices")
 		writeJSON(w, http.StatusOK, voices)
 	case http.MethodPost:
 		// Both URLs address project voices. Reuse the project handler so hosted

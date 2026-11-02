@@ -25,14 +25,14 @@ type pgCastConfig struct {
 	Single              SingleCast `json:"single"`
 }
 
-// pgSpeakerPayload is the non-voice part of a speaker row.
+// pgSpeakerPayload stores speaker metadata and the opaque engine preset id.
 type pgSpeakerPayload struct {
 	Name string `json:"name"`
 	Ini  string `json:"ini,omitempty"`
 	Role string `json:"role"`
 	Kind string `json:"kind,omitempty"`
-	// VoiceID is the file-backend voice string (audio_voices.legacy_id); the
-	// row's voice_id column is the resolved FK and stays authoritative.
+	// Engine presets have no project voice row, so their id lives here.
+	// For uploaded voices the row's resolved voice_id FK stays authoritative.
 	VoiceID *string `json:"voiceId,omitempty"`
 	SameAs  string  `json:"sameAs,omitempty"`
 }
@@ -84,7 +84,7 @@ func castFromRows(rows []postgres.CastRole, voices []postgres.Voice) (*Cast, int
 		if err := json.Unmarshal(row.Payload, &sp); err != nil {
 			return nil, 0, fmt.Errorf("audio cast %q hỏng: %w", row.RoleKey, err)
 		}
-		speaker := Speaker{ID: row.RoleKey, Name: sp.Name, Ini: sp.Ini, Role: sp.Role, Kind: sp.Kind, SameAs: sp.SameAs}
+		speaker := Speaker{ID: row.RoleKey, Name: sp.Name, Ini: sp.Ini, Role: sp.Role, Kind: sp.Kind, SameAs: sp.SameAs, VoiceID: sp.VoiceID}
 		if row.VoiceID.Valid {
 			legacy := legacyByID[postgres.UUIDString(row.VoiceID)]
 			speaker.VoiceID = &legacy

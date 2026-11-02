@@ -33,6 +33,7 @@ type Service                                  // hàng đợi duy nhất mỗi e
 - CLI: `ainovel-cli voice install | status | voices | say "<chữ>" [--voice] [-o file.wav]`.
 - API: `GET /api/tts/status` · `GET /api/tts/engines` · `POST /api/tts/install` (job, tiến độ qua SSE `tts.install`) · `GET /api/tts/voices` · `POST /api/tts/preview {voiceId, text, tone?}` → `audio/wav`.
 - **Hosted không có engine cục bộ:** worker TTS công bố danh mục thật (`voice.Voice`) trong `state.voices` của heartbeat/state (`voice.ProvisionState`). Máy chủ đọc trạng thái worker đã lưu, lọc `source=builtin`, rồi gộp vào `GET /api/projects/:p/voices` (sau giọng dự án, khử trùng theo `id`), `GET /api/tts/voices` và `PGService.Voices` để phân vai/ResolveVoice thấy cùng một danh mục. Worker offline/thu hồi hoặc chưa báo cáo ⇒ không có giọng có sẵn, không bịa danh mục; worker chỉ lấy lại danh mục khi sẵn sàng và cache 5 phút.
+- Phân vai hosted lưu `voiceId` preset nguyên văn trong payload khi không có hàng `audio_voices`; đọc lại không làm mất lựa chọn. Giọng mẫu dự án vẫn lấy danh tính từ khoá ngoại `voice_id`. Hai endpoint danh mục (cấp dự án và cấp truyện) không tạo `sampleUrl` giả cho preset remote chưa có tuyến nghe thử.
 
 ## 2. Audio truyện — `internal/audio`
 

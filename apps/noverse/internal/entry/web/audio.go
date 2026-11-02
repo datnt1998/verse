@@ -1102,7 +1102,7 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 				audioError(w, err)
 				return
 			}
-			projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
+			g.projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
 			writeJSON(w, http.StatusOK, list)
 			return
 		}
@@ -1124,30 +1124,12 @@ func (g *Gateway) serveProjectVoices(w http.ResponseWriter, r *http.Request, use
 		if files.projectID.Valid {
 			// Hosted has no local engine: the worker's published presets are the
 			// "giọng có sẵn" group. Project samples loaded above shadow by id.
-			projectIDs := make(map[string]bool, len(list))
-			for _, v := range list {
-				projectIDs[v.ID] = true
-			}
-			remote := g.remoteVoices(r.Context())
-			list = audio.MergeVoices(list, remote)
-			projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
-			// A remote preset has no project sample blob and the hosted preview
-			// route is local-engine-only; an empty sampleUrl tells the picker to
-			// skip preview instead of calling an endpoint that would 404. A
-			// project voice with the same id keeps its real sample.
-			remoteIDs := make(map[string]bool, len(remote))
-			for _, v := range remote {
-				remoteIDs[v.ID] = true
-			}
-			for i := range list {
-				if remoteIDs[list[i].ID] && !projectIDs[list[i].ID] {
-					list[i].SampleURL = ""
-				}
-			}
+			list = audio.MergeVoices(list, g.remoteVoices(r.Context()))
+			g.projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
 			writeJSON(w, http.StatusOK, list)
 			return
 		}
-		projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
+		g.projectVoiceSamples(list, "/api/projects/"+url.PathEscape(p)+"/voices")
 		writeJSON(w, http.StatusOK, list)
 	case http.MethodPost:
 		if !user.CanCollaborateProject(p) {
