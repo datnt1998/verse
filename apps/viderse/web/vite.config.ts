@@ -1,7 +1,6 @@
-// Viderse web — dev/test đọc thẳng source gói @noverse/ui (kit dùng chung
-// platform/ui): StyleX biên dịch stylex.create/defineVars lúc build, gộp vào
-// CSS chính. Mỗi màn hình lazy vào chunk riêng; scripts/size.mjs đo JS tải
-// lần đầu từ manifest.
+// Dev/test use the shared kit's source and stock StyleX HMR. Production emits
+// canonical critical/full StyleX sheets; noncritical routes await the full sheet.
+// scripts/size.mjs reads the cold entry closure from Vite's manifest.
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
@@ -9,6 +8,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 import stylex from '@stylexjs/unplugin'
+import { mobileRouteChunks } from './scripts/mobile-route-chunks'
+import { stylexRouteCSS } from './scripts/stylex-route-css'
 
 // Kit dùng chung nằm ở platform/ui (npm workspace ở gốc repo).
 const uiPkg = (rel: string) => fileURLToPath(new URL(`../../../platform/ui/src/${rel}`, import.meta.url))
@@ -18,20 +19,21 @@ const editorPath = (rel: string) => fileURLToPath(new URL(`./src/editor/${rel}`,
 const appLibPath = (rel: string) => fileURLToPath(new URL(`./src/lib/${rel}`, import.meta.url))
 // StyleX's own resolver can't see vite aliases — map the package to source.
 // Vitest không có httpServer nên bỏ configureServer để vòng hẹn giờ HMR không kẹt.
-function stylexPlugin(): Plugin {
-  const plugin: Plugin = stylex.vite({
-    useCSSLayers: true,
+function stylexPlugins(): Plugin[] {
+  const options = {
     aliases: {
       '@noverse/ui/tokens.stylex': [uiPkg('tokens.stylex.js')],
       '@noverse/ui/*': [uiPkg('*')],
     },
     unstable_moduleResolution: {
-      type: 'commonJS',
+      type: 'commonJS' as const,
       rootDir: fileURLToPath(new URL('.', import.meta.url)),
     },
-  })
+  }
+  const plugin: Plugin = stylex.vite({ ...options, useCSSLayers: true })
+  plugin.apply = 'serve'
   if (process.env.VITEST) delete plugin.configureServer
-  return plugin
+  return [plugin, stylexRouteCSS(options, fileURLToPath(new URL('./src/screens/workbench/mobile/MobileWorkbench.tsx', import.meta.url)))]
 }
 
 /** Preserve module provenance alongside Vite's manifest for the cold-route
@@ -74,8 +76,8 @@ export default defineConfig({
     ],
     dedupe: ['react', 'react-dom'],
   },
-  // Tailwind chỉ dùng preflight + @source (styles/base.css); StyleX nằm trên nó.
-  plugins: [stylexPlugin(), react(), tailwindcss(), editorBudgetManifest()],
+  // Preflight stays global; NLE utilities are imported by the lazy editor.
+  plugins: [...stylexPlugins(), react(), tailwindcss(), editorBudgetManifest(), mobileRouteChunks()],
   worker: { format: 'es' },
   server: {
     port: 5181,
@@ -88,5 +90,8 @@ export default defineConfig({
     outDir: '../internal/web/dist',
     emptyOutDir: true,
     manifest: true,
+    // Inline only masks painted by the cold phone shell and workbench.
+    // The eager icon catalogue must not pull every route's SVG into the entry.
+    assetsInlineLimit: (path) => /\/platform\/ui\/src\/icons\/(?:activity|add|channel|radar|gallery|workbench-b|arrow-d|arrow-r|info|pause)\.svg$/.test(path) ? true : undefined,
   },
 })
