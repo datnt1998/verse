@@ -51,12 +51,12 @@ Mọi binary nằm dưới `~/.viderse/bin` (thư mục dữ liệu `~/.viderse`
 | Công cụ | Bản | Nguồn / giấy phép | Dùng cho |
 | --- | --- | --- | --- |
 | `ffmpeg` + `ffprobe` | 6.0 (ffmpeg-static `b6.1.1`) | GitHub `eugeneware/ffmpeg-static`, GPL-2.0-or-later (bản build `--enable-gpl --enable-nonfree`) | dựng video, tách tiếng, lớp phủ, xuất MP4 |
-| Chrome for Testing | 155.0.8059.79 | Google Chrome for Testing, theo Google Chrome Terms; không tự cập nhật | đăng nhập YouTube/Bilibili bằng hồ sơ trình duyệt |
+| Chrome for Testing | 155.0.8059.79 | Google Chrome for Testing, theo Google Chrome Terms; không tự cập nhật | xuất video, đo âm thanh; hồ sơ đăng nhập YouTube/Bilibili |
 | `uv` | 0.13.0 | Astral, Apache-2.0 OR MIT | dựng môi trường Python cho bước chép lời (`scripts/clone-transcribe.py`, `internal/tools/transcript-requirements.txt`) |
 | `codex` (codex-cli) | 0.162.1 | OpenAI, Apache-2.0 | gọi model chữ/ảnh qua gói ChatGPT |
 | `yt-dlp` | bản mới nhất | release `yt-dlp/yt-dlp`, ngoài manifest ghim | tải video/phụ đề |
 
-`ffmpeg`, Chrome, `uv`, `codex` ghim phiên bản + SHA-256 trong `internal/tools/manifest.go`; `yt-dlp` tự cập nhật nên Cài đặt › Công cụ hiện “Có bản mới” và nút Cập nhật. ffmpeg chọn theo thứ tự: đường dẫn người dùng đã chọn → binary hệ thống → bản app tự quản; mọi trạng thái đều kiểm bằng cách chạy binary (phiên bản, arch, filter/encoder cần). Chrome giữ thứ tự đó ở bản desktop; bản chạy trên máy chủ (`PUBLIC_URL`) bỏ hẳn bước binary hệ thống — chỉ đường dẫn người dùng chọn → bản app quản — vì tiến trình phục vụ người khác không được mở Chrome cá nhân của chủ máy (Chrome tự cập nhật đụng bundle của nó, macOS hỏi chủ máy cấp quyền quản lý ứng dụng); thiếu bản app quản thì hàng Chrome báo “Chưa cài” và app tự cài Chrome for Testing.
+`ffmpeg`, Chrome, `uv`, `codex` ghim phiên bản + SHA-256 trong `internal/tools/manifest.go`; `yt-dlp` tự cập nhật nên Cài đặt › Công cụ hiện “Có bản mới” và nút Cập nhật. ffmpeg chọn theo thứ tự: đường dẫn người dùng đã chọn → binary hệ thống → bản app tự quản; mọi trạng thái đều kiểm bằng cách chạy binary (phiên bản, arch, filter/encoder cần). Hàng Chrome trong Cài đặt kiểm đúng Chrome for Testing app quản mà bộ xuất video và đo âm thanh sử dụng, gồm khả năng mã hoá. Chrome cá nhân chạy được không làm hàng này báo sẵn sàng; thiếu hoặc hỏng bản app quản thì cài lại bản ghim. Luồng chọn trình duyệt đăng nhập giữ cơ chế riêng; bản máy chủ (`PUBLIC_URL`) không mở Chrome cá nhân của chủ máy.
 
 ## Thư mục dự án
 
@@ -228,7 +228,7 @@ lan sang chỗ khác.
   kiểu wire tách khỏi kiểu domain.
 - `web/src`: `api/` (client có kiểu), `data/` (hook dữ liệu, bảng sự kiện →
   khoá cache), `screens/<route>/` (mỗi route một chunk lazy), `components/`,
-  `shell/`, `i18n/vi.ts` (mọi câu chữ), `styles/`. Thành phần dùng chung nằm
+  `shell/`, `i18n/` (câu chữ theo từng mảng), `lib/progress-copy.ts` (nhật ký), `styles/`. Thành phần dùng chung nằm
   trong kit `@noverse/ui`; app không viết lại thứ kit đã có.
 
 ## Phát triển web
@@ -242,8 +242,35 @@ npm run dev -w apps/viderse/web          # vite dev server, proxy /api → 127.0
 npm run typecheck -w apps/viderse/web
 npm test -w apps/viderse/web
 npm run build -w apps/viderse/web        # build ra internal/web/dist (được //go:embed vào binary)
-npm run size -w apps/viderse/web         # kích thước gzip JS tải lần đầu, lỗi khi vượt 150 kB
+npm run size -w apps/viderse/web         # gate entry JS, cold mobile JS và CSS, kể cả CSS inline
 ```
+
+Ngân sách và đồ thị tải thực thuộc [`web/scripts/size.mjs`](web/scripts/size.mjs).
+Phân phối StyleX production thuộc [`stylex-route-css.ts`](web/scripts/stylex-route-css.ts):
+giữ một lần sắp cascade chuẩn rồi mới chọn CSS màn đầu; các màn khác chờ stylesheet
+chuẩn đầy đủ ở cùng vị trí cascade. Không xử lý từng tập rule riêng vì có thể đổi
+thứ tự layer. Tailwind utilities của editor nạp trễ nhưng thứ tự layer phải được
+khai báo từ đầu. Dev vẫn dùng plugin StyleX tiêu chuẩn.
+Danh sách cold entry do plugin phát ra ở `.vite/cold-entries.json`; gate vẫn tính
+renderer React dù renderer được import bất đồng bộ, không giấu byte sang chunk lazy.
+
+Đồ thị mobile được gộp bằng [`mobile-route-chunks.ts`](web/scripts/mobile-route-chunks.ts):
+màn Bàn dựng điện thoại, mã dùng riêng giữa danh sách/chi tiết và control dùng
+chung với các route khác được tách riêng. Desktop/editor không kéo theo mã màn
+điện thoại khi dùng một control; gate kiểm cả hai ranh giới này.
+
+Mobile chỉ tải dữ liệu màn đang mở; không gọi API của những tab chưa ghé ngay
+trong lượt tải đầu. Pane đã mở giữ state, vị trí cuộn và cache còn hạn, nên quay
+lại không dựng màn hay hỏi dữ liệu lại. Bản tin nhỏ dùng CSS đã có ở màn đầu;
+chi tiết video vẫn nạp trễ và chờ CSS đầy đủ trước khi vẽ.
+Khám phá điện thoại dùng [`MobileVideoList`](web/src/screens/explore/mobile/MobileVideoList.tsx)
+để đo chiều cao thẻ và giới hạn DOM theo khung nhìn trên chính vùng cuộn của pane.
+Nạp thêm bằng cursor, giữ lựa chọn theo mã video kể cả khi thẻ đã ra khỏi DOM.
+
+Bản xem thử template dùng [player của engine](web/src/editor/ui/preview-player/preview-player.tsx)
+với phiên nạp chỉ đọc: chuẩn hoá timeline trong bộ nhớ, không lưu lại hay tăng
+revision của project khi chỉ xem. Mở cùng project trong Biên tập vẫn chạy và lưu
+các sửa chữa/nâng cấp theo luồng editor thông thường.
 
 Các màn Cài đặt dùng StyleX (`web/src/screens/settings/settings.stylex.ts`),
 không nạp stylesheet CSS riêng. Trị số artboard chưa có token chung nằm trong

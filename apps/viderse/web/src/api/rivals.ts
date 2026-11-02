@@ -37,6 +37,29 @@ export type RivalList = { rivals: Rival[]; totalVideos: number; newOutliers: num
 
 export type VideoSort = 'outlier' | 'newest' | 'views'
 
+/** Nhóm trạng thái thật của một video đã làm cho kênh của bạn. */
+export type UsageStage = 'queued' | 'working' | 'review' | 'attention' | 'paused' | 'ready' | 'posted'
+
+/** Một kênh của bạn đã làm/đang làm video này — đọc từ job + hàng chờ thật. */
+export type VideoUsage = {
+  channelId: string
+  channelName: string
+  stage: UsageStage
+  /** bước đang chạy khi stage = working (vd "images") */
+  activeStep?: string
+  jobId: string | null
+  queueItemId: string | null
+  updatedAt: string
+}
+
+/** Lý do Tự lấy không lấy video — chỉ có khi giờ đăng chính xác trước mốc bật. */
+export type PickNote = {
+  channelId: string
+  channelName: string
+  baselineAt: string
+  publishedAt: string
+}
+
 export type Video = {
   id: string
   channelId: string
@@ -53,6 +76,10 @@ export type Video = {
   hasCaptions: boolean | null
   thumbnailUrl: string
   url: string
+  /** kênh của bạn đã làm/đang làm video này (rỗng = chưa làm cho kênh nào) */
+  usage?: VideoUsage[]
+  /** dòng giải thích Tự lấy, chỉ khi dữ liệu chứng minh */
+  pickNote?: PickNote
 }
 
 export type VideoPage = { videos: Video[]; total: number; nextCursor: string | null }
@@ -66,8 +93,24 @@ export type VideoQuery = {
   q?: string
   cursor?: string | null
   limit?: number
+  /** đã làm/đang làm cho kênh này */
   madeFor?: string
+  /** chưa làm cho kênh này */
   notMadeFor?: string
+  /** đã làm cho ít nhất một kênh của bạn (chip Trạng thái) */
+  made?: 'any'
+  /** chưa làm cho kênh nào (chip Trạng thái) */
+  notMade?: 'any'
+}
+
+/** Chương thật của video gốc — đọc từ source.info.json hoặc một lượt dò có giới hạn. */
+export type VideoChapter = { startSec: number; title: string }
+
+export type VideoPreview = {
+  videoId: string
+  source: 'download' | 'youtube'
+  state: 'ready' | 'empty'
+  chapters: VideoChapter[]
 }
 
 export type HistoryState = 'idle' | 'queued' | 'running' | 'backoff' | 'paused' | 'capped' | 'complete' | 'cancelled' | 'error'
@@ -175,9 +218,15 @@ export function listRivalVideos(id: string, query: VideoQuery = {}, signal?: Abo
   if (query.limit) params.set('limit', String(query.limit))
   if (query.madeFor) params.set('madeFor', query.madeFor)
   if (query.notMadeFor) params.set('notMadeFor', query.notMadeFor)
+  if (query.made) params.set('made', query.made)
+  if (query.notMade) params.set('notMade', query.notMade)
   const s = params.toString()
   return request<VideoPage>(`/api/rivals/${encodeURIComponent(id)}/videos${s ? `?${s}` : ''}`, { signal })
 }
+
+/** Chương thật của video gốc — chỉ gọi khi mở xem trước, không quét theo thẻ. */
+export const getRivalPreview = (id: string, videoId: string, signal?: AbortSignal) =>
+  request<VideoPreview>(`/api/rivals/${encodeURIComponent(id)}/videos/${encodeURIComponent(videoId)}/preview`, { signal })
 
 export const getRivalScan = (id: string, signal?: AbortSignal) =>
   request<ScanStatus>(`/api/rivals/${encodeURIComponent(id)}/scan`, { signal })

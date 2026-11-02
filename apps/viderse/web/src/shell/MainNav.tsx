@@ -27,6 +27,7 @@ const sx = stylex.create({
   item: {
     position: 'relative',
     display: 'inline-flex',
+    flex: '0 0 auto',
     alignItems: 'center',
     height: 30,
     borderRadius: 'var(--vv-r-7)',
@@ -43,6 +44,8 @@ const sx = stylex.create({
     backgroundColor: color['--color-surface-6'],
   },
   review: { paddingRight: 'var(--vv-s-10)' },
+  /** 04-components › MainNav: icon của tab đang chọn dùng màu nhấn (đỏ), không theo màu chữ. */
+  iconActive: { color: color['--color-accent'] },
   /** `.vv-badge` của kit (#14): chữ vàng --vv-st-review trên nền vàng nhạt 16%. */
   badge: {
     minWidth: 18,
@@ -90,7 +93,7 @@ export function MainNav({ route, reviewCount, channelHref, onNavigate }: {
             onClick={onNavigate ? (e) => onNavigate(path, e) : undefined}
             {...stylex.props(sx.item, item.badge === 'review' && sx.review, active && sx.itemActive)}
           >
-            <Icon name={item.icon} size={16} />
+            <Icon name={item.icon} size={16} xstyle={active ? sx.iconActive : undefined} />
             {item.label}
             {item.badge === 'review' && reviewCount > 0 && (
               <span className={`vv-nav__badge num ${stylex.props(sx.badge).className}`} aria-label={`${reviewCount}`}>

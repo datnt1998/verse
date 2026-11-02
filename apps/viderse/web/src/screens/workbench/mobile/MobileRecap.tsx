@@ -1,9 +1,9 @@
 // Bản tin toàn màn hình của điện thoại (artboard MMain › screen=recap): trang
 // điện thoại riêng (thanh tab ẩn), dữ liệu /api/recap thật + đề xuất thật, và
 // ô nhắn trợ lý mở sheet Kế hoạch.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Sheet } from '@noverse/ui'
+import { Button, Icon, Sheet } from '@noverse/ui'
 import type { RecapData } from '../../../api/workbench'
 import type { ChannelSummary } from '../../../api/workbenchChannels'
 import { SuggestionCard } from '../../../components/suggestions/SuggestionCard'
@@ -13,12 +13,12 @@ import { screenWorkbench } from '../../../i18n/screens'
 import { navigate, paths } from '../../../router'
 import { recapLead } from '../recap/recap-logic'
 import { recapWindow } from './mworkbench-logic'
-import { mw } from './mworkbench.stylex'
+import { mw, mwDetail as d } from './mworkbench.stylex'
 
 const c = screenWorkbench.mobile
 const r = c.recap
 
-export function MobileRecap({ data, loading, error, channels, onRetry, onClose, onSelectJob, onPlan }: {
+export function MobileRecap({ data, loading, error, channels, onRetry, onClose, onSelectJob, onPlan, planOpen }: {
   data: RecapData | undefined
   loading: boolean
   error: unknown
@@ -27,23 +27,38 @@ export function MobileRecap({ data, loading, error, channels, onRetry, onClose, 
   onClose: () => void
   onSelectJob: (id: string) => void
   onPlan: (text: string) => void
+  planOpen: boolean
 }) {
   const suggestions = useSuggestions('all')
   const [draft, setDraft] = useState('')
+  const draftInput = useRef<HTMLInputElement>(null)
+  const sendLock = useRef(false)
+  const wasPlanOpen = useRef(planOpen)
   const ready = channels.reduce((sum, channel) => sum + channel.ready, 0)
   const waiting = channels.reduce((sum, channel) => sum + channel.waitingYou, 0)
   const review = data?.needsYou?.filter((item) => item.state === 'review').length ?? 0
+  const send = () => {
+    const text = draft.trim()
+    if (!text || planOpen || sendLock.current) return
+    sendLock.current = true
+    onPlan(text)
+  }
+  useEffect(() => {
+    if (!planOpen) sendLock.current = false
+    if (wasPlanOpen.current && !planOpen) draftInput.current?.focus()
+    wasPlanOpen.current = planOpen
+  }, [planOpen])
 
   return <Sheet open onClose={onClose} label={c.recapTitle}
     size="md" height="100dvh" grab={false} homeIndicator xstyle={mw.recapSheet}>
   <div {...stylex.props(mw.recapRoot)}>
-    <header {...stylex.props(mw.recapHeader)}>
-      <h2 {...stylex.props(mw.recapHeading)}>{c.recapTitle}</h2>
-      {data && <p {...stylex.props(mw.recapSubtitle)}>{recapWindow(data.from, data.to)}</p>}
+    <header {...stylex.props(d.header)} style={{ paddingTop: 'var(--m-safe-top)', height: 'auto', minHeight: 52 }}>
+      <button type="button" aria-label={`Quay lại ${c.back}`} onClick={onClose} {...stylex.props(d.headerBtn)}><Icon name="arrow-r" size={20} style={{ transform: 'rotate(180deg)' }} /></button>
+      <span {...stylex.props(d.headerText)}>
+        <span {...stylex.props(mw.recapHeading)}>{c.recapTitle}</span>
+        {data && <span {...stylex.props(mw.recapSubtitle)}>mọi kênh · {recapWindow(data.from, data.to)}</span>}
+      </span>
     </header>
-    <div {...stylex.props(mw.backRow)}>
-      <Button size="sm" variant="quiet" onClick={onClose} aria-label={`Quay lại ${c.back}`}>‹ {c.back}</Button>
-    </div>
 
     <p {...stylex.props(mw.recapLead)}>{recapLead(waiting, ready)}</p>
 
@@ -102,9 +117,12 @@ export function MobileRecap({ data, loading, error, channels, onRetry, onClose, 
       </section>}
     </>}
 
-    <form {...stylex.props(mw.composerSheet)} onSubmit={(event) => { event.preventDefault(); const text = draft.trim(); if (text) onPlan(text) }}>
-      <input {...stylex.props(mw.composerInput)} aria-label={c.composerRecap} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={c.composerRecap} />
-      <Button type="submit" size="lg" variant="primary" disabled={!draft.trim()}>{c.send}</Button>
+    <form {...stylex.props(d.composerBar, d.composerKb)} aria-busy={planOpen || undefined} onSubmit={(event) => { event.preventDefault(); send() }}>
+      <div {...stylex.props(d.composerCard)}>
+        <input ref={draftInput} {...stylex.props(d.composerInput)} aria-label={c.composerRecap} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={c.composerRecap}
+          disabled={planOpen} autoComplete="off" enterKeyHint="send" autoCapitalize="sentences" />
+        <Button type="submit" variant="primary" size="lg" aria-label={c.send} disabled={!draft.trim() || planOpen} aria-busy={planOpen || undefined} xstyle={d.composerSend} icon={<Icon name="arrow-up" size={18} />} />
+      </div>
     </form>
   </div>
   </Sheet>

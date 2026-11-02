@@ -35,8 +35,11 @@ export const keys = {
   /** GET /api/rivals — danh sách đối thủ + tổng video/video mới (cột trái Khám phá). */
   rivals: () => ['rivals'] as const satisfies Key,
   /** GET /api/rivals/:id/videos — trang đầu của lưới theo bộ lọc + chuỗi tìm; trang sau qua cursor. */
-  rivalVideos: (id: string, sort: string, long: number, within: number, q: string) =>
-    ['rivals', id, 'videos', sort, String(long), String(within), q] as const satisfies Key,
+  rivalVideos: (id: string, sort: string, long: number, within: number, q: string, status = '') =>
+    ['rivals', id, 'videos', sort, String(long), String(within), q, status] as const satisfies Key,
+  /** GET /api/rivals/:id/videos?sort=newest&limit=1 — một video mới nhất (bước Xong).
+   *  Khoá riêng vì `rivalVideos` không mã hoá `limit`, dùng chung sẽ đọc nhầm trang 200. */
+  rivalLatestVideo: (id: string) => ['rivals', id, 'videos', 'latest'] as const satisfies Key,
   /** GET /api/rivals/:id/scan — thẻ Quét lịch sử ở cột phải. */
   rivalScan: (id: string) => ['rivals', id, 'scan'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots — thẻ Lịch đăng theo múi giờ. */
@@ -45,6 +48,14 @@ export const keys = {
   templates: () => ['library', 'templates'] as const satisfies Key,
   /** GET /api/templates/:id — trang cài đặt template (kèm recipe + giá). */
   template: (id: string) => ['library', 'templates', id] as const satisfies Key,
+  /** GET /api/templates/:id/preview — trạng thái bản xem thử + video nguồn. */
+  templatePreview: (id: string) => ['library', 'templates', id, 'preview'] as const satisfies Key,
+  /** GET /api/templates/:id/cover-trials — lịch sử vẽ thử ảnh bìa + nguồn. */
+  coverTrials: (id: string) => ['library', 'templates', id, 'cover-trials'] as const satisfies Key,
+  /** GET /api/image-prompts/:id/samples — ảnh mẫu thật + nguồn để vẽ thử. */
+  promptSamples: (id: string) => ['library', 'prompts', id, 'samples'] as const satisfies Key,
+  /** GET /api/image-prompts/:id/samples/scenes?videoId= — cảnh của video nguồn. */
+  promptScenes: (id: string, videoId: string) => ['library', 'prompts', id, 'samples', 'scenes', videoId] as const satisfies Key,
   /** GET /api/image-prompts?kind&q — kho prompt ảnh theo bộ lọc + chuỗi tìm. */
   prompts: (kind: string, q: string) => ['library', 'prompts', kind, q] as const satisfies Key,
   /** GET /api/overlays — thư viện lớp phủ dùng chung. */
@@ -59,6 +70,11 @@ export const keys = {
   channelPerformance: (id: string) => ['channels', 'performance', id] as const satisfies Key,
   /** GET /api/clone?channel=<id> — danh sách video của kênh (Kênh › Video: bảng, bộ lọc, số liệu đầu kênh). */
   channelJobs: (id: string) => ['channels', 'jobs', id] as const satisfies Key,
+  /** GET /api/clone?channel=all — video đang chờ duyệt (màn Duyệt). Sự kiện
+      `clone.job.*` / `queue.updated` làm mới; mở lại tab trong hạn dùng không gọi lại. */
+  reviewJobs: () => ['review', 'jobs'] as const satisfies Key,
+  /** GET /api/clone/:id/images — cùng cache cho ảnh đang xem và video được tải trước. */
+  reviewImages: (id: string) => ['review', 'images', id] as const satisfies Key,
   /** GET /api/youtube/data-key — khoá YouTube Data API (Cài đặt › Kết nối AI). */
   youtubeDataKey: () => ['youtube', 'data-key'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots gộp mọi đối thủ liên kết của kênh theo múi giờ. */

@@ -41,6 +41,7 @@ export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = fa
   onPick: (channelId: string | undefined) => void
 }) {
   const [open, setOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const isAll = current === undefined
   const selected = channels.find((c) => c.id === current)
@@ -94,21 +95,22 @@ export function ChannelSwitcher({ channels, current, sub, onPick, mobileBar = fa
     )
   }
   if (!mobileBar) return <div {...stylex.props(styles.root)}>
-    <ActionMenu label={`${t.title}, ${isAll ? t.viewingAllChannels : t.selectingChannel(selected?.name ?? '')}`} alwaysVisible width={280}
-      triggerStyle={[styles.button, styles.desktopTrigger]}
+    <ActionMenu label={`${t.title}, ${isAll ? t.viewingAllChannels : t.selectingChannel(selected?.name ?? '')}`} alwaysVisible width={312} align="start"
+      onOpen={() => setMenuOpen(true)} onClose={() => setMenuOpen(false)}
+      triggerStyle={[styles.button, styles.desktopTrigger, menuOpen && styles.desktopTriggerOpen]}
       trigger={<>{isAll ? stack : <ChannelAvatar name={selected?.name ?? ''} initials={selected?.initials} src={selected?.src} color={selected?.color} size={20} fontSize={8} />}
         <span className={`vv-switcher__name ${stylex.props(styles.label).className}`}>{isAll ? t.allChannels : selected?.name ?? '…'}</span>
-        <Icon name="arrow-down-2" size={14} xstyle={styles.chevron} />
+        <Icon name="arrow-down-2" size={13} xstyle={styles.chevron} />
       </>}
       items={[
         { id: 'all', label: t.allChannels, selected: isAll, description: allSub,
           icon: <span {...stylex.props(styles.menuStack)}>{channels.slice(0, 3).map((channel, index) => <ChannelAvatar key={channel.id} name={channel.name || '·'} initials={channel.initials ?? oneLetter(channel)} src={channel.src} color={channel.color} size={16} fontSize={6} stacked ringColor="var(--color-surface-2)" className={index > 0 ? stylex.props(styles.overlapMenu).className : undefined} />)}</span>,
           onSelect: () => pick(undefined) },
-        ...channels.map((channel) => ({ id: channel.id, label: channel.name, selected: current === channel.id, description: channel.pace,
+        ...channels.map((channel, index) => ({ id: channel.id, label: channel.name, selected: current === channel.id, description: channel.pace, separatorBefore: index === 0,
           icon: <ChannelAvatar name={channel.name} initials={channel.initials} src={channel.src} color={channel.color} size={30} fontSize={10.5} />,
           meta: channel.waiting ? <span role="img" aria-label="Có video chờ bạn" {...stylex.props(styles.waitdot)} /> : undefined,
           onSelect: () => pick(channel.id) })),
-        { id: 'new', label: t.createChannel, icon: <Icon name="add-square" size={18} />, onSelect: () => navigate(paths.channelNew()) },
+        { id: 'new', label: t.createChannel, icon: <Icon name="add-square" size={18} />, separatorBefore: true, onSelect: () => navigate(paths.channelNew()) },
       ]} />
   </div>
 
@@ -171,10 +173,11 @@ const MOBILE = '@media (max-width: 767px)'
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
 const styles = stylex.create({
   root: { position: 'relative', flex: '0 0 auto' },
-  chevron: { color: color['--color-fg-4'] },
+  chevron: { color: 'var(--vv-fg-note)' },
   chevronMobile: { color: 'var(--vv-st-neutral)' },
   button: { height: 30, padding: `0 ${s['--vv-s-8']} 0 ${s['--vv-s-5']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-7'], borderRadius: radius['--radius-control'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-1'], backgroundColor: { default: color['--color-surface-1'], ':hover': color['--color-surface-2'] }, color: color['--color-fg'], fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textDecoration: 'none' },
-  desktopTrigger: { width: 'auto' },
+  desktopTrigger: { width: 'auto', borderColor: line['--line-3'], backgroundColor: { default: 'transparent', ':hover': 'var(--kit-wash-7)' } },
+  desktopTriggerOpen: { borderColor: 'var(--vv-check-ring)' },
   /* Chỉ bộ đổi kênh co: nút Việc nền và avatar giữ nguyên chỗ (r36). */
   mobileRoot: { flex: { default: null, [MOBILE]: '0 1 auto' }, minWidth: { default: null, [MOBILE]: 0 } },
   mobileButton: { height: 36, minWidth: { default: null, [MOBILE]: 0 }, maxWidth: { default: null, [MOBILE]: '100%' }, padding: { default: null, [MOBILE]: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-4']}` }, borderRadius: { default: null, [MOBILE]: r['--vv-r-pill'] }, borderColor: { default: line['--line-1'], [MOBILE]: line['--line-2'] }, fontSize: { default: null, [MOBILE]: 13.5 }, overflow: { default: null, [MOBILE]: 'hidden', [TOUCH]: 'visible' }, position: { default: null, [TOUCH]: 'relative' } },

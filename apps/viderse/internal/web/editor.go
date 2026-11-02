@@ -89,23 +89,23 @@ func writeEditorError(w http.ResponseWriter, err error) {
 func editorBody(w http.ResponseWriter, r *http.Request) (editor.Object, error) {
 	const limit = 64 << 20
 	if r.ContentLength > limit {
-		return nil, &editor.Error{Code: "payload_too_large", Message: "JSON body too large"}
+		return nil, &editor.Error{Code: "payload_too_large", Message: "Dữ liệu gửi lên quá lớn"}
 	}
 	var body editor.Object
 	decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, limit))
 	if err := decoder.Decode(&body); err != nil {
 		var max *http.MaxBytesError
 		if errors.As(err, &max) {
-			return nil, &editor.Error{Code: "payload_too_large", Message: "JSON body too large"}
+			return nil, &editor.Error{Code: "payload_too_large", Message: "Dữ liệu gửi lên quá lớn"}
 		}
-		return nil, &editor.Error{Code: "invalid_request", Message: "Request body is not valid JSON"}
+		return nil, &editor.Error{Code: "invalid_request", Message: "Dữ liệu gửi lên không đọc được"}
 	}
 	if body == nil {
-		return nil, &editor.Error{Code: "invalid_request", Message: "Request body must be a JSON object"}
+		return nil, &editor.Error{Code: "invalid_request", Message: "Dữ liệu gửi lên phải là một đối tượng JSON"}
 	}
 	var trailing any
 	if err := decoder.Decode(&trailing); err != io.EOF {
-		return nil, &editor.Error{Code: "invalid_request", Message: "Request body must contain exactly one JSON value"}
+		return nil, &editor.Error{Code: "invalid_request", Message: "Dữ liệu gửi lên chỉ được chứa một giá trị JSON"}
 	}
 	return body, nil
 }
@@ -119,7 +119,7 @@ func editorDecode(body editor.Object, out any) error {
 		err = json.Unmarshal(b, out)
 	}
 	if err != nil {
-		return &editor.Error{Code: "invalid_request", Message: "Invalid request fields"}
+		return &editor.Error{Code: "invalid_request", Message: "Dữ liệu gửi lên không hợp lệ"}
 	}
 	return nil
 }

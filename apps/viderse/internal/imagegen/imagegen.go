@@ -165,7 +165,7 @@ func IsUnpaid(err error) bool {
 	}
 	var se *StoreError
 	if errors.As(err, &se) {
-		return true // ghi biên nhận thất bại trước lời gọi
+		return !se.Charged // chỉ lỗi biên nhận TRƯỚC lời gọi mới miễn phí
 	}
 	var ce *CapError
 	if errors.As(err, &ce) {
@@ -174,10 +174,19 @@ func IsUnpaid(err error) bool {
 	return IsProviderBusy(err) || IsImageRefused(err)
 }
 
-// StoreError: biên nhận (DB) lỗi — KHÔNG phải provider. Không bao giờ được
-// rơi vào dự phòng trả phí, không bao giờ xoá ảnh đã sinh, không thử lại tự
-// động.
-type StoreError struct{ Err error }
+// StoreError: biên nhận (DB/tệp) lỗi — KHÔNG phải provider. Không bao giờ
+// được rơi vào dự phòng trả phí, không bao giờ xoá ảnh đã sinh, không thử lại
+// tự động.
+//
+// Charged phân biệt hai nửa của đường vẽ: lỗi TRƯỚC điểm tiêu phí (khoá key,
+// Begin, đọc journal) để false vì chắc chắn chưa gửi lời gọi; lỗi biên nhận
+// SAU khi provider đã nhận lời gọi (Finish, sidecar receipt) để true vì ảnh có
+// thể đã sinh và lần gọi đã qua điểm tiêu phí. Chủ sở hữu dùng IsUnpaid để ghi
+// chi phí; đặt sai cờ này là báo "miễn phí" cho một lần gọi có thể đã tốn tiền.
+type StoreError struct {
+	Err     error
+	Charged bool
+}
 
 func (e *StoreError) Error() string { return "biên nhận ảnh: " + e.Err.Error() }
 func (e *StoreError) Unwrap() error { return e.Err }

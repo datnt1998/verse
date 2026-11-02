@@ -27,6 +27,7 @@ type RivalReads interface {
 	Rival(ctx context.Context, channelID string) (*rivals.ListEntry, error)
 	Videos(ctx context.Context, channelID string, q rivals.VideoQuery) (*rivals.VideoPage, error)
 	PostingSchedule(ctx context.Context, channelID, zone string) (*domain.PostingSchedule, error)
+	Preview(ctx context.Context, channelID, videoID string) (*rivals.VideoPreview, error)
 }
 
 // RivalMutations là mặt ghi + trạng thái quét — hiện thực là scan.Service.
@@ -92,18 +93,52 @@ type rivalListWire struct {
 }
 
 type videoWire struct {
-	ID           string          `json:"id"`
-	ChannelID    string          `json:"channelId"`
-	Title        string          `json:"title"`
-	DurationSec  *int            `json:"durationSec"`
-	ViewCount    *int64          `json:"viewCount"`
-	PublishedAt  *time.Time      `json:"publishedAt"`
-	ExactTime    bool            `json:"exactTime"`
-	Score        *float64        `json:"score"`
-	ScoreReason  *insight.Reason `json:"scoreReason,omitempty"`
-	HasCaptions  *bool           `json:"hasCaptions"`
-	ThumbnailURL string          `json:"thumbnailUrl"`
-	URL          string          `json:"url"`
+	ID           string           `json:"id"`
+	ChannelID    string           `json:"channelId"`
+	Title        string           `json:"title"`
+	DurationSec  *int             `json:"durationSec"`
+	ViewCount    *int64           `json:"viewCount"`
+	PublishedAt  *time.Time       `json:"publishedAt"`
+	ExactTime    bool             `json:"exactTime"`
+	Score        *float64         `json:"score"`
+	ScoreReason  *insight.Reason  `json:"scoreReason,omitempty"`
+	HasCaptions  *bool            `json:"hasCaptions"`
+	ThumbnailURL string           `json:"thumbnailUrl"`
+	URL          string           `json:"url"`
+	Usage        []videoUsageWire `json:"usage,omitempty"`
+	PickNote     *pickNoteWire    `json:"pickNote,omitempty"`
+}
+
+// videoUsageWire là một kênh của bạn đã làm/đang làm video này — đủ để thẻ
+// Khám phá hiện "Kênh · Chờ lượt" và panel khoá kênh đó.
+type videoUsageWire struct {
+	ChannelID   string    `json:"channelId"`
+	ChannelName string    `json:"channelName"`
+	Stage       string    `json:"stage"`
+	ActiveStep  string    `json:"activeStep,omitempty"`
+	JobID       *string   `json:"jobId"`
+	QueueItemID *string   `json:"queueItemId"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// pickNoteWire là lý do Tự lấy không lấy video, chỉ khi dữ liệu chứng minh.
+type pickNoteWire struct {
+	ChannelID   string    `json:"channelId"`
+	ChannelName string    `json:"channelName"`
+	BaselineAt  time.Time `json:"baselineAt"`
+	PublishedAt time.Time `json:"publishedAt"`
+}
+
+type videoPreviewWire struct {
+	VideoID  string             `json:"videoId"`
+	Source   string             `json:"source"`
+	State    string             `json:"state"`
+	Chapters []videoChapterWire `json:"chapters"`
+}
+
+type videoChapterWire struct {
+	StartSec float64 `json:"startSec"`
+	Title    string  `json:"title"`
 }
 
 type videoPageWire struct {
@@ -353,6 +388,8 @@ func routeRivals(w http.ResponseWriter, r *http.Request, reads RivalReads, mutat
 		w.WriteHeader(http.StatusNoContent)
 	case tail == "videos" && r.Method == http.MethodGet:
 		getRivalVideos(w, r, reads, diag, id)
+	case r.Method == http.MethodGet && strings.HasPrefix(tail, "videos/"):
+		getRivalPreview(w, r, reads, diag, id, tail)
 	case tail == "scan" && r.Method == http.MethodGet:
 		st, err := mutations.Status(ctx, id)
 		if err != nil {
@@ -408,6 +445,26 @@ func getRivalVideos(w http.ResponseWriter, r *http.Request, reads RivalReads, di
 	} else {
 		q.Limit = rivals.VideoPageDefault
 	}
+	q.MadeFor = params.Get("madeFor")
+	q.NotMadeFor = params.Get("notMadeFor")
+	// made/notMade là bộ lọc "mọi kênh của bạn" của chip Trạng thái; chỉ nhận
+	// đúng "any" — giá trị lạ là client sai, không lặng lẽ thành true.
+	switch params.Get("made") {
+	case "":
+	case "any":
+		q.MadeAny = true
+	default:
+		writeRivalCode(w, http.StatusBadRequest, "made chỉ nhận any", scan.CodeInvalidInput, "", nil)
+		return
+	}
+	switch params.Get("notMade") {
+	case "":
+	case "any":
+		q.NotMadeAny = true
+	default:
+		writeRivalCode(w, http.StatusBadRequest, "notMade chỉ nhận any", scan.CodeInvalidInput, "", nil)
+		return
+	}
 	page, err := reads.Videos(r.Context(), id, q)
 	if err != nil {
 		writeRivalError(w, r.Context(), err, reads, diag)
@@ -433,10 +490,59 @@ func getRivalVideos(w http.ResponseWriter, r *http.Request, reads RivalReads, di
 		if channel, ok := byID[v.ChannelID]; ok {
 			item.ScoreReason = insight.ScoreReason(v, channel)
 		}
+		if usage := page.Usage[v.ID]; len(usage) > 0 {
+			item.Usage = make([]videoUsageWire, 0, len(usage))
+			for _, u := range usage {
+				item.Usage = append(item.Usage, videoUsageWire{
+					ChannelID:   u.ChannelID,
+					ChannelName: u.ChannelName,
+					Stage:       u.Stage,
+					ActiveStep:  u.ActiveStep,
+					JobID:       optStr(u.JobID),
+					QueueItemID: optStr(u.QueueItemID),
+					UpdatedAt:   u.UpdatedAt.UTC(),
+				})
+			}
+		}
+		if note, ok := page.PickNotes[v.ID]; ok {
+			item.PickNote = &pickNoteWire{
+				ChannelID:   note.ChannelID,
+				ChannelName: note.ChannelName,
+				BaselineAt:  note.BaselineAt.UTC(),
+				PublishedAt: note.PublishedAt.UTC(),
+			}
+		}
 		out.Videos = append(out.Videos, item)
 	}
 	if page.NextCursor != "" {
 		out.NextCursor = &page.NextCursor
+	}
+	webapp.WriteJSON(w, http.StatusOK, out)
+}
+
+// getRivalPreview trả chương thật của một video nguồn khi người dùng mở xem
+// trước: đọc artifact đã công bố trước, chỉ dò YouTube khi chưa có. tail dạng
+// "videos/<videoId>/preview".
+func getRivalPreview(w http.ResponseWriter, r *http.Request, reads RivalReads, diag RivalDiag, rivalID, tail string) {
+	rest := strings.TrimPrefix(tail, "videos/")
+	parts := strings.Split(rest, "/")
+	if len(parts) != 2 || parts[0] == "" || parts[1] != "preview" {
+		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
+		return
+	}
+	preview, err := reads.Preview(r.Context(), rivalID, parts[0])
+	if err != nil {
+		writeRivalError(w, r.Context(), err, reads, diag)
+		return
+	}
+	out := videoPreviewWire{
+		VideoID:  preview.VideoID,
+		Source:   preview.Source,
+		State:    preview.State,
+		Chapters: make([]videoChapterWire, 0, len(preview.Chapters)),
+	}
+	for _, c := range preview.Chapters {
+		out.Chapters = append(out.Chapters, videoChapterWire{StartSec: c.StartSec, Title: c.Title})
 	}
 	webapp.WriteJSON(w, http.StatusOK, out)
 }
@@ -509,6 +615,11 @@ func getPostingSlots(w http.ResponseWriter, r *http.Request, reads RivalReads, d
 // unexpected_page→502, invalid_cap→400); lỗi đọc của rivals (not_found 404,
 // invalid_* 400, invalid_cursor 400); lỗi còn lại là lỗi nội bộ 500.
 func writeRivalError(w http.ResponseWriter, ctx context.Context, err error, reads RivalReads, diag RivalDiag) {
+	// Request đã bị huỷ (đóng tab, hết hạn): client không còn chờ phản hồi nên
+	// không ghi gì và không ghi nhật ký 500 — đây không phải lỗi nội bộ.
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) || (ctx != nil && ctx.Err() != nil) {
+		return
+	}
 	var se *scan.Error
 	if errors.As(err, &se) {
 		status := http.StatusInternalServerError
@@ -552,15 +663,23 @@ func writeRivalError(w http.ResponseWriter, ctx context.Context, err error, read
 		return
 	}
 	switch {
+	case errors.Is(err, rivals.ErrVideoNotFound):
+		writeRivalCode(w, http.StatusNotFound, "Không tìm thấy video này.", scan.CodeNotFound, "", nil)
 	case errors.Is(err, rivals.ErrRivalNotFound):
 		writeRivalCode(w, http.StatusNotFound, "Không tìm thấy kênh đối thủ.", scan.CodeNotFound, "", nil)
 	case errors.Is(err, rivals.ErrInvalidCursor):
 		writeRivalCode(w, http.StatusBadRequest, "Cursor không hợp lệ.", "invalid_cursor", "", nil)
 	case errors.Is(err, rivals.ErrInvalidSort), errors.Is(err, rivals.ErrInvalidWithin),
 		errors.Is(err, rivals.ErrInvalidZone), errors.Is(err, rivals.ErrInvalidLimit),
-		errors.Is(err, rivals.ErrInvalidQuery):
+		errors.Is(err, rivals.ErrInvalidQuery), errors.Is(err, rivals.ErrInvalidMadeFor),
+		errors.Is(err, rivals.ErrInvalidNotMadeFor), errors.Is(err, rivals.ErrConflictingMadeFilter):
 		writeRivalCode(w, http.StatusBadRequest, err.Error(), scan.CodeInvalidInput, "", nil)
 	default:
+		var pe *rivals.PreviewError
+		if errors.As(err, &pe) {
+			writeRivalCode(w, http.StatusBadGateway, pe.Message, pe.Code, pe.Recovery, nil)
+			return
+		}
 		writeRivalInternal(w, err, diag)
 	}
 }

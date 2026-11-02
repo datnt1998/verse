@@ -8,6 +8,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
+import { t } from '../../../i18n/library'
 import type { Channel } from '../../../api/channels'
 import type { ImagePrompt, TemplateDetail, TemplateSummary } from '../../../api/library'
 import { clock } from '../fmt'
@@ -21,6 +22,7 @@ const roots: Root[] = []
 const calls: { url: string; method: string; body?: string }[] = []
 let patchers: ((value: Response) => void)[] = []
 let detailBody: TemplateDetail
+let sampleUrls: string[] = []
 
 const respond = (body: unknown, status = 200) => Promise.resolve(Response.json(body, { status }))
 
@@ -70,7 +72,7 @@ const detail = (over: Partial<TemplateDetail> = {}): TemplateDetail => ({
 const prompt = (over: Partial<ImagePrompt> = {}): ImagePrompt => ({
   id: 'p1', name: 'Sương mù đồi thông', kind: 'scene', builtIn: false,
   prompt: 'Chất liệu phim 35 mm, sương mù, ánh sáng dịu',
-  updatedAt: '2026-10-31T02:00:00Z', usedBy: [{ id: 'tpl-a', name: 'Template A' }], samples: [],
+  updatedAt: '2026-10-31T02:00:00Z', usedBy: [{ id: 'tpl-a', name: 'Template A' }], samples: [], sampleUrls: [],
   ...over,
 })
 
@@ -99,7 +101,7 @@ function installFetch() {
       return pending.promise
     }
     if (url === '/api/templates') return respond({ items: [summary()] })
-    if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt()] })
+    if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt({ sampleUrls })] })
     if (url === '/api/overlays') return respond({ items: [] })
     if (url === '/api/owner-channels') return respond({ channels: [{ id: 'ch1', name: 'Kênh Một' }] })
     if (url === '/api/backdrop/channels') return respond([])
@@ -141,6 +143,7 @@ beforeEach(async () => {
   calls.length = 0
   patchers = []
   detailBody = detail()
+  sampleUrls = []
   setPhone(true)
   installFetch()
 })
@@ -167,16 +170,23 @@ describe('thư viện dùng chung — điện thoại', () => {
 
   it('⋯ của template mở sheet 6 hàng; Xoá tắt khi còn kênh dùng và ghi lý do', async () => {
     const page = await render(<LibraryScreen route={libraryRoute} />)
-    await click(page.querySelector('[aria-label="Thao tác với Truyện kể đêm"]'))
+    await click(page.querySelector(`[aria-label="${t.library.mobile.templateMenuAria('Truyện kể đêm')}"]`))
 
     const sheet = document.querySelector('[role="dialog"]') as HTMLElement
     expect(sheet).toBeTruthy()
-    for (const label of ['Sửa template', 'Đổi tên', 'Nhân bản', 'Thêm vào kênh', 'Xuất tệp template', 'Xoá template']) {
+    for (const label of [
+      t.library.mobile.editTemplate,
+      t.library.templates.rename,
+      t.library.duplicate,
+      t.library.templates.addToChannel,
+      t.library.mobile.exportFile,
+      t.library.mobile.deleteTemplate,
+    ]) {
       expect(byText(sheet, 'button', label)).toBeTruthy()
     }
-    const remove = byText(sheet, 'button', 'Xoá template') as HTMLButtonElement
+    const remove = byText(sheet, 'button', t.library.mobile.deleteTemplate) as HTMLButtonElement
     expect(remove.disabled).toBe(true)
-    expect(remove.textContent).toContain('Đang dùng ở 1 kênh · bỏ khỏi kênh trước')
+    expect(remove.textContent).toContain('1 kênh')
   })
 
   it('template không kênh nào dùng thì Xoá bấm được', async () => {
@@ -193,19 +203,18 @@ describe('thư viện dùng chung — điện thoại', () => {
     }))
     cache.clear()
     const free = await render(<LibraryScreen route={libraryRoute} />)
-    await click(free.querySelector('[aria-label="Thao tác với Truyện kể đêm"]'))
+    await click(free.querySelector(`[aria-label="${t.library.mobile.templateMenuAria('Truyện kể đêm')}"]`))
     const sheet = document.querySelector('[role="dialog"]') as HTMLElement
-    const remove = byText(sheet, 'button', 'Xoá template') as HTMLButtonElement
+    const remove = byText(sheet, 'button', t.library.mobile.deleteTemplate) as HTMLButtonElement
     expect(remove.disabled).toBe(false)
-    expect(remove.textContent).toContain('Không kênh nào dùng')
   })
 })
 
 describe('sửa template — điện thoại', () => {
-  it('sửa một mục thì tự lưu và thanh chân hiện “Đã lưu · HH:MM”', async () => {
+  it('sửa một mục thì tự lưu và thanh chân hiện mốc đã lưu thật', async () => {
     const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'images' }} />)
     const bar = page.querySelector('.m-footer')!
-    expect(bar.textContent).toMatch(/Đã lưu · \d{2}:\d{2}/)
+    expect(bar.textContent).toContain(clock(detailBody.savedAt))
 
     await click(byText(page, 'button', 'Theo độ dài'))
     const patch = calls.find((c) => c.method === 'PATCH')
@@ -214,17 +223,17 @@ describe('sửa template — điện thoại', () => {
 
     await act(async () => patchers.shift()!(Response.json(detail({ revision: 2, savedAt: '2026-10-31T04:05:00Z' }))))
     await flush()
-    expect(page.querySelector('.m-footer')!.textContent).toContain(`Đã lưu · ${clock('2026-10-31T04:05:00Z')}`)
+    expect(page.querySelector('.m-footer')!.textContent).toContain(clock('2026-10-31T04:05:00Z'))
   })
 
   it('thanh trên dùng tên và metadata thật; màn con không lặp tiêu đề mục', async () => {
     const list = await render(<TemplateScreen route={{ name: 'template', templateId: 't1' }} />)
     const header = list.querySelector('[role="banner"]')!
     expect(header.querySelector('.m-title')?.textContent).toContain('Truyện kể đêm · Tách nền')
-    expect(header.textContent).toContain(`Ổn · dùng ở 1 kênh · đã lưu ${clock(detailBody.savedAt)}`)
-    expect(header.textContent).not.toContain('Sửa template')
-    expect(list.textContent).toContain('Chưa có bản xem thử')
-    expect(list.textContent).toContain('Chưa dựng lần nào')
+    expect(header.textContent).toContain('1 kênh')
+    expect(header.textContent).toContain(clock(detailBody.savedAt))
+    const build = byText(list, 'button', t.library.template.preview.rebuildStale)!
+    expect(build.getAttribute('aria-disabled')).toBe('true')
     const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'images' }} />)
     expect(page.querySelector('.m-page')).toBeTruthy()
     expect(page.querySelector('h2')).toBeFalsy()
@@ -240,5 +249,49 @@ describe('kênh — lối vào thư viện', () => {
     setPhone(false)
     const desktop = await render(<TemplatesTab channel={channel()} />)
     expect(byText(desktop, 'a', 'Mở Thư viện dùng chung')).toBeFalsy()
+  })
+})
+
+describe('thư viện dùng chung — xuất tệp', () => {
+  it('hàng Xuất tệp template trong tấm thao tác tải thật, không còn khoá', async () => {
+    const downloaded: string[] = []
+    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloaded.push(this.getAttribute('href') ?? '')
+    })
+    try {
+      const page = await render(<LibraryScreen route={libraryRoute} />)
+      await click(page.querySelector(`[aria-label="${t.library.mobile.templateMenuAria('Truyện kể đêm')}"]`))
+      const sheet = document.querySelector('[role="dialog"]') as HTMLElement
+      const exportRow = byText(sheet, 'button', t.library.mobile.exportFile) as HTMLButtonElement
+      expect(exportRow.disabled).toBe(false)
+      await click(exportRow)
+      expect(downloaded).toEqual(['/api/templates/t1/export'])
+    } finally {
+      spy.mockRestore()
+    }
+  })
+})
+
+describe('thư viện dùng chung — ảnh mẫu prompt', () => {
+  it('ô prompt trên lưới điện thoại vẽ ảnh mẫu thật', async () => {
+    sampleUrls = ['/api/image-prompts/p1/samples/s1/image']
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
+    const img = page.querySelector('img[src="/api/image-prompts/p1/samples/s1/image"]')
+    expect(img).toBeTruthy()
+  })
+
+  it('chưa có ảnh mẫu thì ô prompt giữ nền trung tính', async () => {
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
+    expect(page.querySelector('img[src^="/api/image-prompts/"]')).toBeFalsy()
+  })
+
+  it('hộp chọn prompt trong Sửa template vẽ ảnh mẫu; ảnh hỏng thì về ô trung tính', async () => {
+    sampleUrls = ['/api/image-prompts/p1/samples/s1/image']
+    const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'images' }} />)
+    const img = page.querySelector('img[src="/api/image-prompts/p1/samples/s1/image"]')!
+    expect(img).toBeTruthy()
+    await act(async () => { img.dispatchEvent(new Event('error')) })
+    await flush()
+    expect(page.querySelector('img[src="/api/image-prompts/p1/samples/s1/image"]')).toBeFalsy()
   })
 })

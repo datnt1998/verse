@@ -2,7 +2,7 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
 // Mục Xuất & kênh (Template.dc.html › lib=output): nén sau xuất, kênh đang
-// dùng template, bố cục (chỉ chỉnh trong editor), xuất tệp (khoá) và xoá
+// dùng template, bố cục (mở trong editor), xuất tệp .ytf-template.zip và xoá
 // template — xoá bị khoá kèm lý do khi kênh còn dùng (409 của máy chủ).
 import { confirm, RadioCard, Switch, Icon, toast } from '@noverse/ui'
 import { useState } from 'react'
@@ -12,9 +12,10 @@ import { removeTemplateFromChannel } from '../../../api/library'
 import { ActionButton } from '../../../components'
 import { t } from '../../../i18n/library'
 import { initials, num } from '../fmt'
-import type { Recipe, TemplateDetail } from '../../../api/library'
+import { templateExportHref, type Recipe, type TemplateDetail } from '../../../api/library'
+import { navigate, paths } from '../../../router'
 
-export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach, hideTitle }: {
+export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach, hideTitle, editorLockedReason }: {
   detail: TemplateDetail
   onSave: (patch: Partial<Recipe>) => void
   onDuplicate: () => void
@@ -22,6 +23,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
   onAttach: () => void
   /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
   hideTitle?: boolean
+  editorLockedReason?: string
 }) {
   const copy = t.library.template.output
   const channels = detail.channels
@@ -113,15 +115,19 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
           {copy.layoutChips.map((chip) => <span key={chip} className={`vt-chip ${stylex.props(sx.chip).className}`}>{chip}</span>)}
         </div>
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.layoutHelp}</p>
-        <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" lockedReason={copy.layoutEditLocked}>{copy.layoutEdit}</ActionButton>
+        <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" lockedReason={editorLockedReason} onClick={() => navigate(paths.editor(detail.id))}>{copy.layoutEdit}</ActionButton>
       </div>
 
       <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fileTitle}</span>
         <div className={`vt-row ${stylex.props(sx.row).className}`}>
-          <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" icon={<Icon name="export" size={16} />} lockedReason={copy.exportLocked}>{copy.exportFile}</ActionButton>
+          <a className={`vt-export ${stylex.props(sx.exportLink).className}`} href={templateExportHref(detail.id)} download="">
+            <Icon name="export" size={16} />
+            {copy.exportFile}
+          </a>
           <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" icon={<Icon name="copy" size={16} />} onClick={onDuplicate}>{t.library.duplicate}</ActionButton>
         </div>
+        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.exportHelp}</p>
       </div>
 
       <div className={`vt-card vt-danger ${stylex.props(sx.cardDanger).className}`}>
@@ -190,6 +196,7 @@ const sx = stylex.create({
     textTransform: { default: null, '@media (max-width: 767px)': 'uppercase' },
   },
   vtSwitchRowSwitch: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  exportLink: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', rowGap: 'var(--vv-s-6)', columnGap: 'var(--vv-s-6)', paddingTop: 'var(--vv-s-8)', paddingRight: 'var(--vv-s-12)', paddingBottom: 'var(--vv-s-8)', paddingLeft: 'var(--vv-s-12)', borderTopWidth: 'var(--vv-s-1)', borderRightWidth: 'var(--vv-s-1)', borderBottomWidth: 'var(--vv-s-1)', borderLeftWidth: 'var(--vv-s-1)', borderTopStyle: 'solid', borderRightStyle: 'solid', borderBottomStyle: 'solid', borderLeftStyle: 'solid', borderTopColor: line['--line-2'], borderRightColor: line['--line-2'], borderBottomColor: line['--line-2'], borderLeftColor: line['--line-2'], borderTopLeftRadius: 'var(--vv-r-8)', borderTopRightRadius: 'var(--vv-r-8)', borderBottomRightRadius: 'var(--vv-r-8)', borderBottomLeftRadius: 'var(--vv-r-8)', color: color['--color-fg'], backgroundColor: { default: 'transparent', ':hover': color['--color-surface-6'] }, textDecorationLine: 'none', fontSize: libraryVars.bodySmallFontSize, minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   export: { display: "grid", gridTemplateColumns: { default: libraryVars.templateCoverSectionSourcesGridTemplateColumns, '@media (max-width: 767px)': 'repeat(2, minmax(0, 1fr))' }, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   exportCard: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-2)", columnGap: "var(--vv-s-2)" },
   exportName: { fontSize: "var(--vv-s-13)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },

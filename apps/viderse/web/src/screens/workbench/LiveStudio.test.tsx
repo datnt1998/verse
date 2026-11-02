@@ -40,3 +40,39 @@ it('confirms a single tile redraw with its real manifest revision without redraw
   expect(JSON.parse(String(init.body))).toEqual({ op: 'regenerate', expectedRevision: 7 })
   expect(state.refresh).toHaveBeenCalledOnce()
 })
+
+const manifest = { revision: 7, scenePrompt: { id: 's', name: 'Cảnh', overridden: false }, coverPrompt: { id: 'c', name: 'Bìa', overridden: false } }
+const tile = (id: string, url: string, narration: string) => ({ id, kind: 'scene', status: 'review', currentVersion: 1, reviewVersion: 1, versions: [{ version: 1, originalUrl: url }], narration })
+
+it('huỷ hộp vẽ lại một ảnh đã biến mất thay vì lặng lẽ gửi vẽ lại cả bộ', async () => {
+  const fetcher = vi.fn(async () => Response.json({ revision: 8 }))
+  vi.stubGlobal('fetch', fetcher)
+  state.images = { manifest, items: [tile('scene-one', '/one.webp', 'Cảnh một'), tile('scene-two', '/two.webp', 'Cảnh hai')] }
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  // Chọn ảnh thứ hai rồi mở hộp vẽ lại đúng ảnh đó.
+  await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true })) })
+  await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Vẽ lại cảnh 2"]')!.click())
+  expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Vẽ lại cảnh 2?')
+  // Bộ ảnh làm mới trong lúc hộp mở: ảnh đã chọn không còn trong danh sách.
+  state.images = { manifest, items: [tile('scene-one', '/one.webp', 'Cảnh một')] }
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  expect(document.querySelector('[role="dialog"]')).toBeNull()
+  expect(fetcher).not.toHaveBeenCalled()
+  expect(host.textContent).toContain('Chưa vẽ lại ảnh nào')
+  expect(host.querySelectorAll('[role="option"]')[0]?.getAttribute('aria-selected')).toBe('true')
+})
+
+it('vẫn gửi vẽ lại cả bộ khi người dùng chọn rõ Vẽ lại tất cả', async () => {
+  const fetcher = vi.fn(async () => Response.json({ revision: 8 }))
+  vi.stubGlobal('fetch', fetcher)
+  state.images = { manifest, items: [tile('scene-one', '/one.webp', 'Cảnh một'), tile('scene-two', '/two.webp', 'Cảnh hai')] }
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} redrawAllOpen onRedrawAllChange={() => {}} />))
+  const dialog = document.querySelector('[role="dialog"]')!
+  expect(dialog.textContent).toContain('Vẽ lại cả 2 ảnh?')
+  const submit = [...dialog.querySelectorAll('button')].find(button => button.textContent === 'Vẽ lại 2 ảnh')!
+  await act(async () => submit.click())
+  expect(fetcher).toHaveBeenCalledOnce()
+  const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit]
+  expect(url).toBe('/api/clone/job/images')
+  expect(JSON.parse(String(init.body))).toEqual({ op: 'regenerateAll', expectedRevision: 7, confirmCount: 2, feedback: '' })
+})

@@ -329,6 +329,38 @@ func (s *CloneStore) ListFinishedJobs(ctx context.Context, limit int) ([]domain.
 	return out, nil
 }
 
+// ListPreviewSourceJobs là đường đọc nhẹ cho bộ chọn nguồn xem thử: chỉ job
+// succeeded, chưa bị thay, có đủ bốn artifact nguồn — một truy vấn, không nạp
+// step/queue/checkpoint. Không giới hạn 500 để video xong cũ vẫn chọn được.
+func (s *CloneStore) ListPreviewSourceJobs(ctx context.Context) ([]pipeline.PreviewSourceJob, error) {
+	rows, err := s.pool.Query(ctx, `SELECT j.id::text,
+       COALESCE(j.source_snapshot->>'title', ''),
+       COALESCE(j.source_snapshot->>'channelTitle', ''),
+       COALESCE(CASE WHEN jsonb_typeof(j.source_snapshot->'durationSec') = 'number'
+                     THEN (j.source_snapshot->>'durationSec')::float8 ELSE 0 END, 0),
+       j.no_images
+FROM clone_jobs j
+WHERE j.status = 'succeeded' AND j.superseded_at IS NULL
+  AND EXISTS (SELECT 1 FROM clone_artifacts a WHERE a.job_id = j.id AND a.path LIKE '%/scenes/manifest.json')
+  AND EXISTS (SELECT 1 FROM clone_artifacts a WHERE a.job_id = j.id AND a.path LIKE '%/images/manifest.json')
+  AND EXISTS (SELECT 1 FROM clone_artifacts a WHERE a.job_id = j.id AND a.path LIKE '%/transcript/captions.json')
+  AND EXISTS (SELECT 1 FROM clone_artifacts a WHERE a.job_id = j.id AND a.path LIKE '%/build/source-audio.m4a')
+ORDER BY j.updated_at DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []pipeline.PreviewSourceJob{}
+	for rows.Next() {
+		var job pipeline.PreviewSourceJob
+		if err := rows.Scan(&job.ID, &job.Title, &job.ChannelName, &job.DurationSec, &job.NoImages); err != nil {
+			return nil, err
+		}
+		out = append(out, job)
+	}
+	return out, rows.Err()
+}
+
 func (s *CloneStore) ListArtifacts(ctx context.Context, jobID string) ([]domain.CloneArtifact, error) {
 	u, err := cloneUUIDOf(jobID)
 	if err != nil {

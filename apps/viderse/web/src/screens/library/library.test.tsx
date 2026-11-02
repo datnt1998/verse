@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
-// Thư viện + cài đặt template trên fetch giả (đúng wire của API thư viện):
+// Thư viện + cài đặt mẫu video trên fetch giả (đúng wire của API thư viện):
 //  · tự lưu: rời ô tên → PATCH kèm revision; 400 giữ chữ đã gõ + lỗi dưới ô;
 //    409 giữ bản đang sửa và đưa nút Tải lại; hai lần rời ô liên tiếp → PATCH
 //    tuần tự, revision tăng 1 → 2.
-//  · xem thử: none/fresh/stale đúng nhãn, chỉ stale có nút "Dựng lại bản xem
-//    thử" và mọi nút dựng đều khoá kèm lý do.
-//  · xoá prompt 409 in_use hiện tên template đang dùng; xoá template bị khoá
+//  · xem thử: none/fresh/stale đúng nhãn; mọi trạng thái đều có nút dựng thật,
+//    chưa có video xong nên khoá kèm lý do.
+//  · xoá prompt 409 in_use hiện tên mẫu video đang dùng; xoá mẫu video bị khoá
 //    trong menu khi kênh còn dùng.
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
@@ -13,6 +13,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
 import { TemplateScreen } from './TemplateScreen'
 import { LibraryScreen } from './LibraryScreen'
+import { t } from '../../i18n/library'
+import { PromptsTab } from './PromptsTab'
 import type { ImagePrompt, TemplateDetail, TemplateSummary } from '../../api/library'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
@@ -22,6 +24,7 @@ const respond = (body: unknown, status = 200) => Promise.resolve(Response.json(b
 const calls: { url: string; method: string; body?: string }[] = []
 let patchers: ((value: Response) => void)[] = []
 let usedBy: { id: string; name: string }[] = [{ id: 'tpl-a', name: 'Template A' }]
+let sampleUrls: string[] = []
 let detailBody: TemplateDetail
 let patchOk: (revision: number) => TemplateDetail
 
@@ -71,7 +74,7 @@ const detail = (over: Partial<TemplateDetail> = {}): TemplateDetail => ({
 const prompt = (over: Partial<ImagePrompt> = {}): ImagePrompt => ({
   id: 'p1', name: 'Sương mù đồi thông', kind: 'scene', builtIn: false,
   prompt: 'Chất liệu phim 35 mm, sương mù, ánh sáng dịu',
-  updatedAt: '2026-10-31T02:00:00Z', usedBy: [{ id: 'tpl-a', name: 'Template A' }], samples: [],
+  updatedAt: '2026-10-31T02:00:00Z', usedBy: [{ id: 'tpl-a', name: 'Template A' }], samples: [], sampleUrls: [],
   ...over,
 })
 
@@ -89,7 +92,11 @@ function installFetch() {
     if (url === '/api/image-prompts/p1' && method === 'DELETE') {
       return respond({ error: 'Prompt đang dùng ở Template A', code: 'in_use', usedBy: ['tpl-a'] }, 409)
     }
-    if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt({ usedBy }), prompt({ id: 'b1', name: 'Có sẵn', builtIn: true, usedBy: [] })] })
+    if (/^\/api\/image-prompts\/[^/]+\/samples$/.test(url)) {
+      // Đúng wire của PromptSampleStatus — thiếu cost là hợp đồng API bị phá.
+      return respond({ sources: [], history: [], cost: { images: 1, provider: 'ChatGPT', label: 'ChatGPT', quotaLeft: 1 }, ready: false })
+    }
+    if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt({ usedBy, sampleUrls }), prompt({ id: 'b1', name: 'Có sẵn', builtIn: true, usedBy: [] })] })
     if (url === '/api/overlays') return respond({ items: [] })
     if (url === '/api/owner-channels') return respond({ channels: [{ id: 'ch1', name: 'Kênh Một' }] })
     return respond({}, 404)
@@ -136,6 +143,7 @@ beforeEach(async () => {
   calls.length = 0
   patchers = []
   usedBy = [{ id: 'tpl-a', name: 'Template A' }]
+  sampleUrls = []
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} })))
   detailBody = detail()
   patchOk = (revision) => detail({ revision, name: 'Mới', savedAt: '2026-10-31T04:05:00Z' })
@@ -161,7 +169,7 @@ describe('cài đặt template — tự lưu', () => {
     expect(JSON.parse(calls.find((c) => c.method === 'PATCH')!.body!)).toEqual({ revision: 1, name: 'Mới' })
     await act(async () => patchers.shift()!(Response.json(patchOk(2))))
     await flush()
-    expect(page.querySelector('.vt-saved')!.textContent).toContain('Đã lưu ·')
+    expect(page.querySelector('.vt-saved')!.getAttribute('data-state')).toBe('saved')
   })
 
   it('400 theo trường: giữ chữ đã gõ và hiện lỗi dưới ô', async () => {
@@ -205,26 +213,20 @@ describe('cài đặt template — tự lưu', () => {
 })
 
 describe('cài đặt template — xem thử', () => {
+  const previewCopy = t.library.template.preview
   const cases = [
-    { state: 'none' as const, badge: 'Chưa có bản xem thử', stale: false },
-    { state: 'fresh' as const, badge: 'Khớp cài đặt', stale: false },
-    { state: 'stale' as const, badge: 'Cần dựng lại', stale: true },
+    { state: 'none' as const, action: previewCopy.rebuildStale },
+    { state: 'fresh' as const, action: previewCopy.rebuild },
+    { state: 'stale' as const, action: previewCopy.rebuildStale },
   ]
   for (const item of cases) {
     it(`trạng thái ${item.state}`, async () => {
       detailBody = detail({ preview: { state: item.state, builtAt: item.state === 'none' ? null : '2026-10-31T03:20:00Z' } })
       const page = await render(<TemplateScreen route={templateRoute} />)
-      expect(page.textContent).toContain(item.badge)
-      const stale = byText(page, 'button', 'Dựng lại bản xem thử')
-      if (item.stale) {
-        expect(stale).toBeTruthy()
-        expect(stale!.getAttribute('aria-disabled')).toBe('true')
-        expect(page.textContent).toContain('Cần một video đã làm xong')
-      } else {
-        expect(stale).toBeFalsy()
-        const plain = byText(page, 'button', 'Dựng lại')
-        expect(plain!.getAttribute('aria-disabled')).toBe('true')
-      }
+      expect(page.querySelector('.vt-badge')!.getAttribute('data-state')).toBe(item.state)
+      // Mọi trạng thái đều có nút dựng thật; chưa có video xong nên khoá kèm lý do.
+      const build = byText(page, 'button', item.action)!
+      expect(build.getAttribute('aria-disabled')).toBe('true')
     })
   }
 })
@@ -235,9 +237,9 @@ describe('thư viện — xoá', () => {
     const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
     const card = [...page.querySelectorAll('.vlb-pcard')].find((el) => el.textContent?.includes('Sương mù đồi thông'))!
     await click(card.querySelector('.vlb-pcard-open'))
-    await click(byText(page, 'button', 'Xoá'))
+    await click(byText(page, 'button', t.library.delete))
     const dialog = document.querySelector('[role="dialog"], [role="alertdialog"]') as HTMLElement
-    const danger = [...dialog.querySelectorAll('button')].find((el) => el.textContent?.trim() === 'Xoá')
+    const danger = [...dialog.querySelectorAll('button')].find((el) => el.textContent?.trim() === t.library.delete)
     await click(danger)
     await flush(10)
     expect(document.body.textContent).toContain('Template A')
@@ -246,11 +248,11 @@ describe('thư viện — xoá', () => {
 
   it('xoá template bị khoá trong menu khi kênh còn dùng', async () => {
     const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
-    await click(page.querySelector('[aria-label="Thêm thao tác cho Truyện kể đêm"]'))
+    await click(page.querySelector(`[aria-label="${t.library.templates.menuAria('Truyện kể đêm')}"]`))
     const menu = document.querySelector('[role="menu"]')!
-    const remove = [...menu.querySelectorAll('button')].find((el) => el.textContent?.includes('Xoá template'))!
+    const remove = [...menu.querySelectorAll('button')].find((el) => el.textContent?.includes(t.library.templates.deleteItem))!
     expect(remove.getAttribute('aria-disabled')).toBe('true')
-    expect(menu.textContent).toContain('Đang dùng ở Kênh Một')
+    expect(menu.textContent).toContain('Kênh Một')
   })
 })
 
@@ -266,4 +268,74 @@ describe('thư viện — liên kết', () => {
     expect(navHrefs.length).toBeGreaterThan(2)
     expect(navHrefs.filter((href) => !href.startsWith('#/'))).toEqual([])
   })
+})
+
+describe('thư viện — xuất tệp template', () => {
+  it('nút Xuất trên thẻ tải đúng tệp .zip, không còn khoá giả', async () => {
+    const downloaded: string[] = []
+    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloaded.push(this.getAttribute('href') ?? '')
+    })
+    try {
+      const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
+      const button = page.querySelector(`[aria-label="${t.library.templates.exportAria('Truyện kể đêm')}"]`)!
+      expect(button.getAttribute('aria-disabled')).toBeFalsy()
+      await click(button)
+      expect(downloaded).toEqual(['/api/templates/t1/export'])
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  it('mục Xuất tệp trong menu thẻ template cũng tải thật', async () => {
+    const downloaded: string[] = []
+    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloaded.push(this.getAttribute('href') ?? '')
+    })
+    try {
+      const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
+      await click(page.querySelector(`[aria-label="${t.library.templates.menuAria('Truyện kể đêm')}"]`))
+      const menu = document.querySelector('[role="menu"]')!
+      const item = [...menu.querySelectorAll('button')].find((el) => el.textContent?.includes(t.library.template.output.exportFile))!
+      expect(item.getAttribute('aria-disabled')).toBeFalsy()
+      await click(item)
+      expect(downloaded).toEqual(['/api/templates/t1/export'])
+    } finally {
+      spy.mockRestore()
+    }
+  })
+})
+
+describe('thư viện — ảnh mẫu prompt', () => {
+  it('thẻ prompt vẽ ảnh mẫu thật; ảnh hỏng thì quay về ô trung tính', async () => {
+    usedBy = []
+    sampleUrls = ['/api/image-prompts/p1/samples/s1/image']
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
+    const card = [...page.querySelectorAll('.vlb-pcard')].find((el) => el.textContent?.includes('Sương mù đồi thông'))!
+    const img = card.querySelector('img')!
+    expect(img.getAttribute('src')).toBe('/api/image-prompts/p1/samples/s1/image')
+    await act(async () => { img.dispatchEvent(new Event('error')) })
+    await flush()
+    expect(card.querySelector('img')).toBeFalsy()
+  })
+
+  it('chưa có ảnh mẫu thì giữ ô trung tính, không bịa ảnh', async () => {
+    const page = await render(<LibraryScreen route={{ name: 'library', tab: 'prompts' }} />)
+    const card = [...page.querySelectorAll('.vlb-pcard')].find((el) => el.textContent?.includes('Sương mù đồi thông'))!
+    expect(card.querySelector('img')).toBeFalsy()
+  })
+})
+
+it('opens the requested built-in prompt after the initial list finishes loading', async () => {
+  const onView = vi.fn()
+  const page = await render(<PromptsTab view="builtin" all={[]} allLoading onView={onView} />)
+  expect(page.querySelector('#vlb-prompt-name')).toBeNull()
+  const builtIn = prompt({ id: 'b1', name: 'Chỉ dẫn có sẵn cần mở', builtIn: true })
+  await act(async () => {
+    roots.at(-1)!.render(<PromptsTab view="builtin" all={[builtIn]} allLoading={false} onView={onView} />)
+  })
+  await flush()
+  const name = page.querySelector<HTMLInputElement>('#vlb-prompt-name')
+  expect(name?.value).toBe(builtIn.name)
+  expect(name?.readOnly).toBe(true)
 })

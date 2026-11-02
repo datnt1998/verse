@@ -161,11 +161,13 @@ func (s *Service) probeTranscription(ctx context.Context) Row {
 }
 
 func (s *Service) probeChrome(ctx context.Context) Row {
-	// Bản máy chủ không bao giờ mở Chrome của chủ máy (xem tools.Chrome.Resolve),
-	// nên câu chữ không được hứa “Chrome trên máy”: nói rõ máy chủ dùng bản
-	// Chrome for Testing riêng của nó.
+	// Hàng này nói về đúng binary mà export/measure mở: bản Chrome for Testing
+	// app quản (xem render_wiring ChromePath). Chrome trên máy chủ hay Chrome
+	// cá nhân của chủ máy có chạy được cũng không làm hàng "sẵn sàng" — nếu
+	// bản quản thiếu/hỏng, export sẽ chết tool_missing, nên phải báo thiếu để
+	// bước cài chạy.
 	hosted := uploadlimit.Hosted()
-	st := s.tools.Chrome.Status(ctx)
+	st := s.tools.Chrome.ManagedStatus(ctx)
 	if st.State != tools.ChromeReady {
 		if st.State == tools.ChromeMissing {
 			hint := "Chưa cài — app sẽ tự cài Chrome for Testing."
@@ -177,19 +179,25 @@ func (s *Service) probeChrome(ctx context.Context) Row {
 				Hint: hint,
 			})
 		}
-		hint := "Chrome trên máy không dùng được cho xuất video — app sẽ cài Chrome for Testing."
+		hint := "Chrome for Testing không chạy được — app sẽ cài lại bản ghim."
+		if st.State == tools.ChromeIncompatible {
+			hint = "Chrome for Testing thiếu tính năng đo âm thanh — app sẽ cài lại bản ghim."
+		}
 		if hosted {
 			hint = "Chrome for Testing chưa dùng được cho xuất video — app sẽ cài lại bản ghim."
 		}
-		return Row{
+		return s.installHint(ToolChrome, Row{
 			ID: ToolChrome, State: StateFailed,
 			Hint:   hint,
 			Detail: st.Error,
-		}
+		})
 	}
-	caps := s.tools.Chrome.ExportCaps(ctx)
+	caps := s.tools.Chrome.ManagedExportCaps(ctx)
 	if caps.State != tools.ExportReady {
-		hint := "Chrome chạy được nhưng không xuất được video — app sẽ cài Chrome for Testing."
+		hint := "Chrome for Testing chạy được nhưng không xuất được video — app sẽ cài lại bản ghim."
+		if caps.State == tools.ExportUnavailable {
+			hint = "Chrome for Testing thiếu WebGPU hoặc bộ mã hoá H.264 — app sẽ cài lại bản ghim."
+		}
 		if hosted {
 			hint = "Chrome for Testing chạy được nhưng không xuất được video trên máy chủ — app sẽ cài lại bản ghim."
 		}
@@ -200,21 +208,14 @@ func (s *Service) probeChrome(ctx context.Context) Row {
 			Version: st.Version,
 		})
 	}
-	provided := st.Source != "" && st.Source != tools.ChromeManaged
-	hint := fmt.Sprintf("Dùng Chrome chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
-	switch {
-	case hosted && !provided:
+	hint := fmt.Sprintf("Dùng Chrome for Testing chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
+	if hosted {
 		hint = fmt.Sprintf("Máy chủ dùng Chrome for Testing riêng, không dùng Chrome của máy · bản %s", st.Version)
-	case hosted:
-		hint = fmt.Sprintf("Dùng Chrome bạn chọn, chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
-	case provided:
-		hint = fmt.Sprintf("Dùng Chrome có sẵn trên máy, chạy ngầm để xuất video và đo âm thanh · bản %s", st.Version)
 	}
 	return Row{
 		ID: ToolChrome, State: StateReady, Version: st.Version,
-		Hint:     hint,
-		Detail:   st.Path,
-		Provided: provided,
+		Hint:   hint,
+		Detail: st.Path,
 	}
 }
 

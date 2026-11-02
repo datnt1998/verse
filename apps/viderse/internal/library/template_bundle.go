@@ -60,9 +60,9 @@ func TemplateBundleLimit() int64 { return uploadlimit.Cap(MaxTemplateBundleBytes
 func TemplateBundleTooLarge() (string, string) {
 	limit := TemplateBundleLimit()
 	if limit < MaxTemplateBundleBytes {
-		return "Tệp template quá lớn", uploadlimit.TooLargeMessage(limit)
+		return "Tệp mẫu video quá lớn", uploadlimit.TooLargeMessage(limit)
 	}
-	return "Tệp template quá lớn", "Mỗi tệp tối đa " + uploadlimit.Label(limit)
+	return "Tệp mẫu video quá lớn", "Mỗi tệp tối đa " + uploadlimit.Label(limit)
 }
 
 const bundleManifestName = "template.json"
@@ -116,14 +116,14 @@ func (b *TemplateBundle) OpenMedia(i int) (io.ReadCloser, error) {
 		return os.Open(media.file)
 	}
 	if b.archive == nil {
-		return nil, fmt.Errorf("gói template đã đóng")
+		return nil, fmt.Errorf("gói mẫu video đã đóng")
 	}
 	for _, entry := range b.archive.File {
 		if entry.Name == media.entry {
 			return entry.Open()
 		}
 	}
-	return nil, fmt.Errorf("gói template thiếu mục %s", media.entry)
+	return nil, fmt.Errorf("gói mẫu video thiếu mục %s", media.entry)
 }
 
 // ── manifest ───────────────────────────────────────────────────────────────
@@ -155,7 +155,7 @@ func notTemplateFile(message, recovery string) *Error {
 }
 
 func bundleRecovery() string {
-	return "Chọn tệp .ytf-template.zip (bản xuất template). Nếu Safari đã tự giải nén thành thư mục, chuột phải thư mục → Nén, rồi chọn tệp .zip vừa tạo"
+	return "Chọn tệp .ytf-template.zip (bản xuất mẫu video). Nếu Safari đã tự giải nén thành thư mục, chuột phải thư mục → Nén, rồi chọn tệp .zip vừa tạo"
 }
 
 // OpenTemplateBundle đọc một template từ tệp `.ytf-template.zip` hoặc từ thư
@@ -163,7 +163,7 @@ func bundleRecovery() string {
 func OpenTemplateBundle(target string) (*TemplateBundle, error) {
 	info, err := os.Stat(target)
 	if err != nil {
-		return nil, invalidInput("Không đọc được tệp template", "Kiểm tra tệp còn ở đó rồi chọn lại")
+		return nil, invalidInput("Không đọc được tệp mẫu video", "Kiểm tra tệp còn ở đó rồi chọn lại")
 	}
 	if info.IsDir() {
 		return openTemplateDir(target)
@@ -178,7 +178,7 @@ func openTemplateZip(target string) (*TemplateBundle, error) {
 	}
 	archive, err := zip.OpenReader(target)
 	if err != nil {
-		return nil, notTemplateFile("Tệp không phải tệp template", bundleRecovery())
+		return nil, notTemplateFile("Tệp không phải tệp mẫu video", bundleRecovery())
 	}
 	bundle, err := readZipBundle(archive)
 	if err != nil {
@@ -210,10 +210,10 @@ func bundleFiles(entries []*zip.File) (map[string]*zip.File, error) {
 		}
 	}
 	if len(manifests) == 0 {
-		return nil, notTemplateFile("Tệp không phải tệp template", bundleRecovery())
+		return nil, notTemplateFile("Tệp không phải tệp mẫu video", bundleRecovery())
 	}
 	if len(manifests) > 1 {
-		return nil, notTemplateFile("Tệp chứa nhiều template", "Nhập từng tệp một")
+		return nil, notTemplateFile("Tệp chứa nhiều mẫu video", "Nhập từng tệp một")
 	}
 	root := strings.TrimSuffix(manifests[0].Name, bundleManifestName)
 	view := make(map[string]*zip.File, len(files))
@@ -248,7 +248,7 @@ func readZipBundle(archive *zip.ReadCloser) (*TemplateBundle, error) {
 	}
 	manifestEntry, ok := files[bundleManifestName]
 	if !ok {
-		return nil, notTemplateFile("Tệp không phải tệp template", bundleRecovery())
+		return nil, notTemplateFile("Tệp không phải tệp mẫu video", bundleRecovery())
 	}
 	manifest, project, err := decodeBundleManifest(manifestEntry)
 	if err != nil {
@@ -258,7 +258,7 @@ func readZipBundle(archive *zip.ReadCloser) (*TemplateBundle, error) {
 	for _, media := range manifest.Media {
 		entry, ok := files[normalizeBundleName(media.Entry)]
 		if !ok || int64(entry.UncompressedSize64) != media.Size {
-			return nil, notTemplateFile("Template thiếu tệp media "+media.FileName, bundleRecovery())
+			return nil, notTemplateFile("Mẫu video thiếu tệp media "+media.FileName, bundleRecovery())
 		}
 		bundle.Media = append(bundle.Media, BundleMedia{
 			ID: media.ID, FileName: media.FileName, MIME: media.MIME, Size: media.Size,
@@ -274,32 +274,32 @@ func readZipBundle(archive *zip.ReadCloser) (*TemplateBundle, error) {
 func decodeBundleManifest(entry *zip.File) (bundleManifest, editor.Project, error) {
 	var manifest bundleManifest
 	if int64(entry.UncompressedSize64) > maxBundleManifestBytes {
-		return manifest, nil, notTemplateFile("Nội dung template quá lớn", bundleRecovery())
+		return manifest, nil, notTemplateFile("Nội dung mẫu video quá lớn", bundleRecovery())
 	}
 	reader, err := entry.Open()
 	if err != nil {
-		return manifest, nil, notTemplateFile("Không đọc được nội dung template", bundleRecovery())
+		return manifest, nil, notTemplateFile("Không đọc được nội dung mẫu video", bundleRecovery())
 	}
 	defer reader.Close()
 	data, err := io.ReadAll(io.LimitReader(reader, maxBundleManifestBytes+1))
 	if err != nil {
-		return manifest, nil, notTemplateFile("Không đọc được nội dung template", bundleRecovery())
+		return manifest, nil, notTemplateFile("Không đọc được nội dung mẫu video", bundleRecovery())
 	}
 	var head struct {
 		Format  string `json:"format"`
 		Version int    `json:"version"`
 	}
 	if err := json.Unmarshal(data, &head); err != nil {
-		return manifest, nil, notTemplateFile("Không đọc được nội dung template", bundleRecovery())
+		return manifest, nil, notTemplateFile("Không đọc được nội dung mẫu video", bundleRecovery())
 	}
 	if head.Format != TemplateBundleFormat {
-		return manifest, nil, notTemplateFile("Tệp không phải tệp template", bundleRecovery())
+		return manifest, nil, notTemplateFile("Tệp không phải tệp mẫu video", bundleRecovery())
 	}
 	if head.Version > TemplateBundleVersion {
-		return manifest, nil, invalidInput("Tệp template thuộc phiên bản mới hơn", "Cập nhật Viderse rồi nhập lại")
+		return manifest, nil, invalidInput("Tệp mẫu video thuộc phiên bản mới hơn", "Cập nhật Viderse rồi nhập lại")
 	}
 	if err := json.Unmarshal(data, &manifest); err != nil {
-		return manifest, nil, notTemplateFile("Nội dung template không hợp lệ", bundleRecovery())
+		return manifest, nil, notTemplateFile("Nội dung mẫu video không hợp lệ", bundleRecovery())
 	}
 	project, err := validateBundleManifest(&manifest)
 	return manifest, project, err
@@ -310,15 +310,15 @@ func decodeBundleManifest(entry *zip.File) (bundleManifest, editor.Project, erro
 func validateBundleManifest(manifest *bundleManifest) (editor.Project, error) {
 	name := strings.TrimSpace(manifest.Name)
 	if name == "" || len([]rune(name)) > 200 {
-		return nil, notTemplateFile("Template thiếu tên", bundleRecovery())
+		return nil, notTemplateFile("Mẫu video thiếu tên", bundleRecovery())
 	}
 	manifest.Name = name
 	if len(manifest.Media) > maxBundleMedia {
-		return nil, notTemplateFile("Template có quá nhiều media", bundleRecovery())
+		return nil, notTemplateFile("Mẫu video có quá nhiều media", bundleRecovery())
 	}
 	project, err := editor.Parse(manifest.Project)
 	if err != nil {
-		return nil, notTemplateFile("Nội dung template không hợp lệ", bundleRecovery())
+		return nil, notTemplateFile("Nội dung mẫu video không hợp lệ", bundleRecovery())
 	}
 	if err := validateBundleProject(project); err != nil {
 		return nil, err
@@ -327,23 +327,23 @@ func validateBundleManifest(manifest *bundleManifest) (editor.Project, error) {
 	for i := range manifest.Media {
 		media := &manifest.Media[i]
 		if media.ID == "" || len(media.ID) > 64 {
-			return nil, notTemplateFile("Template có media thiếu mã", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video có media thiếu mã", bundleRecovery())
 		}
 		if ids[media.ID] {
-			return nil, notTemplateFile("Template liệt kê một media hai lần", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video liệt kê một media hai lần", bundleRecovery())
 		}
 		ids[media.ID] = true
 		if media.FileName == "" || len(media.FileName) > 512 || len(media.Entry) > 512 {
-			return nil, notTemplateFile("Template có tên tệp media không hợp lệ", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video có tên tệp media không hợp lệ", bundleRecovery())
 		}
 		if media.MIME == "" || len(media.MIME) > 255 {
-			return nil, notTemplateFile("Template có media thiếu loại tệp", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video có media thiếu loại tệp", bundleRecovery())
 		}
 		if media.Size < 0 {
-			return nil, notTemplateFile("Template có media sai kích thước", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video có media sai kích thước", bundleRecovery())
 		}
 		if !validSHA256(media.ContentHash) {
-			return nil, notTemplateFile("Template có media thiếu mã kiểm nội dung", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video có media thiếu mã kiểm nội dung", bundleRecovery())
 		}
 		if strings.Contains(media.Entry, "..") || path.IsAbs(strings.ReplaceAll(media.Entry, "\\", "/")) {
 			return nil, notTemplateFile("Tệp nén có đường dẫn không hợp lệ", bundleRecovery())
@@ -353,7 +353,7 @@ func validateBundleManifest(manifest *bundleManifest) (editor.Project, error) {
 	// trỏ tới một id không tồn tại sau khi nhập.
 	for _, id := range projectMediaIDs(project) {
 		if !ids[id] {
-			return nil, notTemplateFile("Template dùng media không có trong tệp", bundleRecovery())
+			return nil, notTemplateFile("Mẫu video dùng media không có trong tệp", bundleRecovery())
 		}
 	}
 	return project, nil
@@ -377,13 +377,13 @@ func validSHA256(hash string) bool {
 func validateBundleProject(project editor.Project) error {
 	version, _ := project["schemaVersion"].(float64)
 	if int(version) != editor.SchemaVersion {
-		return notTemplateFile("Template thuộc phiên bản project khác", fmt.Sprintf("Chỉ nhập được project schema %d", editor.SchemaVersion))
+		return notTemplateFile("Mẫu video thuộc phiên bản project khác", fmt.Sprintf("Chỉ nhập được project schema %d", editor.SchemaVersion))
 	}
 	if _, ok := project.Metadata()["width"]; !ok {
-		return notTemplateFile("Template không có khung hình", bundleRecovery())
+		return notTemplateFile("Mẫu video không có khung hình", bundleRecovery())
 	}
 	if _, ok := project.Timeline()["tracks"]; !ok {
-		return notTemplateFile("Template không có timeline", bundleRecovery())
+		return notTemplateFile("Mẫu video không có timeline", bundleRecovery())
 	}
 	return nil
 }
@@ -450,7 +450,7 @@ func readWorkspaceMedia(mediaRoot, id string) (BundleMedia, error) {
 	data, err := os.ReadFile(filepath.Join(dir, "metadata.json"))
 	if err != nil {
 		return BundleMedia{}, invalidInput("Project dùng media không còn trong thư viện cũ",
-			"Xuất template thành tệp .ytf-template.zip rồi nhập tệp đó")
+			"Xuất mẫu video thành tệp .ytf-template.zip rồi nhập tệp đó")
 	}
 	var meta struct {
 		FileName    string                   `json:"fileName"`

@@ -50,9 +50,6 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
             </span>
           )}
           <span className={`vch-chip ${stylex.props(chip, autonomyStyles.headChip).className}`}>{lang}</span>
-          {channel.identity.state === 'generating' && (
-            <span className={`vch-chip vch-chip--warn ${stylex.props(chip, channelStyles.chipWarn).className}`}>{tt.identity.generatingSub}</span>
-          )}
         </div>
         <h1 className={`vch-title ${stylex.props(channelStyles.title).className}`}>{name}</h1>
         <span className={`vch-sub ${stylex.props(channelStyles.sub).className}`} title={[ytFull ?? tt.page.noYouTube, ...parts.slice(1)].join(' · ')}>{parts.join(' · ')}</span>

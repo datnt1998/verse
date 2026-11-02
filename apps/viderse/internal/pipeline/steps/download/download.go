@@ -282,7 +282,7 @@ func (h *Handler) Run(ctx context.Context, step *pipeline.StepContext) (result p
 			}
 		}
 		if len(inputs) == 0 {
-			return result, stepError(domain.CloneErrInternal, "yt-dlp hoàn tất nhưng không có file media nào trong staging", "")
+			return result, stepError(domain.CloneErrInternal, "yt-dlp chạy xong nhưng không có tệp media nào trong thư mục tạm", "")
 		}
 		first, e := h.probe(runCtx, toolDeps.Runner, ff.Ffprobe, inputs[0])
 		if e != nil {
@@ -316,7 +316,7 @@ func (h *Handler) Run(ctx context.Context, step *pipeline.StepContext) (result p
 		}
 	}
 	if probe.VideoCodec == "" {
-		return result, stepError(domain.CloneErrSourceUnavailable, "Nguồn tải về không có video track", "Chọn video khác — nguồn chỉ có audio không dựng được video")
+		return result, stepError(domain.CloneErrSourceUnavailable, "Nguồn tải về không có hình ảnh video", "Chọn video khác — nguồn chỉ có audio không dựng được video")
 	}
 	if probe.DurationSec == nil || *probe.DurationSec <= 0 || math.IsNaN(*probe.DurationSec) || math.IsInf(*probe.DurationSec, 0) {
 		return result, stepError(domain.CloneErrSourceUnavailable, "Không đọc được thời lượng ổn định của nguồn", "Video có thể đang được xử lý — thử lại sau hoặc chọn video khác")

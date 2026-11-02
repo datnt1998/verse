@@ -28,7 +28,8 @@ function LinkField({ onChange }: { onChange: (value: string) => void }) {
   )
 }
 
-async function suggestDeleteExport(job: CloneJobView, onDone: () => void) {
+/** Xoá riêng file MP4 của một video đã đăng (giữ ảnh, project và video). Dùng chung cho Bàn dựng và bản điện thoại. */
+export async function requestDeleteExport(job: CloneJobView, onDone: () => void) {
   if (!job.exportBytes || job.exportBytes <= 0) return
   const mb = Math.ceil(job.exportBytes / (1024 * 1024))
   await confirm({
@@ -58,5 +59,5 @@ export async function requestMarkPosted(job: CloneJobView, onDone: () => void): 
   })
   if (!marked) return
   toast.ok(copy.done)
-  await suggestDeleteExport(job, onDone)
+  await requestDeleteExport(job, onDone)
 }

@@ -46,6 +46,14 @@ export interface MediaMetadata {
   codec: string
   bitrate: number
   /**
+   * Whether the source container carries an audio track.
+   *
+   * Only a probe that definitively inspected the streams may set this. `false`
+   * means "confirmed silent video" and lets the mixer skip a decode attempt;
+   * `undefined` means unknown and must still be decoded so real failures show.
+   */
+  audioTrackPresent?: boolean
+  /**
    * Audio codec identifier (e.g., 'aac', 'ec-3', 'ac-3')
    * Only present for video files with audio tracks
    */

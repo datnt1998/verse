@@ -12,6 +12,7 @@ import { invalidate } from '@noverse/ui/data'
 import { controlRivalScan, removeRival, type Rival } from '../../api/rivals'
 import { t } from '../../i18n/explore'
 import { keys } from '../../data/keys'
+import { navigate, paths } from '../../router'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { fmtSubs } from './fmt'
 import { linkSource } from '../../api/channels'
@@ -22,7 +23,7 @@ const num1 = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 })
 // nguyên như artboard; dưới 1 giữ một chữ số lẻ để không thành "0 video".
 const fmtPerWeek = (n: number) => (n >= 1 ? num.format(Math.round(n)) : num1.format(n))
 
-export function RivalCard({ rival, color, rescanHours, perWeek, channels, linkedChannelName, onRemoved }: {
+export function RivalCard({ rival, color, rescanHours, perWeek, channels, linkedChannelId, linkedChannelName, onRemoved }: {
   rival: Rival
   color: string
   /** chu kỳ kiểm tra video mới — hiện trong hint "không đợi chu kỳ N giờ" */
@@ -32,6 +33,7 @@ export function RivalCard({ rival, color, rescanHours, perWeek, channels, linked
   /** kênh của tôi — có kênh thì "Liên kết với kênh…" mở hộp chọn kênh */
   channels: { id: string; name: string }[]
   /** kênh đang dùng đối thủ này (nếu có) — dòng dưới thẻ */
+  linkedChannelId?: string
   linkedChannelName?: string
   onRemoved: () => void
 }) {
@@ -69,9 +71,11 @@ export function RivalCard({ rival, color, rescanHours, perWeek, channels, linked
   const items: ActionMenuItem[] = [
     { id: 'check', label: tt.menuCheck, description: tt.menuCheckHint(rescanHours), icon: <Icon name="refresh" size={16} />, onSelect: check },
     { id: 'youtube', label: tt.openYouTube, description: rival.handle ? `youtube.com/${rival.handle}` : rival.url.replace(/^https?:\/\/(www\.)?/, ''), icon: <Icon name="link" size={16} />, onSelect: () => window.open(rival.url, '_blank', 'noreferrer') },
-    channels.length > 0
-      ? { id: 'link', label: tt.menuLink, description: tt.menuLinkHint, icon: <Icon name="channel" size={16} />, onSelect: () => setLinkOpen(true) }
-      : { id: 'link', label: tt.menuLink, lockedReason: tt.lockedReason, icon: <Icon name="channel" size={16} /> },
+    linkedChannelId
+      ? { id: 'link', label: tt.menuLink, description: tt.menuLinkHintLinked(linkedChannelName ?? ''), icon: <Icon name="channel" size={16} />, onSelect: () => navigate(paths.channel(linkedChannelId, 'sources')) }
+      : channels.length > 0
+        ? { id: 'link', label: tt.menuLink, description: tt.menuLinkHint, icon: <Icon name="channel" size={16} />, onSelect: () => setLinkOpen(true) }
+        : { id: 'link', label: tt.menuLink, lockedReason: tt.lockedReason, icon: <Icon name="channel" size={16} /> },
     { id: 'unfollow', label: tt.menuUnfollow, description: tt.menuUnfollowHint, icon: <Icon name="trash" size={16} />, danger: true, onSelect: unfollow },
   ]
 

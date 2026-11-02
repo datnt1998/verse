@@ -5,7 +5,7 @@ import { MReviewScreen } from './MReviewScreen'
 import type * as ReviewModule from '../useReview'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-const state = vi.hoisted(() => ({ mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready' }))
+const state = vi.hoisted(() => ({ jobId: 'j', mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready' }))
 const image = {
   id: 'b', kind: 'scene', status: 'review', prompt: 'Đêm mưa, quán nhỏ ven đường', sceneId: '2',
   currentVersion: null, reviewVersion: null, startSec: 3, endSec: 9, narration: 'Lời kể trong cảnh',
@@ -19,8 +19,8 @@ vi.mock('../useReview', async importOriginal => {
   return {
     ...actual,
     useReview: () => ({
-      jobs: [{ id: 'j', channelId: 'c', stageGroup: 'review', subline: '', createdAt: '2026-11-02T10:00:00Z', source: { title: 'Video', thumbnailUrl: null } }],
-      images: { j: { manifest: { revision: 3 }, items: [{ ...image, status: state.status, versions: [...image.versions, ...(state.nextVersion === 'none' ? [] : [{ version: 3, cutout: null, originalUrl: state.nextVersion === 'ready' ? '/v3.jpg' : '', prompt: 'Bản mới' }])] }], approved: false, approvedToday: null, learn: null, summary: null } },
+      jobs: [{ id: state.jobId, channelId: 'c', stageGroup: 'review', subline: '', createdAt: '2026-11-02T10:00:00Z', source: { title: 'Video', thumbnailUrl: null } }],
+      images: { [state.jobId]: { manifest: { revision: 3 }, items: [{ ...image, status: state.status, versions: [...image.versions, ...(state.nextVersion === 'none' ? [] : [{ version: 3, cutout: null, originalUrl: state.nextVersion === 'ready' ? '/v3.jpg' : '', prompt: 'Bản mới' }])] }], approved: false, approvedToday: null, learn: null, summary: null } },
       imageErrors: {}, pending: {}, loadImages: state.loadImages, loadJobs: vi.fn(), mutate: state.mutate,
     }),
   }
@@ -28,7 +28,7 @@ vi.mock('../useReview', async importOriginal => {
 vi.mock('../../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../../data/useResource', () => ({ useResource: () => ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) }))
 let root: Root | undefined
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; state.status = 'review'; state.nextVersion = 'none'; vi.useRealTimers(); vi.clearAllMocks() })
+afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; state.jobId = 'j'; state.status = 'review'; state.nextVersion = 'none'; vi.useRealTimers(); vi.clearAllMocks() })
 
 const render = async () => {
   const node = document.createElement('div'); document.body.append(node); root = createRoot(node)
@@ -71,12 +71,12 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     act(() => button('Đang xem bản 1')!.click())
     expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v2.jpg')
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
-    act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
+    act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem chỉ dẫn đã gửi"]')!.click())
     expect(document.querySelector('[role="dialog"]')?.textContent).toContain(image.versions[0].prompt)
     expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain(image.prompt)
-    act(() => button('Sửa prompt rồi vẽ lại')!.click())
+    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
     expect(document.querySelector('textarea')?.value).toBe(image.versions[0].prompt)
-    expect(button('Vẽ lại với prompt này')?.disabled).toBe(true)
+    expect(button('Vẽ lại với chỉ dẫn này')?.disabled).toBe(true)
     expect(state.mutate).not.toHaveBeenCalled()
   })
 
@@ -92,14 +92,13 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     expect(node.querySelector('[aria-label="Bản 3"]')?.getAttribute('aria-pressed')).toBe('true')
   })
 
-  it('vẫn tải bản mới khi đồng hồ và danh sách video thay đổi trong lúc đang vẽ', async () => {
-    vi.useFakeTimers()
-    state.status = 'running'
-    await render()
-    for (let second = 0; second < 7; second++) {
-      await act(async () => { vi.advanceTimersByTime(1000) })
-    }
-    expect(state.loadImages).toHaveBeenCalledTimes(2)
-    expect(state.loadImages).toHaveBeenCalledWith('j')
+  it('keeps version choices scoped to one video when another uses the same image id', async () => {
+    const node = await render()
+    act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
+    state.jobId = 'another-video'
+    await act(async () => { root!.render(<MReviewScreen />) })
+    expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v2.jpg')
+    expect(node.querySelector('[aria-label="Bản 2"]')?.getAttribute('aria-pressed')).toBe('true')
+    expect(state.mutate).not.toHaveBeenCalled()
   })
 })

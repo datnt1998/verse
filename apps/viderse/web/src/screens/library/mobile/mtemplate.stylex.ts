@@ -106,6 +106,17 @@ export const mtpl = stylex.create({
     fontSize: libraryVars.captionFontSize,
     lineHeight: 1.5,
   },
+  previewProgress: {
+    margin: 0,
+    color: color['--color-fg-3'],
+    fontSize: s['--vv-s-12'],
+    fontVariantNumeric: 'tabular-nums',
+  },
+  previewError: {
+    margin: 0,
+    color: color['--color-err'],
+    fontSize: s['--vv-s-12'],
+  },
   rebuild: {
     width: '100%',
     minHeight: s['--vv-s-44'],
@@ -215,6 +226,7 @@ export const mtpl = stylex.create({
     flexShrink: 0,
     color: color['--color-ok'],
   },
+  readyNeutral: { flexShrink: 0, color: color['--color-fg-3'] },
 
   // ── Thanh lưu ───────────────────────────────────────────────────────────
   footer: {

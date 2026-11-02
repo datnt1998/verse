@@ -33,6 +33,19 @@ export function serverMediaToMetadata(record: ServerMediaRecord): MediaMetadata 
     fps: probe.kind === 'video' ? (probe.fps ?? DEFAULT_VIDEO_FPS) : 0,
     codec: codec ?? 'unknown',
     bitrate: 0,
+    // The server probe saw every stream: a video with a null audio codec is
+    // confirmed silent, while an audio container always carries audio. Images
+    // and Lottie leave this undefined because the mixer never reads audio there.
+    audioTrackPresent:
+      probe.kind === 'video'
+        ? probe.audioCodec === null
+          ? false
+          : probe.audioCodec
+            ? true
+            : undefined
+        : probe.kind === 'audio'
+          ? true
+          : undefined,
     audioCodec: probe.kind === 'video' ? (probe.audioCodec ?? undefined) : undefined,
     tags: record.tags ? [...record.tags] : [],
     attribution: record.attribution,

@@ -13,6 +13,7 @@ import { TimelinePanel } from "@/editor/ui/timeline";
 import { useShortcutAction } from "@/editor/ui/shortcuts";
 import { TemplateBanner } from "@/editor/ui/template/template-banner";
 import { announce } from "./announcer";
+import '../../../styles/editor-utilities.css';
 
 const panelIds = ["library", "preview", "inspector"];
 const verticalIds = ["workspace", "timeline"];

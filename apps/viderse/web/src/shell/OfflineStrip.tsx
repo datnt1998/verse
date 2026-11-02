@@ -5,6 +5,7 @@
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-offline*).
 import { useEffect, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
+import { Button, Icon } from '@noverse/ui'
 import { t } from '../i18n/vi'
 import { useEventsStatus, events } from '../data/events'
 import type { EventsStatus } from '@noverse/ui/data'
@@ -15,14 +16,21 @@ export const offlineStyles = stylex.create({
     display: 'flex',
     alignItems: 'center',
     gap: 'var(--vv-s-10)',
-    padding: 'var(--vv-s-8) var(--vv-s-18)',
+    padding: 'var(--vv-s-10) var(--vv-s-12)',
     flexWrap: 'wrap',
-    backgroundColor: 'var(--vv-err-11)',
-    borderBottomWidth: 'var(--vv-s-1)',
-    borderBottomStyle: 'solid',
-    borderBottomColor: 'var(--vv-err-28)',
+    borderRadius: 'var(--vv-r-12)',
+    borderWidth: 'var(--vv-s-1)',
+    borderStyle: 'solid',
+    borderColor: 'var(--vv-err-28)',
+    backgroundColor: 'var(--vv-warn-bg)',
     fontSize: 13,
+    color: 'var(--color-fg-3)',
   },
+  icon: { color: 'var(--vv-danger)', flex: '0 0 auto' },
+  banner: { margin: 'var(--vv-s-10) var(--vv-s-16) 0' },
+  body: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column' },
+  title: { fontSize: 13, fontWeight: 500, color: 'var(--color-fg)' },
+  text: { fontSize: 12, color: 'var(--color-fg-3)', lineHeight: 1.55 },
   dot: {
     width: 8,
     height: 8,
@@ -49,7 +57,6 @@ export function OfflineStrip({ status, retry }: {
 }) {
   const live = useEventsStatus()
   const { reconnectAt, failures } = status ?? live
-  const [details, setDetails] = useState(false)
   const [now, setNow] = useState(Date.now)
   useEffect(() => {
     if (!reconnectAt) return
@@ -59,20 +66,13 @@ export function OfflineStrip({ status, retry }: {
   const nextIn = reconnectAt ? Math.max(0, Math.ceil((reconnectAt - now) / 1000)) : 0
 
   return (
-    <div role="alert" className={`vv-offline ${stylex.props(offlineStyles.strip).className}`}>
-      <span aria-hidden="true" className={`vv-offline__dot ${stylex.props(offlineStyles.dot).className}`} />
-      <strong style={{ fontWeight: 600 }}>{t.offline.title}</strong>
-      {failures > 0 && reconnectAt && (
-        <span style={{ color: 'var(--color-fg-4)', fontSize: 12.5 }}>· {t.offline.retryingIn(nextIn)}</span>
-      )}
-      <span style={{ flex: 1 }} />
-      <button type="button" aria-expanded={details} onClick={() => setDetails((v) => !v)} {...stylex.props(offlineStyles.btn)}>
-        {t.common.details}
-      </button>
-      <button type="button" onClick={retry ?? (() => events.retryNow())} {...stylex.props(offlineStyles.btn)}>
-        {t.common.retryNow}
-      </button>
-      {details && <div {...stylex.props(offlineStyles.more)}>{t.offline.body}</div>}
+    <div role="alert" className={`vv-offline ${stylex.props(offlineStyles.strip, offlineStyles.banner).className}`}>
+      <Icon name="danger" size={17} xstyle={offlineStyles.icon} />
+      <div {...stylex.props(offlineStyles.body)}>
+        <strong {...stylex.props(offlineStyles.title)}>{t.offline.title}{failures > 0 && reconnectAt ? <> · {t.offline.retryingIn(nextIn)}</> : null}</strong>
+        <span {...stylex.props(offlineStyles.text)}>{t.offline.body}</span>
+      </div>
+      <Button size="sm" variant="ghost" onClick={retry ?? (() => events.retryNow())}><Icon name="refresh" size={14} />{t.common.retryNow}</Button>
     </div>
   )
 }

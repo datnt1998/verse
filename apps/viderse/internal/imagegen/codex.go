@@ -483,8 +483,8 @@ func (p *CodexProvider) Draw(ctx context.Context, req Request, journal JournalHa
 		}
 		if err := writeJSONAtomic(req.Output+".receipt.json", receipt); err != nil {
 			// Ảnh đã nguyên tử trên đĩa; sidecar lỗi không được xoá ảnh và
-			// không được dẫn tới vẽ lại.
-			return Receipt{}, &StoreError{Err: err}
+			// không được dẫn tới vẽ lại. Lượt Codex đã chạy xong → đã trả phí.
+			return Receipt{}, &StoreError{Err: err, Charged: true}
 		}
 		return receipt, nil
 	}

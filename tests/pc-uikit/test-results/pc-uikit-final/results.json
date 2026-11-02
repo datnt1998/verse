@@ -1,0 +1,628 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/pc-uikit/playwright.config.ts"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/pc-uikit/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/pc-uikit",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/dat/Projects/verse/tests/pc-uikit",
+        "testIgnore": [],
+        "testMatch": [
+          "pc-uikit.pw.ts"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/Users/dat/Projects/verse/tests/pc-uikit",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/pc-uikit",
+        "testIgnore": [],
+        "testMatch": "pc-uikit.pw.ts",
+        "timeout": 120000,
+        "use": {
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "baseURL": "http://127.0.0.1:8060",
+          "screenshot": "off",
+          "trace": "off",
+          "video": "off",
+          "launchOptions": {
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/pc-uikit-final/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "pc-uikit.pw.ts",
+      "file": "pc-uikit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "desktop shell",
+          "file": "pc-uikit.pw.ts",
+          "line": 87,
+          "column": 6,
+          "specs": [
+            {
+              "title": "header, hover/pressed states, focus ring, reduced motion",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1554,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:23.237Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "01-shell-1440",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/01-shell-1440-0eb5eeb35502e1336c5994d9888afebf1d0f9e0b.png"
+                        },
+                        {
+                          "name": "02-header",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/02-header-26db0a3abe6569381fbf8e4818c41ba5559f4722.png"
+                        },
+                        {
+                          "name": "03-header-metrics.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJhY3RpdmVOYXYiOiB7CiAgICAicmVjdCI6IHsKICAgICAgIngiOiA0NjEsCiAgICAgICJ5IjogMTIsCiAgICAgICJ3aWR0aCI6IDEwNiwKICAgICAgImhlaWdodCI6IDMwCiAgICB9LAogICAgImNvbG9yIjogInJnYigyMzcsIDIzNywgMjM5KSIsCiAgICAiYmFja2dyb3VuZCI6ICJyZ2IoMzQsIDM0LCAzNykiLAogICAgImJvcmRlciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgInJhZGl1cyI6ICI3cHgiLAogICAgImZvbnQiOiAiMTNweC81MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9LAogICJhY3RpdmVOYXZJY29uIjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogNDcxLAogICAgICAieSI6IDE5LAogICAgICAid2lkdGgiOiAxNiwKICAgICAgImhlaWdodCI6IDE2CiAgICB9LAogICAgImNvbG9yIjogInJnYigyNTUsIDc3LCA5OSkiLAogICAgImJhY2tncm91bmQiOiAicmdiKDI1NSwgNzcsIDk5KSIsCiAgICAiYm9yZGVyIjogInJnYigyNTUsIDc3LCA5OSkiLAogICAgInJhZGl1cyI6ICIwcHgiLAogICAgImZvbnQiOiAiMTNweC81MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9LAogICJzd2l0Y2hlciI6IHsKICAgICJyZWN0IjogewogICAgICAieCI6IDU0LAogICAgICAieSI6IDEyLAogICAgICAid2lkdGgiOiAxNDYsCiAgICAgICJoZWlnaHQiOiAzMAogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgImJhY2tncm91bmQiOiAicmdiYSgwLCAwLCAwLCAwKSIsCiAgICAiYm9yZGVyIjogInJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wOCkiLAogICAgInJhZGl1cyI6ICI4cHgiLAogICAgImZvbnQiOiAiMTNweC81MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9LAogICJnZWFyIjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogMTM1NCwKICAgICAgInkiOiAxMSwKICAgICAgIndpZHRoIjogMzIsCiAgICAgICJoZWlnaHQiOiAzMgogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMTYwLCAxNjAsIDE3MSkiLAogICAgImJhY2tncm91bmQiOiAicmdiYSgwLCAwLCAwLCAwKSIsCiAgICAiYm9yZGVyIjogInJnYmEoMCwgMCwgMCwgMCkiLAogICAgInJhZGl1cyI6ICI4cHgiLAogICAgImZvbnQiOiAiMTRweC80MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9LAogICJqb2JzIjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogMTA5NCwKICAgICAgInkiOiAxMiwKICAgICAgIndpZHRoIjogMjUyLAogICAgICAiaGVpZ2h0IjogMzAKICAgIH0sCiAgICAiY29sb3IiOiAicmdiKDE2MCwgMTYwLCAxNzEpIiwKICAgICJiYWNrZ3JvdW5kIjogInJnYmEoMCwgMCwgMCwgMCkiLAogICAgImJvcmRlciI6ICJyZ2IoMTYwLCAxNjAsIDE3MSkiLAogICAgInJhZGl1cyI6ICI4cHgiLAogICAgImZvbnQiOiAiMTIuNXB4LzQwMCIsCiAgICAidHJhbnNpdGlvbiI6ICJhbGwiLAogICAgImFuaW1hdGlvbiI6ICJub25lIgogIH0sCiAgImF2YXRhciI6IHsKICAgICJyZWN0IjogewogICAgICAieCI6IDEzOTQsCiAgICAgICJ5IjogMTIsCiAgICAgICJ3aWR0aCI6IDMwLAogICAgICAiaGVpZ2h0IjogMzAKICAgIH0sCiAgICAiY29sb3IiOiAicmdiKDIzNywgMjM3LCAyMzkpIiwKICAgICJiYWNrZ3JvdW5kIjogInJnYigzNCwgMzQsIDM3KSIsCiAgICAiYm9yZGVyIjogInJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNikiLAogICAgInJhZGl1cyI6ICI1MCUiLAogICAgImZvbnQiOiAiMTJweC82MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9Cn0="
+                        },
+                        {
+                          "name": "04-hover-nav-active",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/04-hover-nav-active-e7deea3765299e89cbe3b63448e72dbab188154e.png"
+                        },
+                        {
+                          "name": "04-hover-switcher",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/04-hover-switcher-3677a408414e14edc0de0ef01628894046883d90.png"
+                        },
+                        {
+                          "name": "04-hover-gear",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/04-hover-gear-a50cedc27d774a04cf11f1c74de4962351079187.png"
+                        },
+                        {
+                          "name": "04-hover-avatar",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/04-hover-avatar-d8d8196dc69c0d58e8ad9c0d6d523f2275a368ed.png"
+                        },
+                        {
+                          "name": "05-pressed-switcher",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-desktop-she-6e1fa-s-focus-ring-reduced-motion/attachments/05-pressed-switcher-b31ce17ad8e688445853a1bb6be6cbcba064953d.png"
+                        },
+                        {
+                          "name": "06-focus-first.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0YWciOiAiQSIsCiAgImxhYmVsIjogbnVsbCwKICAib3V0bGluZSI6ICIycHggc29saWQgcmdiKDI1NSwgNzcsIDk5KSIsCiAgIm9mZnNldCI6ICIycHgiCn0="
+                        },
+                        {
+                          "name": "07-reduced-motion-menu.json",
+                          "contentType": "application/json",
+                          "body": "W10="
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "WwogICJlbnRyeSAyMDAgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2Fzc2V0cy9pbmRleC1CTFRRREhHMy5qcyIsCiAgImh0dHAgNDA0IEdFVCBodHRwOi8vMTI3LjAuMC4xOjgwNjAvYXBpL2Nsb25lLzU1NTU1NTU1LTU1NTUtNDU1NS04NTU1LTU1NTU1NTU1NTU1NS9pbWFnZXMiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiLAogICJodHRwIDQwNCBHRVQgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2FwaS9jbG9uZS81NTU1NTU1NS01NTU1LTQ1NTUtODU1NS01NTU1NTU1NTU1NTUvaW1hZ2VzIiwKICAiY29uc29sZTogRmFpbGVkIHRvIGxvYWQgcmVzb3VyY2U6IHRoZSBzZXJ2ZXIgcmVzcG9uZGVkIHdpdGggYSBzdGF0dXMgb2YgNDA0IChOb3QgRm91bmQpIiwKICAiaHR0cCA0MDQgR0VUIGh0dHA6Ly8xMjcuMC4wLjE6ODA2MC9hcGkvY2xvbmUvNTU1NTU1NTUtNTU1NS00NTU1LTg1NTUtNTU1NTU1NTU1NTU1L2JhY2tkcm9wIiwKICAiY29uc29sZTogRmFpbGVkIHRvIGxvYWQgcmVzb3VyY2U6IHRoZSBzZXJ2ZXIgcmVzcG9uZGVkIHdpdGggYSBzdGF0dXMgb2YgNDA0IChOb3QgRm91bmQpIgpd"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-0b487731b8effc496701",
+              "file": "pc-uikit.pw.ts",
+              "line": 90,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "channel switcher menu",
+          "file": "pc-uikit.pw.ts",
+          "line": 155,
+          "column": 6,
+          "specs": [
+            {
+              "title": "start alignment, separators, keyboard focus, Escape restore, outside close",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 692,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:25.141Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "10-switcher-open",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-channel-swi-9af4f-scape-restore-outside-close/attachments/10-switcher-open-88be1e3712b9537aea2e5a63cd40f6dcf32788c5.png"
+                        },
+                        {
+                          "name": "11-switcher-geometry.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJ0cmlnZ2VyIjogewogICAgIngiOiA1NCwKICAgICJ5IjogMTIsCiAgICAid2lkdGgiOiAxNDYuMzQzNzUsCiAgICAiaGVpZ2h0IjogMzAKICB9LAogICJtZW51IjogewogICAgIngiOiA1NCwKICAgICJ5IjogNDgsCiAgICAid2lkdGgiOiAzMTIsCiAgICAiaGVpZ2h0IjogNDIzLjY3MTg3NQogIH0sCiAgImRlYnVnIjogewogICAgImxlZnQiOiAiNTRweCIsCiAgICAidG9wIjogIjQ4cHgiLAogICAgIndpZHRoIjogIjMxMnB4IiwKICAgICJ0cmFuc2Zvcm0iOiAibWF0cml4KDEsIDAsIDAsIDEsIDAsIDApIiwKICAgICJwb3NpdGlvbiI6ICJmaXhlZCIsCiAgICAib2Zmc2V0V2lkdGgiOiAzMTIsCiAgICAic3R5bGVBdHRyIjogIi0teC13aWR0aDogMzEycHg7IC0teC1sZWZ0OiA1NHB4OyAtLXgtdG9wOiA0OHB4OyIsCiAgICAiY2xhc3NOYW1lIjogImtpdC1wb3AgeGl4eGlpNCB4NWxocjN3IHhncTlqNjUgeGpieXM1MyIsCiAgICAicGFyZW50IjogIkJPRFkiLAogICAgImFuaW1hdGlvbnMiOiBbCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJraXQtcG9wIiwKICAgICAgICAic3RhdGUiOiAiZmluaXNoZWQiCiAgICAgIH0KICAgIF0KICB9Cn0="
+                        },
+                        {
+                          "name": "12-switcher-menu-metrics.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJtZW51IjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogNTQsCiAgICAgICJ5IjogNDgsCiAgICAgICJ3aWR0aCI6IDMxMiwKICAgICAgImhlaWdodCI6IDQyNAogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgImJhY2tncm91bmQiOiAicmdiKDI2LCAyNiwgMjkpIiwKICAgICJib3JkZXIiOiAicmdiYSgyNTUsIDI1NSwgMjU1LCAwLjEpIiwKICAgICJyYWRpdXMiOiAiMTRweCIsCiAgICAiZm9udCI6ICIxNHB4LzQwMCIsCiAgICAidHJhbnNpdGlvbiI6ICJhbGwiLAogICAgImFuaW1hdGlvbiI6ICJraXQtcG9wIgogIH0sCiAgImZpcnN0UmFkaW8iOiB7CiAgICAicmVjdCI6IHsKICAgICAgIngiOiA2MSwKICAgICAgInkiOiA1NSwKICAgICAgIndpZHRoIjogMjk4LAogICAgICAiaGVpZ2h0IjogNTAKICAgIH0sCiAgICAiY29sb3IiOiAicmdiKDIzNywgMjM3LCAyMzkpIiwKICAgICJiYWNrZ3JvdW5kIjogInJnYmEoMCwgMCwgMCwgMCkiLAogICAgImJvcmRlciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgInJhZGl1cyI6ICI5cHgiLAogICAgImZvbnQiOiAiMTNweC80MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9LAogICJzZXBhcmF0b3IiOiB7CiAgICAicmVjdCI6IHsKICAgICAgIngiOiA2NSwKICAgICAgInkiOiAxMTEsCiAgICAgICJ3aWR0aCI6IDI5MCwKICAgICAgImhlaWdodCI6IDEKICAgIH0sCiAgICAiY29sb3IiOiAicmdiKDIzNywgMjM3LCAyMzkpIiwKICAgICJiYWNrZ3JvdW5kIjogInJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wNykiLAogICAgImJvcmRlciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgInJhZGl1cyI6ICIwcHgiLAogICAgImZvbnQiOiAiMTRweC80MDAiLAogICAgInRyYW5zaXRpb24iOiAiYWxsIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9Cn0="
+                        },
+                        {
+                          "name": "13-switcher-hover-row",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-channel-swi-9af4f-scape-restore-outside-close/attachments/13-switcher-hover-row-a54d2f329b5b6c772eafb8ff4207838f07a60f47.png"
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "WwogICJlbnRyeSAyMDAgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2Fzc2V0cy9pbmRleC1CTFRRREhHMy5qcyIsCiAgImh0dHAgNDA0IEdFVCBodHRwOi8vMTI3LjAuMC4xOjgwNjAvYXBpL2Nsb25lLzU1NTU1NTU1LTU1NTUtNDU1NS04NTU1LTU1NTU1NTU1NTU1NS9pbWFnZXMiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiLAogICJodHRwIDQwNCBHRVQgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2FwaS9jbG9uZS81NTU1NTU1NS01NTU1LTQ1NTUtODU1NS01NTU1NTU1NTU1NTUvYmFja2Ryb3AiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiCl0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-50cfa0e2f6fe7efefdfc",
+              "file": "pc-uikit.pw.ts",
+              "line": 158,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "account menu",
+          "file": "pc-uikit.pw.ts",
+          "line": 235,
+          "column": 6,
+          "specs": [
+            {
+              "title": "opens under the avatar, arrow keys, Escape restore, outside close",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 693,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:25.841Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "20-account-open",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-account-men-786a1-scape-restore-outside-close/attachments/20-account-open-4c57dd5db8d7c34591e2ffaacc2b439bcd817446.png"
+                        },
+                        {
+                          "name": "21-account-metrics.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJtZW51IjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogMTA5MSwKICAgICAgInkiOiA0OSwKICAgICAgIndpZHRoIjogMzMzLAogICAgICAiaGVpZ2h0IjogMzYwCiAgICB9LAogICAgImNvbG9yIjogInJnYigyMzcsIDIzNywgMjM5KSIsCiAgICAiYmFja2dyb3VuZCI6ICJyZ2IoMjYsIDI2LCAyOSkiLAogICAgImJvcmRlciI6ICJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMSkiLAogICAgInJhZGl1cyI6ICIxNHB4IiwKICAgICJmb250IjogIjE0cHgvNDAwIiwKICAgICJ0cmFuc2l0aW9uIjogImFsbCIsCiAgICAiYW5pbWF0aW9uIjogImtpdC1wb3AiCiAgfSwKICAiZmlyc3RJdGVtIjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogMTA5OCwKICAgICAgInkiOiAxNTcsCiAgICAgICJ3aWR0aCI6IDMxOSwKICAgICAgImhlaWdodCI6IDUxCiAgICB9LAogICAgImNvbG9yIjogInJnYigyMzcsIDIzNywgMjM5KSIsCiAgICAiYmFja2dyb3VuZCI6ICJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDgpIiwKICAgICJib3JkZXIiOiAicmdiKDIzNywgMjM3LCAyMzkpIiwKICAgICJyYWRpdXMiOiAiMTBweCIsCiAgICAiZm9udCI6ICIxNHB4LzQwMCIsCiAgICAidHJhbnNpdGlvbiI6ICJhbGwiLAogICAgImFuaW1hdGlvbiI6ICJub25lIgogIH0KfQ=="
+                        },
+                        {
+                          "name": "22-account-hover-row",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-account-men-786a1-scape-restore-outside-close/attachments/22-account-hover-row-31294221854ac2145d8950d04de3fcc69f8a58b9.png"
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "WwogICJlbnRyeSAyMDAgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2Fzc2V0cy9pbmRleC1CTFRRREhHMy5qcyIsCiAgImh0dHAgNDA0IEdFVCBodHRwOi8vMTI3LjAuMC4xOjgwNjAvYXBpL2Nsb25lLzU1NTU1NTU1LTU1NTUtNDU1NS04NTU1LTU1NTU1NTU1NTU1NS9pbWFnZXMiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiLAogICJodHRwIDQwNCBHRVQgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2FwaS9jbG9uZS81NTU1NTU1NS01NTU1LTQ1NTUtODU1NS01NTU1NTU1NTU1NTUvYmFja2Ryb3AiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiCl0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-9ab44fa22b166a29030f",
+              "file": "pc-uikit.pw.ts",
+              "line": 238,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "activity popover",
+          "file": "pc-uikit.pw.ts",
+          "line": 269,
+          "column": 6,
+          "specs": [
+            {
+              "title": "portal, caret, tabs, settings layer, Escape restore, outside close",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1392,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:26.544Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "30-activity-running",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-activity-po-8dcdd-scape-restore-outside-close/attachments/30-activity-running-28d6f8e2693df958668cca0b3fd9ce4049dbc2a8.png"
+                        },
+                        {
+                          "name": "31-activity-anchor",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-activity-po-8dcdd-scape-restore-outside-close/attachments/31-activity-anchor-aa3958c41ea9f61b24412cab23ca6b14ee0c7f1e.png"
+                        },
+                        {
+                          "name": "32-activity-metrics.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJkaWFsb2ciOiB7CiAgICAicmVjdCI6IHsKICAgICAgIngiOiA5NzYsCiAgICAgICJ5IjogNTAsCiAgICAgICJ3aWR0aCI6IDQ0OCwKICAgICAgImhlaWdodCI6IDU1NAogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgImJhY2tncm91bmQiOiAicmdiKDIxLCAyMSwgMjMpIiwKICAgICJib3JkZXIiOiAicmdiYSgyNTUsIDI1NSwgMjU1LCAwLjEpIiwKICAgICJyYWRpdXMiOiAiMTZweCIsCiAgICAiZm9udCI6ICIxNHB4LzQwMCIsCiAgICAidHJhbnNpdGlvbiI6ICJhbGwiLAogICAgImFuaW1hdGlvbiI6ICJub25lIgogIH0sCiAgImNhcmV0IjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogMTIxMSwKICAgICAgInkiOiA0MiwKICAgICAgIndpZHRoIjogMTcsCiAgICAgICJoZWlnaHQiOiAxNwogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgImJhY2tncm91bmQiOiAicmdiKDIxLCAyMSwgMjMpIiwKICAgICJib3JkZXIiOiAicmdiYSgyNTUsIDI1NSwgMjU1LCAwLjEpIHJnYigyMzcsIDIzNywgMjM5KSByZ2IoMjM3LCAyMzcsIDIzOSkgcmdiYSgyNTUsIDI1NSwgMjU1LCAwLjEpIiwKICAgICJyYWRpdXMiOiAiMHB4IiwKICAgICJmb250IjogIjE0cHgvNDAwIiwKICAgICJ0cmFuc2l0aW9uIjogImFsbCIsCiAgICAiYW5pbWF0aW9uIjogIm5vbmUiCiAgfSwKICAiYWN0aXZlVGFiIjogewogICAgInJlY3QiOiB7CiAgICAgICJ4IjogOTgxLAogICAgICAieSI6IDEyMywKICAgICAgIndpZHRoIjogOTMsCiAgICAgICJoZWlnaHQiOiAzMgogICAgfSwKICAgICJjb2xvciI6ICJyZ2IoMjM3LCAyMzcsIDIzOSkiLAogICAgImJhY2tncm91bmQiOiAicmdiYSgwLCAwLCAwLCAwKSIsCiAgICAiYm9yZGVyIjogInJnYigyMzcsIDIzNywgMjM5KSIsCiAgICAicmFkaXVzIjogIjhweCIsCiAgICAiZm9udCI6ICIxM3B4LzQwMCIsCiAgICAidHJhbnNpdGlvbiI6ICJjb2xvciAwLjE1cywgYmFja2dyb3VuZC1jb2xvciAwLjE1cywgdHJhbnNmb3JtIDAuMDhzIiwKICAgICJhbmltYXRpb24iOiAibm9uZSIKICB9Cn0="
+                        },
+                        {
+                          "name": "33-activity-inbox",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-activity-po-8dcdd-scape-restore-outside-close/attachments/33-activity-inbox-ed15b6c6bb0813180d02ca61b7fb841cc4bda75b.png"
+                        },
+                        {
+                          "name": "34-activity-settings",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-activity-po-8dcdd-scape-restore-outside-close/attachments/34-activity-settings-9fc47b1a76aad9359592f6c9e7d9f34dd14037be.png"
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "WwogICJlbnRyeSAyMDAgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2Fzc2V0cy9pbmRleC1CTFRRREhHMy5qcyIsCiAgImh0dHAgNDA0IEdFVCBodHRwOi8vMTI3LjAuMC4xOjgwNjAvYXBpL2Nsb25lLzU1NTU1NTU1LTU1NTUtNDU1NS04NTU1LTU1NTU1NTU1NTU1NS9pbWFnZXMiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiLAogICJodHRwIDQwNCBHRVQgaHR0cDovLzEyNy4wLjAuMTo4MDYwL2FwaS9jbG9uZS81NTU1NTU1NS01NTU1LTQ1NTUtODU1NS01NTU1NTU1NTU1NTUvYmFja2Ryb3AiLAogICJjb25zb2xlOiBGYWlsZWQgdG8gbG9hZCByZXNvdXJjZTogdGhlIHNlcnZlciByZXNwb25kZWQgd2l0aCBhIHN0YXR1cyBvZiA0MDQgKE5vdCBGb3VuZCkiCl0="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-36feaa59d14fa4d1bac4",
+              "file": "pc-uikit.pw.ts",
+              "line": 272,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "offline banner",
+          "file": "pc-uikit.pw.ts",
+          "line": 330,
+          "column": 6,
+          "specs": [
+            {
+              "title": "explanation is visible, retry is real",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "outside API state: set PC_OFFLINE=1 during a real outage",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/pc-uikit/pc-uikit.pw.ts",
+                        "line": 333,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:27.943Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "outside API state: set PC_OFFLINE=1 during a real outage",
+                          "location": {
+                            "file": "/Users/dat/Projects/verse/tests/pc-uikit/pc-uikit.pw.ts",
+                            "line": 333,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-00b4bb631815868f1c71",
+              "file": "pc-uikit.pw.ts",
+              "line": 335,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "confirm dialog",
+          "file": "pc-uikit.pw.ts",
+          "line": 351,
+          "column": 6,
+          "specs": [
+            {
+              "title": "focus goes to the safe action, Escape cancels",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "outside API state: set PC_CONFIRM_URL + PC_CONFIRM_TRIGGER for a read-only confirm entry",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/pc-uikit/pc-uikit.pw.ts",
+                        "line": 354,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:27.944Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "outside API state: set PC_CONFIRM_URL + PC_CONFIRM_TRIGGER for a read-only confirm entry",
+                          "location": {
+                            "file": "/Users/dat/Projects/verse/tests/pc-uikit/pc-uikit.pw.ts",
+                            "line": 354,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-3e8cc271f56db132a44d",
+              "file": "pc-uikit.pw.ts",
+              "line": 356,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "canonical boards",
+          "file": "pc-uikit.pw.ts",
+          "line": 372,
+          "column": 6,
+          "specs": [
+            {
+              "title": "capture Main/Activity/Auth/Kit/Dialogs/System at 1440",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4714,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-02T11:52:27.944Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "60-canon-Main",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-Main-5bdace9e95cd1462718b67aa01939915b3f2339b.png"
+                        },
+                        {
+                          "name": "60-canon-Activity",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-Activity-f68fc1c736d61d5692dbbffe05fe8db04885c5c4.png"
+                        },
+                        {
+                          "name": "60-canon-Auth",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-Auth-401392fac090fdad12a41b0e2832be9cfaf8a7a8.png"
+                        },
+                        {
+                          "name": "60-canon-Kit",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-Kit-707b8c817bfb09d160b17e21866eac497e6b6d3f.png"
+                        },
+                        {
+                          "name": "60-canon-Dialogs",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-Dialogs-c5f96f5d05c8195ec9b3fd7d9132438beb2a4d86.png"
+                        },
+                        {
+                          "name": "60-canon-System",
+                          "contentType": "image/png",
+                          "path": "/Users/dat/Projects/verse/tests/pc-uikit/test-results/pc-uikit-final/pc-uikit.pw.ts-canonical-b-85fd6--Kit-Dialogs-System-at-1440/attachments/60-canon-System-2a3366e14e58f852bdba6cea391395973fcb1fec.png"
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "W10="
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c02ec313c02be8059a37-bd132190bf28bd08da4a",
+              "file": "pc-uikit.pw.ts",
+              "line": 373,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-02T11:52:22.962Z",
+    "duration": 9755.772,
+    "expected": 5,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

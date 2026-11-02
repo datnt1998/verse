@@ -3,7 +3,7 @@
 // dẫn Cài đặt và có chấm đỏ khi có mục attention; ở màn Cài đặt bánh răng đang mở
 // (nền --color-surface-6) và chỗ bộ đổi kênh là nhãn “Cài đặt · máy này”.
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-header/.vv-gear).
-import { Suspense, lazy, useState, type MouseEvent } from 'react'
+import { Suspense, lazy, useRef, useState, type MouseEvent } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -20,7 +20,6 @@ import { keys } from '../data/keys'
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { shellChrome } from './shell.stylex'
-import { strongestTone } from '../lib/attentionTone'
 
 // Bảng Hoạt động chỉ mở khi bấm chuông: chunk riêng, không nằm trong lần tải đầu.
 const ActivityPopover = lazy(() => import('./ActivityPopover').then((m) => ({ default: m.ActivityPopover })))
@@ -69,17 +68,15 @@ const sx = stylex.create({
   },
   gearDot: {
     position: 'absolute',
-    top: 'var(--vv-s-4)',
-    right: 'var(--vv-s-4)',
+    /* Artboard Main/Channel/Activity/Auth: chấm 7px ở góc 6/6, viền tách 2px màu nền. */
+    top: 6,
+    right: 6,
     width: 7,
     height: 7,
     borderRadius: '50%',
-    boxShadow: '0 0 0 1.5px var(--color-bg)',
+    backgroundColor: color['--color-accent'],
+    boxShadow: '0 0 0 2px var(--color-bg)',
   },
-  /* Tông chấm theo loại việc (#30): cam khẩn nhất, rồi vàng, rồi xanh. */
-  gearDotErr: { backgroundColor: color['--color-err'] },
-  gearDotWarn: { backgroundColor: color['--color-warn'] },
-  gearDotInfo: { backgroundColor: color['--color-info'] },
   activityAnchor: { position: 'relative', flex: '0 0 auto' },
 })
 
@@ -95,9 +92,17 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
 }) {
   const running = status?.running ?? 0
   const [activityOpen, setActivityOpen] = useState(false)
+  const [activityX, setActivityX] = useState<number>()
+  const activityAnchor = useRef<HTMLDivElement>(null)
+  const toggleActivity = () => {
+    if (!activityOpen) {
+      const rect = activityAnchor.current?.getBoundingClientRect()
+      setActivityX(rect ? rect.left + rect.width / 2 : undefined)
+    }
+    setActivityOpen(!activityOpen)
+  }
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const attention = status?.attention ?? []
-  const dotTone = strongestTone(attention.map((a) => a.kind))
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
 
   const home = (e: MouseEvent) => { e.preventDefault(); navigate(paths.workbench()) }
@@ -127,10 +132,10 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
       </div>
       <MainNav route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
       <div {...stylex.props(sx.zone, sx.zoneRight)}>
-        <div {...stylex.props(sx.activityAnchor)}>
-          <JobsPill status={status} online={online} unread={(activity.data?.unread ?? []).some((n) => n.kind === 'review_ready' || n.kind === 'needs_attention')} onOpen={() => setActivityOpen((open) => !open)} expanded={activityOpen} />
-          {activityOpen && <Suspense fallback={null}><ActivityPopover activity={activity.data} error={activity.error} retry={() => void activity.refresh()} close={() => setActivityOpen(false)} /></Suspense>}
+        <div ref={activityAnchor} {...stylex.props(sx.activityAnchor)}>
+          <JobsPill status={status} online={online} unread={(activity.data?.unread ?? []).some((n) => n.kind === 'review_ready' || n.kind === 'needs_attention')} onOpen={toggleActivity} expanded={activityOpen} />
         </div>
+        {activityOpen && <Suspense fallback={null}><ActivityPopover activity={activity.data} error={activity.error} retry={() => void activity.refresh()} close={() => setActivityOpen(false)} anchorX={activityX} anchor={activityAnchor.current} /></Suspense>}
         <a
           href={settingsTarget ?? `#${paths.settings()}`}
           aria-label={attention.length ? t.shell.settingsAttention(attention.length) : t.shell.settings}
@@ -140,7 +145,7 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
           aria-current={inSettings ? 'page' : undefined}
         >
           <Icon name="setting" size={18} />
-          {dotTone && <span role="img" aria-label={`${attention.length}`} className={`vv-gear__dot ${stylex.props(sx.gearDot, dotTone === 'err' && sx.gearDotErr, dotTone === 'warn' && sx.gearDotWarn, dotTone === 'info' && sx.gearDotInfo).className}`} />}
+          {attention.length > 0 && <span aria-hidden="true" className={`vv-gear__dot ${stylex.props(sx.gearDot).className}`} />}
         </a>
         <AccountMenu fallbackName={userName} />
       </div>

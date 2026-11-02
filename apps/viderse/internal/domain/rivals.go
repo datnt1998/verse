@@ -196,3 +196,32 @@ type PostingSchedule struct {
 	OffSlot     int
 	Grid        [7][12]int // thứ × khối 2 giờ (0 = 00:00–02:00)
 }
+
+// VideoUsage là một kênh của bạn đã làm hoặc đang làm một video đối thủ —
+// nguồn thật cho trạng thái trên thẻ Khám phá và cho dòng kênh bị khoá ở
+// Video đã chọn. Chỉ job chưa bị thay thế/chưa huỷ và mục hàng chờ còn sống.
+type VideoUsage struct {
+	VideoID     string
+	ChannelID   string
+	ChannelName string
+	Stage       string // queued|working|review|attention|paused|ready|posted
+	ActiveStep  string // bước đang chạy khi Stage = working (vd "images")
+	JobID       string // rỗng khi video mới ở hàng chờ
+	QueueItemID string // rỗng khi mục hàng chờ đã bị dọn
+	UpdatedAt   time.Time
+}
+
+// PickNote là lý do Tự lấy không lấy một video, chỉ dựng khi dữ liệu chứng
+// minh được: video có giờ đăng chính xác trước mốc bật Tự lấy của kênh.
+type PickNote struct {
+	ChannelID   string
+	ChannelName string
+	BaselineAt  time.Time
+	PublishedAt time.Time
+}
+
+// VideoChapter là một chương thật của video gốc (từ source.info.json).
+type VideoChapter struct {
+	StartSec float64
+	Title    string
+}

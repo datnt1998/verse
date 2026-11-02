@@ -5,6 +5,7 @@ import { act, StrictMode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { TemplateImportDialog } from './TemplateImportDialog'
+import { t } from '../../i18n/library'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -61,7 +62,7 @@ describe('TemplateImportDialog', () => {
       : Response.json({ items: [item(name)], imported: 1, failed: 0 })
     await mount()
     await choose(['a.zip', 'b.zip'])
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Đã nhập 1 template, 1 tệp chưa nhập được.'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain(t.library.templates.importSummary(1, 1)))
     expect(imported).toEqual(['a.zip', 'b.zip'])
     expect(document.body.textContent).toContain('tệp hỏng')
   })
@@ -77,11 +78,11 @@ describe('TemplateImportDialog', () => {
     await mount()
     await choose(['a.zip', 'b.zip', 'c.zip'])
     await vi.waitFor(() => expect(imported).toEqual(['a.zip']))
-    await act(async () => { button('Huỷ phần chưa nhập').click() })
+    await act(async () => { button(t.library.templates.importCancel).click() })
     await act(async () => { gate?.() })
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Đã nhập 1 template, huỷ 2 tệp chưa nhập.'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain(t.library.templates.importCancelSummary(1, 2)))
     expect(imported).toEqual(['a.zip'])
-    expect(document.body.textContent).toContain('Đã huỷ')
+    expect(document.body.textContent).toContain(t.library.templates.importCancelled)
   })
 
   it('mất kết nối giữ tệp; Thử lại chỉ gửi lại tệp chưa xong', async () => {
@@ -92,12 +93,12 @@ describe('TemplateImportDialog', () => {
     }
     await mount()
     await choose(['a.zip', 'b.zip', 'c.zip'])
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Mất kết nối máy chủ'))
+    await vi.waitFor(() => expect(document.body.textContent).toContain(t.library.templates.importOffline))
     expect(imported).toEqual(['a.zip', 'b.zip'])
 
     offline = false
-    await act(async () => { button('Thử lại').click() })
-    await vi.waitFor(() => expect(document.body.textContent).toContain('Đã nhập 3 template.'))
+    await act(async () => { button(t.library.templates.importRetry).click() })
+    await vi.waitFor(() => expect(document.body.textContent).toContain(t.library.templates.importSummary(3, 0)))
     expect(imported).toEqual(['a.zip', 'b.zip', 'b.zip', 'c.zip'])
   })
 })

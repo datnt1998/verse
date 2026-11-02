@@ -16,6 +16,7 @@ export const mediaMetadataSchema = z.object({
   fileName: z.string(), fileSize: number.nonnegative(), mimeType: z.string(),
   duration: number, width: number, height: number, fps: number, codec: z.string(), bitrate: number,
   audioCodec: z.string().optional(), audioCodecSupported: z.boolean().optional(), videoCodecSupported: z.boolean().optional(),
+  audioTrackPresent: z.boolean().optional(),
   previewAudioOpfsPath: z.string().optional(), previewAudioMimeType: z.string().optional(), previewAudioConformedAt: number.optional(),
   keyframeTimestamps: z.array(number).optional(), gopInterval: number.optional(), thumbnailId: z.string().optional(),
   tags: z.array(z.string()), attribution: attribution.optional(),

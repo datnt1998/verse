@@ -42,8 +42,12 @@ export function ChannelNewScreen({ route }: { route: Extract<Route, { name: 'cha
     navigate(paths.channelNew('done'), true)
   }
 
-  return (
-    <div style={{ flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+  // Vùng nội dung của route là một landmark: máy tính dùng <main> (đúng một
+  // vùng main cho màn Tạo kênh). Điện thoại đã có <main> riêng trong
+  // MobilePage của CreateStep/DoneStep, nên khung ngoài giữ <div> để không
+  // lồng hai main; hộp và bố cục y hệt nhau ở cả hai nhánh.
+  const content = (
+    <>
       {firstRun && (
         <header className={`vch-onboardhead ${stylex.props(channelStyles.onboardhead).className}`}>
           <LensLogo size={26} />
@@ -58,8 +62,13 @@ export function ChannelNewScreen({ route }: { route: Extract<Route, { name: 'cha
       {step === 'done'
         ? <DoneStep channelId={lastCreatedChannel()} onLeave={leaveOnboard} />
         : <CreateStep firstRun={firstRun} onCancel={cancel} onCreated={created} />}
-    </div>
+    </>
   )
+  const rootStyle = { flex: '1 1 auto', minHeight: 0, display: 'flex', flexDirection: 'column' } as const
+
+  return narrow
+    ? <div style={rootStyle}>{content}</div>
+    : <main style={rootStyle}>{content}</main>
 }
 
 export default ChannelNewScreen

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -174,6 +175,73 @@ func (s *Service) Get(ctx context.Context, id string) (*domain.CloneJobView, err
 func (s *Service) view(job domain.CloneJob, steps []domain.CloneStepRecord) domain.CloneJobView {
 	job.StageGroup = domain.StageGroupOf(job, steps)
 	return domain.CloneJobView{CloneJob: job, Steps: steps, AgentView: domain.AgentViews(job, steps), Subline: domain.Subline(job, steps, s.now()), ExportBytes: domain.CloneExportBytes(steps)}
+}
+
+// PreviewSourceJob là hàng nhẹ cho bộ chọn nguồn xem thử: job đã xong, còn
+// hiệu lực và đã publish đủ artifact nguồn. Không nạp step/checkpoint của cả
+// bảng như List (trang template hỏi lại mỗi 1,5 giây).
+type PreviewSourceJob struct {
+	ID          string
+	Title       string
+	ChannelName string
+	DurationSec float64
+	// NoImages: video nguồn đã chọn "không vẽ ảnh" — preview cần ảnh cảnh của
+	// recipe sẽ không dựng được từ video này.
+	NoImages bool
+}
+
+// PreviewSourceArtifacts là các artifact bắt buộc để một job làm nguồn xem thử.
+var PreviewSourceArtifacts = []string{"scenes/manifest.json", "images/manifest.json", "transcript/captions.json", "build/source-audio.m4a"}
+
+// FinishedPreviewSources trả nguồn xem thử bằng truy vấn nhẹ (không step).
+// Store không hỗ trợ thì lùi về List để test cũ vẫn chạy.
+func (s *Service) FinishedPreviewSources(ctx context.Context) ([]PreviewSourceJob, error) {
+	if store, ok := s.Store.(interface {
+		ListPreviewSourceJobs(context.Context) ([]PreviewSourceJob, error)
+	}); ok {
+		return store.ListPreviewSourceJobs(ctx)
+	}
+	list, err := s.List(ctx, nil, 10000)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]PreviewSourceJob, 0)
+	for _, job := range list.Jobs {
+		if job.Status != domain.CloneSucceeded || job.SupersededAt != nil || job.QueueItem != nil || !hasSourceArtifacts(job.Steps) {
+			continue
+		}
+		source := PreviewSourceJob{ID: job.ID, Title: job.Source.Title, NoImages: job.NoImages}
+		if job.Source.ChannelTitle != nil {
+			source.ChannelName = *job.Source.ChannelTitle
+		}
+		if job.Source.DurationSec != nil {
+			source.DurationSec = *job.Source.DurationSec
+		}
+		out = append(out, source)
+	}
+	return out, nil
+}
+
+func hasSourceArtifacts(steps []domain.CloneStepRecord) bool {
+	found := make(map[string]bool, len(PreviewSourceArtifacts))
+	for _, step := range steps {
+		if step.Output == nil {
+			continue
+		}
+		for _, artifact := range step.Output.Artifacts {
+			for _, want := range PreviewSourceArtifacts {
+				if artifact.Path == want || strings.HasSuffix(artifact.Path, "/"+want) {
+					found[want] = true
+				}
+			}
+		}
+	}
+	for _, want := range PreviewSourceArtifacts {
+		if !found[want] {
+			return false
+		}
+	}
+	return true
 }
 func (s *Service) List(ctx context.Context, channelID *string, limit int) (domain.CloneJobList, error) {
 	if limit <= 0 {

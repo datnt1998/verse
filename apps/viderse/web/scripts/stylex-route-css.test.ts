@@ -79,7 +79,7 @@ test('rejects malformed canonical CSS rather than shipping a partial sheet', () 
 })
 
 async function stylesheetRuntime(withLink = true) {
-  const plugin = stylexRouteCSS({}, '/phone.tsx')
+  const plugin = stylexRouteCSS({}, ['/phone.tsx'])
   if (typeof plugin.load !== 'function') throw new Error('Expected runtime load hook')
   const source = await plugin.load.call({} as Rollup.PluginContext, '\0virtual:viderse-stylex-runtime', {})
   if (typeof source !== 'string') throw new Error('Expected runtime source')

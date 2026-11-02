@@ -17,6 +17,13 @@ export const exploreStyles = stylex.create({
   grpEmpty: { paddingTop: space["--vv-s-4"] },
   grpCount: { fontWeight: 500 },
   sideEmpty: { margin: 0, padding: "0 var(--vv-s-10)", fontSize: exploreLayout.sideEmptyFontSize, color: "var(--vv-fg-note)", lineHeight: 1.55, flex: { "default": null, "@media (max-width: 767px)": "1 1 100%" } },
+  /* Artboard Explore › side: "Tất cả đối thủ" cũng có avatar tròn 30 px, radar ở trong. */
+  allAvatar: { width: space["--vv-s-30"], height: space["--vv-s-30"], borderRadius: "50%", flex: "0 0 auto", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: color["--color-surface-4"], borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: line["--line-3"], color: color["--color-fg-2"] },
+  /* RadioCard là <button>: bề rộng auto co theo nội dung thay vì giãn đầy cột, nên
+     hàng có tên đối thủ dài rộng hơn cột 252 px và bị cắt giữa glyph/mép bo. Ép hàng
+     đầy bề rộng cột; cột chữ tự co (minWidth 0) và ellipsis, huy hiệu/spinner vẫn
+     flex 0 0 auto nên không bị đẩy khỏi hàng. */
+  rivalRow: { width: "100%", maxWidth: "100%", minWidth: 0, boxSizing: "border-box" },
   rivalText: { flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" },
   rivalName: { fontSize: exploreLayout.rivalNameFontSize, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
   rivalSub: { display: "flex", alignItems: "center", gap: space["--vv-s-4"], minWidth: 0, fontSize: exploreLayout.rivalSubFontSize, color: "var(--vv-fg-note)" },
@@ -30,6 +37,9 @@ export const exploreStyles = stylex.create({
   sub: { fontSize: exploreLayout.subFontSize, color: "var(--vv-fg-note)" },
   grow: { flex: 1 },
   filters: { display: "flex", flexWrap: "wrap", alignItems: "center", gap: space["--vv-s-8"] },
+  /* Artboard Explore › filters: chip 28 px, giá trị in đậm sáng hơn nhãn. */
+  filterChip: { height: space["--vv-s-28"], padding: "0 var(--vv-s-10) 0 var(--vv-s-8)", gap: space["--vv-s-6"], borderRadius: "8px", borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: line["--line-3"], backgroundColor: "transparent", color: "var(--color-fg-3)", fontSize: "12.5px" },
+  filterValue: { fontWeight: 500, color: color["--color-fg"] },
   // Lưới ô xương khi quét lần đầu (artboard Explore › list=firstScan): 8 ô
   // mờ dần trên máy tính, 3 ô trên điện thoại.
   skeletonGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(210px, 100%), 1fr))", gap: "14px 12px", paddingBottom: 90, "@media (max-width: 767px)": { display: "flex", flexDirection: "column", gap: space["--vv-s-18"], paddingBottom: space["--vv-s-24"] } },
@@ -69,6 +79,10 @@ export const exploreStyles = stylex.create({
   vtitle: { padding: 0, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color["--color-fg"], textAlign: "left", cursor: "pointer", whiteSpace: "normal", fontFamily: "inherit", fontSize: exploreLayout.vtitleFontSize, fontWeight: 500, fontStyle: "inherit", fontVariant: "inherit", fontStretch: "inherit", lineHeight: 1.4, minHeight: exploreLayout.vtitleMinHeight, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
   vmeta: { fontSize: exploreLayout.vmetaFontSize, color: "var(--vv-fg-note)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
   actions: { display: "flex", alignItems: "center", gap: space["--vv-s-6"], padding: "0 var(--vv-s-2)", minHeight: space["--vv-s-30"] },
+  /* Artboard Explore › thẻ video đã làm: dòng kênh + trạng thái thay nút Làm. */
+  usedStatus: { height: space["--vv-s-30"], padding: "0 var(--vv-s-8)", display: "flex", alignItems: "center", gap: space["--vv-s-6"], borderRadius: corners["--vv-r-8"], fontSize: exploreLayout.vmetaFontSize, minWidth: 0, textDecorationLine: "none", color: color["--color-fg-3"] },
+  usedDot: { width: "7px", height: "7px", borderRadius: "50%", flex: "0 0 auto" },
+  usedText: { minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
   rail: { flex: exploreLayout.railFlex, maxWidth: { "default": exploreLayout.railMaxWidth, "@media (max-width: 767px)": "none" }, minHeight: 0, overflowY: "auto", padding: exploreLayout.railPadding, display: "flex", flexDirection: "column", gap: space["--vv-s-14"], boxShadow: { "default": exploreLayout.railBoxShadow, "@media (max-width: 767px)": "none" }, width: { "default": null, "@media (max-width: 767px)": "100%" }, overflow: { "default": null, "@media (max-width: 767px)": "visible" }, borderTopWidth: { "default": null, "@media (max-width: 767px)": space['--vv-s-1'] }, borderTopStyle: { "default": null, "@media (max-width: 767px)": "solid" }, borderTopColor: { "default": null, "@media (max-width: 767px)": line["--line-1"] } },
   cardbox: { borderRadius: corners["--vv-r-16"], padding: space["--vv-s-14"], display: "flex", flexDirection: "column", gap: space["--vv-s-12"], backgroundImage: surface["--card-bg"], backgroundColor: "transparent", borderWidth: space['--vv-s-1'], borderStyle: "solid", borderColor: line["--line-2"], boxShadow: surface["--card-shadow"] },
   rivalhead: { display: "flex", alignItems: "center", gap: space["--vv-s-10"] },

@@ -18,7 +18,10 @@ vi.mock('../../../data/useResource', () => ({
 }))
 vi.mock('../../../data/events', () => ({ subscribeEvents: () => () => {} }))
 vi.mock('../../../router', () => ({ navigate: vi.fn(), routePath: JSON.stringify }))
-vi.mock('@noverse/ui', () => ({ useTabMode: vi.fn(), toast: { err: vi.fn() }, Button: 'button' }))
+vi.mock('@noverse/ui', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@noverse/ui')>()
+  return { ...actual, useTabMode: vi.fn(), toast: { err: vi.fn() }, Button: 'button' }
+})
 vi.mock('./MobileWorkbenchList', () => ({
   MobileWorkbenchList: ({ onOpenJob, onOpenRecap }: { onOpenJob: (id: string) => void; onOpenRecap: () => void }) => <div>
     <button onClick={() => onOpenJob('job')}>Mở video</button>

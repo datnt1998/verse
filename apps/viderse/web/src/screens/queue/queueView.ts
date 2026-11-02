@@ -65,7 +65,11 @@ export const sourceLabel = (item: QueueQueuedItem): string =>
     ? `${tt.priority} · ${item.source}`
     : item.source || tt.batch
 
-/** Trạng thái màn: paused → limited → running → empty (map tweak artboard). */
+/**
+ * Trạng thái màn theo thứ tự: paused → empty → limited → running (map tweak artboard).
+ * Hàng chờ rỗng đứng trước limited: không còn việc nào chờ thì "Máy đang rảnh" đúng
+ * hơn "hết hạn mức", vì hạn mức chỉ chặn bước vẽ ảnh của video đang có.
+ */
 export function viewState(view: QueueView): 'running' | 'paused' | 'limited' | 'empty' {
   if (view.paused) return 'paused'
   if (view.running.length === 0 && view.items.length === 0) return 'empty'

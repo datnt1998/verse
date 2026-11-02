@@ -11,7 +11,7 @@ type Callbacks = { onRefresh: () => void; onError: (error: unknown) => void }
 export function restartVideo(job: CloneJobView, { onRefresh, onError }: Callbacks) {
   void previewRestart(job.id).then(preview => confirm({
     title: 'Làm lại từ đầu?',
-    body: <><p>Tạo lượt mới cho cùng video nguồn và kênh, theo template tiếp theo trong luân phiên: <b>{preview.template.name}</b>.</p><p>Lượt cũ và ảnh của nó được giữ nguyên. {preview.imageEstimate === null ? 'Chưa ước lượng được số ảnh cho lượt mới.' : `Lượt mới dùng khoảng ${preview.imageEstimate} ảnh trong hạn mức.`}</p><p>Đưa lên đầu hàng chờ. {preview.etaStart ? `Dự kiến bắt đầu ${new Date(preview.etaStart).toLocaleString('vi-VN')}.` : 'Chưa có giờ bắt đầu dự kiến.'}</p></>,
+    body: <><p>Tạo lượt mới cho cùng video nguồn và kênh, theo mẫu video tiếp theo trong luân phiên: <b>{preview.template.name}</b>.</p><p>Lượt cũ và ảnh của nó được giữ nguyên. {preview.imageEstimate === null ? 'Chưa ước lượng được số ảnh cho lượt mới.' : `Lượt mới dùng khoảng ${preview.imageEstimate} ảnh trong hạn mức.`}</p><p>Đưa lên đầu hàng chờ. {preview.etaStart ? `Dự kiến bắt đầu ${new Date(preview.etaStart).toLocaleString('vi-VN')}.` : 'Chưa có giờ bắt đầu dự kiến.'}</p></>,
     cancelLabel: 'Huỷ',
     confirmLabel: 'Làm lại từ đầu',
     onConfirm: async () => {

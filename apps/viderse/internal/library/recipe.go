@@ -320,7 +320,7 @@ func ValidateRecipe(r domain.Recipe) error {
 	fields := append(validateScenes(r.Scenes), validateAppearance(r.BackgroundAppearance)...)
 	fields = append(fields, validateBackdrop(r.Backdrop)...)
 	if len(fields) > 0 {
-		return invalidFields("Cấu hình template không hợp lệ", fields)
+		return invalidFields("Cấu hình mẫu video không hợp lệ", fields)
 	}
 	return nil
 }
@@ -368,7 +368,7 @@ func validateScenes(s domain.ScenesRecipe) []FieldError {
 		fields = append(fields, FieldError{"scenes.sceneOpacity", "Độ trong suốt ảnh cảnh không hợp lệ", "Nhập số " + rangeText(domain.LimitSceneOpacityMin, domain.LimitSceneOpacityMax)})
 	}
 	if len([]rune(s.ScenePromptID)) > 200 || len([]rune(s.CoverPromptID)) > 200 {
-		fields = append(fields, FieldError{"scenes.scenePromptId", "Mã prompt ảnh quá dài", "Chọn prompt trong Thư viện"})
+		fields = append(fields, FieldError{"scenes.scenePromptId", "Mã chỉ dẫn ảnh quá dài", "Chọn chỉ dẫn trong Thư viện"})
 	}
 	return fields
 }
@@ -465,8 +465,8 @@ func CheckRefs(ctx context.Context, refs RefChecker, r domain.Recipe) error {
 		kind  domain.PromptKind
 		label string
 	}{
-		{"scenes.scenePromptId", r.Scenes.ScenePromptID, domain.PromptScene, "Prompt ảnh cảnh"},
-		{"scenes.coverPromptId", r.Scenes.CoverPromptID, domain.PromptCover, "Prompt ảnh bìa"},
+		{"scenes.scenePromptId", r.Scenes.ScenePromptID, domain.PromptScene, "Chỉ dẫn ảnh cảnh"},
+		{"scenes.coverPromptId", r.Scenes.CoverPromptID, domain.PromptCover, "Chỉ dẫn ảnh bìa"},
 	} {
 		if ref.id == "" {
 			continue
@@ -476,7 +476,7 @@ func CheckRefs(ctx context.Context, refs RefChecker, r domain.Recipe) error {
 			return err
 		}
 		if !ok {
-			fields = append(fields, FieldError{ref.field, ref.label + " không tồn tại hoặc sai loại", "Chọn một prompt ảnh " + kindWord(ref.kind) + " trong Thư viện"})
+			fields = append(fields, FieldError{ref.field, ref.label + " không tồn tại hoặc sai loại", "Chọn một chỉ dẫn ảnh " + kindWord(ref.kind) + " trong Thư viện"})
 		}
 	}
 	for i, id := range r.Overlays {
@@ -523,7 +523,7 @@ func CheckRefs(ctx context.Context, refs RefChecker, r domain.Recipe) error {
 		}
 	}
 	if len(fields) > 0 {
-		return invalidFields("Cấu hình template trỏ tới thứ không còn", fields)
+		return invalidFields("Cấu hình mẫu video trỏ tới thứ không còn", fields)
 	}
 	return nil
 }

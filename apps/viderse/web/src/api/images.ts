@@ -7,10 +7,12 @@
 //
 // SSE `image.progress` đi qua luồng sự kiện chung (`/api/events`) như mọi sự
 // kiện khác; `useJobImages` ghép tiến độ vào danh sách ảnh đang hiện.
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { cache } from '@noverse/ui/data'
 import { z } from 'zod'
 import { ApiError, mutate, request } from './request'
-import { subscribeEvents } from '../data/events'
+import { events, subscribeEvents } from '../data/events'
+import { keys } from '../data/keys'
 
 export const promptPartKindSchema = z.enum(['scene', 'style', 'refs', 'learned', 'avoid'])
 export type PromptPartKind = z.infer<typeof promptPartKindSchema>
@@ -315,41 +317,40 @@ export interface UseJobImages {
  * Xong hoặc lỗi thì đọc lại danh sách: `usedVersion` và `error` chỉ có ở GET.
  */
 export function useJobImages(jobId: string | null): UseJobImages {
-  const [data, setData] = useState<JobImages>()
-  const [error, setError] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const key = useMemo(() => keys.reviewImages(jobId ?? ''), [jobId])
+  const subscribe = useCallback((listener: () => void) => jobId ? cache.listen(key, listener) : () => {}, [jobId, key])
+  const snapshot = useCallback(() => cache.get<unknown>(key), [key])
+  const state = useSyncExternalStore(subscribe, snapshot, snapshot)
+  const parsed = useMemo(() => state.data === undefined ? undefined : jobImagesSchema.safeParse(state.data), [state.data])
   const [progress, setProgress] = useState<Record<string, ImageProgress>>({})
-  const alive = useRef(true)
-  const requested = useRef<string | null>(null)
-  const reload = useCallback(async () => {
+  const fetchImages = useCallback(async (staleTime: number) => {
     if (!jobId) return
-    setLoading(true)
     try {
-      const result = await getJobImages(jobId)
-      if (!alive.current || requested.current !== jobId) return
-      setData(result)
-      setError(false)
+      await cache.fetch(key, ({ signal }) => request<unknown>(base(jobId), { signal }), { staleTime })
     } catch {
-      if (alive.current && requested.current === jobId) setError(true)
-    } finally {
-      if (alive.current && requested.current === jobId) setLoading(false)
+      // Lỗi nằm trong snapshot dùng chung; ảnh cũ vẫn hiện cùng nút thử lại.
     }
-  }, [jobId])
+  }, [jobId, key])
+  const reload = useCallback(() => fetchImages(0), [fetchImages])
   useEffect(() => {
-    alive.current = true
-    requested.current = jobId
-    setData(undefined)
     setProgress({})
-    if (jobId) void reload()
-    return () => { alive.current = false }
-  }, [jobId, reload])
+    void fetchImages(120_000)
+  }, [fetchImages])
   useEffect(() => {
     if (!jobId) return
-    return subscribeImageProgress((event) => {
+    const stopProgress = subscribeImageProgress((event) => {
       if (event.jobId !== jobId) return
       setProgress((old) => ({ ...old, [event.imageId]: event }))
       if (event.phase === 'done' || event.phase === 'failed') void reload()
     })
+    const stopReconnect = events.onReconnect(() => { void reload() })
+    return () => { stopProgress(); stopReconnect() }
   }, [jobId, reload])
-  return { data, error, loading, reload, progress }
+  return {
+    data: jobId && parsed?.success ? parsed.data : undefined,
+    error: !!jobId && (!!state.error || parsed?.success === false),
+    loading: !!jobId && (state.refreshing || state.status === 'loading'),
+    reload,
+    progress,
+  }
 }

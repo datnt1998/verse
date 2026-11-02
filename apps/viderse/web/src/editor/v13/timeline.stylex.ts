@@ -2,10 +2,12 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { timelineTokens as t } from './timeline-tokens.stylex'
 
+const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
+
 export const timelineStyles = stylex.create({
   root: { boxSizing: 'border-box', flexShrink: 0, height: 286, display: 'flex', flexDirection: 'column', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-3'], backgroundColor: t.background, color: color['--color-fg'], fontSize: 12 },
   toolbar: { boxSizing: 'border-box', flexShrink: 0, height: 40, paddingInline: 10, display: 'flex', alignItems: 'center', gap: 6, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-1'] },
-  button: { boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 28, paddingInline: 9, borderRadius: 7, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: { default: 'transparent', ':hover': t.activeBackground }, color: color['--color-fg-2'], fontSize: 12, fontFamily: 'inherit', whiteSpace: 'nowrap', cursor: 'pointer', outlineColor: t.red, opacity: { default: 1, ':disabled': 0.4 } },
+  button: { boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, height: 28, paddingInline: 9, borderRadius: 7, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: { default: 'transparent', ':hover': t.activeBackground }, color: color['--color-fg-2'], fontSize: 12, fontFamily: 'inherit', whiteSpace: 'nowrap', cursor: 'pointer', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: '#FF4D63', outlineOffset: 2 }, opacity: { default: 1, ':disabled': 0.4 } },
   pressed: { borderColor: t.activeBorder, backgroundColor: t.activeBackground },
   quiet: { borderColor: 'transparent' },
   iconButton: { width: 28, paddingInline: 0, flexShrink: 0 },
@@ -20,20 +22,24 @@ export const timelineStyles = stylex.create({
   row: { display: 'flex', height: 30, boxSizing: 'border-box', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: t.rowBorder },
   header: { position: 'sticky', left: 0, zIndex: 5, boxSizing: 'border-box', width: 168, flex: '0 0 168px', display: 'flex', alignItems: 'center', gap: 7, paddingInline: '10px 6px', borderInlineEndWidth: 1, borderInlineEndStyle: 'solid', borderInlineEndColor: line['--line-1'], backgroundColor: color['--color-surface-0'] },
   trackLabel: { minWidth: 0, flexGrow: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: color['--color-fg-2'] },
-  trackButton: { width: 24, height: 24, borderRadius: 6, padding: 0, borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': t.activeBackground }, color: t.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' },
+  trackButton: { width: 24, height: 24, borderRadius: 6, padding: 0, borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': t.activeBackground }, color: t.muted, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: '#FF4D63', outlineOffset: 2 } },
+  mutedIcon: { color: t.muted, opacity: 0.55 },
   rulerRow: { position: 'sticky', top: 0, zIndex: 6, display: 'flex', height: 24, backgroundColor: t.background },
   rulerHeader: { height: 24, borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-3'] },
-  ruler: { position: 'relative', flexGrow: 1, height: 24, boxSizing: 'border-box', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-3'], cursor: 'ew-resize', touchAction: 'none', outlineColor: t.red },
+  ruler: { position: 'relative', flexGrow: 1, height: 24, boxSizing: 'border-box', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-3'], cursor: 'ew-resize', touchAction: 'none', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: '#FF4D63', outlineOffset: -2 } },
   tick: (left: number) => ({ position: 'absolute', left, bottom: 0, width: 1, height: 10, backgroundColor: t.tick, pointerEvents: 'none' }),
+  tickMinor: (left: number) => ({ position: 'absolute', left, bottom: 0, width: 1, height: 4, backgroundColor: 'rgba(255,255,255,.12)', pointerEvents: 'none' }),
   tickLabel: { position: 'absolute', left: 4, bottom: 5, fontFamily: 'var(--font-mono, monospace)', fontSize: 10.5, color: t.muted, whiteSpace: 'nowrap' },
   rangeMarker: (left: number) => ({ position: 'absolute', left, top: 2, width: 10, height: 10, marginLeft: -5, backgroundColor: t.orange, clipPath: 'polygon(50% 100%,0 0,100% 0)', pointerEvents: 'none' }),
   lane: { position: 'relative', flexGrow: 1, minWidth: 0, touchAction: 'none' },
   hidden: { opacity: 0.35 },
-  clip: (left: number, width: number) => ({ position: 'absolute', left, width, minWidth: 2, top: 4, bottom: 4, borderRadius: 5, boxSizing: 'border-box', display: 'flex', alignItems: 'center', padding: 0, borderWidth: 1, borderStyle: 'solid', cursor: 'pointer', overflow: 'hidden', outlineColor: t.red }),
+  clip: (left: number, width: number) => ({ position: 'absolute', left, width, minWidth: 2, top: 4, bottom: 4, borderRadius: 5, boxSizing: 'border-box', display: 'flex', alignItems: 'center', padding: 0, borderWidth: 1, borderStyle: 'solid', cursor: 'pointer', overflow: 'hidden', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: '#FF4D63', outlineOffset: 2 } }),
   clipLabel: { position: 'relative', paddingInline: 6, fontSize: 11, fontFamily: 'inherit', color: color['--color-fg'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   waveform: (left: number, width: number) => ({ position: 'absolute', left, width, height: 20, top: 0, color: t.waveform, pointerEvents: 'none' }),
   waveformError: { position: 'absolute', inset: 0, paddingInline: 6, fontSize: 10, color: t.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   audioLabel: { marginInlineStart: 4, borderRadius: 4, backgroundColor: t.labelBackground, paddingInline: 5 },
+  keyframe: (left: number) => ({ position: 'absolute', left, top: 12, width: 7, height: 7, marginLeft: -3.5, zIndex: 3, backgroundColor: '#D6BE5A', transform: 'rotate(45deg)', pointerEvents: 'none', boxShadow: '0 0 0 1px rgba(11,11,13,.75)' }),
+  drawingRing: { position: 'absolute', right: 5, top: '50%', width: 11, height: 11, marginTop: -5.5, zIndex: 4, borderWidth: 1.5, borderStyle: 'solid', borderColor: 'rgba(255,255,255,.18)', borderTopColor: '#FFD08A', borderRadius: '50%', animationName: { default: spin, '@media (prefers-reduced-motion: reduce)': 'none' }, animationDuration: '1s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' },
   caption: { backgroundColor: t.captionFill, borderColor: t.captionBorder },
   scene: { backgroundColor: t.sceneFill, borderColor: t.sceneBorder },
   overlay: { backgroundColor: t.overlayFill, borderColor: t.overlayBorder },

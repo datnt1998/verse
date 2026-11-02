@@ -150,7 +150,7 @@ func (h *Handler) transcode(ctx context.Context, job TranscodeJob) error {
 				tail = failed.Error()
 			}
 			lines := strings.Split(tail, "\n")
-			return stepError(domain.CloneErrInternal, "ffmpeg transcode thất bại: "+lines[len(lines)-1], "")
+			return stepError(domain.CloneErrInternal, "ffmpeg chuyển mã thất bại: "+lines[len(lines)-1], "")
 		}
 		return err
 	}

@@ -60,6 +60,8 @@ export interface AudioMeasurementErrorResponse {
   type: 'error'
   requestId: string
   error: string
+  /** Stable failure code when the engine raised a typed error. */
+  code?: string
 }
 
 export type AudioMeasurementWorkerResponse =

@@ -190,7 +190,12 @@ func runServe(args []string) error {
 	}
 	activities.SetScanScheduleSource(activityScanSchedule(pool, scanSvc))
 	scanWorkerDone := runScanWorker(scanCtx, scanWorker)
-	mountRivals(gateway, pool, logStore, scanSvc)
+	mountRivals(gateway, pool, logStore, scanSvc, rivalPreviewWiring{
+		Media:      mediaManager.Media(),
+		YtDlp:      toolKit.YtDlp,
+		CookieArgs: openRivalAccounts(cfgDir, settings).CookieArgs,
+		Pacer:      platformSvc.NewPacer(nil, nil),
+	})
 	ai, err := wireAI(machineCtx, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps.Runner)
 	if err != nil {
 		return err

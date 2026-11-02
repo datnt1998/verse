@@ -5,7 +5,6 @@ import { visualRoles } from '../../styles/viderse.stylex'
 
 export const setNavLinkMarker = stylex.defineMarker()
 export const setHelpCardMarker = stylex.defineMarker()
-export const msetRowMarker = stylex.defineMarker()
 export const msetQueueMarker = stylex.defineMarker()
 export const logsExportMarker = stylex.defineMarker()
 export const logsErrHeadMarker = stylex.defineMarker()
@@ -91,7 +90,7 @@ export const styles = stylex.create({
   setGrp: { fontSize: settingsVars.setGrpfontSize, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: color["--color-fg-4"], padding: "var(--vv-s-16) var(--vv-s-10) var(--vv-s-4)", paddingTop: { default: null, ":first-child": "var(--vv-s-4)" } },
   setNavLabel: { flex: "1", minWidth: 0 },
   setNavNum: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], fontVariantNumeric: "tabular-nums" },
-  ic: { color: { default: null, [stylex.when.ancestor(':is(*)', setNavLinkMarker)]: { default: null, ":last-child": color["--color-fg-4"] }, [stylex.when.ancestor(':is(*)', msetRowMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', msetQueueMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', saccMoreMarker)]: kit["--kit-fg-sub"], [stylex.when.ancestor(':is(*)', stoJobsMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', stoBrowMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', stoConfirmMarker)]: color["--color-warn"] }, flex: '0 0 auto', marginTop: { default: null, [stylex.when.ancestor(':is(*)', stoJobsMarker)]: "var(--vv-s-2)", [stylex.when.ancestor(':is(*)', checksMarker)]: "var(--vv-s-2)" } },
+  ic: { color: { default: null, [stylex.when.ancestor(':is(*)', setNavLinkMarker)]: { default: null, ":last-child": color["--color-fg-4"] }, [stylex.when.ancestor(':is(*)', msetQueueMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', saccMoreMarker)]: kit["--kit-fg-sub"], [stylex.when.ancestor(':is(*)', stoJobsMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', stoBrowMarker)]: color["--color-fg-3"], [stylex.when.ancestor(':is(*)', stoConfirmMarker)]: color["--color-warn"] }, flex: '0 0 auto', marginTop: { default: null, [stylex.when.ancestor(':is(*)', stoJobsMarker)]: "var(--vv-s-2)", [stylex.when.ancestor(':is(*)', checksMarker)]: "var(--vv-s-2)" } },
   setFoot: { marginTop: "auto", padding: "var(--vv-s-14) var(--vv-s-10) var(--vv-s-2)", fontSize: "var(--vv-s-12)", color: "var(--vv-fg-note)", lineHeight: 1.6 },
   setFootNote: { display: "block" },
   setFootVer: { display: "block", fontVariantNumeric: "tabular-nums" },
@@ -120,11 +119,13 @@ export const styles = stylex.create({
   msetSumTitle: { fontSize: "var(--vv-s-15)", fontWeight: 600 },
   msetSumSub: { fontSize: settingsVars.setTipsTitlefontSize, color: color["--color-fg-3"] },
   msetList: { borderRadius: radius["--radius-card"], display: "flex", flexDirection: "column" },
-  msetRowLabel: { flex: "0 0 auto", fontSize: settingsVars.msetRowLabelfontSize },
-  msetRowValueWrap: { flex: "1", minWidth: 0, display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "var(--vv-s-6)" },
-  msetRowValue: { fontSize: "var(--vv-s-13)", color: color["--color-fg-3"], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
-  msetRowValueIsWarm: { color: color["--color-warn"] },
-  msetRowCaret: { color: "var(--st-neutral, var(--color-fg-4))" },
+  // Hàng của ListRow đã tự lo bố cục icon/nhãn/giá trị/chevron; chỉ chỉnh cỡ nhãn
+  // theo artboard MSettings (14.5) và giữ màu cam khi có bản cập nhật.
+  msetRow: { fontSize: settingsVars.msetRowLabelfontSize },
+  // Giá trị bên phải được phép xuống dòng thay vì ép nhãn bị cắt: kho S3 mất kết
+  // nối (“Google Cloud Storage mất kết nối”) dài hơn nửa hàng ở 360px.
+  msetSummary: { display: "block", maxWidth: 130, textAlign: "end", lineHeight: 1.35, whiteSpace: "normal", overflowWrap: "anywhere" },
+  msetSummaryWarm: { color: color["--color-warn"] },
   msetQueue: { borderRadius: radius["--radius-card"], padding: "var(--vv-s-12) var(--vv-s-14)", minHeight: "var(--vv-s-56)", display: "flex", alignItems: "center", gap: "var(--vv-s-12)", color: color["--color-fg"] },
   msetQueueMain: { flex: "1", minWidth: 0, display: "flex", flexDirection: "column" },
   // Hàng Thành viên trên MSettings dùng đúng nhịp thẻ hàng (56px) thay vì link desktop.

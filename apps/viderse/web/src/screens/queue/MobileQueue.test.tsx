@@ -71,7 +71,7 @@ it('pauses real running work without hiding it and gives every waiting row the p
 it('bounds mobile workers at six, image concurrency at eight, and rescan at one hour', async () => {
   current = { ...current, workers: { used: 1, total: 6 }, imageWorkers: 8, rescanHours: 1 }
   await act(async () => { cache.setData(['queue'], current) })
-  await click(document.querySelector('.mq-rules-link'))
+  await click(button('Quy tắc chạy'))
   expect(document.querySelector<HTMLButtonElement>('[aria-label="Số luồng chạy cùng lúc tăng"]')?.disabled).toBe(true)
   expect(document.querySelector<HTMLButtonElement>('[aria-label="Số ảnh vẽ cùng lúc tăng"]')?.disabled).toBe(true)
   expect(document.querySelector<HTMLButtonElement>('[aria-label="Khoảng giờ xem lại đối thủ giảm"]')?.disabled).toBe(true)
@@ -136,7 +136,7 @@ it('shows exhausted image limits while keeping real running and queued rows in t
 })
 
 it('dismisses rules on Escape without inventing an additional save mutation', async () => {
-  await click(document.querySelector('.mq-rules-link'))
+  await click(button('Quy tắc chạy'))
   await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
   expect(patches).toHaveLength(0)
   expect(document.querySelector('.m-overlay')?.classList.contains('m-out')).toBe(true)

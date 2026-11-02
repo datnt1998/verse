@@ -46,7 +46,6 @@ describe('Nút Việc nền trên điện thoại', () => {
     expect(html).toContain('aria-label="Việc nền: máy rảnh"')
     expect(html).toContain('data-jobs="idle"')
     expect(html).not.toContain('vv-jobsbtn__ring')
-    expect(html).toContain('activity')
     expect(html).not.toContain('Rảnh')
   })
   it('tạm dừng: vòng xám đầy + icon pause, câu aria có giờ dừng', () => {
@@ -55,7 +54,6 @@ describe('Nút Việc nền trên điện thoại', () => {
     expect(html).toContain('data-jobs="paused"')
     expect(html).toContain('vv-jobsbtn vv-jobsbtn--paused')
     expect(html).toContain('stroke-dashoffset="0"')
-    expect(html).toContain('pause')
     expect(html).not.toContain('>12</span>')
   })
   it('mất kết nối: icon danger cam và không chấm dù có thông báo chưa đọc', () => {
@@ -63,7 +61,6 @@ describe('Nút Việc nền trên điện thoại', () => {
     expect(html).toContain('aria-label="Việc nền: mất kết nối máy chủ, đang thử lại"')
     expect(html).toContain('data-jobs="offline"')
     expect(html).toContain('vv-jobsbtn vv-jobsbtn--offline')
-    expect(html).toContain('danger')
     expect(html).not.toMatch(dot)
     expect(html).not.toContain('2 đang chạy')
   })

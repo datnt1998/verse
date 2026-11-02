@@ -4,9 +4,46 @@ import { libraryVars } from '../libraryTokens.stylex'
 // Chọn prompt trong trang template: lưới thẻ bấm-chọn (ảnh cảnh / ảnh bìa) thay
 // ô chọn thả xuống, đúng artboard Template; kèm thẻ "Prompt mới" dẫn về kho và
 // khối chi tiết của prompt đang chọn.
+import { useState } from 'react'
 import { Icon } from '@noverse/ui'
 import { t } from '../../../i18n/library'
 import type { ImagePrompt } from '../../../api/library'
+
+/** Một ô prompt: vẽ ảnh mẫu thật khi có; không có hoặc tải hỏng thì giữ ô trung tính. */
+function PromptPick({ prompt, selected, mobileLayout, onSelect }: {
+  prompt: ImagePrompt
+  selected: boolean
+  mobileLayout: boolean
+  onSelect: (id: string) => void
+}) {
+  const copy = t.library.template
+  // Khoá theo URL: ảnh mẫu mới thay ảnh hỏng thì vẫn hiện.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const sampleUrl = prompt.sampleUrls?.[0]
+  const showArt = sampleUrl !== undefined && sampleUrl !== '' && sampleUrl !== failedUrl
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={selected}
+      aria-label={prompt.name}
+      className={`vt-pick ${stylex.props(sx.pick, mobileLayout && sx.mobilePick, (selected === true) && sx.pickAriaCheckedTrue).className}`}
+      data-kind={prompt.kind}
+      onClick={() => onSelect(prompt.id)}
+    >
+      <span className={`vt-pick-art ${stylex.props(sx.pickArt, mobileLayout && sx.mobileArt, ((prompt.kind) === "cover") && sx.pickArtDataKindCover).className}`} data-kind={prompt.kind} aria-hidden="true">
+        {showArt && (
+          <img className={`vt-pick-img ${stylex.props(sx.pickImg).className}`} src={sampleUrl} alt="" loading="lazy"
+            onError={() => setFailedUrl(sampleUrl ?? null)} />
+        )}
+        {!showArt && <span className={`vt-pick-glyph ${stylex.props(sx.pickGlyph, mobileLayout && sx.mobileHidden).className}`} />}
+        {prompt.builtIn && <span className={`vt-pick-chip ${stylex.props(sx.pickChip, mobileLayout && sx.mobileHidden).className}`}>{t.library.prompts.builtChip}</span>}
+      </span>
+      <span className={`vt-pick-name ${stylex.props(sx.pickName, mobileLayout && sx.mobileName).className}`} title={prompt.name}>{prompt.name}</span>
+      {selected && <span className={`vt-pick-check ${stylex.props(sx.pickCheck, mobileLayout && sx.mobileCheck).className}`} aria-hidden="true"><Icon name="tick" size={12} /></span>}
+    </button>
+  )
+}
 
 export function PromptPicker({ prompts, value, onSelect, usedLabel, mobileLayout = false }: {
   prompts: ImagePrompt[]
@@ -21,23 +58,7 @@ export function PromptPicker({ prompts, value, onSelect, usedLabel, mobileLayout
     <>
       <div className={`vt-picks ${stylex.props(sx.picks).className}`} role="radiogroup" aria-label={copy.images.promptAria}>
         {prompts.map((prompt) => (
-          <button
-            key={prompt.id}
-            type="button"
-            role="radio"
-            aria-checked={prompt.id === value}
-            aria-label={prompt.name}
-            className={`vt-pick ${stylex.props(sx.pick, mobileLayout && sx.mobilePick, ((prompt.id === value) === true) && sx.pickAriaCheckedTrue).className}`}
-            data-kind={prompt.kind}
-            onClick={() => onSelect(prompt.id)}
-          >
-            <span className={`vt-pick-art ${stylex.props(sx.pickArt, mobileLayout && sx.mobileArt, ((prompt.kind) === "cover") && sx.pickArtDataKindCover).className}`} data-kind={prompt.kind} aria-hidden="true">
-              <span className={`vt-pick-glyph ${stylex.props(sx.pickGlyph, mobileLayout && sx.mobileHidden).className}`} />
-              {prompt.builtIn && <span className={`vt-pick-chip ${stylex.props(sx.pickChip, mobileLayout && sx.mobileHidden).className}`}>{t.library.prompts.builtChip}</span>}
-            </span>
-            <span className={`vt-pick-name ${stylex.props(sx.pickName, mobileLayout && sx.mobileName).className}`} title={prompt.name}>{prompt.name}</span>
-            {prompt.id === value && <span className={`vt-pick-check ${stylex.props(sx.pickCheck, mobileLayout && sx.mobileCheck).className}`} aria-hidden="true"><Icon name="tick" size={12} /></span>}
-          </button>
+          <PromptPick key={prompt.id} prompt={prompt} selected={prompt.id === value} mobileLayout={mobileLayout} onSelect={onSelect} />
         ))}
         <a className={`vt-pick vt-pick--new ${stylex.props(sx.pickPickNew, mobileLayout && sx.mobileHidden).className}`} href="#/library?tab=prompts&prompt=new">
           <span className={`vt-pick-plus ${stylex.props(sx.pickPlus).className}`} aria-hidden="true"><Icon name="add" size={16} /></span>
@@ -104,6 +125,7 @@ const sx = stylex.create({
   pickAriaCheckedTrue: { borderTopColor: color["--color-accent"], borderRightColor: color["--color-accent"], borderBottomColor: color["--color-accent"], borderLeftColor: color["--color-accent"], color: color["--color-fg"] },
   pickArt: { position: "relative", display: "block", height: libraryVars.templatePromptPickerPickArtHeight, borderTopLeftRadius: "var(--vv-r-6)", borderTopRightRadius: "var(--vv-r-6)", borderBottomRightRadius: "var(--vv-r-6)", borderBottomLeftRadius: "var(--vv-r-6)", backgroundColor: "transparent", backgroundImage: libraryVars.templatePromptPickerPickArtBackgroundImage, overflowX: "hidden", overflowY: "hidden" },
   pickArtDataKindCover: { backgroundColor: "transparent", backgroundImage: libraryVars.templatePromptPickerPickArtDataKindCoverBackgroundImage },
+  pickImg: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" },
   pickGlyph: { position: "absolute", left: "50%", bottom: "var(--vv-s-6)", width: "var(--vv-s-14)", height: "var(--vv-s-26)", transform: libraryVars.templatePromptPickerPickGlyphTransform, borderTopLeftRadius: libraryVars.templatePromptPickerPickGlyphBorderTopLeftRadius, borderTopRightRadius: libraryVars.templatePromptPickerPickGlyphBorderTopLeftRadius, borderBottomRightRadius: libraryVars.templatePreviewPanePreviewArtTop, borderBottomLeftRadius: libraryVars.templatePreviewPanePreviewArtTop, backgroundColor: color["--color-surface-6"], backgroundImage: "none", opacity: libraryVars.templatePromptPickerPickGlyphOpacity },
   pickChip: { position: "absolute", top: "var(--vv-s-4)", left: "var(--vv-s-4)", paddingTop: 0, paddingRight: "var(--vv-s-5)", paddingBottom: 0, paddingLeft: "var(--vv-s-5)", borderTopLeftRadius: "var(--vv-r-pill)", borderTopRightRadius: "var(--vv-r-pill)", borderBottomRightRadius: "var(--vv-r-pill)", borderBottomLeftRadius: "var(--vv-r-pill)", backgroundColor: color["--color-surface-6"], backgroundImage: "none", color: color["--color-fg-3"], fontSize: libraryVars.badgeFontSize },
   pickName: { overflowX: "hidden", overflowY: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },

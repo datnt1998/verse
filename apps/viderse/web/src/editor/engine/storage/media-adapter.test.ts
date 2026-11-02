@@ -40,6 +40,7 @@ describe('serverMediaToMetadata', () => {
       fps: 29.97,
       codec: 'h264',
       bitrate: 0,
+      audioTrackPresent: true,
       audioCodec: 'aac',
       tags: [],
       attribution: undefined,
@@ -66,7 +67,19 @@ describe('serverMediaToMetadata', () => {
       },
     })
 
-    expect(media).toMatchObject({ codec: 'mp3', fps: 0, width: 0, height: 0, duration: 3 })
+    expect(media).toMatchObject({ codec: 'mp3', fps: 0, width: 0, height: 0, duration: 3, audioTrackPresent: true })
+    expect(media.audioCodec).toBeUndefined()
+  })
+
+  it('marks a video probe with a null audio codec as a confirmed silent source', () => {
+    // ffprobe saw every stream and reported none of type audio. This explicit
+    // false is the only signal the mixer may use to skip a video decode.
+    const media = serverMediaToMetadata({
+      ...videoRecord,
+      probe: { ...videoRecord.probe, audioCodec: null, sampleRate: null, channels: null },
+    })
+
+    expect(media.audioTrackPresent).toBe(false)
     expect(media.audioCodec).toBeUndefined()
   })
 

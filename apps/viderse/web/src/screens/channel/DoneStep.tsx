@@ -4,9 +4,9 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // và câu "Đạo diễn đặt theo … (tham chiếu)" suy từ đối thủ chọn đầu tiên; thẻ
 // "Đang chạy nền" đọc trạng thái nhận diện thật (SSE `channels` + tiến độ từ
 // `activity` kind identity); thẻ "Việc tiếp theo" là video mới nhất thật của
-// đối thủ tham chiếu. Nút Làm video là việc của hàng chờ — khoá kèm lý do.
+// đối thủ tham chiếu. Nút Làm video đọc video mới nhất thật rồi xếp hàng chờ.
 import { useState, type ReactNode } from 'react'
-import { Button, Icon, ProgressBar, Spinner } from '@noverse/ui'
+import { Button, Icon, ProgressBar, Spinner, toast } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import { t } from '../../i18n/channels'
@@ -18,6 +18,7 @@ import { generateBranding, listChannels, getChannel } from '../../api/channels'
 import { listRivalVideos } from '../../api/rivals'
 import { fmtAge, fmtDuration, fmtScore } from '../explore/fmt'
 import { fmtTime } from './fmt'
+import { makeLatestRivalVideo } from './latest'
 import { channelTint } from '../../lib/channelTint'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { MobilePage } from '@noverse/ui'
@@ -34,6 +35,7 @@ export function DoneStep({ channelId, onLeave }: {
   const mobile = useMediaQuery('(max-width: 767px)')
   const [retrying, setRetrying] = useState(false)
   const [retryError, setRetryError] = useState<string | null>(null)
+  const [making, setMaking] = useState(false)
   const [brokenThumbnail, setBrokenThumbnail] = useState<string | null>(null)
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
   const list = channels.data?.channels ?? []
@@ -51,7 +53,7 @@ export function DoneStep({ channelId, onLeave }: {
   const data = channel.data
   const reference = data?.sources.find((source) => source.reference) ?? data?.sources[0]
   const latest = useResource(
-    keys.rivalVideos(reference?.rivalId ?? '_none', 'newest', 0, 0, ''),
+    keys.rivalLatestVideo(reference?.rivalId ?? '_none'),
     ({ signal }) => listRivalVideos(reference!.rivalId, { sort: 'newest', limit: 1 }, signal),
     { enabled: !!reference },
   )
@@ -131,6 +133,20 @@ export function DoneStep({ channelId, onLeave }: {
       setRetryError(err instanceof Error ? err.message : t.channels.identity.retryNameFail)
     } finally {
       setRetrying(false)
+    }
+  }
+
+  const makeLatest = async () => {
+    if (!reference || !video || making) return
+    setMaking(true)
+    try {
+      const result = await makeLatestRivalVideo(data.id, reference.rivalId)
+      onLeave()
+      navigate(result.jobId ? paths.workbench({ video: result.jobId }) : paths.queue())
+    } catch (err) {
+      toast.err(err instanceof Error ? err.message : t.channels.latestFailed)
+    } finally {
+      setMaking(false)
     }
   }
 
@@ -253,7 +269,8 @@ export function DoneStep({ channelId, onLeave }: {
                   variant="primary"
                   size="lg"
                   block
-                  lockedReason={t.channels.queueLock}
+                  pending={making}
+                  onClick={() => void makeLatest()}
                   icon={<Icon name="video-add" size={18} />}
                 >
                   {tt.makeLatestM}
@@ -275,7 +292,8 @@ export function DoneStep({ channelId, onLeave }: {
                 <ActionButton
                   variant="primary"
                   size="md"
-                  lockedReason={t.channels.queueLock}
+                  pending={making}
+                  onClick={() => void makeLatest()}
                 >
                   {tt.makeLatest(reference?.title ?? '')}
                 </ActionButton>

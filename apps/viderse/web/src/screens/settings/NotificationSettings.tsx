@@ -26,7 +26,7 @@ const rows = [
   ['review_ready', 'Chờ duyệt', 'Hoạ sĩ vẽ xong, chờ bạn duyệt ảnh'],
   ['needs_attention', 'Cần xử lý', 'Video dừng và cần bạn làm một việc'],
   ['ready_to_post', 'Sẵn sàng', 'MP4 đã xuất, có thể tải gói đăng'],
-  ['task_done', 'Việc nền khác xong', 'Nhận diện, vẽ thử, bản xem thử, xuất từ editor'],
+  ['task_done', 'Việc nền khác xong', 'Nhận diện, vẽ thử, bản xem thử, xuất từ Biên tập'],
 ] as const
 /** Cài đặt thông báo áp cho cả máy: thành viên chỉ xem, quản trị viên mới ghi. */
 export default function NotificationSettings(props: { embedded?: boolean }) {

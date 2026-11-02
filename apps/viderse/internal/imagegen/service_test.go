@@ -330,6 +330,9 @@ func TestDailyCapZeroNeverSpends(t *testing.T) {
 	if ce.Limit != 0 || len(*calls) != 0 {
 		t.Fatalf("cap=%+v calls=%d", ce, len(*calls))
 	}
+	if !imagegen.IsUnpaid(err) {
+		t.Fatalf("trần ngày chưa gửi lời gọi nên phải miễn phí: %v", err)
+	}
 }
 
 // Attempt lỗi chắc-chưa-tiêu-phí (busy/refused/quota) không đếm vào trần ngày.
@@ -579,5 +582,124 @@ func TestTransientTransportRetries(t *testing.T) {
 	}
 	if r.PngSha256 != "codex" || len(*calls) != 3 {
 		t.Fatalf("r=%+v calls=%d", r, len(*calls))
+	}
+}
+
+// requireStoreError khẳng định lỗi là lỗi biên nhận và cờ chi phí khớp với
+// IsUnpaid: lỗi sau lời gọi trả phí không bao giờ được báo miễn phí.
+func requireStoreError(t *testing.T, err error, charged bool) *imagegen.StoreError {
+	t.Helper()
+	var se *imagegen.StoreError
+	if !errors.As(err, &se) {
+		t.Fatalf("mong StoreError, được %v", err)
+	}
+	if se.Charged != charged {
+		t.Fatalf("StoreError.Charged = %v, mong %v", se.Charged, charged)
+	}
+	if got := imagegen.IsUnpaid(err); got == charged {
+		t.Fatalf("IsUnpaid = %v với Charged = %v", got, charged)
+	}
+	return se
+}
+
+// Finish lỗi SAU khi provider đã vẽ xong: ảnh có thật trên đĩa, lần gọi đã trả
+// phí, nên lỗi phải là StoreError charged — không được báo "miễn phí" và không
+// được rơi vào dự phòng (thêm một lời gọi trả phí).
+func TestJournalFinishFailureAfterPaidDrawIsCharged(t *testing.T) {
+	env := newEnv(t, []any{drawn("codex")}, nil, nil)
+	env.fakes[0].onDraw = func(req imagegen.Request) error {
+		return os.WriteFile(req.Output, testPNG, 0o644)
+	}
+	env.journal.finishErr = errors.New("journal không ghi được")
+	req := env.request()
+
+	if _, err := env.svc.Draw(context.Background(), req); err == nil {
+		t.Fatal("mong lỗi biên nhận")
+	} else {
+		requireStoreError(t, err, true)
+	}
+	if calls := providerCalls(*env.calls); len(calls) != 1 || calls[0] != "codex" {
+		t.Fatalf("lỗi biên nhận không được gọi thêm provider: %v", calls)
+	}
+	if _, statErr := os.Stat(req.Output); statErr != nil {
+		t.Fatalf("ảnh đã sinh phải còn trên đĩa: %v", statErr)
+	}
+	rows := env.journal.attempts(req.Key)
+	if len(rows) != 1 || rows[0].State != imagegen.ReceiptRunning {
+		t.Fatalf("attempt phải còn running để phục hồi: %+v", rows)
+	}
+
+	// Lặp cùng key: Reconcile cứu output đã có, không gửi lời gọi trả phí mới
+	// và vẫn báo charged khi Finish tiếp tục lỗi.
+	if _, err := env.svc.Draw(context.Background(), req); err == nil {
+		t.Fatal("mong lỗi biên nhận khi phục hồi")
+	} else {
+		requireStoreError(t, err, true)
+	}
+	if calls := providerCalls(*env.calls); len(calls) != 1 {
+		t.Fatalf("phục hồi không được vẽ lại: %v", calls)
+	}
+	if rows := env.journal.attempts(req.Key); len(rows) != 1 {
+		t.Fatalf("không được mở attempt mới: %+v", rows)
+	}
+}
+
+// Lỗi biên nhận TRƯỚC lời gọi trả phí (khoá key hoặc Begin) chắc chắn miễn phí
+// và không chạm provider.
+func TestJournalFailureBeforePaidCallIsUnpaid(t *testing.T) {
+	cases := []struct {
+		name  string
+		setup func(*memoryJournal)
+	}{
+		{"khoá key", func(j *memoryJournal) { j.lockErr = errors.New("không khoá được key") }},
+		{"Begin", func(j *memoryJournal) { j.beginErr = errors.New("không ghi được attempt") }},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			env := newEnv(t, []any{drawn("codex")}, nil, nil)
+			tc.setup(env.journal)
+			if _, err := env.svc.Draw(context.Background(), env.request()); err == nil {
+				t.Fatal("mong lỗi biên nhận")
+			} else {
+				requireStoreError(t, err, false)
+			}
+			if calls := providerCalls(*env.calls); len(calls) != 0 {
+				t.Fatalf("provider không được gọi: %v", calls)
+			}
+		})
+	}
+}
+
+// Khi Finish lỗi, phán quyết chi phí của lỗi provider được giữ nguyên: lỗi
+// chắc chắn chưa gửi (kể cả huỷ trước khi gửi) vẫn miễn phí; huỷ/lỗi sau khi
+// gửi vẫn tính là đã tốn phí.
+func TestJournalFinishFailureKeepsProviderChargeVerdict(t *testing.T) {
+	cases := []struct {
+		name       string
+		drawErr    error
+		wantUnpaid bool
+	}{
+		{"chưa gửi", imagegen.MarkUnpaid(&imagegen.DrawError{
+			Code: imagegen.ErrCodeToolMissing, Message: "chưa có công cụ vẽ",
+		}), true},
+		{"huỷ trước khi gửi", imagegen.MarkUnpaid(&imagegen.DrawError{
+			Code: imagegen.ErrCodeCancelled, Message: "đã huỷ",
+		}), true},
+		{"huỷ sau khi gửi", context.Canceled, false},
+		{"lỗi provider sau khi gửi", errors.New("đứt kết nối sau khi gửi"), false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			env := newEnv(t, []any{tc.drawErr}, nil, nil)
+			env.journal.finishErr = errors.New("journal không ghi được")
+			if _, err := env.svc.Draw(context.Background(), env.request()); err == nil {
+				t.Fatal("mong lỗi biên nhận")
+			} else {
+				requireStoreError(t, err, !tc.wantUnpaid)
+			}
+			if calls := providerCalls(*env.calls); len(calls) != 1 {
+				t.Fatalf("lỗi biên nhận không được rơi vào dự phòng: %v", calls)
+			}
+		})
 	}
 }

@@ -2,7 +2,7 @@
 // tiêu đề + Thông tin/Chọn 44, dải đối thủ ngang, hàng Sắp xếp + lọc ngang,
 // dòng đếm, thẻ video 16:9. Chế độ chọn thay thanh tab bằng thanh chọn dính
 // đáy; tấm thông tin đối thủ và tấm thêm đối thủ dùng Sheet của kit.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
   ActionSheet, Button, Checkbox, ChipSelect, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
@@ -27,17 +27,19 @@ import { scanProgress, scanningRival, exploreListState } from '../listState'
 import { ListStateBlock, ScanBanner, SkeletonTiles } from '../ListStates'
 import { ScanCard } from '../ScanCard'
 import { PostingCard } from '../PostingCard'
-import { WITHIN } from '../FilterBar'
+import { WITHIN, type StatusFilter } from '../FilterBar'
+import { bulkEnqueueOutcome } from '../bulk'
 import { addRivalError, type AddError } from '../AddRivalForm'
 import { fmtDuration, fmtScore, fmtSubs, videoMeta } from '../fmt'
 import { hideBrokenImage } from '../VideoGrid'
+import { stageColor, stageLabel, usageHref } from '../status'
 import { scopeOf, type Scope } from '../scope'
 import { useRivalVideos, type VideosFilter } from '../useRivalVideos'
 import { mStyles } from './mexplore.stylex'
+import { MobileVideoList } from './MobileVideoList'
 import { rememberVideo } from './pickedVideo'
 
 const num = new Intl.NumberFormat('vi-VN')
-const PAGE = 40
 
 type ExploreRoute = Extract<Route, { name: 'explore' }>
 
@@ -71,13 +73,15 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
   const [sort, setSort] = useState<VideoSort>('outlier')
   const [long, setLong] = useState(false)
   const [within, setWithin] = useState<0 | 7 | 30 | 90>(30)
+  // Chip "Trạng thái" lọc thật ở máy chủ (cùng tham số made/notMade như bản máy tính).
+  const [status, setStatus] = useState<StatusFilter>('all')
   const [query, setQuery] = useState('')
   const typedQ = query.trim()
   const debouncedQ = useDebounced(typedQ, typedQ === '' ? 0 : 250)
   const q = typedQ === '' ? '' : debouncedQ
   const filter: VideosFilter = useMemo(
-    () => ({ scope, sort, long, within, q }),
-    [scope, sort, long, within, q],
+    () => ({ scope, sort, long, within, q, status }),
+    [scope, sort, long, within, q, status],
   )
   const videos = useRivalVideos(filter)
   const items = videos.items
@@ -86,6 +90,8 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
   const activeFilters = [
     ...(long ? [tt.noMatchLong] : []),
     ...(within > 0 && withinLabel ? [tt.noMatchWithin(withinLabel)] : []),
+    ...(status === 'notMade' ? [tt.noMatchStatusNotMade] : []),
+    ...(status === 'made' ? [tt.noMatchStatusMade] : []),
   ]
   const eventsStatus = useEventsStatus()
   const offline = eventsStatus.state === 'retrying'
@@ -118,6 +124,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
   const clearFilters = useCallback(() => {
     setLong(false)
     setWithin(30)
+    setStatus('all')
   }, [])
 
   // ── chọn nhiều ───────────────────────────────────────────────────────────
@@ -143,13 +150,35 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     if (bulkBusy || !channels.some((channel) => channel.id === channelId) || selectedVideos.length === 0) return
     setBulkBusy(true)
     try {
-      await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
+      const result = await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
+      const outcome = bulkEnqueueOutcome(result, selectedVideos)
+      // Toàn bộ đã có sẵn: không báo thành công, giữ nguyên lựa chọn và mở job có sẵn.
+      if (outcome.added === 0 && outcome.duplicateCount > 0) {
+        toast(tt.bulkAllDuplicate(String(outcome.duplicateCount)), 'warn', {
+          label: outcome.duplicateJobId ? tt.queuePlanOpen : t.screens.new.toasts.openQueue,
+          onClick: () => navigate(outcome.duplicateJobId ? paths.workbench({ video: outcome.duplicateJobId }) : paths.queue()),
+        })
+        return
+      }
+      if (outcome.added === 0) {
+        toast.err(t.screens.new.toasts.failed)
+        return
+      }
+      if (outcome.duplicateCount > 0) {
+        // Chỉ đếm video thật sự vào hàng chờ; giữ lựa chọn đúng nhóm trùng để chọn kênh khác.
+        setCheckedIds(new Set(outcome.duplicateVideoIds))
+        toast(tt.bulkMadePartial(String(outcome.added), String(selectedVideos.length), String(outcome.duplicateCount)), 'ok', {
+          label: t.screens.new.toasts.openQueue,
+          onClick: () => navigate(paths.queue()),
+        })
+        return
+      }
       toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
       exitSelect()
     } catch {
       toast.err(t.screens.new.toasts.failed)
     } finally { setBulkBusy(false) }
-  }, [bulkBusy, channels, selectedVideos, exitSelect])
+  }, [bulkBusy, channels, selectedVideos, exitSelect, tt.bulkAllDuplicate, tt.bulkMadePartial, tt.queuePlanOpen])
 
   // ── tấm thông tin / thêm đối thủ ─────────────────────────────────────────
   const [infoOpen, setInfoOpen] = useState(false)
@@ -237,22 +266,6 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     pickRival('all')
   }
 
-  // ── danh sách: cuộn tăng dần, không dựng 200 thẻ một lúc ────────────────
-  const [limit, setLimit] = useState(PAGE)
-  useEffect(() => { setLimit(PAGE) }, [scope, sort, long, within, q])
-  const visible = items.slice(0, limit)
-  const sentinel = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    const node = sentinel.current
-    if (!node || typeof IntersectionObserver === 'undefined') return
-    const io = new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return
-      if (limit < items.length) setLimit((n) => n + PAGE)
-      else if (videos.hasMore) videos.needMore()
-    }, { rootMargin: '300px 0px' })
-    io.observe(node)
-    return () => io.disconnect()
-  }, [limit, items.length, videos.hasMore, videos.needMore])
 
   const openVideo = useCallback((video: Video) => {
     rememberVideo(video)
@@ -326,13 +339,13 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
       ) : (
         <>
           <div {...stylex.props(mStyles.chipsRow)} role="radiogroup" aria-label={tt.rivalsGroup}>
-            <RadioCard checked={scope === 'all'} tabIndex={scope === 'all' ? 0 : -1} onChange={() => pickRival('all')} mark="none">
-              <Icon name="radar" size={16} />{tt.allRivals}
+            <RadioCard checked={scope === 'all'} tabIndex={scope === 'all' ? 0 : -1} onChange={() => pickRival('all')} mark="none" xstyle={mStyles.rivalChip}>
+              <Icon name="radar" size={16} /><span {...stylex.props(mStyles.rivalChipName)}>{tt.allRivals}</span>
             </RadioCard>
             {rivals.map((rival) => (
-              <RadioCard key={rival.id} checked={scope === rival.id} tabIndex={scope === rival.id ? 0 : -1} onChange={() => pickRival(rival.id)} mark="none">
+              <RadioCard key={rival.id} checked={scope === rival.id} tabIndex={scope === rival.id ? 0 : -1} onChange={() => pickRival(rival.id)} mark="none" xstyle={mStyles.rivalChip}>
                 <ChannelAvatar name={rival.title} src={rival.avatarUrl ?? undefined} size={30} fontSize={11} />
-                {rival.title}
+                <span {...stylex.props(mStyles.rivalChipName)} title={rival.title}>{rival.title}</span>
                 {rival.newOutliers > 0 && (
                   <span {...stylex.props(mStyles.newBadge)} aria-label={tt.newBadgeAria(String(rival.newOutliers))}>
                     {rival.newOutliers}
@@ -343,6 +356,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
             <Button
               variant="ghost"
               size="lg"
+              xstyle={mStyles.followChip}
               aria-label={tt.mobileAddAria}
               icon={<Icon name="add" size={16} />}
               onClick={openAdd}
@@ -385,15 +399,20 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               prefix={<><Icon name="calendar" size={15} /> {tt.filterWithin}</>}
               custom={within !== 30}
             />
-            <Button
-              variant="ghost"
-              size="lg"
-              aria-disabled="true"
-              icon={<Icon name="filter" size={15} />}
-              title={channels.length > 0 ? tt.queueReason : tt.lockedReason}
-            >
-              {tt.filterStatus} <b>{tt.statusAll}</b> <Icon name="arrow-d" size={12} />
-            </Button>
+            <ChipSelect
+              label={tt.statusLabel}
+              size="m"
+              options={[
+                { value: 'all', label: tt.statusOptions.all },
+                { value: 'notMade', label: tt.statusOptions.notMade },
+                { value: 'made', label: tt.statusOptions.made },
+              ]}
+              value={status}
+              onChange={(value) => setStatus(value as StatusFilter)}
+              aria-label={tt.statusLabel}
+              prefix={<><Icon name="filter" size={15} /> {tt.filterStatus}</>}
+              custom={status !== 'all'}
+            />
           </div>
 
           <span {...stylex.props(mStyles.count)}>{countLine}</span>
@@ -443,13 +462,15 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               <Button size="lg" onClick={() => setQuery('')}>{tt.searchClear}</Button>
             </div>
           ) : (
-            <div {...stylex.props(mStyles.list)}>
-              {visible.map((video) => {
+            <MobileVideoList items={items} hasMore={videos.hasMore} needMore={videos.needMore}>
+              {(video) => {
                 const checked = checkedIds.has(video.id)
                 const hot = (video.score ?? 0) >= 3
                 const dur = fmtDuration(video.durationSec)
                 const rival = rivals.find((r) => r.id === video.channelId)
                 const meta = [rival?.title, videoMeta(video.viewCount, video.publishedAt)].filter(Boolean).join(' · ')
+                const usage = video.usage?.[0]
+                const usageTitle = video.usage?.map((u) => `${u.channelName} · ${stageLabel(u)}`).join('\n')
                 const activate = () => (selectMode ? toggleChecked(video) : openVideo(video))
                 return (
                   <article key={video.id} {...stylex.props(mStyles.card)}>
@@ -477,8 +498,25 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
                     </div>
                     <div {...stylex.props(mStyles.cardBody)}>
                       <div {...stylex.props(mStyles.cardText)}>
-                        <button type="button" {...stylex.props(mStyles.cardTitle)} onClick={activate}>{video.title}</button>
+                        <a
+                          {...stylex.props(mStyles.cardTitle)}
+                          href={`#${paths.explore({ rival: handleOf(scope, rivals), video: video.id })}`}
+                          onClick={(event) => { event.preventDefault(); activate() }}
+                        >{video.title}</a>
                         <span {...stylex.props(mStyles.cardMeta)}>{meta}</span>
+                        {usage && (
+                          <a
+                            {...stylex.props(mStyles.cardUsage)}
+                            href={usageHref(usage)}
+                            title={usageTitle}
+                            aria-label={`${usage.channelName} · ${stageLabel(usage)}`}
+                          >
+                            <span aria-hidden="true" {...stylex.props(mStyles.usageDot)} style={{ backgroundColor: stageColor(usage.stage) }} />
+                            <span {...stylex.props(mStyles.usageText)} style={{ color: stageColor(usage.stage) }}>
+                              {usage.channelName} · {stageLabel(usage)}
+                            </span>
+                          </a>
+                        )}
                       </div>
                       <Button
                         variant="icon"
@@ -492,9 +530,8 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
                     </div>
                   </article>
                 )
-              })}
-              <div ref={sentinel} {...stylex.props(mStyles.sentinel)} aria-hidden="true" />
-            </div>
+              }}
+            </MobileVideoList>
           )}
         </>
       )}

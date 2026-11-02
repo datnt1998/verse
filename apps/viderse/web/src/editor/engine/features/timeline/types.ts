@@ -48,6 +48,12 @@ export interface LoadTimelineOptions {
   allowProjectUpgrade?: boolean
   /** Reuse a project snapshot explicitly loaded by the host's open transaction. */
   useRetainedProject?: boolean
+  /**
+   * Viewing only: migrations and normalization still run in memory so the viewer sees the
+   * repaired timeline, but the result is never written back to the project. Use this for
+   * previews, which must not bump the project revision just by being opened.
+   */
+  readOnly?: boolean
 }
 
 export interface TimelineState {

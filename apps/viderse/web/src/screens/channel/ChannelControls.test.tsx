@@ -85,7 +85,7 @@ describe('channel control integration', () => {
     expect([...tabs].filter((tab) => tab.tabIndex === 0)).toHaveLength(1)
   })
 
-  it.each(['tab', 'mobile'] as const)('loads schedule data matching the selected zone for %s', async (variant) => {
+  it('loads schedule data matching the selected desktop zone', async () => {
     const fetcher = vi.fn(async (input: RequestInfo | URL) => {
       const zone = String(input).endsWith('zone=ny') ? 'ny' : 'vn'
       const schedule: PostingSchedule = {
@@ -95,7 +95,7 @@ describe('channel control integration', () => {
       return reply(schedule)
     })
     vi.stubGlobal('fetch', fetcher)
-    const element = await mount(<ScheduleCard channel={channel} variant={variant} />)
+    const element = await mount(<ScheduleCard channel={channel} variant="tab" />)
     const choices = element.querySelectorAll<HTMLButtonElement>('[role="radio"]')
     expect(choices).toHaveLength(2)
     expect(element.textContent).toContain('20:00')

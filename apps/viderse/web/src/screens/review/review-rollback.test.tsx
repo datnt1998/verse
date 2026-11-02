@@ -1,17 +1,19 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cache } from '@noverse/ui/data'
 import { useReview } from './useReview'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
 const api = vi.hoisted(() => ({ request: vi.fn(), error: vi.fn() }))
 vi.mock('../../api/request', () => ({ request: api.request, ApiError: class extends Error { constructor(public status: number, message: string) { super(message) } } }))
 vi.mock('@noverse/ui', () => ({ toast: { err: api.error } }))
-vi.mock('@noverse/ui/data', () => ({ getData: () => undefined, setData: vi.fn(), invalidate: vi.fn() }))
+// Duyệt đọc danh sách qua cache thật của app; luồng SSE thay bằng hàm rỗng.
+vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {}, events: { onReconnect: () => () => {} } }))
 const job = { id: 'j', channelId: 'c', stageGroup: 'review', subline: '', createdAt: '2026-01-01', source: { title: 'Video', thumbnailUrl: null } }
 const image = { id: 'i', kind: 'scene', status: 'review', prompt: 'p', currentVersion: null, reviewVersion: 1, versions: [] }
 let root: Root | undefined
-afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; vi.clearAllMocks() })
+afterEach(() => { if (root) act(() => root!.unmount()); root = undefined; document.body.innerHTML = ''; cache.clear(); vi.clearAllMocks() })
 
 describe('duyệt lạc quan', () => {
   it('ẩn video ngay rồi khôi phục và báo lỗi khi máy từ chối', async () => {

@@ -26,10 +26,11 @@ import { enqueueClone } from '../../api/clone'
 import { toast } from '@noverse/ui'
 import { RivalSidebar, rivalColor } from './RivalSidebar'
 import { AddRivalForm } from './AddRivalForm'
-import { FilterBar, WITHIN } from './FilterBar'
+import { FilterBar, WITHIN, type StatusFilter } from './FilterBar'
 import { SearchBox } from './SearchBox'
 import { VideoGrid } from './VideoGrid'
 import { BulkBar } from './BulkBar'
+import { bulkEnqueueOutcome } from './bulk'
 import { RivalCard } from './RivalCard'
 import { ScanCard } from './ScanCard'
 import { PostingCard } from './PostingCard'
@@ -84,6 +85,9 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
     return rivals.find((r) => r.id === id)
   }, [railId, scope, rivals])
   const railIndex = Math.max(0, railRival ? rivals.indexOf(railRival) : 0)
+  const linkedChannel = railRival
+    ? channels.find((channel) => channel.sources.some((source) => source.rivalId === railRival.id))
+    : undefined
 
   const pickRival = useCallback((id: Scope) => {
     if (id !== 'all') setRailId(id)
@@ -95,6 +99,7 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
   const [sort, setSort] = useState<VideoSort>('outlier')
   const [long, setLong] = useState(false)
   const [within, setWithin] = useState<0 | 7 | 30 | 90>(30)
+  const [status, setStatus] = useState<StatusFilter>('all')
   // Ô tìm: gõ thì chờ 250 ms mới hỏi API; xoá trắng thì áp ngay (và xả luôn
   // giá trị chờ để gõ lại không hỏi chuỗi cũ).
   const [query, setQuery] = useState('')
@@ -102,8 +107,8 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
   const debouncedQ = useDebounced(typedQ, typedQ === '' ? 0 : 250)
   const q = typedQ === '' ? '' : debouncedQ
   const filter: VideosFilter = useMemo(
-    () => ({ scope, sort, long, within, q }),
-    [scope, sort, long, within, q],
+    () => ({ scope, sort, long, within, q, status }),
+    [scope, sort, long, within, q, status],
   )
   const videos = useRivalVideos(filter)
   const items = videos.items
@@ -114,6 +119,8 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
   const activeFilters = [
     ...(long ? [tt.noMatchLong] : []),
     ...(within > 0 && withinLabel ? [tt.noMatchWithin(withinLabel)] : []),
+    ...(status === 'notMade' ? [tt.noMatchStatusNotMade] : []),
+    ...(status === 'made' ? [tt.noMatchStatusMade] : []),
   ]
   // Trạng thái vùng danh sách (artboard Explore/MExplore › list): đang quét thì
   // chưa kết luận “không khớp bộ lọc”; mất kết nối đứng trước lỗi tải.
@@ -154,11 +161,11 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
     events.retryNow()
     retryList()
   }, [retryList])
-  // “Bỏ lọc” đưa Dài, Đăng trong, Trạng thái về mặc định (Trạng thái đang khoá ở
-  // “Tất cả” nên chỉ hai bộ lọc đầu có state).
+  // “Bỏ lọc” đưa Dài, Đăng trong, Trạng thái về mặc định.
   const clearFilters = useCallback(() => {
     setLong(false)
     setWithin(30)
+    setStatus('all')
   }, [])
 
   // Chọn nhiều + video đang xem ở cột phải.
@@ -246,13 +253,35 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
     if (bulkBusy || !channels.some((channel) => channel.id === channelId) || selectedVideos.length === 0) return
     setBulkBusy(true)
     try {
-      await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
+      const result = await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
+      const outcome = bulkEnqueueOutcome(result, selectedVideos)
+      // Toàn bộ đã có sẵn: không báo thành công, giữ nguyên lựa chọn và mở job có sẵn.
+      if (outcome.added === 0 && outcome.duplicateCount > 0) {
+        toast(tt.bulkAllDuplicate(String(outcome.duplicateCount)), 'warn', {
+          label: outcome.duplicateJobId ? tt.queuePlanOpen : t.screens.new.toasts.openQueue,
+          onClick: () => navigate(outcome.duplicateJobId ? paths.workbench({ video: outcome.duplicateJobId }) : paths.queue()),
+        })
+        return
+      }
+      if (outcome.added === 0) {
+        toast.err(t.screens.new.toasts.failed)
+        return
+      }
+      if (outcome.duplicateCount > 0) {
+        // Chỉ đếm video thật sự vào hàng chờ; giữ lựa chọn đúng nhóm trùng để chọn kênh khác.
+        setCheckedIds(new Set(outcome.duplicateVideoIds))
+        toast(tt.bulkMadePartial(String(outcome.added), String(selectedVideos.length), String(outcome.duplicateCount)), 'ok', {
+          label: t.screens.new.toasts.openQueue,
+          onClick: () => navigate(paths.queue()),
+        })
+        return
+      }
       toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
       exitSelect()
     } catch {
       toast.err(t.screens.new.toasts.failed)
     } finally { setBulkBusy(false) }
-  }, [bulkBusy, channels, selectedVideos, exitSelect])
+  }, [bulkBusy, channels, selectedVideos, exitSelect, tt.bulkAllDuplicate, tt.bulkMadePartial, tt.queuePlanOpen])
 
   // ─── Trạng thái trống: chưa theo dõi đối thủ nào ───
   // Artboard vẫn giữ cột đối thủ 252 px (nhóm "Đối thủ 0" + câu hướng dẫn)
@@ -263,7 +292,7 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
     return (
       <div className={`vx-shell vx-shell--empty ${stylex.props(exploreStyles.shell, exploreStyles.shellEmpty, exploreRootMarker).className}`}>
         {/* MExplore › list=noRivals: bản một cột không vẽ cột đối thủ, chỉ khối giới thiệu. */}
-        <RivalSidebar list={list.data} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
+        <RivalSidebar list={list.data} channels={channels} showAdd={false} selected="all" onPick={pickRival} onAdded={(rival) => pickRival(rival.id)} />
         <main className={`vx-empty ${stylex.props(exploreStyles.empty).className}`} aria-label={tt.title}>
           <div className={`vx-empty__box ${stylex.props(exploreStyles.emptyBox).className}`}>
             <Orb of="scout" size={40} live={false} />
@@ -284,6 +313,7 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
     <div className={`vx-shell ${stylex.props(exploreStyles.shell, exploreRootMarker).className}`}>
       <RivalSidebar
         list={list.data}
+        channels={channels}
         selected={scope}
         onPick={pickRival}
         onAdded={(rival) => pickRival(rival.id)}
@@ -309,13 +339,14 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
           sort={sort}
           long={long}
           within={within}
+          status={status}
           onSort={setSort}
           onLong={setLong}
           onWithin={setWithin}
+          onStatus={setStatus}
           total={videos.total}
           scanned={scanned}
           q={videos.shownQ}
-          hasChannel={channels.length > 0}
           countText={listCountText}
         />
         {listState === 'firstScan' && scanning ? (
@@ -375,7 +406,7 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
             checkedIds={checkedIds}
             onOpen={(v) => { setSelectMode(false); setPickedId(v.id) }}
             onToggle={toggleChecked}
-            hasChannel={channels.length > 0}
+            makeChannelName={channels[0]?.name}
           />
         )}
         {selectMode && checkedIds.size > 0 && (
@@ -408,7 +439,8 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
                 rescanHours={railScan.data?.rescanHours ?? 6}
                 perWeek={railPosting.data?.perWeek}
                 channels={channelRefs}
-                linkedChannelName={channels.find((channel) => channel.sources.some((source) => source.rivalId === railRival.id))?.name}
+                linkedChannelId={linkedChannel?.id}
+                linkedChannelName={linkedChannel?.name}
                 onRemoved={() => {
                   setRailId(null)
                   pickRival('all')

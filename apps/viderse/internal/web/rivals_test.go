@@ -24,6 +24,7 @@ type fakeRivalReads struct {
 	entry    *rivals.ListEntry
 	page     *rivals.VideoPage
 	schedule *domain.PostingSchedule
+	preview  *rivals.VideoPreview
 	lastID   string
 	lastZone string
 	lastQ    rivals.VideoQuery
@@ -90,6 +91,17 @@ func (f *fakeRivalReads) PostingSchedule(_ context.Context, id, zone string) (*d
 		return nil, rivals.ErrInvalidZone
 	}
 	return f.schedule, nil
+}
+
+func (f *fakeRivalReads) Preview(_ context.Context, id, videoID string) (*rivals.VideoPreview, error) {
+	f.lastID = id
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.preview == nil {
+		return nil, rivals.ErrVideoNotFound
+	}
+	return f.preview, nil
 }
 
 // fakeRivalMutations là RivalMutations giả trả scan.Error theo mã cài sẵn.

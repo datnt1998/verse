@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from '@noverse/ui'
-import { getData, invalidate, setData } from '@noverse/ui/data'
+import { cache, getData, invalidate, setData } from '@noverse/ui/data'
 import { ApiError, request } from '../../api/request'
 import { readScoreSummary, type ScoreSummary } from '../../api/autonomy'
 import type { Status } from '../../api/status'
+import { events, subscribeEvents } from '../../data/events'
 import { keys } from '../../data/keys'
+import { useResource } from '../../data/useResource'
 
 import type { Suggestion } from '../../api/suggestions'
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; source: { title: string; thumbnailUrl: string | null } }
@@ -42,47 +44,136 @@ export const versionURL = (job: string, image: ReviewImage, version: number, var
     : found?.originalUrl || ''
 }
 
-export function useReview() {
-  const [jobs, setJobs] = useState<ReviewJob[]>()
+/**
+ * Dữ liệu màn Duyệt đọc qua cache dùng chung: quay lại tab trong hạn này
+ * không gọi lại API. Sự kiện `clone.job.*` (bảng `data/eventKeys.ts`) và lần
+ * nối lại luồng là đường làm mới thật; màn không còn vòng poll nền nào.
+ */
+export const REVIEW_STALE_MS = 30_000
+
+type ReviewJobs = { jobs: ReviewJob[] }
+/** Tiến độ vẽ SSE `image.progress` — đủ để biết ảnh nào vừa xong/lỗi. */
+type ImageProgress = { jobId: string; imageId: string; phase: string }
+const readImageProgress = (value: unknown): ImageProgress | null => {
+  if (!value || typeof value !== 'object') return null
+  const { jobId, imageId, phase } = value as Record<string, unknown>
+  return typeof jobId === 'string' && typeof imageId === 'string' && typeof phase === 'string'
+    ? { jobId, imageId, phase }
+    : null
+}
+
+/** Thao tác duyệt gửi lên `POST /api/clone/:id/images`. */
+export type ReviewOp = 'regenerate' | 'editPrompt' | 'skip' | 'approve' | 'approveAll' | 'regenerateAll'
+/** Hợp đồng `useReview` cho hai bản màn hình (máy tính + MReview). */
+export interface ReviewState {
+  jobs: ReviewJob[] | undefined
+  images: Record<string, ReviewImages>
+  error: boolean
+  imageErrors: Record<string, boolean>
+  pending: Record<string, boolean>
+  /** Thử lại danh sách video chờ duyệt (nút "Thử lại" khi lỗi). */
+  loadJobs: () => Promise<unknown>
+  /** Đọc lại ảnh một video — lần đầu mở hoặc sau khi vẽ/duyệt. */
+  loadImages: (id: string, force?: boolean) => Promise<void>
+  mutate: (job: string, item: ReviewImage | null, op: ReviewOp, feedback?: string, version?: number) => Promise<boolean>
+}
+
+export function useReview(): ReviewState {
+  const jobsResource = useResource<ReviewJobs>(
+    keys.reviewJobs(),
+    ({ signal }) => request<ReviewJobs>('/api/clone?channel=all', { signal }),
+    { staleTime: REVIEW_STALE_MS },
+  )
   const [images, setImages] = useState<Record<string, ReviewImages>>({})
-  const [error, setError] = useState(false)
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({})
   const [pending, setPending] = useState<Record<string, boolean>>({})
+  /** Video vừa `approveAll` lạc quan — ẩn tới khi server rời nhóm duyệt. */
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set())
   const locks = useRef(new Set<string>())
   const redrawing = useRef(new Map<string, number>())
-  const approving = useRef(new Set<string>())
+  const requested = useRef(new Set<string>())
   const alive = useRef(true)
-  const loadJobs = useCallback(async () => {
-    try {
-      const result = await request<{ jobs: ReviewJob[] }>('/api/clone?channel=all')
-      if (alive.current) {
-        for (const id of approving.current) if (!result.jobs.some(j => j.id === id && j.stageGroup === 'review')) approving.current.delete(id)
-        setJobs(old => {
-          const next = result.jobs.filter(j => j.stageGroup === 'review' && !approving.current.has(j.id))
-          for (const j of old ?? []) if (redrawing.current.has(j.id) && !next.some(n => n.id === j.id)) next.push(j)
-          return next.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-        })
-        setError(false)
-      }
+  const serverJobs = jobsResource.data?.jobs
+  const previousJobs = useRef<ReviewJob[] | undefined>(undefined)
+  const jobs = useMemo(() => {
+    if (!serverJobs) return undefined
+    const next = serverJobs.filter(job => job.stageGroup === 'review' && !hidden.has(job.id))
+    // Server có thể đưa video sang nhóm khác trong lúc vẽ lại: giữ nó tới khi
+    // `loadImages` thấy bản mới rồi xoá `redrawing`.
+    for (const job of previousJobs.current ?? []) {
+      if (redrawing.current.has(job.id) && !next.some(item => item.id === job.id)) next.push(job)
     }
-    catch { if (alive.current) setError(true) }
-  }, [])
-  const loadImages = useCallback(async (id: string) => {
+    return next.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  }, [serverJobs, hidden])
+  useEffect(() => { previousJobs.current = jobs }, [jobs])
+  // Server đã đưa video ra khỏi nhóm duyệt → thôi ẩn lạc quan (duyệt xong).
+  useEffect(() => {
+    if (!serverJobs) return
+    const still = new Set(serverJobs.filter(job => job.stageGroup === 'review').map(job => job.id))
+    setHidden(old => {
+      if (![...old].some(id => !still.has(id))) return old
+      const next = new Set(old)
+      for (const id of next) if (!still.has(id)) next.delete(id)
+      return next
+    })
+  }, [serverJobs])
+
+  const refreshJobs = jobsResource.refresh
+  const loadJobs = useCallback(() => refreshJobs(), [refreshJobs])
+  const loadImages = useCallback(async (id: string, force = false) => {
+    requested.current.add(id)
+    const key = keys.reviewImages(id)
     try {
-      const result = await request<ReviewImages & { autonomy?: unknown }>(base(id))
-      if (alive.current) {
-        const since = redrawing.current.get(id)
-        if (since !== undefined && (result.manifest?.revision ?? 0) > since && !result.items.some(isDrawing)) redrawing.current.delete(id)
-        setImages(old => ({ ...old, [id]: { ...result, summary: readReviewSummary(result.autonomy) } }))
-        setImageErrors(old => ({ ...old, [id]: false }))
-      }
+      await cache.fetch(key, async ({ signal }) => {
+        const result = await request<ReviewImages & { autonomy?: unknown }>(base(id), { signal })
+        return { ...result, summary: readReviewSummary(result.autonomy) }
+      }, { staleTime: force ? 0 : 120_000 })
+      const result = cache.get<ReviewImages>(key)
+      if (result.error) throw result.error
+      if (!result.data || !alive.current) return
+      const view = { ...result.data, summary: result.data.summary ?? readReviewSummary((result.data as ReviewImages & { autonomy?: unknown }).autonomy) }
+      const since = redrawing.current.get(id)
+      if (since !== undefined && (view.manifest?.revision ?? 0) > since && !view.items.some(isDrawing)) redrawing.current.delete(id)
+      setImages(old => old[id] === view ? old : { ...old, [id]: view })
+      setImageErrors(old => old[id] === false ? old : { ...old, [id]: false })
     }
     catch { if (alive.current) setImageErrors(old => ({ ...old, [id]: true })) }
   }, [])
-  useEffect(() => { alive.current = true; void loadJobs(); const timer = window.setInterval(() => { void loadJobs() }, 2500); return () => { alive.current = false; clearInterval(timer) } }, [loadJobs])
+  // Tab ẩn giữ kết quả tải trước trong cache; khi hiện lại, khôi phục ảnh mà
+  // không GET lần nữa nếu còn mới, trừ khi danh sách/sự kiện đã làm dữ liệu cũ.
+  // Tiến độ vẽ ghép ngay vào ảnh đang hiện và đọc lại khi xong/lỗi; job đổi (duyệt
+  // ở thiết bị khác) đọc lại ảnh của video đang mở; nối lại luồng đọc lại mọi
+  // ảnh đã mở. Danh sách video do cache + bảng sự kiện lo, kể cả lúc tab ẩn.
+  useEffect(() => {
+    alive.current = true
+    const jobs = cache.get(keys.reviewJobs())
+    const catchingUp = jobs.refreshing || jobs.status === 'loading' || jobs.updatedAt === null || Date.now() - jobs.updatedAt >= REVIEW_STALE_MS
+    for (const id of requested.current) void loadImages(id, catchingUp)
+    const stopProgress = subscribeEvents('image.progress', data => {
+      const progress = readImageProgress(data)
+      if (!progress || !requested.current.has(progress.jobId)) return
+      if (progress.phase === 'done' || progress.phase === 'failed') { void loadImages(progress.jobId, true); return }
+      setImages(old => {
+        const view = old[progress.jobId]
+        if (!view || !view.items.some(item => item.id === progress.imageId && (item.status === 'review' || item.status === 'pending'))) return old
+        return { ...old, [progress.jobId]: { ...view, items: view.items.map(item => item.id === progress.imageId && (item.status === 'review' || item.status === 'pending') ? { ...item, status: 'running' } : item) } }
+      })
+    })
+    const stopJobs = subscribeEvents('clone.job.updated', data => {
+      const id = (data as { jobId?: unknown } | null)?.jobId
+      if (typeof id === 'string' && requested.current.has(id)) void loadImages(id, true)
+    })
+    const stopReconnect = events.onReconnect(() => { for (const id of requested.current) void loadImages(id, true) })
+    return () => { stopProgress(); stopJobs(); stopReconnect(); alive.current = false }
+  }, [loadImages])
   const refreshImage = async (job: string, item: string) => {
     const data = await request<{ item: ReviewImage; revision: number; approved: boolean }>(`${base(job)}/${encodeURIComponent(item)}`)
-    setImages(old => { const previous = old[job]; return previous ? { ...old, [job]: { ...previous, manifest: previous.manifest && { ...previous.manifest, revision: data.revision }, approved: data.approved, items: previous.items.map(i => i.id === item ? data.item : i) } } : old })
+    const key = keys.reviewImages(job)
+    const previous = getData<ReviewImages>(key)
+    if (!previous) return
+    const view = { ...previous, summary: previous.summary ?? readReviewSummary((previous as ReviewImages & { autonomy?: unknown }).autonomy), manifest: previous.manifest && { ...previous.manifest, revision: data.revision }, approved: data.approved, items: previous.items.map(i => i.id === item ? data.item : i) }
+    setData(key, view)
+    setImages(old => ({ ...old, [job]: view }))
   }
   /**
    * Một cửa cho mọi thao tác duyệt: vẽ lại theo góp ý (`regenerate`), sửa prompt
@@ -90,14 +181,13 @@ export function useReview() {
    * duyệt cả video (`approveAll`), vẽ lại cả bộ (`regenerateAll`).
    * `approve` không đổi trạng thái lạc quan: server chốt bản rồi tải lại ảnh.
    */
-  const mutate = async (job: string, item: ReviewImage | null, op: 'regenerate' | 'editPrompt' | 'skip' | 'approve' | 'approveAll' | 'regenerateAll', feedback = '', version?: number) => {
+  const mutate = async (job: string, item: ReviewImage | null, op: ReviewOp, feedback = '', version?: number) => {
     const view = images[job]; const revision = view?.manifest?.revision
     if (!view || !revision || locks.current.has(job)) return false
     locks.current.add(job); setPending(old => ({ ...old, [job]: true }))
-    const oldJobs = jobs; const oldView = view
+    const oldView = view
     if (op === 'approveAll') {
-      approving.current.add(job)
-      setJobs(old => old?.filter(j => j.id !== job))
+      setHidden(old => new Set(old).add(job))
       const status = getData<Status>(keys.status())
       if (status) setData<Status>(keys.status(), { ...status, reviewCount: Math.max(0, status.reviewCount - 1) })
     } else if (op !== 'approve') {
@@ -110,14 +200,18 @@ export function useReview() {
       const learn = result.generation?.learn ?? result.learn
       if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
-      else void loadImages(job)
+      else void loadImages(job, true)
       return true
     } catch (err) {
-      if (op === 'approveAll') { approving.current.delete(job); setJobs(oldJobs); const status = getData<Status>(keys.status()); if (status) setData<Status>(keys.status(), { ...status, reviewCount: status.reviewCount + 1 }); void invalidate(keys.status()) } else { redrawing.current.delete(job); if (op !== 'approve') setImages(old => ({ ...old, [job]: oldView })) }
-      if (err instanceof ApiError && err.status === 409 && item) { try { await refreshImage(job, item.id) } catch { /* retain last known image */ } }
+      if (op === 'approveAll') { setHidden(old => { if (!old.has(job)) return old; const next = new Set(old); next.delete(job); return next }); const status = getData<Status>(keys.status()); if (status) setData<Status>(keys.status(), { ...status, reviewCount: status.reviewCount + 1 }); void invalidate(keys.status()) } else { redrawing.current.delete(job); if (op !== 'approve') setImages(old => ({ ...old, [job]: oldView })) }
+      // Duyệt bị từ chối (409 revision cũ / ảnh đang vẽ / cảnh đổi): đọc lại ảnh
+      // để `manifest.revision` và trạng thái khớp server, nếu không lần bấm sau
+      // lặp lại đúng lỗi cũ. Ảnh đơn vẫn chỉ đọc lại đúng ảnh đó (409).
+      if (op === 'approveAll') { if (alive.current) await loadImages(job, true) }
+      else if (item && err instanceof ApiError && err.status === 409) { try { await refreshImage(job, item.id) } catch { /* retain last known image */ } }
       toast.err(err instanceof Error ? err.message : 'Chưa thực hiện được. Vui lòng thử lại.')
       return false
     } finally { locks.current.delete(job); setPending(old => ({ ...old, [job]: false })) }
   }
-  return { jobs, images, error, imageErrors, pending, loadJobs, loadImages, mutate }
+  return { jobs, images, error: !!jobsResource.error, imageErrors, pending, loadJobs, loadImages, mutate }
 }

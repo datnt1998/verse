@@ -2,6 +2,10 @@
 //   GET    /api/templates                      → { items: TemplateSummary[] }
 //   POST   /api/templates { name?, fromId? }   → 201 TemplateDetail
 //   GET    /api/templates/:id                  → TemplateDetail
+//   GET    /api/templates/:id/preview          → PreviewStatus (trạng thái + nguồn + việc nền)
+//   POST   /api/templates/:id/preview { jobId?, minutes? } → 202 PreviewStatus (đang dựng)
+//   DELETE /api/templates/:id/preview          → 204 (huỷ lần dựng đang chạy)
+//   GET    /api/templates/:id/export           → .ytf-template.zip (Content-Disposition)
 //   PATCH  /api/templates/:id { revision, name?, recipe? } → TemplateDetail
 //   DELETE /api/templates/:id                  → 204 (409 + channels khi kênh còn dùng)
 //   GET    /api/image-prompts?kind&q           → { items: ImagePrompt[] }
@@ -23,7 +27,7 @@ export type PromptKind = 'scene' | 'cover'
 export type SceneStyle = 'full' | 'cutout'
 export type ImagesMode = 'fixed' | 'per-minutes' | 'none'
 export type MotionKind = 'ken-burns' | 'wander'
-export type PreviewState = 'none' | 'fresh' | 'stale'
+export type PreviewState = 'none' | 'fresh' | 'stale' | 'building'
 
 /** Bố cục ảnh cảnh trong video — suy từ `scenes.style` + `scenes.framing`. */
 export type ScenePlacement = 'full' | 'cutout' | 'close'
@@ -95,7 +99,46 @@ export type TemplateBackdrop = {
   enabled: boolean
 }
 
-export type TemplatePreview = { state: PreviewState; builtAt: string | null }
+export type TemplatePreview = {
+  state: PreviewState
+  builtAt: string | null
+  /** Project xem thử đã đổ nội dung (bản sao project template). */
+  projectId?: string
+  /** Video đã xong dùng làm nguồn. */
+  jobId?: string
+  minutes?: number
+}
+
+/** Một video đã dựng xong có thể làm nguồn cho bản xem thử. */
+export type PreviewSource = {
+  jobId: string
+  title: string
+  channelName?: string
+  durationSec: number
+  /** Video không dựng được với recipe hiện tại; `reason` nói vì sao. */
+  disabled?: boolean
+  reason?: string
+}
+
+/** Lỗi có hành động của lần dựng gần nhất (backend giữ nguyên câu phục hồi). */
+export type PreviewError = { code?: string; message: string; recovery?: string }
+
+/** Việc nền dựng bản xem thử (kind template_preview). */
+export type PreviewTask = { id: string; phase?: string; state: string; done: number; total: number; actionHref?: string }
+
+/** GET/POST /api/templates/:id/preview — trạng thái sống của bản xem thử. */
+export type PreviewStatus = {
+  state: PreviewState
+  builtAt?: string | null
+  projectId?: string
+  jobId?: string
+  minutes?: number
+  templateRevision?: number
+  task?: PreviewTask
+  /** Lần dựng gần nhất hỏng; bản xem thử cũ vẫn còn. */
+  error?: PreviewError
+  sources: PreviewSource[]
+}
 
 export type ChannelRef = { id: string; name: string; position?: number }
 
@@ -138,8 +181,10 @@ export type ImagePrompt = {
   prompt: string
   updatedAt: string
   usedBy: PromptTemplateRef[]
-  /** luôn rỗng ở đợt này — vẽ ảnh mẫu cần một video đã làm xong */
+  /** id ảnh mẫu đã vẽ xong (mới nhất trước, tối đa 12); rỗng khi chưa vẽ thử */
   samples: string[]
+  /** URL ảnh mẫu thật do máy chủ dựng sẵn, cùng thứ tự với `samples` */
+  sampleUrls: string[]
 }
 
 export type Overlay = {
@@ -226,6 +271,30 @@ export function patchTemplate(id: string, patch: TemplatePatch): Promise<Templat
 
 export const removeTemplate = (id: string): Promise<void> =>
   mutate<void>('DELETE', `/api/templates/${encodeURIComponent(id)}`)
+
+export const getTemplatePreview = (id: string, signal?: AbortSignal) =>
+  request<PreviewStatus>(`/api/templates/${encodeURIComponent(id)}/preview`, { signal })
+
+export function startTemplatePreview(id: string, input: { jobId?: string; minutes?: number } = {}): Promise<PreviewStatus> {
+  return mutate<PreviewStatus>('POST', `/api/templates/${encodeURIComponent(id)}/preview`, input)
+}
+
+export const cancelTemplatePreview = (id: string): Promise<void> =>
+  mutate<void>('DELETE', `/api/templates/${encodeURIComponent(id)}/preview`)
+
+/** Tệp xuất là zip có `Content-Disposition: attachment` — tải thẳng bằng thẻ <a>. */
+export const templateExportHref = (id: string) => `/api/templates/${encodeURIComponent(id)}/export`
+
+/** Tải tệp template ngay trong trang (dùng cho mục menu không phải thẻ <a>). */
+export function downloadTemplate(id: string) {
+  const anchor = document.createElement('a')
+  anchor.href = templateExportHref(id)
+  anchor.download = ''
+  anchor.rel = 'noopener'
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+}
 
 // ─── Prompt ảnh ──────────────────────────────────────────────────────────────
 

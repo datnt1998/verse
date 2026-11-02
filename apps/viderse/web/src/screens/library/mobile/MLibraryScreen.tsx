@@ -14,12 +14,13 @@ import { t } from '../../../i18n/library'
 import { navigate, paths, type LibraryTab, type Route } from '../../../router'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
+import { channelTint } from '../../../lib/channelTint'
 import {
   addBackdropChannel, addBackdropVideo, listBackdropChannels, listBackdropVideos, parseSource,
   type BackdropChannel, type BackdropVideo,
 } from '../../../api/backdrop'
 import {
-  addOverlay, createPrompt, createTemplate, duplicateTemplate, fieldErrors, listOverlays, listOwnerChannels,
+  addOverlay, createPrompt, createTemplate, downloadTemplate, duplicateTemplate, fieldErrors, listOverlays, listOwnerChannels,
   listPrompts, listTemplates, patchTemplate, removeTemplate,
   type ImagePrompt, type Overlay, type PromptKind, type TemplateSummary,
 } from '../../../api/library'
@@ -57,6 +58,8 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   const [attaching, setAttaching] = useState(false)
   const [deleting, setDeleting] = useState<TemplateSummary | null>(null)
   const [editingPrompt, setEditingPrompt] = useState<ImagePrompt | null | undefined>(undefined)
+  // Ảnh mẫu hỏng/404 theo prompt (lưu URL) → quay về ô trung tính, không bịa ảnh khác.
+  const [brokenSamples, setBrokenSamples] = useState<Record<string, string>>({})
   const [addingBackdrop, setAddingBackdrop] = useState(false)
   const [backdropInput, setBackdropInput] = useState('')
   const [backdropError, setBackdropError] = useState<string | null>(null)
@@ -77,11 +80,6 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   const ownerChannels = channels.data?.channels ?? []
   const sourceChannels = backdropChannels.data ?? []
   const sourceVideos = backdropVideos.data ?? []
-  const promptCounts = {
-    all: promptItems.length,
-    scene: promptItems.filter((prompt) => prompt.kind === 'scene').length,
-    cover: promptItems.filter((prompt) => prompt.kind === 'cover').length,
-  }
   const visiblePrompts = promptFilter === 'all' ? promptItems : promptItems.filter((prompt) => prompt.kind === promptFilter)
   const templateCount = templateItems.length
 
@@ -207,8 +205,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         },
     {
       key: 'export', icon: 'export', label: copy.exportFile,
-      disabled: true, description: t.library.templates.exportCardLocked,
-      onSelect: () => undefined,
+      onSelect: () => downloadTemplate(active.id),
     },
     {
       key: 'delete', icon: 'trash', label: copy.deleteTemplate,
@@ -238,7 +235,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         <div className={stylex.props(mlib.tabsWrap).className}>
           <Segmented
             size="xl"
-            fit="fill"
+            fit="content"
             label={t.library.tabAria}
             value={tab}
             onChange={(next) => navigate(paths.library(TABS.find((id) => id === next)))}
@@ -258,7 +255,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
             : templates.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p>
               : templateCount === 0 ? (
                 <div className={stylex.props(mlib.empty).className}>
-                  <span className={stylex.props(mlib.emptyIcon).className} aria-hidden="true"><Icon name="layer" size={22} /></span>
+                  <span className={stylex.props(mlib.emptyIcon).className} aria-hidden="true"><Icon name="layer" size={19} /></span>
                   <h2 {...stylex.props(mlib.emptyTitle)}>{t.library.templates.emptyTitle}</h2>
                   <p {...stylex.props(mlib.emptyText)}>{copy.templateEmptyText}</p>
                   <div className={stylex.props(mlib.emptyActions).className}>
@@ -285,24 +282,34 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
 
         {tab === 'prompts' && (
           <>
-            <div className={stylex.props(mlib.tabsWrap).className}>
+            <div className={stylex.props(mlib.filterWrap).className}>
               <Segmented
                 label={t.library.prompts.filterAria}
                 value={promptFilter}
+                size={26}
+                radius={6}
+                fit="content"
+                xstyle={mlib.promptFilter}
+                buttonStyle={mlib.promptFilterButton}
                 onChange={(next) => setPromptFilter(next === 'scene' || next === 'cover' ? next : 'all')}
                 options={[
-                  { id: 'all', label: `${t.library.prompts.filterAll} ${promptCounts.all}` },
-                  { id: 'scene', label: `${t.library.prompts.filterScene} ${promptCounts.scene}` },
-                  { id: 'cover', label: `${t.library.prompts.filterCover} ${promptCounts.cover}` },
+                  { id: 'all', label: t.library.prompts.filterAll },
+                  { id: 'scene', label: t.library.prompts.filterScene },
+                  { id: 'cover', label: t.library.prompts.filterCover },
                 ]}
               />
             </div>
-            {prompts.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p> : (
+            {prompts.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p>
+              : prompts.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
               <div className={stylex.props(mlib.grid2).className}>
                 {visiblePrompts.map((prompt) => (
                   <button key={prompt.id} type="button" className={stylex.props(mlib.prompt).className}
                     onClick={() => setEditingPrompt(prompt)}>
                     <span {...stylex.props(mlib.promptArt, prompt.kind === 'cover' && mlib.promptArtCover)} aria-hidden="true">
+                      {prompt.sampleUrls?.[0] && brokenSamples[prompt.id] !== prompt.sampleUrls[0] && (
+                        <img {...stylex.props(mlib.promptImg)} src={prompt.sampleUrls?.[0]} alt="" loading="lazy"
+                          onError={() => setBrokenSamples((prev) => ({ ...prev, [prompt.id]: prompt.sampleUrls?.[0] ?? '' }))} />
+                      )}
                       {prompt.builtIn && <span {...stylex.props(mlib.promptBuilt)}>{copy.promptBuilt}</span>}
                     </span>
                     <span {...stylex.props(mlib.promptName)}>{prompt.name}</span>
@@ -319,9 +326,10 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
 
         {tab === 'backdrops' && (
           <>
-            <p {...stylex.props(mlib.help)}>{copy.backdropsHelp}</p>
-            {backdropChannels.initialLoading || backdropVideos.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p> : (
-              <div className={stylex.props(mlib.list).className}>
+            <p {...stylex.props(mlib.help, mlib.helpTight)}>{copy.backdropsHelp}</p>
+            {backdropChannels.initialLoading || backdropVideos.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p>
+              : backdropChannels.error || backdropVideos.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
+              <div className={stylex.props(mlib.sourceList).className}>
                 {sourceChannels.map((channel) => (
                   <SourceChannelRow key={channel.id} channel={channel} />
                 ))}
@@ -332,7 +340,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                   <p {...stylex.props(mlib.help)}>{t.backdrop.tab.emptyTitle}</p>
                 )}
                 <div className={stylex.props(mlib.addRow).className}>
-                  <Button size="lg" variant="ghost" icon={<Icon name="add" size={16} />} onClick={() => setAddingBackdrop(true)}>{copy.addBackdrop}</Button>
+                  <Button block size="lg" variant="ghost" icon={<Icon name="add" size={16} />} onClick={() => setAddingBackdrop(true)}>{copy.addBackdrop}</Button>
                 </div>
               </div>
             )}
@@ -342,7 +350,8 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         {tab === 'overlays' && (
           <>
             <p {...stylex.props(mlib.help)}>{copy.overlaysHelp}</p>
-            {overlays.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p> : (
+            {overlays.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p>
+              : overlays.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
               <>
                 <div className={stylex.props(mlib.grid3).className}>
                   {overlayItems.map((overlay) => <OverlayTile key={overlay.id} overlay={overlay} />)}
@@ -354,7 +363,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                       event.currentTarget.value = ''
                       if (file) void uploadOverlay(file)
                     }} />
-                  <Button size="lg" variant="ghost" icon={<Icon name="add" size={16} />} onClick={() => overlayInput.current?.click()}>{copy.addOverlay}</Button>
+                  <Button block size="lg" variant="ghost" icon={<Icon name="add" size={16} />} onClick={() => overlayInput.current?.click()}>{copy.addOverlay}</Button>
                 </div>
               </>
             )}
@@ -469,8 +478,8 @@ function TemplateCard({ template, onOpen, onMenu }: {
         <div className={stylex.props(mlib.meta).className}>
           {names.length > 0 && (
             <span className={stylex.props(mlib.avatars).className} aria-hidden="true">
-              {template.channels.slice(0, 3).map((channel) => (
-                <InitialsAvatar key={channel.id} name={channel.name} initials={initials(channel.name)} size={20} xstyle={mlib.avatar} />
+              {template.channels.slice(0, 3).map((channel, index) => (
+                <InitialsAvatar key={channel.id} name={channel.name} initials={initials(channel.name)} size={20} bg={channelTint(channel.id)} xstyle={[mlib.avatar, index > 0 && mlib.avatarOverlap]} />
               ))}
             </span>
           )}
@@ -490,7 +499,7 @@ function SourceChannelRow({ channel }: { channel: BackdropChannel }) {
     <div className={stylex.props(mlib.source).className}>
       {channel.avatarUrl
         ? <img src={channel.avatarUrl} alt="" className={stylex.props(mlib.sourceAvatar).className} width={40} height={40} />
-        : <InitialsAvatar name={channel.title ?? channel.handle} size={40} xstyle={mlib.sourceAvatar} />}
+        : <InitialsAvatar name={channel.title ?? channel.handle} size={40} bg={channelTint(channel.id)} xstyle={mlib.sourceAvatar} />}
       <span className={stylex.props(mlib.sourceMain).className}>
         <span {...stylex.props(mlib.sourceName)}>{channel.title ?? channel.handle}</span>
         <span {...stylex.props(mlib.sourceSub)}>{t.library.mobile.channelKind(platformName(channel.platform), kinds)}</span>

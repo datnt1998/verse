@@ -54,8 +54,7 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
         <div {...stylex.props(mch.scheduleHead)}>
           <Icon name="calendar" size={16} />
           <h2 {...stylex.props(mch.scheduleTitle)}>{tt.title}</h2>
-          <Segmented label={tt.zone} value={zone} onChange={(id) => setZone(id as PostingZone)}
-            size="sm" fit="content" options={ZONES.map((id) => ({ id, label: tt.zones[id] }))} />
+          <span className={`num ${stylex.props(mch.scheduleZone).className}`}>{tt.zones.vn}</span>
         </div>
         {sources.length === 0 ? (
           <p {...stylex.props(mch.hint)}>{tt.none}</p>
@@ -70,10 +69,10 @@ export function ScheduleCard({ channel, variant = 'aside' }: {
                 <ul aria-label={tt.rowsLabel} {...stylex.props(mch.listReset)}>
                   {slots.map((slot) => (
                     <li key={slot.key} {...stylex.props(mch.scheduleRow)}>
-                      <span {...stylex.props(mch.scheduleDay)}>{slot.weekdays.map((day) => t.screens.explore.weekdays[day]).join(' · ')}</span>
+                      <span {...stylex.props(mch.scheduleDay)}>{slot.weekdays.map((day) => t.screens.explore.weekdays[day]).join(' ')}</span>
                       <span className={`num ${stylex.props(mch.scheduleTime).className}`}>{slot.start}–{slot.end}</span>
                       <span {...stylex.props(mch.scheduleWho)} title={slot.rivals.map((rival) => rival.title).join(' · ')}>{slot.rivals.map((rival) => rival.title).join(' · ')}</span>
-                      <span className={`num ${stylex.props(mch.scheduleCount).className}`}>{tt.slotVideos(slot.count)}</span>
+                      <span className={`num ${stylex.props(mch.scheduleCount).className}`} aria-label={tt.slotVideos(slot.count)}>{slot.count}</span>
                     </li>
                   ))}
                 </ul>

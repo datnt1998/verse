@@ -302,7 +302,8 @@ type ImagePrompt = {
   builtIn: boolean;                   // true: chỉ đọc, không xoá
   composition?: ThumbnailStyle;              // kind = cover → recipe.thumbnail ('clean' | 'hook' | 'circle-arrow' | 'hook-arrow' | 'split' | 'closeup')
   prompt: string;                     // ≤ 2.000 ký tự; có sẵn có thể rỗng (dùng house style)
-  samples: Array<{ mediaId: string; videoId?: string; createdAt: string }>;  // tối đa 12, mới nhất trước
+  samples: string[];                  // id ảnh mẫu đã vẽ xong (tối đa 12, mới nhất trước)
+  sampleUrls: string[];               // URL ảnh mẫu thật (GET .../samples/{id}/image), cùng thứ tự samples
   usedBy: string[];                   // templateId, tính khi đọc
   updatedAt: string;
 };

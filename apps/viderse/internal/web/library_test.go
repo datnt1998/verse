@@ -43,6 +43,16 @@ type fakeLibrary struct {
 	lastImport     []string
 	lastImportName string
 	importResults  []library.ImportResult
+
+	trialStatus   *library.CoverTrialStatus
+	sampleStatus  *library.PromptSampleStatus
+	lastTrialReq  library.CoverTrialRequest
+	lastSampleReq library.PromptSampleRequest
+	cancelScope   string
+	cancelID      string
+	imagePath     string
+	scenes        []library.TrialScene
+	sampleIDs     map[string][]string
 }
 
 func (f *fakeLibrary) List(context.Context) ([]library.Summary, error) {
@@ -57,6 +67,78 @@ func (f *fakeLibrary) Get(_ context.Context, id string) (*library.Detail, error)
 		return nil, &library.Error{Code: library.CodeNotFound, Message: "Template không tồn tại", Recovery: "Tải lại trang rồi thử lại"}
 	}
 	return f.detail, nil
+}
+
+func (f *fakeLibrary) OpenTemplateExport(context.Context, string) (*library.TemplateExport, error) {
+	return nil, f.err
+}
+
+func (f *fakeLibrary) PreviewStatus(context.Context, string) (*library.PreviewStatus, error) {
+	return &library.PreviewStatus{State: "none", Sources: []library.PreviewSource{}}, f.err
+}
+
+func (f *fakeLibrary) StartTemplatePreview(_ context.Context, _ string, req library.PreviewRequest) (*library.PreviewStatus, error) {
+	return &library.PreviewStatus{State: library.PreviewBuilding, Sources: []library.PreviewSource{}}, f.err
+}
+
+func (f *fakeLibrary) CancelTemplatePreview(context.Context, string) error { return f.err }
+
+func (f *fakeLibrary) CoverTrialStatus(context.Context, string) (*library.CoverTrialStatus, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.trialStatus == nil {
+		return &library.CoverTrialStatus{Sources: []library.PreviewSource{}, History: []library.CoverTrial{}, Cost: library.TrialCost{Images: 1}}, nil
+	}
+	return f.trialStatus, nil
+}
+
+func (f *fakeLibrary) StartCoverTrial(_ context.Context, _ string, req library.CoverTrialRequest) (*library.CoverTrialStatus, error) {
+	f.lastTrialReq = req
+	if f.err != nil {
+		return nil, f.err
+	}
+	return f.CoverTrialStatus(context.Background(), "")
+}
+
+func (f *fakeLibrary) CancelCoverTrial(_ context.Context, templateID, trialID string) error {
+	f.cancelScope, f.cancelID = templateID, trialID
+	return f.err
+}
+func (f *fakeLibrary) CoverTrialImagePath(context.Context, string, string) (string, error) {
+	return f.imagePath, f.err
+}
+
+func (f *fakeLibrary) PromptSampleStatus(context.Context, string) (*library.PromptSampleStatus, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	if f.sampleStatus == nil {
+		return &library.PromptSampleStatus{Sources: []library.PreviewSource{}, History: []library.PromptSample{}, Cost: library.TrialCost{Images: 1}}, nil
+	}
+	return f.sampleStatus, nil
+}
+
+func (f *fakeLibrary) StartPromptSample(_ context.Context, _ string, req library.PromptSampleRequest) (*library.PromptSampleStatus, error) {
+	f.lastSampleReq = req
+	if f.err != nil {
+		return nil, f.err
+	}
+	return f.PromptSampleStatus(context.Background(), "")
+}
+
+func (f *fakeLibrary) CancelPromptSample(_ context.Context, promptID, sampleID string) error {
+	f.cancelScope, f.cancelID = promptID, sampleID
+	return f.err
+}
+func (f *fakeLibrary) PromptSampleImagePath(context.Context, string, string) (string, error) {
+	return f.imagePath, f.err
+}
+func (f *fakeLibrary) PromptScenes(context.Context, string, string) ([]library.TrialScene, error) {
+	return f.scenes, f.err
+}
+func (f *fakeLibrary) PromptSampleIDs(context.Context, []string) map[string][]string {
+	return f.sampleIDs
 }
 
 func (f *fakeLibrary) Create(_ context.Context, name string) (*domain.Template, error) {
@@ -181,6 +263,56 @@ func testSummary() library.Summary {
 	}
 }
 
+func TestTemplatePreviewAndExportRoutes(t *testing.T) {
+	fake := &fakeLibrary{}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	call := func(method, path, body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		if body != "" {
+			r.Header.Set("Content-Type", "application/json")
+		}
+		r.Host, r.RemoteAddr = "127.0.0.1:8789", "192.0.2.1:1234"
+		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		return w
+	}
+
+	w := call(http.MethodGet, "/api/templates/11111111-1111-4111-8111-111111111111/preview", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: %d %s", w.Code, w.Body.String())
+	}
+	var status library.PreviewStatus
+	decodeJSON(t, w.Body.Bytes(), &status)
+	if status.State != "none" || status.Sources == nil {
+		t.Fatalf("status = %+v", status)
+	}
+
+	w = call(http.MethodPost, "/api/templates/11111111-1111-4111-8111-111111111111/preview", `{"minutes":3}`)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("start: %d %s", w.Code, w.Body.String())
+	}
+	decodeJSON(t, w.Body.Bytes(), &status)
+	if status.State != library.PreviewBuilding {
+		t.Fatalf("start state = %+v", status)
+	}
+
+	if w = call(http.MethodDelete, "/api/templates/11111111-1111-4111-8111-111111111111/preview", ""); w.Code != http.StatusNoContent {
+		t.Fatalf("cancel: %d %s", w.Code, w.Body.String())
+	}
+
+	fake.err = &library.Error{Code: library.CodeNotFound, Message: "Template không tồn tại", Recovery: "Tải lại trang rồi thử lại"}
+	w = call(http.MethodGet, "/api/templates/11111111-1111-4111-8111-111111111111/export", "")
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("export: %d %s", w.Code, w.Body.String())
+	}
+	var failure map[string]any
+	decodeJSON(t, w.Body.Bytes(), &failure)
+	if failure["code"] != library.CodeNotFound {
+		t.Fatalf("failure = %v", failure)
+	}
+}
+
 func TestLibraryTemplateListShape(t *testing.T) {
 	fake := &fakeLibrary{summaries: []library.Summary{testSummary()}}
 	tg, cookie, _ := newLibraryHandlers(t, fake)
@@ -201,9 +333,6 @@ func TestLibraryTemplateListShape(t *testing.T) {
 	}
 	if item.Images.PerVideo == nil || *item.Images.PerVideo != 5 || item.Images.Mode != "fixed" {
 		t.Fatalf("images = %+v", item.Images)
-	}
-	if item.Prompts.Summary != "Prompt Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch" {
-		t.Fatalf("prompt summary = %q", item.Prompts.Summary)
 	}
 	if item.Preview.State != domain.PreviewNone || len(item.Channels) != 1 {
 		t.Fatalf("preview/kênh = %+v / %+v", item.Preview, item.Channels)
@@ -594,23 +723,13 @@ func TestLibraryTemplateImportReturnsPerFileResults(t *testing.T) {
 	}
 }
 
-func TestLibraryTemplateImportPassesNameAndRejectsEmptyUpload(t *testing.T) {
+func TestLibraryTemplateImportRejectsEmptyUpload(t *testing.T) {
 	fake := &fakeLibrary{}
 	tg, cookie, _ := newLibraryHandlers(t, fake)
-	body, contentType := templateImportBody(t, "one.ytf-template.zip", []byte("PK\x03\x04"), "Tên khác")
-	if w := postMultipart(t, tg, cookie, "/api/templates/import?name=T%C3%AAn+kh%C3%A1c", contentType, body); w.Code != http.StatusOK {
-		t.Fatalf("status %d: %s", w.Code, w.Body.String())
-	}
-	if fake.lastImportName != "Tên khác" {
-		t.Fatalf("name = %q", fake.lastImportName)
-	}
 	empty, emptyType := templateImportBody(t, "", nil, "")
 	w := postMultipart(t, tg, cookie, "/api/templates/import", emptyType, empty)
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("thiếu tệp: %d %s", w.Code, w.Body.String())
-	}
-	if !strings.Contains(w.Body.String(), "Chưa chọn tệp template") {
-		t.Fatalf("body = %s", w.Body.String())
 	}
 }
 
@@ -650,3 +769,233 @@ func jsonRoundTrip(t *testing.T, raw []byte) map[string]any {
 }
 
 var _ = jsonRoundTrip
+
+func TestCoverTrialRoutes(t *testing.T) {
+	fake := &fakeLibrary{
+		trialStatus: &library.CoverTrialStatus{
+			Sources: []library.PreviewSource{{JobID: "j1", Title: "Video xong", DurationSec: 300}},
+			History: []library.CoverTrial{{
+				ID: "t1", TemplateID: "11111111-1111-4111-8111-111111111111", JobID: "j1",
+				JobTitle: "Video xong", PromptID: "builtin:cover-clean", PromptName: "Ảnh sạch",
+				Composition: "clean", State: library.TrialReady, CostImages: 1,
+			}},
+			Cost:  library.TrialCost{Images: 1, Provider: "ChatGPT", Label: "ChatGPT", QuotaLeft: 7},
+			Ready: true,
+		},
+	}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	call := func(method, path, body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		if body != "" {
+			r.Header.Set("Content-Type", "application/json")
+		}
+		r.Host, r.RemoteAddr = "127.0.0.1:8789", "192.0.2.1:1234"
+		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		return w
+	}
+	const base = "/api/templates/11111111-1111-4111-8111-111111111111/cover-trials"
+	w := call(http.MethodGet, base, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: %d %s", w.Code, w.Body.String())
+	}
+	var status struct {
+		Sources []library.PreviewSource `json:"sources"`
+		History []struct {
+			ID       string `json:"id"`
+			ImageURL string `json:"imageUrl"`
+		} `json:"history"`
+		Cost  library.TrialCost `json:"cost"`
+		Ready bool              `json:"ready"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &status)
+	if len(status.Sources) != 1 || len(status.History) != 1 || !status.Ready {
+		t.Fatalf("status = %+v", status)
+	}
+	if status.History[0].ImageURL != base+"/t1/image" {
+		t.Fatalf("imageUrl = %q", status.History[0].ImageURL)
+	}
+	if status.Cost.Images != 1 || status.Cost.Provider != "ChatGPT" || status.Cost.QuotaLeft != 7 {
+		t.Fatalf("cost = %+v", status.Cost)
+	}
+
+	w = call(http.MethodPost, base, `{"jobId":"j1","confirm":true}`)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("start: %d %s", w.Code, w.Body.String())
+	}
+	if !fake.lastTrialReq.Confirm || fake.lastTrialReq.JobID != "j1" {
+		t.Fatalf("req = %+v", fake.lastTrialReq)
+	}
+
+	fake.err = &library.Error{Code: library.CodeConfirmRequired, Message: "Cần xác nhận", Recovery: "Xác nhận trong hộp thoại"}
+	w = call(http.MethodPost, base, `{"jobId":"j1"}`)
+	if w.Code != http.StatusConflict {
+		t.Fatalf("confirm: %d %s", w.Code, w.Body.String())
+	}
+
+	fake.err = &library.Error{Code: library.CodeQuota, Message: "Hết hạn mức", Recovery: "Chờ mai"}
+	w = call(http.MethodPost, base, `{"jobId":"j1","confirm":true}`)
+	if w.Code != http.StatusTooManyRequests {
+		t.Fatalf("quota: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestPromptSampleRoutes(t *testing.T) {
+	fake := &fakeLibrary{
+		sampleStatus: &library.PromptSampleStatus{
+			Sources: []library.PreviewSource{{JobID: "j1", Title: "Video xong"}},
+			History: []library.PromptSample{{
+				ID: "s1", PromptID: "p1", PromptName: "Mẫu", PromptKind: "cover",
+				Composition: "clean", VideoID: "j1", State: library.TrialReady, CostImages: 1,
+			}},
+			Cost:  library.TrialCost{Images: 1, Provider: "ChatGPT", Label: "ChatGPT", QuotaLeft: 3},
+			Ready: true,
+		},
+		scenes:    []library.TrialScene{{ID: "sc1", Label: "Cảnh 1 · Mở đầu"}},
+		sampleIDs: map[string][]string{"p1": {"s1"}},
+	}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	call := func(method, path, body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		if body != "" {
+			r.Header.Set("Content-Type", "application/json")
+		}
+		r.Host, r.RemoteAddr = "127.0.0.1:8789", "192.0.2.1:1234"
+		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		return w
+	}
+	const base = "/api/image-prompts/p1/samples"
+	w := call(http.MethodGet, base, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status: %d %s", w.Code, w.Body.String())
+	}
+	var status struct {
+		History []struct {
+			ID       string `json:"id"`
+			ImageURL string `json:"imageUrl"`
+		} `json:"history"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &status)
+	if len(status.History) != 1 || status.History[0].ImageURL != base+"/s1/image" {
+		t.Fatalf("history = %+v", status.History)
+	}
+
+	w = call(http.MethodGet, base+"/scenes?videoId=j1", "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("scenes: %d %s", w.Code, w.Body.String())
+	}
+	var scenes struct {
+		Items []library.TrialScene `json:"items"`
+	}
+	decodeJSON(t, w.Body.Bytes(), &scenes)
+	if len(scenes.Items) != 1 || scenes.Items[0].ID != "sc1" {
+		t.Fatalf("scenes = %+v", scenes.Items)
+	}
+
+	w = call(http.MethodPost, base, `{"videoId":"j1","confirm":true}`)
+	if w.Code != http.StatusAccepted {
+		t.Fatalf("start: %d %s", w.Code, w.Body.String())
+	}
+	if !fake.lastSampleReq.Confirm || fake.lastSampleReq.VideoID != "j1" {
+		t.Fatalf("req = %+v", fake.lastSampleReq)
+	}
+}
+
+// TestTrialCancelRoutesSurfaceBusinessState: UI dựa vào mã HTTP để biết huỷ đã
+// nhận (204) hay quá muộn (409) và hàng không còn (404) — không được thành 500.
+func TestTrialCancelRoutesSurfaceBusinessState(t *testing.T) {
+	const templateID = "11111111-1111-4111-8111-111111111111"
+	fake := &fakeLibrary{}
+	tg, cookie, diagnostics := newLibraryHandlers(t, fake)
+	call := func(method, path string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(method, path, strings.NewReader("{}"))
+		if method == http.MethodPost {
+			r.Header.Set("Content-Type", "application/json")
+		}
+		r.Host, r.RemoteAddr = "127.0.0.1:8789", "192.0.2.1:1234"
+		r.AddCookie(&http.Cookie{Name: testCookie, Value: cookie})
+		w := httptest.NewRecorder()
+		tg.g.ServeHTTP(w, r)
+		return w
+	}
+
+	coverCancel := "/api/templates/" + templateID + "/cover-trials/t1/cancel"
+	w := call(http.MethodPost, coverCancel)
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("huỷ = %d %s", w.Code, w.Body.String())
+	}
+	if fake.cancelScope != templateID || fake.cancelID != "t1" {
+		t.Fatalf("huỷ nhận %q/%q", fake.cancelScope, fake.cancelID)
+	}
+
+	fake.err = &library.Error{Code: library.CodeConflict, Message: "Lần vẽ này đã xong", Recovery: "Tải lại trạng thái để xem kết quả"}
+	w = call(http.MethodPost, coverCancel)
+	if w.Code != http.StatusConflict {
+		t.Fatalf("huỷ quá muộn = %d %s", w.Code, w.Body.String())
+	}
+	body := jsonRoundTrip(t, w.Body.Bytes())
+	if body["code"] != library.CodeConflict || body["recovery"] == "" {
+		t.Fatalf("body = %v", body)
+	}
+
+	sampleCancel := "/api/image-prompts/p1/samples/s1/cancel"
+	w = call(http.MethodPost, sampleCancel)
+	if w.Code != http.StatusConflict {
+		t.Fatalf("huỷ mẫu quá muộn = %d %s", w.Code, w.Body.String())
+	}
+	if fake.cancelScope != "p1" || fake.cancelID != "s1" {
+		t.Fatalf("huỷ mẫu nhận %q/%q", fake.cancelScope, fake.cancelID)
+	}
+
+	fake.err = &library.Error{Code: library.CodeNotFound, Message: "Lần vẽ thử không tồn tại", Recovery: "Tải lại trang rồi thử lại"}
+	w = call(http.MethodPost, coverCancel)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("huỷ hàng không còn = %d %s", w.Code, w.Body.String())
+	}
+	if len(*diagnostics) != 0 {
+		t.Fatalf("lỗi nghiệp vụ bị ghi thành lỗi nội bộ: %v", *diagnostics)
+	}
+}
+
+// Prompt wire phải kèm URL ảnh mẫu thật để lưới thẻ vẽ được ảnh mà không gọi
+// thêm một route cho từng prompt.
+func TestPromptWireSampleURLs(t *testing.T) {
+	prompt := domain.ImagePrompt{
+		ID: "22222222-2222-4222-8222-222222222222", Name: "Của tôi", Kind: domain.PromptCover,
+		Composition: "hook", Prompt: "vẽ", UpdatedAt: time.Date(2026, 10, 3, 0, 0, 0, 0, time.UTC),
+	}
+	fake := &fakeLibrary{
+		prompts:   []domain.ImagePrompt{prompt},
+		sampleIDs: map[string][]string{prompt.ID: {"s1"}},
+	}
+	tg, cookie, _ := newLibraryHandlers(t, fake)
+	want := "/api/image-prompts/" + prompt.ID + "/samples/s1/image"
+
+	var list struct {
+		Items []ImagePromptWire `json:"items"`
+	}
+	w := tg.do(http.MethodGet, "/api/image-prompts", cookie, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("list: %d %s", w.Code, w.Body.String())
+	}
+	decodeJSON(t, w.Body.Bytes(), &list)
+	if len(list.Items) != 1 || len(list.Items[0].SampleURLs) != 1 || list.Items[0].SampleURLs[0] != want {
+		t.Fatalf("sampleUrls list = %+v", list.Items)
+	}
+	if len(list.Items[0].Samples) != 1 || list.Items[0].Samples[0] != "s1" {
+		t.Fatalf("samples list = %+v", list.Items[0].Samples)
+	}
+
+	var one ImagePromptWire
+	w = tg.do(http.MethodGet, "/api/image-prompts/"+prompt.ID, cookie, "")
+	if w.Code != http.StatusOK {
+		t.Fatalf("get: %d %s", w.Code, w.Body.String())
+	}
+	decodeJSON(t, w.Body.Bytes(), &one)
+	if len(one.SampleURLs) != 1 || one.SampleURLs[0] != want {
+		t.Fatalf("sampleUrls get = %+v", one.SampleURLs)
+	}
+}

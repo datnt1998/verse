@@ -161,3 +161,79 @@ describe('thẻ Kế hoạch', () => {
     expect(el.textContent).toContain(copy.states.tooLong)
   })
 })
+
+describe('phản hồi khi gửi', () => {
+  it('Enter/bấm đúp chỉ gửi một câu, không lập hai kế hoạch', async () => {
+    planReply = () => json(plan([step('a')]))
+    const el = await mount('all')
+    const input = el.querySelector('input')!
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'việc một lần')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await act(async () => {
+      const form = el.querySelector('form')!
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+    await flush()
+    expect(calls.filter((call) => call.url === '/api/assistant/plan')).toHaveLength(1)
+  })
+
+  it('bấm Làm hai lần sát nhau chỉ chạy một lượt', async () => {
+    planReply = () => json(plan([step('a'), step('b')]))
+    const el = await mount('all')
+    await type(el, 'việc')
+    const run = button(el, copy.plan.run(2))!
+    await act(async () => { run.click(); run.click() })
+    await flush()
+    expect(runCalls()).toHaveLength(1)
+  })
+
+  it('bước xong hiện đúng câu kết quả máy chủ trả, không chỉ nhãn Xong', async () => {
+    planReply = () => json(plan([step('a')]))
+    const el = await mount({ jobId: 'j1' })
+    await type(el, 'tạm dừng video này')
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url === '/api/assistant/run-plan') return json({ runId: 'r1', state: 'done', steps: [{ id: 'a', state: 'done', message: 'Đã tạm dừng video này.' }] })
+      return json({ error: 'not found' }, 404)
+    }))
+    await click(button(el, copy.confirm.run))
+    expect(el.textContent).toContain('Đã tạm dừng video này.')
+    expect(el.textContent).toContain(copy.progress.close)
+  })
+
+  it('Esc đóng thẻ và trả tiêu điểm về ô nhập', async () => {
+    planReply = () => json(plan([step('a'), step('b')]))
+    const el = await mount('all')
+    await type(el, 'việc')
+    const input = el.querySelector('input')!
+    await key(input, 'Escape')
+    await flush()
+    expect(document.activeElement).toBe(input)
+    expect(el.querySelector('[role="group"]')).toBeNull()
+  })
+
+  it('lời lỗi tiếng Anh không lộ ra: hiện câu Việt theo loại lỗi', async () => {
+    planReply = () => json({ error: 'internal failure' }, 500)
+    const el = await mount('all')
+    await type(el, 'việc')
+    expect(el.textContent).toContain(copy.states.errorTitle)
+    expect(el.textContent).toContain(copy.states.failed)
+    expect(el.textContent).not.toContain('internal failure')
+    expect(button(el, copy.states.retry)).toBeTruthy()
+  })
+})
+
+describe('không mất bản nháp', () => {
+  it('Huỷ thẻ xác nhận trả đúng câu vừa gửi về ô nhập', async () => {
+    planReply = () => json(plan([step('a')]))
+    const el = await mount({ jobId: 'j1' })
+    await type(el, 'tạm dừng video này')
+    await click(button(el, copy.confirm.cancel))
+    const input = el.querySelector('input')
+    if (!(input instanceof HTMLInputElement)) throw new Error('thiếu ô nhập')
+    expect(input.value).toBe('tạm dừng video này')
+  })
+})

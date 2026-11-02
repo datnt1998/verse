@@ -121,11 +121,20 @@ describe('khung Cài đặt', () => {
   it('mobile lấy giá trị thật cho Kết nối AI, Trợ lý AI, Tài khoản nền tảng', async () => {
     mobile = true
     await render()
-    const value = (label: string) =>
-      [...document.body.querySelectorAll('nav button')].find((r) => r.textContent?.includes(label))?.querySelector('.vv-mset__row-value')?.textContent
-    expect(value('Kết nối AI')).toBe('1 nhà cung cấp')
-    expect(value('Trợ lý AI')).toBe('Vẽ bằng ChatGPT')
-    expect(value('Tài khoản nền tảng')).toBe('3 nền tảng')
+    const row = (href: string) => document.body.querySelector<HTMLAnchorElement>(`nav a[href="${href}"]`)
+    expect(row('#/settings?section=connect')?.textContent).toContain('1 nhà cung cấp')
+    expect(row('#/settings?section=agents')?.textContent).toContain('Vẽ bằng ChatGPT')
+    expect(row('#/settings?section=accounts')?.textContent).toContain('3 nền tảng')
+  })
+
+  it('mobile: năm mục là neo hash, Báo lỗi vẫn là thao tác xuất log', async () => {
+    mobile = true
+    await render()
+    for (const section of ['tools', 'connect', 'agents', 'accounts', 'storage']) {
+      expect(document.body.querySelector(`nav a[href="#/settings?section=${section}"]`)).toBeTruthy()
+    }
+    const exportRow = [...document.body.querySelectorAll('nav button')].find((r) => r.textContent?.includes('Báo lỗi'))
+    expect(exportRow?.textContent).toContain('Xuất log')
   })
 
   it.each(['admin', 'member'] as const)('chỉ quản trị viên thấy lối Thành viên: %s', async (role) => {

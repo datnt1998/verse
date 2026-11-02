@@ -25,13 +25,16 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal), {
     enabled: channel.identity.state === 'generating',
   })
-  const [safeArea, setSafeArea] = useState(false)
+  // Artboard MChannel: khung an toàn đang bật sẵn để thấy vùng an toàn của ảnh bìa.
+  const [safeArea, setSafeArea] = useState(true)
   const [direction, setDirection] = useState('')
   const [pending, setPending] = useState<IdentityPart | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const generating = channel.identity.state === 'generating'
   const failed = channel.identity.state === 'failed'
+  // Lỗi bước chữ (Đạo diễn đặt tên/mô tả) khác lỗi bước ảnh; thông điệp phải theo `error.step`.
+  const failedTextStep = failed && channel.identity.error?.step === 'text'
   const task = activity.data?.running.find((item) => item.kind === 'identity' && item.objectRef.id === channel.id)
   const percent = task?.progress ? Math.round((task.progress.done / Math.max(1, task.progress.total)) * 100) : 0
   const reference = channel.sources.find((source) => source.reference) ?? channel.sources[0]
@@ -117,8 +120,30 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
     </>
   )
 
+  // Artboard MChannel › identity=failed: hộp cảnh báo nằm ngay dưới tab, TRƯỚC thẻ ảnh bìa.
+  // Lỗi bước `text` dùng câu chữ của Đạo diễn, không mượn câu lỗi vẽ ảnh.
+  const failedNotice = (mobile: boolean) => (
+    <div {...stylex.props(mobile ? [mch.idFailed, mch.idFailedTop] : channelStyles.idFailed)} role="alert">
+      <span {...stylex.props(mobile ? mch.idFailedText : channelStyles.idFailedText)}>
+        <b>{failedTextStep ? tt.failedTitleText : tt.failedTitle}</b>{' '}
+        {failedTextStep ? tt.failedBodyText : (channel.identity.error?.message ?? tt.failedBody)}
+      </span>
+      <span {...stylex.props(mobile ? mch.idFailedRow : channelStyles.idFailedRow)}>
+        <ActionButton variant="outline" size={mobile ? 'lg' : 'sm'}
+          onClick={() => void regen(failedTextStep ? 'name' : channel.identity.part ?? 'all')}
+          pending={pending !== null}
+          icon={<Icon name="refresh" size={14} />}
+        >
+          {tt.retry}
+        </ActionButton>
+        {channel.identity.retryAt && <span {...stylex.props(mobile ? mch.idFailedWhen : channelStyles.idFailedWhen)}>{tt.retryAt(fmtTime(channel.identity.retryAt))}</span>}
+      </span>
+    </div>
+  )
+
   return (
     <section {...stylex.props(channelStyles.idSection)} aria-label={t.channels.settings.identityLabel}>
+      {phone && failed && failedNotice(true)}
       <div {...stylex.props(channelStyles.idBannerCard)}>
         <div {...stylex.props(channelStyles.banner)}>
           {channel.bannerUrl ? (
@@ -140,10 +165,14 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
               <Orb of="artist" size={26} live />
               <span {...stylex.props(channelStyles.skelText)}>{tt.generating}</span>
               <span {...stylex.props(channelStyles.skelSub)}>{tt.generatingSub}</span>
-              <span {...stylex.props(channelStyles.progress)}>
-                <ProgressBar value={percent} tone="warn" height={6} />
-                <span {...stylex.props(channelStyles.skelSub)}>{task?.phase ?? tt.generatingSub} {tt.progress(percent)}</span>
-              </span>
+              {(task?.phase || percent > 0) && (
+                <span {...stylex.props(channelStyles.progress)}>
+                  <ProgressBar value={percent} tone="warn" height={6} />
+                  <span {...stylex.props(channelStyles.skelSub)}>
+                    {task?.phase ? `${task.phase} ${tt.progress(percent)}` : tt.progress(percent)}
+                  </span>
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -220,23 +249,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
       </div>
 
       <div {...stylex.props(channelStyles.idInfoCard)}>
-        {failed && (
-          <div {...stylex.props(channelStyles.idFailed)} role="alert">
-            <span {...stylex.props(channelStyles.idFailedText)}>
-              <b>{tt.failedTitle}</b> {channel.identity.error?.message ?? tt.failedBody}
-            </span>
-            <span {...stylex.props(channelStyles.idFailedRow)}>
-              <ActionButton variant="outline" size="sm"
-                onClick={() => void regen(channel.identity.part ?? 'all')}
-                pending={pending !== null}
-                icon={<Icon name="refresh" size={14} />}
-              >
-                {tt.retry}
-              </ActionButton>
-              {channel.identity.retryAt && <span {...stylex.props(channelStyles.idFailedWhen)}>{tt.retryAt(fmtTime(channel.identity.retryAt))}</span>}
-            </span>
-          </div>
-        )}
+        {failed && !phone && failedNotice(false)}
 
         {!phone && (
           <div {...stylex.props(channelStyles.idrow)}>

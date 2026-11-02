@@ -28,7 +28,7 @@ export function PaceStepper({ value, onSave, label }: {
   }
   return (
     <span className={`vch-stepper ${stylex.props(channelStyles.stepper).className}`}>
-      <Button variant="icon" aria-label={tt.decrease} disabled={value <= 1} onClick={() => step(value - 1)}>
+      <Button variant="icon" xstyle={channelStyles.stepperBtn} aria-label={tt.decrease} disabled={value <= 1} onClick={() => step(value - 1)}>
         <Icon name="minus" size={14} />
       </Button>
       <input {...stylex.props(channelStyles.stepperInput)}
@@ -42,7 +42,7 @@ export function PaceStepper({ value, onSave, label }: {
         onBlur={commit}
         onKeyDown={(event) => { if (event.key === 'Enter') commit() }}
       />
-      <Button variant="icon" aria-label={tt.increase} disabled={value >= 50} onClick={() => step(value + 1)}>
+      <Button variant="icon" xstyle={channelStyles.stepperBtn} aria-label={tt.increase} disabled={value >= 50} onClick={() => step(value + 1)}>
         <Icon name="add" size={14} />
       </Button>
     </span>

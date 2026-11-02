@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { claimMeasurementApi, createMeasurementApi, fetchMeasurementRuntime, MeasurementApiError, uploadMeasurementChunk } from './measurement-runtime';
+import { claimMeasurementApi, createMeasurementApi, fetchMeasurementRuntime, MeasurementApiError, measurementFailure, uploadMeasurementChunk } from './measurement-runtime';
 
 
 test('runtime client encodes identifiers, binds claims and preserves binary PCM', async (t) => {
@@ -37,4 +37,42 @@ test('runtime errors preserve status and recovery body', async (t) => {
   t.after(() => { globalThis.fetch = original; });
   globalThis.fetch = async () => Response.json({ error: 'Nonce đo không khớp', code: 'conflict' }, { status: 409 });
   await assert.rejects(createMeasurementApi('job'), (error: unknown) => error instanceof MeasurementApiError && error.status === 409 && error.message === 'Nonce đo không khớp');
+});
+
+test('raw browser decode failures become typed Vietnamese failures', () => {
+  const failure = measurementFailure(new Error('Unable to decode audio data'));
+  assert.equal(failure.code, 'audio_decode_failed');
+  assert.doesNotMatch(failure.message, /Unable|decode/i);
+});
+
+test('a typed audio decode error keeps its stable code and safe message', () => {
+  const error = Object.assign(new Error('Không giải mã được âm thanh của tệp nguồn. Kiểm tra tệp âm thanh rồi đo lại.'), {
+    name: 'AudioDecodeError',
+    code: 'audio_decode_failed',
+  });
+  assert.deepEqual(measurementFailure(error), {
+    code: 'audio_decode_failed',
+    message: 'Không giải mã được âm thanh của tệp nguồn. Kiểm tra tệp âm thanh rồi đo lại.',
+  });
+});
+
+test('unknown English engine failures never reach the journal verbatim', () => {
+  const failure = measurementFailure(new Error('AudioSampleSink exploded at offset 12'));
+  assert.equal(failure.code, 'internal_error');
+  assert.doesNotMatch(failure.message, /AudioSampleSink|offset/);
+});
+
+test('existing Vietnamese diagnostics stay actionable', () => {
+  const failure = measurementFailure(new Error('Bộ trộn âm thanh không trả stereo 48 kHz'));
+  assert.deepEqual(failure, {
+    code: 'internal_error',
+    message: 'Bộ trộn âm thanh không trả stereo 48 kHz',
+  });
+});
+
+test('cancellation is reported as a typed Vietnamese cancellation', () => {
+  assert.deepEqual(measurementFailure(new DOMException('Đã huỷ', 'AbortError')), {
+    code: 'cancelled',
+    message: 'Đã huỷ đo.',
+  });
 });

@@ -379,6 +379,25 @@ func (s *Service) ListProjects(ctx context.Context) ([]ProjectSummary, error) {
 			}
 		}
 	}
+	// Project xem thử của Thư viện không phải project người dùng: ẩn khỏi danh
+	// sách (vẫn mở được bằng id khi trình phát xem thử tải).
+	if provider, ok := s.projectStore().Templates.(interface {
+		PreviewEditorProjectIDs(context.Context) (map[string]bool, error)
+	}); ok {
+		hidden, e := provider.PreviewEditorProjectIDs(ctx)
+		if e != nil {
+			return nil, e
+		}
+		if len(hidden) > 0 {
+			kept := result[:0]
+			for _, project := range result {
+				if !hidden[project.ID] {
+					kept = append(kept, project)
+				}
+			}
+			result = kept
+		}
+	}
 	sort.Slice(result, func(i, j int) bool {
 		if result[i].UpdatedAt == result[j].UpdatedAt {
 			return result[i].ID < result[j].ID
@@ -437,12 +456,21 @@ func (s *Service) RenameProject(ctx context.Context, id, name, expected string) 
 	return s.SaveProject(ctx, id, p, expected)
 }
 func (s *Service) DuplicateProject(ctx context.Context, id, name string) (Project, string, error) {
+	return s.DuplicateProjectAs(ctx, id, name, ID())
+}
+
+// DuplicateProjectAs sao chép project với mã đích do bên gọi đặt trước. Bản
+// xem thử dùng nó để ghi danh mục ẩn TRƯỚC khi project tồn tại: không có
+// khoảng thời gian project mồ côi hiện trong Editor › Projects.
+func (s *Service) DuplicateProjectAs(ctx context.Context, id, name, newID string) (Project, string, error) {
+	if err := ValidateID(newID); err != nil {
+		return nil, "", err
+	}
 	p, _, err := s.projectStore().Read(ctx, id)
 	if err != nil {
 		return nil, "", err
 	}
 	p = Clone(p)
-	newID := ID()
 	if strings.TrimSpace(name) == "" {
 		name = fmt.Sprint(p["name"]) + " (copy)"
 	}

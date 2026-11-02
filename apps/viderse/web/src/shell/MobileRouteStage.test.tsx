@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // Hợp đồng pane điện thoại: đổi tab chỉ ẩn màn cũ (state + vị trí cuộn còn
 // nguyên, không gọi lại API khi dữ liệu còn mới), màn đẩy phủ lên trên mà các
-// pane vẫn mounted, và sau khung hình đầu thì nạp trước dữ liệu của tab chưa mở.
+// pane vẫn mounted. Tab chưa mở không bị gọi API đầu cơ trong lượt tải đầu.
 // Test dựng khung thật với màn giả: điều cần chốt là khung giữ-alive + lớp dữ
 // liệu SWR, không phải nội dung từng màn.
 import { act, useContext, useState } from 'react'
@@ -143,24 +143,3 @@ describe('giữ pane khi đổi tab', () => {
   })
 })
 
-
-describe('nạp trước tab chưa mở', () => {
-  it('sau khung hình đầu, dữ liệu của các tab còn lại được nạp ở nhịp rảnh', async () => {
-    const fetchMock = vi.fn((path: string) => Promise.resolve(Response.json(path.includes('clone/counts') ? { approvedToday: null } : {})))
-    vi.stubGlobal('fetch', fetchMock)
-    const { draw } = await render({ name: 'workbench' })
-    // Nhịp rảnh: requestIdleCallback (timeout 1,5 s) hoặc hẹn giờ 250 ms.
-    const idle = Promise.withResolvers<void>()
-    setTimeout(idle.resolve, 400)
-    await act(async () => { await idle.promise })
-    const paths = fetchMock.mock.calls.map(([path]) => String(path))
-    // Bàn dựng (danh sách video + tóm tắt kênh), Duyệt (số đếm), Khám phá (đối thủ + lưới mặc định).
-    expect(paths).toContain('/api/clone?channel=all')
-    expect(paths).toContain('/api/channels/summary')
-    expect(paths).toContain('/api/clone/counts')
-    expect(paths).toContain('/api/rivals')
-    expect(paths.some((path) => path.startsWith('/api/rivals/all/videos'))).toBe(true)
-    expect(paths).toContain('/api/owner-channels')
-    await draw({ name: 'review' })
-  })
-})

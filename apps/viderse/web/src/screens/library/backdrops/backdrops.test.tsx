@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
 import { BackdropsTab } from './BackdropsTab'
 import { BackdropSection } from '../template/BackdropSection'
+import { t } from '../../../i18n/library'
 import type { BackdropChannel, BackdropVideo } from '../../../api/backdrop'
 import type { TemplateDetail } from '../../../api/library'
 
@@ -183,18 +184,18 @@ describe('BackdropSection — hộp gắn + mix', () => {
       onSave={(patch) => { saves.push(patch); return Promise.resolve() }} />)
     await flush(10)
     // Mở hộp gắn
-    const attach = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes('Gắn kênh hoặc video'))!
+    const attach = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.attach))!
     await act(async () => { attach.click() })
     await flush(10)
     // Bật chế độ "Chỉ từ video tôi chọn" rồi tick một video
-    const pick = [...c.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes('Chỉ từ video tôi chọn'))!
+    const pick = [...c.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes(t.backdrop.template.picker.modePick))!
     await act(async () => { (pick as HTMLElement).click() })
     await flush(10)
     const box = c.querySelector<HTMLElement>('[role=checkbox]')!
     expect(box).toBeTruthy()
     await act(async () => { box.click() })
     await flush(10)
-    const go = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes('Gắn vào template'))!
+    const go = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.picker.go))!
     await act(async () => { go.click() })
     await flush(10)
     const last = saves.at(-1) as { backdrop?: { channels: { channelId: string; pinned: string[] }[] } }

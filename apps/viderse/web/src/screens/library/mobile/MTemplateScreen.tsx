@@ -14,7 +14,7 @@ import { navigate, paths, TEMPLATE_SECTIONS, type Route, type TemplateSection } 
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import {
-  duplicateTemplate, getTemplate, listOverlays, listOwnerChannels, listPrompts, removeTemplate,
+  downloadTemplate, duplicateTemplate, getTemplate, listOverlays, listOwnerChannels, listPrompts, removeTemplate,
   type TemplateDetail,
 } from '../../../api/library'
 import { listBackdropChannels } from '../../../api/backdrop'
@@ -24,6 +24,8 @@ import { CoverSection } from '../template/CoverSection'
 import { BackdropSection } from '../template/BackdropSection'
 import { OutputSection } from '../template/OutputSection'
 import { AttachChannelDialog } from '../AttachChannelDialog'
+import { TemplatePreviewPlayer } from '../template/TemplatePreviewPlayer'
+import { useTemplatePreview } from '../template/useTemplatePreview'
 import { styleOf, imagesText } from '../TemplatesTab'
 import { clock } from '../fmt'
 import { healthWarn } from '../TemplateScreen'
@@ -47,12 +49,14 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   const draft = useTemplateDraft(initial)
   const detail = draft.detail
   const recipe = detail.recipe
+  const editorLockedReason = draft.saving ? t.library.template.saving : draft.dirty ? draft.conflict ? t.library.template.conflict : t.library.template.saveFail : undefined
   const [more, setMore] = useState(false)
   const [renaming, setRenaming] = useState(false)
   const [renameName, setRenameName] = useState(detail.name)
   const [renameError, setRenameError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [attaching, setAttaching] = useState(false)
+  const [previewSheet, setPreviewSheet] = useState(false)
 
   const scenePrompts = useResource(keys.prompts('scene', ''), ({ signal }) => listPrompts({ kind: 'scene' }, signal))
   const coverPrompts = useResource(keys.prompts('cover', ''), ({ signal }) => listPrompts({ kind: 'cover' }, signal))
@@ -80,9 +84,13 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   }
   poolVideos += bd?.fixedVideoIds.length ?? 0
 
-  const previewKey = detail.preview.state === 'none' ? 'none' : detail.preview.state === 'fresh' && !draft.dirty ? 'fresh' : 'stale'
-  const stalePreview = previewKey !== 'fresh'
+  const preview = useTemplatePreview(detail.id, detail, draft.dirty)
+  const previewKey = preview.state
+  const stalePreview = previewKey === 'stale'
   const previewStateText = copy.previewState[previewKey]
+  const previewProgress = preview.task
+    ? t.library.template.preview.progress(preview.task.phase || t.library.template.preview.badge.building, preview.task.done, preview.task.total)
+    : t.library.template.preview.badge.building
 
   const saveRename = async () => {
     const name = renameName.trim()
@@ -125,7 +133,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   const moreItems: MobileSheetAction[] = [
     { key: 'rename', icon: 'edit', label: t.library.templates.rename, onSelect: () => { setRenameName(detail.name); setRenameError(null); setRenaming(true) } },
     { key: 'duplicate', icon: 'copy', label: t.library.duplicate, onSelect: () => duplicate() },
-    { key: 'export', icon: 'export', label: copy.exportFile, disabled: true, description: t.library.template.output.exportLocked, onSelect: () => undefined },
+    { key: 'export', icon: 'export', label: copy.exportFile, onSelect: () => downloadTemplate(detail.id) },
     detail.channels.length
       ? { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, disabled: true, description: copy.deleteHintBusy(detail.channels.length), onSelect: () => undefined }
       : { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, description: copy.deleteHintFree, onSelect: () => setDeleting(true) },
@@ -160,9 +168,16 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
           {section === 'images' && <ImagesSection recipe={recipe} price={detail.price} prompts={scenePrompts.data?.items ?? []} errors={draft.fieldErrors} onSave={draft.save} hideTitle />}
           {section === 'cover' && <CoverSection recipe={recipe} prompts={coverPrompts.data?.items ?? []} errors={draft.fieldErrors} onSave={draft.save} hideTitle />}
           {section === 'backdrop' && <BackdropSection template={detail} onSave={async (patch) => { draft.save(patch) }} saving={draft.saving} hideTitle />}
-          {section === 'output' && <OutputSection detail={detail} onSave={draft.save} onDuplicate={() => void duplicate()} onDelete={remove} onAttach={() => setAttaching(true)} hideTitle />}
+          {section === 'output' && <OutputSection detail={detail} onSave={draft.save} onDuplicate={() => void duplicate()} onDelete={remove} onAttach={() => setAttaching(true)} editorLockedReason={editorLockedReason} hideTitle />}
         </div>
         <ActionSheet open={more} onClose={() => setMore(false)} title={styleName} actions={moreItems} />
+      <ActionSheet open={previewSheet} onClose={() => setPreviewSheet(false)}
+        title={t.library.template.preview.pickSource}
+        actions={preview.sources.filter((source) => !source.disabled).map((source) => ({
+          key: source.jobId, icon: 'play' as IconName, label: source.title,
+          description: t.library.template.preview.sourceOption(source.title, Math.max(1, Math.round(source.durationSec / 60))),
+          onSelect: () => { setPreviewSheet(false); void preview.start(source.jobId, preview.minutes) },
+        }))} />
         {renaming && (
           <Dialog onClose={() => setRenaming(false)} title={t.library.templates.renameTitle(detail.name)}
             footer={<>
@@ -194,9 +209,13 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
     >
       <div className={stylex.props(mtpl.scroll).className}>
         <div className={stylex.props(mtpl.card).className}>
-          <div className={stylex.props(mtpl.frame).className}>
-            <span {...stylex.props(mtpl.frameArt)} aria-hidden="true" />
-          </div>
+          {preview.projectId ? (
+            <TemplatePreviewPlayer projectId={preview.projectId} />
+          ) : (
+            <div className={stylex.props(mtpl.frame).className}>
+              <span {...stylex.props(mtpl.frameArt)} aria-hidden="true" />
+            </div>
+          )}
           <div className={stylex.props(mtpl.body).className}>
             <div {...stylex.props(mtpl.stateRow)}>
               <span {...stylex.props(mtpl.previewState, stalePreview && mtpl.previewWarn)}>
@@ -204,13 +223,30 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
                 {previewStateText}
               </span>
               <span {...stylex.props(mtpl.builtAt)}>
-                {detail.preview.builtAt ? t.library.template.preview.builtAt(clock(detail.preview.builtAt)) : t.library.template.preview.never}
+                {preview.builtAt ? t.library.template.preview.builtAt(clock(preview.builtAt)) : t.library.template.preview.never}
               </span>
             </div>
-            <Button variant="ghost" xstyle={mtpl.rebuild} aria-disabled title={t.library.template.preview.buildLocked} onClick={(event) => event.preventDefault()}>
-              <Icon name="refresh" size={16} />
-              {t.library.template.preview.rebuild}
-            </Button>
+            {preview.state === 'building' ? (
+              <>
+                <p role="status" {...stylex.props(mtpl.previewProgress)}>{previewProgress}</p>
+                <Button variant="ghost" xstyle={mtpl.rebuild} disabled={preview.busy} onClick={() => void preview.cancel()}>
+                  <Icon name="close" size={16} />
+                  {t.library.template.preview.cancel}
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="ghost"
+                xstyle={mtpl.rebuild}
+                aria-disabled={!preview.sources.some((source) => !source.disabled) || preview.busy || undefined}
+                title={preview.sources.some((source) => !source.disabled) ? undefined : (preview.sources[0]?.reason ?? t.library.template.preview.buildLocked)}
+                onClick={() => { if (preview.sources.some((source) => !source.disabled) && !preview.busy) setPreviewSheet(true) }}
+              >
+                <Icon name={preview.state === 'fresh' ? 'refresh' : 'play'} size={16} />
+                {preview.state === 'fresh' ? t.library.template.preview.rebuild : t.library.template.preview.rebuildStale}
+              </Button>
+            )}
+            {preview.error && <p role="alert" {...stylex.props(mtpl.previewError)}>{preview.error}</p>}
             <p {...stylex.props(mtpl.help)}>{t.library.template.preview.effect}</p>
           </div>
         </div>
@@ -235,7 +271,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
         <div className={stylex.props(mtpl.ready).className}>
           <span {...stylex.props(mtpl.readyTitle)}>{copy.readiness.title}</span>
           <span {...stylex.props(mtpl.readyItem)}>
-            <Icon name="tick-b" size={15} xstyle={mtpl.tick} />
+            <Icon name={backdropSources ? 'tick-b' : 'info'} size={15} xstyle={backdropSources ? mtpl.tick : mtpl.readyNeutral} />
             {backdropSources ? `${backdropSources} · ${t.library.template.health.pool(copy.readiness.poolLinked(linkedIds.size, bd?.fixedVideoIds.length ?? 0), String(poolVideos)).split('· ').pop()}` : t.library.template.health.noBackdrop}
           </span>
           <span {...stylex.props(mtpl.readyItem)}><Icon name="tick-b" size={15} xstyle={mtpl.tick} />{t.library.template.health.subtitles}</span>
@@ -246,6 +282,13 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
       </div>
 
       <ActionSheet open={more} onClose={() => setMore(false)} title={styleName} actions={moreItems} />
+      <ActionSheet open={previewSheet} onClose={() => setPreviewSheet(false)}
+        title={t.library.template.preview.pickSource}
+        actions={preview.sources.filter((source) => !source.disabled).map((source) => ({
+          key: source.jobId, icon: 'play' as IconName, label: source.title,
+          description: t.library.template.preview.sourceOption(source.title, Math.max(1, Math.round(source.durationSec / 60))),
+          onSelect: () => { setPreviewSheet(false); void preview.start(source.jobId, preview.minutes) },
+        }))} />
       {renaming && (
         <Dialog onClose={() => setRenaming(false)} title={t.library.templates.renameTitle(detail.name)}
           footer={<>

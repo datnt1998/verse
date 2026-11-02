@@ -26,6 +26,13 @@ type fakeStore struct {
 	lastCount PageQuery
 	lastPage  PageQuery
 	lastChan  string
+
+	owners       map[string]bool
+	usage        []domain.VideoUsage
+	baselines    []AutoPickBaseline
+	videoChan    map[string]string
+	infoPaths    map[string]string
+	lastUsageIDs []string
 }
 
 func (f *fakeStore) ListRivals(context.Context, time.Time, time.Time) ([]ListEntry, error) {
@@ -57,6 +64,29 @@ func (f *fakeStore) UploadProbePausedUntil(context.Context) (*time.Time, error) 
 
 func (f *fakeStore) CountRivalChannels(context.Context) (int64, error) {
 	return f.count, f.err
+}
+
+func (f *fakeStore) OwnerChannelExists(_ context.Context, id string) (bool, error) {
+	return f.owners[id], f.err
+}
+
+func (f *fakeStore) VideoUsage(_ context.Context, ids []string) ([]domain.VideoUsage, error) {
+	f.lastUsageIDs = ids
+	return f.usage, f.err
+}
+
+func (f *fakeStore) AutoPickBaselines(context.Context) ([]AutoPickBaseline, error) {
+	return f.baselines, f.err
+}
+
+func (f *fakeStore) RivalVideoChannel(_ context.Context, id string) (string, bool, error) {
+	channel, ok := f.videoChan[id]
+	return channel, ok, f.err
+}
+
+func (f *fakeStore) SourceInfoArtifactPath(_ context.Context, id string) (string, bool, error) {
+	path, ok := f.infoPaths[id]
+	return path, ok, f.err
 }
 
 func TestListAggregatesTotals(t *testing.T) {

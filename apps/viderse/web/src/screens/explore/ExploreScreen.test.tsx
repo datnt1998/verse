@@ -8,12 +8,15 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { invalidate, setData } from '@noverse/ui/data'
+import { ToastHost } from '@noverse/ui'
 import { ExploreScreen } from './ExploreScreen'
 import { useVirtualGrid } from '../../lib/useVirtualGrid'
 import { useRivalVideos, type RivalVideos } from './useRivalVideos'
 import { VideoGrid } from './VideoGrid'
 import { keys } from '../../data/keys'
 import { t } from '../../i18n/all'
+import type { Channel } from '../../api/channels'
+import type { CloneEnqueueResult } from '../../api/clone'
 import type { PostingSchedule, Rival, RivalList, ScanStatus, Video, VideoPage } from '../../api/rivals'
 
 const tt = t.screens.explore
@@ -60,6 +63,19 @@ let posted: { url: string; body: unknown }[] = []
 let searched: string[] = []
 /** số lần trang đầu của lưới phải trả lỗi trước khi thành công (nút Thử lại) */
 let videosFails = 0
+/** kênh của bạn (mặc định không có — giữ nguyên các test khoá điều khiển) */
+let ownerChannels: Channel[] = []
+let enqueueBody: CloneEnqueueResult = { items: [{ id: 'q1', jobId: null }] }
+
+const ownerChannel = (id: string, name: string): Channel => ({
+  id, name, youtubeUrl: null, language: 'vi', styleNote: null, descriptionFooter: null,
+  alwaysTags: [], autoPick: true, pacePerDay: 5, templateCursor: 0,
+  branding: {} as unknown as Channel['branding'],
+  autonomy: {} as unknown as Channel['autonomy'],
+  priority: 'steady', avatarUrl: null, bannerUrl: null, sources: [], templates: [],
+  identity: { state: 'ready' } as Channel['identity'],
+  createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
+})
 
 const respond = (body: unknown, status = 200) =>
   Promise.resolve(new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }))
@@ -71,6 +87,8 @@ function stubFetch() {
       if (init?.method === 'POST') { posted.push({ url, body: JSON.parse(String(init.body)) }); return respond(rival, 201) }
       return respond(listBody)
     }
+    if (url === '/api/owner-channels') return respond({ channels: ownerChannels })
+    if (url === '/api/clone/enqueue') return respond(enqueueBody)
     if (url.startsWith('/api/rivals/all/videos')) {
       if (videosFails > 0) { videosFails -= 1; return respond({ error: 'boom' }, 500) }
       const params = new URL(url, 'https://x.test').searchParams
@@ -166,6 +184,8 @@ beforeEach(() => {
   posted = []
   searched = []
   videosFails = 0
+  ownerChannels = []
+  enqueueBody = { items: [{ id: 'q1', jobId: null }] }
   listBody = { rivals: [rival], totalVideos: 1284, newOutliers: 4 }
   void invalidate()
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
@@ -189,7 +209,7 @@ describe('lưới video ảo hoá', () => {
         <div ref={grid.ref} onScroll={grid.onScroll} style={{ height: 880, overflowY: 'auto' }}>
           <VideoGrid items={big} cols={grid.cols} start={grid.itemStart} end={grid.itemEnd}
             padTop={grid.padTop} padBottom={grid.padBottom} pickedId={null} selectMode={false}
-            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} hasChannel={false} />
+            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} makeChannelName={undefined} />
         </div>
       )
     }
@@ -215,7 +235,7 @@ describe('lưới video ảo hoá', () => {
         <div ref={grid.ref} onScroll={grid.onScroll} style={{ height: 844, overflowY: 'auto' }}>
           <VideoGrid items={big} cols={grid.cols} start={grid.itemStart} end={grid.itemEnd}
             padTop={grid.padTop} padBottom={grid.padBottom} pickedId={null} selectMode={false}
-            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} hasChannel={false} />
+            checkedIds={new Set()} onOpen={() => {}} onToggle={() => {}} makeChannelName={undefined} />
         </div>
       )
     }
@@ -277,7 +297,8 @@ describe('màn Khám phá', () => {
 
     // SSE `rivals` → trang đầu đổi (1 video mới chen đầu) — lựa chọn giữ nguyên
     const fresh = { videos: [video(999), ...videos.slice(0, 199)], total: videos.length + 1, nextCursor: 'c2' }
-    act(() => { setData(keys.rivalVideos('all', 'outlier', 0, 30, ''), fresh) })
+    // Khoá trang đầu mang cả chip Trạng thái (mặc định 'all') — đúng khoá useRivalVideos đọc.
+    act(() => { setData(keys.rivalVideos('all', 'outlier', 0, 30, '', 'all'), fresh) })
     await flush()
     expect(byText(el, '*', 'Video số 999')).toBeTruthy()
     expect(byText(el, '*', tt.selected(20))).toBeTruthy()
@@ -286,12 +307,13 @@ describe('màn Khám phá', () => {
     expect(el.querySelector('.vx-bulk')).toBeNull()
   })
 
-  it('điều khiển cần kênh của bạn: khoá bằng aria-disabled, vẫn focus được, lý do qua aria-describedby', async () => {
+  it('điều khiển cần kênh của bạn: nút xếp hàng khoá bằng aria-disabled, vẫn focus được, lý do qua aria-describedby', async () => {
     const el = await mount(<ExploreScreen route={ROUTE} />)
     await until(() => !!byText(el, '*', 'Video số 0'))
+    // Nút trên thẻ chỉ mở panel xem trước (nút chính trong panel mới khoá) nên bấm được.
     const cardBtn = [...el.querySelectorAll<HTMLButtonElement>('.vx-card button')].find((b) => b.textContent?.includes(tt.makeVideo))!
-    expectLocked(cardBtn)
-    expect(await showTip(cardBtn)).toBe(tt.lockedReason)
+    expect(cardBtn.getAttribute('aria-disabled')).not.toBe('true')
+    expect(cardBtn.disabled).toBe(false)
 
     await click(byText(el, 'button', tt.selectMany))
     await click(el.querySelector('.vx-check [role="checkbox"]'))
@@ -299,9 +321,6 @@ describe('màn Khám phá', () => {
     expectLocked(bulkPrimary as HTMLButtonElement)
     expect(await showTip(bulkPrimary)).toBe(tt.lockedReason)
 
-    // Chip "Trạng thái": nút khoá, không mở listbox, vẫn là điểm dừng Tab.
-    const statusChip = byText(el, 'button', tt.filterStatus) as HTMLButtonElement
-    expectLocked(statusChip)
   })
 
   it('menu ⋯ của đối thủ: "Liên kết với kênh của tôi" khoá, lý do là dòng phụ, bấm không đóng menu', async () => {
@@ -468,5 +487,46 @@ describe('trạng thái danh sách (gói V34)', () => {
     expect(after).toBeGreaterThan(before)
     // Tải lại xong mà vẫn 0 video (không lọc gì khác) → khối lọc rỗng, không phải lỗi.
     await until(() => !!byText(el, '*', tt.listFilterTitle))
+  })
+})
+
+describe('xếp hàng loạt trên máy tính — phản hồi trung thực', () => {
+  it('toàn video đã có sẵn: cảnh báo thật, giữ lựa chọn, mở job có sẵn — không báo thành công', async () => {
+    ownerChannels = [ownerChannel('c1', 'Midnight Tales')]
+    const selected = videos.slice(0, 10)
+    enqueueBody = {
+      items: [],
+      duplicates: selected.map((item) => ({ url: item.url, jobId: 'j9', state: 'working', title: item.title })),
+    }
+    const el = await mount(<><ExploreScreen route={ROUTE} /><ToastHost /></>)
+    await until(() => !!byText(el, 'button', tt.makeFor('Midnight Tales')))
+    await click(byText(el, 'button', tt.selectMany))
+    await click(el.querySelector('.vx-check [role="checkbox"]'))
+    await click(byText(el, 'button', tt.top10))
+    await click(el.querySelector(`[role="combobox"][aria-label="${tt.makeChannel}"]`))
+    await click(byText(document.body, '[role="option"]', 'Midnight Tales'))
+
+    await until(() => document.body.textContent?.includes(tt.bulkAllDuplicate('10')) === true)
+    expect(document.body.textContent).not.toContain(t.screens.new.toasts.made)
+    expect(byText(document.body, 'button', tt.queuePlanOpen)).toBeTruthy()
+    expect(el.querySelector('.vx-bulk')?.textContent).toContain(tt.selected(10))
+  })
+
+  it('một phần đã có sẵn: đếm đúng số vào hàng chờ và giữ đúng nhóm trùng', async () => {
+    ownerChannels = [ownerChannel('c1', 'Midnight Tales')]
+    enqueueBody = {
+      items: Array.from({ length: 6 }, (_, i) => ({ id: `q${i}`, jobId: null })),
+      duplicates: videos.slice(6, 10).map((item) => ({ url: item.url, jobId: null, state: 'queued', title: item.title })),
+    }
+    const el = await mount(<><ExploreScreen route={ROUTE} /><ToastHost /></>)
+    await until(() => !!byText(el, 'button', tt.makeFor('Midnight Tales')))
+    await click(byText(el, 'button', tt.selectMany))
+    await click(el.querySelector('.vx-check [role="checkbox"]'))
+    await click(byText(el, 'button', tt.top10))
+    await click(el.querySelector(`[role="combobox"][aria-label="${tt.makeChannel}"]`))
+    await click(byText(document.body, '[role="option"]', 'Midnight Tales'))
+
+    await until(() => document.body.textContent?.includes(tt.bulkMadePartial('6', '10', '4')) === true)
+    expect(el.querySelector('.vx-bulk')?.textContent).toContain(tt.selected(4))
   })
 })

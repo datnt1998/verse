@@ -3,15 +3,14 @@ import { exploreStyles, videoCardMarker } from './explore.stylex'
 // Lưới video ảo hoá + thẻ video của Khám phá. Mỗi thẻ: ảnh mqdefault
 // (loading=lazy, width/height giữ khung — không layout shift), huy hiệu điểm ×
 // (vàng ≥3), phụ đề + thời lượng, checkbox ở chế độ chọn nhiều, nút "Làm cho
-// <kênh>" khoá (aria-disabled, vẫn focus được) vì chưa có kênh của bạn, nút
-// sao chép link. Thẻ chỉ có một trong hai: trạng thái hàng chờ hoặc nút làm —
-// hàng chờ chưa có nên luôn là nút.
+// <kênh>" mở panel xem trước (chọn kênh + kế hoạch ở đó), nút sao chép link.
 import type { SyntheticEvent } from 'react'
 import { Button, Checkbox, Icon, toast } from '@noverse/ui'
 import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { fmtDuration, fmtScore, scoreText, videoMeta } from './fmt'
+import { stageColor, stageLabel, usageHref } from './status'
 
 /** Sao chép một link — navigator.clipboard, fallback execCommand. Trả false
  *  khi trình duyệt chặn (toast lỗi ở caller). */
@@ -42,21 +41,21 @@ export function hideBrokenImage(e: SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.style.visibility = 'hidden'
 }
 
-export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle, channelLabel, hasChannel }: {
+export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle, channelLabel }: {
   video: Video
   picked: boolean
   selectMode: boolean
   checked: boolean
   onOpen: (video: Video) => void
   onToggle: (video: Video) => void
-  /** "chưa có kênh của bạn" → nút Làm cho khoá kèm lý do */
+  /** kênh đích đầu tiên — nút ghi "Làm cho <kênh>" như artboard */
   channelLabel: string | null
-  /** có kênh rồi → lý do khoá là hàng chờ */
-  hasChannel: boolean
 }) {
   const tt = t.screens.explore
   const hot = (video.score ?? 0) >= 3
   const dur = fmtDuration(video.durationSec)
+  const usage = video.usage?.[0]
+  const usageTitle = video.usage?.map((u) => `${u.channelName} · ${stageLabel(u)}`).join('\n')
   const copy = async () => {
     const ok = await copyText(video.url)
     if (ok) toast.ok(tt.copied)
@@ -90,13 +89,26 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
         <span className={`vx-vmeta ${stylex.props(exploreStyles.vmeta).className}`}>{videoMeta(video.viewCount, video.publishedAt)}</span>
       </div>
       <div className={`vx-actions ${stylex.props(exploreStyles.actions).className}`}>
-        <ActionButton
-          size="sm"
-          lockedReason={channelLabel === null ? (hasChannel ? tt.queueReason : tt.lockedReason) : undefined}
-          icon={<Icon name="video-add" size={14} />}
-        >
-          {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
-        </ActionButton>
+        {usage ? (
+          <a
+            href={usageHref(usage)}
+            className={`vx-used ${stylex.props(exploreStyles.usedStatus).className}`}
+            style={{ color: stageColor(usage.stage) }}
+            title={usageTitle}
+            aria-label={`${usage.channelName} · ${stageLabel(usage)}`}
+          >
+            <span aria-hidden="true" className={stylex.props(exploreStyles.usedDot).className} style={{ backgroundColor: stageColor(usage.stage) }} />
+            <span className={stylex.props(exploreStyles.usedText).className}>{usage.channelName} · {stageLabel(usage)}</span>
+          </a>
+        ) : (
+          <ActionButton
+            size="sm"
+            onClick={() => onOpen(video)}
+            icon={<Icon name="video-add" size={14} />}
+          >
+            {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
+          </ActionButton>
+        )}
         <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
         <Button variant="icon" size="sm" aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}><Icon name="copy" size={15} /></Button>
       </div>
@@ -104,7 +116,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
   )
 }
 
-export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId, selectMode, checkedIds, onOpen, onToggle, hasChannel }: {
+export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId, selectMode, checkedIds, onOpen, onToggle, makeChannelName }: {
   items: Video[]
   cols: number
   /** khoảng item render (đã cắt theo hàng) */
@@ -117,7 +129,8 @@ export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId
   checkedIds: ReadonlySet<string>
   onOpen: (video: Video) => void
   onToggle: (video: Video) => void
-  hasChannel: boolean
+  /** kênh của tôi đầu tiên — nhãn "Làm cho <kênh>" trên thẻ */
+  makeChannelName?: string
 }) {
   const visible = items.slice(start, end)
   const rows: Video[][] = []
@@ -137,8 +150,7 @@ export function VideoGrid({ items, cols, start, end, padTop, padBottom, pickedId
               checked={checkedIds.has(video.id)}
               onOpen={onOpen}
               onToggle={onToggle}
-              channelLabel={null}
-              hasChannel={hasChannel}
+              channelLabel={makeChannelName ?? null}
             />
           ))}
         </div>

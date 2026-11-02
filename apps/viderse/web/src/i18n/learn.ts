@@ -49,7 +49,7 @@ export const learnCopy = {
     before: 'Trước',
     after: 'Sau',
     savedChannel: 'Đã lưu vào Hồ sơ kênh › Quy tắc đã học. Áp dụng từ video viết tiếp theo.',
-    savedPrompt: (promptName: string) => `Đã thêm vào Thư viện › Prompt ảnh › ${promptName} › Ghi chú đã học. Áp dụng từ ảnh vẽ tiếp theo, cho mọi template dùng prompt này.`,
+    savedPrompt: (promptName: string) => `Đã thêm vào Thư viện › Chỉ dẫn ảnh › ${promptName} › Ghi chú đã học. Áp dụng từ ảnh vẽ tiếp theo, cho mọi mẫu video dùng chỉ dẫn này.`,
     undo: 'Hoàn tác',
     saveFailed: 'Không lưu được quy tắc.',
     offline: 'Mất kết nối máy chủ — chưa lưu được quy tắc.',
@@ -58,6 +58,9 @@ export const learnCopy = {
     title: 'Quy tắc đã học',
     help: 'Đạo diễn học từ việc bạn sửa; chỉ có hiệu lực khi bạn bấm Lưu.',
     counter: (count: number, limit: number) => `${count} / ${limit}`,
+    actionsTitle: 'Quy tắc',
+    more: (text: string) => `Thêm cho quy tắc ${text}`,
+    examplesHint: 'Những lần bạn sửa mà Đạo diễn học từ đó',
     viewExample: 'Xem ví dụ',
     hideExample: 'Ẩn ví dụ',
     remove: (text: string) => `Xoá quy tắc ${text}`,
@@ -75,8 +78,8 @@ export const learnCopy = {
   },
   notes: {
     title: 'Ghi chú đã học',
-    help: 'Hoạ sĩ học từ góp ý vẽ lại; áp dụng cho mọi template dùng prompt này.',
-    empty: 'Chưa có ghi chú nào. Khi bạn góp ý vẽ lại giống nhau 2 lần với prompt này, Hoạ sĩ sẽ hỏi có nên ghi lại.',
+    help: 'Hoạ sĩ học từ góp ý vẽ lại; áp dụng cho mọi mẫu video dùng chỉ dẫn này.',
+    empty: 'Chưa có ghi chú nào. Khi bạn góp ý vẽ lại giống nhau 2 lần với chỉ dẫn này, Hoạ sĩ sẽ hỏi có nên ghi lại.',
     error: 'Không tải được ghi chú đã học.',
   },
   settings: {
@@ -90,7 +93,7 @@ export const learnCopy = {
     turnOn: 'Bật lại',
     kinds: {
       hot_video: 'Đưa video nổi lên đầu hàng',
-      template_failing: 'Template hay chưa đạt điểm',
+      template_failing: 'Mẫu video hay chưa đạt điểm',
       learn_rule: 'Lưu quy tắc từ việc bạn sửa',
       raise_autonomy: 'Bật Duyệt theo điểm',
       pace: 'Đổi nhịp đăng',

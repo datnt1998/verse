@@ -1,4 +1,4 @@
-import { cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useRef, useState, type AnchorHTMLAttributes, type CSSProperties, type ReactNode } from 'react'
+import { cloneElement, isValidElement, useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type AnchorHTMLAttributes, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from './tokens.stylex'
@@ -95,7 +95,7 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
   const keyboard = useRef(false)
   const initialSubmenu = useRef(defaultSubmenu)
   const isOpen = open || !!point
-  const close = () => { setOpen(false); keyboard.current = false; initialSubmenu.current = null; onClose?.(); button.current?.focus() }
+  const close = useCallback(() => { setOpen(false); keyboard.current = false; initialSubmenu.current = null; onClose?.(); button.current?.focus() }, [onClose])
   const openMenu = (byKeyboard: boolean) => { keyboard.current = byKeyboard; initialSubmenu.current = null; setOpen(true); onOpen?.() }
   useLayoutEffect(() => {
     if (!isOpen) return
@@ -117,15 +117,15 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
     return () => cancelAnimationFrame(frame)
   }, [isOpen, point, width, align])
   useEffect(() => {
-    if (!point) return
-    const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node)) close() }
+    if (!isOpen) return
+    const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node) && !button.current?.contains(event.target as Node)) close() }
     document.addEventListener('pointerdown', outside)
     return () => { document.removeEventListener('pointerdown', outside) }
-  }, [point])
+  }, [isOpen, close])
   // Menu là một lớp: Esc đóng menu trước, không đóng hộp thoại bên dưới (17-kit, chốt 25/10).
   useEscapeLayer(isOpen, close)
   const trig = stylex.props(sx.trigger, isOpen ? sx.triggerOpen : sx.triggerIdle, triggerStyle)
-  const trigger_ = <button ref={button} type="button" className={`hov-ghost${alwaysVisible ? '' : ' kit-action-trigger'} ${trig.className}`} aria-label={label} aria-haspopup="menu" aria-expanded={isOpen} onClick={(event) => { if (open) close(); else openMenu(event.detail === 0) }} onKeyDown={(event) => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); openMenu(true) } }} style={trig.style}>{trigger ?? <Icon name="more" size={17} />}</button>
+  const trigger_ = <button ref={button} type="button" className={`hov-ghost${alwaysVisible ? '' : ' kit-action-trigger'} ${trig.className}`} aria-label={label} aria-haspopup="menu" aria-expanded={isOpen} onClick={(event) => { if (isOpen) close(); else openMenu(event.detail === 0) }} onKeyDown={(event) => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); openMenu(true) } }} style={trig.style}>{trigger ?? <Icon name="more" size={17} />}</button>
   const pos = stylex.props(sx.menuPos(`${position.x}px`, `${position.y}px`, width))
   return <><Tooltip content={label} asChild>{trigger_}</Tooltip>{isOpen && createPortal(<div ref={menu} className={`kit-pop ${pos.className}`} style={pos.style}><MenuList items={items} close={close} initialSubmenu={initialSubmenu.current} /></div>, document.body)}</>
 }

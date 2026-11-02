@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, Segmented, Sheet, toast } from '@noverse/ui'
+import { Button, Icon, ListRow, Segmented, Sheet, toast } from '@noverse/ui'
 import { ChannelAvatar } from '../../components'
 import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { assistantName, type Assistant } from '../../components/agents'
@@ -163,9 +163,16 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
         </div>
       </section></>}
       {removed.length > 0 && <div role="status" {...stylex.props(sx.undoBanner)}><span {...stylex.props(sx.grow)}>{m.removed(removed.length)}</span><Button variant="quiet" size="lg" disabled={busy || !online} onClick={() => void undo()}>{t.common.undo}</Button></div>}
-      <Button size="lg" block className="mq-rules-link" aria-haspopup="dialog" onClick={() => setRulesOpen(true)} icon={<Icon name="setting" size={20} />}>
-        <span {...stylex.props(sx.stack)}><span>{tt.rulesTitle}</span><span {...stylex.props(sx.sub, sx.ellipsis)}>{m.rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)}</span></span>
-      </Button>
+      <ListRow
+        aria-label={tt.rulesTitle}
+        aria-haspopup="dialog"
+        icon="setting"
+        title={tt.rulesTitle}
+        hint={m.rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)}
+        chevron
+        onClick={() => setRulesOpen(true)}
+        xstyle={[sx.card, sx.row, sx.rulesLink]}
+      />
       {view.imageQuota.length > 0 && <section {...stylex.props(sx.card, sx.panel, state === 'limited' && sx.warningBorder)}><div {...stylex.props(sx.row)}><h2 {...stylex.props(sx.panelTitle)}>{tt.rules.quota}</h2><a {...stylex.props(sx.link, sx.panelLink)} href={`#${paths.settings('agents')}`}>{tt.quotaSettings}</a></div>{view.imageQuota.map((quota) => <Quota key={`${quota.provider}-${quota.role}`} quota={quota} />)}</section>}
       <section {...stylex.props(sx.card, sx.panel)}><div {...stylex.props(sx.row)}><h2 {...stylex.props(sx.panelTitle)}>{tt.rules.pace}</h2>{view.pace[0] && <a {...stylex.props(sx.link, sx.panelLink)} href={`#${paths.channel(view.pace[0].channelId, 'sources')}`}>{tt.paceEdit}</a>}</div>{view.pace.map((pace) => <div key={pace.channelId} {...stylex.props(sx.quotaRow)}><a {...stylex.props(sx.row)} href={`#${paths.channel(pace.channelId, 'sources')}`}><QueueAvatar queue={queue} channelId={pace.channelId} /><span {...stylex.props(sx.grow, sx.ellipsis)}>{queue.channels.get(pace.channelId)?.name || pace.channelId}</span><span>{pace.used}/{pace.limit}</span></a><div {...stylex.props(sx.bar)} role="img" aria-label={`${queue.channels.get(pace.channelId)?.name}: ${pace.used}/${pace.limit}`}><span {...stylex.props(sx.fill(pace.limit ? Math.min(100, pace.used / pace.limit * 100) : 0))} /></div></div>)}<span {...stylex.props(sx.small)}>{tt.paceNote}</span></section>
       {view.doneToday.length > 0 && <section {...stylex.props(sx.group)}><h2 {...stylex.props(sx.section)}>{tt.doneHeading(view.doneToday.length)}</h2>{view.doneToday.map((job) => <a key={job.jobId} {...stylex.props(sx.doneRow)} href={`#${paths.workbench({ video: job.jobId })}`}><span aria-hidden="true" {...stylex.props(sx.doneDot, job.state === 'review' && sx.reviewDot)} /><span title={job.title} {...stylex.props(sx.grow, sx.ellipsis)}>{job.title}</span><span {...stylex.props(sx.small)}>{job.state === 'review' ? tt.status.review : fmtEta(job.at)}</span></a>)}</section>}

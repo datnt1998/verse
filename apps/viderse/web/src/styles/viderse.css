@@ -1,12 +1,14 @@
-/* Viderse — TỆP CSS TOÀN CỤC DUY NHẤT của app.
-   Chỉ những luật StyleX không biểu đạt được nằm ở đây: @font-face, preflight
-   của Tailwind cho NLE giữ nguyên, thứ tự lớp, reset phần tử, ::selection, bảng
-   palette :root, và các lớp mà kit dùng chung đọc theo tên. Mọi kiểu component
-   là stylex.create trong tệp component; thang khoảng cách/bo góc và các nhóm
-   token khác là defineVars ở styles/viderse.stylex.ts. */
+/* Viderse — CSS nền toàn cục: phông, preflight, palette và lớp kit theo tên.
+   Utility Tailwind của NLE thuộc editor-utilities.css, được editor nhập khi
+   mở route; không tải toàn bộ utility trên Bàn dựng/điện thoại. Component vẫn
+   dùng StyleX, token dùng defineVars ở styles/viderse.stylex.ts. */
 
-@import "tailwindcss";                    /* preflight + utility cho editor NLE giữ nguyên (src/editor/UPSTREAM.md) */
-@source "../../../../../platform/ui/src"; /* kit dùng chung nằm ngoài thư mục app */
+/* Declare every Tailwind layer before StyleX, including the lazy utilities.
+   Creating utilities only when the editor opens would put it above StyleX. */
+@layer theme, base, components, utilities;
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
 
 /* Font: mỗi độ đậm là MỘT tệp đã subset đúng dải chữ đang dùng (Latin cơ bản +
    tiếng Việt + dấu tổ hợp), thay vì 3 tệp fontsource (latin / latin-ext /
@@ -82,6 +84,11 @@
    nhưng dưới CSS không layer — thiếu dòng này reset * { padding:0; border:0 }
    của preflight sẽ đè stylex. */
 @layer theme, base, components, utilities, properties, priority, priority1, priority2, priority3, priority4, priority5, priority6, priority7, priority8;
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
 /* ─── Bảng palette của app ────────────────────────────────────────────────
    Giá trị brand không có vai trò trong kit (design 03-tokens + artboard).
@@ -373,6 +380,7 @@
   /* Sheet “Đổi thư mục lưu” của mục Lưu trữ: nền đậm hơn sheet kit (#141416
      theo MSettings · store=pick), nút đi tiếp sáng phẳng của artboard. */
   --vv-sheet-bg: #141416;
+  --vv-composer-mobile-bg: #0D0D0F;
   --vv-seg-sources: #B9D0F7;
   --vv-seg-stay: #6E6E78;
   --vv-seg-editor-m: #FFD08A;
@@ -467,6 +475,51 @@ input::placeholder, textarea::placeholder { color: var(--color-fg-4); }
 
 /* Kit đọc keyframes theo tên: platform/ui/feedback.tsx đặt animationName 'ai-spin'. */
 @keyframes ai-spin { to { transform: rotate(360deg) } }
+
+/* Chữ đang chạy của kit (platform/ui/src/feedback.tsx › Shimmer — Phòng vẽ, ô ảnh đang
+   vẽ). Noverse khai lớp này trong styles/base.css; Viderse không nạp tệp đó nên chữ
+   shimmer đang đứng im. Số đo theo kit canonical (04-components › LiveStudio:
+   ".vv-shimmer" 2,4 s, đỉnh #FFE3E8). */
+.shimmer {
+  background-image: linear-gradient(90deg, var(--vv-text-3) 0%, var(--vv-text-3) 35%, #FFE3E8 50%, var(--vv-text-3) 65%, var(--vv-text-3) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Vài chỗ gọi Shimmer kèm style color (fg-2/fg-3) — text-fill vẫn trong suốt để
+     gradient hiện ra, màu inline chỉ còn là dự phòng khi trình duyệt cũ. */
+  -webkit-text-fill-color: transparent;
+  animation: kit-shim 2.4s linear infinite;
+}
+
+/* Quầng đang chạy quanh ô Nhắn trợ lý (artboard Main › .ring-glow): conic-gradient
+   xoay 4,5 s, chỉ khi trợ lý THẬT SỰ đang chạy. Xoay bằng góc của gradient
+   (@property) chứ không xoay hộp, để quầng vẫn ôm đúng khung chữ nhật rộng.
+   Gradient khai trên chính phần tử: var() lồng trong một biến ở :root bị thay
+   MỘT LẦN tại :root nên sẽ đứng hình. */
+@property --vv-ring-a {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes vv-ring-rot { to { --vv-ring-a: 360deg } }
+.vv-composer-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: var(--radius-dock, 18px);
+  pointer-events: none;
+  background-image: conic-gradient(from var(--vv-ring-a), transparent 0deg, transparent 190deg, #FF0033 240deg, #FF4D63 280deg, #FF8A5B 315deg, #FF0033 345deg, transparent 360deg);
+  filter: blur(16px);
+  opacity: .45;
+  animation: vv-ring-rot 4.5s linear infinite;
+}
+
+/* Nút + giữa thanh dưới: nhấn ở BẤT KỲ đâu trên ô tab (vùng chạm đủ 52–64 px) là nút
+   + thu .92, không chỉ khi trúng viên 46 px bên trong (MMain › .tab:active .tnew).
+   Transition .2 s khai trong MobileShell (newButton); giảm chuyển động thì app tắt. */
+.vv-tabbar__item:active .vv-tabbar__new {
+  transform: scale(.92);
+}
 
 /* prefers-reduced-motion: mọi hoạ hình đứng yên — vòng cung logo, orb trợ lý
    (kit ai-breathe), chấm đỏ nhấp, spinner, transition. */

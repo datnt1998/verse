@@ -4,8 +4,8 @@ import { channelStyles, channelRootMarker } from './channel.stylex'
 // Bước Tạo kênh (artboard CreateChannel/Onboard › step=create): chọn ≥ 1 đối
 // thủ đang theo dõi làm nguồn (bắt buộc), theo dõi & chọn đối thủ mới ngay tại
 // đây, tên/link YouTube tuỳ chọn, ngôn ngữ đoán từ đối thủ tham chiếu, thẻ
-// "Cách kênh chạy" (Mẫu chuẩn + nhịp). Nút Tạo kênh khoá (aria-disabled + lý do)
-// tới khi chọn được một đối thủ. Mức tự chủ (§20) không có trong đợt này.
+// "Cách kênh chạy" (Mẫu chuẩn, mức tự chủ và nhịp). Nút Tạo kênh khoá
+// (aria-disabled + lý do) tới khi chọn được một đối thủ.
 import { useState } from 'react'
 import { Button, Checkbox, Field, Icon, MobilePage, Segmented as KitSegmented, toast } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
@@ -125,8 +125,8 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                 const checked = picked.includes(rival.id)
                 const isRef = picked[0] === rival.id
                 return (
-                  <Checkbox key={rival.id} checked={checked} onChange={() => toggle(rival.id)}
-                    xstyle={mch.pick} label={<>
+                  <Checkbox key={rival.id} checked={checked} onChange={() => toggle(rival.id)} size={22}
+                    xstyle={[mch.pick, mch.pickEnd]} label={<span {...stylex.props(mch.pickLabel)}>
                     <ChannelAvatar
                       name={rival.title}
                       src={rival.avatarUrl ?? undefined}
@@ -144,7 +144,7 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
                         {num.format(rival.videoCount)} video đã quét
                       </span>
                     </span>
-                    </>} />
+                    </span>} />
                 )
               })}
             </div>
@@ -460,7 +460,7 @@ function AddRivalPicked({ onAdded, mobile = false }: { onAdded: (rival: Rival) =
       <span {...stylex.props(text.srOnly)}><label htmlFor="vch-new-rival">{tt.addLabel}</label></span>
       <input
         id="vch-new-rival"
-        className={`vch-taginput ${stylex.props(mobile ? mch.input44 : channelStyles.taginput, mch.rivalInput, mobile && mch.rivalInputMobile).className}`}
+        className={`vch-taginput ${stylex.props(mobile ? [mch.input44, mch.rivalInputRow] : [channelStyles.taginput, mch.rivalInput]).className}`}
         value={value}
         placeholder={tt.addPlaceholder}
         onChange={(event) => setValue(event.target.value)}

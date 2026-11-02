@@ -367,7 +367,7 @@ func (s *Service) RemoveOverlay(ctx context.Context, id string) error {
 		return &Error{
 			Code:     CodeBuiltin,
 			Message:  "Hiệu ứng có sẵn không xoá được",
-			Recovery: "Bỏ hiệu ứng khỏi template nếu không muốn dùng",
+			Recovery: "Bỏ hiệu ứng khỏi mẫu video nếu không muốn dùng",
 		}
 	}
 	if err := s.store.RemoveOverlay(ctx, id); err != nil {

@@ -16,7 +16,7 @@
 // sessionSignal chỉ phát: session-expired (401), access-denied (403 có mã),
 // password-required (403 có mã) — listener ở đây đổi trạng thái cổng cho mọi
 // request, kể cả caller không đọc payload.
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, startTransition, useContext, useEffect, useState, type ReactNode } from 'react'
 import { ApiError, accessDeniedUser, getSetup, login as loginApi, logout, me, passwordChangeRequired } from './client'
 import { onAccessDenied, onPasswordChangeRequired, onSessionExpired } from './sessionSignal'
 import type { AppLink, SessionEnded, User } from './types'
@@ -175,7 +175,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    void (async () => { await refresh(); setChecked(true) })()
+    void (async () => {
+      await refresh()
+      // Dựng shell sau kiểm phiên có thể nhường luồng cho khung hình đầu;
+      // các tín hiệu thu hồi phiên bên dưới vẫn cập nhật ngay, không trì hoãn.
+      startTransition(() => setChecked(true))
+    })()
     // 401 ở bất kỳ request nào (kể cả luồng SSE) → hết phiên: dọn UI về cổng.
     // Hai tín hiệu 403 cập nhật cổng từ mọi request chứ không chỉ /api/me.
     const offExpired = onSessionExpired((reason) => endSession(reason ?? { reason: 'unknown' }))

@@ -109,7 +109,7 @@ function MKitBoard({ section }: { section: MKitSection }) {
       {section === 'sheets' && <MSheets />}
       {section === 'agent' && <MAgents />}
       {section === 'system' && <MSystem />}
-      <MobileTabBar route={{ name: 'workbench' }} reviewCount={DEMO_STATUS.reviewCount} fixed={false} />
+      <MobileTabBar route={{ name: 'workbench' }} reviewCount={DEMO_STATUS.reviewCount} />
     </div>
   )
 }

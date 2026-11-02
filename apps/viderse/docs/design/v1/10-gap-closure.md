@@ -323,7 +323,7 @@ thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi t
 
 **Giới hạn hợp đồng / phần còn đối chiếu**
 
-- `preview=building` chưa biểu diễn được: API template chỉ có `none|fresh|stale`. Bộ chọn video xem trước không có trường tương ứng; xuất tệp template hiện khoá kèm lý do. Không tạo trạng thái hoặc ảnh mẫu giả để che thiếu dữ liệu.
+- `preview=building` chưa biểu diễn được: API template chỉ có `none|fresh|stale`. Bộ chọn video xem trước không có trường tương ứng. Xuất tệp template đã mở thật (tải `.ytf-template.zip`); thẻ prompt chỉ vẽ ảnh mẫu thật khi đã có ảnh vẽ thử, chưa có thì giữ ô trung tính — không tạo trạng thái hay ảnh mẫu giả.
 - B2 danh sách chương vẫn thiếu dữ liệu API.
 - Khung `MExplore` và B2 đã có màn điện thoại riêng, chip/lọc/chọn nhiều và sheet; lượt đối chiếu toàn màn đã tích hợp bên dưới. App giữ bộ lọc ≥8 phút theo API, không đổi thành ví dụ ≥40 phút.
 - Vùng cuối Tạo kênh đã kiểm lại trên nguồn tích hợp ở 390/360 px, inset 59/34 và bàn phím CSS 320 px; chưa coi đây là kiểm thử bàn phím thiết bị thật.

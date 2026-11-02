@@ -385,23 +385,40 @@ func (w *domOutWriter) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-// Status báo trên binary mà export/measure sẽ thật sự mở: probe một ứng viên
-// thân thiện hơn sẽ hứa hẹn trình duyệt mà export không dùng được.
+// Status báo trên binary mà Resolve chọn. Lối export/measure của app không
+// dùng hàm này — nó mở đúng bản Chrome for Testing app quản (xem ManagedStatus).
 func (c *Chrome) Status(ctx context.Context) ChromeStatus {
 	resolved := c.Resolve()
 	if resolved == nil {
+		return c.StatusAt(ctx, "", "")
+	}
+	return c.StatusAt(ctx, resolved.Path, resolved.Source)
+}
+
+// StatusAt probe đúng một binary — thứ caller sẽ thật sự mở — thay vì ứng
+// viên thân thiện hơn. exe rỗng → thiếu; source chỉ là nguồn của exe.
+func (c *Chrome) StatusAt(ctx context.Context, exe string, source ToolSource) ChromeStatus {
+	if exe == "" {
 		return ChromeStatus{State: ChromeMissing}
 	}
-	probe := c.probe(ctx, resolved.Path)
+	probe := c.probe(ctx, exe)
 	if probe.Err != "" || probe.Caps == nil {
-		return ChromeStatus{State: ChromeBroken, Path: resolved.Path, Error: probe.Err}
+		return ChromeStatus{State: ChromeBroken, Path: exe, Error: probe.Err}
 	}
 	if !chromeCapsOk(*probe.Caps) {
-		return ChromeStatus{State: ChromeIncompatible, Source: resolved.Source,
+		return ChromeStatus{State: ChromeIncompatible, Source: source,
 			Path: probe.Path, Version: probe.Version, Caps: *probe.Caps}
 	}
-	return ChromeStatus{State: ChromeReady, Source: resolved.Source,
+	return ChromeStatus{State: ChromeReady, Source: source,
 		Path: probe.Path, Version: probe.Version, Caps: *probe.Caps}
+}
+
+// ManagedStatus probe đúng bản Chrome for Testing app quản — binary mà lối
+// export/measure mở. Chrome cá nhân trên máy không bao giờ được probe hay
+// tính là sẵn sàng: nếu bản quản chưa cài, hàng công cụ phải báo thiếu để
+// bước cài chạy, không hứa một trình duyệt mà export sẽ không dùng.
+func (c *Chrome) ManagedStatus(ctx context.Context) ChromeStatus {
+	return c.StatusAt(ctx, c.ManagedPath(), ChromeManaged)
 }
 
 /* ------------------------- năng lực export GPU ------------------------- */
@@ -684,15 +701,24 @@ func (c *Chrome) runExportProbe(ctx context.Context, exe string) exportProbe {
 	return exportProbe{Path: exe, GPU: gpu, Encoder: encoder}
 }
 
-// ExportCaps là năng lực đường-GPU cho bước export headless: resolve binary
-// mà launcher sẽ dùng rồi chứng minh WebGPU + encode H.264 1080p30 headless.
+// ExportCaps là năng lực đường-GPU cho bước export headless trên binary mà
+// Resolve chọn. Lối export/measure dùng ManagedExportCaps — đúng bản app quản.
 // Kết quả cache theo identity binary như Status.
 func (c *Chrome) ExportCaps(ctx context.Context) ChromeExportCaps {
 	resolved := c.Resolve()
 	if resolved == nil {
+		return c.ExportCapsAt(ctx, "")
+	}
+	return c.ExportCapsAt(ctx, resolved.Path)
+}
+
+// ExportCapsAt kiểm năng lực export trên đúng exe caller sẽ mở; exe rỗng →
+// thiếu. Tách khỏi Resolve để UI không chứng minh năng lực của một trình
+// duyệt khác với trình duyệt bước export thật sự dùng.
+func (c *Chrome) ExportCapsAt(ctx context.Context, exe string) ChromeExportCaps {
+	if exe == "" {
 		return ChromeExportCaps{State: ExportMissing}
 	}
-	exe := resolved.Path
 	var probe exportProbe
 	if c.verifiedExport != nil {
 		p, err := c.verifiedExport.Check(exe, func(ctx context.Context) (exportProbe, error) {
@@ -712,4 +738,11 @@ func (c *Chrome) ExportCaps(ctx context.Context) ChromeExportCaps {
 		return ChromeExportCaps{State: ExportReady, Path: exe}
 	}
 	return ChromeExportCaps{State: ExportUnavailable, Path: exe, GPU: probe.GPU, Encoder: probe.Encoder}
+}
+
+// ManagedExportCaps kiểm năng lực export trên bản Chrome for Testing app quản
+// — binary mà lối export/measure mở. Thiếu bản quản → missing dù máy có Chrome
+// cá nhân dùng được cho việc khác.
+func (c *Chrome) ManagedExportCaps(ctx context.Context) ChromeExportCaps {
+	return c.ExportCapsAt(ctx, c.ManagedPath())
 }

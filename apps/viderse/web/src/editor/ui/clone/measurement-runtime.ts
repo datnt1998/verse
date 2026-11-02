@@ -101,6 +101,72 @@ export class MeasurementApiError extends Error {
   }
 }
 
+export interface MeasurementFailure {
+  /** Stable machine code persisted with the request for support tooling. */
+  code: string;
+  /** User-facing Vietnamese text; never the decoder's English message. */
+  message: string;
+}
+
+/** Minimal Vietnamese-diacritic test: technical/browser errors are ASCII. */
+const VIETNAMESE_TEXT = /[ăâđêôơưĂÂĐÊÔƠƯàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ]/;
+const DECODE_FAILURE = /unable to decode|decode audio|no audio track|audio decode|mediabunny|audio-decode-fallback/i;
+const SOURCE_FAILURE = /failed to fetch audio|fetch failed|networkerror|load failed/i;
+
+function codedFailure(error: unknown): MeasurementFailure | null {
+  if (!(error instanceof Error) || !("code" in error)) return null;
+  const code: unknown = error.code;
+  if (code !== "audio_decode_failed" && code !== "audio_source_unavailable") return null;
+  return { code, message: error.message };
+}
+
+function failureCode(error: unknown): string | undefined {
+  if (!error || typeof error !== "object" || !("code" in error)) return undefined;
+  const code: unknown = error.code;
+  return typeof code === "string" && code.length > 0 && code.length <= 64 ? code : undefined;
+}
+
+/**
+ * Convert any measurement/engine error to the typed, Vietnamese failure that
+ * the request journal and the editor meter show. The original error's message
+ * stays available to callers as `cause` for logs; it is never rendered.
+ */
+export function measurementFailure(error: unknown): MeasurementFailure {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return { code: "cancelled", message: "Đã huỷ đo." };
+  }
+  const coded = codedFailure(error);
+  if (coded) return coded;
+  const raw = error instanceof Error ? error.message : String(error);
+  if (VIETNAMESE_TEXT.test(raw)) return { code: failureCode(error) ?? "internal_error", message: raw };
+  if (DECODE_FAILURE.test(raw)) {
+    return {
+      code: "audio_decode_failed",
+      message: "Không giải mã được âm thanh của tệp nguồn. Kiểm tra tệp âm thanh rồi đo lại.",
+    };
+  }
+  if (SOURCE_FAILURE.test(raw)) {
+    return {
+      code: "audio_source_unavailable",
+      message: "Không tải được tệp nguồn để đo. Kiểm tra kết nối rồi thử lại.",
+    };
+  }
+  return {
+    code: failureCode(error) ?? "internal_error",
+    message: "Đo độ hoàn thiện thất bại. Thử lại; nếu vẫn lỗi, kiểm tra tệp nguồn.",
+  };
+}
+
+/** Thrown to callers so UI code can display a safe message and log `cause`. */
+export class MeasurementFailureError extends Error {
+  readonly code: string;
+  constructor(failure: MeasurementFailure, options?: { cause?: unknown }) {
+    super(failure.message, options);
+    this.name = "MeasurementFailureError";
+    this.code = failure.code;
+  }
+}
+
 async function api<T>(input: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
   const response = await fetch(input, { cache: "no-store", ...init });
   const body: unknown = await response.json().catch(() => ({}));

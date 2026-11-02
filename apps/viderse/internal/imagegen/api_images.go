@@ -146,7 +146,8 @@ func (p *APIProvider) Draw(ctx context.Context, req Request, journal JournalHand
 		PngSha256: sum,
 	}
 	if err := writeJSONAtomic(req.Output+".receipt.json", receipt); err != nil {
-		return Receipt{}, &StoreError{Err: err}
+		// Ảnh đã ghi xong sau lời gọi trả phí; sidecar lỗi không xoá ảnh.
+		return Receipt{}, &StoreError{Err: err, Charged: true}
 	}
 	return receipt, nil
 }

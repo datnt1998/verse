@@ -40,6 +40,10 @@ const (
 	CodeInUse        = "in_use"
 	CodeBadMedia     = "bad_media"
 	CodeToolMissing  = "tool_missing"
+	// CodeConfirmRequired: POST vẽ thử thiếu xác nhận đúng một ảnh.
+	CodeConfirmRequired = "confirm_required"
+	// CodeQuota: hạn mức ảnh của provider đã hết.
+	CodeQuota = "quota"
 )
 
 // Lỗi sentinel của store: "không có hàng", "tên đã có" và "sha256 đã có".
@@ -49,7 +53,7 @@ var (
 	ErrNameTaken     = errors.New("tên đã có")
 	ErrOverlayExists = errors.New("lớp phủ đã có")
 	ErrInUse         = errors.New("đang được dùng")
-	ErrPromptRef     = errors.New("tham chiếu prompt không còn hợp lệ")
+	ErrPromptRef     = errors.New("tham chiếu chỉ dẫn không còn hợp lệ")
 	ErrBackdropRef   = errors.New("tham chiếu video nền không còn hợp lệ")
 )
 
@@ -100,7 +104,7 @@ func notFound(object string) *Error {
 func conflictRevision() *Error {
 	return &Error{
 		Code:     CodeConflict,
-		Message:  "Template vừa được sửa ở nơi khác",
+		Message:  "Mẫu video vừa được sửa ở nơi khác",
 		Recovery: "Tải lại trang rồi thử lại",
 	}
 }

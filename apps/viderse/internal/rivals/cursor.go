@@ -43,8 +43,9 @@ const cursorMaxLen = 512
 // khác bị coi là không hợp lệ thay vì lặng lẽ đọc sai trang. Băm chỉ để gọn và
 // tránh ký tự điều khiển trong JSON — không phải ranh giới tin cậy.
 func cursorSig(q PageQuery) string {
-	sum := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%s\x00%t\x00%d\x00%s",
-		q.ChannelID, q.Sort, q.Long, q.WithinDays, q.Pattern)))
+	sum := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%s\x00%t\x00%d\x00%s\x00%s\x00%s\x00%t\x00%t",
+		q.ChannelID, q.Sort, q.Long, q.WithinDays, q.Pattern,
+		q.MadeFor, q.NotMadeFor, q.MadeAny, q.NotMadeAny)))
 	return hex.EncodeToString(sum[:8])
 }
 

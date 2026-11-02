@@ -45,6 +45,9 @@ export const mStyles = stylex.create({
     WebkitOverflowScrolling: 'touch',
     flex: '0 0 auto',
   },
+  rivalChip: { flex: '0 0 auto', alignItems: 'center', minHeight: 44, maxWidth: 'calc(100vw - 32px)', whiteSpace: 'nowrap' },
+  rivalChipName: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  followChip: { flex: '0 0 auto' },
   newBadge: {
     minWidth: s['--vv-s-20'],
     height: s['--vv-s-20'],
@@ -152,6 +155,7 @@ export const mStyles = stylex.create({
     WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
     cursor: 'pointer',
+    textDecorationLine: 'none',
   },
   detailBarTitle: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], minWidth: 0 },
   detailBarName: { minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
@@ -183,8 +187,23 @@ export const mStyles = stylex.create({
   planError: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'] },
   planErrorText: { margin: 0, fontSize: 13, color: 'var(--vv-warn-ink)' },
   cardMeta: { fontSize: 12.5, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  /** dòng trạng thái thật "kênh · bước" trên thẻ — link mở job/hàng chờ, đủ 44px chạm */
+  cardUsage: { display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], minHeight: s['--vv-s-44'], minWidth: 0, textDecorationLine: 'none', fontSize: 12.5 },
+  usageDot: { width: 7, height: 7, borderRadius: '50%', flex: '0 0 auto' },
+  usageText: { minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  /** chi tiết: danh sách kênh đã làm video (cùng dữ liệu usage của bản máy tính) */
+  usageList: { display: 'flex', flexDirection: 'column', paddingBottom: s['--vv-s-8'] },
+  usageRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], minHeight: s['--vv-s-48'], minWidth: 0, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'] },
+  usageRowText: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 },
+  usageName: { fontSize: 13.5, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  usageSub: { fontSize: 12, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  usageOpen: { flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-3'], minHeight: s['--vv-s-44'], fontSize: 12.5, color: color['--color-fg-3'], textDecorationLine: 'none' },
+  /** chương thật của video gốc — mỗi dòng là link tua tới mốc trên trình phát YouTube */
+  chapterList: { listStyle: 'none', margin: 0, padding: `0 0 ${s['--vv-s-10']}`, display: 'flex', flexDirection: 'column', gap: 2 },
+  chapterRow: { display: 'flex', alignItems: 'baseline', gap: s['--vv-s-8'], minHeight: s['--vv-s-36'], paddingBlock: s['--vv-s-4'], minWidth: 0, color: 'inherit', textDecorationLine: 'none' },
+  chapterTime: { flex: '0 0 auto', fontFamily: font['--font-mono'], fontSize: 11.5, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  chapterName: { minWidth: 0, fontSize: 13, lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   copyBtn: { width: s['--vv-s-44'], height: s['--vv-s-44'], margin: `calc(-1 * ${s['--vv-s-6']}) calc(-1 * ${s['--vv-s-10']}) 0 0`, flex: '0 0 auto', color: 'var(--vv-fg-note)' },
-  sentinel: { height: 1 },
   emptyBox: {
     display: 'flex',
     flexDirection: 'column',

@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { ActionMenu, Banner, Button, Dialog, Icon, ProgressBar } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/library'
+import { backdropFailureCopy } from '../../../i18n/errorsCopy'
 import { keys } from '../../../data/keys'
 import {
   addBackdropVideo, backdropVideoFileHref, patchBackdropVideo, removeBackdropVideo,
@@ -55,7 +56,7 @@ function VideoCard({ video, onChangeSegment, onRetry, onRemove, busyId }: {
         <div className={`vbd-vlfail ${stylex.props(sx.vlfail).className}`}>
           <span className={`vbd-vlfail-text ${stylex.props(sx.vlfailText).className}`}>
             <Icon name="danger" size={14} />
-            {video.errorDetail?.message ?? copy.failedTitle}
+            {(video.errorDetail && backdropFailureCopy[video.errorDetail.code]) || copy.failedTitle}
           </span>
           <ActionButton xstyle={[sx.vbdVlfailActionButton]} size="sm" icon={<Icon name="refresh" size={15} />} pending={busy} onClick={() => onRetry(video)}>{copy.retry}</ActionButton>
         </div>

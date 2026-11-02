@@ -1,9 +1,9 @@
 // Bàn dựng trên điện thoại (artboard MMain): màn cha giữ dữ liệu/khoá cache
 // chung với bản máy tính, chọn danh sách ↔ chi tiết ↔ Bản tin, ẩn thanh tab khi
 // mở trang con và khôi phục vị trí cuộn khi quay lại.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, useTabMode, toast } from '@noverse/ui'
+import { Button, KeepAlive, useMobileRuntime, useTabMode, useVisualViewportKeyboard, toast } from '@noverse/ui'
 import { getChannelSummaries } from '../../../api/workbenchChannels'
 import { getJobImages, getRecap, getWorkbench, getWorkbenchJob, markRecapSeen, type CloneJobView, type JobImageList } from '../../../api/workbench'
 import { getNotificationSettings } from '../../../api/activity'
@@ -15,9 +15,10 @@ import { followAdmitted } from '../workbench-logic'
 import { shouldAutoOpenRecap } from '../recap/recap-logic'
 import { mw } from './mworkbench.stylex'
 import { MobileWorkbenchList } from './MobileWorkbenchList'
-import { MobileWorkbenchDetail } from './MobileWorkbenchDetail'
-import { MobileRecap } from './MobileRecap'
 import { MobilePlanSheet } from './MobilePlanSheet'
+import { MobileRecap } from './MobileRecap'
+
+const MobileWorkbenchDetail = lazy(() => import('./MobileWorkbenchDetail').then((module) => ({ default: module.MobileWorkbenchDetail })))
 
 const SCOPE_KEY = 'viderse:workbench-scope'
 
@@ -43,6 +44,9 @@ export function MobileWorkbench({ route }: { route: Extract<Route, { name: 'work
   const job = queuedJob || detail.data
 
   useTabMode(selectedId || recapOpen ? 'hide' : undefined)
+  // Bàn phím ảo: ghi --kb dùng chung của kit để ô nhắn dính đáy không bị che.
+  useVisualViewportKeyboard()
+  const { tabMode } = useMobileRuntime()
 
   const scrollParent = (): HTMLElement | null => {
     let node = rootRef.current?.parentElement ?? null
@@ -86,21 +90,22 @@ export function MobileWorkbench({ route }: { route: Extract<Route, { name: 'work
 
   useLayoutEffect(() => {
     const view = `${scope}:${selectedId ?? 'list'}:${recapOpen}`
-    if (restoredView.current === view || (!selectedId && !recapOpen && list.placeholder)) return
+    if (restoredView.current === view || (!selectedId && !recapOpen && (list.placeholder || tabMode === 'hide'))) return
     const parent = scrollParent()
     if (!parent) return
-    if (!recapOpen) parent.scrollTop = selectedId ? 0 : savedListScroll.current.get(scope) ?? 0
+    const target = !recapOpen ? (selectedId ? 0 : savedListScroll.current.get(scope) ?? 0) : null
+    if (target !== null) parent.scrollTop = target
     restoredView.current = view
-  }, [scope, selectedId, recapOpen, list.placeholder])
+  }, [scope, selectedId, recapOpen, list.placeholder, tabMode])
 
   useEffect(() => {
-    if (selectedId || recapOpen || list.placeholder) return
+    if (selectedId || recapOpen || list.placeholder || tabMode === 'hide') return
     const parent = scrollParent()
     if (!parent) return
     const save = () => savedListScroll.current.set(scope, parent.scrollTop)
     parent.addEventListener('scroll', save, { passive: true })
     return () => parent.removeEventListener('scroll', save)
-  }, [scope, selectedId, recapOpen, list.placeholder])
+  }, [scope, selectedId, recapOpen, list.placeholder, tabMode])
 
   useEffect(() => {
     if (queuedJob) { followed.current = { id: queuedJob.id, sourceKey: queuedJob.sourceKey }; return }
@@ -132,19 +137,26 @@ export function MobileWorkbench({ route }: { route: Extract<Route, { name: 'work
   const jobChannel = job ? channels.data?.find((item) => item.channelId === job.channelId)?.name : undefined
   const openPlan = (text: string, planScope: AssistantScope) => setPlan({ text, scope: planScope })
 
-  return <div ref={rootRef}>
-    {recapOpen
-      ? <MobileRecap data={recap.data} loading={recap.initialLoading} error={recap.error} channels={channels.data ?? []}
-        onRetry={() => void recap.refresh()} onClose={closeRecap} onSelectJob={(id) => { setRecapOpen(false); openJob(id) }}
-        onPlan={(text) => openPlan(text, 'all')} />
-      : selectedId
-        ? <DetailOrState job={job} loading={detail.initialLoading && !queuedJob} error={detail.error} images={images.data} imagesLoading={images.initialLoading} imagesError={images.error}
-          jobChannel={jobChannel} onBack={closeJob} onRefresh={refresh}
-          onPlan={(text) => openPlan(text, { jobId: selectedId })} onNotice={(text) => toast.err(text)} />
-        : <MobileWorkbenchList scope={scope} jobs={list.data?.jobs ?? []} queuedTotal={list.data?.queuedTotal ?? 0}
-          channels={channels.data ?? []} channelsLoading={channels.initialLoading} listLoading={list.initialLoading}
-          listError={list.error} recap={recap.data} recapLoading={recap.initialLoading} recapError={recap.error}
-          onRetry={() => { void list.refresh(); void channels.refresh() }} onPickScope={pickScope} onOpenJob={openJob} onOpenRecap={openRecap} />}
+  return <div ref={rootRef} style={{ display: 'contents' }}>
+    {/* Giữ DOM danh sách khi mở video/Bản tin: chiều cao đã đủ nên vị trí cuộn
+        khôi phục không bị kẹp vào max tạm thời lúc danh sách mount lại. */}
+    <KeepAlive active={!recapOpen && !selectedId}>
+      <MobileWorkbenchList scope={scope} jobs={list.data?.jobs ?? []} queuedTotal={list.data?.queuedTotal ?? 0}
+        channels={channels.data ?? []} channelsLoading={channels.initialLoading} listLoading={list.initialLoading}
+        listError={list.error} recap={recap.data} recapLoading={recap.initialLoading} recapError={recap.error}
+        onRetry={() => { void list.refresh(); void channels.refresh() }} onPickScope={pickScope} onOpenJob={openJob} onOpenRecap={openRecap} />
+    </KeepAlive>
+    <Suspense fallback={<div role="status" {...stylex.props(mw.state)}>Đang mở…</div>}>
+      {recapOpen
+        ? <MobileRecap data={recap.data} loading={recap.initialLoading} error={recap.error} channels={channels.data ?? []}
+          onRetry={() => void recap.refresh()} onClose={closeRecap} onSelectJob={(id) => { setRecapOpen(false); openJob(id) }}
+          onPlan={(text) => openPlan(text, 'all')} planOpen={plan !== null} />
+        : selectedId
+          ? <DetailOrState job={job} loading={detail.initialLoading && !queuedJob} error={detail.error} images={images.data} imagesLoading={images.initialLoading} imagesError={images.error}
+            jobChannel={jobChannel} onBack={closeJob} onRefresh={refresh}
+            onPlan={(text) => openPlan(text, { jobId: selectedId })} onNotice={(text) => toast.err(text)} planOpen={plan !== null} />
+          : null}
+    </Suspense>
     <MobilePlanSheet open={plan !== null} text={plan?.text ?? ''} scope={plan?.scope ?? 'all'} onClose={() => setPlan(null)} onSettled={refresh} />
   </div>
 }
@@ -161,6 +173,7 @@ function DetailOrState({ job, loading, error, onBack, ...rest }: {
   onRefresh: () => void
   onPlan: (text: string) => void
   onNotice: (text: string) => void
+  planOpen: boolean
 }) {
   if (loading) return <div role="status" {...stylex.props(mw.state)}>Đang mở video…</div>
   if (!job) return <div role="alert" {...stylex.props(mw.state)}>

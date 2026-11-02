@@ -339,14 +339,26 @@ func TestTaskPresentationKeepsAcceptedActionMapping(t *testing.T) {
 	failed.State = domain.ScanError
 	failed.LastError = "YouTube chặn"
 	view, live = TaskPresentation(failed)
-	if !live || view.State != domain.TaskFailed || view.Phase != "YouTube chặn" ||
+	if !live || view.State != domain.TaskFailed || view.Phase != "Quét chưa xong. Thử lại." ||
 		view.Action.Op != domain.TaskOpRetry || view.Action.Label != "Thử lại" {
 		t.Fatalf("error = %+v live=%v", view, live)
 	}
+	recovered := failed
+	recovered.Recovery = "Thử lại sau ít phút."
+	if view, _ := TaskPresentation(recovered); view.Phase != recovered.Recovery {
+		t.Fatalf("recovery phải là câu hiện: %+v", view.Phase)
+	}
 	empty := failed
 	empty.LastError = "  "
-	if view, _ := TaskPresentation(empty); view.Phase != "Lỗi khi quét" {
+	if view, _ := TaskPresentation(empty); view.Phase != "Quét chưa xong. Thử lại." {
 		t.Fatalf("error rỗng = %+v", view)
+	}
+	english := failed
+	english.LastError = "Videos tab sort filters are unreadable"
+	english.ErrorCode = "rate_limited"
+	view, _ = TaskPresentation(english)
+	if view.Phase == english.LastError || view.Phase == english.ErrorCode {
+		t.Fatalf("chẩn đoán/mã thô không được hiện: %+v", view.Phase)
 	}
 	waiting := paused
 	waiting.State = domain.ScanBackoff

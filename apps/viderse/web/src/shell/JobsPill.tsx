@@ -138,6 +138,6 @@ const styles = stylex.create({
   roundNumber: { position: 'relative', fontSize: 13, fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: color['--color-fg'] },
   /* Chấm 10px, viền 2px màu nền, tâm nằm trên mép tròn góc trên phải. */
   roundDot: { position: 'absolute', top: -1, right: -1, width: 10, height: 10, borderRadius: '50%', backgroundColor: color['--color-warn'], boxShadow: `0 0 0 2px ${color['--color-bg']}`, zIndex: 1, pointerEvents: 'none' },
-  /* Vùng chạm 44px: con cuối nên phải xuyên pointer, nếu không nó nuốt cú bấm. */
-  roundTouch: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2)`, zIndex: 0, pointerEvents: 'none' },
+  /* Con trong suốt nhận cú chạm ngoài vòng 36px rồi bubble lên link cha. */
+  roundTouch: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2)`, zIndex: 0 },
 })

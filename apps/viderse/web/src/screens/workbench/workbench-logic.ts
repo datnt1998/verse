@@ -1,3 +1,6 @@
+import type { JobStep } from '../../api/workbench'
+import { progressText } from '../../lib/progress-copy'
+
 type StageJob = { stageGroup: string }
 type GroupKey = 'waiting' | 'working' | 'ready' | 'queued' | 'posted'
 const definitions: { key: GroupKey; label: string; stages: string[] }[] = [
@@ -34,4 +37,92 @@ export function imageTime(image: { startSec?: number; endSec?: number }): string
   if (image.startSec == null || image.endSec == null) return ''
   const time = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
   return `${time(image.startSec)}–${time(image.endSec)}`
+}
+
+/** Bảy trạng thái của artboard Main › stage; `queued` là hàng chờ, không phải video đang mở. */
+export type JobStage = 'images' | 'review' | 'render' | 'issue' | 'quality' | 'done' | 'paused' | 'queued'
+
+/**
+ * Suy trạng thái hiển thị từ dữ liệu thật của job. `attention` chỉ là Độ hoàn thiện
+ * khi Kiểm định đang dừng ở bước score; còn lại là sự cố. `working` chỉ là màn
+ * dựng/xuất khi bước hiện tại là build/export.
+ */
+export function jobStage(job: { stageGroup: string; activeStep: string | null }): JobStage {
+  switch (job.stageGroup) {
+    case 'paused': return 'paused'
+    case 'review': return 'review'
+    case 'ready':
+    case 'posted': return 'done'
+    case 'queued': return 'queued'
+    case 'attention': return job.activeStep === 'score' ? 'quality' : 'issue'
+    case 'working': return job.activeStep === 'build' || job.activeStep === 'export' ? 'render' : 'images'
+    default: return 'images'
+  }
+}
+
+/**
+ * Câu lý do thật của video Cần xử lý: đúng bước mà máy chủ dùng để soạn dòng
+ * phụ bên trái (`attentionSubline` — bước hỏng hoặc đang đỗ có `error.message`).
+ * Băng cảnh báo nhờ vậy nói cùng nguyên nhân với dòng đang chọn, không phải
+ * câu chung của mọi sự cố, và đổi video là đổi theo video đó. Câu chữ vẫn do
+ * `progressText` chọn theo mã lỗi nên không hiện `error.message` thô.
+ */
+export function issueReason(job: { subline: string; steps: Pick<JobStep, 'step' | 'status' | 'progress' | 'error'>[] | null }): string {
+  const step = job.steps?.find(item => (item.status === 'failed' || item.status === 'waiting') && item.error?.message)
+  if (step) return progressText(step)
+  return job.subline || 'Video cần bạn xử lý.'
+}
+
+/** Tên người làm từng bước của máy (01-ia-flows: 9 bước nói thành 4 trợ lý). */
+const STEP_AGENT = {
+  download: 'scout', backdrop: 'scout', transcript: 'scout',
+  metadata: 'director', scenes: 'director',
+  images: 'artist',
+  build: 'qa', score: 'qa', export: 'qa',
+} as const
+export type StepAgent = (typeof STEP_AGENT)[keyof typeof STEP_AGENT]
+
+/** Ngưỡng cổng xuất của Kiểm định: `internal/domain/quality.MinScore` (90). */
+export const QUALITY_MIN_SCORE = 90
+
+export function stepAgent(step: string): StepAgent | undefined {
+  return STEP_AGENT[step as keyof typeof STEP_AGENT]
+}
+
+/** Giây → “0:41”, “42:10” cho badge thời lượng. */
+export function clockLabel(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
+}
+
+/** Giây → “41 giây”, “1 phút”, “10 phút 31 giây”; bỏ phần 0. */
+export function durationLabel(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return ''
+  const whole = Math.round(seconds)
+  if (whole < 60) return `${whole} giây`
+  const minutes = Math.floor(whole / 60)
+  const rest = whole % 60
+  return rest ? `${minutes} phút ${rest} giây` : `${minutes} phút`
+}
+
+/** Thời lượng thật của một bước: đã xong thì finishedAt, đang chạy thì tới hiện tại. */
+export function stepDuration(step: { startedAt: string | null; finishedAt: string | null; status: string }, now = Date.now()): string {
+  if (!step.startedAt) return ''
+  const start = Date.parse(step.startedAt)
+  if (Number.isNaN(start)) return ''
+  const end = step.finishedAt ? Date.parse(step.finishedAt) : step.status === 'running' || step.status === 'waiting' ? now : null
+  if (end === null || Number.isNaN(end)) return ''
+  return durationLabel((end - start) / 1000)
+}
+
+/** “0:03:12” như cột giờ của Nhật ký; rỗng khi server chưa có mốc. */
+export function stepClock(iso: string | null): string {
+  if (!iso) return ''
+  const date = new Date(iso)
+  return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('vi-VN', { hour12: false })
+}
+
+/** Tỉ lệ phần trăm thật của bước dựng/xuất; null khi server chưa có tổng. */
+export function stepPercent(step: { status: string; progress: { unitsDone: number; unitsTotal: number | null } }): number | null {
+  if (!step.progress.unitsTotal) return step.status === 'succeeded' ? 100 : null
+  return Math.min(100, Math.round(step.progress.unitsDone / step.progress.unitsTotal * 100))
 }

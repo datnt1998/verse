@@ -351,4 +351,5 @@ export const visualRoles = stylex.defineVars({
   jobsOfflineBorder: 'color-mix(in srgb, var(--color-err) 30%, transparent)',
   /** Chú thích nhỏ dưới nút của artboard (giữa fg-3 và fg-4), xem viderse.css. */
   noteInk: 'var(--vv-fg-note)',
+  mobileComposerSurface: 'var(--vv-composer-mobile-bg)',
 })

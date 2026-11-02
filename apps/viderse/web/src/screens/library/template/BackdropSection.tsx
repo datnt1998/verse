@@ -19,6 +19,7 @@ import {
 } from '../../../api/backdrop'
 import { listOverlays, type Recipe, type RecipeAppearance, type RecipeBackdrop, type TemplateDetail } from '../../../api/library'
 import { channelTint } from '../../../lib/channelTint'
+import { useMediaQuery } from '../../../lib/useMediaQuery'
 import { SliderField } from './SliderField'
 import { BackdropPicker } from './BackdropPicker'
 
@@ -186,8 +187,7 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
         <Banner tone="warning" title={copy.mixWarn(num(Math.ceil((MIX_TARGET_SEC - mix.fixedSec) / backdrop.clipSec)), timeRange(cappedSec))}
           action={{ label: copy.mixFix(num(neededClipSec)), onClick: () => onBumpClipSec(neededClipSec) }} />
       ) : mix.perChannel.some((c) => c.repeats) ? (
-        <Banner tone="warning" title={copy.fewClips(num(fewest))}
-          action={mix.loopSec > 0 ? { label: copy.mixFix(num(neededClipSec)), onClick: () => onBumpClipSec(neededClipSec) } : undefined} />
+        <Banner tone="warning" title={copy.fewClips(num(fewest))} />
       ) : null}
     </div>
   )
@@ -203,6 +203,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
   hideTitle?: boolean
 }) {
   const copy = t.backdrop.template
+  const mobile = useMediaQuery('(max-width: 767px)')
   const backdrop = template.recipe.backdrop ?? EMPTY_BACKDROP
   const appearance = template.recipe.appearance
   const channels = useResource(keys.backdropChannels(), ({ signal }) => listBackdropChannels(signal))
@@ -249,7 +250,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fromLabel}</span>
-          <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="primary" onClick={() => setPicker({})}>{copy.attach}</Button>
+          <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant={mobile ? 'ghost' : 'primary'} onClick={() => setPicker({})}>{copy.attach}</Button>
         </div>
         <div className={`vbd-srcs ${stylex.props(sx.srcs).className}`} role="list" aria-label={copy.sourceListAria}>
           {backdrop.channels.map((link) => (

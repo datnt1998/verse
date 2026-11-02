@@ -5,6 +5,7 @@
 // không bị xoá.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
+import { cache } from '@noverse/ui/data'
 import { getCommandExecutor, useCommandHistory } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useKeyframesStore } from '@editor/features/timeline/stores/keyframes-store'
@@ -16,12 +17,13 @@ import { useSelectionStore } from '@editor/shared/state/selection'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'
 import { setEditorStorage, type EditorStorage } from '@editor/storage/storage-backend'
 import type { MediaMetadata } from '@editor/types/storage'
-import type { ImageItem, TimelineTrack } from '@editor/types/timeline'
+import type { ImageItem, SubtitleSegmentItem, TimelineTrack } from '@editor/types/timeline'
 import type { JobImage } from '../../api/images'
 import { bindFinishedVersion, resetSceneVersionTraces, undoSceneSwap, useSceneRedraws, useSceneSwapStore } from './scene-images'
 import { SceneImagePanel } from './SceneImagePanel'
 import { Inspector } from './Inspector'
 import { editorCommand } from './ContentPanels'
+import { Timeline } from './Timeline'
 
 const stream = vi.hoisted(() => {
   const listeners = new Set<(data: unknown) => void>()
@@ -32,6 +34,7 @@ const stream = vi.hoisted(() => {
   }
 })
 vi.mock('../../data/events', () => ({
+  events: { onReconnect: () => () => {} },
   subscribeEvents: (_type: unknown, handler: (data: unknown) => void) => {
     stream.listeners.add(handler)
     return () => { stream.listeners.delete(handler) }
@@ -87,6 +90,7 @@ const useResult = {
 }
 
 beforeEach(() => {
+  cache.clear()
   getCommandExecutor().clearHistory()
   vi.stubGlobal('matchMedia', (query: string) => ({
     matches: false, media: query, onchange: null,
@@ -339,20 +343,22 @@ describe('scene panel', () => {
   it('keeps a prompt edit in progress when a redraw of the same scene finishes', () => {
     const { rerender } = render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} />)
     fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
-    const area = screen.getByLabelText('Phần Cảnh của prompt') as HTMLTextAreaElement
+    const area = screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement
     fireEvent.change(area, { target: { value: 'Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ' } })
     expect(screen.getByText('Đã sửa')).toBeTruthy()
     rerender(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion: 2, needsReview: true })} />)
-    expect((screen.getByLabelText('Phần Cảnh của prompt') as HTMLTextAreaElement).value).toBe('Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ')
+    expect((screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement).value).toBe('Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ')
   })
 
   it('shows the drawing state in the box, keeps the used version selectable and can cancel the draw', () => {
     const onRedrawn = vi.fn()
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
     render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1), version(2, { state: 'drawing', url: null, finishedAt: null, durationSec: null })] })} progress={{ jobId: 'job-1', imageId: 'img-1', n: 2, phase: 'drawing', elapsedSec: 21 }} beforeMutation={async () => true} onRedrawn={onRedrawn} />)
-    // Artboard Editor img=drawing: bản đang dùng vẫn "Đã duyệt"; thẻ Prompt đã gửi ở lại, chỉ khối góp ý/Vẽ lại/Thay ảnh ẩn.
+    // Artboard Editor img=drawing: bản đang dùng vẫn "Đã duyệt"; thẻ Chỉ dẫn đã gửi ở lại, chỉ khối góp ý/Vẽ lại/Thay ảnh ẩn.
     expect(screen.getByText('Đã duyệt')).toBeTruthy()
     expect(screen.queryByText('Đang vẽ bản 2')).toBeNull()
-    expect(screen.getByText('Prompt đã gửi')).toBeTruthy()
+    expect(screen.getByText('Chỉ dẫn đã gửi')).toBeTruthy()
     expect(screen.queryByLabelText('Góp ý để vẽ lại cảnh 1')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Thay ảnh' })).toBeNull()
     expect(screen.getByText('Hoạ sĩ đang vẽ bản 2')).toBeTruthy()
@@ -362,7 +368,10 @@ describe('scene panel', () => {
     expect(screen.getByRole('button', { name: 'Huỷ lần vẽ' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: /^Vẽ lại$/ })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
-    expect((screen.getByRole('button', { name: 'Vẽ lại với prompt này' }) as HTMLButtonElement).disabled).toBe(true)
+    const redraw = screen.getByRole('button', { name: 'Vẽ lại với chỉ dẫn này' })
+    expect(redraw.getAttribute('aria-disabled')).toBe('true')
+    fireEvent.click(redraw)
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('marks a redrawn scene as needing review again and offers the way back', () => {
@@ -418,4 +427,48 @@ describe('inspector scene controls', () => {
     act(() => { getCommandExecutor().undo() })
     expect(useTransitionsStore.getState().transitions[0]?.presentation).toBe('slide')
   })
+})
+
+it('keeps the selected subtitle cue highlighted when moving between timeline cues', () => {
+  const width = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1000)
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} })
+  const caption: SubtitleSegmentItem = {
+    id: 'sub-1', type: 'subtitle', trackId: 'captions', from: 0, durationInFrames: 180,
+    label: 'Lời thoại', mediaId: 'speech', source: { type: 'transcript', mediaId: 'speech', clipId: 'voice' },
+    color: '#ffffff',
+    cues: [
+      { id: 'cue-1', startSeconds: 0, endSeconds: 3, text: 'Lời thứ nhất' },
+      { id: 'cue-2', startSeconds: 3, endSeconds: 6, text: 'Lời thứ hai' },
+    ],
+  }
+  useItemsStore.setState({
+    items: [caption], itemById: { [caption.id]: caption },
+    tracks: [{ id: 'captions', name: 'Phụ đề', order: 0, visible: true, locked: false }],
+  })
+  useSelectionStore.getState().selectItems([])
+  usePlaybackStore.setState({ currentFrame: 0 })
+  try {
+    render(<Timeline ranges={[]} selectedRange={-1} onSelectRange={() => undefined} />)
+    const first = screen.getByRole('button', { name: /^Lời thứ nhất,/ })
+    const second = screen.getByRole('button', { name: /^Lời thứ hai,/ })
+    fireEvent.click(second)
+    expect(useSelectionStore.getState().selectedItemIds).toEqual(['sub-1'])
+    expect(usePlaybackStore.getState().currentFrame).toBe(90)
+    expect(second.getAttribute('aria-pressed')).toBe('true')
+    expect(first.getAttribute('aria-pressed')).toBe('false')
+    fireEvent.click(first)
+    expect(usePlaybackStore.getState().currentFrame).toBe(0)
+    expect(first.getAttribute('aria-pressed')).toBe('true')
+    expect(second.getAttribute('aria-pressed')).toBe('false')
+    act(() => { usePlaybackStore.setState({ currentFrame: 90 }) })
+    expect(second.getAttribute('aria-pressed')).toBe('true')
+    expect(first.getAttribute('aria-pressed')).toBe('false')
+    act(() => { usePlaybackStore.setState({ currentFrame: 180 }) })
+    expect(first.getAttribute('aria-pressed')).toBe('false')
+    expect(second.getAttribute('aria-pressed')).toBe('false')
+  } finally {
+    cleanup()
+    width.mockRestore()
+    vi.unstubAllGlobals()
+  }
 })

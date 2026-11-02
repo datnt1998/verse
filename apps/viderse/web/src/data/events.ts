@@ -104,7 +104,11 @@ export function startDataEvents() {
   window.addEventListener('offline', onNetChange)
   window.addEventListener('online', onNetChange)
 
-  syncPoll()
+  // retain() của các màn đang tải dữ liệu đầu. Chỉ hẹn vòng dự phòng khi
+  // đang nối lần đầu: refresh() lúc này sẽ đánh dấu `again` trên request còn
+  // bay, gọi lại cả status/queue/activity ngay khi response đầu vừa về.
+  // Mất luồng sau khi đã mở / trở lại tab vẫn làm mới ngay qua syncPoll().
+  if (pollWanted()) schedulePoll(POLL_MS)
   events.start()
   return () => {
     clearTimeout(timer)

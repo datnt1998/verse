@@ -54,7 +54,7 @@ func OpenTemplateDataDir(dir string) ([]TemplateDataDirItem, error) {
 		items = append(items, TemplateDataDirItem{ProjectID: id, Name: bundle.Name, Bundle: bundle})
 	}
 	if len(items) == 0 {
-		return nil, invalidInput("Thư mục dữ liệu cũ không có template nào",
+		return nil, invalidInput("Thư mục dữ liệu cũ không có mẫu video nào",
 			"Kiểm tra app.db còn hàng trong bảng templates")
 	}
 	return items, nil

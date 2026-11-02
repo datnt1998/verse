@@ -78,7 +78,7 @@ export function QueueScreen() {
   }, [items])
   const removeItem = async (item: QueueQueuedItem) => {
     if (await patch({ id: item.id, action: 'remove' })) {
-      toast(tt.mobile.removed(1), 'ok', { label: t.common.undo, onClick: async () => { await patch({ id: item.id, action: 'restore' }) } }, { undo: true })
+      toast(tt.toasts.removed, 'ok', { label: t.common.undo, onClick: async () => { await patch({ id: item.id, action: 'restore' }) } }, { undo: true })
     }
   }
 
@@ -289,7 +289,7 @@ export function QueueScreen() {
         {state === 'paused' && (
           <div role="status" className={`vq-banner vq-banner--paused ${stylex.props(styles["vq-banner"], styles["vq-banner--paused"]).className}`}>
             <Icon name="pause" size={16} />
-            <span className={`vq-banner__text ${stylex.props(styles["vq-banner__text"]).className}`}>{tt.mobile.paused(pausedTime)} {tt.banners.pausedBody(items.length)}</span>
+            <span className={`vq-banner__text ${stylex.props(styles["vq-banner__text"]).className}`}>{tt.banners.pausedLede(pausedTime)} {tt.banners.pausedBody(items.length)}</span>
           </div>
         )}
 

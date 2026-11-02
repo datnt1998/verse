@@ -71,8 +71,12 @@ func (s *LibraryStore) GetTemplate(ctx context.Context, id string) (*domain.Temp
 		PreviewRevision                      pgtype.Int8
 		PreviewBuiltAt, CreatedAt, UpdatedAt pgtype.Timestamptz
 		Project                              []byte
+		PreviewProjectID                     pgtype.Text
+		PreviewJobID                         pgtype.UUID
+		PreviewMinutes                       pgtype.Int4
+		PreviewError                         []byte
 	}
-	err = s.projectDB(ctx).QueryRow(ctx, `SELECT id,name,recipe,revision,preview_revision,preview_built_at,created_at,updated_at,project FROM templates WHERE id=$1`, uid).Scan(&row.ID, &row.Name, &row.Recipe, &row.Revision, &row.PreviewRevision, &row.PreviewBuiltAt, &row.CreatedAt, &row.UpdatedAt, &row.Project)
+	err = s.projectDB(ctx).QueryRow(ctx, `SELECT id,name,recipe,revision,preview_revision,preview_built_at,created_at,updated_at,project,preview_project_id,preview_job_id,preview_minutes,preview_error FROM templates WHERE id=$1`, uid).Scan(&row.ID, &row.Name, &row.Recipe, &row.Revision, &row.PreviewRevision, &row.PreviewBuiltAt, &row.CreatedAt, &row.UpdatedAt, &row.Project, &row.PreviewProjectID, &row.PreviewJobID, &row.PreviewMinutes, &row.PreviewError)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, nil
 	}
@@ -84,7 +88,234 @@ func (s *LibraryStore) GetTemplate(ctx context.Context, id string) (*domain.Temp
 		return nil, err
 	}
 	tpl.Project = append(json.RawMessage(nil), row.Project...)
+	if row.PreviewProjectID.Valid {
+		tpl.PreviewProjectID = row.PreviewProjectID.String
+	}
+	if row.PreviewJobID.Valid {
+		tpl.PreviewJobID = uuidText(row.PreviewJobID)
+	}
+	if row.PreviewMinutes.Valid {
+		tpl.PreviewMinutes = int(row.PreviewMinutes.Int32)
+	}
+	if len(row.PreviewError) > 0 {
+		var failure domain.PreviewError
+		if err := json.Unmarshal(row.PreviewError, &failure); err != nil {
+			return nil, fmt.Errorf("lỗi bản xem thử của template %s hỏng: %w", uuidText(row.ID), err)
+		}
+		tpl.PreviewError = &failure
+	}
 	return &tpl, nil
+}
+
+// PreviewProjectIDs trả mọi project xem thử từng đăng ký (kể cả project mồ
+// côi/đã thay thế): danh sách project editor ẩn theo danh mục này, không theo
+// con trỏ hiện tại của một template.
+func (s *LibraryStore) PreviewProjectIDs(ctx context.Context) ([]string, error) {
+	rows, err := s.projectDB(ctx).Query(ctx, `SELECT project_id FROM template_preview_projects ORDER BY project_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []string{}
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		out = append(out, id)
+	}
+	return out, rows.Err()
+}
+
+// PreviewProjectIDsForTemplate trả project xem thử của một template: danh mục
+// cộng con trỏ hiện tại (phòng hàng cũ chưa kịp backfill).
+func (s *LibraryStore) PreviewProjectIDsForTemplate(ctx context.Context, id string) ([]string, error) {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return []string{}, library.ErrNotFound
+	}
+	rows, err := s.projectDB(ctx).Query(ctx, `SELECT project_id FROM template_preview_projects WHERE template_id=$1
+UNION
+SELECT preview_project_id FROM templates WHERE id=$1 AND preview_project_id IS NOT NULL`, uid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []string{}
+	for rows.Next() {
+		var projectID string
+		if err := rows.Scan(&projectID); err != nil {
+			return nil, err
+		}
+		out = append(out, projectID)
+	}
+	return out, rows.Err()
+}
+
+// ForgetPreviewProject bỏ dấu một project xem thử đã xoá xong.
+func (s *LibraryStore) ForgetPreviewProject(ctx context.Context, projectID string) error {
+	if projectID == "" {
+		return nil
+	}
+	_, err := s.projectDB(ctx).Exec(ctx, `DELETE FROM template_preview_projects WHERE project_id=$1`, projectID)
+	return err
+}
+
+// PreviewProjectRows trả danh mục kèm cờ project đang là con trỏ hiện tại.
+func (s *LibraryStore) PreviewProjectRows(ctx context.Context) ([]library.PreviewProjectRow, error) {
+	rows, err := s.projectDB(ctx).Query(ctx, `SELECT p.project_id, COALESCE(p.template_id::text, ''), COALESCE(t.preview_project_id = p.project_id, false)
+FROM template_preview_projects p
+LEFT JOIN templates t ON t.id = p.template_id
+ORDER BY p.created_at`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := []library.PreviewProjectRow{}
+	for rows.Next() {
+		var row library.PreviewProjectRow
+		if err := rows.Scan(&row.ProjectID, &row.TemplateID, &row.Current); err != nil {
+			return nil, err
+		}
+		out = append(out, row)
+	}
+	return out, rows.Err()
+}
+
+// BeginTemplatePreview nhận lượt dựng: giữ token công bố và xoá lỗi cũ.
+func (s *LibraryStore) BeginTemplatePreview(ctx context.Context, id, runID string) error {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return library.ErrNotFound
+	}
+	run, err := libUUIDArg(runID)
+	if err != nil {
+		return err
+	}
+	tag, err := s.projectDB(ctx).Exec(ctx, `UPDATE templates SET preview_run_id=$2, preview_error=NULL WHERE id=$1`, uid, run)
+	if err != nil {
+		return mapLibraryErr(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return library.ErrNotFound
+	}
+	return nil
+}
+
+// ClearTemplatePreviewRun nhả token nếu nó vẫn thuộc runID.
+func (s *LibraryStore) ClearTemplatePreviewRun(ctx context.Context, id, runID string) error {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return library.ErrNotFound
+	}
+	run, err := libUUIDArg(runID)
+	if err != nil {
+		return err
+	}
+	_, err = s.projectDB(ctx).Exec(ctx, `UPDATE templates SET preview_run_id=NULL WHERE id=$1 AND preview_run_id=$2`, uid, run)
+	return err
+}
+
+// SetTemplatePreviewFailure ghi lỗi có hành động của lượt dựng và nhả token
+// nguyên tử; bản xem thử cũ (con trỏ/revision) không đổi.
+func (s *LibraryStore) SetTemplatePreviewFailure(ctx context.Context, id, runID string, failure *library.PreviewError) error {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return library.ErrNotFound
+	}
+	run, err := libUUIDArg(runID)
+	if err != nil {
+		return err
+	}
+	var data []byte
+	if failure != nil {
+		data, err = json.Marshal(failure)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = s.projectDB(ctx).Exec(ctx, `UPDATE templates SET preview_error=$3::jsonb, preview_run_id=NULL WHERE id=$1 AND preview_run_id=$2`, uid, run, data)
+	return err
+}
+
+// RegisterTemplatePreviewProject ghi danh mục TRƯỚC khi tạo project để project
+// vừa tạo đã bị ẩn, kể cả khi process chết trước khi công bố.
+func (s *LibraryStore) RegisterTemplatePreviewProject(ctx context.Context, id, projectID, jobID string, minutes int) error {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return library.ErrNotFound
+	}
+	var job pgtype.UUID
+	if jobID != "" {
+		job, err = libUUIDArg(jobID)
+		if err != nil {
+			return err
+		}
+	}
+	_, err = s.projectDB(ctx).Exec(ctx, `INSERT INTO template_preview_projects(project_id, template_id, job_id, minutes)
+VALUES($1,$2,$3,$4)
+ON CONFLICT (project_id) DO UPDATE SET template_id=EXCLUDED.template_id, job_id=EXCLUDED.job_id, minutes=EXCLUDED.minutes`, projectID, uid, job, minutes)
+	if err != nil {
+		err = mapLibraryErr(err)
+		// FK templates(id): template vừa bị xoá giữa chừng.
+		if errors.Is(err, library.ErrInUse) {
+			return library.ErrNotFound
+		}
+		return err
+	}
+	return nil
+}
+
+// SetTemplatePreview ghi bản xem thử mới: revision lúc dựng, project đã đổ,
+// video nguồn và số phút. Gọi sau khi project đã commit. CAS preview_run_id
+// bảo đảm chỉ lượt đang giữ token công bố; trả project trước đó để bên gọi dọn.
+func (s *LibraryStore) SetTemplatePreview(ctx context.Context, id string, preview library.TemplatePreviewRecord) (string, error) {
+	uid, err := libUUIDArg(id)
+	if err != nil {
+		return "", library.ErrNotFound
+	}
+	run, err := libUUIDArg(preview.RunID)
+	if err != nil {
+		return "", err
+	}
+	var job pgtype.UUID
+	if preview.JobID != "" {
+		job, err = libUUIDArg(preview.JobID)
+		if err != nil {
+			return "", err
+		}
+	}
+	tx, err := s.db.Begin(ctx)
+	if err != nil {
+		return "", err
+	}
+	defer tx.Rollback(ctx)
+	var previous pgtype.Text
+	if err := tx.QueryRow(ctx, `SELECT preview_project_id FROM templates WHERE id=$1 FOR UPDATE`, uid).Scan(&previous); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", library.ErrNotFound
+		}
+		return "", err
+	}
+	tag, err := tx.Exec(ctx, `UPDATE templates SET preview_revision=$2, preview_built_at=$3, preview_project_id=$4, preview_job_id=$5, preview_minutes=$6, preview_run_id=NULL, preview_error=NULL WHERE id=$1 AND preview_run_id=$7`, uid, preview.TemplateRevision, preview.BuiltAt, preview.ProjectID, job, preview.Minutes, run)
+	if err != nil {
+		return "", mapLibraryErr(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return "", library.ErrPreviewSuperseded
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO template_preview_projects(project_id, template_id, job_id, minutes, built_at)
+VALUES($1,$2,$3,$4,$5)
+ON CONFLICT (project_id) DO UPDATE SET template_id=EXCLUDED.template_id, job_id=EXCLUDED.job_id, minutes=EXCLUDED.minutes, built_at=EXCLUDED.built_at`, preview.ProjectID, uid, job, preview.Minutes, preview.BuiltAt); err != nil {
+		return "", err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return "", err
+	}
+	if previous.Valid && previous.String != preview.ProjectID {
+		return previous.String, nil
+	}
+	return "", nil
 }
 
 // InsertTemplate ghi template mới (revision do service đặt, thường 1).
@@ -342,12 +573,15 @@ func (s *LibraryStore) NameChannelStandardTemplates(ctx context.Context, channel
 }
 
 // DeleteTemplate xoá một template; khoá ngoại RESTRICT là lưới đỡ cuối cùng.
+// Khi chạy trong transaction media (library xoá template kèm nhả media lịch
+// sử), câu xoá dùng chính tx đó: hàng template, cascade cover_trials và
+// blob_refs cùng commit hoặc cùng rollback.
 func (s *LibraryStore) DeleteTemplate(ctx context.Context, id string) error {
 	uid, err := libUUIDArg(id)
 	if err != nil {
 		return library.ErrNotFound
 	}
-	n, err := s.q.DeleteTemplate(ctx, uid)
+	n, err := mediaQueries(ctx, s.q).DeleteTemplate(ctx, uid)
 	if err != nil {
 		return mapLibraryErr(err)
 	}
@@ -500,34 +734,47 @@ func (s *LibraryStore) UpdatePrompt(ctx context.Context, p domain.ImagePrompt) e
 }
 
 // DeletePrompt xoá một prompt của bạn; hàng bị khoá và kiểm lại template
-// đang dùng trong cùng transaction để không xoá giữa hai lần đọc.
+// đang dùng trong cùng transaction để không xoá giữa hai lần đọc. Khi chạy
+// trong transaction media (library xoá prompt kèm ảnh mẫu), câu xoá dùng
+// chính tx đó: hàng prompt, hàng ảnh mẫu và blob_refs cùng commit.
 func (s *LibraryStore) DeletePrompt(ctx context.Context, id string) error {
 	uid, err := libUUIDArg(id)
 	if err != nil {
 		return library.ErrNotFound
+	}
+	if tx, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); ok {
+		return deletePromptIn(ctx, s.q.WithTx(tx), uid, id)
 	}
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
-	qtx := s.q.WithTx(tx)
-	if _, err := qtx.LockPrompt(ctx, uid); errors.Is(err, pgx.ErrNoRows) {
+	if err := deletePromptIn(ctx, s.q.WithTx(tx), uid, id); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
+}
+
+// deletePromptIn giữ nguyên thứ tự khoá hàng, kiểm tham chiếu rồi xoá trong
+// một transaction (của riêng store hoặc của media publication ở trên).
+func deletePromptIn(ctx context.Context, q *gen.Queries, uid pgtype.UUID, id string) error {
+	if _, err := q.LockPrompt(ctx, uid); errors.Is(err, pgx.ErrNoRows) {
 		return library.ErrNotFound
 	} else if err != nil {
 		return mapLibraryErr(err)
 	}
-	refs, err := qtx.TemplatesUsingPrompt(ctx, id)
+	refs, err := q.TemplatesUsingPrompt(ctx, id)
 	if err != nil {
 		return mapLibraryErr(err)
 	}
 	if len(refs) > 0 {
 		return fmt.Errorf("%w: template còn dùng prompt", library.ErrInUse)
 	}
-	if _, err := qtx.DeletePrompt(ctx, uid); err != nil {
+	if _, err := q.DeletePrompt(ctx, uid); err != nil {
 		return mapLibraryErr(err)
 	}
-	return tx.Commit(ctx)
+	return nil
 }
 
 // ── lớp phủ ────────────────────────────────────────────────────────────────

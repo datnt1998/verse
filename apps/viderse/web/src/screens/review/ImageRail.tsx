@@ -92,7 +92,7 @@ export function ImageRail({
   }
 
   return (
-    <aside aria-label="Ảnh và prompt" {...stylex.props(sx.rail, mode === 'edit' ? sx.railEdit : sx.railWide)}>
+    <aside aria-label="Ảnh và chỉ dẫn" {...stylex.props(sx.rail, mode === 'edit' ? sx.railEdit : sx.railWide)}>
       <div {...stylex.props(sx.railHead)}>
         <span {...stylex.props(sx.railTitle)}>{item.label}</span>
         <span {...stylex.props(sx.railSub)}>
@@ -121,7 +121,7 @@ export function ImageRail({
                 {...stylex.props(sx.ver, on && sx.verOn)}
               >
                 {url && <img alt="" src={url} {...stylex.props(sx.verImage)} />}
-                {entry.state === 'drawing' && <DevelopEffect state="drawing" compact hideCard />}
+                {entry.state === 'drawing' && <DevelopEffect state="drawing" baseUrl={url ?? undefined} compact hideCard />}
                 <span {...stylex.props(sx.verN)}>{entry.n}</span>
                 {entry.n === item.usedVersion && <span aria-hidden="true" {...stylex.props(sx.verUsed)} />}
               </button>
@@ -218,7 +218,7 @@ export function ImageRail({
 
       <section {...stylex.props(sx.section)}>
         <div {...stylex.props(sx.sectionHead)}>
-          <span {...stylex.props(sx.sectionTitle)}>Prompt đã gửi</span>
+          <span {...stylex.props(sx.sectionTitle)}>Chỉ dẫn đã gửi</span>
           {mode !== 'edit' && (
             <>
               <Button size="sm" type="button" onClick={() => void copy()} aria-label={copied ? 'Đã chép' : 'Chép'} title={copied ? 'Đã chép' : 'Chép'} ><Icon name="copy" size={14} />{copied ? 'Đã chép' : 'Chép'}</Button>

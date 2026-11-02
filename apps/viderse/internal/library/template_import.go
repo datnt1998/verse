@@ -37,7 +37,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -103,7 +102,7 @@ func (s *Service) ImportTemplateFile(ctx context.Context, file string, opts Impo
 // quả của nó có OK=false và Error. Lỗi trả về chỉ khi không đọc được danh sách.
 func (s *Service) ImportTemplateFiles(ctx context.Context, files []string, opts ImportOptions) ([]ImportResult, error) {
 	if len(files) == 0 {
-		return nil, invalidInput("Chưa chọn tệp template", "Chọn tệp .ytf-template.zip rồi nhập lại")
+		return nil, invalidInput("Chưa chọn tệp mẫu video", "Chọn tệp .ytf-template.zip rồi nhập lại")
 	}
 	results := make([]ImportResult, 0, len(files))
 	for _, file := range files {
@@ -138,14 +137,14 @@ func errorText(err error) string {
 // cách bản xuất cũ xử lý.
 func (s *Service) ImportTemplate(ctx context.Context, bundle *TemplateBundle, opts ImportOptions) (*ImportResult, error) {
 	if bundle == nil {
-		return nil, invalidInput("Không đọc được tệp template", bundleRecovery())
+		return nil, invalidInput("Không đọc được tệp mẫu video", bundleRecovery())
 	}
 	if s.importer == nil {
-		return nil, invalidInput("Máy chủ chưa sẵn sàng nhập template", "Khởi động lại Viderse rồi thử lại")
+		return nil, invalidInput("Máy chủ chưa sẵn sàng nhập mẫu video", "Khởi động lại Viderse rồi thử lại")
 	}
 	project, err := editor.Parse(mustMarshalProject(bundle.Project))
 	if err != nil {
-		return nil, notTemplateFile("Nội dung template không hợp lệ", bundleRecovery())
+		return nil, notTemplateFile("Nội dung mẫu video không hợp lệ", bundleRecovery())
 	}
 	result := &ImportResult{Name: strings.TrimSpace(opts.Name)}
 	if result.Name == "" {
@@ -165,10 +164,8 @@ func (s *Service) ImportTemplate(ctx context.Context, bundle *TemplateBundle, op
 	result.Warnings = append(result.Warnings, warnings...)
 	result.MediaImported, result.MediaReused = imported, reused
 
-	remapped, err := remapProjectMedia(project, mapping)
-	if err != nil {
-		return nil, err
-	}
+	remapEditorTemplateMedia(project, mapping)
+	remapped := project
 	now := s.now().UTC()
 	templateID := s.newID()
 	remapped["id"] = templateID
@@ -302,31 +299,6 @@ func mediaMetadataPatch(media BundleMedia) editor.Object {
 	return patch
 }
 
-// remapProjectMedia đổi mã media trong toàn bộ project. Id media là UUID nên
-// thay thẳng chuỗi không đụng chữ khác; làm một lượt để mã mới không bị đổi lại.
-func remapProjectMedia(project editor.Project, mapping map[string]string) (editor.Project, error) {
-	changed := make(map[string]string, len(mapping))
-	for from, to := range mapping {
-		if from != to {
-			changed[from] = to
-		}
-	}
-	if len(changed) == 0 {
-		return project, nil
-	}
-	pattern := make([]string, 0, len(changed))
-	for from := range changed {
-		pattern = append(pattern, regexp.QuoteMeta(from))
-	}
-	re := regexp.MustCompile(strings.Join(pattern, "|"))
-	data, err := editor.Marshal(project)
-	if err != nil {
-		return nil, err
-	}
-	replaced := re.ReplaceAllStringFunc(string(data), func(id string) string { return changed[id] })
-	return editor.Parse([]byte(replaced))
-}
-
 // freeTemplateName trả tên chưa có template nào dùng, theo luật của hỏi đáp
 // #45: giữ nguyên tên, trùng thì "<tên> (nhập)", "(nhập 2)"… Template không có
 // ràng buộc tên duy nhất trong DB nên chỗ này là chỗ duy nhất giữ tên sạch.
@@ -356,7 +328,7 @@ func (s *Service) freeTemplateName(ctx context.Context, wanted string) (string, 
 			return candidate, nil
 		}
 	}
-	return "", invalidInput("Đã có quá nhiều template cùng tên", "Đổi tên template cũ rồi nhập lại")
+	return "", invalidInput("Đã có quá nhiều mẫu video cùng tên", "Đổi tên mẫu video cũ rồi nhập lại")
 }
 
 // importScenePrompt tạo (hoặc dùng lại) prompt ảnh cảnh cho imagePrompt của
@@ -391,7 +363,7 @@ func (s *Service) importScenePrompt(ctx context.Context, templateName string, pr
 			return "", "", err
 		}
 	}
-	return prompt.ID, fmt.Sprintf("Prompt ảnh của template cũ đã thành prompt “%s” trong Thư viện › Prompt ảnh", prompt.Name), nil
+	return prompt.ID, fmt.Sprintf("Chỉ dẫn ảnh của mẫu video cũ đã thành chỉ dẫn “%s” trong Thư viện › Chỉ dẫn ảnh", prompt.Name), nil
 }
 
 // projectScenePrompt đọc `templateScenes.imagePrompt` của track cảnh.
@@ -477,7 +449,7 @@ func (s *Service) pruneMissingBackdrop(ctx context.Context, project editor.Proje
 	missing := make(map[string]bool, len(missingChannels))
 	for _, id := range missingChannels {
 		missing[id] = true
-		warnings = append(warnings, fmt.Sprintf("Kênh nền %s chưa có trong Thư viện › Video nền nên đã bỏ khỏi template — thêm kênh rồi chọn lại", id))
+		warnings = append(warnings, fmt.Sprintf("Kênh nền %s chưa có trong Thư viện › Video nền nên đã bỏ khỏi mẫu video — thêm kênh rồi chọn lại", id))
 	}
 	kept := make([]domain.BackdropChannelLink, 0, len(backdrop.Channels))
 	for _, link := range backdrop.Channels {
@@ -518,7 +490,7 @@ func (s *Service) pruneMissingBackdrop(ctx context.Context, project editor.Proje
 				fixed = append(fixed, id)
 				continue
 			}
-			warnings = append(warnings, fmt.Sprintf("Video nền %s chưa có trong Thư viện › Video nền nên đã bỏ khỏi template", id))
+			warnings = append(warnings, fmt.Sprintf("Video nền %s chưa có trong Thư viện › Video nền nên đã bỏ khỏi mẫu video", id))
 		}
 		backdrop.FixedVideoIDs = fixed
 	}

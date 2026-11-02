@@ -28,6 +28,8 @@ export interface InspectorRange {
   status: string
   cueId?: string
   itemId?: string
+  offsetSec?: number
+  text?: string
 }
 export interface InspectorProps {
   ranges: readonly InspectorRange[]
@@ -49,7 +51,13 @@ export interface InspectorProps {
 
 type CaptionItem = TextItem | SubtitleSegmentItem
 
-function CaptionTiming({ item, startFrame, fps }: { item: CaptionItem; startFrame: number; fps: number }) {
+function preciseTime(seconds: number): string {
+  const value = Math.max(0, seconds)
+  const minutes = Math.floor(value / 60)
+  return `${minutes}:${(value - minutes * 60).toFixed(2).replace('.', ',').padStart(5, '0')}`
+}
+
+function CaptionTiming({ item, startFrame, fps, aligned }: { item: CaptionItem; startFrame: number; fps: number; aligned: boolean }) {
   const items = useItemsStore(state => state.items)
   const tracks = useItemsStore(state => state.tracks)
   const sourceId = item.type === 'text' ? item.captionSource?.clipId : 'clipId' in item.source ? item.source.clipId : undefined
@@ -108,7 +116,7 @@ function CaptionTiming({ item, startFrame, fps }: { item: CaptionItem; startFram
     <div {...stylex.props(sx.row)}><span {...stylex.props(sx.stripLabel)}>Chữ</span><div {...stylex.props(sx.words)}>{words.map((word, index) => {
       const start = Math.max(0, ((item.from + word.startFrame) / fps - windowStart) / 3 * 100)
       const end = Math.min(100, ((item.from + word.endFrame) / fps - windowStart) / 3 * 100)
-      return <button type="button" key={`${word.startFrame}:${index}`} title={`${word.text} · ${((item.from + word.startFrame) / fps).toFixed(2)}–${((item.from + word.endFrame) / fps).toFixed(2)} s`} aria-label={`Nghe từ ${word.text}`} {...stylex.props(sx.word(start, Math.max(0, end - start)))} onClick={() => { const playback = usePlaybackStore.getState(); playback.pause(); playback.setCurrentFrame(item.from + word.startFrame) }} />
+      return <button type="button" key={`${word.startFrame}:${index}`} title={`${word.text} · ${((item.from + word.startFrame) / fps).toFixed(2)}–${((item.from + word.endFrame) / fps).toFixed(2)} s`} aria-label={`Nghe từ ${word.text}`} {...stylex.props(sx.word(start, Math.max(0, end - start), aligned))} onClick={() => { const playback = usePlaybackStore.getState(); playback.pause(); playback.setCurrentFrame(item.from + word.startFrame) }} />
     })}{!words.length && <span {...stylex.props(sx.help)}>Chưa có mốc từng từ.</span>}</div></div>
     <div {...stylex.props(sx.ticks)}>{[0, 1, 2, 3].map(offset => <span key={offset}>{panelTime(windowStart + offset)}</span>)}</div>
   </div>
@@ -177,7 +185,7 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
     })
     playback.play()
   }
-  const align = async () => { if (aligning) return; setError(''); try { await onAlign() } catch (error) { setError(panelError(error)) } }
+  const align = async () => { if (aligning || passed) return; setError(''); try { await onAlign() } catch (error) { setError(panelError(error)) } }
   const commit = () => {
     if (draft === null || draft === text) { setDraft(null); return }
     const next = draft.trim()
@@ -210,15 +218,15 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
         <Button variant="icon" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)} icon={<Icon name="arrow-left-2" size={14} />} />
         <Button variant="icon" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)} icon={<Icon name="arrow-r" size={14} />} /></>}
       </div>
-      <span {...stylex.props(sx.meta)}>{panelTime(start / fps)}–{panelTime(end / fps)}</span>
-      <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : passed ? 'Khớp với giọng' : matching ? 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
-      <CaptionTiming item={item} startFrame={start} fps={fps} />
-      <Button block pending={aligning} pendingLabel="Đang khớp theo giọng…" onClick={() => { void align() }} icon={<Icon name="magic" size={15} />}>Khớp theo giọng</Button>
+      <span {...stylex.props(sx.meta)}>{panelTime(start / fps)} · đoạn {preciseTime(start / fps)}–{preciseTime(end / fps)}</span>
+      <div role="status" {...stylex.props(sx.status, passed && sx.statusOk)}><Icon name={passed ? 'tick-circle' : 'info-circle'} size={14} />{aligning ? 'Đang khớp theo giọng…' : passed ? 'Đã khớp tiếng · lệch không đáng kể' : matching?.offsetSec != null ? `Chữ hiện ${matching.offsetSec > 0 ? 'muộn' : 'sớm'} ${Math.abs(matching.offsetSec).toLocaleString('vi', { maximumFractionDigits: 1 })} giây so với tiếng` : matching ? 'Phụ đề lệch với giọng' : item.words?.length ? item.wordsEstimated ? 'Mốc từng từ đang được ước lượng' : 'Đã có mốc từng từ' : 'Chưa có mốc từng từ'}</div>
+      <CaptionTiming item={item} startFrame={start} fps={fps} aligned={passed} />
+      <Button block variant={passed ? 'ghost' : 'primary'} aria-disabled={passed || aligning} title={passed ? 'Đoạn này đã khớp theo giọng. Sửa chữ hoặc thời lượng sẽ cần khớp lại.' : aligning ? 'Đang khớp theo giọng; chờ xong.' : 'Khớp mốc phụ đề theo tiếng'} pending={aligning} pendingLabel="Đang khớp theo giọng…" onClick={() => { void align() }} icon={<Icon name="magic" size={15} />}>{passed ? 'Đã khớp theo giọng' : 'Khớp theo giọng'}</Button>
       <div {...stylex.props(sx.row)}><span {...stylex.props(sx.grow, sx.muted)}>Dời cả đoạn</span><Button size="sm" title="Sớm hơn 0,1 giây (,)" onClick={() => shift(-1)}>−0,1 s</Button><Button size="sm" title="Muộn hơn 0,1 giây (.)" onClick={() => shift(1)}>+0,1 s</Button></div>
       <Button variant="quiet" size="sm" xstyle={sx.quietButton} title="Nghe lại đoạn này (L)" onClick={replay} icon={<Icon name="play" size={14} />}>Nghe lại đoạn này</Button>
       {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
     </section>
-    <section {...stylex.props(sx.section)}><label htmlFor="v13-caption-text" {...stylex.props(sx.muted)}>Chữ của đoạn</label><textarea id="v13-caption-text" {...stylex.props(sx.input)} rows={2} value={draft ?? text} onChange={event => setDraft(event.target.value)} onBlur={commit} onKeyDown={event => { if (event.key === 'Escape') { setDraft(null); event.currentTarget.blur() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit() } }} /><p {...stylex.props(sx.help)}>Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; cỡ chữ và màu theo template.</p></section>
+    <section {...stylex.props(sx.section)}><label htmlFor="v13-caption-text" {...stylex.props(sx.muted)}>Chữ của đoạn</label><textarea id="v13-caption-text" {...stylex.props(sx.input)} rows={2} value={draft ?? text} onChange={event => setDraft(event.target.value)} onBlur={commit} onKeyDown={event => { if (event.key === 'Escape') { setDraft(null); event.currentTarget.blur() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit() } }} /><p {...stylex.props(sx.help)}>Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; cỡ chữ và màu theo mẫu video.</p></section>
   </>
 }
 
@@ -304,14 +312,14 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
           { id: 'slide', label: 'Trượt' },
         ]}
         onChange={value => { if (value === 'cut' || value === 'fade' || value === 'slide') setTransition(value) }} />
-      <p {...stylex.props(sx.help)}>Theo template. Đổi ở đây chỉ cho chỗ này.</p>
+      <p {...stylex.props(sx.help)}>Theo mẫu video. Đổi ở đây chỉ cho chỗ này.</p>
     </section>}
     <section {...stylex.props(sx.section, sx.noBorder)}>
       <Button variant="quiet" size="sm" xstyle={sx.quietButton} aria-expanded={advanced} aria-describedby="v13-scene-advanced-help"
         onClick={() => setAdvanced(!advanced)} icon={<Icon name={advanced ? 'arrow-up-2' : 'arrow-d'} size={13} />}>
         Nâng cao
       </Button>
-      <p id="v13-scene-advanced-help" {...stylex.props(sx.help)}>· vị trí, kích thước, độ trong suốt, keyframe</p>
+      <p id="v13-scene-advanced-help" {...stylex.props(sx.help)}>· vị trí, kích thước, độ trong suốt, điểm mốc</p>
       {advanced && <>
         <div {...stylex.props(sx.twoColumns)}>
           {([['x', 'X'], ['y', 'Y'], ['rotation', 'Xoay']] as const).map(([property, label]) => <label key={property} {...stylex.props(sx.field)}>
@@ -330,10 +338,10 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
             aria-label={`Độ trong suốt ảnh cảnh ${number}`} onChange={event => updateTransform({ opacity: Number(event.target.value) / 100 })} />
           <span>{Math.round((transform.opacity ?? 1) * 100)}%</span>
         </label>
-        <span {...stylex.props(sx.meta)}>Keyframe {scalarKeys.length + (keyframes?.vectorProperties?.reduce((sum, property) => sum + property.keyframes.length, 0) ?? 0)}</span>
+        <span {...stylex.props(sx.meta)}>Điểm mốc {scalarKeys.length + (keyframes?.vectorProperties?.reduce((sum, property) => sum + property.keyframes.length, 0) ?? 0)}</span>
         {scalarKeys.map(keyframe => <label key={keyframe.id} {...stylex.props(sx.field)}>
           {panelTime((item.from + keyframe.frame) / fps)} · {keyframe.property}
-          <input type="number" aria-label={`Keyframe ${keyframe.property} tại ${keyframe.frame}`} {...stylex.props(sx.numeric)} value={keyframe.value}
+          <input type="number" aria-label={`Điểm mốc ${keyframe.property} tại ${keyframe.frame}`} {...stylex.props(sx.numeric)} value={keyframe.value}
             onChange={event => {
               if (Number.isFinite(event.currentTarget.valueAsNumber)) run([{ type: 'keyframe.update', params: { itemId: item.id, property: keyframe.property, keyframeId: keyframe.id, updates: { value: event.currentTarget.valueAsNumber } } }])
             }} />
@@ -389,8 +397,8 @@ function BackgroundInspector({ item, actions, jobId }: { item: VideoItem; action
     </span>
     <div {...stylex.props(sx.thumbnail)}><MediaAsset mediaId={item.mediaId} src={item.thumbnailUrl} label={item.label} /></div>
     <div {...stylex.props(sx.commandGrid)}>
-      <Button disabled={!source || !actions.backdrop?.randomPicks} pending={actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }} icon={<Icon name="refresh" size={15} />}>Đổi ngẫu nhiên</Button>
-      <Button disabled={actions.pending || Boolean(jobId && !source)} onClick={() => { setSourceStart(start); setError(''); setChoosing(true) }} icon={<Icon name="scissor" size={15} />}>Chọn đoạn khác</Button>
+      <Button disabled={!source || !actions.backdrop?.randomPicks} title={!source ? 'Chưa tìm thấy clip nguồn của cảnh nền này.' : !actions.backdrop?.randomPicks ? 'Video đang tắt đổi ngẫu nhiên trong Mẫu video › Nền & hiệu ứng.' : 'Đổi clip nền ngẫu nhiên cho riêng video này'} pending={actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }} icon={<Icon name="refresh" size={15} />}>Đổi ngẫu nhiên</Button>
+      <Button disabled={actions.pending || Boolean(jobId && !source)} title={actions.pending ? 'Đang dựng lại nền; chờ xong.' : jobId && !source ? 'Chưa tìm thấy clip nguồn của cảnh nền này.' : 'Chọn đoạn khác từ clip nguồn'} onClick={() => { setSourceStart(start); setError(''); setChoosing(true) }} icon={<Icon name="scissor" size={15} />}>Chọn đoạn khác</Button>
     </div>
     <Button variant="quiet" size="sm" disabled={actions.pending || Boolean(jobId && !source)} xstyle={sx.quietButton} onClick={() => { void remove() }} icon={<Icon name="trash" size={14} />}>Bỏ clip này</Button>
     <p {...stylex.props(sx.help)}>Chỉ đổi cho video này. Bỏ clip thì nền lặp lại 1:00 ở cuối — Kiểm định sẽ báo nếu nền không phủ kín.</p>
@@ -427,6 +435,6 @@ export function Inspector(props: InspectorProps) {
   }, [selectedId, props.selectedRange])
   return <aside ref={inspectorElement} {...stylex.props(sx.panel)} aria-label={item && isCaption(item) ? 'Phụ đề' : item?.type === 'image' ? 'Cảnh' : background ? 'Clip nền' : 'Video'} data-shortcut-scope="inspector">
     {backdropActions.error && <p role="alert" {...stylex.props(sx.error)}>{backdropActions.error}</p>}
-    {item && isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} /> : item?.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} images={props.images} imageProgress={props.imageProgress} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} onRedrawn={props.onRedrawn} /> : item?.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} /> : <><section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên timeline để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section><section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section></>}
+    {item && isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} /> : item?.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} images={props.images} imageProgress={props.imageProgress} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} onRedrawn={props.onRedrawn} /> : item?.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} /> : <><section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên dòng thời gian để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section><section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section></>}
   </aside>
 }

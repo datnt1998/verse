@@ -8,6 +8,7 @@ import type { Route } from '../../router'
 const WorkbenchDesktop = lazy(() => import('./WorkbenchDesktop').then((m) => ({ default: m.WorkbenchDesktop })))
 const MobileWorkbench = lazy(() => import('./mobile/MobileWorkbench').then((m) => ({ default: m.MobileWorkbench })))
 
+
 export function WorkbenchScreen({ route }: { route: Extract<Route, { name: 'workbench' }> }) {
   const mobile = useMediaQuery('(max-width: 767px)')
   return <Suspense fallback={<div aria-busy="true" />}>{mobile ? <MobileWorkbench route={route} /> : <WorkbenchDesktop route={route} />}</Suspense>

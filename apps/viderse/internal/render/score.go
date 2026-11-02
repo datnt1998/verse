@@ -518,7 +518,7 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 	contexts := scoreTrackContexts(project.tracks)
 	templateMissing := input.Template == nil
 	if templateMissing {
-		block("template", "Job thiếu bản lưu template — chạy lại bước dựng để ràng buộc lại", nil)
+		block("template", "Video thiếu bản lưu template — chạy lại bước dựng để ràng buộc lại", nil)
 	}
 	requiresCaptions := false
 	var audioTrack, backgroundTrack editor.Object
@@ -559,7 +559,7 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 		outputDuration = *input.Output.Facts.DurationSec
 	}
 	if !scoreFinite(sourceDuration) || sourceDuration <= 0 || !scoreFinite(outputDuration) || outputDuration <= 0 {
-		block("duration-invalid", "Không đo được thời lượng nguồn hoặc timeline — kiểm tra lại video nguồn và project", nil)
+		block("duration-invalid", "Không đo được thời lượng nguồn hoặc dòng thời gian — kiểm tra lại video nguồn và bản dựng", nil)
 		add("duration", "unknown", "Thiếu thời lượng hợp lệ", nil, "", nil)
 	} else {
 		ratio := outputDuration / sourceDuration
@@ -572,14 +572,14 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 	if expected == 0 {
 		sceneStatus = "unknown"
 	}
-	evidence := fmt.Sprintf("%d clip ảnh trên timeline", len(sceneItems))
+	evidence := fmt.Sprintf("%d clip ảnh trên dòng thời gian", len(sceneItems))
 	if noImages {
 		evidence = "Template không tạo ảnh cảnh"
 	}
 	add("sceneCount", sceneStatus, evidence, editor.Object{"items": len(sceneItems), "scenes": expected}, fmt.Sprintf("%d cảnh", expected), nil)
 	rhythm := []string{}
 	if expected == 0 {
-		rhythm = []string{"Không có manifest cảnh"}
+		rhythm = []string{"Không có dữ liệu cảnh"}
 	} else if !noImages {
 		rhythm = scoreCutRhythm(sceneItems, spans, fps)
 	}
@@ -594,7 +594,7 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 	add("cutRhythm", rhythmStatus, evidence, editor.Object{"mismatches": scoreClipStrings(rhythm, 6)}, fmt.Sprintf("mép clip khớp boundary ≤ %gf", math.Max(quality.CutToleranceMaxFrames, math.Ceil(quality.CutToleranceMaxMS/1000.*fps))), scoreFix(scoreFirst(sceneItems)))
 
 	if templateMissing {
-		add("background", "unknown", "Job không có bản lưu template — không biết template có vai trò Nền video hay không", nil, "", nil)
+		add("background", "unknown", "Video không có bản lưu template — chưa xác định được lớp Nền video", nil, "", nil)
 	} else if backgroundTrack == nil {
 		add("background", "pass", "Template không có vai trò Nền video — không yêu cầu nền", nil, "", nil)
 	} else {
@@ -770,9 +770,9 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 			style = "PNG tách nền"
 		}
 		fix := scoreFix(scoreFirst(sceneItems))
-		add("images", itemStatus, evidence, editor.Object{"verified": verified, "total": len(checked)}, fmt.Sprintf("%d ảnh %s đã duyệt, đúng kích thước, trên timeline", len(checked), style), fix)
+		add("images", itemStatus, evidence, editor.Object{"verified": verified, "total": len(checked)}, fmt.Sprintf("%d ảnh %s đã duyệt, đúng kích thước, trên dòng thời gian", len(checked), style), fix)
 		if !pass {
-			why := "thiếu manifest"
+			why := "thiếu dữ liệu ảnh"
 			if len(missing) > 0 {
 				why = missing[0]
 			}
@@ -792,14 +792,14 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 		}
 	}
 	if templateMissing {
-		add("captions", "unknown", "Job không có bản lưu template — không biết template có vai trò Phụ đề hay không", nil, "", nil)
+		add("captions", "unknown", "Video không có bản lưu template — chưa xác định được lớp Phụ đề", nil, "", nil)
 	} else if !requiresCaptions {
 		add("captions", "pass", "Template không có vai trò Phụ đề — không yêu cầu phụ đề", nil, "", nil)
 	} else if captions == nil || captions.SpeechIntervals == nil || fps <= 0 {
-		add("captions", "unknown", "Thiếu VAD speech intervals", nil, "", nil)
-		block("captions", "Thiếu bằng chứng speech/caption — chạy lại bước phụ đề", nil)
+		add("captions", "unknown", "Thiếu các khoảng có giọng nói đã nhận diện", nil, "", nil)
+		block("captions", "Thiếu dữ liệu đối chiếu giọng nói và phụ đề — chạy lại bước phụ đề", nil)
 	} else if len(captions.SpeechIntervals) == 0 {
-		add("captions", "pass", "VAD không thấy speech — không cần phụ đề", nil, "", nil)
+		add("captions", "pass", "Không nhận diện được giọng nói — không cần phụ đề", nil, "", nil)
 	} else {
 		speech := captions.SpeechIntervals
 		spoken := scoreSpokenSpans(captions.Cues, fps, int(frames))
@@ -826,7 +826,7 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 		}
 		add("captions", status(pass), evidence, editor.Object{"speechIntervals": len(speech), "gapCount": len(gaps), "firstGapSec": firstGap, "gaps": gaps, "ranges": scoreCaptionGapRanges(gaps, captions.Cues, captionItem)}, "Mọi lúc đang nói có phụ đề hiển thị", scoreFix(captionItem))
 		if !pass {
-			message := fmt.Sprintf("Phụ đề thiếu %d đoạn đang nói — track bị ẩn hoặc câu bị xoá", len(gaps))
+			message := fmt.Sprintf("Phụ đề thiếu %d đoạn đang nói — lớp phụ đề bị ẩn hoặc câu bị xoá", len(gaps))
 			if len(spoken) == 0 {
 				message = "Video có tiếng nói nhưng chưa có phụ đề — chạy lại bước phụ đề"
 			}
@@ -1002,9 +1002,9 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 
 	// Authored zero-point layers are hard prerequisites, independent of total.
 	if audioID == "" {
-		block("audio", "Thiếu định danh âm thanh gốc trong build manifest — dựng lại project", nil)
+		block("audio", "Thiếu định danh âm thanh gốc trong dữ liệu bản dựng — dựng lại video", nil)
 	} else if len(scoreAudibleItems(project, audioID)) == 0 {
-		block("audio", "Âm thanh gốc phải hiện hữu và được nghe trên timeline (track không mute, clip không tắt)", nil)
+		block("audio", "Âm thanh gốc phải hiện hữu và phát được trên dòng thời gian — kiểm tra lớp âm thanh và clip có bị tắt tiếng", nil)
 	}
 	var prototype editor.Object
 	for _, entry := range template.items {
@@ -1064,7 +1064,7 @@ func ComputeScore(ctx context.Context, input ScoreInput) (*quality.Score, error)
 		}
 		for _, entry := range group {
 			if !visible[scoreString(entry, "id")] {
-				block("subscribe", "Các lớp Subscribe trong template phải hiện hữu trên timeline", scoreFix(group[0]))
+				block("subscribe", "Các lớp Đăng ký trong template phải hiện hữu trên dòng thời gian", scoreFix(group[0]))
 				break
 			}
 		}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, Spinner } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
+import { Orb } from '../../components/Orb'
 import type { EditorQuality, QualityRange } from './quality'
 import { canExport, extraBlockers } from './quality'
 import { sx } from './editor.stylex'
@@ -25,6 +26,7 @@ export function FixPanel({ quality, ranges, selectedRange, fixedIds, onSelectRan
   ] : []
   const score = quality.total ?? quality.score?.total
   const passItems = quality.items.filter((item) => item.status === 'pass' && !item.stale)
+  const measureBlocked = !quality.jobId ? 'Video chưa liên kết với lượt làm video nên chưa đo được.' : aligning ? 'Đang khớp theo giọng; đo lại sau khi xong.' : score != null && quality.changedSinceMeasure === 0 ? 'Chưa có thay đổi nào cần đo lại. Sửa chữ hoặc thời lượng trước.' : undefined
   return <>
     <div {...stylex.props(sx.fixBody)}>
       <div {...stylex.props(sx.stack)}>
@@ -41,19 +43,19 @@ export function FixPanel({ quality, ranges, selectedRange, fixedIds, onSelectRan
             const offset = range.offsetSec
             return <button key={range.cueId ?? `${range.start}-${index}`} role="listitem" type="button" aria-current={index === selectedRange ? 'true' : undefined} {...stylex.props(sx.cueButton, index === selectedRange && sx.selectedCue)} onClick={() => onSelectRange(index)}>
               <span {...stylex.props(sx.cueTime)}>{rangeTime(range.start)}</span><span title={range.text} {...stylex.props(sx.cueText)}>{range.text ?? range.checkId}</span>
-              <span {...stylex.props(sx.cueStatus, ok ? sx.ok : sx.danger)}>{ok ? 'đã khớp' : offset == null ? 'lệch tiếng' : `${offset < 0 ? 'sớm' : 'muộn'} ${Math.abs(offset).toLocaleString('vi-VN')} s`}</span>
+              <span {...stylex.props(sx.cueStatus, ok ? sx.ok : sx.danger)}>{ok ? 'đã khớp' : offset == null ? 'lệch tiếng' : `${offset < 0 ? 'sớm' : 'muộn'} ${Math.abs(offset).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} s`}</span>
             </button>
           })}</div>
-          {left.length > 0 && <div {...stylex.props(sx.fit)}><Button size="sm" disabled={aligning} onClick={() => { void onAlignAll() }} icon={<Icon name="magic" size={14} />}>Khớp theo giọng cả <span>{left.length}</span> đoạn</Button></div>}
+          {left.length > 0 && <div {...stylex.props(sx.fit)}><Button size="sm" aria-disabled={aligning} title={aligning ? 'Đang khớp theo giọng; chờ xong.' : undefined} onClick={() => { if (!aligning) void onAlignAll() }} icon={<Icon name="magic" size={14} />}>Khớp theo giọng cả <span>{left.length}</span> đoạn</Button></div>}
         </div>}
         {quality.items.filter((item) => item.status !== 'pass' && !item.ranges?.length && !ranges.some((range) => range.checkId === item.id)).map((item) => <div key={item.id} {...stylex.props(sx.failBox)}><b>{item.label}</b><span {...stylex.props(sx.small)}>{item.evidence}</span></div>)}
         {blockers.map(blocker => <div key={blocker.id} {...stylex.props(sx.failBox)}><span {...stylex.props(sx.row)}><Icon name="danger" size={15} /><b {...stylex.props(sx.failTitle)}>{blocker.message}</b></span></div>)}
       </section>}
       {remeasure.length > 0 && !quality.measuring && <section {...stylex.props(sx.groupSection)} aria-label="Cần đo lại"><h3 {...stylex.props(sx.group)}>Cần đo lại <span {...stylex.props(sx.groupCount)}>{remeasure.length}</span></h3>{remeasure.map((item) => <span key={item.id} {...stylex.props(sx.remeasure)}><Icon name="clock" size={14} /><span {...stylex.props(sx.spread)}>{item.label}</span><span {...stylex.props(sx.small)}>{item.evidence}</span></span>)}</section>}
-      <section {...stylex.props(sx.groupSection)}><div {...stylex.props(sx.fit)}><Button size="sm" variant="quiet" aria-expanded={passOpen || passed} onClick={() => setPassOpen(!passOpen)} icon={<Icon name="arrow-d" size={13} />}>Đã đạt <span>{passItems.length}</span></Button></div>{(passOpen || passed) && <div {...stylex.props(sx.cueList)}>{passItems.map((item) => <span key={item.id} {...stylex.props(sx.passRow)}><Icon name="tick-b" size={14} {...stylex.props(sx.ok)} /><span {...stylex.props(sx.spread)}>{item.label}</span><span {...stylex.props(sx.passEvidence)}>{item.evidence}</span></span>)}</div>}</section>
+      <section {...stylex.props(sx.groupSection)}><div {...stylex.props(sx.fit)}><Button size="sm" variant="quiet" aria-expanded={passOpen || passed} onClick={() => setPassOpen(!passOpen)} icon={<Icon name="arrow-d" size={13} xstyle={sx.passArrow(passOpen || passed)} />}>Đã đạt <span>{passItems.length}</span></Button></div>{(passOpen || passed) && <div {...stylex.props(sx.cueList)}>{passItems.map((item) => <span key={item.id} {...stylex.props(sx.passRow)}><Icon name="tick-b" size={14} {...stylex.props(sx.ok)} /><span {...stylex.props(sx.spread)}>{item.label}</span><span {...stylex.props(sx.passEvidence)}>{item.evidence}</span></span>)}</div>}</section>
     </div>
     <div {...stylex.props(sx.fixFooter)}>
-      {quality.measuring ? <div {...stylex.props(sx.measureStatus)}><span role="status" {...stylex.props(sx.row)}><Spinner size={16} />Kiểm định đang đo lại</span><div role="progressbar" aria-label="Tiến độ đo độ hoàn thiện" {...stylex.props(sx.scoreTrack, sx.measureTrack)}><span {...stylex.props(sx.measureSweep)} /></div></div> : !passed && <Button block disabled={aligning || !quality.jobId || (score != null && quality.changedSinceMeasure === 0)} variant={remeasure.length > 0 || score == null ? 'primary' : 'ghost'} onClick={() => { void onMeasure() }} icon={<Icon name="refresh" size={15} />}>{score == null ? 'Đo độ hoàn thiện' : 'Đo lại độ hoàn thiện'}</Button>}
+      {quality.measuring ? <div {...stylex.props(sx.measureStatus)}><span role="status" {...stylex.props(sx.row)}><Orb of="qa" size={16} live />Kiểm định đang đo lại · chạy nền</span><div role="progressbar" aria-label="Tiến độ đo độ hoàn thiện" {...stylex.props(sx.scoreTrack, sx.measureTrack)}><span {...stylex.props(sx.measureSweep)} /></div></div> : !passed && <Button block aria-disabled={Boolean(measureBlocked)} title={measureBlocked} variant={remeasure.length > 0 || score == null ? 'primary' : 'ghost'} onClick={() => { if (!measureBlocked) void onMeasure() }} icon={<Icon name="refresh" size={15} />}>{score == null ? 'Đo độ hoàn thiện' : 'Đo lại độ hoàn thiện'}</Button>}
       <span {...stylex.props(sx.note)}>{quality.measuring ? 'Bạn vẫn sửa tiếp được. Xem tiến độ ở Việc nền.' : passed ? 'Sửa thêm sẽ cần đo lại trước khi xuất.' : 'Đo lại sau khi sửa. Kiểm định tự cập nhật điểm và danh sách cần sửa.'}</span>
     </div>
   </>

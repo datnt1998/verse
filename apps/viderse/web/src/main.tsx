@@ -1,5 +1,4 @@
 import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import '@noverse/ui/tokens.stylex'
 import '@noverse/ui/kit.css'
 import { PHONE_MAX_VIDERSE, setPhoneMax } from '@noverse/ui'
@@ -19,10 +18,14 @@ applyViderseLabels()
 setPhoneMax(PHONE_MAX_VIDERSE)
 if ('serviceWorker' in navigator) void navigator.serviceWorker.register('/sw.js')
 
-const start = () =>
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
-start()
+void import('react-dom/client').then(({ createRoot }) => {
+  // Kết thúc lượt khởi tạo module trước khi React dựng cây giao diện đầu tiên.
+  // Tránh ghép hai phần việc thành một long task trên điện thoại chậm.
+  setTimeout(() => {
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+  }, 0)
+})

@@ -20,7 +20,13 @@ const sx = stylex.create({
     animationDuration: '.2s', animationTimingFunction: 'ease-out', animationFillMode: 'both',
   },
   scrimStrong: { backgroundColor: kit['--kit-scrim-strong'] },
-  center: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 },
+  center: {
+    position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    // Tai thỏ / home indicator: hộp không chui xuống dưới vùng an toàn (desktop = 16 px như cũ).
+    paddingTop: 'max(16px, var(--m-safe-top))',
+    paddingBottom: 'max(16px, var(--m-safe-bottom))',
+    paddingLeft: 16, paddingRight: 16,
+  },
   dlg: {
     animationName: { default: 'kit-dialog', [NO_MOTION]: 'none' },
     animationDuration: '.3s', animationTimingFunction: 'cubic-bezier(.2,.9,.25,1.08)', animationFillMode: 'both',
@@ -54,6 +60,11 @@ const sx = stylex.create({
     borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
     borderRadius: radius['--radius-dock'],
     boxShadow: surface['--dialog-shadow'],
+    // Dialogs.dc.html › .ov .dlg: max-height calc(100vh - 48px), overflow auto.
+    // 100dvh + vùng an toàn để hộp cao (bảng phím tắt) cuộn bên trong thay vì tràn
+    // khung nhìn/cắt chân; hộp ngắn giữ nguyên chiều cao thật.
+    maxHeight: 'calc(100dvh - max(16px, var(--m-safe-top)) - max(16px, var(--m-safe-bottom)) - 16px)',
+    overflow: 'auto',
   },
 })
 // Ngăn xếp dialog đang mở (thứ tự mount) — Esc chỉ đóng cái trên cùng.

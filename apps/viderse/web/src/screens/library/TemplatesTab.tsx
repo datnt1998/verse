@@ -12,7 +12,7 @@ import { navigate, paths } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import {
-  duplicateTemplate, listTemplates, patchTemplate, removeTemplate,
+  downloadTemplate, duplicateTemplate, listTemplates, patchTemplate, removeTemplate,
   type OwnerChannelRef, type TemplateSummary,
 } from '../../api/library'
 import { AttachChannelDialog } from './AttachChannelDialog'
@@ -108,12 +108,16 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
           <Button xstyle={[sx.vlbCardActionsButton]} size="sm" variant="ghost" aria-label={copy.duplicateAria(template.name)}
             onClick={() => void duplicate()}><Icon name="copy" size={14} />{t.library.duplicate}</Button>
           <span className={`vlb-card-end ${stylex.props(sx.cardEnd).className}`}>
-            <Button xstyle={[sx.vlbCardActionsButton]} size="sm" variant="icon" aria-label={copy.exportAria(template.name)} title={copy.exportCardLocked}
-              aria-disabled onClick={(event) => event.preventDefault()}><Icon name="export" size={15} /></Button>
+            <Button xstyle={[sx.vlbCardActionsButton]} size="sm" variant="icon" aria-label={copy.exportAria(template.name)} title={copy.exportAria(template.name)}
+              onClick={() => downloadTemplate(template.id)}><Icon name="export" size={15} /></Button>
             <ActionMenu triggerStyle={sx.touchTarget}
               label={copy.menuAria(template.name)}
               items={[
                 { id: 'rename', label: copy.rename, icon: <Icon name="edit" size={16} />, onSelect: onRename },
+                {
+                  id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />,
+                  onSelect: () => downloadTemplate(template.id),
+                },
                 {
                   id: 'channel', label: copy.addToChannel, icon: <Icon name="channel" size={16} />,
                   ...(channels.length ? { onSelect: onAttach } : { lockedReason: copy.noChannelsReason }),
@@ -131,7 +135,41 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
   )
 }
 
-export function TemplatesTab({ channels }: { channels: OwnerChannelRef[] }) {
+/** Ô cuối lưới template (artboard Library): thả tệp .zip để mở hộp Nhập template. */
+function ImportTile({ onOpen, onFiles }: { onOpen: () => void; onFiles: (files: File[]) => void }) {
+  const copy = t.library.templates
+  const [over, setOver] = useState(false)
+  return (
+    <button
+      type="button"
+      className={`vlb-droptile ${stylex.props(sx.droptile, over && sx.droptileOver).className}`}
+      data-over={over || undefined}
+      onClick={onOpen}
+      onDragOver={(event) => {
+        if (!Array.from(event.dataTransfer.types).includes('Files')) return
+        event.preventDefault()
+        setOver(true)
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(event) => {
+        event.preventDefault()
+        setOver(false)
+        const files = Array.from(event.dataTransfer.files)
+        if (files.length > 0) onFiles(files)
+      }}
+    >
+      <Icon name="download" size={22} />
+      <span className={`vlb-droptile-title ${stylex.props(sx.droptileTitle).className}`}>{copy.importTileTitle}</span>
+      <span className={`vlb-droptile-hint ${stylex.props(sx.droptileHint).className}`}>{copy.importTileHint}</span>
+    </button>
+  )
+}
+
+export function TemplatesTab({ channels, onImport }: {
+  channels: OwnerChannelRef[]
+  /** mở hộp Nhập template, kèm tệp vừa thả vào ô cuối lưới */
+  onImport: (files: File[]) => void
+}) {
   const copy = t.library.templates
   const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const [renaming, setRenaming] = useState<TemplateSummary | null>(null)
@@ -162,27 +200,27 @@ export function TemplatesTab({ channels }: { channels: OwnerChannelRef[] }) {
     <div className={`vlb-scroll ${stylex.props(sx.scroll).className}`}>
       <p className={`vlb-intro ${stylex.props(sx.intro).className}`}>{copy.intro}</p>
       {actionError && <Banner tone="error" title={actionError} />}
-      {items.length === 0 && !templates.initialLoading
-        ? (
-          <div className={`vlb-empty ${stylex.props(sx.empty).className}`}>
-            <p className={`vlb-empty-title ${stylex.props(sx.emptyTitle).className}`}>{copy.emptyTitle}</p>
-            <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.emptyHint}</p>
-          </div>
-        )
-        : (
-          <div className={`vlb-grid ${stylex.props(sx.grid).className}`}>
-            {items.map((template) => (
-              <TemplateCard
-                key={template.id}
-                template={template}
-                channels={channels}
-                onRename={() => openRename(template)}
-                onAttach={() => setAttach(true)}
-                onDeleted={(message) => { if (message) setActionError(message); else setActionError(null) }}
-              />
-            ))}
-          </div>
-        )}
+      {items.length === 0 && !templates.initialLoading && (
+        <div className={`vlb-empty ${stylex.props(sx.empty).className}`}>
+          <p className={`vlb-empty-title ${stylex.props(sx.emptyTitle).className}`}>{copy.emptyTitle}</p>
+          <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.emptyHint}</p>
+        </div>
+      )}
+      {!templates.initialLoading && (
+        <div className={`vlb-grid ${stylex.props(sx.grid).className}`}>
+          {items.map((template) => (
+            <TemplateCard
+              key={template.id}
+              template={template}
+              channels={channels}
+              onRename={() => openRename(template)}
+              onAttach={() => setAttach(true)}
+              onDeleted={(message) => { if (message) setActionError(message); else setActionError(null) }}
+            />
+          ))}
+          <ImportTile onOpen={() => onImport([])} onFiles={onImport} />
+        </div>
+      )}
 
       {renaming && (
         <Dialog title={copy.renameTitle(renaming.name)} onClose={() => setRenaming(null)} width={420}
@@ -234,6 +272,10 @@ const sx = stylex.create({
   grid: { display: "grid", rowGap: { default: "var(--vv-s-14)", "@media (max-width: 767px)": "var(--vv-s-12)" }, columnGap: { default: "var(--vv-s-14)", "@media (max-width: 767px)": "var(--vv-s-12)" }, gridTemplateColumns: { default: libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns, "@media (max-width: 767px)": libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns3 }, alignContent: "start" },
   field: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)" },
   fielderr: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-err"] },
+  droptile: { minHeight: { default: "var(--vv-s-240)", "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" }, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)", paddingTop: "var(--vv-s-18)", paddingRight: "var(--vv-s-18)", paddingBottom: "var(--vv-s-18)", paddingLeft: "var(--vv-s-18)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "dashed", borderTopColor: { default: line["--line-3"], ":hover": color["--color-accent"] }, borderRightWidth: "var(--vv-s-1)", borderRightStyle: "dashed", borderRightColor: { default: line["--line-3"], ":hover": color["--color-accent"] }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "dashed", borderBottomColor: { default: line["--line-3"], ":hover": color["--color-accent"] }, borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "dashed", borderLeftColor: { default: line["--line-3"], ":hover": color["--color-accent"] }, borderTopLeftRadius: "var(--vv-r-14)", borderTopRightRadius: "var(--vv-r-14)", borderBottomRightRadius: "var(--vv-r-14)", borderBottomLeftRadius: "var(--vv-r-14)", backgroundColor: "transparent", backgroundImage: "none", color: color["--color-fg-4"], cursor: "pointer", textAlign: "center" },
+  droptileOver: { borderTopColor: color["--color-accent"], borderRightColor: color["--color-accent"], borderBottomColor: color["--color-accent"], borderLeftColor: color["--color-accent"], backgroundColor: "var(--vv-accent-6)", backgroundImage: "none" },
+  droptileTitle: { fontSize: "var(--vv-s-13)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
+  droptileHint: { maxWidth: libraryVars.promptsTabIntroMaxWidth, fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], lineHeight: libraryVars.helpLineHeight },
   stripBarClose: { width: libraryVars.closeSubjectWidth, backgroundColor: color["--color-surface-6"], backgroundImage: "none" },
   stripBarCutout: { width: libraryVars.cutoutSubjectWidth, backgroundColor: color["--color-surface-6"], backgroundImage: "none" },
   avatarOverlap: { marginLeft: libraryVars.avatarOverlap },

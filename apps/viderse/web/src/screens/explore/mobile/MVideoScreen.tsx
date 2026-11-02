@@ -1,7 +1,7 @@
 // Chi tiết video trên điện thoại (artboard MCompVideo). Là màn đẩy thật của
 // route #/explore?video=<id>: thanh riêng 52, hero 16:9, điểm × + Vì sao?,
-// nguồn, chương (máy chủ chưa có API chương — ghi rõ trạng thái, không bịa
-// hàng), chọn kênh và CTA dính đáy. Không thanh tab, không header chung.
+// nguồn, chương thật + trạng thái đã làm cho từng kênh (cùng dữ liệu máy chủ
+// với bản máy tính), chọn kênh và CTA dính đáy. Không thanh tab, không header.
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
@@ -13,11 +13,12 @@ import { navigate, paths } from '../../../router'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import { ChannelAvatar } from '../../../components'
-import { listRivals, type Video } from '../../../api/rivals'
+import { getRivalPreview, listRivals, type Video, type VideoPreview } from '../../../api/rivals'
 import { listChannels } from '../../../api/channels'
 import { enqueueClone, planClone, type ClonePlan } from '../../../api/clone'
-import { fmtDuration, fmtScore, scoreText, videoMeta } from '../fmt'
+import { chapterHref, fmtChapterTime, fmtDuration, fmtScore, scoreText, videoMeta } from '../fmt'
 import { hideBrokenImage } from '../VideoGrid'
+import { stageColor, usageHref, usageSubline } from '../status'
 import { scopeOf } from '../scope'
 import { useRivalVideos } from '../useRivalVideos'
 import { ReasonPopover } from '../../../components/reason/ReasonPopover'
@@ -55,6 +56,22 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
   const videos = useRivalVideos({ scope: scopeOf(route.rival, rivals), sort: 'outlier', long: false, within: 0, q: '' })
   const video = (cached?.id === videoId ? cached : null) ?? videos.items.find((item) => item.id === videoId) ?? null
   const rival = video ? rivals.find((item) => item.id === video.channelId) : undefined
+
+  // Chương thật từ máy chủ: cùng endpoint với panel máy tính. Huỷ khi đổi video/rời màn.
+  const [chapters, setChapters] = useState<VideoPreview | null>(null)
+  const [chaptersPhase, setChaptersPhase] = useState<'loading' | 'ready' | 'failed'>('loading')
+  const chapterVideoId = video?.id
+  const chapterChannelId = video?.channelId
+  useEffect(() => {
+    if (!chapterVideoId || !chapterChannelId) return
+    const ctrl = new AbortController()
+    setChapters(null)
+    setChaptersPhase('loading')
+    getRivalPreview(chapterChannelId, chapterVideoId, ctrl.signal)
+      .then((result) => { if (!ctrl.signal.aborted) { setChapters(result); setChaptersPhase('ready') } })
+      .catch(() => { if (!ctrl.signal.aborted) setChaptersPhase('failed') })
+    return () => ctrl.abort()
+  }, [chapterVideoId, chapterChannelId])
 
   const [whyOpen, setWhyOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
@@ -221,13 +238,55 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
           </a>
         )}
 
+        {video.usage && video.usage.length > 0 && (
+          <div {...stylex.props(mStyles.section)}>
+            <div {...stylex.props(mStyles.sectionHead)}>
+              <Icon name="channel" size={16} />
+              <span {...stylex.props(mStyles.sectionTitle)}>{tt.detailUsedTitle}</span>
+            </div>
+            <div {...stylex.props(mStyles.usageList)}>
+              {video.usage.map((usage) => (
+                <div key={usage.channelId} {...stylex.props(mStyles.usageRow)}>
+                  <span aria-hidden="true" {...stylex.props(mStyles.usageDot)} style={{ backgroundColor: stageColor(usage.stage) }} />
+                  <span {...stylex.props(mStyles.usageRowText)}>
+                    <span {...stylex.props(mStyles.usageName)}>{usage.channelName}</span>
+                    <span {...stylex.props(mStyles.usageSub)} style={{ color: stageColor(usage.stage) }}>{usageSubline(usage)}</span>
+                  </span>
+                  <a {...stylex.props(mStyles.usageOpen)} href={usageHref(usage)} aria-label={`${tt.usageOpen} ${usage.channelName}`}>
+                    {tt.usageOpen} <Icon name="arrow-r" size={12} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div {...stylex.props(mStyles.section)}>
           <div {...stylex.props(mStyles.sectionHead)}>
             <Icon name="doc" size={16} />
             <span {...stylex.props(mStyles.sectionTitle)}>{tt.chaptersTitle}</span>
-            <span {...stylex.props(mStyles.sectionCount)}>—</span>
+            {chaptersPhase === 'ready' && chapters && chapters.chapters.length > 0 && (
+              <span {...stylex.props(mStyles.sectionCount)}>{tt.chaptersCount(String(chapters.chapters.length))}</span>
+            )}
           </div>
-          <p {...stylex.props(mStyles.sectionNote)}>{tt.chaptersPending}</p>
+          {chaptersPhase === 'loading' ? (
+            <p {...stylex.props(mStyles.sectionNote)}>{tt.chaptersLoading}</p>
+          ) : chaptersPhase === 'failed' ? (
+            <p {...stylex.props(mStyles.sectionNote)}>{tt.chaptersError}</p>
+          ) : chapters && chapters.chapters.length > 0 ? (
+            <ol {...stylex.props(mStyles.chapterList)}>
+              {chapters.chapters.map((chapter) => (
+                <li key={`${chapter.startSec}-${chapter.title}`}>
+                  <a {...stylex.props(mStyles.chapterRow)} href={chapterHref(video.url, chapter.startSec)} target="_blank" rel="noreferrer" title={chapter.title}>
+                    <span {...stylex.props(mStyles.chapterTime)}>{fmtChapterTime(chapter.startSec)}</span>
+                    <span {...stylex.props(mStyles.chapterName)}>{chapter.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p {...stylex.props(mStyles.sectionNote)}>{tt.chaptersEmpty}</p>
+          )}
         </div>
       </div>
 
@@ -255,6 +314,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
               {channels.map((channel) => {
                 const plan = plans[channel.id]
                 const dup = (plan?.duplicates.length ?? 0) > 0
+                const usage = video.usage?.find((item) => item.channelId === channel.id)
                 const on = picked === channel.id
                 return (
                   <RadioCard
@@ -269,9 +329,9 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
                       <ChannelAvatar name={channel.name} size={32} fontSize={11} />
                       <span {...stylex.props(mStyles.pickerText)}>
                         <span {...stylex.props(mStyles.pickerName)}>{channel.name}</span>
-                        <span {...stylex.props(mStyles.pickerSub, dup && mStyles.pickerSubOn)}>
+                        <span {...stylex.props(mStyles.pickerSub, dup && mStyles.pickerSubOn)} style={usage ? { color: stageColor(usage.stage) } : undefined}>
                           {dup
-                            ? tt.pickerDuplicate
+                            ? (usage ? usageSubline(usage) : tt.pickerDuplicate)
                             : plan?.template.name
                               ? tt.pickerNext(plan.template.name)
                               : channel.templateName ? tt.pickerNext(channel.templateName) : tt.pickerNoTemplate}

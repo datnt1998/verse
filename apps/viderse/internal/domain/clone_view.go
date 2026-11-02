@@ -3,6 +3,7 @@ package domain
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -235,8 +236,11 @@ func runningSentence(agent string, r CloneStepRecord) string {
 		}
 		return "Đang vẽ ảnh"
 	case AgentScout:
-		if r.Progress.Phase != "" {
-			return fmt.Sprintf("Trinh sát đang %s", r.Progress.Phase)
+		if verb := clonePhaseVerb(r.Step, r.Progress.Phase); verb != "" {
+			return fmt.Sprintf("Trinh sát đang %s", verb)
+		}
+		if strings.TrimSpace(r.Progress.Phase) != "" {
+			return "Trinh sát đang xử lý"
 		}
 		return "Trinh sát đang tải nguồn"
 	case AgentDirector:
@@ -245,8 +249,11 @@ func runningSentence(agent string, r CloneStepRecord) string {
 		}
 		return "Đạo diễn đang viết tiêu đề"
 	case AgentQA:
-		if r.Progress.Phase != "" {
-			return fmt.Sprintf("Kiểm định đang %s", r.Progress.Phase)
+		if verb := clonePhaseVerb(r.Step, r.Progress.Phase); verb != "" {
+			return fmt.Sprintf("Kiểm định đang %s", verb)
+		}
+		if strings.TrimSpace(r.Progress.Phase) != "" {
+			return "Kiểm định đang xử lý"
 		}
 		return "Kiểm định đang dựng video"
 	}

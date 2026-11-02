@@ -3,15 +3,8 @@
 // thanh hành động 10/16 + nút 44 + CTA 48. Chỉ dùng biến token của app.
 import * as stylex from '@stylexjs/stylex'
 
-const dev = stylex.keyframes({
-  from: { transform: 'translateX(-120%)' },
-  to: { transform: 'translateX(320%)' },
-})
-
-const glint = stylex.keyframes({
-  from: { transform: 'translateX(-120%)', opacity: 0 },
-  '30%': { opacity: 1 },
-  to: { transform: 'translateX(120%)', opacity: 0 },
+const dotPulse = stylex.keyframes({
+  '50%': { boxShadow: '0 0 0 6px rgba(255,208,138,0)' },
 })
 
 const breathe = stylex.keyframes({
@@ -40,9 +33,9 @@ export const ms = stylex.create({
 
   stage: { position: 'relative', aspectRatio: '16 / 9', flex: '0 0 auto', overflow: 'hidden', borderRadius: 14, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-0)' },
   stageImage: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
-  stageLabel: { position: 'absolute', insetInlineStart: 10, top: 10, display: 'flex', alignItems: 'center', gap: 6, maxWidth: '62%', paddingBlock: 4, paddingInline: 8, borderRadius: 7, backgroundColor: 'var(--vv-glass)', fontSize: 11.5, color: 'var(--color-fg-2)', pointerEvents: 'none', zIndex: 2 },
+  stageLabel: { position: 'absolute', insetInlineStart: 10, top: 10, display: 'flex', alignItems: 'center', gap: 6, maxWidth: '62%', paddingBlock: 4, paddingInline: 8, borderRadius: 7, backgroundColor: 'var(--vv-glass)', fontSize: 11.5, color: 'var(--color-fg-2)', pointerEvents: 'none', zIndex: 5 },
   stageKey: { fontFamily: 'monospace', color: 'var(--vv-fg-note)' },
-  stageApproved: { position: 'absolute', insetInlineEnd: 10, top: 10, display: 'inline-flex', alignItems: 'center', gap: 4, paddingBlock: 3, paddingInline: 8, borderRadius: 6, backgroundColor: 'var(--tint-ok)', color: 'var(--color-ok)', fontSize: 11, fontWeight: 600, zIndex: 2, pointerEvents: 'none' },
+  stageApproved: { position: 'absolute', insetInlineEnd: 10, top: 10, display: 'inline-flex', alignItems: 'center', gap: 4, paddingBlock: 3, paddingInline: 8, borderRadius: 6, backgroundColor: 'var(--tint-ok)', color: 'var(--color-ok)', fontSize: 11, fontWeight: 600, zIndex: 5, pointerEvents: 'none' },
   stageTag: { color: 'inherit' },
   stageTagWarn: { color: 'var(--color-warn)' },
   compare: { position: 'absolute', insetInlineEnd: 8, bottom: 8, zIndex: 2, height: 32, paddingInline: 8, borderRadius: 7, backgroundColor: 'var(--vv-glass)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', color: 'var(--color-fg-2)', fontSize: 12, gap: 6 },
@@ -54,24 +47,27 @@ export const ms = stylex.create({
   tapArrowPrev: { insetInlineStart: 10 },
   tapArrowNext: { insetInlineEnd: 10 },
 
-  develop: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 16, textAlign: 'center', backgroundColor: 'var(--color-surface-2)', zIndex: 3 },
-  devTitle: { fontSize: 14, fontWeight: 600, color: 'var(--color-fg)' },
-  devSteps: { display: 'flex', alignItems: 'center', gap: 6, marginBlockStart: 2 },
-  devStep: { height: 24, paddingInline: 8, borderRadius: 6, backgroundColor: 'var(--vv-wash-5)', color: 'var(--vv-fg-note)', fontSize: 11.5, display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' },
-  devStepOn: { backgroundColor: 'var(--tint-accent)', color: 'var(--color-accent-soft)', fontWeight: 600 },
-  devTrack: { width: 'min(220px, 62%)', height: 3, borderRadius: 999, backgroundColor: 'var(--color-surface-5)', overflow: 'hidden', marginBlockStart: 2 },
-  devFill: { width: '38%', height: '100%', borderRadius: 999, backgroundColor: 'var(--color-accent)', animationName: { default: dev, [NO_MOTION]: 'none' }, animationDuration: '1.6s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
-  devHint: { fontSize: 12, color: 'var(--vv-fg-note)', lineHeight: 1.5 },
-  devElapsed: { fontVariantNumeric: 'tabular-nums' },
+  devWrap: { position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 3, backgroundColor: 'var(--color-surface-0)' },
+  devOverlay: { position: 'absolute', left: 8, right: 8, bottom: 8, paddingBlock: 8, paddingInline: 10, borderRadius: 10, backgroundColor: 'rgba(11,11,13,.8)', display: 'flex', flexDirection: 'column', gap: 5 },
+  devOverlayHead: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: 'var(--color-fg)' },
+  devOverlayTitle: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  devOverlayTimer: { marginInlineStart: 'auto', flex: '0 0 auto', fontWeight: 400, fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  devOverlaySteps: { display: 'flex', gap: 8, flexWrap: 'wrap' },
+  devOverlayStep: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap' },
+  devOverlayStepDone: { color: 'var(--vv-st-ready)' },
+  devOverlayStepOn: { color: 'var(--vv-artist-ink)' },
+  devDot: { width: 7, height: 7, borderRadius: '50%', backgroundColor: 'currentColor', opacity: 0.5, flex: '0 0 auto' },
+  devDotDone: { opacity: 1 },
+  devDotOn: { opacity: 1, boxShadow: '0 0 0 3px rgba(255,208,138,.2)', animationName: { default: dotPulse, [NO_MOTION]: 'none' }, animationDuration: '1.2s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
   stageError: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 16, textAlign: 'center', backgroundColor: 'var(--color-surface-2)', zIndex: 3 },
   stageErrorTitle: { fontSize: 14, fontWeight: 600, color: 'var(--color-fg)' },
   stageErrorText: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)', maxWidth: 280 },
 
-  glint: { position: 'absolute', inset: 0, zIndex: 4, pointerEvents: 'none', overflow: 'hidden' },
-  glintBand: { position: 'absolute', top: 0, bottom: 0, width: '60%', backgroundImage: 'linear-gradient(105deg, transparent 30%, var(--kit-wash-25) 50%, transparent 70%)', animationName: { default: glint, [NO_MOTION]: 'none' }, animationDuration: '1.2s', animationTimingFunction: 'ease-out', animationFillMode: 'both' },
 
-  scoreBanner: { display: 'flex', alignItems: 'flex-start', gap: 8, paddingBlock: 9, paddingInline: 11, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--vv-wash-5)', fontSize: 12, lineHeight: 1.5, color: 'var(--color-fg-2)' },
+  scoreBanner: { display: 'flex', alignItems: 'center', gap: 12, paddingBlock: 10, paddingInline: 12, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', fontSize: 12.5, lineHeight: 1.5, color: 'var(--color-fg-2)' }, 
   scoreBannerIcon: { color: 'var(--color-accent-soft)', marginTop: 1, flex: '0 0 auto' },
+  scoreBannerText: { flex: 1, minWidth: 0, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
+  scoreBannerAction: { flex: '0 0 auto' },
 
   strip: { display: 'flex', alignItems: 'stretch', gap: 6, overflowX: 'auto', marginInline: -16, paddingInline: 16, scrollbarWidth: 'none', flex: '0 0 auto' },
   tile: { position: 'relative', flex: '0 0 76px', height: 44, padding: 0, overflow: 'hidden', borderRadius: 8, borderWidth: 2, borderStyle: 'solid', borderColor: 'transparent', backgroundColor: 'var(--color-surface-3)', cursor: 'pointer' },
@@ -82,8 +78,8 @@ export const ms = stylex.create({
   tileState: { position: 'absolute', insetInlineEnd: 3, top: 1, fontSize: 10, color: 'var(--color-warn)' },
   tileTick: { position: 'absolute', insetInlineEnd: 3, top: 1, fontSize: 10, color: 'var(--color-ok)' },
   tileNew: { position: 'absolute', insetInlineEnd: 2, bottom: 2, paddingInline: 3, borderRadius: 4, backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-fg)', fontSize: 8.5, fontWeight: 700, letterSpacing: '.04em' },
-  tileScore: { position: 'absolute', insetInlineStart: 2, bottom: 2, paddingInline: 3, borderRadius: 4, backgroundColor: 'var(--vv-glass)', fontFamily: 'monospace', fontSize: 9, color: 'var(--color-fg-2)' },
-  tileLow: { color: 'var(--color-warn)' },
+  tileScore: { position: 'absolute', insetInlineStart: 2, bottom: 2, paddingInline: 3, borderRadius: 4, backgroundColor: 'rgba(11,11,13,.78)', fontFamily: 'monospace', fontSize: 9, color: 'var(--vv-qa-ink)' },
+  tileLow: { color: 'var(--vv-warn-ink)', backgroundColor: 'rgba(255,154,92,.18)' },
   tilePending: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--color-surface-3)', color: 'var(--color-accent)', fontSize: 11, animationName: { default: breathe, [NO_MOTION]: 'none' }, animationDuration: '1.4s', animationIterationCount: 'infinite' },
 
   caption: { display: 'flex', flexDirection: 'column', gap: 5, minWidth: 0 },
@@ -110,7 +106,7 @@ export const ms = stylex.create({
   verDev: { display: 'flex', alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed', cursor: 'default' },
   verDevText: { fontSize: 10.5, color: 'var(--vv-fg-note)', textAlign: 'center', lineHeight: 1.3 },
 
-  promptRow: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', minHeight: 40, paddingBlock: 9, paddingInline: 12, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg)', fontSize: 13, textAlign: 'left', cursor: 'pointer' },
+  promptRow: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', paddingBlock: 9, paddingInline: 12, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg)', fontSize: 13, textAlign: 'left', cursor: 'pointer' },
   promptLabel: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   promptRefs: { display: 'flex', alignItems: 'center', gap: 2, flex: '0 0 auto' },
   promptRefImage: { width: 22, height: 22, borderRadius: 4, objectFit: 'cover', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)' },
@@ -126,6 +122,14 @@ export const ms = stylex.create({
   emptyAction: { marginBlockStart: 4 },
   loadingText: { fontSize: 13.5, color: 'var(--color-fg-3)' },
 
+  sheetHero: { display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 },
+  sheetHeroThumb: { position: 'relative', width: 60, height: 34, flex: '0 0 auto', overflow: 'hidden', borderRadius: 6, backgroundColor: 'var(--color-surface-3)' },
+  sheetHeroImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  sheetHeroText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 },
+  sheetHeroTitle: { fontSize: 15, fontWeight: 600, color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  sheetHeroCaption: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  chipsRail: { display: 'flex', gap: 6, overflowX: 'auto', marginInline: -16, paddingInline: 16, scrollbarWidth: 'none', flex: '0 0 auto' },
+  sheetNote: { margin: 0, fontSize: 11.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
   sheetPad: { paddingBlockStart: 4, paddingBlockEnd: 20, paddingInline: 16, display: 'flex', flexDirection: 'column', gap: 10 },
   sheetLead: { margin: 0, fontSize: 12.5, lineHeight: 1.5, color: 'var(--color-fg-3)' },
   segments: { display: 'flex', flexDirection: 'column', gap: 6 },
@@ -135,10 +139,9 @@ export const ms = stylex.create({
   refRow: { display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' },
   refImage: { width: 56, height: 32, borderRadius: 6, objectFit: 'cover', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', flex: '0 0 auto' },
   meta: { fontSize: 11.5, color: 'var(--color-fg-4)', fontVariantNumeric: 'tabular-nums' },
-  chips: { display: 'flex', flexWrap: 'wrap', gap: 6 },
-  chip: { height: 34, paddingInline: 12, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg-2)', fontSize: 12.5, cursor: 'pointer' },
-  sheetFoot: { position: 'sticky', bottom: 0, display: 'flex', gap: 8, marginInline: -16, paddingInline: 16, paddingBlockStart: 10, paddingBlockEnd: 4, backgroundColor: 'var(--color-surface-3)', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)' },
-  sheetFootGrow: { flex: 1 },
+  chip: { flexShrink: 0, whiteSpace: 'nowrap', height: 34, paddingInline: 12, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg-2)', fontSize: 12.5, cursor: 'pointer' },
+  sheetFoot: { position: 'sticky', bottom: 0, display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 8, marginInline: -16, paddingInline: 16, paddingBlockStart: 10, paddingBlockEnd: 4, backgroundColor: 'var(--color-surface-3)', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)' },
+  sheetFootGrow: { minWidth: 0 },
   fieldLabel: { display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, color: 'var(--color-fg-4)' },
   editHint: { margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
   whyBody: { paddingBlockEnd: 16, paddingInline: 16 },

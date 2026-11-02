@@ -87,13 +87,13 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
             <span title={line} {...stylex.props(mch.vStatusText)}>{line}</span>
           </span>
           {action === 'pack'
-            ? <Button variant="quiet" size="sm" onClick={() => downloadBundle([job.id])}>{tt.pack}</Button>
+            ? <Button variant="ghost" size="compact" xstyle={mch.vAction} onClick={() => downloadBundle([job.id])}>{tt.pack}</Button>
             : action === 'review'
-              ? <a href={reviewHref(job)} {...stylex.props(sx.actionLink, sx.tone(statusColor('review')))}>{tt.review}</a>
+              ? <a href={reviewHref(job)} {...stylex.props(mch.vAction, mch.vActionTone(statusColor('review')))}>{tt.review}</a>
               : action === 'fix'
-                ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.fix}</a>
+                ? <a href={workbenchHref(job)} {...stylex.props(mch.vAction, mch.vActionTone(statusColor('issue')))}>{tt.fix}</a>
                 : action === 'open'
-                  ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.open}</a>
+                  ? <a href={workbenchHref(job)} {...stylex.props(mch.vAction)}>{tt.open}</a>
                   : null}
         </div>
         <ActionMenu

@@ -10,6 +10,7 @@ import { usePlaybackStore } from "@editor/shared/state/playback";
 import { IconButton } from "@/components/icon-tip";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { CanvasPreview } from "@/editor/ui/preview/canvas-preview";
 import { usePlayerStoreSync, usePreviewComposition } from "@/editor/ui/preview/use-preview-composition";
 import { clockLabel, spokenClock } from "./clock";
@@ -26,8 +27,19 @@ function Frame({ children }: { children: ReactNode }) {
  * Read-only player for one project: the editor's own preview canvas and player with a small transport
  * (play, scrub, time, mute). Nothing here edits, saves or registers shortcuts; Space plays when the
  * player has focus. A different `projectId` resets everything and loads that project.
+ *
+ * The transport's icon buttons carry Radix tooltips, so the standalone route supplies the
+ * `TooltipProvider` the editor root normally owns.
  */
 export function PreviewPlayer({ projectId }: { projectId: string }) {
+  return (
+    <TooltipProvider>
+      <PreviewPlayerBody projectId={projectId} />
+    </TooltipProvider>
+  );
+}
+
+function PreviewPlayerBody({ projectId }: { projectId: string }) {
   const { state, retry } = usePreviewSession(projectId);
   const loaded = useProjectStore((store) => store.currentProject?.id === projectId);
   if (state === "not-found") {

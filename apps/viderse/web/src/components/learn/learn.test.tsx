@@ -69,7 +69,7 @@ describe('LearnSlot', () => {
     const learn = learnSuggestion('l2', { agent: 'artist', banner: 'Hoạ sĩ nhận ra: góp ý lần thứ 2.', primary: { label: 'Thêm vào Ghi chú đã học', op: 'add_rule', params: { promptName: 'Đêm xanh rêu', learnedFrom: { examples: [] } } } }) as unknown as Suggestion
     const el = await mount(<LearnSlot ownerKey="test" learn={learn} />)
     await click(button(el, 'Thêm vào Ghi chú đã học'))
-    expect(el.textContent).toContain('Thư viện › Prompt ảnh › Đêm xanh rêu › Ghi chú đã học')
+    expect(el.textContent).toContain('Đêm xanh rêu')
   })
 
   it('Không → dismiss rồi banner biến mất, không toast', async () => {

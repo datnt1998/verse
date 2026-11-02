@@ -74,3 +74,16 @@ export function videoMeta(viewCount: number | null, publishedAt: string | null):
   const age = fmtAge(publishedAt)
   return [views, age].filter(Boolean).join(' · ')
 }
+
+/** Mốc chương dạng mm:ss (chính xác tới giây từ source.info.json). */
+export function fmtChapterTime(sec: number): string {
+  const total = Math.max(0, Math.floor(sec))
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`
+}
+
+/** Link tua tới mốc chương trên trình phát YouTube có sẵn (không dựng player riêng). */
+export function chapterHref(url: string, startSec: number): string {
+  const at = Math.max(0, Math.floor(startSec))
+  if (at === 0) return url
+  return `${url}${url.includes('?') ? '&' : '?'}t=${at}s`
+}

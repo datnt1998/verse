@@ -32,6 +32,7 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	stepscore "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/score"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/transcript"
+	"github.com/datnt1998/verse/apps/viderse/internal/preview"
 	"github.com/datnt1998/verse/apps/viderse/internal/scan"
 	"github.com/datnt1998/verse/apps/viderse/internal/status"
 	"github.com/datnt1998/verse/apps/viderse/internal/tools"
@@ -187,6 +188,28 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	// khi listener nhận request.
 	librarySvc.BindMediaImporter(editorService)
 	activityService := activity.New(postgres.NewActivityStore(pool), web.Notifier(hub, "activity"))
+	librarySvc.BindMediaReader(editorService)
+	// Bản xem thử dùng chính engine Fill và project registry của editor; không
+	// có renderer/provider riêng. Gắn trước khi listener nhận request.
+	previewSvc := preview.New(preview.Options{
+		Templates: librarySvc,
+		Jobs:      service,
+		Editor:    editorService,
+		Media:     files,
+		Runner:    toolDeps.Runner,
+		Ffmpeg: func(ctx context.Context) (string, bool) {
+			resolved := toolKit.Ffmpeg.Resolve(ctx)
+			if resolved == nil {
+				return "", false
+			}
+			return resolved.Ffmpeg, true
+		},
+		Tasks: activityService,
+	})
+	librarySvc.BindPreviewBuilder(previewSvc)
+	if err := previewSvc.Reconcile(ctx); err != nil {
+		fmt.Fprintln(os.Stderr, "Dọn bản xem thử:", err)
+	}
 	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps, activityService)
 	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {
 		owner, err := queueStore.Owner(ctx, id)
@@ -414,6 +437,10 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			}
 			return quotas, nil
 		}, Notify: func(name string) { publish(name, map[string]any{}) }, Diag: func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) }})
+	closeCoverTrials := mountCoverTrials(coverTrialDeps{
+		Pool: pool, Library: librarySvc, Jobs: service, Media: files, Tasks: activityService,
+		Preview: previewSvc, AI: ai, Slot: q.WithImageSlot(slots),
+	})
 	service.PlanRestart = q.RestartPlan
 	service.EnqueueRestart = q.EnqueueRestart
 	for step, handler := range registry {
@@ -476,5 +503,18 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	go func() { done <- worker.Run(workerCtx) }()
 	var once sync.Once
 	var stopped error
-	return func() error { once.Do(func() { stop(); stopPerformance(); stopped = <-done }); return stopped }, nil
+	return func() error {
+		once.Do(func() {
+			stopped = closeCoverTrials()
+			previewCtx, previewCancel := context.WithTimeout(context.Background(), 10*time.Second)
+			stopped = errors.Join(stopped, previewSvc.Close(previewCtx))
+			previewCancel()
+			stop()
+			stopPerformance()
+			if workerErr := <-done; stopped == nil {
+				stopped = workerErr
+			}
+		})
+		return stopped
+	}, nil
 }

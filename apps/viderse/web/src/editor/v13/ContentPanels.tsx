@@ -19,6 +19,7 @@ import { uploadKindForMime, uploadTooLarge } from '../../api/upload-limits'
 import { subscribeEvents } from '../../data/events'
 import type { MediaMetadata } from '@editor/types/storage'
 import type { TimelineItem, TimelineTrack } from '@editor/types/timeline'
+import type { QualityRange } from './quality'
 import { insertMedia, addOverlay } from '../ui/library/library-actions'
 import { contentStyles as sx } from './ContentPanels.stylex'
 
@@ -35,6 +36,9 @@ export interface ContentPanelsProps {
   beforeMutation?: () => Promise<boolean>
   onProjectChanged?: () => void | Promise<void>
   measurement?: AudioMeasurement
+  ranges?: readonly QualityRange[]
+  selectedRange?: number
+  onSelectRange?: (index: number) => void
 }
 
 export function editorCommand(commands: SerializedCommand[]): void {
@@ -304,6 +308,11 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
   const coverage = coveragePercent(items, duration)
   const random = actions.backdrop?.items.filter(item => item.source === 'random').length
   const fixed = actions.backdrop?.items.filter(item => item.source === 'owner').length
+  const overlays = allItems.filter(item => item.type === 'image' && tracks.some(track => track.id === item.trackId && /phủ|overlay/iu.test(track.name)))
+  const overlayText = overlays.map(item => {
+    const opacity = item.transform?.opacity
+    return `${item.label}${opacity == null ? '' : ` ${Math.round(opacity * 100)}%`}`
+  }).join(', ')
   return <div {...stylex.props(sx.padded)}>
     <div {...stylex.props(sx.column)}>
       <div {...stylex.props(sx.heading)}>
@@ -311,11 +320,11 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
         <span {...stylex.props(sx.meta)}>{items.length} clip</span>
       </div>
       <div {...stylex.props(sx.coverage)}><div {...stylex.props(sx.coverageFill(coverage))} /></div>
-      {actions.backdrop && <span {...stylex.props(sx.meta)}>{random} clip từ kênh · {fixed} clip cố định</span>}
+      {actions.backdrop && <span {...stylex.props(sx.meta)}>{random} clip từ kênh · {fixed} clip cố định{overlayText ? ` · lớp phủ ${overlayText}` : ''}</span>}
     </div>
     <div {...stylex.props(sx.heading)}>
       <h3 {...stylex.props(sx.groupTitle)}>Clip của video này</h3>
-      <Button size="sm" variant="quiet" title="Clip bạn tự chọn được giữ nguyên" disabled={!actions.backdrop?.randomPicks} pending={actions.pending} onClick={() => { void actions.mutateBackdrop({ op: 'reroll' }) }} icon={<Icon name="refresh" size={13} />}>Đổi ngẫu nhiên tất cả</Button>
+      <Button size="sm" variant="quiet" title={actions.backdrop?.randomPicks ? 'Clip bạn tự chọn được giữ nguyên' : 'Video đang tắt đổi ngẫu nhiên trong Mẫu video › Nền & hiệu ứng'} disabled={!actions.backdrop?.randomPicks} pending={actions.pending} onClick={() => { void actions.mutateBackdrop({ op: 'reroll' }) }} icon={<Icon name="refresh" size={13} />}>Đổi ngẫu nhiên tất cả</Button>
     </div>
     {actions.error && <p role="alert" {...stylex.props(sx.error)}>{actions.error}</p>}
     <div role="list" {...stylex.props(sx.backgroundList)}>
@@ -326,7 +335,7 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
             <span {...stylex.props(sx.thumbnail, sx.smallThumbnail)}><MediaAsset mediaId={item.mediaId} src={item.type === 'video' ? item.thumbnailUrl : undefined} /></span>
             <span {...stylex.props(sx.column)}>
               <span {...stylex.props(sx.title)} title={item.label}>{item.label}</span>
-              <span {...stylex.props(sx.meta)}>{source ? source.source === 'owner' ? 'Cố định' : 'Từ kênh' : ''} · {panelTime(item.from / fps)} · {panelTime(item.durationInFrames / fps)}</span>
+              <span {...stylex.props(sx.meta)}>{source ? `${source.source === 'owner' ? 'Cố định' : 'Kênh'} · ${panelTime(source.startSec)}–${panelTime(source.endSec)}` : `Nền · ${panelTime(item.from / fps)}–${panelTime((item.from + item.durationInFrames) / fps)}`}</span>
             </span>
           </button>
           <Button variant="icon" size="sm" title="Đổi ngẫu nhiên" aria-label={`Đổi ngẫu nhiên ${item.label}`} disabled={!source || !actions.backdrop?.randomPicks || actions.pending} onClick={() => { if (source) void actions.mutateBackdrop({ op: 'reroll', itemId: source.id }) }}><Icon name="refresh" size={14} /></Button>
@@ -334,7 +343,7 @@ function BackgroundList({ items, tracks, selectedId, select, actions }: {
       })}
     </div>
     {!items.length && <p {...stylex.props(sx.help)}>Chưa có clip nền trong video này.</p>}
-    {tracks.some(track => track.templateSlot === 'background-video') && <p {...stylex.props(sx.help)}><Icon name="info-circle" size={13} />Đổi ở đây chỉ áp cho video này. Đổi cho mọi video: Template › Nền &amp; hiệu ứng.</p>}
+    {tracks.some(track => track.templateSlot === 'background-video') && <p {...stylex.props(sx.help)}><Icon name="info-circle" size={13} />Đổi ở đây chỉ áp cho video này. Đổi cho mọi video: Mẫu video › Nền &amp; hiệu ứng.</p>}
   </div>
 }
 
@@ -394,11 +403,12 @@ function MediaPanel({ onSelectItem }: Pick<ContentPanelsProps, 'onSelectItem'>) 
     }} />
     {error && <div {...stylex.props(sx.padded)}><p role="alert" {...stylex.props(sx.error)}>{error}</p></div>}
     <div {...stylex.props(sx.grid)}>
-      {media.filter(entry => matches(entry)).map(entry => <button key={entry.id} type="button" disabled={busy}
+      {media.filter(entry => matches(entry)).map((entry, index) => <button key={entry.id} type="button" disabled={busy}
         {...stylex.props(sx.mediaCard)} title={entry.fileName} aria-label={`Thêm ${entry.fileName} vào video tại vị trí đang xem`}
         onClick={() => { void add(entry) }}>
         <span {...stylex.props(sx.thumbnail, sx.mediaThumbnail)}>
           <MediaAsset mediaId={entry.id} />
+          <span aria-hidden="true" {...stylex.props(sx.mediaKey)}>{index}</span>
           {items.some(item => item.mediaId === entry.id) && <span {...stylex.props(sx.used)}><Icon name="tick-circle" size={13} /></span>}
         </span>
       </button>)}
@@ -412,6 +422,7 @@ function AudioPanel({ measurement }: { measurement?: AudioMeasurement }) {
   const items = useItemsStore(state => state.items)
   const [error, setError] = useState('')
   const target = tracks.find(track => track.templateSlot === 'source-audio')?.templateLoudnessLufs
+  const audioTracks = tracks.filter(track => track.kind === 'audio' || items.some(item => item.trackId === track.id && (item.type === 'audio' || item.type === 'video')))
   const measuredAt = measurement?.measuredAt ? new Date(measurement.measuredAt) : null
   const hasTime = measuredAt && Number.isFinite(measuredAt.getTime())
   return <div {...stylex.props(sx.padded)}>
@@ -428,7 +439,7 @@ function AudioPanel({ measurement }: { measurement?: AudioMeasurement }) {
       </span>
     </div>
     {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
-    {tracks.filter(track => track.kind === 'audio' || items.some(item => item.trackId === track.id && (item.type === 'audio' || item.type === 'video'))).map(track => <label key={track.id} {...stylex.props(sx.volume)}>
+    {audioTracks.map(track => <label key={track.id} {...stylex.props(sx.volume)}>
       <span {...stylex.props(sx.heading)}><span>{track.name}</span><span {...stylex.props(sx.meta)}>{track.volume ?? 0} dB</span></span>
       <input {...stylex.props(sx.slider)} type="range" min={-60} max={12} step={0.5} value={track.volume ?? 0} aria-label={`Âm lượng ${track.name}`} onChange={event => {
         try {
@@ -438,15 +449,18 @@ function AudioPanel({ measurement }: { measurement?: AudioMeasurement }) {
       }} />
       <span {...stylex.props(sx.help)}>{track.templateSlot === 'source-audio' ? 'Giọng kể của video.' : track.templateSlot === 'background-video' ? 'Tiếng của clip nền.' : 'Áp dụng cho các clip trên lớp âm thanh này.'}</span>
     </label>)}
+    {!audioTracks.length && <p {...stylex.props(sx.help)}>Chưa có lớp âm thanh trong video này.</p>}
   </div>
 }
 
-export function ContentPanels({ panel, onSelectItem, jobId, beforeMutation, onProjectChanged, measurement }: ContentPanelsProps) {
+export function ContentPanels({ panel, onSelectItem, jobId, beforeMutation, onProjectChanged, measurement, ranges, selectedRange, onSelectRange }: ContentPanelsProps) {
   const backdropActions = useBackdropActions({ jobId, beforeMutation, onProjectChanged })
   const items = useItemsStore(state => state.items)
   const tracks = useItemsStore(state => state.tracks)
   const selectedId = useSelectionStore(state => state.selectedItemIds[0])
   const fps = useTimelineSettingsStore(state => state.fps)
+  const captionRanges = useMemo(() => ranges?.filter(range => range.checkId === 'captionAlignment') ?? [], [ranges])
+  const driftCount = captionRanges.filter(range => !['pass', 'passed', 'aligned', 'ok'].includes(range.status)).length
   const activeCueId = usePlaybackStore(state => {
     if (panel !== 'subs' || !selectedId) return undefined
     const item = items.find(entry => entry.id === selectedId)
@@ -472,7 +486,7 @@ export function ContentPanels({ panel, onSelectItem, jobId, beforeMutation, onPr
           </span>
           <span {...stylex.props(sx.column)}>
             <span {...stylex.props(sx.title)} title={item.label}>{item.label}</span>
-            <span {...stylex.props(sx.meta)}>{panelTime(item.from / fps)}–{panelTime((item.from + item.durationInFrames) / fps)} · {panelTime(item.durationInFrames / fps)}</span>
+            <span {...stylex.props(sx.meta)}>{panelTime(item.from / fps)}–{panelTime((item.from + item.durationInFrames) / fps)}</span>
           </span>
         </button>)}
       </div>
@@ -482,16 +496,24 @@ export function ContentPanels({ panel, onSelectItem, jobId, beforeMutation, onPr
     {panel === 'subs' && <>
       <div {...stylex.props(sx.padded, sx.subtitleSearch)}>
         <TextField aria-label="Tìm trong phụ đề" placeholder="Tìm trong phụ đề" value={query} onChange={setQuery} prefix={<Icon name="search" size={14} />} />
-        <span {...stylex.props(sx.meta)}>{captions.length} đoạn phụ đề</span>
+        <span role="status" {...stylex.props(driftCount ? sx.driftText : captionRanges.length ? sx.ok : sx.meta)}>{!captionRanges.length ? 'Chưa đo khớp tiếng' : driftCount ? `${driftCount} đoạn lệch tiếng · bấm để tới đoạn đó` : 'Không còn đoạn lệch'}</span>
       </div>
       <div role="list" {...stylex.props(sx.list, sx.subtitleList)}>
         {captions.filter(caption => caption.text.toLocaleLowerCase('vi').includes(query.toLocaleLowerCase('vi'))).map(caption => {
-          const current = caption.item.id === selectedId && (caption.cueId ? caption.cueId === activeCueId : true)
+          const range = captionRanges.find(entry => caption.cueId ? entry.cueId === caption.cueId : entry.itemId === caption.item.id)
+          const rangeIndex = range ? ranges?.indexOf(range) ?? -1 : -1
+          const drift = Boolean(range && !['pass', 'passed', 'aligned', 'ok'].includes(range.status))
+          const current = caption.item.id === selectedId && ((caption.cueId ? caption.cueId === activeCueId : true) || rangeIndex === selectedRange)
           return <button key={caption.id} type="button" role="listitem" aria-current={current ? 'true' : undefined}
-            {...stylex.props(sx.row, sx.subRow, current && sx.selected)}
-            onClick={() => { select(caption.item); usePlaybackStore.getState().setCurrentFrame(caption.from) }}>
+            {...stylex.props(sx.row, sx.subRow, drift && sx.subRowDrift, current && sx.selected)}
+            onClick={() => {
+              select(caption.item)
+              usePlaybackStore.getState().setCurrentFrame(caption.from)
+              if (rangeIndex >= 0) onSelectRange?.(rangeIndex)
+            }}>
             <span {...stylex.props(sx.time)}>{panelTime(caption.from / fps)}</span>
             <span {...stylex.props(sx.subText)}>{caption.text}</span>
+            {range && <span {...stylex.props(sx.subState, drift ? sx.driftText : sx.ok)}>{drift ? 'lệch' : 'đã khớp'}</span>}
           </button>
         })}
       </div>

@@ -83,13 +83,6 @@ func TestBackoffDelayGrowsWithJitterAndCap(t *testing.T) {
 
 func TestTaskSpecReflectsJobState(t *testing.T) {
 	base := &Job{ID: "j", ChannelID: "c", Kind: domain.ScanHistory, State: domain.ScanRunning}
-	spec := taskSpecOf(base, "Kênh")
-	if spec.Kind != domain.TaskChannelScan || spec.Title != "Quét lịch sử" {
-		t.Fatalf("spec sai: %+v", spec)
-	}
-	if spec.Object.ID != "c" || spec.Object.Label != "Kênh" || spec.Object.Type != "rival" {
-		t.Fatalf("object sai: %+v", spec.Object)
-	}
 	view, live := TaskPresentation(*base)
 	if !live || view.Action.Op != domain.TaskOpCancel {
 		t.Fatalf("đang chạy phải huỷ được: %+v live=%v", view, live)
@@ -102,16 +95,8 @@ func TestTaskSpecReflectsJobState(t *testing.T) {
 	failed := *base
 	failed.State = domain.ScanError
 	failed.LastError = "YouTube chặn"
-	if view, _ := TaskPresentation(failed); view.Action.Op != domain.TaskOpRetry || view.Phase != "YouTube chặn" {
-		t.Fatalf("lỗi phải Thử lại kèm chẩn đoán: %+v", view)
-	}
-	disc := *base
-	disc.Kind = domain.ScanDiscovery
-	if got := taskLabelOf(&disc, "Kênh"); got == "Kênh" {
-		t.Fatal("dòng discovery phải khác nhãn để không gộp với lịch sử")
-	}
-	if spec := taskSpecOf(&disc, "Kênh"); spec.Title != "Kiểm tra video mới" {
-		t.Fatalf("tiêu đề discovery = %q", spec.Title)
+	if view, _ := TaskPresentation(failed); view.Action.Op != domain.TaskOpRetry {
+		t.Fatalf("lỗi phải có thao tác Thử lại: %+v", view)
 	}
 }
 

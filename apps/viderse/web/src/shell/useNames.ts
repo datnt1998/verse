@@ -6,6 +6,7 @@ import { listChannels } from '../api/channels'
 import { getTemplate } from '../api/library'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
+import { PANE_STALE_MS } from '../data/paneStale'
 import type { Route } from '../router'
 import { documentTitle } from './labels'
 
@@ -14,7 +15,7 @@ export function useChannelName(id: string | null): string | null {
   const channels = useResource(
     keys.channels(),
     ({ signal }) => listChannels(signal).catch(() => ({ channels: [] })),
-    { enabled: id !== null },
+    { enabled: id !== null, staleTime: PANE_STALE_MS },
   )
   const name = (id ? channels.data?.channels.find((channel) => channel.id === id)?.name : '')?.trim()
   return name ? name : null
@@ -25,7 +26,7 @@ export function useTemplateName(id: string | null): string | null {
   const template = useResource(
     keys.template(id ?? ''),
     ({ signal }) => getTemplate(id ?? '', signal),
-    { enabled: id !== null },
+    { enabled: id !== null, staleTime: PANE_STALE_MS },
   )
   const name = template.data?.name.trim()
   return name ? name : null

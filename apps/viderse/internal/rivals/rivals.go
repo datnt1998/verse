@@ -45,6 +45,15 @@ var (
 	ErrInvalidZone   = errors.New("múi giờ phải là vn|ny")
 	ErrInvalidLimit  = errors.New("limit phải là số nguyên từ 1 tới 200")
 	ErrInvalidQuery  = errors.New("chuỗi tìm tối đa 200 ký tự")
+	// ErrInvalidMadeFor / ErrInvalidNotMadeFor: madeFor/notMadeFor chỉ nhận
+	// kênh của bạn đang có.
+	ErrInvalidMadeFor    = errors.New("madeFor phải là kênh của bạn")
+	ErrInvalidNotMadeFor = errors.New("notMadeFor phải là kênh của bạn")
+	// ErrConflictingMadeFilter: chỉ một bộ lọc trạng thái tại một thời điểm.
+	ErrConflictingMadeFilter = errors.New("chỉ dùng một bộ lọc trạng thái")
+	// ErrVideoNotFound báo mã video không có trong kho đối thủ (hoặc không
+	// thuộc đối thủ đang mở).
+	ErrVideoNotFound = errors.New("không tìm thấy video đối thủ")
 )
 
 // ErrInvalidCursor báo cursor của trang trước không đọc được hoặc bị sửa.
@@ -80,14 +89,23 @@ type VideoQuery struct {
 	Query      string // chuỗi tìm trong tiêu đề
 	Limit      int    // 1..VideoPageMax
 	Cursor     string // cursor trang trước; rỗng = trang đầu
+	// MadeFor / NotMadeFor lọc theo một kênh của bạn: đã làm (hoặc đang làm)
+	// video này hay chưa. MadeAny/NotMadeAny lọc theo mọi kênh của bạn.
+	MadeFor    string
+	NotMadeFor string
+	MadeAny    bool
+	NotMadeAny bool
 }
 
 // VideoPage là một trang kết quả + tổng khớp bộ lọc + cursor trang kế
-// (chuỗi opaque; rỗng = hết trang).
+// (chuỗi opaque; rỗng = hết trang). Usage/PickNotes chỉ chứa video của trang
+// này, đọc một lượt cho cả trang — không phải một truy vấn mỗi thẻ.
 type VideoPage struct {
 	Videos     []domain.RivalVideo
 	Total      int64
 	NextCursor string
+	Usage      map[string][]domain.VideoUsage
+	PickNotes  map[string]domain.PickNote
 }
 
 // PageQuery là tham số đã chuẩn hoá mà store dùng: mẫu LIKE đã escape và
@@ -101,6 +119,10 @@ type PageQuery struct {
 	Now        time.Time
 	Limit      int
 	Cursor     *Cursor
+	MadeFor    string
+	NotMadeFor string
+	MadeAny    bool
+	NotMadeAny bool
 }
 
 // PostingSampleRow là một video trong mẫu giờ đăng: giờ đăng chính xác (nếu
@@ -127,18 +149,49 @@ type Store interface {
 	UploadProbePausedUntil(ctx context.Context) (*time.Time, error)
 	// CountRivalChannels đếm kênh đối thủ (phục vụ đếm usage của nền tảng).
 	CountRivalChannels(ctx context.Context) (int64, error)
+	// OwnerChannelExists báo id có phải kênh của bạn không (madeFor/notMadeFor).
+	OwnerChannelExists(ctx context.Context, channelID string) (bool, error)
+	// VideoUsage trả lượt làm thật của các video trong một trang, một truy vấn.
+	VideoUsage(ctx context.Context, videoIDs []string) ([]domain.VideoUsage, error)
+	// AutoPickBaselines trả mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
+	AutoPickBaselines(ctx context.Context) ([]AutoPickBaseline, error)
+	// RivalVideoChannel trả kênh đối thủ của một video (found=false nếu lạ).
+	RivalVideoChannel(ctx context.Context, videoID string) (string, bool, error)
+	// SourceInfoArtifactPath trả đường dẫn download/source.info.json đã công bố.
+	SourceInfoArtifactPath(ctx context.Context, videoID string) (string, bool, error)
+}
+
+// AutoPickBaseline là mốc bật Tự lấy của một cặp (kênh của bạn, đối thủ).
+type AutoPickBaseline struct {
+	ChannelID   string
+	ChannelName string
+	RivalID     string
+	AutoPick    bool
+	BaselineAt  time.Time
 }
 
 // Service là mặt đọc của mảng đối thủ: kiểm tham số, phân trang keyset và dựng
-// đầu vào §12. An toàn cho goroutine (không giữ trạng thái).
+// đầu vào §12. An toàn cho goroutine; chỉ giữ đệm có hạn cho kết quả dò
+// metadata của xem trước (preview.go), không giữ trạng thái nghiệp vụ.
 type Service struct {
-	store Store
-	now   func() time.Time
+	store   Store
+	now     func() time.Time
+	preview PreviewDeps
+	cache   previewCache
 }
 
 // New dựng Service trên store.
 func New(store Store) *Service {
 	return &Service{store: store, now: time.Now}
+}
+
+// NewWithPreview như New nhưng có thêm nguồn đọc chương thật cho phần xem
+// trước video (artifact đã công bố + dò metadata có giới hạn). Không có deps
+// thì Preview trả lỗi cấu hình thay vì bịa chương.
+func NewWithPreview(store Store, deps PreviewDeps) *Service {
+	s := New(store)
+	s.preview = deps
+	return s
 }
 
 // NewWithClock như New nhưng đồng hồ tiêm được cho test.
@@ -211,6 +264,9 @@ func (s *Service) Videos(ctx context.Context, channelID string, in VideoQuery) (
 	if len([]rune(in.Query)) > QueryMaxRunes {
 		return nil, ErrInvalidQuery
 	}
+	if err := s.validateMadeFilters(ctx, in); err != nil {
+		return nil, err
+	}
 	// Store đọc limit+1 để biết còn trang sau: trang trả đủ limit dòng mà
 	// kho hết hàng thì nextCursor phải rỗng chứ không lặp lại trang cuối.
 	q := PageQuery{
@@ -221,6 +277,10 @@ func (s *Service) Videos(ctx context.Context, channelID string, in VideoQuery) (
 		Pattern:    likePattern(in.Query),
 		Now:        s.now(),
 		Limit:      in.Limit + 1,
+		MadeFor:    in.MadeFor,
+		NotMadeFor: in.NotMadeFor,
+		MadeAny:    in.MadeAny,
+		NotMadeAny: in.NotMadeAny,
 	}
 	if in.Cursor != "" {
 		cursor, err := decodeCursor(in.Cursor, cursorSig(q), in.Sort, channel != "")
@@ -249,7 +309,107 @@ func (s *Service) Videos(ctx context.Context, channelID string, in VideoQuery) (
 	} else {
 		page.Videos = rows
 	}
+	if err := s.enrichPage(ctx, page); err != nil {
+		return nil, err
+	}
 	return page, nil
+}
+
+// validateMadeFilters kiểm bộ lọc trạng thái: tối đa một bộ, madeFor/
+// notMadeFor phải là kênh của bạn đang có, made/notMade chỉ nhận "any".
+func (s *Service) validateMadeFilters(ctx context.Context, in VideoQuery) error {
+	if in.MadeFor != "" && in.NotMadeFor != "" {
+		return ErrConflictingMadeFilter
+	}
+	if (in.MadeFor != "" || in.NotMadeFor != "") && (in.MadeAny || in.NotMadeAny) {
+		return ErrConflictingMadeFilter
+	}
+	if in.MadeAny && in.NotMadeAny {
+		return ErrConflictingMadeFilter
+	}
+	if in.MadeFor != "" {
+		ok, err := s.store.OwnerChannelExists(ctx, in.MadeFor)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return ErrInvalidMadeFor
+		}
+	}
+	if in.NotMadeFor != "" {
+		ok, err := s.store.OwnerChannelExists(ctx, in.NotMadeFor)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return ErrInvalidNotMadeFor
+		}
+	}
+	return nil
+}
+
+// enrichPage gắn lượt làm thật và lý do Tự lấy cho các video của một trang:
+// hai truy vấn gộp cho cả trang, không truy vấn theo từng thẻ.
+func (s *Service) enrichPage(ctx context.Context, page *VideoPage) error {
+	if len(page.Videos) == 0 {
+		return nil
+	}
+	ids := make([]string, 0, len(page.Videos))
+	for _, v := range page.Videos {
+		ids = append(ids, v.ID)
+	}
+	usage, err := s.store.VideoUsage(ctx, ids)
+	if err != nil {
+		return fmt.Errorf("đọc lượt làm video đối thủ: %w", err)
+	}
+	if len(usage) > 0 {
+		page.Usage = make(map[string][]domain.VideoUsage, len(page.Videos))
+		for _, u := range usage {
+			page.Usage[u.VideoID] = append(page.Usage[u.VideoID], u)
+		}
+	}
+	baselines, err := s.store.AutoPickBaselines(ctx)
+	if err != nil {
+		return fmt.Errorf("đọc mốc Tự lấy: %w", err)
+	}
+	if len(baselines) == 0 {
+		return nil
+	}
+	byRival := make(map[string][]AutoPickBaseline, len(baselines))
+	for _, b := range baselines {
+		byRival[b.RivalID] = append(byRival[b.RivalID], b)
+	}
+	used := make(map[string]map[string]bool, len(ids))
+	for videoID, rows := range page.Usage {
+		set := make(map[string]bool, len(rows))
+		for _, row := range rows {
+			set[row.ChannelID] = true
+		}
+		used[videoID] = set
+	}
+	for _, v := range page.Videos {
+		// Chỉ dữ liệu chứng minh được: giờ đăng chính xác, trước mốc bật Tự
+		// lấy, kênh đang bật Tự lấy và chưa làm video này.
+		if v.UploadedAt == nil {
+			continue
+		}
+		for _, b := range byRival[v.ChannelID] {
+			if !b.AutoPick || !v.UploadedAt.Before(b.BaselineAt) || used[v.ID][b.ChannelID] {
+				continue
+			}
+			if page.PickNotes == nil {
+				page.PickNotes = make(map[string]domain.PickNote)
+			}
+			page.PickNotes[v.ID] = domain.PickNote{
+				ChannelID:   b.ChannelID,
+				ChannelName: b.ChannelName,
+				BaselineAt:  b.BaselineAt,
+				PublishedAt: *v.UploadedAt,
+			}
+			break
+		}
+	}
+	return nil
 }
 
 // PostingSchedule dựng lịch đăng §12 của một kênh trong một múi giờ. Kênh lạ

@@ -5,20 +5,12 @@
 // lại API khi dữ liệu SWR còn mới.
 // Màn đẩy (Cài đặt, Hàng chờ, Thư viện, template…) phủ lên trên; các pane vẫn
 // nằm dưới nên quay ra là đúng chỗ cũ.
-import { Suspense, memo, useEffect, useRef, type ReactNode } from 'react'
+import { Suspense, memo, useRef, type ReactNode } from 'react'
 import { MobilePanes } from '@noverse/ui'
-import { cache } from '@noverse/ui/data'
 import * as stylex from '@stylexjs/stylex'
 import { RouteScreen } from '../screens/RouteScreen'
 import { routePath, type Route } from '../router'
-import { keys } from '../data/keys'
 import { PANE_STALE_MS, PaneStaleContext } from '../data/paneStale'
-import { getWorkbench } from '../api/workbench'
-import { getChannelSummaries } from '../api/workbenchChannels'
-import { listRivals, listRivalVideos } from '../api/rivals'
-import { listChannels } from '../api/channels'
-import { request } from '../api/request'
-import { VIDEO_PAGE_LIMIT } from '../screens/explore/useRivalVideos'
 import { stageStyles } from './mobileStage.stylex'
 
 /** Ảnh chụp một pane: route lúc pane được mở lần cuối + dấu nội dung. */
@@ -66,32 +58,6 @@ const PaneView = memo(function PaneView({ pane, renderScreen }: { pane: PaneSnap
   </div>
 })
 
-/**
- * Nạp trước dữ liệu của các tab chưa mở (sau khung hình đầu, lúc máy rảnh) để
- * lần chạm tab đầu tiên vào thẳng dữ liệu thật thay vì khung chờ — mẫu của
- * Noverse (`mobile/index.tsx`). Tab ẩn/không nhìn thì để lúc quay lại.
- */
-function useWarmTabs() {
-  const warmed = useRef(false)
-  useEffect(() => {
-    if (warmed.current) return
-    warmed.current = true
-    const warm = () => {
-      if (document.visibilityState !== 'visible') return
-      cache.prefetch(['workbench', 'list', 'all'], ({ signal }) => getWorkbench('all', signal))
-      cache.prefetch(['workbench', 'channels'], ({ signal }) => getChannelSummaries(signal))
-      cache.prefetch(['review', 'counts'], ({ signal }) => request<{ approvedToday: number | null }>('/api/clone/counts', { signal }))
-      cache.prefetch(keys.rivals(), ({ signal }) => listRivals(signal))
-      cache.prefetch(keys.channels(), ({ signal }) => listChannels(signal))
-      // Lưới Khám phá mở ở bộ lọc mặc định (Tất cả · nổi bật · 30 ngày).
-      cache.prefetch(keys.rivalVideos('all', 'outlier', 0, 30, ''), ({ signal }) =>
-        listRivalVideos('all', { sort: 'outlier', long: 0, within: 30, limit: VIDEO_PAGE_LIMIT }, signal))
-    }
-    const idle = typeof window.requestIdleCallback === 'function'
-    const handle = idle ? window.requestIdleCallback(warm, { timeout: 1500 }) : window.setTimeout(warm, 250)
-    return () => { if (idle) window.cancelIdleCallback(handle); else window.clearTimeout(handle) }
-  }, [])
-}
 
 /** Màn đẩy tự cuộn bên trong và không có thanh tab dưới (Hàng chờ, Thư viện, sửa template). */
 const SELF_SCROLL: Partial<Record<Route['name'], true>> = { queue: true, library: true, template: true, 'channel-new': true }
@@ -104,7 +70,6 @@ export function MobileRouteStage({ route, renderScreen = (next: Route) => <Route
   const panes = useRef(new Map<string, PaneSnapshot>()).current
   const active = paneKeyOf(route)
   if (active) keepPane(panes, active, route)
-  useWarmTabs()
   const pushed = active === null
   const selfScroll = SELF_SCROLL[route.name] || (route.name === 'explore' && Boolean(route.video))
   return <div {...stylex.props(stageStyles.stage)}>

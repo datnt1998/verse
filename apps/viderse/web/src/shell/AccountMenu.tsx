@@ -10,17 +10,17 @@ import { navigate, paths } from '../router'
 import { useMediaQuery } from '../lib/useMediaQuery'
 const sx = stylex.create({
   anchor: { position: 'relative' },
-  menu: { position: 'absolute', zIndex: 40, top: 38, right: 0, width: 336, padding: 'var(--vv-s-6)', borderRadius: 'var(--vv-r-16)', backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], boxShadow: 'var(--vv-shadow-pop)', display: 'flex', flexDirection: 'column' },
+  menu: { position: 'absolute', top: 38, right: 0, width: 336, display: 'flex', flexDirection: 'column' },
   user: { display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', padding: 'var(--vv-s-10) var(--vv-s-10) var(--vv-s-12)' },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 },
   name: { fontSize: 14.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   sub: { fontSize: 11.5, color: color['--color-fg-3'] },
   heading: { padding: 'var(--vv-s-6) var(--vv-s-10) var(--vv-s-4)', fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: kit['--kit-fg-sub'] },
   divider: { height: 1, margin: 'var(--vv-s-6)', backgroundColor: line['--line-2'] },
-  row: { minHeight: 40, padding: 'var(--vv-s-6) var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-12)', borderRadius: 'var(--vv-r-10)', borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-5'] }, color: color['--color-fg'], fontSize: 13.5, textAlign: 'left', cursor: 'pointer' },
+  row: { minHeight: 34, padding: 'var(--vv-s-6) var(--vv-s-10)', display: 'flex', alignItems: 'center', gap: 'var(--vv-s-10)', borderRadius: 'var(--vv-r-9)', borderWidth: 0, backgroundColor: { default: 'transparent', ':hover': kit['--kit-wash-6'], ':focus-visible': kit['--kit-wash-75'] }, color: color['--color-fg'], fontSize: 13, textAlign: 'left', cursor: 'pointer' },
   tall: { minHeight: 48 },
   actionText: { lineHeight: 1.3 },
-  logout: { color: 'var(--vv-warn-ink)' },
+  logout: { color: 'var(--vv-warn-ink)', backgroundColor: { default: 'transparent', ':hover': 'var(--vv-danger-soft)', ':focus-visible': 'var(--vv-danger-soft)' }, cursor: { default: 'pointer', ':disabled': 'not-allowed' }, opacity: { default: 1, ':disabled': 0.42 } },
   trigger: { color: color['--color-fg'], backgroundColor: color['--color-surface-6'], padding: 'var(--vv-s-1) var(--vv-s-6)', borderColor: line['--line-3'] },
   /* Vòng chữ cái đầu của tài khoản ở cuối AppHeader (trước ở .vv-avatar). */
   avatar: {
@@ -69,7 +69,7 @@ export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
     <button ref={trigger} type="button" className={`vv-avatar ${stylex.props(sx.trigger, open && sx.triggerOpen, sx.avatar).className}`} title={t.account.menuLabel} aria-label={t.account.menuLabel}
       aria-haspopup={mobile ? undefined : 'menu'} aria-expanded={mobile ? undefined : open}
       onClick={() => mobile ? navigate(paths.account()) : setOpen(!open)}>{name.trim()[0]?.toLocaleUpperCase('vi')}</button>
-    {open && user && <div role="menu" aria-label={t.account.title} {...stylex.props(sx.menu)} onKeyDown={(event) => {
+    {open && user && <div role="menu" aria-label={t.account.title} className={`kit-pop ${stylex.props(sx.menu).className}`} onKeyDown={(event) => {
       if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
       event.preventDefault()
       const items = [...event.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]')]

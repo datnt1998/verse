@@ -529,6 +529,16 @@ type TaskView struct {
 	Action domain.TaskAction
 }
 
+// scanFailureCopy là câu Việt theo mã lỗi đã biết; LastError/ErrorCode gốc vẫn
+// nằm trong lịch sử việc, log và gói hỗ trợ. Mã lạ rơi về câu chung, không hiện
+// chẩn đoán tiếng Anh thô lên dòng Việc nền.
+var scanFailureCopy = map[string]string{
+	"rate_limited_wait":    "Đang chờ cửa sổ giới hạn tốc độ. Tự thử lại sau.",
+	"rate_limited":         "Nguồn đang giới hạn tốc độ. Chờ rồi thử lại.",
+	"blocked":              "Nguồn chặn lượt quét. Thử lại sau hoặc đổi kết nối.",
+	"cursor_restart_limit": "Đã thử lại nhiều lần mà vẫn lệch danh sách. Thử lại sau.",
+}
+
 // TaskPresentation ánh xạ việc hiện tại sang dòng Việc nền. live=false khi
 // việc đã dừng hẳn (hết/huỷ/chạm trần): không có dòng nào để hiện. Hàm thuần
 // để tầng kho và service dùng chung đúng một cách hiện.
@@ -557,9 +567,12 @@ func TaskPresentation(job Job) (TaskView, bool) {
 		}
 		return view, true
 	case domain.ScanError:
-		phase := strings.TrimSpace(job.LastError)
+		phase := strings.TrimSpace(job.Recovery)
 		if phase == "" {
-			phase = "Lỗi khi quét"
+			phase = scanFailureCopy[job.ErrorCode]
+		}
+		if phase == "" {
+			phase = "Quét chưa xong. Thử lại."
 		}
 		return TaskView{
 			State:  domain.TaskFailed,

@@ -33,11 +33,21 @@ function PromptCard({ prompt, onOpen, onDuplicate }: {
 }) {
   const copy = t.library.prompts
   const names = prompt.usedBy.map((ref) => ref.name)
+  // Ảnh mẫu do máy chủ dựng sẵn; hỏng/404 thì quay về ô trung tính, không bịa ảnh khác.
+  // Khoá theo URL: ảnh mẫu mới thay ảnh hỏng thì vẫn hiện.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const sampleUrl = prompt.sampleUrls?.[0]
+  const showArt = sampleUrl !== undefined && sampleUrl !== '' && sampleUrl !== failedUrl
   return (
     <article className={`vlb-pcard ${stylex.props(sx.pcard).className}`}>
       <button type="button" className={`vlb-pcard-open ${stylex.props(sx.pcardOpen).className}`} onClick={onOpen} aria-label={copy.openAria(prompt.name)}>
         <span className={`vlb-pcard-art ${stylex.props(sx.pcardArt, ((prompt.kind) === "cover") && sx.pcardArtDataKindCover).className}`} data-kind={prompt.kind} data-comp={prompt.composition ?? 'clean'}>
-          <span className={`vlb-pcard-glyph ${stylex.props(sx.pcardGlyph).className}`} aria-hidden="true"><Icon name={prompt.kind === 'cover' ? 'magicpen' : 'gallery'} size={22} /></span>
+          {showArt && (
+            <img className={`vlb-pcard-img ${stylex.props(sx.pcardImg).className}`} src={sampleUrl} alt="" loading="lazy"
+              onError={() => setFailedUrl(sampleUrl ?? null)} />
+          )}
+          {showArt && <span className={`vlb-pcard-veil ${stylex.props(sx.pcardVeil).className}`} aria-hidden="true" />}
+          {!showArt && <span className={`vlb-pcard-glyph ${stylex.props(sx.pcardGlyph).className}`} aria-hidden="true"><Icon name={prompt.kind === 'cover' ? 'magicpen' : 'gallery'} size={22} /></span>}
           <span className={`vlb-pcard-pill ${stylex.props(sx.pcardPill).className}`}>{copy.kindName[prompt.kind]}</span>
           <span className={`vlb-pcard-name ${stylex.props(sx.pcardName).className}`}>{prompt.name}</span>
         </span>
@@ -91,13 +101,11 @@ export function PromptsTab({ view, all, allLoading, onView }: {
   const lastView = useRef<PromptView | undefined>(undefined)
 
   useEffect(() => {
-    if (view === lastView.current && !allLoading) return
     if (view === lastView.current) return
+    if ((view === 'mine' || view === 'builtin') && allLoading) return
     lastView.current = view
     if (!view || view === 'list') { setEditing(null); return }
     if (view === 'new') { setEditing({ mode: 'new' }); return }
-    // mine|builtin: chờ danh sách tải xong mới chọn, tránh rơi về "Prompt mới"
-    if (allLoading) return
     const pick = all.find((prompt) => (view === 'builtin' ? prompt.builtIn : !prompt.builtIn))
     setEditing(pick ? { mode: 'edit', prompt: pick } : { mode: 'new' })
   }, [view, allLoading, all])
@@ -217,6 +225,8 @@ const sx = stylex.create({
   pcardOpen: { display: "block", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", cursor: "pointer", minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   pcardArt: { display: "block", position: "relative", aspectRatio: libraryVars.videoAspectRatio, backgroundColor: "transparent", backgroundImage: libraryVars.promptsTabPcardArtBackgroundImage, overflowX: "hidden", overflowY: "hidden" },
   pcardArtDataKindCover: { backgroundColor: "transparent", backgroundImage: libraryVars.promptsTabPcardArtDataKindCoverBackgroundImage },
+  pcardImg: { width: libraryVars.fullExtent, height: libraryVars.fullExtent, objectFit: "cover", display: "block" },
+  pcardVeil: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "transparent", backgroundImage: libraryVars.overlaysTabOartVeilBackgroundImage },
   pcardGlyph: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, display: "flex", alignItems: "center", justifyContent: "center", color: color["--color-fg-4"], opacity: libraryVars.promptsTabPcardGlyphOpacity },
   pcardPill: { position: "absolute", top: "var(--vv-s-8)", left: "var(--vv-s-8)", paddingTop: "var(--vv-s-2)", paddingRight: "var(--vv-s-7)", paddingBottom: "var(--vv-s-2)", paddingLeft: "var(--vv-s-7)", borderTopLeftRadius: "var(--vv-r-pill)", borderTopRightRadius: "var(--vv-r-pill)", borderBottomRightRadius: "var(--vv-r-pill)", borderBottomLeftRadius: "var(--vv-r-pill)", backgroundColor: "var(--vv-glass)", backgroundImage: "none", backdropFilter: libraryVars.overlaysTabOartPlayBackdropFilter, fontSize: libraryVars.microFontSize, color: color["--color-fg-2"] },
   pcardName: { position: "absolute", left: "var(--vv-s-10)", right: "var(--vv-s-10)", bottom: "var(--vv-s-9)", fontSize: libraryVars.controlFontSize, fontWeight: libraryVars.labelWeight, color: color["--color-fg"], overflowX: "hidden", overflowY: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "left" },

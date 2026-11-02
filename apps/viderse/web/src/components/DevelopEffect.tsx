@@ -6,6 +6,10 @@
 //
 // Dùng chung cho Duyệt (máy tính + điện thoại), ô ảnh trong Editor và Phòng vẽ
 // ở Bàn dựng; bản `compact` chỉ giữ nền mờ + vệt sáng + vòng chờ như dải ảnh.
+//
+// Móc kiểm chứng ổn định: `data-develop="drawing" | "done"` trên phần tử gốc của
+// hiệu ứng, `data-develop-grain`, `data-develop-dot`, `data-develop-glint` bên trong
+// (ReviewScreen.test truy vấn `[data-develop="drawing"]`).
 import { Fragment, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button } from '@noverse/ui'
@@ -54,7 +58,7 @@ export function DevelopEffect({
   const reduced = useMediaQuery('(prefers-reduced-motion: reduce)')
   if (state === 'done') {
     return (
-      <span {...stylex.props(sx.reveal, reduced && sx.revealStill)}>
+      <span data-develop="done" {...stylex.props(sx.reveal, reduced && sx.revealStill)}>
         {children}
         <span aria-hidden="true" data-develop-glint="" {...stylex.props(sx.glint, reduced && sx.still)} />
       </span>
@@ -65,7 +69,7 @@ export function DevelopEffect({
   return (
     <>
       {baseUrl ? <img alt="" src={baseUrl} {...stylex.props(sx.base, compact && sx.baseCompact, !compact && !!previewUrl && sx.basePartial)} /> : null}
-      <span aria-hidden="true" {...stylex.props(sx.root)}>
+      <span aria-hidden="true" data-develop="drawing" {...stylex.props(sx.root)}>
         <span {...stylex.props(sx.sweep, reduced && sx.still)} />
         {!reduced && <span data-develop-grain="" {...stylex.props(sx.grain)} />}
       </span>

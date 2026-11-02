@@ -6,11 +6,13 @@ import { libraryVars } from './libraryTokens.stylex'
 // template đang dùng. Prompt có sẵn chỉ nhân bản được; prompt đang được dùng
 // thì không xoá và không đổi loại (máy chủ trả 409 in_use kèm tên template).
 import { useState } from 'react'
-import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon } from '@noverse/ui'
+import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon, confirm } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { ActionButton } from '../../components'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
+import { trialFailureText } from '../../i18n/errorsCopy'
+import { paths } from '../../router'
 import {
   createPrompt, fieldErrors, libraryErrorInfo, patchPrompt, removePrompt,
   type ImagePrompt, type PromptKind, type ThumbnailStyle,
@@ -18,6 +20,9 @@ import {
 import { keys } from '../../data/keys'
 import { clock } from './fmt'
 import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
+import { useResource } from '../../data/useResource'
+import { getPromptTrialScenes, type PromptSample } from '../../api/cover-trials'
+import { usePromptTrial } from './usePromptTrial'
 
 const COMPOSITIONS: ThumbnailStyle[] = ['clean', 'hook', 'circle-arrow', 'hook-arrow', 'split', 'closeup']
 
@@ -38,6 +43,9 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
   const [text, setText] = useState(prompt?.prompt ?? '')
   const [saving, setSaving] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [viewing, setViewing] = useState<PromptSample | null>(null)
+  const [pickedVideo, setPickedVideo] = useState('')
+  const [pickedScene, setPickedScene] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
   const [savedAt, setSavedAt] = useState<string | null>(prompt?.updatedAt ?? null)
@@ -47,6 +55,42 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
     || (kind === 'cover' && composition !== (prompt.composition ?? 'clean'))
     || text !== prompt.prompt
   const kindLocked = builtin || (prompt?.usedBy.length ?? 0) > 0
+  const trial = usePromptTrial(prompt?.id ?? '')
+  const trialSources = trial.status?.sources ?? []
+  const trialVideo = pickedVideo || trialSources[0]?.jobId || ''
+  const sceneQuery = useResource(
+    keys.promptScenes(prompt?.id ?? '', trialVideo),
+    ({ signal }) => getPromptTrialScenes(prompt?.id ?? '', trialVideo, signal),
+    { enabled: kind === 'scene' && !!prompt && trialVideo !== '' },
+  )
+  const trialHistory = trial.status?.history ?? []
+  const runningSample = trialHistory.find((row) => row.state === 'running')
+  const trialLockedReason = !prompt || dirty
+    ? copy.trySaveFirst
+    : trial.running
+      ? copy.tryRunning
+      : !trial.status?.ready
+        ? trial.status?.blockedReason ?? t.library.template.cover.trialLocked
+        : undefined
+
+  const askSample = async (videoId: string, sceneId: string): Promise<void> => {
+    const status = trial.status
+    if (!status || !videoId || trialLockedReason) return
+    const quota = !status.quota
+      ? t.library.template.cover.trialQuotaUnknown
+      : status.quota.paid
+        ? t.library.template.cover.trialQuota(status.quota.label, status.quota.left, status.quota.total)
+        : t.library.template.cover.trialQuotaFree(status.cost.label)
+    const accepted = await confirm({
+      title: copy.tryConfirmTitle,
+      body: copy.tryConfirmBody(status.cost.label, quota),
+      confirmLabel: copy.tryCost(status.cost.label),
+      cancelLabel: t.library.cancel,
+      onConfirm: () => undefined,
+    })
+    if (!accepted) return
+    await trial.start(videoId, kind === 'scene' ? sceneId : undefined)
+  }
 
   const save = async (): Promise<void> => {
     setError(null)
@@ -192,17 +236,98 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
             <section className={`vlb-card vlb-card--flat ${stylex.props(sx.cardCardFlat).className}`}>
               <div className={`vlb-card-top ${stylex.props(sx.cardTop).className}`}>
                 <FieldLabel>{copy.samplesTitle}</FieldLabel>
-                <span className={`vlb-hint ${stylex.props(sx.hint).className}`}>{builtin ? copy.sampleNoteBuilt : copy.sampleNoteNone}</span>
+                <span className={`vlb-hint ${stylex.props(sx.hint).className}`}>
+                  {trial.loading ? copy.tryRunning : trialHistory.length > 0 ? copy.sampleNoteReady(trialHistory.length) : copy.sampleNoteNone}
+                </span>
               </div>
-              <div className={`vlb-samples ${stylex.props(sx.samples).className}`} aria-label={copy.samplesTitle}>
-                <span className={`vlb-sample ${stylex.props(sx.sample, ((kind) === "cover") && sx.sampleDataKindCover).className}`} data-kind={kind} aria-hidden="true" />
+              {trialHistory.length > 0 ? (
+                <ul className={`vlb-samples ${stylex.props(sx.samples).className}`} aria-label={copy.samplesTitle}>
+                  {trialHistory.map((row) => (
+                    <li key={row.id} className={`vlb-sample ${stylex.props(sx.sample, ((kind) === "cover") && sx.sampleDataKindCover).className}`} data-kind={kind}>
+                      {row.state === 'ready' && row.imageUrl ? (
+                        <button type="button" className={`vlb-sample-open ${stylex.props(sx.sampleOpen).className}`} aria-label={copy.tryView} onClick={() => setViewing(row)}>
+                          <img className={`vlb-sample-img ${stylex.props(sx.sampleImg).className}`} src={row.imageUrl} alt="" loading="lazy" />
+                        </button>
+                      ) : (
+                        <div className={`vlb-sample-state ${stylex.props(sx.sampleState).className}`}>
+                          <span>{row.state === 'running' ? copy.tryRunning : row.state === 'cancelled' ? t.library.template.cover.trialCancelled : trialFailureText(row.error?.code)}</span>
+                          {(row.state === 'failed' || row.state === 'cancelled') && (
+                            <ActionButton size="sm" variant="outline" lockedReason={row.promptKind !== kind ? copy.tryKindChanged : trialLockedReason} onClick={() => void askSample(row.videoId, row.sceneId ?? '')}>{copy.tryRetry}</ActionButton>
+                          )}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.noSamples}</p>
+              )}
+
+              <div className={`vlb-field ${stylex.props(sx.field).className}`}>
+                <label className={`vlb-hint ${stylex.props(sx.hint).className}`} htmlFor="vlb-trial-video">{copy.tryVideo}</label>
+                {trialSources.length > 0 ? (
+                  <select
+                    id="vlb-trial-video"
+                    className={`vlb-select ${stylex.props(sx.select).className}`}
+                    aria-label={copy.tryVideoAria}
+                    value={trialVideo}
+                    disabled={trial.running}
+                    onChange={(event) => { setPickedVideo(event.currentTarget.value); setPickedScene('') }}
+                  >
+                    {trialSources.map((item) => (
+                      <option key={item.jobId} value={item.jobId}>{item.title}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{trial.loading ? copy.tryRunning : copy.tryNoSources}</p>
+                )}
               </div>
-              <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.noSamples}</p>
-              <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.noSamplesHint}</p>
-              <div className={`vlb-row ${stylex.props(sx.row).className}`}>
-                <ActionButton xstyle={[sx.vlbCompsRadioCard]} variant="outline" icon={<Icon name="magicpen" size={16} />} lockedReason={copy.tryLocked}>{copy.tryAction}</ActionButton>
-                <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.tryNote}</p>
-              </div>
+
+              {kind === 'scene' && trialVideo !== '' && (
+                <div className={`vlb-field ${stylex.props(sx.field).className}`}>
+                  <label className={`vlb-hint ${stylex.props(sx.hint).className}`} htmlFor="vlb-trial-scene">{copy.tryScene}</label>
+                  <select
+                    id="vlb-trial-scene"
+                    className={`vlb-select ${stylex.props(sx.select).className}`}
+                    aria-label={copy.trySceneAria}
+                    value={pickedScene}
+                    disabled={trial.running}
+                    onChange={(event) => setPickedScene(event.currentTarget.value)}
+                  >
+                    <option value="">{copy.tryFirstScene}</option>
+                    {(sceneQuery.data?.items ?? []).map((scene) => (
+                      <option key={scene.id} value={scene.id}>{scene.label}</option>
+                    ))}
+                  </select>
+                  {Boolean(sceneQuery.error) && <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.tryScenesFail}</p>}
+                </div>
+              )}
+
+              {runningSample ? (
+                <div className={`vlb-row ${stylex.props(sx.row).className}`}>
+                  <span className={`vlb-hint ${stylex.props(sx.hint).className}`} role="status">
+                    {trial.status?.task?.phase ? `${trial.status.task.phase}…` : copy.tryRunning}
+                  </span>
+                  <ActionButton xstyle={[sx.vlbCompsRadioCard]} variant="outline" icon={<Icon name="close" size={16} />} onClick={() => void trial.cancel(runningSample.id)}>
+                    {copy.tryCancel}
+                  </ActionButton>
+                </div>
+              ) : (
+                <div className={`vlb-row ${stylex.props(sx.row).className}`}>
+                  <ActionButton
+                    xstyle={[sx.vlbCompsRadioCard]}
+                    variant="outline"
+                    icon={<Icon name="magicpen" size={16} />}
+                    pending={trial.loading}
+                    lockedReason={trialLockedReason}
+                    onClick={() => void askSample(trialVideo, kind === 'scene' ? pickedScene : '')}
+                  >
+                    {copy.tryCost(trial.status?.cost.label ?? 'AI')}
+                  </ActionButton>
+                  <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.tryNote}</p>
+                </div>
+              )}
+              {trial.error && <p className={`vlb-hint ${stylex.props(sx.hint).className}`} role="alert">{trial.error}</p>}
             </section>
 
             <section className={`vlb-card vlb-card--flat ${stylex.props(sx.cardCardFlat).className}`}>
@@ -211,7 +336,15 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
                 ? (
                   <>
                     <ul className={`vlb-usedby ${stylex.props(sx.usedby).className}`}>
-                      {prompt!.usedBy.map((ref) => <li key={ref.id}>{ref.name}</li>)}
+                      {prompt!.usedBy.map((ref) => (
+                        <li key={ref.id}>
+                          <a className={`vlb-usedby-link ${stylex.props(sx.usedbyLink).className}`} href={`#${paths.template(ref.id)}`}>
+                            <Icon name="layer" size={15} />
+                            <span className={`vlb-usedby-name ${stylex.props(sx.usedbyName).className}`}>{ref.name}</span>
+                            <Icon name="arrow-r" size={13} />
+                          </a>
+                        </li>
+                      ))}
                     </ul>
                     <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{builtin ? copy.usedNoteBuilt : copy.usedNoteInUse(prompt!.usedBy.length)}</p>
                   </>
@@ -240,6 +373,13 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
           <ActionButton xstyle={[sx.vlbCompsRadioCard]} variant="primary" pending={saving} onClick={() => void save()}>{primaryLabel}</ActionButton>
         </span>
       </footer>
+      {viewing && (
+        <Dialog title={copy.samplesTitle} onClose={() => setViewing(null)} width={720}
+          footer={<Button size="sm" onClick={() => setViewing(null)}>{t.library.close}</Button>}>
+          <img className={`vlb-sample-full ${stylex.props(sx.sampleFull).className}`} src={viewing.imageUrl ?? ''} alt="" />
+          <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{viewing.videoTitle} · {clock(viewing.createdAt)}</p>
+        </Dialog>
+      )}
       {confirming && prompt && (
         <Dialog title={copy.deleteTitle(prompt.name)} onClose={() => setConfirming(false)} width={420}
           footer={<>
@@ -290,9 +430,17 @@ const sx = stylex.create({
   sample: { display: "block", aspectRatio: libraryVars.videoAspectRatio, borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
   sampleDataKindCover: { backgroundColor: "transparent", backgroundImage: libraryVars.promptEditorSampleDataKindCoverBackgroundImage },
   row: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  usedby: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingLeft: "var(--vv-s-18)", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
+  usedby: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingLeft: 0, listStyle: "none", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], display: "flex", flexDirection: "column", rowGap: "var(--vv-s-2)", columnGap: "var(--vv-s-2)" },
+  usedbyLink: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-8)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-8)", borderTopLeftRadius: "var(--vv-r-8)", borderTopRightRadius: "var(--vv-r-8)", borderBottomRightRadius: "var(--vv-r-8)", borderBottomLeftRadius: "var(--vv-r-8)", color: { default: color["--color-fg-2"], ":hover": color["--color-fg"] }, textDecoration: "none", fontSize: "var(--vv-s-13)", backgroundColor: { default: "transparent", ":hover": "var(--vv-hover-row)" }, backgroundImage: { default: "none", ":hover": "none" } },
+  usedbyName: { flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: libraryVars.flexFillBasis, minWidth: 0, overflowX: "hidden", overflowY: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   edFoot: { position: "sticky", bottom: 0, display: "flex", alignItems: "center", justifyContent: "space-between", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", paddingTop: { default: "var(--vv-s-10)", "@media (max-width: 767px)": "var(--vv-s-10)" }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-10)", "@media (max-width: 767px)": "var(--vv-s-10)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], backgroundColor: color["--color-bg"], backgroundImage: "none", flexWrap: "wrap" },
   status: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], fontVariantNumeric: "tabular-nums" },
   edActions: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   dialogText: { marginTop: 0, marginRight: 0, marginBottom: "var(--vv-s-12)", marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight },
+  sampleOpen: { display: "block", width: "100%", height: "100%", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, borderTopWidth: 0, borderRightWidth: 0, borderBottomWidth: 0, borderLeftWidth: 0, background: "none", cursor: "pointer" },
+  sampleImg: { display: "block", width: "100%", height: "100%", objectFit: "cover" },
+  sampleState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-6)", fontSize: "var(--vv-s-11)", color: color["--color-fg-3"], textAlign: "center" },
+  sampleFull: { display: "block", width: "100%", height: "auto", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)" },
+  select: { minHeight: "var(--vv-s-34)", width: "100%", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-1"], borderRightColor: line["--line-1"], borderBottomColor: line["--line-1"], borderLeftColor: line["--line-1"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: color["--color-bg"], color: color["--color-fg"], paddingLeft: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", fontSize: "var(--vv-s-13)" },
+
 })

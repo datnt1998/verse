@@ -1306,7 +1306,12 @@ const inFlightTimelineLoads = new Map<string, Promise<void>>()
 let timelineLoadQueueTail: Promise<void> | null = null
 
 function getTimelineLoadKey(projectId: string, options: LoadTimelineOptions): string {
-  return JSON.stringify([projectId, options.allowProjectUpgrade === true, options.useRetainedProject === true])
+  return JSON.stringify([
+    projectId,
+    options.allowProjectUpgrade === true,
+    options.useRetainedProject === true,
+    options.readOnly === true,
+  ])
 }
 
 export function loadTimeline(
@@ -1387,12 +1392,20 @@ async function loadTimelineOnce(
         logger.debug('Project normalized with current defaults')
       }
 
-      // Persist migrated project back to storage
-      await updateProject(projectId, {
-        ...project,
-        schemaVersion: CURRENT_SCHEMA_VERSION,
-      })
-      logger.debug('Saved migrated project to storage')
+      // Persist migrated project back to storage — except for read-only viewers,
+      // which keep the repaired timeline in memory only so opening a preview
+      // never advances the project revision. The retained storage snapshot and
+      // revision stay untouched, so a later editor load still reads the stored
+      // timeline and performs (and saves) the repair itself.
+      if (!options.readOnly) {
+        await updateProject(projectId, {
+          ...project,
+          schemaVersion: CURRENT_SCHEMA_VERSION,
+        })
+        logger.debug('Saved migrated project to storage')
+      } else {
+        logger.debug('Read-only load: repaired project kept in memory, not saved', { projectId })
+      }
     }
 
     await hydrateTimelineStoresFromProject(project)

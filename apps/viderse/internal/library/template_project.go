@@ -136,7 +136,7 @@ func (s *Service) ensureTemplateProject(ctx context.Context, tpl *domain.Templat
 			return nil, err
 		}
 		if tpl == nil {
-			return nil, notFound("Template")
+			return nil, notFound("Mẫu video")
 		}
 		if err := ctx.Err(); err != nil {
 			return nil, err
@@ -153,7 +153,7 @@ func (s *Service) ensureTemplateProject(ctx context.Context, tpl *domain.Templat
 func validateTemplateProject(raw json.RawMessage, id string, created time.Time) (json.RawMessage, error) {
 	project, err := editor.Parse(raw)
 	if err != nil {
-		return nil, invalidInput("Project template không hợp lệ", "Mở lại template rồi lưu")
+		return nil, invalidInput("Project mẫu video không hợp lệ", "Mở lại mẫu video rồi lưu")
 	}
 	version, _ := project["schemaVersion"].(float64)
 	metadata, timeline := project.Metadata(), project.Timeline()
@@ -161,7 +161,7 @@ func validateTemplateProject(raw json.RawMessage, id string, created time.Time) 
 	_, tracks := timeline["tracks"].([]any)
 	_, items := timeline["items"].([]any)
 	if version != editor.SchemaVersion || !validNumber("width") || !validNumber("height") || !validNumber("fps") || !tracks || !items {
-		return nil, invalidInput("Project template không đúng schema 15", "Mở lại template rồi lưu")
+		return nil, invalidInput("Project mẫu video không đúng schema 15", "Mở lại mẫu video rồi lưu")
 	}
 	project["id"], project["createdAt"] = id, created.UnixMilli()
 	return editor.Marshal(project)
@@ -204,7 +204,7 @@ func updateTemplateProject(raw json.RawMessage, name string, recipe domain.Recip
 		}
 	}
 	if scenes == nil {
-		return nil, invalidInput("Template chưa có track Ảnh cảnh", "Mở trình chỉnh sửa và gán vai trò Ảnh cảnh")
+		return nil, invalidInput("Mẫu video chưa có track Ảnh cảnh", "Mở trình chỉnh sửa và gán vai trò Ảnh cảnh")
 	}
 	settings, _ := scenes["templateScenes"].(map[string]any)
 	if settings == nil {
@@ -253,7 +253,7 @@ func updateTemplateProject(raw json.RawMessage, name string, recipe domain.Recip
 			}
 		}
 		if audioIndex < 0 {
-			return nil, invalidInput("Template chưa có track Âm thanh gốc", "Mở trình chỉnh sửa và gán vai trò Âm thanh gốc cho một track")
+			return nil, invalidInput("Mẫu video chưa có track Âm thanh gốc", "Mở trình chỉnh sửa và gán vai trò Âm thanh gốc cho một track")
 		}
 		id := "standard-background"
 		for n := 1; used[id]; n++ {

@@ -118,15 +118,23 @@ func (s *Service) Inputs(ctx context.Context, jobID string) (domain.CloneJob, ma
 		}
 	}
 	if projectID == "" {
-		return *job, upstream, "", nil, renderError(domain.CloneErrInvalidRequest, "Job chưa có project — chạy bước dựng trước")
+		return *job, upstream, "", nil, renderError(domain.CloneErrInvalidRequest, "Video chưa có bản dựng — chạy bước dựng trước")
 	}
-	return *job, upstream, projectID, artifactMedia{Base: s.Media, JobID: jobID, Upstream: upstream}, nil
+	var resources editor.Repository
+	if s.Editor != nil {
+		resources = s.Editor.Repository
+		if resources == nil {
+			resources = s.Editor.Store.Repository
+		}
+	}
+	return *job, upstream, projectID, artifactMedia{Base: s.Media, JobID: jobID, Upstream: upstream, Resources: resources}, nil
 }
 
 type artifactMedia struct {
-	Base     pipeline.Media
-	JobID    string
-	Upstream map[domain.CloneStep]domain.CloneStepOutput
+	Base      pipeline.Media
+	JobID     string
+	Upstream  map[domain.CloneStep]domain.CloneStepOutput
+	Resources editor.Repository
 }
 
 func (m artifactMedia) Acquire(ctx context.Context, path string) (*media.Handle, error) {
@@ -146,6 +154,17 @@ func (m artifactMedia) Acquire(ctx context.Context, path string) (*media.Handle,
 	}
 	if strings.HasPrefix(path, "clone/") && !strings.HasPrefix(path, "clone/"+m.JobID+"/") {
 		return nil, pipeline.ErrNotFound
+	}
+	if m.Resources != nil && strings.HasPrefix(path, "editor/media/") && strings.HasSuffix(path, "/metadata.json") {
+		parts := strings.Split(path, "/")
+		if len(parts) != 4 || editor.ValidateID(parts[2]) != nil {
+			return nil, pipeline.ErrNotFound
+		}
+		record, err := m.Resources.Get(ctx, "media/"+parts[2])
+		if err != nil {
+			return nil, err
+		}
+		return m.Base.Acquire(ctx, record.Path)
 	}
 	if strings.HasPrefix(path, "editor/media/") {
 		for _, out := range m.Upstream {

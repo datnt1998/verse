@@ -73,7 +73,7 @@ function OpenImageSheet({ jobId, initialId, images, loading, error, onClose, onC
         </div>
         <div {...stylex.props(mw.promptLine)}>
           {manifest && <>{c.promptScene(manifest.scenePrompt.name)}{manifest.scenePrompt.overridden && <span {...stylex.props(mw.promptTag)}> · {c.promptOverride}</span>}<br />{c.promptCover(manifest.coverPrompt.name)}{manifest.coverPrompt.overridden && <span {...stylex.props(mw.promptTag)}> · {c.promptOverride}</span>}</>}
-          {!manifest && 'Chưa có prompt hiệu lực cho video này.'}
+          {!manifest && 'Chưa có chỉ dẫn hiệu lực cho video này.'}
         </div>
       </>}
       <div {...stylex.props(mw.planFooter)}>

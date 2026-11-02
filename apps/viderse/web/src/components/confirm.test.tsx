@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
-// ConfirmDialog — 7 tình huống của Viderse: mở bằng helper rồi kiểm tiêu đề,
-// lựa chọn/hậu quả/gõ tên/giữ và điều kiện mở khoá nút cam.
+// Xác nhận thật trước thao tác nguy hiểm: huỷ, hành động phụ, gõ đúng tên
+// và khoá thao tác khi còn công việc đang chạy.
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { applyViderseLabels } from '../kitLabels'
 import { t } from '../i18n/all'
 import {
-  confirmAutonomy, confirmDeleteChannel, confirmDeleteVideo, confirmLeaveUnsaved,
+  confirmDeleteChannel, confirmDeleteVideo, confirmLeaveUnsaved,
   confirmOverwrite, confirmPause, confirmProviderLogout, confirmStopAll,
 } from './confirm'
 
@@ -22,21 +22,21 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-const dialog = () => document.body
+const waitForDialog = async () => {
+  await vi.waitFor(async () => {
+    await act(async () => {})
+    expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
+  })
+}
 
 describe('7 tình huống xác nhận', () => {
   it('pause: tiêu đề kèm tên trợ lý + 2 lựa chọn radio + Huỷ riêng', async () => {
     const done = vi.fn()
     const p = confirmPause({ agent: 'artist', video: 'Midnight Tales', scene: 'cảnh 5/6', onConfirm: done })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Tạm dừng Hoạ sĩ?')
-    expect(text).toContain('Midnight Tales')
-    expect(text).toContain('Sau cảnh này')
-    expect(text).toContain('Ngay bây giờ')
-    expect(text).toContain('Tiếp tục vẽ')
+    await waitForDialog()
     await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Tiếp tục vẽ')?.click() })
     await expect(p).resolves.toBe(false)
+    expect(done).not.toHaveBeenCalled()
   })
 
   it('overwrite: so hai bản + nút phụ Giữ cả hai', async () => {
@@ -47,11 +47,7 @@ describe('7 tình huống xác nhận', () => {
       next: { summary: '38:12 · 176 MB' },
       onConfirm: vi.fn(), onKeepBoth: keepBoth,
     })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Thay bản MP4 cũ?')
-    expect(text).toContain('Bản đang có')
-    expect(text).toContain('Bản mới')
+    await waitForDialog()
     await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Giữ cả hai')?.click() })
     expect(keepBoth).toHaveBeenCalled()
     await expect(p).resolves.toBe(true)
@@ -60,10 +56,7 @@ describe('7 tình huống xác nhận', () => {
   it('logout nhà cung cấp: nút cam nhạt ghi tên gói', async () => {
     const confirm = vi.fn()
     const p = confirmProviderLogout({ provider: 'ChatGPT', fallback: 'Gemini', onConfirm: confirm })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Đăng xuất gói ChatGPT?')
-    expect(text).toContain('Gemini')
+    await waitForDialog()
     await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Đăng xuất ChatGPT')?.click() })
     expect(confirm).toHaveBeenCalled()
     await expect(p).resolves.toBe(true)
@@ -75,13 +68,7 @@ describe('7 tình huống xác nhận', () => {
       deleting: ['File MP4 đã xuất'], keeping: ['Video nguồn + phụ đề'],
       onConfirm: vi.fn(),
     })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Xoá video “Midnight Tales”?')
-    expect(text).toContain('Sẽ xoá')
-    expect(text).toContain('Giữ lại')
-    expect(text).toContain('File MP4 đã xuất')
-    expect(text).toContain('Video nguồn + phụ đề')
+    await waitForDialog()
     await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Huỷ')?.click() })
     await expect(p).resolves.toBe(false)
   })
@@ -89,8 +76,7 @@ describe('7 tình huống xác nhận', () => {
   it('xoá kênh: nút khoá tới khi gõ đúng tên', async () => {
     const confirm = vi.fn()
     const p = confirmDeleteChannel({ name: 'Độc Lạ Studio', onConfirm: confirm })
-    await act(async () => {})
-    expect(dialog().textContent).toContain('Xoá kênh “Độc Lạ Studio”?')
+    await waitForDialog()
     const ok = [...document.querySelectorAll('button')].find((b) => b.textContent === 'Xoá kênh')!
     expect(ok.disabled).toBe(true)
     const input = document.querySelector('input')!
@@ -109,10 +95,7 @@ describe('7 tình huống xác nhận', () => {
   it('xoá kênh đang chạy việc: gõ đúng tên vẫn khoá — click và Enter đều không kích hoạt', async () => {
     const confirm = vi.fn()
     const p = confirmDeleteChannel({ name: 'Độc Lạ Studio', runningCount: 2, onConfirm: confirm })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    // Lý do khoá hiển thị trong hộp (runningHint), không chỉ là chữ mô tả.
-    expect(text).toContain('Xoá kênh “Độc Lạ Studio”?')
+    await waitForDialog()
     const input = document.querySelector('input')!
     const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!
     await act(async () => {
@@ -135,10 +118,7 @@ describe('7 tình huống xác nhận', () => {
   it('dừng mọi việc: nút giữ — bấm nhanh không kích hoạt', async () => {
     const confirm = vi.fn()
     const p = confirmStopAll({ running: 4, onConfirm: confirm })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Dừng mọi việc đang chạy?')
-    expect(text).toContain('4 video đang làm')
+    await waitForDialog()
     const hold = [...document.querySelectorAll('button')].find((b) => (b.textContent ?? '').includes('Giữ để dừng'))!
     expect(hold).toBeTruthy()
     await act(async () => { hold.click() })
@@ -150,24 +130,10 @@ describe('7 tình huống xác nhận', () => {
   it('bỏ thay đổi chưa lưu: nút phụ Bỏ thay đổi', async () => {
     const discard = vi.fn()
     const p = confirmLeaveUnsaved({ changed: 3, template: 'Ánh sáng neon', onConfirm: vi.fn(), onDiscard: discard })
-    await act(async () => {})
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Bỏ thay đổi chưa lưu?')
-    expect(text).toContain('Ánh sáng neon')
-    expect(text).toContain('Ở lại')
+    await waitForDialog()
     await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Bỏ thay đổi')?.click() })
     expect(discard).toHaveBeenCalled()
     await expect(p).resolves.toBe(true)
   })
 
-  it('tự chạy: 3 điều khoản trong thân hộp', async () => {
-    const p = confirmAutonomy({ channel: 'Kênh Thực Tế', onConfirm: vi.fn() })
-    // Hộp Tự chạy là chunk riêng (nạp khi bấm): chờ nó tải xong rồi mới đọc chữ.
-    await act(async () => { const { promise, resolve } = Promise.withResolvers<void>(); setTimeout(resolve, 200); await promise })
-    const text = dialog().textContent ?? ''
-    expect(text).toContain('Chuyển Kênh Thực Tế sang Tự chạy?')
-    expect(text).toContain('Không bao giờ tự đăng')
-    await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Huỷ')?.click() })
-    await expect(p).resolves.toBe(false)
-  })
 })

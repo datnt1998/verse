@@ -154,6 +154,16 @@ const (
 	PreviewStale PreviewState = "stale"
 )
 
+// PreviewError là lần dựng bản xem thử hỏng gần nhất, giữ nguyên câu hành
+// động của lỗi dựng (library.Error) để UI không phải thay bằng câu chung.
+// Bản xem thử cũ vẫn còn; lỗi chỉ được xoá khi lần dựng sau thành công hoặc
+// khi bắt đầu lần dựng mới.
+type PreviewError struct {
+	Code     string `json:"code,omitempty"`
+	Message  string `json:"message"`
+	Recovery string `json:"recovery,omitempty"`
+}
+
 // Template là một dòng templates.
 type Template struct {
 	ID              string
@@ -163,8 +173,16 @@ type Template struct {
 	Revision        int64
 	PreviewRevision *int64
 	PreviewBuiltAt  *time.Time
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
+	// PreviewProjectID là project xem thử đang dùng (bản sao của project
+	// template, đổ nội dung từ một video đã xong); rỗng khi chưa có.
+	PreviewProjectID string
+	PreviewJobID     string
+	PreviewMinutes   int
+	// PreviewError là lỗi của lần dựng gần nhất; nil khi lần gần nhất thành
+	// công. Không làm mất bản xem thử cũ (PreviewProjectID giữ nguyên).
+	PreviewError *PreviewError
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 // PreviewStateOf trả trạng thái xem thử từ cặp revision/preview_revision.

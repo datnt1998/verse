@@ -28,6 +28,12 @@ func mustB64(v string) []byte {
 type memoryJournal struct {
 	mu   sync.Mutex
 	rows map[string][]imagegen.JournalEntry
+
+	// Lỗi tiêm để kiểm tra ranh giới trước/sau lời gọi trả phí. Khi được đặt,
+	// thao tác tương ứng thất bại TRƯỚC khi chạm rows (mô phỏng store chết).
+	lockErr   error
+	beginErr  error
+	finishErr error
 }
 
 func newMemoryJournal() *memoryJournal {
@@ -35,12 +41,18 @@ func newMemoryJournal() *memoryJournal {
 }
 
 func (j *memoryJournal) LockKey(ctx context.Context, key string) (func(), error) {
+	if j.lockErr != nil {
+		return nil, j.lockErr
+	}
 	return func() {}, nil
 }
 
 func (j *memoryJournal) Begin(ctx context.Context, a imagegen.Admission) (imagegen.JournalEntry, error) {
 	j.mu.Lock()
 	defer j.mu.Unlock()
+	if j.beginErr != nil {
+		return imagegen.JournalEntry{}, j.beginErr
+	}
 	e := a.Entry
 	rows := j.rows[e.Key]
 	if a.PaidCap >= 0 {
@@ -87,6 +99,9 @@ func (j *memoryJournal) Latest(ctx context.Context, key string) (*imagegen.Journ
 func (j *memoryJournal) Finish(ctx context.Context, key string, attempt int, state string, charged bool, receipt *imagegen.Receipt, errCode, errText string, finishedAt time.Time) error {
 	j.mu.Lock()
 	defer j.mu.Unlock()
+	if j.finishErr != nil {
+		return j.finishErr
+	}
 	rows := j.rows[key]
 	for i := range rows {
 		if rows[i].Attempt == attempt {

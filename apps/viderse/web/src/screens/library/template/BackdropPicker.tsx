@@ -26,11 +26,12 @@ import { SourceRail, channelUsable } from '../backdrops/SourceRail'
 import { useChannelVideos } from '../backdrops/useChannelVideos'
 import { duration, initials, kindName, num, platformName, segmentLabel, timeRange } from '../backdrops/fmt'
 
-function ChannelDetail({ channel, link, onGo }: {
+function ChannelDetail({ channel, link, onGo, onClose }: {
   channel: BackdropChannel
   /** link đang gắn trong recipe (null = chưa gắn) */
   link: RecipeBackdrop['channels'][number] | null
   onGo: (next: { kinds: string[]; pinned: string[] }) => void
+  onClose: () => void
 }) {
   const copy = t.backdrop.template.picker
 
@@ -170,7 +171,7 @@ function ChannelDetail({ channel, link, onGo }: {
           <span className={`vbd-pick-summain ${stylex.props(sx.pickSummain).className}`}>{sum}</span>
           <span className={`vbd-pick-sumsub ${stylex.props(sx.pickSumsub, (Boolean((goDisabled))) && sx.pickSumsubDataWarn).className}`} data-warn={goDisabled || undefined}>{sumSub}</span>
         </span>
-        <Button xstyle={[sx.vbdModesRadioCard]} size="md" onClick={() => undefined}>{copy.cancel}</Button>
+        <Button xstyle={[sx.vbdModesRadioCard]} size="md" onClick={onClose}>{copy.cancel}</Button>
         <Button xstyle={[sx.vbdModesRadioCard]} size="md" variant="primary" aria-disabled={goDisabled || undefined} disabled={goDisabled}
           onClick={() => onGo({ kinds, pinned: isPick ? [...pinned] : [] })}>
           {link ? copy.goSave : copy.go}
@@ -336,7 +337,7 @@ export function BackdropPicker({ template, onSave, onClose, initial }: {
           {selChannel && (
             <ChannelDetail key={selChannel.id} channel={selChannel}
               link={backdrop.channels.find((c) => c.channelId === selChannel.id) ?? null}
-              onGo={(next) => saveChannel(selChannel.id, next)} />
+              onGo={(next) => saveChannel(selChannel.id, next)} onClose={onClose} />
           )}
           {selVideo && !selChannel && (
             <VideoDetail video={selVideo} linked={backdrop.fixedVideoIds.includes(selVideo.id)}

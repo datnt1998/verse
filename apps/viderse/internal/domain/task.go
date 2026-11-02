@@ -16,6 +16,7 @@ const (
 	TaskBackdropScan     TaskKind = "backdrop_scan"
 	TaskBackdropDownload TaskKind = "backdrop_download"
 	TaskThumbnailPreview TaskKind = "thumbnail_preview"
+	TaskImageTrial       TaskKind = "image_trial"
 	TaskTemplatePreview  TaskKind = "template_preview"
 	TaskEditorExport     TaskKind = "editor_export"
 	TaskSetup            TaskKind = "setup"

@@ -77,9 +77,9 @@ func (s *Service) SnapshotTemplate(ctx context.Context, id string) (*Snapshot, e
 		return nil, err
 	}
 	if tpl == nil {
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
-	tpl, err = s.ensureTemplateProject(ctx, tpl)
+	tpl, err = s.ensureTemplateMedia(ctx, tpl)
 	if err != nil {
 		return nil, err
 	}
@@ -181,8 +181,8 @@ func (s *Service) resolvePrompt(ctx context.Context, id, fallback, field string)
 		return domain.ImagePrompt{}, err
 	}
 	if row == nil {
-		return domain.ImagePrompt{}, invalidFields("Template trỏ tới prompt ảnh không còn", []FieldError{
-			{field, "Prompt ảnh không còn trong thư viện", "Chọn prompt khác cho template rồi lưu lại"},
+		return domain.ImagePrompt{}, invalidFields("Mẫu video trỏ tới chỉ dẫn ảnh không còn", []FieldError{
+			{field, "Chỉ dẫn ảnh không còn trong thư viện", "Chọn chỉ dẫn khác cho mẫu video rồi lưu lại"},
 		})
 	}
 	return *row, nil

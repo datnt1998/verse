@@ -19,6 +19,8 @@ export type SaveStatus = {
   saving: boolean
   /** có thay đổi chưa lên máy chủ */
   dirty: boolean
+  /** lần lưu vừa xong trong phiên này — đầu trang nói "Đã lưu vừa xong" */
+  justSaved: boolean
   /** máy chủ đã có bản khác — dừng lưu tới khi Tải lại */
   conflict: boolean
   /** lỗi theo trường API (`fields[].field` → câu) */
@@ -31,7 +33,7 @@ type Pending = { name?: string; recipe?: Recipe }
 
 export function useTemplateDraft(initial: TemplateDetail) {
   const [state, setState] = useState<SaveStatus>({
-    detail: initial, saving: false, dirty: false, conflict: false, fieldErrors: {}, error: null,
+    detail: initial, saving: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null,
   })
   // Bản mới nhất để đọc ngay trong callback (setState không đồng bộ).
   const draft = useRef<TemplateDetail>(initial)
@@ -52,7 +54,7 @@ export function useTemplateDraft(initial: TemplateDetail) {
     }
     pending.current = null
     busy.current = true
-    publish({ saving: true, dirty: true, error: null })
+    publish({ saving: true, dirty: true, justSaved: false, error: null })
     try {
       const saved = await patchTemplate(draft.current.id, {
         revision: revision.current,
@@ -76,24 +78,25 @@ export function useTemplateDraft(initial: TemplateDetail) {
           : queued.name !== undefined ? { name: queued.name } : {}),
       }
       conflict.current = false
-      publish({ saving: false, dirty: queued !== null, conflict: false, fieldErrors: {} })
+      publish({ saving: false, dirty: queued !== null, justSaved: true, conflict: false, fieldErrors: {} })
     } catch (err) {
       const info = libraryErrorInfo(err)
       if (err instanceof ApiError && err.status === 409 && info.code === 'conflict') {
         conflict.current = true
         pending.current = null
-        publish({ saving: false, dirty: true, conflict: true, error: null })
+        publish({ saving: false, dirty: true, justSaved: false, conflict: true, error: null })
       } else if (err instanceof ApiError && err.status === 400) {
         const fields: Record<string, string> = {}
         for (const field of info.fields) fields[field.field] = field.message
         publish({
           saving: false,
           dirty: true,
+          justSaved: false,
           fieldErrors: fields,
           error: info.fields.length ? null : err.message,
         })
       } else {
-        publish({ saving: false, dirty: true, error: err instanceof Error ? err.message : String(err) })
+        publish({ saving: false, dirty: true, justSaved: false, error: err instanceof Error ? err.message : String(err) })
       }
     } finally {
       busy.current = false
@@ -127,7 +130,7 @@ export function useTemplateDraft(initial: TemplateDetail) {
     savedAt.current = fresh.savedAt
     pending.current = null
     conflict.current = false
-    setState({ detail: fresh, saving: false, dirty: false, conflict: false, fieldErrors: {}, error: null })
+    setState({ detail: fresh, saving: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null })
     return fresh
   }, [])
 

@@ -50,6 +50,18 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
   const settled = useRef(onSettled)
   settled.current = onSettled
   const controller = useRef<AbortController | null>(null)
+  // Một lượt gửi/chạy tại một thời điểm. Khoá đồng bộ (ref) chặn Enter/bấm đúp
+  // trước khi React kịp vẽ lại trạng thái — trước đây hai lần gửi sát nhau có thể
+  // gọi /plan hai lần và thay thẻ vừa hiện.
+  const claimSeq = useRef(0)
+  const claimNow = useRef(0)
+  const claim = () => {
+    if (claimNow.current !== 0) return 0
+    const id = ++claimSeq.current
+    claimNow.current = id
+    return id
+  }
+  const release = (id: number) => { if (claimNow.current === id) claimNow.current = 0 }
 
   const begin = () => {
     controller.current?.abort()
@@ -59,6 +71,8 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
   useEffect(() => () => controller.current?.abort(), [])
 
   const plan = useCallback(async (text: string) => {
+    const id = claim()
+    if (id === 0) return
     const signal = begin()
     setThread({ phase: 'planning', text })
     try {
@@ -70,12 +84,14 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
     } catch (error) {
       if (signal.aborted) return
       setThread({ phase: 'error', text, kind: assistantErrorKind(error), message: messageOf(error), retry: { type: 'plan' } })
+    } finally {
+      release(id)
     }
   }, [])
 
   const send = useCallback((raw: string) => {
     const current = live.current.phase
-    if (current === 'planning' || current === 'running') return false
+    if (current === 'planning' || current === 'running' || claimNow.current !== 0) return false
     const draft = readDraft(raw)
     if (!draft.ok) return false
     void plan(draft.text)
@@ -84,6 +100,7 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
 
   const choose = useCallback((text: string) => {
     const phase = live.current.phase
+    if (claimNow.current !== 0) return
     if (phase === 'ask' || phase === 'unknown') void plan(text)
   }, [plan])
 
@@ -93,52 +110,62 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
 
   const finishedOf = (state: string | undefined, steps: readonly RunStep[]) => runFinished(steps) || state === 'done' || state === 'failed'
 
-  const poll = useCallback(async (text: string, planned: Plan, selected: Selection, runId: string, signal: AbortSignal) => {
+  const poll = useCallback(async (text: string, planned: Plan, selected: Selection, runId: string, signal: AbortSignal, id: number) => {
     let failures = 0
-    while (!signal.aborted) {
-      const { promise, resolve } = Promise.withResolvers<void>()
-      const timer = window.setTimeout(resolve, POLL_RUN_MS)
-      signal.addEventListener('abort', () => { window.clearTimeout(timer); resolve() }, { once: true })
-      await promise
-      if (signal.aborted) return
-      try {
-        const status = await getPlanRun(runId, signal)
+    try {
+      while (!signal.aborted) {
+        const { promise, resolve } = Promise.withResolvers<void>()
+        const timer = window.setTimeout(resolve, POLL_RUN_MS)
+        const onAbort = () => { window.clearTimeout(timer); resolve() }
+        signal.addEventListener('abort', onAbort, { once: true })
+        await promise
+        signal.removeEventListener('abort', onAbort)
         if (signal.aborted) return
-        failures = 0
-        const steps = progressById(status.steps)
-        if (finishedOf(status.state, status.steps)) {
-          setThread({ phase: 'done', text, plan: planned, selected, steps })
-          settled.current?.()
-          return
+        try {
+          const status = await getPlanRun(runId, signal)
+          if (signal.aborted) return
+          failures = 0
+          const steps = progressById(status.steps)
+          if (finishedOf(status.state, status.steps)) {
+            setThread({ phase: 'done', text, plan: planned, selected, steps })
+            settled.current?.()
+            return
+          }
+          setThread({ phase: 'running', text, plan: planned, selected, steps, lost: false })
+        } catch {
+          if (signal.aborted) return
+          failures += 1
+          if (failures >= MAX_POLL_FAILURES) setThread((current) => current.phase === 'running' ? { ...current, lost: true } : current)
         }
-        setThread({ phase: 'running', text, plan: planned, selected, steps, lost: false })
-      } catch {
-        if (signal.aborted) return
-        failures += 1
-        if (failures >= MAX_POLL_FAILURES) setThread((current) => current.phase === 'running' ? { ...current, lost: true } : current)
       }
+    } finally {
+      release(id)
     }
   }, [])
 
   const run = useCallback(async (text: string, planned: Plan, selected: Selection) => {
     if (planTotals(planned, selected).count === 0) return
+    const id = claim()
+    if (id === 0) return
     const signal = begin()
     const ids = chosenSteps(planned, selected).map((step) => step.id)
     setThread({ phase: 'running', text, plan: planned, selected, steps: {}, lost: false })
     try {
       const started = await runPlan(planned.planId, ids, signal)
-      if (signal.aborted) return
+      if (signal.aborted) { release(id); return }
       const steps = progressById(started.steps)
       settled.current?.()
       if (finishedOf(started.state, started.steps)) {
         setThread({ phase: 'done', text, plan: planned, selected, steps })
+        release(id)
         return
       }
       setThread({ phase: 'running', text, plan: planned, selected, steps, lost: false })
-      void poll(text, planned, selected, started.runId, signal)
+      await poll(text, planned, selected, started.runId, signal, id)
     } catch (error) {
-      if (signal.aborted) return
+      if (signal.aborted) { release(id); return }
       setThread({ phase: 'error', text, kind: assistantErrorKind(error), message: messageOf(error), retry: { type: 'run', plan: planned, selected } })
+      release(id)
     }
   }, [poll])
 
@@ -151,6 +178,7 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
     const phase = live.current.phase
     if (phase === 'running') return
     controller.current?.abort()
+    release(claimNow.current)
     setThread({ phase: 'idle' })
   }, [])
 
@@ -158,6 +186,7 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
     const current = live.current
     if (current.phase === 'idle' || current.phase === 'running') return undefined
     controller.current?.abort()
+    release(claimNow.current)
     setThread({ phase: 'idle' })
     return current.text
   }, [])
@@ -172,6 +201,7 @@ export function useAssistantThread(scope: AssistantScope, onSettled?: () => void
   const dismiss = useCallback(() => {
     if (live.current.phase === 'running') return
     controller.current?.abort()
+    release(claimNow.current)
     setThread({ phase: 'idle' })
   }, [])
 

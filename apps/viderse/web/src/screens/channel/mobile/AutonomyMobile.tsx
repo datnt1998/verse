@@ -4,7 +4,7 @@
 // xác nhận Tự chạy / Tự duyệt hết vẫn y nguyên.
 import * as stylex from '@stylexjs/stylex'
 import { useState } from 'react'
-import { Button, Icon, RadioCard, Segmented, Sheet } from '@noverse/ui'
+import { Button, Icon, ListRow, RadioCard, Segmented, Sheet } from '@noverse/ui'
 import { Orb } from '../../../components/Orb'
 import { t } from '../../../i18n/autonomy'
 import {
@@ -82,7 +82,10 @@ export function AutonomyCardMobile({ channel }: { channel: Channel }) {
   return (
     <section aria-label={tt.title} {...stylex.props(mch.card16)}>
       <div {...stylex.props(mch.headRow)}>
-        <span {...stylex.props(mch.orbs)}><Orb of="qa" size={22} standalone /></span>
+        <span {...stylex.props(mch.orbPair)} aria-hidden="true">
+          <Orb of="qa" size={14} style={{ position: 'absolute', left: 0, top: 0 }} />
+          <Orb of="artist" size={14} style={{ position: 'absolute', right: 0, bottom: 0 }} />
+        </span>
         <div {...stylex.props(mch.headText)}>
           <div {...stylex.props(mch.row6)}>
             <span {...stylex.props(mch.cardTitle)}>{tt.title}</span>
@@ -108,18 +111,15 @@ export function AutonomyCardMobile({ channel }: { channel: Channel }) {
           const copy = tt.rows[row]
           return (
             <div key={row}>
-              <Button variant="quiet" block size="lg" icon={<Icon name="arrow-right-2" size={16} />}
-                type="button"
+              <ListRow
                 aria-label={copy.label}
                 aria-haspopup="dialog"
+                title={copy.label}
+                hint={optionLabel(row, rowValue, min)}
+                chevron
                 disabled={disabled}
                 onClick={() => setOpenRow(row)}
-              >
-                <span {...stylex.props(mch.autonomyRowText)}>
-                  <span {...stylex.props(mch.autonomyLabel)}>{copy.label}</span>
-                  <span {...stylex.props(mch.autonomyCur)}>{optionLabel(row, rowValue, min)}</span>
-                </span>
-              </Button>
+              />
               {row === 'approve' && autonomy.approve.mode === 'score' && (
                 <div {...stylex.props(mch.thrRow)}>
                   <span {...stylex.props(mch.paceLabel)}>{tt.threshold}</span>

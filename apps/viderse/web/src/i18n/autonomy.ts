@@ -37,7 +37,7 @@ export const autonomyCopy = {
   thresholdRange: '70–95 · bước 5',
   thresholdDown: 'Giảm 5',
   thresholdUp: 'Tăng 5',
-  guard: 'Không bao giờ tự làm: đăng YouTube, xoá, đổi template hay prompt, bỏ liên kết đối thủ, tiêu ảnh trả phí quá giới hạn ngày.',
+  guard: 'Không bao giờ tự làm: đăng YouTube, xoá, đổi mẫu video hay chỉ dẫn, bỏ liên kết đối thủ, tiêu ảnh trả phí quá giới hạn ngày.',
   /** Dòng phụ ở Tạo kênh theo mức đang chọn (artboard CreateChannel › AUTS). */
   createSub: {
     careful: 'Chỉ đề xuất video ≥ ×3 · duyệt ảnh luôn hỏi',
@@ -59,7 +59,7 @@ export const autonomyCopy = {
     steady: 'Đều đặn',
     views: 'Lượt xem',
     steadyHint: 'Giữ nhịp, lấy video theo thứ tự mới đăng.',
-    viewsHint: 'Video điểm nổi trội cao chạy trước; template có lượt xem 7 ngày tốt hơn chạy nhiều hơn (tối đa gấp đôi).',
+    viewsHint: 'Video điểm nổi trội cao chạy trước; mẫu video có lượt xem 7 ngày tốt hơn chạy nhiều hơn (tối đa gấp đôi).',
   },
   /** Trạng thái hệ thống V12 (board Channel không vẽ). */
   loading: 'Đang tải Mức tự chủ…',

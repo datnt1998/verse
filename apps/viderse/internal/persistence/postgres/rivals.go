@@ -2,8 +2,10 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -67,6 +69,10 @@ func (s *RivalsStore) CountVideos(ctx context.Context, q rivals.PageQuery) (int6
 		WithinDays: int32(q.WithinDays),
 		Now:        ts(q.Now),
 		Q:          q.Pattern,
+		MadeFor:    channelArg(q.MadeFor),
+		NotMadeFor: channelArg(q.NotMadeFor),
+		MadeAny:    q.MadeAny,
+		NotMadeAny: q.NotMadeAny,
 	})
 }
 
@@ -82,6 +88,10 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			WithinDays:  int32(q.WithinDays),
 			Now:         ts(q.Now),
 			Q:           q.Pattern,
+			MadeFor:     channelArg(q.MadeFor),
+			NotMadeFor:  channelArg(q.NotMadeFor),
+			MadeAny:     q.MadeAny,
+			NotMadeAny:  q.NotMadeAny,
 			CursorID:    cursorID(q.Cursor),
 			CursorViews: cursorInt8(func(c *rivals.Cursor) *int64 { return c.Views }, q.Cursor),
 			PageSize:    int64(q.Limit),
@@ -94,6 +104,10 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			WithinDays: int32(q.WithinDays),
 			Now:        ts(q.Now),
 			Q:          q.Pattern,
+			MadeFor:    channelArg(q.MadeFor),
+			NotMadeFor: channelArg(q.NotMadeFor),
+			MadeAny:    q.MadeAny,
+			NotMadeAny: q.NotMadeAny,
 			CursorID:   cursorID(q.Cursor),
 			CursorTs:   cursorTS(q.Cursor),
 			PageSize:   int64(q.Limit),
@@ -107,6 +121,10 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			WithinDays: int32(q.WithinDays),
 			Now:        ts(q.Now),
 			Q:          q.Pattern,
+			MadeFor:    channelArg(q.MadeFor),
+			NotMadeFor: channelArg(q.NotMadeFor),
+			MadeAny:    q.MadeAny,
+			NotMadeAny: q.NotMadeAny,
 			CursorID:   cursorID(q.Cursor),
 			CursorPos:  cursorInt8(func(c *rivals.Cursor) *int64 { return c.Pos }, q.Cursor),
 			PageSize:   int64(q.Limit),
@@ -120,6 +138,10 @@ func (s *RivalsStore) PageVideos(ctx context.Context, q rivals.PageQuery) ([]dom
 			WithinDays:  int32(q.WithinDays),
 			Now:         ts(q.Now),
 			Q:           q.Pattern,
+			MadeFor:     channelArg(q.MadeFor),
+			NotMadeFor:  channelArg(q.NotMadeFor),
+			MadeAny:     q.MadeAny,
+			NotMadeAny:  q.NotMadeAny,
 			CursorID:    cursorID(q.Cursor),
 			CursorScore: cursorFloat8(q.Cursor),
 			PageSize:    int64(q.Limit),
@@ -180,6 +202,76 @@ func (s *RivalsStore) UploadProbePausedUntil(ctx context.Context) (*time.Time, e
 // CountRivalChannels đếm kênh đối thủ đang theo dõi.
 func (s *RivalsStore) CountRivalChannels(ctx context.Context) (int64, error) {
 	return s.q.CountRivalChannels(ctx)
+}
+
+// OwnerChannelExists báo id có phải kênh của bạn không.
+func (s *RivalsStore) OwnerChannelExists(ctx context.Context, channelID string) (bool, error) {
+	return s.q.OwnerChannelExists(ctx, channelID)
+}
+
+// VideoUsage đọc lượt làm thật của các video trong một trang.
+func (s *RivalsStore) VideoUsage(ctx context.Context, videoIDs []string) ([]domain.VideoUsage, error) {
+	rows, err := s.q.ListVideoUsage(ctx, videoIDs)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]domain.VideoUsage, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, domain.VideoUsage{
+			VideoID:     r.VideoID,
+			ChannelID:   uuidStr(r.ChannelID),
+			ChannelName: r.ChannelName,
+			Stage:       r.StageGroup,
+			ActiveStep:  r.ActiveStep,
+			JobID:       uuidStr(r.JobID),
+			QueueItemID: uuidStr(r.QueueItemID),
+			UpdatedAt:   r.UpdatedAt.Time,
+		})
+	}
+	return out, nil
+}
+
+// AutoPickBaselines đọc mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
+func (s *RivalsStore) AutoPickBaselines(ctx context.Context) ([]rivals.AutoPickBaseline, error) {
+	rows, err := s.q.ListAutoPickBaselines(ctx)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]rivals.AutoPickBaseline, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, rivals.AutoPickBaseline{
+			ChannelID:   uuidStr(r.OwnerChannelID),
+			ChannelName: r.Name,
+			RivalID:     r.RivalID,
+			AutoPick:    r.AutoPick,
+			BaselineAt:  r.AutoBaselineAt.Time,
+		})
+	}
+	return out, nil
+}
+
+// RivalVideoChannel trả kênh đối thủ của một video.
+func (s *RivalsStore) RivalVideoChannel(ctx context.Context, videoID string) (string, bool, error) {
+	channel, err := s.q.RivalVideoChannel(ctx, videoID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	return channel, true, nil
+}
+
+// SourceInfoArtifactPath trả đường dẫn download/source.info.json đã công bố.
+func (s *RivalsStore) SourceInfoArtifactPath(ctx context.Context, videoID string) (string, bool, error) {
+	path, err := s.q.SourceInfoArtifactPath(ctx, videoID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", false, nil
+	}
+	if err != nil {
+		return "", false, err
+	}
+	return path, true, nil
 }
 
 // ── chuyển kiểu ────────────────────────────────────────────────────────────

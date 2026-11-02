@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { ArrowLeft, ArrowRight, Check, Eye, EyeOff, Film, Image, Minus, Plus, Scissors, Sparkles, Subtitles, Trash2, Volume2, VolumeX } from 'lucide-react'
+import { Icon, type IconName } from '@noverse/ui'
 import { toast } from '@/editor/ui/toast'
 import { executeCommands } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'
 import { useZoomStore } from '@editor/features/timeline/stores/zoom-store'
+import { useKeyframesStore } from '@editor/features/timeline/stores/keyframes-store'
 import { splitItem, toggleSnap } from '@editor/features/timeline/stores/timeline-actions'
 import { usePlaybackStore } from '@editor/shared/state/playback'
 import { useSelectionStore } from '@editor/shared/state/selection'
@@ -30,6 +31,7 @@ export interface TimelineProps {
   ranges: readonly TimelineRange[]
   selectedRange: number
   onSelectRange: (index: number) => void
+  drawingClipId?: string
 }
 type Kind = 'caption' | 'scene' | 'overlay' | 'video' | 'audio'
 interface Clip {
@@ -44,7 +46,7 @@ interface Clip {
 }
 const HEADER = 168
 const MAX_ZOOM = 2
-const icons = { caption: Subtitles, scene: Image, overlay: Sparkles, video: Film, audio: Volume2 }
+const icons: Record<Kind, IconName> = { caption: 'subtitle', scene: 'gallery', overlay: 'magic', video: 'video-play', audio: 'volume' }
 const iconStyles = { caption: s.captionIcon, scene: s.sceneIcon, overlay: s.overlayIcon, video: s.videoIcon, audio: s.audioIcon }
 function itemKind(item?: TimelineItem): Kind {
   if (!item) return 'overlay'
@@ -102,6 +104,13 @@ function AudioWaveform({ item, fps, scale, left, width }: { item: TimelineItem; 
   }, [waveform, fps, scale, left, width, item.sourceStart, item.trimStart, item.sourceFps, item.speed])
   return error ? <span title="Chưa đọc được sóng âm." {...stylex.props(s.waveformError)}>Chưa đọc được sóng âm.</span> : <canvas ref={canvas} aria-hidden {...stylex.props(s.waveform(left, width))} />
 }
+function rulerLabel(frame: number, fps: number): string {
+  const seconds = Math.max(0, Math.floor(frame / fps))
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const rest = String(seconds % 60).padStart(2, '0')
+  return hours ? `${hours}:${String(minutes).padStart(2, '0')}:${rest}` : `${minutes}:${rest}`
+}
 function Playhead({ scale }: { scale: number }) {
   const frame = usePlaybackStore(state => state.previewFrame ?? state.currentFrame)
   return <div aria-hidden {...stylex.props(s.playhead(HEADER + frame * scale))}><span {...stylex.props(s.playheadCap)} /></div>
@@ -116,6 +125,9 @@ function Ruler({ duration, fps, scale, left, width, markers, onPointerDown, onPo
   const step = rulerStep(fps, scale)
   const ticks = []
   for (let tick = Math.floor(left / scale / step) * step; tick < Math.min(duration, (left + width) / scale); tick += step) ticks.push(tick)
+  const minorStep = step >= 5 ? Math.max(1, Math.round(step / 5)) : 0
+  const minorTicks = []
+  if (minorStep) for (let tick = Math.floor(left / scale / minorStep) * minorStep; tick < Math.min(duration, (left + width) / scale); tick += minorStep) minorTicks.push(tick)
   return <div role="slider" tabIndex={0} aria-label="Vị trí phát" aria-valuemin={0} aria-valuemax={Math.max(0, duration - 1)} aria-valuenow={Math.min(frame, duration - 1)} aria-valuetext={timecode(frame, fps)} {...stylex.props(s.ruler)} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onKeyDown={event => {
     if (event.metaKey || event.ctrlKey || event.altKey) return
     const next = rulerKeyFrame(event.key, frame, fps, duration, event.shiftKey)
@@ -123,10 +135,10 @@ function Ruler({ duration, fps, scale, left, width, markers, onPointerDown, onPo
     event.preventDefault(); event.stopPropagation()
     const playback = usePlaybackStore.getState()
     playback.pause(); playback.finishScrub(next)
-  }}>{ticks.map(tick => <span key={tick} {...stylex.props(s.tick(tick * scale))}><span {...stylex.props(s.tickLabel)}>{timecode(tick, fps).slice(0, 8)}</span></span>)}{markers.map((marker, index) => <span key={index} aria-hidden {...stylex.props(s.rangeMarker(marker * fps * scale))} />)}<span aria-hidden {...stylex.props(s.playhead(frame * scale))}><span {...stylex.props(s.playheadCap)} /></span></div>
+  }}>{minorTicks.map(tick => <span key={`m${tick}`} aria-hidden {...stylex.props(s.tickMinor(tick * scale))} />)}{ticks.map(tick => <span key={tick} {...stylex.props(s.tick(tick * scale))}><span {...stylex.props(s.tickLabel)}>{rulerLabel(tick, fps)}</span></span>)}{markers.map((marker, index) => <span key={index} aria-hidden {...stylex.props(s.rangeMarker(marker * fps * scale))} />)}<span aria-hidden {...stylex.props(s.playhead(frame * scale))}><span {...stylex.props(s.playheadCap)} /></span></div>
 }
 
-export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps) {
+export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }: TimelineProps) {
   const items = useItemsStore(state => state.items)
   const tracks = useItemsStore(state => state.tracks)
   const fps = useTimelineSettingsStore(state => state.fps)
@@ -151,6 +163,18 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
   }), [items, fps])
   const indexes = useMemo(() => indexItems(clips), [clips])
   const selected = useMemo(() => new Set(selectedIds), [selectedIds])
+  const selectedCueClips = useMemo(() => clips.filter(clip => clip.cueId && selected.has(clip.item.id)), [clips, selected])
+  const activeCueId = usePlaybackStore(state => selectedCueClips.find(clip => state.currentFrame >= clip.from && state.currentFrame < clip.from + clip.durationInFrames)?.id)
+  const keyframes = useKeyframesStore(state => state.keyframes)
+  const selectedScene = items.find(item => item.type === 'image' && selected.has(item.id))
+  const keyframeFrames = useMemo(() => {
+    if (!selectedScene) return []
+    const entry = keyframes.find(record => record.itemId === selectedScene.id)
+    const frames = new Set<number>()
+    for (const property of entry?.properties ?? []) for (const keyframe of property.keyframes) frames.add(keyframe.frame)
+    for (const property of entry?.vectorProperties ?? []) for (const keyframe of property.keyframes) frames.add(keyframe.frame)
+    return [...frames].filter(frame => frame > 0 && frame < selectedScene.durationInFrames).toSorted((a, b) => a - b)
+  }, [keyframes, selectedScene])
   const failures = useMemo(() => ranges.flatMap((range, index) => Number.isFinite(range.start) && Number.isFinite(range.end) && range.end > range.start && !['pass', 'passed', 'aligned'].includes(range.status) ? [{ range, index }] : []), [ranges])
   const rangeMarkers = useMemo(() => failures.map(({ range }) => range.start), [failures])
   const targets = useMemo(() => [0, ...clips.flatMap(clip => [clip.from, clip.from + clip.durationInFrames])], [clips])
@@ -213,7 +237,7 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
     const ids = useSelectionStore.getState().selectedItemIds
     const expanded = useEditorStore.getState().linkedSelectionEnabled ? expandSelectionWithLinkedItems(items, ids) : ids
     if (items.some(item => expanded.includes(item.id) && tracks.find(track => track.id === item.trackId)?.locked)) {
-      toast.error('Track đang khoá. Mở khoá track rồi thử lại.'); return []
+      toast.error('Rãnh đang khoá. Mở khoá rãnh rồi thử lại.'); return []
     }
     return expanded
   }
@@ -238,7 +262,7 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
   }
   const changeTrack = (track: TimelineTrack, updates: Partial<TimelineTrack>) => {
     const result = executeCommands([{ type: 'track.update', params: { id: track.id, updates } }])
-    if (!result.ok) toast.error('Không đổi được track này.')
+    if (!result.ok) toast.error('Không đổi được rãnh này.')
   }
   const setZoom = (level: number) => {
     if (!Number.isFinite(level)) return
@@ -255,8 +279,8 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
   useShortcutAction({ id: 'split', label: 'Tách tại vị trí phát', scope: 'timeline', run: split })
   useShortcutAction({ id: 'delete', label: 'Xoá phần đang chọn', scope: 'timeline', run: remove })
   useShortcutAction({ id: 'snap', label: 'Bắt dính', scope: 'timeline', run: snap })
-  useShortcutAction({ id: 'zoom-in', label: 'Phóng to timeline', scope: 'timeline', run: () => setZoom(zoom * 1.25) })
-  useShortcutAction({ id: 'zoom-out', label: 'Thu nhỏ timeline', scope: 'timeline', run: () => setZoom(zoom / 1.25) })
+  useShortcutAction({ id: 'zoom-in', label: 'Phóng to dòng thời gian', scope: 'timeline', run: () => setZoom(zoom * 1.25) })
+  useShortcutAction({ id: 'zoom-out', label: 'Thu nhỏ dòng thời gian', scope: 'timeline', run: () => setZoom(zoom / 1.25) })
   useShortcutAction({ id: 'zoom-fit', label: 'Vừa cả video', scope: 'timeline', run: fit })
   useShortcutAction({ id: 'range-next', label: 'Đoạn lệch sau', scope: 'timeline', bindings: ['KeyF'], run: () => navigate(1) })
   useShortcutAction({ id: 'range-previous', label: 'Đoạn lệch trước', scope: 'timeline', bindings: ['shift+KeyF'], run: () => navigate(-1) })
@@ -283,16 +307,16 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
     const matches = ({ range }: (typeof failures)[number]) => (!range.itemId || range.itemId === clip.item.id) && (!range.cueId || range.cueId === clip.cueId) && (range.itemId || range.cueId || clip.kind === 'caption') && range.start * fps < clip.from + clip.durationInFrames && range.end * fps > clip.from
     return failures.find(entry => entry.index === selectedRange && matches(entry)) ?? failures.find(matches)
   }
-  return <section aria-label="Timeline" data-shortcut-scope="timeline" {...stylex.props(s.root)}>
+  return <section aria-label="Dòng thời gian" data-shortcut-scope="timeline" {...stylex.props(s.root)}>
     <div {...stylex.props(s.toolbar)}>
-      <button type="button" title="Tách tại playhead (S)" disabled={!selectedIds.length} onClick={split} {...stylex.props(s.button)}><Scissors size={14} aria-hidden />Tách <kbd {...stylex.props(s.shortcut)}>S</kbd></button>
-      <button type="button" title="Xoá phần đang chọn (⌫)" disabled={!selectedIds.length} onClick={remove} {...stylex.props(s.button)}><Trash2 size={14} aria-hidden />Xoá</button>
-      <button type="button" aria-pressed={snapEnabled} title="Bắt dính vào mép cảnh và phụ đề (N)" onClick={snap} {...stylex.props(s.button, snapEnabled && s.pressed)}><Check size={13} aria-hidden />Bắt dính</button>
-      {failures.length > 0 && <><span aria-hidden {...stylex.props(s.divider)} /><span {...stylex.props(s.chip)}><span>Đoạn lệch {position + 1}/{failures.length}</span><button type="button" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)} {...stylex.props(s.button, s.quiet, s.iconButton, s.chipButton)}><ArrowLeft size={13} aria-hidden /></button><button type="button" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)} {...stylex.props(s.button, s.quiet, s.iconButton, s.chipButton)}><ArrowRight size={13} aria-hidden /></button></span></>}
+      <button type="button" title="Tách tại vị trí phát (S)" disabled={!selectedIds.length} onClick={split} {...stylex.props(s.button)}><Icon name="scissor" size={14} />Tách <kbd {...stylex.props(s.shortcut)}>S</kbd></button>
+      <button type="button" title="Xoá phần đang chọn (⌫)" disabled={!selectedIds.length} onClick={remove} {...stylex.props(s.button)}><Icon name="trash" size={14} />Xoá</button>
+      <button type="button" aria-pressed={snapEnabled} title="Bắt dính vào mép cảnh và phụ đề (N)" onClick={snap} {...stylex.props(s.button, snapEnabled && s.pressed)}><Icon name="tick" size={13} />Bắt dính</button>
+      {failures.length > 0 && <><span aria-hidden {...stylex.props(s.divider)} /><span {...stylex.props(s.chip)}><span>Đoạn lệch {position + 1}/{failures.length}</span><button type="button" aria-label="Đoạn lệch trước" title="Đoạn lệch trước (⇧F)" onClick={() => navigate(-1)} {...stylex.props(s.button, s.quiet, s.iconButton, s.chipButton)}><Icon name="arrow-left-2" size={13} /></button><button type="button" aria-label="Đoạn lệch sau" title="Đoạn lệch sau (F)" onClick={() => navigate(1)} {...stylex.props(s.button, s.quiet, s.iconButton, s.chipButton)}><Icon name="arrow-r" size={13} /></button></span></>}
       <span {...stylex.props(s.spacer)} />
-      <button type="button" aria-label="Thu nhỏ timeline" title="Thu nhỏ (−)" onClick={() => setZoom(zoom / 1.25)} {...stylex.props(s.button, s.iconButton)}><Minus size={14} aria-hidden /></button>
-      <input type="range" aria-label="Thu phóng timeline" min={minimumZoom} max={MAX_ZOOM} step="any" value={Math.max(minimumZoom, Math.min(MAX_ZOOM, zoom))} onChange={event => setZoom(Number(event.target.value))} {...stylex.props(s.zoom)} />
-      <button type="button" aria-label="Phóng to timeline" title="Phóng to (=)" onClick={() => setZoom(zoom * 1.25)} {...stylex.props(s.button, s.iconButton)}><Plus size={14} aria-hidden /></button>
+      <button type="button" aria-label="Thu nhỏ dòng thời gian" title="Thu nhỏ (−)" onClick={() => setZoom(zoom / 1.25)} {...stylex.props(s.button, s.iconButton)}><Icon name="minus" size={14} /></button>
+      <input type="range" aria-label="Thu phóng dòng thời gian" min={minimumZoom} max={MAX_ZOOM} step="any" value={Math.max(minimumZoom, Math.min(MAX_ZOOM, zoom))} onChange={event => setZoom(Number(event.target.value))} {...stylex.props(s.zoom)} />
+      <button type="button" aria-label="Phóng to dòng thời gian" title="Phóng to (=)" onClick={() => setZoom(zoom * 1.25)} {...stylex.props(s.button, s.iconButton)}><Icon name="add" size={14} /></button>
       <button type="button" title="Vừa cả video (\)" onClick={fit} {...stylex.props(s.button, s.quiet)}>Vừa</button>
     </div>
     <div ref={scroll} onScroll={syncViewport} {...stylex.props(s.scroll)}>
@@ -300,13 +324,14 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
         <div {...stylex.props(s.rulerRow)}><div {...stylex.props(s.header, s.rulerHeader)} /><Ruler duration={duration} fps={fps} scale={scale} left={viewport.left} width={available} markers={rangeMarkers} onPointerDown={startScrub} onPointerMove={moveScrub} onPointerUp={endScrub} /></div>
         {orderedTracks.map(track => {
           const kind: Kind = track.templateSlot === 'captions' ? 'caption' : track.templateSlot === 'scenes' ? 'scene' : track.templateSlot === 'source-audio' || track.kind === 'audio' ? 'audio' : track.templateSlot === 'background-video' ? 'video' : itemKind(items.find(item => item.trackId === track.id))
-          const TrackIcon = icons[kind]
-          return <div key={track.id} role="group" aria-label={`Track ${track.name}`} {...stylex.props(s.row)}>
-            <div {...stylex.props(s.header)}><TrackIcon size={14} aria-hidden {...stylex.props(iconStyles[kind])} /><span title={track.name} {...stylex.props(s.trackLabel)}>{track.name}</span>{(track.kind === 'audio' || kind === 'audio') && <button type="button" aria-label={`${track.muted ? 'Bật tiếng' : 'Tắt tiếng'} ${track.name}`} aria-pressed={track.muted} onClick={() => changeTrack(track, { muted: !track.muted })} {...stylex.props(s.trackButton)}>{track.muted ? <VolumeX size={13} aria-hidden /> : <Volume2 size={13} aria-hidden />}</button>}<button type="button" aria-label={`${track.visible ? 'Ẩn' : 'Hiện'} track ${track.name}`} aria-pressed={track.visible} title={track.visible ? 'Ẩn track' : 'Hiện track'} onClick={() => changeTrack(track, { visible: !track.visible })} {...stylex.props(s.trackButton)}>{track.visible ? <Eye size={13} aria-hidden /> : <EyeOff size={13} aria-hidden />}</button></div>
+          const count = clips.filter(clip => clip.trackId === track.id).length
+          const label = kind === 'video' && count > 1 ? `${track.name} · ${count}` : track.name
+          return <div key={track.id} role="group" aria-label={`Rãnh ${track.name}`} {...stylex.props(s.row)}>
+            <div {...stylex.props(s.header)}><Icon name={icons[kind]} size={14} xstyle={iconStyles[kind]} /><span title={label} {...stylex.props(s.trackLabel)}>{label}</span>{(track.kind === 'audio' || kind === 'audio') && <button type="button" aria-label={`${track.muted ? 'Bật tiếng' : 'Tắt tiếng'} ${track.name}`} aria-pressed={track.muted} title={track.muted ? 'Bật tiếng' : 'Tắt tiếng'} onClick={() => changeTrack(track, { muted: !track.muted })} {...stylex.props(s.trackButton)}><Icon name="volume" size={13} xstyle={track.muted ? s.mutedIcon : undefined} /></button>}<button type="button" aria-label={`${track.visible ? 'Ẩn' : 'Hiện'} rãnh ${track.name}`} aria-pressed={track.visible} title={track.visible ? 'Ẩn rãnh' : 'Hiện rãnh'} onClick={() => changeTrack(track, { visible: !track.visible })} {...stylex.props(s.trackButton)}><Icon name={track.visible ? 'eye' : 'eye-slash'} size={13} /></button></div>
             <div tabIndex={-1} {...stylex.props(s.lane, !track.visible && s.hidden)} onPointerDown={startScrub} onPointerMove={moveScrub} onPointerUp={endScrub} onPointerCancel={endScrub}>
               {visibleItems(indexes.get(track.id), Math.max(0, viewport.left / scale - 1), (viewport.left + available) / scale + 1).map(clip => {
                 const failure = matchRange(clip)
-                const selectedClip = failure ? failure.index === selectedRange : !clip.cueId && selected.has(clip.item.id)
+                const selectedClip = failure ? failure.index === selectedRange : selected.has(clip.item.id) && (!clip.cueId || clip.id === activeCueId)
                 return <button key={clip.id} type="button" aria-label={`${clip.label}, ${timecode(clip.from, fps)}${failure ? ', Đoạn lệch' : ''}`} aria-pressed={selectedClip} title={clip.label} {...stylex.props(s.clip(clip.from * scale, clip.durationInFrames * scale), s[clip.kind], failure && s.failing, selectedClip && s.selected)} onClick={event => {
                   if (failure) selectRange(failure.index)
                   else {
@@ -317,13 +342,15 @@ export function Timeline({ ranges, selectedRange, onSelectRange }: TimelineProps
                 }}
                 >
                   {clip.kind === 'audio' && <AudioWaveform item={clip.item} fps={fps} scale={scale} left={Math.max(0, viewport.left - clip.from * scale)} width={Math.max(0, Math.min(clip.durationInFrames * scale, viewport.left + available - clip.from * scale) - Math.max(0, viewport.left - clip.from * scale))} />}
+                  {clip.item.id === drawingClipId && <span aria-label="Đang vẽ lại ảnh cảnh" title="Đang vẽ lại ảnh cảnh" {...stylex.props(s.drawingRing)} />}
                   <span {...stylex.props(s.clipLabel, clip.kind === 'audio' && s.audioLabel)}>{clip.label}</span>
                 </button>
               })}
+              {kind === 'scene' && selectedScene?.trackId === track.id && keyframeFrames.map(frame => <span key={frame} aria-hidden {...stylex.props(s.keyframe((selectedScene.from + frame) * scale))} />)}
             </div>
           </div>
         })}
-        {!orderedTracks.length && <p {...stylex.props(s.empty)}>Chưa có nội dung trên timeline.</p>}
+        {!orderedTracks.length && <p {...stylex.props(s.empty)}>Chưa có nội dung trên dòng thời gian.</p>}
         <Playhead scale={scale} />
       </div>
     </div>

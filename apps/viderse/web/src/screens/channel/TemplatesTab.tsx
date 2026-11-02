@@ -50,14 +50,14 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
         <div {...stylex.props(mch.tplList)}>
           {channel.templates.map((template, index) => (
             <div key={template.id} {...stylex.props(mch.tplRow, template.id === nextId && mch.tplRowNext)}>
-              <span className={`num ${stylex.props(mch.tplN).className}`}>{String(index + 1).padStart(2, '0')}</span>
+              <span className={`num ${stylex.props(mch.tplN).className}`}>{index + 1}</span>
               <a href={`#${paths.template(template.id)}`} {...stylex.props(mch.tplThumb)} aria-label={tt.settings}>
                 <Icon name="layer" size={18} />
               </a>
               <div {...stylex.props(mch.tplText)}>
                 <div {...stylex.props(mch.tplNameRow)}>
                   <a href={`#${paths.template(template.id)}`} title={template.name} {...stylex.props(mch.tplName)}>{template.name}</a>
-                  {template.id === nextId && <span {...stylex.props(mch.nextBadge)}>{tt.next}</span>}
+                  {template.id === nextId && <span {...stylex.props(mch.nextBadge)}>{phone ? tt.nextShort : tt.next}</span>}
                 </div>
                 <span {...stylex.props(mch.tplRecipe)}>
                   {summaries.get(template.id) ? templateLine(summaries.get(template.id)!) : t.channels.page.tabs.templates}
@@ -115,8 +115,8 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
           <span className={`vch-tpl__n num ${stylex.props(channelStyles.tplN).className}`} aria-hidden="true">{index + 1}</span>
           <span className={`vch-tpl__text ${stylex.props(channelStyles.tplText).className}`}>
             <span className={`vch-tpl__name ${stylex.props(channelStyles.tplName).className}`}>
-              <span {...stylex.props(channelStyles.tplNameText)} title={template.name}>{template.name}</span>
-              {template.id === nextId && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge, channelStyles.tplNameText).className}`}>{tt.next}</span>}
+              <span {...stylex.props(channelStyles.tplNameLead)} title={template.name}>{template.name}</span>
+              {template.id === nextId && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge, channelStyles.tplNameBadge).className}`}>{phone ? tt.nextShort : tt.next}</span>}
             </span>
             <span className={`vch-tpl__sub ${stylex.props(channelStyles.tplSub).className}`}>
               {summaries.get(template.id) ? templateLine(summaries.get(template.id)!) : t.channels.page.tabs.templates}

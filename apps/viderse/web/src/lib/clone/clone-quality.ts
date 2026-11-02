@@ -60,13 +60,13 @@ export const CLONE_THUMBNAIL_HEIGHT = 720;
 export const CLONE_QUALITY_ITEM_LABELS: Record<CloneQualityItemId, { label: string; fix: string }> = {
   duration: { label: "Thời lượng", fix: "Kéo/cắt clip để thời lượng trong ±10% video gốc" },
   sceneCount: { label: "Số cảnh", fix: "Dựng lại project hoặc sửa số ảnh cảnh cho khớp nguồn" },
-  cutRhythm: { label: "Nhịp cắt", fix: "Đặt mép ảnh cảnh đúng boundary đã duyệt" },
+  cutRhythm: { label: "Nhịp cắt", fix: "Đặt mép ảnh cảnh đúng ranh giới đã duyệt" },
   images: { label: "Ảnh tất cả cảnh", fix: "Duyệt đủ ảnh và giữ clip ảnh hiển thị đủ cảnh" },
-  captions: { label: "Phụ đề phủ speech", fix: "Hiện track phụ đề và phủ mọi khoảng speech" },
+  captions: { label: "Phụ đề phủ lời nói", fix: "Hiện rãnh phụ đề và phủ mọi đoạn lời nói" },
   loudness: { label: "Âm lượng", fix: "Đo lại hoặc đưa âm lượng về bằng video gốc" },
   resolution1080p: { label: "1080p", fix: "Dùng cài đặt 1920×1080 · 30 fps, xuất cả project" },
-  thumbnail: { label: "Thumbnail", fix: "Duyệt thumbnail WebP 1280×720 hiện hành" },
-  captionAlignment: { label: "Phụ đề khớp tiếng", fix: "Chỉnh mốc từng từ trong editor theo các cue lệch" },
+  thumbnail: { label: "Ảnh bìa", fix: "Duyệt ảnh bìa WebP 1280×720 hiện hành" },
+  captionAlignment: { label: "Phụ đề khớp tiếng", fix: "Chỉnh mốc từng từ trong Biên tập theo các đoạn lệch" },
   captionKaraoke: { label: "Phụ đề karaoke", fix: "Đo mốc từng từ để giảm các trang ước lượng" },
   background: { label: "Nền video", fix: "Dựng lại project — các clip nền phải phủ kín toàn bộ video" },
 };

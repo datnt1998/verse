@@ -76,9 +76,10 @@ export const assistantCopy = {
     close: 'Đóng',
   },
   states: {
-    planning: 'Đang đọc câu của bạn…',
+    planningWho: 'Đạo diễn đang đọc câu của bạn…',
     running: 'Đang làm…',
     lostProgress: 'Mất kết nối tới máy chủ, chưa cập nhật được tiến độ. Việc vẫn chạy ở Việc nền.',
+    keepOpenWhileRunning: 'Đang chạy kế hoạch nên chưa đóng được. Chờ xong từng bước rồi đóng.',
     retry: 'Thử lại',
     edit: 'Sửa câu',
     offline: 'Mất kết nối · gửi lại khi có kết nối',
@@ -89,7 +90,20 @@ export const assistantCopy = {
     invalid: 'Câu trống hoặc dài quá 500 ký tự. Rút gọn rồi gửi lại.',
     notFound: 'Không còn thấy video hoặc kênh này. Mở lại màn rồi thử lại.',
     failed: 'Trợ lý chưa lập được kế hoạch. Chưa làm gì cả.',
+    runFailed: 'Chưa chạy được kế hoạch. Chưa có bước nào được ghi nhận.',
+    errorTitle: 'Trợ lý báo lỗi',
     tooLong: 'Câu dài quá 500 ký tự.',
     modelLink: 'Mở Kết nối AI',
+  },
+  // Câu đọc cho trình đọc màn hình; không hiện trên giao diện.
+  a11y: {
+    planning: 'Đạo diễn đang đọc câu của bạn.',
+    plan: (count: number) => `Kế hoạch ${count} bước đã sẵn sàng. Bỏ tích bước không làm rồi bấm Làm.`,
+    ask: 'Trợ lý cần hỏi lại một chút trước khi lập kế hoạch.',
+    unknown: 'Trợ lý chưa làm được việc này và đưa ra gợi ý khác.',
+    error: 'Trợ lý báo lỗi và chưa làm gì.',
+    running: (done: number, total: number) => `Đang làm ${done}/${total} bước.`,
+    done: (done: number, total: number) => `Đã xong ${done}/${total} bước.`,
+    failed: (failed: number, total: number) => `${failed}/${total} bước chưa làm được.`,
   },
 } as const

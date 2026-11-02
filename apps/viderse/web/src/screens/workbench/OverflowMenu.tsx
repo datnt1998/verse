@@ -21,8 +21,8 @@ export function OverflowMenu({ job, onClose, onRefresh, onError, mobile }: { job
 
   const entries: Entry[] = []
   entries.push(project
-    ? { key: 'editor', label: 'Mở trong editor', hint: 'Chỉnh tay bố cục, chữ, nhạc', href: `#/editor/${encodeURIComponent(project)}` }
-    : { key: 'editor', label: 'Mở trong editor', hint: 'Project chưa sẵn sàng', disabled: true })
+    ? { key: 'editor', label: 'Mở trong Biên tập', hint: 'Chỉnh tay bố cục, chữ, nhạc', href: `#/editor/${encodeURIComponent(project)}` }
+    : { key: 'editor', label: 'Mở trong Biên tập', hint: 'Chưa mở được project', disabled: true })
   if (!job.supersededAt) entries.push({ key: 'restart', label: 'Làm lại từ đầu', hint: 'Tạo lượt mới cho cùng video, tốn lại hạn mức ảnh', onClick: restart })
   if (job.stageGroup === 'working' || job.stageGroup === 'paused') entries.push({ key: 'stop', label: 'Dừng hẳn', onClick: stop })
   if (job.stageGroup === 'ready') {

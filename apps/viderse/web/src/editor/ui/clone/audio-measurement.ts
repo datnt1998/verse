@@ -23,6 +23,8 @@ import {
   completeMeasurementApi,
   createMeasurementApi,
   failMeasurementApi,
+  measurementFailure,
+  MeasurementFailureError,
   uploadMeasurementChunk,
   type MeasurementClaimCredential,
 } from "./measurement-runtime";
@@ -198,7 +200,7 @@ export async function runAudioMeasurement(options: {
             return;
           }
           if (message.type === "error") {
-            reject(new Error(message.error));
+            reject(Object.assign(new Error(message.error), message.code ? { code: message.code } : {}));
           }
         };
         worker.onerror = (event) => reject(new Error(event.message || "Worker đo lỗi"));
@@ -223,10 +225,12 @@ export async function runAudioMeasurement(options: {
       worker.terminate();
     }
   } catch (error) {
-    await failMeasurementApi(jobId, request.id, fence, {
-      code: "internal_error",
-      message: error instanceof Error ? error.message : String(error),
-    }).catch(() => undefined);
-    throw error;
+    const failure = measurementFailure(error);
+    // Keep the decoder/browser cause in local support logs; the request and UI
+    // only carry the typed Vietnamese explanation.
+    console.error("[measurement] failure", { code: failure.code, cause: error });
+    await failMeasurementApi(jobId, request.id, fence, failure).catch(() => undefined);
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new MeasurementFailureError(failure, { cause: error });
   }
 }

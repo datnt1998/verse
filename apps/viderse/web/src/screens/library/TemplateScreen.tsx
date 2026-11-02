@@ -13,7 +13,7 @@ import { navigate, paths, type Route, type TemplateSection } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import {
-  duplicateTemplate, getTemplate, listOverlays, listOwnerChannels, listPrompts, removeTemplate,
+  downloadTemplate, duplicateTemplate, getTemplate, listOverlays, listOwnerChannels, listPrompts, removeTemplate,
   type Recipe, type TemplateDetail,
 } from '../../api/library'
 import { ActionButton } from '../../components'
@@ -101,6 +101,7 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
   const detail = draft.detail
   const recipe = detail.recipe
   const nameError = draft.fieldErrors.name
+  const editorLockedReason = draft.saving ? copy.saving : draft.dirty ? draft.conflict ? copy.conflict : copy.saveFail : undefined
   const unmatched = Object.entries(draft.fieldErrors).filter(([field]) => !FIELD_SLOT[field])
 
   const scenePrompts = useResource(keys.prompts('scene', ''), ({ signal }) => listPrompts({ kind: 'scene' }, signal))
@@ -175,13 +176,16 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
             {nameError && <p id="vt-name-error" className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{nameError}</p>}
           </div>
           <div className={`vt-head-actions ${stylex.props(sx.headActions).className}`} aria-live="polite">
-            <span className={`vt-saved ${stylex.props(sx.saved, ((draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved') === "saving") && sx.savedDataStateSaving, ((draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved') === "conflict") && sx.savedDataStateConflict).className}`} data-state={draft.saving ? 'saving' : draft.conflict ? 'conflict' : 'saved'} aria-live="polite">
-              {draft.saving ? copy.saving : t.library.saved(clock(detail.savedAt))}
+            <span className={`vt-saved ${stylex.props(sx.saved, ((draft.saving ? 'saving' : draft.error ? 'error' : draft.conflict ? 'conflict' : 'saved') === "saving") && sx.savedDataStateSaving, ((draft.saving ? 'saving' : draft.error ? 'error' : draft.conflict ? 'conflict' : 'saved') === "error") && sx.savedDataStateError, ((draft.saving ? 'saving' : draft.error ? 'error' : draft.conflict ? 'conflict' : 'saved') === "conflict") && sx.savedDataStateConflict).className}`} data-state={draft.saving ? 'saving' : draft.error ? 'error' : draft.conflict ? 'conflict' : 'saved'} aria-live="polite">
+              {draft.saving
+                ? copy.saving
+                : draft.error ? copy.saveFail : draft.justSaved ? copy.savedNow : copy.savedAt(clock(detail.savedAt))}
             </span>
-            <ActionButton xstyle={[sx.vtShellActionButton]} variant="outline" lockedReason={copy.openEditorLocked}>{copy.openEditor}</ActionButton>
+            <ActionButton xstyle={[sx.vtShellActionButton]} variant="outline" lockedReason={editorLockedReason} onClick={() => navigate(paths.editor(detail.id))}>{copy.openEditor}</ActionButton>
             <ActionMenu triggerStyle={sx.touchTarget}
               label={copy.moreAria}
               items={[
+                { id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />, onSelect: () => downloadTemplate(detail.id) },
                 { id: 'duplicate', label: t.library.duplicate, icon: <Icon name="copy" size={16} />, onSelect: () => void duplicate() },
               ]}
               trigger={<Icon name="more" size={16} />}
@@ -220,7 +224,7 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
             )}
             {section === 'output' && (
               <OutputSection detail={detail} onSave={save} onDuplicate={duplicate} onDelete={remove}
-                onAttach={() => setAttach(true)} />
+                onAttach={() => setAttach(true)} editorLockedReason={editorLockedReason} />
             )}
           </div>
           <aside className={`vt-aside ${stylex.props(sx.aside).className}`}>
@@ -253,6 +257,7 @@ const sx = stylex.create({
   headActions: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexGrow: 0, flexShrink: 0, flexBasis: "auto", flexWrap: "wrap", justifyContent: { default: "flex-end", "@media (max-width: 767px)": "space-between" } },
   saved: { fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap", minWidth: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   savedDataStateSaving: { color: color["--color-fg-2"] },
+  savedDataStateError: { color: color["--color-err"] },
   savedDataStateConflict: { color: color["--color-warn"] },
   fieldLine: { display: "block" },
   row2: { display: "grid", gridTemplateColumns: { default: libraryVars.templateScreenRow2GridTemplateColumns, "@media (max-width: 1099px)": libraryVars.overlaysTabGridGridOverlaysGridTemplateColumns3 }, rowGap: { default: "var(--vv-s-24)", "@media (max-width: 767px)": "var(--vv-s-14)" }, columnGap: { default: "var(--vv-s-24)", "@media (max-width: 767px)": "var(--vv-s-14)" }, paddingTop: { default: 0, "@media (max-width: 767px)": 0 }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-40)", "@media (max-width: 767px)": "var(--vv-s-32)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, alignItems: "start" },

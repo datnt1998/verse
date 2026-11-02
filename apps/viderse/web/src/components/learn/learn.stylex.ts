@@ -47,6 +47,9 @@ export const learnStyles = stylex.create({
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr) auto', gap: `${s['--vv-s-2']} ${s['--vv-s-12']}`, alignItems: 'start',
     padding: `${s['--vv-s-10']} 0`, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--vv-hairline)',
   },
+  ruleMobile: { alignItems: 'center', minHeight: 56 },
+  ruleSwitchMobile: { gridRow: 'span 2', width: 56, height: 44, marginLeft: -3, display: 'flex', alignItems: 'center' },
+  ruleSwitchMobileHit: { width: 56, marginBlock: 0, marginInline: 0 },
   ruleSwitch: {
     gridRow: 'span 2', marginTop: s['--vv-s-1'], position: 'relative', width: 36, height: 22, flex: '0 0 auto', borderWidth: 0, padding: 0,
     borderRadius: r['--vv-r-pill'], backgroundColor: color['--color-surface-7'], cursor: 'pointer',

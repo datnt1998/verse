@@ -124,7 +124,7 @@ func (s *Service) bindTemplateMedia(ctx context.Context, tpl *domain.Template, p
 				return TemplateBinding{}, TemplateMediaLinks{}, nil, digestErr
 			}
 			if actual != strings.TrimPrefix(hash, "sha256:") {
-				return TemplateBinding{}, TemplateMediaLinks{}, nil, invalidInput("Media của template đã thay đổi", "Tải lại template rồi chạy lại video")
+				return TemplateBinding{}, TemplateMediaLinks{}, nil, invalidInput("Media của mẫu video đã thay đổi", "Tải lại mẫu video rồi chạy lại video")
 			}
 		}
 		binding.Media = append(binding.Media, TemplateMediaBinding{MediaID: id, ContentHash: hash})
@@ -157,7 +157,7 @@ func digestTemplateFile(handle *media.Handle) (string, error) {
 }
 
 func missingTemplateMedia(id string, cause error) error {
-	return fmt.Errorf("%w: %s: %v", invalidInput("Media của template không còn trong thư viện", "Mở template và liên kết lại media trước khi chạy video"), id, cause)
+	return fmt.Errorf("%w: %s: %v", invalidInput("Media của mẫu video không còn trong thư viện", "Mở mẫu video và liên kết lại media trước khi chạy video"), id, cause)
 }
 
 func (s *Service) templateMediaRecord(ctx context.Context, id string) (string, string, error) {
@@ -176,32 +176,25 @@ func (s *Service) templateMediaRecord(ctx context.Context, id string) (string, s
 		}
 		return overlay.FilePath, "sha256:" + overlay.SHA256, nil
 	}
-	// Uploaded editor media has the same canonical index and source file shape
-	// as yt-factory. An opaque cover id is never guessed to be a filesystem path.
-	if strings.ContainsAny(id, "/\\") || id == "." || id == ".." || id == "" || s.media == nil {
-		return "", "", missingTemplateMedia(id, fmt.Errorf("missing editor media index"))
+	// Resolve editor media through its authoritative revision/source pointers.
+	// Metadata is immutable revision JSON, not a file at the legacy media path.
+	if strings.ContainsAny(id, "/\\") || id == "." || id == ".." || id == "" || s.mediaReader == nil {
+		return "", "", missingTemplateMedia(id, fmt.Errorf("missing editor media reader"))
 	}
-	handle, err := s.media.Acquire(ctx, "editor/media/"+id+"/metadata.json")
+	record, err := s.mediaReader.GetMediaMetadata(ctx, id)
 	if err != nil {
 		return "", "", missingTemplateMedia(id, err)
 	}
-	data, err := os.ReadFile(handle.Path)
-	handle.Release()
-	if err != nil {
-		return "", "", err
-	}
-	var record struct {
-		ContentHash string `json:"contentHash"`
-		SourceFile  string `json:"sourceFile"`
-	}
-	if err := json.Unmarshal(data, &record); err != nil {
-		return "", "", missingTemplateMedia(id, err)
-	}
-	if !strings.HasPrefix(record.ContentHash, "sha256:") || len(record.ContentHash) != 71 || record.SourceFile == "" || strings.ContainsAny(record.SourceFile, "/\\") || record.SourceFile == "." || record.SourceFile == ".." {
+	if !validSHA256(record.ContentHash) {
 		return "", "", missingTemplateMedia(id, fmt.Errorf("invalid editor media metadata"))
 	}
-	if _, err := hex.DecodeString(record.ContentHash[7:]); err != nil {
+	handle, err := s.mediaReader.AcquireMedia(ctx, id)
+	if err != nil {
 		return "", "", missingTemplateMedia(id, err)
 	}
-	return "editor/media/" + id + "/" + record.SourceFile, record.ContentHash, nil
+	defer handle.Release()
+	if media.ValidatePath(handle.Ref.Path) != nil || handle.Ref.SHA256 != strings.TrimPrefix(record.ContentHash, "sha256:") {
+		return "", "", missingTemplateMedia(id, fmt.Errorf("editor media source does not match metadata"))
+	}
+	return handle.Ref.Path, record.ContentHash, nil
 }

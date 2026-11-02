@@ -26,6 +26,7 @@ export const mobileQueueStyles = stylex.create({
   count: { letterSpacing: 0, fontWeight: 500 },
   card: { display: 'flex', flexDirection: 'column', flexShrink: 0, gap: s['--vv-s-10'], padding: s['--vv-s-12'], borderRadius: r['--vv-r-14'], backgroundColor: 'var(--vv-sheet-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: line['--line-2'], color: color['--color-fg'], textDecoration: 'none' },
   row: { display: 'flex', alignItems: 'center', gap: s['--vv-s-12'], minWidth: 0 },
+  rulesLink: { flexDirection: 'row', minHeight: 56 },
   thumb: { flexShrink: 0, width: '64px', height: '36px', borderRadius: r['--vv-r-6'], overflow: 'hidden', backgroundColor: color['--color-surface-3'] },
   image: { width: '100%', height: '100%', objectFit: 'cover' },
   title: { fontSize: '14px', fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },

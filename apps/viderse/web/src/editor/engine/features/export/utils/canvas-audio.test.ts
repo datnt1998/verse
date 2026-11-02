@@ -2,9 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_COMPRESSOR, DEFAULT_REVERB, type AudioFxEffect } from '@editor/donor/openreel/audio/contracts'
 import { createAudioFxChain } from '@editor/features/audio-fx/stages'
 import type { CompositionInputProps } from '@editor/types/export'
+import type { MediaMetadata } from '@editor/types/storage'
 import type { AudioItem, CompositionItem, TimelineTrack, VideoItem } from '@editor/types/timeline'
 import type { Transition } from '@editor/types/transition'
 import { useCompositionsStore } from '@editor/features/export/deps/timeline-compositions'
+import { useMediaLibraryStore } from '@editor/features/media-library/stores/media-library-store'
 
 const { inputConstructor } = vi.hoisted(() => ({ inputConstructor: vi.fn() }))
 
@@ -144,6 +146,36 @@ function makeAudioItem(overrides: Partial<AudioItem> = {}): AudioItem {
   } as AudioItem
 }
 
+function makeMedia(overrides: Partial<MediaMetadata> & { id: string }): MediaMetadata {
+  return {
+    storageType: 'workspace',
+    fileName: `${overrides.id}.mp4`,
+    fileSize: 1,
+    mimeType: 'video/mp4',
+    duration: 10,
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    codec: 'h264',
+    bitrate: 0,
+    tags: [],
+    createdAt: 0,
+    updatedAt: 0,
+    ...overrides,
+  }
+}
+
+function hydrateMedia(...records: MediaMetadata[]): void {
+  useMediaLibraryStore.setState({
+    mediaItems: records,
+    mediaById: Object.fromEntries(records.map((record) => [record.id, record])),
+  })
+}
+
+beforeEach(() => {
+  useMediaLibraryStore.setState({ mediaItems: [], mediaById: {} })
+})
+
 function makeLinkedTransitionComposition(params: {
   includeVideoTransition?: boolean
   includeAudioTransition?: boolean
@@ -278,6 +310,167 @@ describe('extractAudioSegments', () => {
       durationFrames: 90,
       muted: false,
     })
+  })
+
+  it('skips only a probe-confirmed silent video instead of decoding it', () => {
+    // The failed real measurement's backdrop MP4 had an H.264 stream and no
+    // audio stream. The probe reports audioCodec:null, which maps to an explicit
+    // audioTrackPresent:false. Treating the clip as audio made mediabunny return
+    // no track and the Web Audio fallback reject with "Unable to decode audio
+    // data". A confirmed silent video must contribute silence, not a decode.
+    hydrateMedia(makeMedia({ id: 'media-silent', audioTrackPresent: false }))
+    const video = makeVideoItem({ mediaId: 'media-silent', src: 'blob:silent-video' })
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 90,
+      width: 1920,
+      height: 1080,
+      tracks: [makeTrack({ id: 'track-v1', order: 0, kind: 'video', items: [video] })],
+      transitions: [],
+      keyframes: [],
+    }
+
+    expect(extractAudioSegments(composition, composition.fps)).toEqual([])
+    expect(supportsWindowedAudioProcessing(composition)).toBe(false)
+  })
+
+  it('keeps a video that the probe confirmed has an audio track', () => {
+    hydrateMedia(makeMedia({ id: 'media-voice', audioTrackPresent: true, audioCodec: 'aac' }))
+    const video = makeVideoItem({ mediaId: 'media-voice' })
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 90,
+      width: 1920,
+      height: 1080,
+      tracks: [makeTrack({ id: 'track-v1', order: 0, kind: 'video', items: [video] })],
+      transitions: [],
+      keyframes: [],
+    }
+
+    expect(extractAudioSegments(composition, composition.fps)).toHaveLength(1)
+  })
+
+  it('does not infer silence from unknown metadata', () => {
+    // Unknown metadata must still be decoded: otherwise a corrupt audio source
+    // would silently disappear from the mix instead of failing loudly.
+    const video = makeVideoItem({ mediaId: 'media-unprobed' })
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 90,
+      width: 1920,
+      height: 1080,
+      tracks: [makeTrack({ id: 'track-v1', order: 0, kind: 'video', items: [video] })],
+      transitions: [],
+      keyframes: [],
+    }
+
+    expect(extractAudioSegments(composition, composition.fps)).toHaveLength(1)
+  })
+
+  it('does not infer silence from a video whose audio presence is unknown', () => {
+    hydrateMedia(makeMedia({ id: 'media-unknown-audio', audioTrackPresent: undefined }))
+    const video = makeVideoItem({ mediaId: 'media-unknown-audio' })
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 90,
+      width: 1920,
+      height: 1080,
+      tracks: [makeTrack({ id: 'track-v1', order: 0, kind: 'video', items: [video] })],
+      transitions: [],
+      keyframes: [],
+    }
+
+    expect(extractAudioSegments(composition, composition.fps)).toHaveLength(1)
+  })
+
+  it('mixes a confirmed silent video as silence without decoding it', async () => {
+    hydrateMedia(
+      makeMedia({ id: 'media-silent', audioTrackPresent: false }),
+      makeMedia({
+        id: 'media-voice',
+        fileName: 'voice.wav',
+        mimeType: 'audio/wav',
+        audioTrackPresent: true,
+        audioCodec: 'pcm',
+        codec: 'pcm',
+      }),
+    )
+    inputConstructor.mockClear()
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 30,
+      width: 1920,
+      height: 1080,
+      tracks: [
+        makeTrack({
+          id: 'track-v1',
+          order: 0,
+          kind: 'video',
+          items: [makeVideoItem({ mediaId: 'media-silent', src: 'blob:silent-video' })],
+        }),
+        makeTrack({
+          id: 'track-a1',
+          order: 1,
+          kind: 'audio',
+          items: [makeAudioItem({ mediaId: 'media-voice', src: 'blob:voice' })],
+        }),
+      ],
+      transitions: [],
+      keyframes: [],
+    }
+
+    const windows = []
+    for await (const window of processAudioWindows(composition)) windows.push(window)
+
+    expect(windows).toHaveLength(1)
+    expect(windows[0]?.samples[0]?.[0]).toBeCloseTo(0.1, 4)
+    // Only the voice source reaches the decoder; the silent video never does.
+    expect(inputConstructor).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a real decode failure for audio that is confirmed present', async () => {
+    hydrateMedia(
+      makeMedia({
+        id: 'media-corrupt',
+        audioTrackPresent: true,
+        audioCodec: 'aac',
+      }),
+    )
+    const composition: CompositionInputProps = {
+      fps: 30,
+      durationInFrames: 30,
+      width: 1920,
+      height: 1080,
+      tracks: [
+        makeTrack({
+          id: 'track-v1',
+          order: 0,
+          kind: 'video',
+          items: [makeVideoItem({ mediaId: 'media-corrupt', src: 'blob:mediabunny-fails' })],
+        }),
+      ],
+      transitions: [],
+      keyframes: [],
+    }
+    class CorruptAudioContext {
+      async decodeAudioData() {
+        throw new DOMException('Unable to decode audio data', 'EncodingError')
+      }
+    }
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) })))
+    vi.stubGlobal('OfflineAudioContext', CorruptAudioContext)
+    try {
+      await expect(async () => {
+        for await (const window of processAudioWindows(composition)) void window
+      }).rejects.toMatchObject({
+        name: 'AudioDecodeError',
+        code: 'audio_decode_failed',
+        message: expect.stringContaining('Không giải mã được âm thanh'),
+      })
+    } finally {
+      clearAudioDecodeCache()
+      vi.unstubAllGlobals()
+    }
   })
 
   it('is invariant to a transition between unrelated clips', () => {

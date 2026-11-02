@@ -7,7 +7,7 @@ import { styles as settingsStyles, setHelpCardMarker, msetQueueMarker, isWarnMar
 // #/settings?section=<mục>.
 import { Suspense, lazy, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { Button, Icon, Spinner, useTabMode } from '@noverse/ui'
+import { Button, Icon, ListRow, Spinner, useTabMode, type IconName } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { semverOf } from '../../lib/version'
 import { strongestTone, type AttentionTone } from '../../lib/attentionTone'
@@ -177,7 +177,7 @@ function NavList({ section, dots, facts, onPick }: {
     { id: 'connect', icon: 'key', label: t.settings.nav.connect },
     { id: 'agents', icon: 'magic', label: t.settings.nav.agents },
     { id: 'accounts', icon: 'global', label: t.settings.nav.accounts },
-    { id: 'notifications', icon: 'notification', label: 'Thông báo' },
+    { id: 'notifications', icon: 'notification', label: t.settings.nav.notifications },
   ]
   const data: NavItem[] = [
     { id: 'storage', icon: 'folder', label: t.settings.nav.storage, count: facts.storageCount },
@@ -225,11 +225,11 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
   const dots = useSectionDots()
   const facts = useFrameFacts()
   const active: SettingsSection = section ?? 'tools'
-  const meta = active === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[active] ?? t.settings.meta.tools
-  const help = facts.server && active === 'storage' ? serverCopy.help : active === 'notifications' ? t.settings.help.tools : t.settings.help[active] ?? t.settings.help.tools
+  const meta = t.settings.meta[active] ?? t.settings.meta.tools
+  const help = facts.server && active === 'storage' ? serverCopy.help : t.settings.help[active] ?? t.settings.help.tools
   const go = (id: SettingsSection) => navigate(routePath({ name: 'settings', section: id }))
 
-  if (mobile) return <MobileSettings section={section} dots={dots} facts={facts} go={go} />
+  if (mobile) return <MobileSettings section={section} dots={dots} facts={facts} />
 
   return (
     <div className={`vv-set ${stylex.props(settingsStyles.set).className}`}>
@@ -269,7 +269,7 @@ function SettingsFrame({ section }: { section?: SettingsSection }) {
 
 
 /** MSettings — thẻ tổng, danh sách mục kèm giá trị, thẻ Hàng chờ, chân bản. */
-function MobileSettings({ section, dots, facts, go }: { section?: SettingsSection; dots: Map<string, AttentionTone>; facts: FrameFacts; go: (id: SettingsSection) => void }) {
+function MobileSettings({ section, dots, facts }: { section?: SettingsSection; dots: Map<string, AttentionTone>; facts: FrameFacts }) {
   // MSettings là lớp phủ toàn màn (artboard không vẽ thanh tab) — ẩn hẳn thanh tab để
   // nó không còn trong thứ tự tab và toast/CTA không neo vào một thanh không nhìn thấy.
   useTabMode('hide')
@@ -290,8 +290,10 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
     : facts.updates > 0
       ? fill(t.settings.m.values.updates, { n: facts.updates })
       : t.settings.m.values.toolsOk
-  const rows: { id: SettingsSection | 'export'; icon: string; title: string; value: string; warm?: boolean }[] = [
-    { id: 'tools', icon: 'cpu', title: t.settings.m.rows.tools.title, value: toolsValue, warm: facts.updates > 0 },
+  const rows: { id: SettingsSection | 'export'; icon: IconName; title: string; value?: string; hint?: string; warm?: boolean }[] = [
+    // “Mọi công cụ đã cài” dài hơn nửa hàng ở 360px — đặt dưới nhãn để không
+    // phải cắt tiêu đề “Công cụ trên máy”.
+    { id: 'tools', icon: 'cpu', title: t.settings.m.rows.tools.title, hint: toolsValue, warm: facts.updates > 0 },
     { id: 'connect', icon: 'key', title: t.settings.m.rows.connect.title, value: facts.providers == null ? '' : fill(t.settings.m.values.providers, { n: facts.providers }) },
     { id: 'agents', icon: 'magic', title: t.settings.m.rows.agents.title, value: facts.artist == null ? '' : facts.artist ? fill(t.settings.m.values.artist, { name: facts.artist }) : t.settings.m.values.artistNone },
     { id: 'accounts', icon: 'global', title: t.settings.m.rows.accounts.title, value: facts.platforms == null ? '' : fill(t.settings.m.values.platforms, { n: facts.platforms }) },
@@ -300,7 +302,7 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
   ]
 
   if (section) {
-    const meta = section === 'notifications' ? { title: 'Thông báo', lede: 'Việc nền & thông báo' } : t.settings.meta[section] ?? t.settings.meta.tools
+    const meta = t.settings.meta[section] ?? t.settings.meta.tools
     return createPortal(
       <div className={`vv-mset ${stylex.props(settingsStyles.mset).className}`}>
         {strip}
@@ -342,23 +344,24 @@ function MobileSettings({ section, dots, facts, go }: { section?: SettingsSectio
           </span>
         </div>
         <nav className={`vv-mset__list ${stylex.props(settingsStyles.msetList, box.card).className}`} aria-label={t.shell.settings}>
-          {rows.map((r) => (
-            <Button
-              key={r.id}
-              variant="quiet"
-              size="lg"
-              block
-              onClick={() => { if (r.id === 'export') window.location.assign(logsExportUrl); else go(r.id as SettingsSection) }}
-            >
-              <Icon name={r.icon} size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />
-              <span className={`vv-mset__row-label ${stylex.props(settingsStyles.msetRowLabel).className}`}>{r.title}</span>
-              <span className={`vv-mset__row-value-wrap ${stylex.props(settingsStyles.msetRowValueWrap).className}`}>
-                {dots.has(r.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dots.get(r.id)!]).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
-                <span className={`vv-mset__row-value ${stylex.props(settingsStyles.msetRowValue, (r.warm) && settingsStyles.msetRowValueIsWarm).className}`}>{r.value}</span>
-              </span>
-              <Icon name="arrow-r" size={15} className="vv-ic vv-mset__row-caret" xstyle={[settingsStyles.ic, settingsStyles.msetRowCaret]} />
-            </Button>
-          ))}
+          {rows.map((r) => {
+            const dot = dots.get(r.id)
+            return (
+              <ListRow
+                key={r.id}
+                icon={r.icon}
+                title={r.title}
+                hint={r.hint ? <span {...stylex.props(r.warm && settingsStyles.msetSummaryWarm)}>{r.hint}</span> : undefined}
+                value={r.value ? <span {...stylex.props(settingsStyles.msetSummary, r.warm && settingsStyles.msetSummaryWarm)}>{r.value}</span> : undefined}
+                trailing={dot ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dot]).className}`} aria-label={t.shell.settingsAttention(1)} /> : undefined}
+                chevron
+                // Năm mục là điểm đến → neo hash thật; Báo lỗi là thao tác tải zip.
+                href={r.id === 'export' ? undefined : `#${routePath({ name: 'settings', section: r.id })}`}
+                onClick={r.id === 'export' ? () => window.location.assign(logsExportUrl) : undefined}
+                xstyle={settingsStyles.msetRow}
+              />
+            )
+          })}
         </nav>
         <a className={`vv-mset__queue ${stylex.props(settingsStyles.card, msetQueueMarker, settingsStyles.msetQueue).className}`} href={`#${paths.queue()}`}>
           <Icon name="routing" size={19} className="vv-ic" xstyle={[settingsStyles.ic]} />

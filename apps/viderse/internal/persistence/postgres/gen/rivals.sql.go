@@ -25,11 +25,33 @@ func (q *Queries) CountRivalChannels(ctx context.Context) (int64, error) {
 const countRivalVideos = `-- name: CountRivalVideos :one
 SELECT count(*)::bigint
 FROM rival_videos v
+CROSS JOIN LATERAL (
+    SELECT array_agg(DISTINCT u.channel_id) AS channels
+    FROM (
+        SELECT j.channel_id::text AS channel_id
+        FROM clone_jobs j
+        WHERE j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+          AND j.superseded_at IS NULL
+          AND j.status <> 'cancelled'
+        UNION
+        SELECT q.channel_id::text
+        FROM clone_queue q
+        WHERE q.source_video_id = v.id
+          AND q.state IN ('queued', 'started')
+          AND q.removed_at IS NULL
+    ) u
+) made
 WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
   AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
+  AND ($7::text IS NULL
+       OR $7::text = ANY(COALESCE(made.channels, ARRAY[]::text[])))
+  AND ($8::text IS NULL
+       OR NOT ($8::text = ANY(COALESCE(made.channels, ARRAY[]::text[]))))
+  AND (NOT $9::bool OR COALESCE(array_length(made.channels, 1), 0) > 0)
+  AND (NOT $10::bool OR COALESCE(array_length(made.channels, 1), 0) = 0)
 `
 
 type CountRivalVideosParams struct {
@@ -39,11 +61,17 @@ type CountRivalVideosParams struct {
 	WithinDays int32              `json:"within_days"`
 	Now        pgtype.Timestamptz `json:"now"`
 	Q          string             `json:"q"`
+	MadeFor    pgtype.Text        `json:"made_for"`
+	NotMadeFor pgtype.Text        `json:"not_made_for"`
+	MadeAny    bool               `json:"made_any"`
+	NotMadeAny bool               `json:"not_made_any"`
 }
 
 // Tổng video khớp bộ lọc của một kênh (channel_id NOT NULL) hoặc mọi kênh
 // (channel_id NULL). q là mẫu LIKE đã escape sẵn (” = không lọc); so với
 // title_fold sau khi gấp q bằng fold_title (không phân biệt hoa thường, dấu).
+// made/notMade lọc theo lượt làm thật (job chưa bị thay thế/chưa huỷ hoặc mục
+// hàng chờ còn sống), tính trước LIMIT và trước khi đếm.
 func (q *Queries) CountRivalVideos(ctx context.Context, arg CountRivalVideosParams) (int64, error) {
 	row := q.db.QueryRow(ctx, countRivalVideos,
 		arg.ChannelID,
@@ -52,10 +80,58 @@ func (q *Queries) CountRivalVideos(ctx context.Context, arg CountRivalVideosPara
 		arg.WithinDays,
 		arg.Now,
 		arg.Q,
+		arg.MadeFor,
+		arg.NotMadeFor,
+		arg.MadeAny,
+		arg.NotMadeAny,
 	)
 	var column_1 int64
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const listAutoPickBaselines = `-- name: ListAutoPickBaselines :many
+SELECT s.owner_channel_id, c.name, c.auto_pick, s.rival_id, s.auto_baseline_at
+FROM owner_channel_sources s
+JOIN owner_channels c ON c.id = s.owner_channel_id
+WHERE s.auto_baseline_at IS NOT NULL
+ORDER BY s.owner_channel_id, s.rival_id
+`
+
+type ListAutoPickBaselinesRow struct {
+	OwnerChannelID pgtype.UUID        `json:"owner_channel_id"`
+	Name           string             `json:"name"`
+	AutoPick       bool               `json:"auto_pick"`
+	RivalID        string             `json:"rival_id"`
+	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
+}
+
+// Mốc bật Tự lấy của từng cặp (kênh của bạn, đối thủ) — dùng cho dòng giải
+// thích "Tự lấy chưa lấy video này" khi video đăng trước mốc.
+func (q *Queries) ListAutoPickBaselines(ctx context.Context) ([]ListAutoPickBaselinesRow, error) {
+	rows, err := q.db.Query(ctx, listAutoPickBaselines)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAutoPickBaselinesRow{}
+	for rows.Next() {
+		var i ListAutoPickBaselinesRow
+		if err := rows.Scan(
+			&i.OwnerChannelID,
+			&i.Name,
+			&i.AutoPick,
+			&i.RivalID,
+			&i.AutoBaselineAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listPostingSample = `-- name: ListPostingSample :many
@@ -232,23 +308,148 @@ func (q *Queries) ListRivals(ctx context.Context, arg ListRivalsParams) ([]ListR
 	return items, nil
 }
 
+const listVideoUsage = `-- name: ListVideoUsage :many
+SELECT v.id AS video_id,
+       oc.id AS channel_id,
+       oc.name AS channel_name,
+       j.stage_group AS stage_group,
+       COALESCE(j.active_step, '')::text AS active_step,
+       j.id AS job_id,
+       q.id AS queue_item_id,
+       j.updated_at AS updated_at
+FROM rival_videos v
+JOIN clone_jobs j
+  ON j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+JOIN owner_channels oc ON oc.id = j.channel_id
+LEFT JOIN LATERAL (
+    SELECT q.id FROM clone_queue q
+    WHERE q.job_id = j.id
+    ORDER BY q.created_at DESC, q.id
+    LIMIT 1
+) q ON true
+WHERE v.id = ANY($1::text[])
+  AND j.superseded_at IS NULL
+  AND j.status <> 'cancelled'
+UNION ALL
+SELECT v.id,
+       oc.id,
+       oc.name,
+       'queued'::text,
+       ''::text,
+       NULL::uuid,
+       q.id,
+       q.created_at
+FROM rival_videos v
+JOIN clone_queue q
+  ON q.source_video_id = v.id
+ AND q.state = 'queued'
+ AND q.removed_at IS NULL
+JOIN owner_channels oc ON oc.id = q.channel_id
+WHERE v.id = ANY($1::text[])
+  AND NOT EXISTS (
+    SELECT 1 FROM clone_jobs j2
+    WHERE j2.channel_id = q.channel_id
+      AND j2.source_key IN ('channel:' || j2.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+      AND j2.superseded_at IS NULL
+      AND j2.status <> 'cancelled')
+ORDER BY video_id, channel_name
+`
+
+type ListVideoUsageRow struct {
+	VideoID     string             `json:"video_id"`
+	ChannelID   pgtype.UUID        `json:"channel_id"`
+	ChannelName string             `json:"channel_name"`
+	StageGroup  string             `json:"stage_group"`
+	ActiveStep  string             `json:"active_step"`
+	JobID       pgtype.UUID        `json:"job_id"`
+	QueueItemID pgtype.UUID        `json:"queue_item_id"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+// Lượt làm thật của từng video trong trang: job chưa bị thay thế/chưa huỷ,
+// cộng mục hàng chờ còn sống. Một truy vấn cho cả trang (không N+1); kênh
+// của bạn lấy tên hiển thị, mục hàng chờ lấy id để mở đúng chỗ.
+func (q *Queries) ListVideoUsage(ctx context.Context, videoIds []string) ([]ListVideoUsageRow, error) {
+	rows, err := q.db.Query(ctx, listVideoUsage, videoIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListVideoUsageRow{}
+	for rows.Next() {
+		var i ListVideoUsageRow
+		if err := rows.Scan(
+			&i.VideoID,
+			&i.ChannelID,
+			&i.ChannelName,
+			&i.StageGroup,
+			&i.ActiveStep,
+			&i.JobID,
+			&i.QueueItemID,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ownerChannelExists = `-- name: OwnerChannelExists :one
+SELECT EXISTS(SELECT 1 FROM owner_channels WHERE id::text = $1::text)::bool AS exists
+`
+
+// madeFor/notMadeFor chỉ nhận kênh của bạn; so bằng text để id sai hình dạng
+// trả false thay vì lỗi ép uuid.
+func (q *Queries) OwnerChannelExists(ctx context.Context, ownerChannelID string) (bool, error) {
+	row := q.db.QueryRow(ctx, ownerChannelExists, ownerChannelID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const pageAllRivalVideosByNewest = `-- name: PageAllRivalVideosByNewest :many
 SELECT v.id, v.channel_id, v.title, v.duration_sec, v.view_count,
        v.published_text, v.published_at, v.uploaded_at, v.upload_checked_at,
        v.has_captions, v.score, v.position, v.origin, v.first_seen_at, v.updated_at
 FROM rival_videos v
+CROSS JOIN LATERAL (
+    SELECT array_agg(DISTINCT u.channel_id) AS channels
+    FROM (
+        SELECT j.channel_id::text AS channel_id
+        FROM clone_jobs j
+        WHERE j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+          AND j.superseded_at IS NULL
+          AND j.status <> 'cancelled'
+        UNION
+        SELECT q.channel_id::text
+        FROM clone_queue q
+        WHERE q.source_video_id = v.id
+          AND q.state IN ('queued', 'started')
+          AND q.removed_at IS NULL
+    ) u
+) made
 WHERE (NOT $1::bool OR v.duration_sec >= $2::int)
   AND ($3::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $4::timestamptz - $3::int * interval '1 day')
   AND ($5::text = '' OR v.title_fold LIKE fold_title($5::text))
   AND ($6::text IS NULL
-       OR ($7::timestamptz IS NOT NULL AND
-           (COALESCE(v.uploaded_at, v.published_at) < $7::timestamptz
-            OR (COALESCE(v.uploaded_at, v.published_at) = $7::timestamptz AND v.id > $6::text)
+       OR $6::text = ANY(COALESCE(made.channels, ARRAY[]::text[])))
+  AND ($7::text IS NULL
+       OR NOT ($7::text = ANY(COALESCE(made.channels, ARRAY[]::text[]))))
+  AND (NOT $8::bool OR COALESCE(array_length(made.channels, 1), 0) > 0)
+  AND (NOT $9::bool OR COALESCE(array_length(made.channels, 1), 0) = 0)
+  AND ($10::text IS NULL
+       OR ($11::timestamptz IS NOT NULL AND
+           (COALESCE(v.uploaded_at, v.published_at) < $11::timestamptz
+            OR (COALESCE(v.uploaded_at, v.published_at) = $11::timestamptz AND v.id > $10::text)
             OR COALESCE(v.uploaded_at, v.published_at) IS NULL))
-       OR ($7::timestamptz IS NULL AND COALESCE(v.uploaded_at, v.published_at) IS NULL AND v.id > $6::text))
+       OR ($11::timestamptz IS NULL AND COALESCE(v.uploaded_at, v.published_at) IS NULL AND v.id > $10::text))
 ORDER BY COALESCE(v.uploaded_at, v.published_at) DESC NULLS LAST, v.id ASC
-LIMIT $8::bigint
+LIMIT $12::bigint
 `
 
 type PageAllRivalVideosByNewestParams struct {
@@ -257,6 +458,10 @@ type PageAllRivalVideosByNewestParams struct {
 	WithinDays int32              `json:"within_days"`
 	Now        pgtype.Timestamptz `json:"now"`
 	Q          string             `json:"q"`
+	MadeFor    pgtype.Text        `json:"made_for"`
+	NotMadeFor pgtype.Text        `json:"not_made_for"`
+	MadeAny    bool               `json:"made_any"`
+	NotMadeAny bool               `json:"not_made_any"`
 	CursorID   pgtype.Text        `json:"cursor_id"`
 	CursorTs   pgtype.Timestamptz `json:"cursor_ts"`
 	PageSize   int64              `json:"page_size"`
@@ -289,6 +494,10 @@ func (q *Queries) PageAllRivalVideosByNewest(ctx context.Context, arg PageAllRiv
 		arg.WithinDays,
 		arg.Now,
 		arg.Q,
+		arg.MadeFor,
+		arg.NotMadeFor,
+		arg.MadeAny,
+		arg.NotMadeAny,
 		arg.CursorID,
 		arg.CursorTs,
 		arg.PageSize,
@@ -332,19 +541,41 @@ SELECT v.id, v.channel_id, v.title, v.duration_sec, v.view_count,
        v.published_text, v.published_at, v.uploaded_at, v.upload_checked_at,
        v.has_captions, v.score, v.position, v.origin, v.first_seen_at, v.updated_at
 FROM rival_videos v
+CROSS JOIN LATERAL (
+    SELECT array_agg(DISTINCT u.channel_id) AS channels
+    FROM (
+        SELECT j.channel_id::text AS channel_id
+        FROM clone_jobs j
+        WHERE j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+          AND j.superseded_at IS NULL
+          AND j.status <> 'cancelled'
+        UNION
+        SELECT q.channel_id::text
+        FROM clone_queue q
+        WHERE q.source_video_id = v.id
+          AND q.state IN ('queued', 'started')
+          AND q.removed_at IS NULL
+    ) u
+) made
 WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
   AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
-       OR ($8::float8 IS NOT NULL AND
-           (v.score < $8::float8
-            OR (v.score = $8::float8 AND v.id > $7::text)
+       OR $7::text = ANY(COALESCE(made.channels, ARRAY[]::text[])))
+  AND ($8::text IS NULL
+       OR NOT ($8::text = ANY(COALESCE(made.channels, ARRAY[]::text[]))))
+  AND (NOT $9::bool OR COALESCE(array_length(made.channels, 1), 0) > 0)
+  AND (NOT $10::bool OR COALESCE(array_length(made.channels, 1), 0) = 0)
+  AND ($11::text IS NULL
+       OR ($12::float8 IS NOT NULL AND
+           (v.score < $12::float8
+            OR (v.score = $12::float8 AND v.id > $11::text)
             OR v.score IS NULL))
-       OR ($8::float8 IS NULL AND v.score IS NULL AND v.id > $7::text))
+       OR ($12::float8 IS NULL AND v.score IS NULL AND v.id > $11::text))
 ORDER BY v.score DESC NULLS LAST, v.id ASC
-LIMIT $9::bigint
+LIMIT $13::bigint
 `
 
 type PageRivalVideosByOutlierParams struct {
@@ -354,6 +585,10 @@ type PageRivalVideosByOutlierParams struct {
 	WithinDays  int32              `json:"within_days"`
 	Now         pgtype.Timestamptz `json:"now"`
 	Q           string             `json:"q"`
+	MadeFor     pgtype.Text        `json:"made_for"`
+	NotMadeFor  pgtype.Text        `json:"not_made_for"`
+	MadeAny     bool               `json:"made_any"`
+	NotMadeAny  bool               `json:"not_made_any"`
 	CursorID    pgtype.Text        `json:"cursor_id"`
 	CursorScore pgtype.Float8      `json:"cursor_score"`
 	PageSize    int64              `json:"page_size"`
@@ -388,6 +623,10 @@ func (q *Queries) PageRivalVideosByOutlier(ctx context.Context, arg PageRivalVid
 		arg.WithinDays,
 		arg.Now,
 		arg.Q,
+		arg.MadeFor,
+		arg.NotMadeFor,
+		arg.MadeAny,
+		arg.NotMadeAny,
 		arg.CursorID,
 		arg.CursorScore,
 		arg.PageSize,
@@ -431,16 +670,38 @@ SELECT v.id, v.channel_id, v.title, v.duration_sec, v.view_count,
        v.published_text, v.published_at, v.uploaded_at, v.upload_checked_at,
        v.has_captions, v.score, v.position, v.origin, v.first_seen_at, v.updated_at
 FROM rival_videos v
+CROSS JOIN LATERAL (
+    SELECT array_agg(DISTINCT u.channel_id) AS channels
+    FROM (
+        SELECT j.channel_id::text AS channel_id
+        FROM clone_jobs j
+        WHERE j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+          AND j.superseded_at IS NULL
+          AND j.status <> 'cancelled'
+        UNION
+        SELECT q.channel_id::text
+        FROM clone_queue q
+        WHERE q.source_video_id = v.id
+          AND q.state IN ('queued', 'started')
+          AND q.removed_at IS NULL
+    ) u
+) made
 WHERE v.channel_id = $1
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
   AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
-       OR v.position > $8::bigint
-       OR (v.position = $8::bigint AND v.id > $7::text))
+       OR $7::text = ANY(COALESCE(made.channels, ARRAY[]::text[])))
+  AND ($8::text IS NULL
+       OR NOT ($8::text = ANY(COALESCE(made.channels, ARRAY[]::text[]))))
+  AND (NOT $9::bool OR COALESCE(array_length(made.channels, 1), 0) > 0)
+  AND (NOT $10::bool OR COALESCE(array_length(made.channels, 1), 0) = 0)
+  AND ($11::text IS NULL
+       OR v.position > $12::bigint
+       OR (v.position = $12::bigint AND v.id > $11::text))
 ORDER BY v.position ASC, v.id ASC
-LIMIT $9::bigint
+LIMIT $13::bigint
 `
 
 type PageRivalVideosByPositionParams struct {
@@ -450,6 +711,10 @@ type PageRivalVideosByPositionParams struct {
 	WithinDays int32              `json:"within_days"`
 	Now        pgtype.Timestamptz `json:"now"`
 	Q          string             `json:"q"`
+	MadeFor    pgtype.Text        `json:"made_for"`
+	NotMadeFor pgtype.Text        `json:"not_made_for"`
+	MadeAny    bool               `json:"made_any"`
+	NotMadeAny bool               `json:"not_made_any"`
 	CursorID   pgtype.Text        `json:"cursor_id"`
 	CursorPos  pgtype.Int8        `json:"cursor_pos"`
 	PageSize   int64              `json:"page_size"`
@@ -482,6 +747,10 @@ func (q *Queries) PageRivalVideosByPosition(ctx context.Context, arg PageRivalVi
 		arg.WithinDays,
 		arg.Now,
 		arg.Q,
+		arg.MadeFor,
+		arg.NotMadeFor,
+		arg.MadeAny,
+		arg.NotMadeAny,
 		arg.CursorID,
 		arg.CursorPos,
 		arg.PageSize,
@@ -525,19 +794,41 @@ SELECT v.id, v.channel_id, v.title, v.duration_sec, v.view_count,
        v.published_text, v.published_at, v.uploaded_at, v.upload_checked_at,
        v.has_captions, v.score, v.position, v.origin, v.first_seen_at, v.updated_at
 FROM rival_videos v
+CROSS JOIN LATERAL (
+    SELECT array_agg(DISTINCT u.channel_id) AS channels
+    FROM (
+        SELECT j.channel_id::text AS channel_id
+        FROM clone_jobs j
+        WHERE j.source_key IN ('channel:' || j.channel_id::text || ':video:' || v.id, 'video:' || v.id)
+          AND j.superseded_at IS NULL
+          AND j.status <> 'cancelled'
+        UNION
+        SELECT q.channel_id::text
+        FROM clone_queue q
+        WHERE q.source_video_id = v.id
+          AND q.state IN ('queued', 'started')
+          AND q.removed_at IS NULL
+    ) u
+) made
 WHERE ($1::text IS NULL OR v.channel_id = $1::text)
   AND (NOT $2::bool OR v.duration_sec >= $3::int)
   AND ($4::int <= 0
        OR COALESCE(v.uploaded_at, v.published_at) >= $5::timestamptz - $4::int * interval '1 day')
   AND ($6::text = '' OR v.title_fold LIKE fold_title($6::text))
   AND ($7::text IS NULL
-       OR ($8::bigint IS NOT NULL AND
-           (v.view_count < $8::bigint
-            OR (v.view_count = $8::bigint AND v.id > $7::text)
+       OR $7::text = ANY(COALESCE(made.channels, ARRAY[]::text[])))
+  AND ($8::text IS NULL
+       OR NOT ($8::text = ANY(COALESCE(made.channels, ARRAY[]::text[]))))
+  AND (NOT $9::bool OR COALESCE(array_length(made.channels, 1), 0) > 0)
+  AND (NOT $10::bool OR COALESCE(array_length(made.channels, 1), 0) = 0)
+  AND ($11::text IS NULL
+       OR ($12::bigint IS NOT NULL AND
+           (v.view_count < $12::bigint
+            OR (v.view_count = $12::bigint AND v.id > $11::text)
             OR v.view_count IS NULL))
-       OR ($8::bigint IS NULL AND v.view_count IS NULL AND v.id > $7::text))
+       OR ($12::bigint IS NULL AND v.view_count IS NULL AND v.id > $11::text))
 ORDER BY v.view_count DESC NULLS LAST, v.id ASC
-LIMIT $9::bigint
+LIMIT $13::bigint
 `
 
 type PageRivalVideosByViewsParams struct {
@@ -547,6 +838,10 @@ type PageRivalVideosByViewsParams struct {
 	WithinDays  int32              `json:"within_days"`
 	Now         pgtype.Timestamptz `json:"now"`
 	Q           string             `json:"q"`
+	MadeFor     pgtype.Text        `json:"made_for"`
+	NotMadeFor  pgtype.Text        `json:"not_made_for"`
+	MadeAny     bool               `json:"made_any"`
+	NotMadeAny  bool               `json:"not_made_any"`
 	CursorID    pgtype.Text        `json:"cursor_id"`
 	CursorViews pgtype.Int8        `json:"cursor_views"`
 	PageSize    int64              `json:"page_size"`
@@ -579,6 +874,10 @@ func (q *Queries) PageRivalVideosByViews(ctx context.Context, arg PageRivalVideo
 		arg.WithinDays,
 		arg.Now,
 		arg.Q,
+		arg.MadeFor,
+		arg.NotMadeFor,
+		arg.MadeAny,
+		arg.NotMadeAny,
 		arg.CursorID,
 		arg.CursorViews,
 		arg.PageSize,
@@ -626,6 +925,38 @@ func (q *Queries) RivalExists(ctx context.Context, id string) (bool, error) {
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const rivalVideoChannel = `-- name: RivalVideoChannel :one
+SELECT channel_id FROM rival_videos WHERE id = $1
+`
+
+// Kênh đối thủ của một video — dùng để kiểm phạm vi trước khi xem trước.
+func (q *Queries) RivalVideoChannel(ctx context.Context, id string) (string, error) {
+	row := q.db.QueryRow(ctx, rivalVideoChannel, id)
+	var channel_id string
+	err := row.Scan(&channel_id)
+	return channel_id, err
+}
+
+const sourceInfoArtifactPath = `-- name: SourceInfoArtifactPath :one
+SELECT a.path
+FROM clone_artifacts a
+JOIN clone_jobs j ON j.id = a.job_id
+WHERE a.path LIKE '%/download/source.info.json'
+  AND j.source_key IN ('channel:' || j.channel_id::text || ':video:' || $1::text,
+                       'video:' || $1::text)
+ORDER BY (j.superseded_at IS NULL) DESC, j.updated_at DESC
+LIMIT 1
+`
+
+// Đường dẫn artifact download/source.info.json đã công bố của video nguồn (bất
+// kỳ job nào, ưu tiên job đang sống) — dùng để đọc chương thật khi xem trước.
+func (q *Queries) SourceInfoArtifactPath(ctx context.Context, videoID string) (string, error) {
+	row := q.db.QueryRow(ctx, sourceInfoArtifactPath, videoID)
+	var path string
+	err := row.Scan(&path)
+	return path, err
 }
 
 const uploadProbePausedUntil = `-- name: UploadProbePausedUntil :one

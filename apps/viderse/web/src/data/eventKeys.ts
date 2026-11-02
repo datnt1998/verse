@@ -38,14 +38,20 @@ export function keysForEvent(event: { type: string; data: unknown }): EventKeys 
   // Đề xuất (Bàn dựng, Bản tin, Kênh) và Quy tắc đã học (Kênh › Cài đặt, Thư viện › Prompt ảnh).
   if (event.type === 'suggestions') return [['suggestions'], ['workbench', 'recap']]
   if (event.type === 'learned.rules') return [['learned-rules']]
-  // Tiến độ vẽ một ảnh (§26) không đổi khoá nào: `useJobImages` ghép thẳng sự
-  // kiện vào danh sách đang hiện, chỉ GET lại khi bản vẽ xong hoặc lỗi.
-  if (event.type === 'image.progress') return []
+  // Tiến độ vẽ ghép ngay vào ảnh đang hiện. Cache của video cũng được đánh dấu
+  // cũ để tab đang ẩn bắt kịp khi mở lại; không tự GET theo từng gói tiến độ.
+  if (event.type === 'image.progress') {
+    const jobId = (event.data as { jobId?: unknown } | null)?.jobId
+    return typeof jobId === 'string' ? [keys.reviewImages(jobId)] : []
+  }
   // Pipeline §3/§4: job/queue đổi → Hàng chờ + JobsPill (status) làm mới;
   // tiến độ step chỉ ảnh hưởng thẻ đang chạy trong Hàng chờ.
   if (event.type.startsWith('clone.step.')) return [keys.queue(), ['channels', 'jobs']]
   // Đánh dấu đã đăng đổi job → số liệu sau đăng của kênh (Kênh › Video › Đã đăng) đọc lại.
-  if (event.type.startsWith('clone.job.')) return [keys.queue(), keys.status(), ['channels', 'performance'], ['channels', 'jobs']]
+  // Màn Duyệt đọc cùng endpoint `?channel=all`: job vào/ra nhóm duyệt hoặc bị
+  // xoá đều phát `clone.job.*`, nên danh sách chờ duyệt làm mới theo (kể cả
+  // khi tab đang ẩn — cache gắn cờ cũ và tải lại ở lần hiện kế tiếp).
+  if (event.type.startsWith('clone.job.')) return [keys.queue(), keys.status(), ['channels', 'performance'], ['channels', 'jobs'], keys.reviewJobs()]
   if (event.type.startsWith('queue')) return [keys.queue(), keys.status(), ['channels', 'jobs']]
   return []
 }

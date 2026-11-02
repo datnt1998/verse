@@ -112,6 +112,9 @@ self.onmessage = async (event: MessageEvent<AudioMeasurementWorkerRequest>) => {
       type: 'error',
       requestId,
       error: error instanceof Error ? error.message : String(error),
+      ...(error instanceof Error && 'code' in error && typeof error.code === 'string'
+        ? { code: error.code }
+        : {}),
     }
     self.postMessage(failure)
   } finally {

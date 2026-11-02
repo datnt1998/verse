@@ -149,6 +149,50 @@ func TestChromeHostedKeepsConfiguredPath(t *testing.T) {
 	}
 }
 
+// Hàng Chrome dùng cho export/measure phải nói về bản Chrome for Testing app
+// quản, không phải Chrome hệ thống: máy có Chrome chạy được vẫn không được
+// tính là sẵn sàng khi bản quản chưa cài (export sẽ chết tool_missing).
+func TestChromeManagedStatusNeverClaimsSystemChrome(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "") // bản desktop: Resolve có thể thấy Chrome hệ thống
+	base := t.TempDir()
+	sysDir := t.TempDir()
+	sysExe := writeExecutable(t, sysDir, "chrome")
+	runner := &fakeRunner{}
+	c := &Chrome{d: Deps{Runner: runner, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base}}
+	if got := c.Resolve(); got == nil || got.Path != sysExe {
+		t.Fatalf("resolve = %+v (muốn Chrome hệ thống có mặt)", got)
+	}
+	if st := c.ManagedStatus(context.Background()); st.State != ChromeMissing || st.Path != "" {
+		t.Fatalf("managed status = %+v (muốn missing, không mượn Chrome hệ thống)", st)
+	}
+	if caps := c.ManagedExportCaps(context.Background()); caps.State != ExportMissing {
+		t.Fatalf("managed export caps = %+v (muốn missing)", caps)
+	}
+	if len(runner.ran) != 0 {
+		t.Fatalf("đã probe Chrome hệ thống cho hàng export/measure: %v", runner.ran)
+	}
+}
+
+// Khi bản Chrome for Testing app quản có mặt, ManagedStatus probe đúng binary
+// đó (kể cả máy cũng có Chrome hệ thống) và trả bằng chứng năng lực.
+func TestChromeManagedStatusProbesManagedFixture(t *testing.T) {
+	t.Setenv("PUBLIC_URL", "")
+	base := t.TempDir()
+	sysDir := t.TempDir()
+	writeExecutable(t, sysDir, "chrome")
+	managed := installManagedChrome(t, base)
+	runner := &scriptedRunner{version: "155.0.8059.79", dom: "PROBE:ctx:true,aac:true,opus:false"}
+	c := &Chrome{d: Deps{Runner: runner, BaseDir: base, PathEnv: sysDir, SystemDirs: []string{}, Home: base},
+		verifiedProbe: NewFileVerificationCache[chromeProbe](func(p chromeProbe) bool { return p.Caps != nil && chromeCapsOk(*p.Caps) }, 0)}
+	st := c.ManagedStatus(context.Background())
+	if st.State != ChromeReady || st.Path != managed || st.Source != ChromeManaged || st.Version != "155.0.8059.79" {
+		t.Fatalf("managed status = %+v (muốn ready trên %s)", st, managed)
+	}
+	if st.Path == filepath.Join(sysDir, "chrome") {
+		t.Fatal("managed status lại probe Chrome hệ thống")
+	}
+}
+
 func TestChromeStatusMissingWhenNoBinary(t *testing.T) {
 	base := t.TempDir()
 	c := &Chrome{d: Deps{Runner: &fakeRunner{}, BaseDir: base, PathEnv: t.TempDir(), SystemDirs: []string{}, Home: base}}

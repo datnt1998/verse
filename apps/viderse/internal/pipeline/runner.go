@@ -194,7 +194,7 @@ func (r *Runner) RunJob(ctx context.Context, jobID, workerID string) (domain.Clo
 		if handler == nil {
 			cerr := &domain.CloneError{
 				Code:    domain.CloneErrInvalidRequest,
-				Message: fmt.Sprintf("no handler registered for step %q", claimed.Step.Step),
+				Message: fmt.Sprintf("Chưa có bộ xử lý cho bước %q", claimed.Step.Step),
 			}
 			_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
 			_ = r.Store.SetJobStatus(ctx, jobID, domain.CloneFailed)
@@ -312,7 +312,7 @@ func (r *Runner) runAttempt(ctx context.Context, job *domain.CloneJob, handler S
 
 	stagingDir := r.stagingDir(job, claimed.Step)
 	if err := os.MkdirAll(stagingDir, 0o755); err != nil {
-		cerr := &domain.CloneError{Code: domain.CloneErrInternal, Message: err.Error()}
+		cerr := &domain.CloneError{Code: domain.CloneErrInternal, Message: "Không tạo được thư mục tạm: " + err.Error()}
 		_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
 		return
 	}
@@ -431,7 +431,7 @@ func (r *Runner) settleAttemptError(ctx context.Context, jobID string, claimed *
 	case errors.As(err, &cerr):
 		// đã là CloneError — giữ code/recovery/retryAt
 	default:
-		cerr = &domain.CloneError{Code: domain.CloneErrInternal, Message: err.Error()}
+		cerr = &domain.CloneError{Code: domain.CloneErrInternal, Message: attemptErrorMessage(err)}
 	}
 	if cerr.Code == domain.CloneErrCancelled {
 		_ = r.Store.ReportStepCancelled(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt)
@@ -445,6 +445,15 @@ func (r *Runner) settleAttemptError(ctx context.Context, jobID string, claimed *
 		return
 	}
 	_ = r.Store.ReportStepFailure(ctx, jobID, claimed.Step.Step, claimed.Fence, claimed.Step.Attempt, cerr)
+}
+
+// attemptErrorMessage giữ nguyên nhân chẩn đoán nhưng câu dẫn là tiếng Việt;
+// lỗi hết giờ có câu riêng vì "context deadline exceeded" là chữ nội bộ.
+func attemptErrorMessage(err error) string {
+	if errors.Is(err, context.DeadlineExceeded) {
+		return "Bước chạy quá lâu"
+	}
+	return "Bước bị lỗi: " + err.Error()
 }
 
 func pausedJob(r *Runner, ctx context.Context, jobID string) bool {
@@ -556,8 +565,8 @@ func (r *Runner) ReconcileInterrupted(ctx context.Context, jobID string) error {
 		}
 		cerr := &domain.CloneError{
 			Code:     domain.CloneErrInterrupted,
-			Message:  "worker died before the attempt finished",
-			Recovery: new("resume the job to retry this step"),
+			Message:  "Máy chạy bị dừng giữa chừng",
+			Recovery: new("Chạy tiếp video để làm lại bước này"),
 		}
 		// Interrupted có retryable=true → waiting, không retryAt → claim
 		// ngay khi job được resume/re-run.

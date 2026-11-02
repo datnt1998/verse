@@ -11,9 +11,9 @@ const runtimeKey = 'viderse.stylex.load-full'
 const criticalLinkId = 'viderse-stylex-critical'
 
 /** CSS is fetched once, before a noncritical dynamic module is evaluated. Keep
- * the old sheet until load succeeds; rejection reaches the existing lazy-route
- * error boundary rather than rendering an unstyled screen. Inserting beside the
- * original link preserves the position of unlayered tokens relative to app CSS. */
+ * the old sheet until load succeeds; rejection prevents an unstyled route from
+ * mounting. Inserting beside the original link preserves the position of
+ * unlayered tokens relative to app CSS. */
 const runtime = `
 const key = Symbol.for(${JSON.stringify(runtimeKey)});
 let pending;
@@ -107,13 +107,14 @@ function htmlAttribute(value: string): string {
  * Rollup module graph + asset emission + renderDynamicImport, and HTML/manifest
  * output assets. No private StyleX store or Vite chunk metadata is patched.
  *
- * Critical = entry + phone workbench STATIC closures. Every other dynamic import
- * awaits the entire canonical sheet. We do not attempt unsafe per-route atom
+ * Critical = entry + declared cold dynamic entries' STATIC closures. Other imports
+ * await the entire canonical sheet. We do not attempt unsafe per-route atom
  * reordering: full CSS replaces critical CSS in the same document slot.
  * Stock unplugin continues to own development/HMR. Build/watch state resets on
  * each buildStart; cached StyleX transforms are rerun to repopulate metadata. */
-export function stylexRouteCSS(options: Partial<Options>, phoneEntry: string): Plugin {
+export function stylexRouteCSS(options: Partial<Options>, coldEntries: readonly string[]): Plugin {
   const rulesByModule = new Map<string, Rule[]>()
+  const coldEntryIDs = new Set(coldEntries)
   let base = '/'
   let manifestFile: string | false = false
   let entryModule = ''
@@ -148,17 +149,21 @@ export function stylexRouteCSS(options: Partial<Options>, phoneEntry: string): P
       return { code: result.code, map: result.map ?? null, meta: { viderseStylex: rules } }
     },
     renderDynamicImport({ targetModuleId }) {
-      if (targetModuleId === phoneEntry) return null
+      if (targetModuleId && coldEntryIDs.has(targetModuleId.replace(/^\0/, '').split('?')[0])) return null
       return { left: `globalThis[Symbol.for(${JSON.stringify(runtimeKey)})]().then(() => import(`, right: '))' }
     },
     generateBundle: {
       order: 'post',
       handler(_output, bundle) {
         const chunks = Object.values(bundle).filter((item): item is Rollup.OutputChunk => item.type === 'chunk')
-        const phoneChunk = chunks.find((chunk) => (chunk.modules[phoneEntry]?.renderedLength ?? 0) > 0)
-        if (!phoneChunk) this.error(`Missing emitted critical phone entry: ${phoneEntry}`)
+        const coldChunks = coldEntries.map((entry) => {
+          const chunk = chunks.find((chunk) => (chunk.modules[entry]?.renderedLength ?? 0) > 0)
+          if (!chunk) this.error(`Missing emitted cold entry: ${entry}`)
+          return chunk.fileName
+        })
+        this.emitFile({ type: 'asset', fileName: '.vite/cold-entries.json', source: JSON.stringify(coldChunks) })
         const chunksByFile = new Map(chunks.map((chunk) => [chunk.fileName, chunk]))
-        const files = staticClosure(chunks.filter((chunk) => chunk.isEntry).map((chunk) => chunk.fileName).concat(phoneChunk.fileName),
+        const files = staticClosure(chunks.filter((chunk) => chunk.isEntry).map((chunk) => chunk.fileName).concat(coldChunks),
           (file) => chunksByFile.get(file)?.imports ?? [])
         const criticalModules = new Set<string>()
         for (const file of files) {

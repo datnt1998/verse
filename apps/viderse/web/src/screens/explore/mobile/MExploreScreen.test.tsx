@@ -6,11 +6,17 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { invalidate } from '@noverse/ui/data'
+import { ToastHost } from '@noverse/ui'
 import { ExploreScreen } from '../ExploreScreen'
 import { keys } from '../../../data/keys'
+import { t } from '../../../i18n/explore'
 import type { Channel } from '../../../api/channels'
-import type { ClonePlan } from '../../../api/clone'
-import type { Rival, RivalList, ScanStatus, Video, VideoPage } from '../../../api/rivals'
+import type { CloneEnqueueResult, ClonePlan } from '../../../api/clone'
+import type { Rival, RivalList, ScanStatus, Video, VideoPage, VideoPreview } from '../../../api/rivals'
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+
+const tt = t.screens.explore
 
 const RIVAL: Rival = {
   id: 'r1', handle: '@motphim', title: 'Một Phim', avatarUrl: null,
@@ -27,6 +33,9 @@ const video = (i: number): Video => ({
   score: i === 0 ? 4.2 : 2.1, hasCaptions: true,
   scoreReason: i === 0 ? { agent: 'scout', text: 'Tổng lượt xem gấp 4,2 lần trung vị.', facts: [{ label: 'Trung vị kênh', value: '285 N', source: '150 video gần nhất' }] } : undefined,
   thumbnailUrl: `https://i.ytimg.com/vi/v${i}/mqdefault.jpg`, url: `https://youtu.be/v${i}`,
+  usage: i === 0
+    ? [{ channelId: 'c1', channelName: 'Midnight Tales', stage: 'working', jobId: 'j1', queueItemId: null, updatedAt: '2026-11-01T00:00:00Z' }]
+    : undefined,
 })
 
 const scan: ScanStatus = {
@@ -58,6 +67,9 @@ const respond = (body: unknown, status = 200) =>
 const calls: { url: string; method: string; body: unknown }[] = []
 let listBody: RivalList = { rivals: [RIVAL, RIVAL2], totalVideos: 1284, newOutliers: 4 }
 const videos = Array.from({ length: 12 }, (_, i) => video(i))
+let chaptersBody: VideoPreview = { videoId: 'v0', source: 'youtube', state: 'ready', chapters: [{ startSec: 90, title: 'Mở đầu' }] }
+let chaptersFail = false
+let enqueueBody: CloneEnqueueResult = { items: [{ id: 'q1', jobId: null }] }
 
 const stubFetch = () => {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -79,10 +91,16 @@ const stubFetch = () => {
       slots: [],
     })
     if (url.startsWith('/api/rivals/all/videos')) {
-      return respond({ videos, total: videos.length, nextCursor: null } satisfies VideoPage)
+      // Chip "Chưa làm cho kênh nào" lọc thật ở máy chủ: trả rỗng để thấy khối lọc rỗng.
+      const filtered = new URL(url, 'https://x.test').searchParams.get('notMade') === 'any'
+      return respond({ videos: filtered ? [] : videos, total: filtered ? 0 : videos.length, nextCursor: null } satisfies VideoPage)
+    }
+    if (/^\/api\/rivals\/[^/]+\/videos\/[^/]+\/preview$/.test(url)) {
+      if (chaptersFail) return respond({ error: 'boom' }, 500)
+      return respond(chaptersBody)
     }
     if (url === '/api/clone/plan') return respond(plan)
-    if (url === '/api/clone/enqueue') return respond({ items: [{ id: 'q1', jobId: null }] })
+    if (url === '/api/clone/enqueue') return respond(enqueueBody)
     if (url.startsWith('/api/owner-channels/') && url.endsWith('/sources')) return respond({ ok: true })
     if (url.startsWith('/api/rivals/') && method === 'DELETE') return respond({ ok: true })
     return respond({ error: 'not found' }, 404)
@@ -97,6 +115,13 @@ const flush = async (ms = 30) => {
 }
 const mount = async (el: React.ReactElement) => {
   const container = document.createElement('div')
+  // Pane điện thoại cung cấp khung nhìn cho virtualizer; happy-dom không
+  // có bộ máy layout nên kích thước được khai báo ở ranh giới DOM này.
+  container.style.overflowY = 'auto'
+  Object.defineProperties(container, {
+    clientHeight: { configurable: true, value: 844 },
+    clientWidth: { configurable: true, value: 390 },
+  })
   document.body.append(container)
   const root = createRoot(container)
   roots.push(root)
@@ -121,6 +146,9 @@ beforeEach(async () => {
   calls.length = 0
   copied = []
   listBody = { rivals: [RIVAL, RIVAL2], totalVideos: 1284, newOutliers: 4 }
+  chaptersBody = { videoId: 'v0', source: 'youtube', state: 'ready', chapters: [{ startSec: 90, title: 'Mở đầu' }] }
+  chaptersFail = false
+  enqueueBody = { items: [{ id: 'q1', jobId: null }] }
   vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
     matches: true, media: '(max-width: 767px)', addEventListener: () => {}, removeEventListener: () => {},
   })))
@@ -137,6 +165,97 @@ afterEach(async () => {
   for (const root of roots.splice(0)) await act(async () => { root.unmount() })
   document.body.innerHTML = ''
   vi.unstubAllGlobals()
+})
+
+describe('Khám phá trên điện thoại — lọc, trạng thái thật, chương, xếp hàng loạt', () => {
+  /** chọn 10 video rồi chọn kênh đích trong tấm chọn (hành vi thật của thanh chọn) */
+  const bulkMakeForFirstChannel = async (root: ParentNode) => {
+    await click(byText(root, 'button', 'Chọn'))
+    await click(byText(root.querySelector('[role="toolbar"]')!, 'button', 'Top 10'))
+    const bar = root.querySelector('[role="toolbar"]')!
+    await click(byText(bar, 'button', tt.bulkMakeFor(10, 'Midnight Tales')))
+    const sheet = [...document.querySelectorAll('[role="dialog"]')].find((node) => node.textContent?.includes(tt.pickerTitle))!
+    const action = [...sheet.querySelectorAll('button')].find((node) => node.textContent?.includes('Midnight Tales'))
+    await click(action)
+  }
+
+  it('chip Trạng thái lọc thật ở máy chủ; Bỏ lọc trả về danh sách đầy đủ', async () => {
+    const root = await mount(<ExploreScreen route={{ name: 'explore' }} />)
+    await until(() => root.textContent?.includes('Video số 0') === true)
+
+    await click(root.querySelector(`[role="combobox"][aria-label="${tt.statusLabel}"]`))
+    await click(byText(document.body, '[role="option"]', tt.statusOptions.notMade))
+    await until(() => calls.some((call) => call.url.includes('notMade=any')))
+    expect(calls.filter((call) => call.url.startsWith('/api/rivals/all/videos')).at(-1)?.url).toContain('notMade=any')
+
+    await until(() => root.textContent?.includes(tt.listFilterTitle) === true)
+    expect(root.textContent).toContain(tt.noMatchStatusNotMade)
+    expect(root.textContent).not.toContain('Video số 0')
+
+    await click(byText(root, 'button', tt.listFilterClear))
+    await until(() => root.textContent?.includes('Video số 0') === true)
+  })
+
+  it('thẻ video hiện trạng thái thật của kênh đã làm và mở đúng job', async () => {
+    const root = await mount(<ExploreScreen route={{ name: 'explore' }} />)
+    await until(() => root.textContent?.includes('Video số 0') === true)
+    const usageLink = root.querySelector('a[href="#/?video=j1"]')
+    expect(usageLink?.textContent).toContain('Midnight Tales · Đang làm')
+  })
+
+  it('chi tiết video: mục "Đã làm cho kênh" và chương thật tua được trên trình phát', async () => {
+    const root = await mount(<ExploreScreen route={{ name: 'explore', video: 'v0' }} />)
+    await until(() => root.textContent?.includes(tt.detailUsedTitle) === true)
+    expect(root.textContent).toContain(tt.usageMadeSub(tt.usageStage.working))
+    const openJob = [...root.querySelectorAll('a')].find((node) => node.getAttribute('aria-label') === `${tt.usageOpen} Midnight Tales`)
+    expect(openJob?.getAttribute('href')).toBe('#/?video=j1')
+
+    await until(() => root.textContent?.includes(tt.chaptersCount('1')) === true)
+    const chapter = [...root.querySelectorAll('a')].find((node) => node.textContent?.includes('Mở đầu'))
+    expect(chapter?.textContent).toContain('1:30')
+    expect(chapter?.getAttribute('href')).toBe('https://youtu.be/v0?t=90s')
+  })
+
+  it('chương rỗng hoặc lỗi đọc thì nói đúng trạng thái, không bịa danh sách', async () => {
+    chaptersBody = { videoId: 'v0', source: 'download', state: 'empty', chapters: [] }
+    const empty = await mount(<ExploreScreen route={{ name: 'explore', video: 'v0' }} />)
+    await until(() => empty.textContent?.includes(tt.chaptersEmpty) === true)
+    expect(empty.textContent).not.toContain('Mở đầu')
+
+    chaptersFail = true
+    const failed = await mount(<ExploreScreen route={{ name: 'explore', video: 'v0' }} />)
+    await until(() => failed.textContent?.includes(tt.chaptersError) === true)
+    expect(failed.textContent).not.toContain('Mở đầu')
+  })
+
+  it('xếp hàng loạt toàn video đã có sẵn: cảnh báo thật, giữ lựa chọn, mở job có sẵn — không báo thành công', async () => {
+    const selected = videos.slice(0, 10)
+    enqueueBody = {
+      items: [],
+      duplicates: selected.map((item) => ({ url: item.url, jobId: 'j9', state: 'working', title: item.title })),
+    }
+    const root = await mount(<><ExploreScreen route={{ name: 'explore' }} /><ToastHost /></>)
+    await until(() => root.textContent?.includes('Video số 0') === true)
+    await bulkMakeForFirstChannel(root)
+
+    await until(() => document.body.textContent?.includes(tt.bulkAllDuplicate('10')) === true)
+    expect(document.body.textContent).not.toContain(t.screens.new.toasts.made)
+    expect(byText(document.body, 'button', tt.queuePlanOpen)).toBeTruthy()
+    expect(root.querySelector('[role="toolbar"]')?.textContent).toContain(tt.selected(10))
+  })
+
+  it('xếp hàng loạt một phần: đếm đúng số vào hàng chờ và giữ đúng nhóm trùng để chọn kênh khác', async () => {
+    enqueueBody = {
+      items: Array.from({ length: 6 }, (_, i) => ({ id: `q${i}`, jobId: null })),
+      duplicates: videos.slice(6, 10).map((item) => ({ url: item.url, jobId: null, state: 'queued', title: item.title })),
+    }
+    const root = await mount(<><ExploreScreen route={{ name: 'explore' }} /><ToastHost /></>)
+    await until(() => root.textContent?.includes('Video số 0') === true)
+    await bulkMakeForFirstChannel(root)
+
+    await until(() => document.body.textContent?.includes(tt.bulkMadePartial('6', '10', '4')) === true)
+    expect(root.querySelector('[role="toolbar"]')?.textContent).toContain(tt.selected(4))
+  })
 })
 
 describe('Khám phá trên điện thoại', () => {

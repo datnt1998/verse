@@ -380,10 +380,9 @@ func TestTemplateImportRejectsWrongFormatAndNewerVersion(t *testing.T) {
 	cases := []struct {
 		name   string
 		mutate func(map[string]any)
-		want   string
 	}{
-		{"format", func(m map[string]any) { m["format"] = "freecut-project" }, "không phải tệp template"},
-		{"version", func(m map[string]any) { m["version"] = 2 }, "phiên bản mới hơn"},
+		{"format", func(m map[string]any) { m["format"] = "freecut-project" }},
+		{"version", func(m map[string]any) { m["version"] = 2 }},
 	}
 	for _, testCase := range cases {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -393,8 +392,8 @@ func TestTemplateImportRejectsWrongFormatAndNewerVersion(t *testing.T) {
 			writeBundle(t, target, manifest, entries)
 			svc := testService(t, newMemStore(), func(d *Deps) { d.Importer = newFakeImporter() })
 			_, err := svc.ImportTemplateFile(context.Background(), target, ImportOptions{})
-			if err == nil || !strings.Contains(errorText(err), testCase.want) {
-				t.Fatalf("lỗi = %v, muốn %q", err, testCase.want)
+			if CodeOf(err) != CodeInvalidInput {
+				t.Fatalf("lỗi = %v, muốn invalid_input", err)
 			}
 		})
 	}
@@ -503,4 +502,85 @@ func rewriteFixture(t *testing.T, projectFile string, mutate func(editor.Project
 		t.Fatal(err)
 	}
 	return target
+}
+
+// TestTemplateImportRemapsMediaIDsWithoutRewritingAuthoredText ghim phép đổi
+// mã media theo cấu trúc: chỉ id/mediaId/coverMediaId/src đổi, còn chữ người
+// dùng viết (kể cả khi trùng đúng chuỗi mã media) phải giữ nguyên.
+func TestTemplateImportRemapsMediaIDsWithoutRewritingAuthoredText(t *testing.T) {
+	const oldID = "34fe07e1-e7d3-46f1-8095-e2c9db60d83a"
+	const captionText = "Nhãn cảnh " + oldID + " giữ nguyên"
+	projectFile := rewriteFixture(t, "testdata/ytf-project-standard.json", func(project editor.Project) {
+		items, _ := project.Timeline()["items"].([]any)
+		found := false
+		for _, value := range items {
+			item, ok := value.(map[string]any)
+			if !ok {
+				continue
+			}
+			if item["mediaId"] == oldID {
+				// Cùng một chuỗi mã media xuất hiện như chữ người dùng viết.
+				item["title"] = oldID
+				item["label"] = oldID
+				item["description"] = oldID
+				item["src"] = "/api/editor/media/" + oldID + "/poster.webp?v=sha256%3Aabc"
+				found = true
+				continue
+			}
+			if item["type"] == "subtitle" {
+				cues, _ := item["cues"].([]any)
+				if len(cues) > 0 {
+					if cue, ok := cues[0].(map[string]any); ok {
+						cue["text"] = captionText
+					}
+				}
+			}
+		}
+		if !found {
+			t.Fatal("fixture không có item dùng mã media cần kiểm")
+		}
+	})
+	_, store, _, result := importFixture(t, projectFile)
+	if !result.OK {
+		t.Fatalf("kết quả không OK: %+v", result)
+	}
+	project := storedProject(t, store, result.TemplateID)
+	for _, id := range projectMediaIDs(project) {
+		if id == oldID {
+			t.Fatalf("project còn mã media cũ %q", id)
+		}
+	}
+	items, _ := project.Timeline()["items"].([]any)
+	scene, caption := false, false
+	for _, value := range items {
+		item, ok := value.(map[string]any)
+		if !ok {
+			continue
+		}
+		if item["title"] == oldID {
+			scene = true
+			mediaID, _ := item["mediaId"].(string)
+			if mediaID == "" || mediaID == oldID {
+				t.Fatalf("mediaId không được đổi: %q", mediaID)
+			}
+			if item["label"] != oldID || item["description"] != oldID {
+				t.Fatalf("chữ người dùng viết bị đổi: %v", item)
+			}
+			want := "/api/editor/media/" + mediaID + "/poster.webp?v=sha256%3Aabc"
+			if item["src"] != want {
+				t.Fatalf("src = %v, muốn %q", item["src"], want)
+			}
+		}
+		if item["type"] == "subtitle" {
+			cues, _ := item["cues"].([]any)
+			for _, cueValue := range cues {
+				if cue, ok := cueValue.(map[string]any); ok && cue["text"] == captionText {
+					caption = true
+				}
+			}
+		}
+	}
+	if !scene || !caption {
+		t.Fatalf("mất item cảnh hoặc phụ đề: scene=%v caption=%v", scene, caption)
+	}
 }

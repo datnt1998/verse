@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { createRoot } from 'react-dom/client'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, surface, kit } from './tokens.stylex'
 import { Button, type ButtonProps } from './Button'
@@ -304,9 +303,9 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
 export type ConfirmOptions = Omit<ConfirmDialogProps, 'onClose'>
 export function confirm(options: ConfirmOptions): Promise<boolean> {
   if (options.remember && isConfirmationRemembered(options.remember.user, options.remember.kind)) return Promise.resolve().then(() => options.onConfirm(options.defaultChoice ?? options.choices?.[0]?.value ?? '')).then(() => true)
-  return new Promise((resolve) => {
+  return import('react-dom/client').then(({ createRoot }) => new Promise<boolean>((resolve) => {
     const container = document.createElement('div'); document.body.append(container)
     const root = createRoot(container)
     root.render(<ConfirmDialog {...options} onClose={(accepted) => { root.unmount(); container.remove(); resolve(accepted ?? false) }} />)
-  })
+  }))
 }

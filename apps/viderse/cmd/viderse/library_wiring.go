@@ -227,9 +227,10 @@ func openLibrary(ctx context.Context) (*library.Service, func(), error) {
 		toolKit: toolKit,
 		runner:  runner,
 	})
-	// Nhập template cũ cần mặt media của editor (ImportFileOnce) — serve gắn mặt
-	// này sau khi dựng service Editor, CLI gắn ngay vì dựng được cả hai tại chỗ.
-	svc.BindMediaImporter(newEditorService(pool, manager.Media(), cfgDir, toolKit, tools.Deps{Runner: runner}))
+	// Serve gắn các mặt media sau khi dựng Editor; CLI dựng cả hai tại chỗ.
+	workspace := newEditorService(pool, manager.Media(), cfgDir, toolKit, tools.Deps{Runner: runner})
+	svc.BindMediaImporter(workspace)
+	svc.BindMediaReader(workspace)
 	return svc, func() {
 		_ = manager.Close(context.Background())
 		pool.Close()

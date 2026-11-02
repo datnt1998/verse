@@ -516,16 +516,31 @@ func (s *Service) ListMedia(ctx context.Context, pid string) ([]MediaRecord, err
 		}
 		return s.mediaRecords(ctx, ids)
 	}
-	if _, _, e := s.Store.Read(ctx, pid); e != nil {
-		return nil, e
+	project, _, err := s.Store.Read(ctx, pid)
+	if err != nil {
+		return nil, err
 	}
 	links, _, e := s.readMediaLinks(ctx, pid, false)
 	if e != nil {
 		return nil, e
 	}
-	ids := []string{}
-	for _, l := range links.MediaIDs {
-		ids = append(ids, l.ID)
+	refs, _ := project["mediaItems"].([]any)
+	ids := make([]string, 0, len(links.MediaIDs)+len(refs))
+	seen := make(map[string]bool, cap(ids))
+	for _, link := range links.MediaIDs {
+		if !seen[link.ID] {
+			ids = append(ids, link.ID)
+			seen[link.ID] = true
+		}
+	}
+	for _, value := range refs {
+		if ref, ok := value.(map[string]any); ok {
+			id, _ := ref["id"].(string)
+			if id != "" && !seen[id] {
+				ids = append(ids, id)
+				seen[id] = true
+			}
+		}
 	}
 	return s.mediaRecords(ctx, ids)
 }

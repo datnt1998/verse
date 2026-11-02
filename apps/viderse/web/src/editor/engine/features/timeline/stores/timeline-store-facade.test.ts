@@ -1396,6 +1396,71 @@ describe('TimelineStoreFacade', () => {
       )
     })
 
+    it('repairs a stored timeline in memory without writing it back on a read-only load', async () => {
+      // Real normalization repair: the stored item still carries an ephemeral
+      // thumbnail URL that the loader strips. A preview must see the repaired
+      // timeline but must not advance the project revision with a PUT.
+      const storedProject = {
+        id: 'project-1',
+        metadata: { fps: 24 },
+        timeline: {
+          tracks: [
+            {
+              id: 't1',
+              name: 'Video',
+              order: 0,
+              height: 80,
+              locked: false,
+              visible: true,
+              muted: false,
+              solo: false,
+            },
+          ],
+          items: [
+            {
+              id: 'i1',
+              type: 'video',
+              trackId: 't1',
+              from: 0,
+              durationInFrames: 100,
+              label: 'test.mp4',
+              thumbnailUrl: 'blob:thumb',
+            },
+          ],
+          currentFrame: 50,
+          zoomLevel: 2,
+          scrollPosition: 100,
+          keyframes: [],
+          transitions: [],
+          markers: [],
+        },
+      }
+      indexedDbMocks.ensureProject.mockResolvedValue(storedProject)
+      mediaValidationMocks.validateProjectMediaReferences.mockResolvedValue([])
+
+      await useTimelineStore
+        .getState()
+        .loadTimeline('project-1', { useRetainedProject: true, readOnly: true })
+
+      expect(useItemsStore.getState().items).toHaveLength(1)
+      expect(useItemsStore.getState().items[0]).not.toHaveProperty('thumbnailUrl')
+      expect(indexedDbMocks.updateProject).not.toHaveBeenCalled()
+
+      // The ordinary editor load of the same retained snapshot still sees the
+      // stored timeline needing repair, and saves it.
+      await useTimelineStore.getState().loadTimeline('project-1', { useRetainedProject: true })
+
+      expect(indexedDbMocks.updateProject).toHaveBeenCalledTimes(1)
+      expect(indexedDbMocks.updateProject).toHaveBeenCalledWith(
+        'project-1',
+        expect.objectContaining({
+          timeline: expect.objectContaining({
+            items: [expect.not.objectContaining({ thumbnailUrl: expect.anything() })],
+          }),
+        }),
+      )
+    })
+
     it('throws when project not found', async () => {
       indexedDbMocks.getProject.mockResolvedValue(null)
 

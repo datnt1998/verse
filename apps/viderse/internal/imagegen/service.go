@@ -284,7 +284,8 @@ func (s *Service) recover(ctx context.Context, e JournalEntry, req Request) (*Re
 			if errors.Is(err, ErrAttemptConcluded) {
 				return nil, &DrawError{Code: ErrCodeConflict, Message: "Attempt đã được chủ khác kết luận"}
 			}
-			return nil, &StoreError{Err: err}
+			// Output đã có trên đĩa: lần gọi cũ đã trả phí.
+			return nil, &StoreError{Err: err, Charged: true}
 		}
 		return receipt, nil
 	}
@@ -297,7 +298,8 @@ func (s *Service) recover(ctx context.Context, e JournalEntry, req Request) (*Re
 		if errors.Is(err, ErrAttemptConcluded) {
 			return nil, &DrawError{Code: ErrCodeConflict, Message: "Attempt đã được chủ khác kết luận"}
 		}
-		return nil, &StoreError{Err: err}
+		// Attempt bất định được ghi charged=true: coi như đã có thể tốn phí.
+		return nil, &StoreError{Err: err, Charged: true}
 	}
 	e.State = ReceiptFailedUnknown
 	if recErr != nil {
@@ -455,7 +457,8 @@ func (s *Service) drawWith(ctx context.Context, p Provider, req Request, outputP
 			}
 			// Ảnh đã lưu trên đĩa; attempt còn running để lần Draw sau
 			// Reconcile cứu. Không bao giờ xoá ảnh, không bao giờ trả phí lại.
-			return Receipt{}, &StoreError{Err: err}
+			// Lần gọi đã gửi và đã vẽ xong: báo charged để chủ sở hữu ghi chi phí.
+			return Receipt{}, &StoreError{Err: err, Charged: true}
 		}
 		return receipt, nil
 	}
@@ -469,7 +472,7 @@ func (s *Service) drawWith(ctx context.Context, p Provider, req Request, outputP
 				if errors.Is(ferr, ErrAttemptConcluded) {
 					return Receipt{}, &DrawError{Code: ErrCodeConflict, Message: "Attempt đã được chủ khác kết luận"}
 				}
-				return Receipt{}, &StoreError{Err: ferr}
+				return Receipt{}, &StoreError{Err: ferr, Charged: true}
 			}
 			return rc, nil
 		}
@@ -481,7 +484,9 @@ func (s *Service) drawWith(ctx context.Context, p Provider, req Request, outputP
 		if errors.Is(ferr, ErrAttemptConcluded) {
 			return Receipt{}, drawErr
 		}
-		return Receipt{}, &StoreError{Err: ferr}
+		// Giữ nguyên phán quyết về chi phí của lỗi provider: lỗi chắc chắn
+		// trước điểm tiêu phí vẫn miễn phí dù biên nhận không ghi được.
+		return Receipt{}, &StoreError{Err: ferr, Charged: charged}
 	}
 	return Receipt{}, drawErr
 }

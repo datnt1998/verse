@@ -12,6 +12,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -35,6 +36,24 @@ type LibraryService interface {
 	Patch(ctx context.Context, id string, patch library.Patch) (*domain.Template, error)
 	Rename(ctx context.Context, id, name string, expectRevision *int64) (*domain.Template, error)
 	DeleteTemplate(ctx context.Context, id string) error
+	// OpenTemplateExport kiểm media rồi trả gói sẵn sàng ghi (xuất .ytf-template.zip).
+	OpenTemplateExport(ctx context.Context, id string) (*library.TemplateExport, error)
+	// PreviewStatus/StartTemplatePreview/CancelTemplatePreview điều khiển bản
+	// xem thử (project editor đổ nội dung từ một video đã xong).
+	PreviewStatus(ctx context.Context, id string) (*library.PreviewStatus, error)
+	StartTemplatePreview(ctx context.Context, id string, req library.PreviewRequest) (*library.PreviewStatus, error)
+	CancelTemplatePreview(ctx context.Context, id string) error
+	// Vẽ thử ảnh thật: ảnh bìa của template và ảnh mẫu của prompt.
+	CoverTrialStatus(ctx context.Context, id string) (*library.CoverTrialStatus, error)
+	StartCoverTrial(ctx context.Context, id string, req library.CoverTrialRequest) (*library.CoverTrialStatus, error)
+	CancelCoverTrial(ctx context.Context, id, trialID string) error
+	CoverTrialImagePath(ctx context.Context, id, trialID string) (string, error)
+	PromptSampleStatus(ctx context.Context, id string) (*library.PromptSampleStatus, error)
+	StartPromptSample(ctx context.Context, id string, req library.PromptSampleRequest) (*library.PromptSampleStatus, error)
+	CancelPromptSample(ctx context.Context, id, sampleID string) error
+	PromptSampleImagePath(ctx context.Context, id, sampleID string) (string, error)
+	PromptScenes(ctx context.Context, id, videoID string) ([]library.TrialScene, error)
+	PromptSampleIDs(ctx context.Context, ids []string) map[string][]string
 	// ImportTemplateFiles nhập template cũ (.ytf-template.zip hoặc thư mục
 	// editor cũ) — cùng đường với `viderse template import`.
 	ImportTemplateFiles(ctx context.Context, files []string, opts library.ImportOptions) ([]library.ImportResult, error)
@@ -143,8 +162,11 @@ type templateBackdropWire struct {
 }
 
 type templatePreviewWire struct {
-	State   string     `json:"state"`
-	BuiltAt *time.Time `json:"builtAt"`
+	State     string     `json:"state"`
+	BuiltAt   *time.Time `json:"builtAt"`
+	ProjectID string     `json:"projectId,omitempty"`
+	JobID     string     `json:"jobId,omitempty"`
+	Minutes   int        `json:"minutes,omitempty"`
 }
 
 type TemplateSummaryWire struct {
@@ -182,7 +204,7 @@ type priceEstimateWire struct {
 
 // TemplateSummaryToWire đổi tóm tắt nghiệp vụ sang hình wire.
 func TemplateSummaryToWire(s library.Summary) TemplateSummaryWire {
-	preview := templatePreviewWire{State: s.PreviewState(), BuiltAt: s.PreviewBuiltAt}
+	preview := templatePreviewWire{State: s.PreviewState(), BuiltAt: s.PreviewBuiltAt, ProjectID: s.PreviewProjectID, JobID: s.PreviewJobID, Minutes: s.PreviewMinutes}
 	images := templateImagesWire{
 		Mode: s.Recipe.Scenes.Images.Mode, Count: s.Recipe.Scenes.Images.Count,
 		Minutes: s.Recipe.Scenes.Images.Minutes, Known: s.ImageCountKnown,
@@ -228,13 +250,13 @@ func promptSummary(s library.Summary) string {
 			style += " · Cận cảnh"
 		}
 	}
-	return "Prompt " + displayPromptName(s.ScenePromptName) + " · " + style + " · bìa " + displayPromptName(s.CoverPromptName)
+	return "Chỉ dẫn " + displayPromptName(s.ScenePromptName) + " · " + style + " · bìa " + displayPromptName(s.CoverPromptName)
 }
 
 // displayPromptName tránh chuỗi rỗng khi prompt đã bị xoá tay khỏi DB.
 func displayPromptName(name string) string {
 	if strings.TrimSpace(name) == "" {
-		return "Prompt đã xoá"
+		return "Chỉ dẫn đã xoá"
 	}
 	return name
 }
@@ -383,7 +405,7 @@ func receiveTemplateUploads(w http.ResponseWriter, r *http.Request) ([]string, f
 	if err != nil {
 		return nil, noop, &library.Error{
 			Code:     library.CodeInvalidInput,
-			Message:  "Yêu cầu nhập template phải là tệp tải lên",
+			Message:  "Yêu cầu nhập mẫu video phải là tệp tải lên",
 			Recovery: "Chọn tệp .ytf-template.zip từ máy rồi nhập lại",
 		}
 	}
@@ -443,8 +465,8 @@ func receiveTemplateUploads(w http.ResponseWriter, r *http.Request) ([]string, f
 		cleanup()
 		return nil, noop, &library.Error{
 			Code:     library.CodeInvalidInput,
-			Message:  "Chưa chọn tệp template",
-			Recovery: "Chọn tệp .ytf-template.zip (bản xuất template)",
+			Message:  "Chưa chọn tệp mẫu video",
+			Recovery: "Chọn tệp .ytf-template.zip (bản xuất mẫu video)",
 		}
 	}
 	return files, cleanup, nil
@@ -473,6 +495,26 @@ func routeTemplates(w http.ResponseWriter, r *http.Request, svc LibraryService, 
 		return
 	}
 	rest := strings.TrimPrefix(r.URL.Path, "/api/templates/")
+	if routeTemplateTrials(w, r, svc, diag, rest) {
+		return
+	}
+	// Hai route con dùng chung tiền tố nhưng thêm một đoạn cố định.
+	for _, suffix := range []string{"/preview", "/export"} {
+		if !strings.HasSuffix(rest, suffix) {
+			continue
+		}
+		id := strings.TrimSuffix(rest, suffix)
+		id = strings.Trim(id, "/")
+		if id == "" || strings.Contains(id, "/") {
+			break
+		}
+		if suffix == "/export" {
+			exportTemplate(w, r, svc, diag, id)
+		} else {
+			routeTemplatePreview(w, r, svc, diag, id)
+		}
+		return
+	}
 	id := strings.Trim(rest, "/")
 	if id == "" || strings.Contains(id, "/") {
 		webapp.Error(w, http.StatusNotFound, "không tìm thấy")
@@ -495,7 +537,7 @@ func routeTemplates(w http.ResponseWriter, r *http.Request, svc LibraryService, 
 		if req.Revision <= 0 {
 			writeLibraryError(w, &library.Error{
 				Code:     library.CodeInvalidInput,
-				Message:  "Thiếu revision khi lưu template",
+				Message:  "Thiếu revision khi lưu mẫu video",
 				Recovery: "Tải lại trang rồi lưu lại",
 			}, diag)
 			return
@@ -508,6 +550,62 @@ func routeTemplates(w http.ResponseWriter, r *http.Request, svc LibraryService, 
 		writeTemplateByID(w, ctx, svc, diag, tpl.ID, http.StatusOK)
 	case http.MethodDelete:
 		if err := svc.DeleteTemplate(ctx, id); err != nil {
+			writeLibraryError(w, err, diag)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	default:
+		webapp.Error(w, http.StatusMethodNotAllowed, "không hỗ trợ")
+	}
+}
+
+// exportTemplate là GET /api/templates/{id}/export: gói .ytf-template.zip
+// cùng định dạng bộ nhập. Lỗi thiếu media xảy ra trước khi ghi header.
+func exportTemplate(w http.ResponseWriter, r *http.Request, svc LibraryService, diag LibraryDiag, id string) {
+	if r.Method != http.MethodGet {
+		webapp.Error(w, http.StatusMethodNotAllowed, "không hỗ trợ")
+		return
+	}
+	export, err := svc.OpenTemplateExport(r.Context(), id)
+	if err != nil {
+		writeLibraryError(w, err, diag)
+		return
+	}
+	defer export.Close()
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": export.Info.FileName}))
+	w.Header().Set("Cache-Control", "private, no-store")
+	w.WriteHeader(http.StatusOK)
+	if err := export.WriteTo(r.Context(), w); err != nil && diag != nil {
+		diag("xuất template " + id + ": " + err.Error())
+	}
+}
+
+// routeTemplatePreview là GET/POST/DELETE /api/templates/{id}/preview.
+func routeTemplatePreview(w http.ResponseWriter, r *http.Request, svc LibraryService, diag LibraryDiag, id string) {
+	ctx := r.Context()
+	w.Header().Set("Cache-Control", "private, no-store")
+	switch r.Method {
+	case http.MethodGet:
+		status, err := svc.PreviewStatus(ctx, id)
+		if err != nil {
+			writeLibraryError(w, err, diag)
+			return
+		}
+		webapp.WriteJSON(w, http.StatusOK, status)
+	case http.MethodPost:
+		var req library.PreviewRequest
+		if !webapp.DecodeJSONCode(w, r, &req, library.CodeInvalidInput) {
+			return
+		}
+		status, err := svc.StartTemplatePreview(ctx, id, req)
+		if err != nil {
+			writeLibraryError(w, err, diag)
+			return
+		}
+		webapp.WriteJSON(w, http.StatusAccepted, status)
+	case http.MethodDelete:
+		if err := svc.CancelTemplatePreview(ctx, id); err != nil {
 			writeLibraryError(w, err, diag)
 			return
 		}
@@ -534,6 +632,8 @@ type ImagePromptWire struct {
 	UpdatedAt   time.Time               `json:"updatedAt"`
 	UsedBy      []promptTemplateRefWire `json:"usedBy"`
 	Samples     []string                `json:"samples"`
+	// SampleURLs là URL ảnh mẫu thật, cùng thứ tự với Samples; rỗng khi chưa vẽ thử.
+	SampleURLs []string `json:"sampleUrls"`
 }
 
 // ImagePromptToWire đổi prompt sang hình wire; usedBy suy từ templates.
@@ -546,8 +646,27 @@ func ImagePromptToWire(p domain.ImagePrompt, usage map[string][]library.Template
 	return ImagePromptWire{
 		ID: p.ID, Name: p.Name, Kind: p.Kind, BuiltIn: p.BuiltIn,
 		Composition: p.Composition, Prompt: p.Prompt, UpdatedAt: p.UpdatedAt,
-		UsedBy: usedBy, Samples: []string{},
+		UsedBy: usedBy, Samples: []string{}, SampleURLs: []string{},
 	}
+}
+
+// promptSampleURL dựng URL ảnh mẫu đã sẵn sàng của đúng prompt (route
+// /api/image-prompts/{id}/samples/{sample}/image), id escape theo path.
+func promptSampleURL(promptID, sampleID string) string {
+	return "/api/image-prompts/" + url.PathEscape(promptID) + "/samples/" + url.PathEscape(sampleID) + "/image"
+}
+
+// promptWireAddSampleURLs điền SampleURLs từ Samples để lưới thẻ và hộp chọn
+// vẽ ảnh mẫu thật mà không phải gọi thêm một route cho từng prompt.
+func promptWireAddSampleURLs(wires []ImagePromptWire) []ImagePromptWire {
+	for i := range wires {
+		urls := make([]string, 0, len(wires[i].Samples))
+		for _, sampleID := range wires[i].Samples {
+			urls = append(urls, promptSampleURL(wires[i].ID, sampleID))
+		}
+		wires[i].SampleURLs = urls
+	}
+	return wires
 }
 
 type promptCreateRequest struct {
@@ -577,10 +696,7 @@ func listPrompts(w http.ResponseWriter, r *http.Request, svc LibraryService, dia
 		writeLibraryError(w, err, diag)
 		return
 	}
-	out := make([]ImagePromptWire, 0, len(items))
-	for _, item := range items {
-		out = append(out, ImagePromptToWire(item, usage))
-	}
+	out := promptWireAddSampleURLs(promptWireFillSamples(r.Context(), svc, items, usage))
 	webapp.WriteJSON(w, http.StatusOK, map[string]any{"items": out})
 }
 
@@ -614,11 +730,12 @@ func writePromptByID(w http.ResponseWriter, ctx context.Context, svc LibraryServ
 	}
 	for _, item := range items {
 		if item.ID == id {
-			webapp.WriteJSON(w, status, ImagePromptToWire(item, usage))
+			wire := promptWireAddSampleURLs(promptWireFillSamples(ctx, svc, []domain.ImagePrompt{item}, usage))
+			webapp.WriteJSON(w, status, wire[0])
 			return
 		}
 	}
-	writeLibraryError(w, &library.Error{Code: library.CodeNotFound, Message: "Prompt ảnh không tồn tại", Recovery: "Tải lại trang rồi thử lại"}, diag)
+	writeLibraryError(w, &library.Error{Code: library.CodeNotFound, Message: "Chỉ dẫn ảnh không tồn tại", Recovery: "Tải lại trang rồi thử lại"}, diag)
 }
 
 func routePrompts(w http.ResponseWriter, r *http.Request, svc LibraryService, diag LibraryDiag) {
@@ -634,6 +751,10 @@ func routePrompts(w http.ResponseWriter, r *http.Request, svc LibraryService, di
 		return
 	}
 	ctx := r.Context()
+	if strings.HasPrefix(tail, "samples") {
+		routePromptSamples(w, r, svc, diag, id, tail)
+		return
+	}
 	switch {
 	case tail == "" && r.Method == http.MethodGet:
 		items, err := svc.ListPrompts(ctx, "", "")
@@ -648,11 +769,12 @@ func routePrompts(w http.ResponseWriter, r *http.Request, svc LibraryService, di
 		}
 		for _, item := range items {
 			if item.ID == id {
-				webapp.WriteJSON(w, http.StatusOK, ImagePromptToWire(item, usage))
+				wire := promptWireAddSampleURLs(promptWireFillSamples(ctx, svc, []domain.ImagePrompt{item}, usage))
+				webapp.WriteJSON(w, http.StatusOK, wire[0])
 				return
 			}
 		}
-		writeLibraryError(w, &library.Error{Code: library.CodeNotFound, Message: "Prompt ảnh không tồn tại", Recovery: "Tải lại trang rồi thử lại"}, diag)
+		writeLibraryError(w, &library.Error{Code: library.CodeNotFound, Message: "Chỉ dẫn ảnh không tồn tại", Recovery: "Tải lại trang rồi thử lại"}, diag)
 	case tail == "" && r.Method == http.MethodPatch:
 		var req promptPatchRequest
 		if !webapp.DecodeJSONCode(w, r, &req, library.CodeInvalidInput) {
@@ -697,8 +819,8 @@ func importPrompt(w http.ResponseWriter, r *http.Request, svc LibraryService, di
 	if err != nil {
 		writeLibraryError(w, &library.Error{
 			Code:     library.CodeInvalidInput,
-			Message:  "Không đọc được tệp prompt",
-			Recovery: "Chọn tệp .json xuất từ Thư viện › Prompt ảnh",
+			Message:  "Không đọc được tệp chỉ dẫn",
+			Recovery: "Chọn tệp .json xuất từ Thư viện › Chỉ dẫn ảnh",
 		}, diag)
 		return
 	}
@@ -939,6 +1061,10 @@ func writeLibraryError(w http.ResponseWriter, err error, diag LibraryDiag) {
 			status = http.StatusBadRequest
 		case library.CodeToolMissing:
 			status = http.StatusServiceUnavailable
+		case library.CodeConfirmRequired:
+			status = http.StatusConflict
+		case library.CodeQuota:
+			status = http.StatusTooManyRequests
 		}
 		if status == http.StatusInternalServerError {
 			writeLibraryInternal(w, err, diag)

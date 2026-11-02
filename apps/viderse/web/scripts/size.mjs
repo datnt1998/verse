@@ -17,6 +17,13 @@ if (!entry) {
 
 const phone = Object.entries(manifest).find(([, meta]) => meta.name === 'mobile-workbench')
 if (!phone) throw new Error('[size] thiếu chunk Bàn dựng điện thoại')
+const coldFiles = JSON.parse(readFileSync(join(dist, '.vite/cold-entries.json'), 'utf8'))
+const bootDependencies = coldFiles.filter((file) => file !== phone[1].file).map((file) => {
+  const entry = Object.entries(manifest).find(([, meta]) => meta.file === file)
+  if (!entry) throw new Error(`[size] thiếu chunk khởi động trong manifest: ${file}`)
+  return entry[0]
+})
+if (!bootDependencies.length) throw new Error('[size] thiếu trình dựng React DOM của lần mở đầu')
 for (const [key, meta] of Object.entries(manifest)) {
   if ((meta.imports ?? []).includes(phone[0]) || (key !== entry[0] && (meta.dynamicImports ?? []).includes(phone[0]))) {
     throw new Error(`[size] route khác kéo theo màn điện thoại: ${key} → ${phone[0]}`)
@@ -37,6 +44,8 @@ const visit = (key, chunks) => {
 }
 const entryChunks = new Set()
 visit(entry[0], entryChunks)
+// Yielding renderer initialization still counts every boot byte.
+for (const key of bootDependencies) visit(key, entryChunks)
 const initialChunks = new Set(entryChunks)
 visit(phone[0], initialChunks)
 const compressedJS = new Map()

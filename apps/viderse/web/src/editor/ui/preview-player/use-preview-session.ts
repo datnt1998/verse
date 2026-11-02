@@ -14,8 +14,10 @@ export type PreviewSessionState = "loading" | "ready" | "not-found" | "error";
 
 /**
  * Opens a project into the editor's stores for viewing only: the same load path as the editor session
- * (project, timeline, media library) with no autosave, no command history use and no save. Changing
- * `projectId` stops playback, rewinds and loads the new project; unmounting pauses.
+ * (project, timeline, media library) with no autosave, no command history use and no save. The
+ * timeline load is read-only, so migrations/normalization are applied in memory but never written
+ * back — opening a preview must not bump the project revision. Changing `projectId` stops playback,
+ * rewinds and loads the new project; unmounting pauses.
  */
 export function usePreviewSession(projectId: string): { state: PreviewSessionState; retry: () => void } {
   const [attempt, setAttempt] = useState(0);
@@ -34,7 +36,7 @@ export function usePreviewSession(projectId: string): { state: PreviewSessionSta
         const project = await useProjectStore.getState().loadProject(projectId);
         if (!project) { setState("not-found"); return; }
         if (cancelled) return;
-        await loadTimeline(projectId, { useRetainedProject: true });
+        await loadTimeline(projectId, { useRetainedProject: true, readOnly: true });
         if (cancelled) return;
         useMediaLibraryStore.getState().setCurrentProject(projectId);
         await useMediaLibraryStore.getState().loadMediaItems();

@@ -134,6 +134,11 @@ html[data-standalone]{ --m-edge: 40px }
 [role=switch],[role=radio],[role=checkbox],[role=switch] *,[role=radio] *,[role=checkbox] *,.kit-rdot>span,.kit-switch-track,.kit-switch-thumb{animation:none !important;transition:background-color .2s ease,border-color .2s ease,color .2s ease !important}
 /* Nhóm chọn: giảm chuyển động thì viên về đúng mục ngay, không trượt (kit canonical). */
 .kit-seg-thumb,.kit-seg>button{animation:none !important;transition:none !important}
+/* Thẻ chọn (kit-rcard — cột đối thủ Khám phá, thẻ phụ): luật [role=radio] ở trên
+   giữ transition màu 200 ms, nên riêng thẻ chọn vẫn còn chuyển động khi người
+   dùng bật giảm chuyển động. Tắt hẳn như nhóm chọn; bản thường vẫn giữ hiệu ứng
+   hover/nhấn vì luật đó nằm trong prefers-reduced-motion:no-preference. */
+.kit-rcard{animation:none !important;transition:none !important}
 }
 @keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
 @keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}

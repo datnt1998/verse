@@ -2,12 +2,12 @@
 // --vv-s-*/--vv-r-*; màu lấy token kit để luật thiết kế không bắt hex.
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
-import { space as s, corners as r } from '../../../styles/viderse.stylex'
+import { space as s, corners as r, visualRoles } from '../../../styles/viderse.stylex'
 
 export const mw = stylex.create({
   listRoot: {
-    display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'],
-    paddingTop: s['--vv-s-12'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-8'],
+    display: 'flex', flexDirection: 'column', gap: s['--vv-s-20'],
+    paddingTop: s['--vv-s-6'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-20'],
   },
   detailRoot: {
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-14'],
@@ -15,7 +15,7 @@ export const mw = stylex.create({
   },
   recapSheet: { top: 0, height: '100dvh', '--m-sheet-max-height': '100dvh', borderRadius: 0, paddingBottom: 'max(8px, var(--m-safe-bottom))' },
   recapHeader: { position: 'sticky', top: 0, zIndex: 1, backgroundColor: color['--color-surface-3'], paddingTop: `calc(var(--m-safe-top) + ${s['--vv-s-8']})`, paddingBottom: s['--vv-s-8'] },
-  recapHeading: { margin: 0, fontSize: 18, fontWeight: 600, color: color['--color-fg'] },
+  recapHeading: { margin: 0, fontSize: 16, fontWeight: 600, color: color['--color-fg'] },
   recapSubtitle: { margin: `${s['--vv-s-4']} 0 0`, fontSize: 12.5, color: color['--color-fg-3'] },
   recapRoot: {
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'],
@@ -28,7 +28,7 @@ export const mw = stylex.create({
   dayCount: { fontWeight: 600, color: color['--color-fg'] },
   dayMeter: { flex: 1, minWidth: 16 },
   daySub: { flexShrink: 0, fontSize: 13, color: color['--color-fg-3'], whiteSpace: 'nowrap' },
-  section: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
+  section: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'] },
   sectionHead: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: s['--vv-s-8'] },
   sectionTitle: { margin: 0, fontSize: 13, fontWeight: 600, color: color['--color-fg-3'], letterSpacing: '.01em' },
   sectionCount: { fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
@@ -160,7 +160,7 @@ export const mw = stylex.create({
   promptTag: { color: 'var(--vv-warn-ink)' },
 
   // Bản tin
-  recapLead: { margin: 0, fontSize: 20, lineHeight: 1.4, fontWeight: 600, color: color['--color-fg'] },
+  recapLead: { margin: 0, fontSize: 19, lineHeight: 1.4, fontWeight: 600, color: color['--color-fg'] },
   recapGroup: { fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: color['--color-fg-3'] },
   recapRow: {
     width: '100%', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`,
@@ -231,40 +231,253 @@ export const mw = stylex.create({
   // Kế hoạch
   planBody: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-12'] },
   planHead: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
-  planTitle: { margin: 0, fontSize: 17, fontWeight: 600, color: color['--color-fg'] },
-  planQuote: { margin: 0, fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)', fontStyle: 'italic' },
+  planTitle: { margin: 0, fontSize: 17, fontWeight: 600, color: color['--color-fg'], overflowWrap: 'anywhere' },
+  planQuote: { margin: 0, fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)', fontStyle: 'italic', overflowWrap: 'anywhere' },
   planStep: {
     display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], paddingBlock: s['--vv-s-8'],
     borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'],
   },
   planStepText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
-  planStepTitle: { fontSize: 13.5, fontWeight: 600, color: color['--color-fg'] },
-  planStepSub: { fontSize: 12, lineHeight: 1.45, color: color['--color-fg-3'] },
+  planStepTitle: { fontSize: 13.5, fontWeight: 600, color: color['--color-fg'], lineHeight: 1.4, overflowWrap: 'anywhere' },
+  planStepSub: { fontSize: 12, lineHeight: 1.45, color: color['--color-fg-3'], overflowWrap: 'anywhere' },
   planCost: { fontSize: 11.5, color: 'var(--vv-fg-note)' },
-  planFooter: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'] },
-  planTotal: { flex: 1, minWidth: 0, fontSize: 12.5, color: color['--color-fg-2'] },
+  planFooter: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
+  planTotal: { flex: '1 1 160px', minWidth: 0, fontSize: 12.5, color: color['--color-fg-2'], overflowWrap: 'anywhere' },
+  planFailed: { color: 'var(--vv-warn-ink)' },
+  planKeep: { flex: '1 1 140px', fontSize: 11.5, lineHeight: 1.4, color: 'var(--vv-fg-note)', textAlign: 'right' },
+  planStepOff: { opacity: .5, textDecorationLine: 'line-through' },
+  planAck: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: 12.5, color: color['--color-fg-2'] },
   planAsk: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
-  runRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: 12.5, color: color['--color-fg-2'] },
   runState: { marginLeft: 'auto', fontSize: 11.5, color: color['--color-fg-3'] },
+  runStateDone: { color: color['--color-ok'] },
+  runStateFailed: { color: 'var(--vv-warn-ink)' },
 
-  // Composer dính đáy (nằm trên thanh tab, hoặc trên safe-area khi ẩn tab)
-  composerFoot: {
-    position: 'sticky', bottom: 'var(--m-float-bottom)', zIndex: 6,
-    display: 'flex', alignItems: 'center', gap: s['--vv-s-8'],
-    marginTop: s['--vv-s-4'], paddingBlock: s['--vv-s-8'],
-    backgroundColor: color['--color-bg'],
-  },
-  composerSheet: {
-    position: 'sticky', bottom: 'max(8px, var(--m-safe-bottom))', zIndex: 6,
-    display: 'flex', alignItems: 'center', gap: s['--vv-s-8'],
-    marginTop: s['--vv-s-4'], paddingBlock: s['--vv-s-8'],
-    backgroundColor: color['--color-bg'],
-  },
-  composerInput: {
-    flex: 1, minWidth: 0, height: 44, boxSizing: 'border-box', paddingInline: s['--vv-s-12'],
-    borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: r['--vv-r-12'],
-    backgroundColor: color['--color-surface-2'], color: color['--color-fg'], fontFamily: 'inherit', fontSize: 14,
-  },
   srOnly: { position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', borderWidth: 0 },
   kit: { color: kit['--kit-fg-sub'] },
+})
+
+// ── MMain list: đúng bố cục artboard (thẻ Bản tin, dải kênh, hàng theo nhóm) ──
+export const mwList = stylex.create({
+  headBlock: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
+  h1: { margin: 0, fontSize: 24, lineHeight: 1.25, fontWeight: 600, color: color['--color-fg'], letterSpacing: '-.02em' },
+  dayRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], fontSize: 13, color: color['--color-fg-3'] },
+  dayLabel: { flexShrink: 0, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+  dayBold: { fontWeight: 600, color: color['--color-fg'] },
+  dayTrack: { flex: 1, height: 4, borderRadius: s['--vv-s-2'], backgroundColor: color['--color-surface-2'], overflow: 'hidden' },
+  dayFill: (pct: number) => ({ display: 'block', width: `${pct}%`, height: '100%', borderRadius: s['--vv-s-2'], backgroundColor: color['--color-fg'] }),
+  dayAuto: { flexShrink: 0, whiteSpace: 'nowrap' },
+
+  recapCard: {
+    width: '100%', display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'], textAlign: 'left',
+    padding: `${s['--vv-s-12']} ${s['--vv-s-14']}`, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'],
+    borderRadius: r['--vv-r-16'], backgroundColor: color['--color-surface-1'], color: color['--color-fg'], cursor: 'pointer',
+    transitionProperty: 'transform', transitionDuration: '.16s', transitionTimingFunction: 'ease-out',
+  },
+  recapOrbs: { position: 'relative', width: 26, height: 26, flex: '0 0 auto', marginTop: 2 },
+  recapBody: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
+  recapKicker: { fontSize: 12, color: 'var(--vv-fg-note)' },
+  recapLead: { fontSize: 14.5, fontWeight: 500, lineHeight: 1.45, color: color['--color-fg'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
+  recapMeta: { fontSize: 12.5, color: color['--color-fg-3'] },
+  recapChevron: { color: 'var(--vv-fg-note)', marginTop: s['--vv-s-4'], flex: '0 0 auto' },
+
+  channelTop: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], width: '100%', minWidth: 0 },
+  channelToday: { flex: 1, fontSize: 12, color: color['--color-fg-3'], fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+  channelFacts: { display: 'flex', flexDirection: 'column', gap: 1, width: '100%', fontSize: 12, fontVariantNumeric: 'tabular-nums' },
+  factWaiting: { color: 'var(--vv-st-review)' },
+  factReady: { color: 'var(--vv-st-ready)' },
+  factNone: { color: 'var(--vv-fg-note)' },
+  channelBarTrack: { display: 'block', width: '100%', height: 3, borderRadius: 2, backgroundColor: color['--color-surface-2'], overflow: 'hidden' },
+  channelBarFill: (pct: number) => ({ display: 'block', width: `${pct}%`, height: '100%', borderRadius: 2, backgroundColor: 'var(--vv-fg-note)' }),
+
+  groupSection: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
+  groupHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: s['--vv-s-6'] },
+  groupTitle: { fontSize: 12, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--vv-fg-note)' },
+  groupCount: { fontSize: 12, fontWeight: 500, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  row: { display: 'flex', alignItems: 'center', gap: s['--vv-s-12'], paddingBlock: s['--vv-s-8'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: 'var(--vv-hairline)' },
+  rowMain: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: s['--vv-s-12'], padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
+  rowThumb: { position: 'relative', flex: '0 0 auto', width: 80, height: 45, borderRadius: r['--vv-r-8'], backgroundColor: color['--color-surface-2'], overflow: 'hidden' },
+  rowThumbImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  rowThumbAvatar: { position: 'absolute', left: -4, bottom: -4, boxShadow: `0 0 0 2px ${color['--color-bg']}` },
+  rowText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 },
+  rowTitle: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13.5, fontWeight: 500 },
+  rowTitleMuted: { color: color['--color-fg-3'] },
+  rowStatus: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: 'var(--vv-fg-note)' },
+  rowStatusReview: { color: 'var(--vv-st-review)' },
+  rowStatusIssue: { color: 'var(--vv-danger)' },
+  rowStatusReady: { color: 'var(--vv-st-ready)' },
+  rowAction: {
+    flex: '0 0 auto', minHeight: 44, paddingInline: s['--vv-s-14'], display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    borderRadius: r['--vv-r-12'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'transparent',
+    color: color['--color-fg-2'], fontSize: 13.5, fontWeight: 500, cursor: 'pointer', textDecoration: 'none',
+  },
+  rowActionReview: { borderColor: 'rgba(246,203,140,.4)', color: 'var(--vv-st-review)' },
+  rowActionIssue: { borderColor: 'rgba(255,154,92,.4)', color: 'var(--vv-warn-ink)' },
+  rowIconAction: { flex: '0 0 auto', width: 44, height: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: r['--vv-r-12'], borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg-2'], cursor: 'pointer', textDecoration: 'none' },
+  rowClock: { flex: '0 0 auto', color: 'var(--vv-fg-note)' },
+
+  workCard: {
+    display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'], width: '100%', padding: s['--vv-s-12'], textAlign: 'left',
+    borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'], borderRadius: r['--vv-r-16'],
+    backgroundColor: color['--color-surface-1'], color: color['--color-fg'], cursor: 'pointer',
+  },
+  workTop: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'] },
+  workThumb: { position: 'relative', width: 92, height: 52, flex: '0 0 auto', borderRadius: r['--vv-r-9'], overflow: 'hidden', backgroundColor: color['--color-surface-2'] },
+  workDur: { position: 'absolute', right: 4, bottom: 3, paddingInline: 4, borderRadius: r['--vv-r-4'], backgroundColor: 'rgba(0,0,0,.72)', color: kit['--kit-white'], fontSize: 10, fontVariantNumeric: 'tabular-nums' },
+  workText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
+  workTitle: { fontSize: 14, fontWeight: 500, lineHeight: 1.4, color: color['--color-fg'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
+  workSrc: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  workStepRow: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'] },
+  workStep: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13, color: color['--color-fg-2'] },
+  workPct: { fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  workTrack: { display: 'block', height: 3, borderRadius: 2, backgroundColor: color['--color-surface-2'], overflow: 'hidden' },
+  workFill: (pct: number, ink: string) => ({ display: 'block', width: `${pct}%`, height: '100%', borderRadius: 2, backgroundColor: ink }),
+
+  queueChannel: { flex: '0 0 auto', width: 22, display: 'flex', justifyContent: 'center', color: 'var(--vv-fg-note)', fontSize: 12, fontVariantNumeric: 'tabular-nums' },
+  fullButton: {
+    minHeight: 44, marginTop: s['--vv-s-2'], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-6'],
+    width: '100%', borderRadius: r['--vv-r-12'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'],
+    backgroundColor: 'transparent', color: color['--color-fg-2'], fontSize: 13, textDecoration: 'none', cursor: 'pointer',
+  },
+  quietLink: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-6'], minHeight: 44, alignSelf: 'flex-start', color: color['--color-fg-2'], fontSize: 13, textDecoration: 'none' },
+})
+
+// ── MMain detail: thanh tiêu đề 52, 4 trợ lý một hàng, Ảnh của video, Phòng vẽ,
+// Nội dung đăng, Nhật ký và ô nhắn dính đáy như artboard. ──
+export const mwDetail = stylex.create({
+  root: {
+    display: 'flex', flexDirection: 'column', flexBasis: 0, flexGrow: 1, minHeight: 0, minWidth: 0,
+    // Bàn phím ảo do kit đo (`--kb`): giữ ô nhắn dính đáy ngay trên bàn phím.
+    paddingBottom: 'var(--kb, 0px)',
+  },
+  header: { position: 'sticky', top: 0, zIndex: 10, flex: '0 0 auto', height: 52, paddingInline: 6, display: 'flex', alignItems: 'center', gap: 2, backgroundColor: color['--color-bg'] },
+  headerBtn: { width: 44, height: 44, flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderWidth: 0, backgroundColor: 'transparent', color: 'var(--color-fg-2)', cursor: 'pointer', borderRadius: r['--vv-r-12'] },
+  headerText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.3 },
+  headerTitle: { fontSize: 16, fontWeight: 600, color: color['--color-fg'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  headerMeta: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  scroll: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', padding: `4px 16px 16px`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'], scrollbarWidth: 'none' },
+
+  agentRow: { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: s['--vv-s-6'] },
+  agentTile: {
+    padding: `${s['--vv-s-10']} ${s['--vv-s-4']} ${s['--vv-s-8']}`, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s['--vv-s-5'],
+    borderRadius: r['--vv-r-12'], backgroundColor: color['--color-surface-1'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)', textAlign: 'center', minWidth: 0,
+  },
+  agentTileOn: { backgroundColor: 'rgba(255,208,138,.06)', borderColor: 'rgba(255,208,138,.3)' },
+  agentTileDim: { opacity: 0.55 },
+  agentName: { fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap' },
+  agentState: { fontSize: 11, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+
+  promptRow: {
+    minHeight: 52, padding: `${s['--vv-s-8']} ${s['--vv-s-12']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-12'],
+    borderRadius: r['--vv-r-14'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)', backgroundColor: 'var(--vv-sheet-bg)',
+    color: color['--color-fg'], textAlign: 'left', cursor: 'pointer', width: '100%',
+  },
+  promptIcon: { flex: '0 0 auto', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: r['--vv-r-9'], backgroundColor: 'rgba(185,208,247,.1)', color: 'var(--vv-seg-sources)' },
+  promptChevron: { color: 'var(--vv-fg-note)', flex: '0 0 auto' },
+  promptText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 1 },
+  promptTitle: { fontSize: 13.5, fontWeight: 500 },
+  promptSub: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  promptBadge: { flex: '0 0 auto', height: 22, paddingInline: 8, display: 'flex', alignItems: 'center', borderRadius: r['--vv-r-6'], backgroundColor: 'rgba(246,203,140,.12)', color: 'var(--vv-st-review)', fontSize: 11.5, whiteSpace: 'nowrap' },
+
+  reviewBanner: {
+    padding: s['--vv-s-12'], borderRadius: r['--vv-r-14'], backgroundColor: 'rgba(246,203,140,.06)',
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(246,203,140,.3)', display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'],
+  },
+  reviewBannerText: { display: 'flex', gap: s['--vv-s-10'], alignItems: 'flex-start', fontSize: 13.5, color: 'var(--vv-note-ink)', lineHeight: 1.5 },
+  reviewFlag: { color: 'var(--vv-st-review)', marginTop: s['--vv-s-1'], flex: '0 0 auto' },
+  attentionFlag: { color: 'var(--vv-danger)' },
+  readyFlag: { color: 'var(--vv-st-ready)' },
+  reviewBtn: { width: '100%' },
+
+  drawHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  drawTitle: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: 13, fontWeight: 500, color: color['--color-fg-3'] },
+  drawCount: { fontSize: 12.5, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  drawGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: s['--vv-s-8'] },
+  drawTile: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-5'], minWidth: 0, padding: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], textAlign: 'left', cursor: 'pointer' },
+  drawCover: { gridColumn: '1 / -1' },
+  drawFrame: { position: 'relative', aspectRatio: '16 / 9', borderRadius: r['--vv-r-10'], overflow: 'hidden', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: color['--color-surface-2'] },
+  drawImg: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
+  drawBadge: {
+    position: 'absolute', left: 6, top: 6, height: 20, paddingInline: 7, display: 'flex', alignItems: 'center', gap: 5,
+    borderRadius: r['--vv-r-6'], backgroundColor: 'rgba(11,11,13,.78)', color: color['--color-fg'], fontSize: 11.5, zIndex: 2,
+  },
+  drawBadgeKey: { color: color['--color-fg-3'], fontVariantNumeric: 'tabular-nums' },
+  drawDrawing: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: color['--color-fg-3'], fontSize: 12 },
+  drawWait: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--vv-fg-note)' },
+  drawCapRow: { display: 'flex', gap: s['--vv-s-6'], fontSize: 11.5, color: 'var(--vv-fg-note)' },
+  drawCaption: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  drawTime: { flex: '0 0 auto', fontVariantNumeric: 'tabular-nums' },
+  drawEmpty: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
+
+  sectionCard: {
+    display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'], borderRadius: r['--vv-r-14'], padding: s['--vv-s-12'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)', backgroundColor: color['--color-surface-1'],
+  },
+  sectionHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: s['--vv-s-8'] },
+  sectionTitle: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], margin: 0, fontSize: 13, fontWeight: 500, color: color['--color-fg-3'] },
+  statusPill: { height: 22, paddingInline: 7, display: 'flex', alignItems: 'center', borderRadius: r['--vv-r-6'], fontSize: 11.5 },
+  statusPending: { backgroundColor: 'var(--vv-wash-6)', color: 'var(--vv-fg-note)' },
+  statusWriting: { backgroundColor: 'rgba(246,203,140,.12)', color: 'var(--vv-st-review)' },
+  statusFailed: { backgroundColor: 'rgba(255,154,92,.12)', color: 'var(--vv-warn-ink)' },
+  statusAI: { backgroundColor: 'rgba(166,237,193,.12)', color: 'var(--vv-st-ready)' },
+  statusEdited: { backgroundColor: 'rgba(246,203,140,.12)', color: 'var(--vv-st-review)' },
+  sectionNote: { fontSize: 13, lineHeight: 1.5, color: color['--color-fg-3'] },
+  writeWriting: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
+  writeFailed: {
+    padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-12'], borderWidth: 1, borderStyle: 'solid',
+    borderColor: 'rgba(255,154,92,.3)', backgroundColor: 'rgba(255,154,92,.06)', display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'],
+    fontSize: 13, lineHeight: 1.55, color: 'var(--vv-warn-ink)',
+  },
+  fieldLabel: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: color['--color-fg-3'] },
+  fieldLabelStrong: { fontSize: 12, fontWeight: 600, color: color['--color-fg-2'] },
+  fieldGrow: { flex: 1 },
+  whyBtn: { minHeight: 32, display: 'inline-flex', alignItems: 'center', gap: 4, paddingInline: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg-3'], fontSize: 12, cursor: 'pointer' },
+  titleBox: {
+    padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: color['--color-surface-0'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,.1)', fontSize: 14, fontWeight: 500, lineHeight: 1.45, color: color['--color-fg'],
+    width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+  },
+  descBox: {
+    padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: color['--color-surface-0'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,.1)', fontSize: 13, color: color['--color-fg-2'], lineHeight: 1.55,
+    width: '100%', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+  },
+  tagRow: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'] },
+  tag: {
+    height: 28, paddingInline: 10, display: 'flex', alignItems: 'center', gap: 5, borderRadius: r['--vv-r-8'],
+    backgroundColor: 'var(--vv-wash-5)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)', fontSize: 12.5, color: color['--color-fg-2'],
+  },
+  tagAlways: { color: 'var(--vv-fg-note)' },
+  tagMore: { height: 28, paddingInline: 10, display: 'flex', alignItems: 'center', fontSize: 12.5, color: 'var(--vv-fg-note)' },
+  metaActionGrid: { display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: s['--vv-s-8'] },
+  metaHint: { fontSize: 12, color: 'var(--vv-fg-note)', lineHeight: 1.5 },
+
+  logRow: { display: 'flex', gap: s['--vv-s-8'], fontSize: 12.5, lineHeight: 1.45 },
+  logTime: { flex: '0 0 auto', paddingTop: 2, fontSize: 11, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  logText: { minWidth: 0 },
+  logWho: { fontWeight: 600 },
+  logWhat: { color: color['--color-fg-2'] },
+
+  videoCard: {
+    display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], borderRadius: r['--vv-r-14'], padding: s['--vv-s-12'],
+    borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)', backgroundColor: color['--color-surface-1'],
+  },
+  viewer: { width: '100%', aspectRatio: '16 / 9', objectFit: 'contain', borderRadius: r['--vv-r-12'], backgroundColor: color['--color-surface-2'] },
+
+  composerBar: {
+    position: 'sticky', bottom: 0, zIndex: 8, flex: '0 0 auto', padding: `8px 12px 0`, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)', backgroundColor: visualRoles.mobileComposerSurface,
+  },
+  composerSafe: { paddingBottom: 'var(--m-safe-bottom, 0px)' },
+  // Trong Sheet Bản tin (không có root co lại): nhấc thanh nhắn lên trên bàn phím ảo.
+  composerKb: { bottom: 'var(--kb, 0px)' },
+  composerCard: {
+    borderRadius: r['--vv-r-22'], padding: '4px 4px 4px 14px', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'],
+    backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)',
+  },
+  composerInput: { flex: 1, minWidth: 0, height: 44, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: 'inherit', fontSize: 16, outline: 'none' },
+  composerSend: { flex: '0 0 auto', width: 40, height: 40, borderRadius: '50%', paddingInline: 0 },
+  notice: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
+  error: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--color-err)' },
+  skeleton: { backgroundColor: color['--color-surface-3'], borderRadius: 10, display: 'block' },
+  skeletonShort: { height: 40 },
+  skeletonTall: { height: 66 },
 })

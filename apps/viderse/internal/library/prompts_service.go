@@ -37,7 +37,7 @@ type PromptPatch struct {
 // ListPrompts trả prompt có sẵn trước rồi prompt của bạn theo updatedAt.
 func (s *Service) ListPrompts(ctx context.Context, kind domain.PromptKind, q string) ([]domain.ImagePrompt, error) {
 	if kind != "" && kind != domain.PromptScene && kind != domain.PromptCover {
-		return nil, invalidInput("Loại prompt không hợp lệ", "Chọn Ảnh cảnh hoặc Ảnh bìa")
+		return nil, invalidInput("Loại chỉ dẫn không hợp lệ", "Chọn Ảnh cảnh hoặc Ảnh bìa")
 	}
 	query := strings.TrimSpace(q)
 	if len([]rune(query)) > 200 {
@@ -97,7 +97,7 @@ func (s *Service) promptByID(ctx context.Context, id string) (*domain.ImagePromp
 		return nil, err
 	}
 	if p == nil {
-		return nil, notFound("Prompt ảnh")
+		return nil, notFound("Chỉ dẫn ảnh")
 	}
 	return p, nil
 }
@@ -108,7 +108,7 @@ func (s *Service) CreatePrompt(ctx context.Context, in PromptInput) (*domain.Ima
 	if strings.TrimSpace(in.FromID) != "" {
 		found, err := s.promptByID(ctx, in.FromID)
 		if errors.Is(err, ErrNotFound) || CodeOf(err) == CodeNotFound {
-			return nil, invalidFields("Prompt nguồn không tồn tại", []FieldError{{"fromId", "Prompt để nhân bản không tồn tại", "Chọn lại prompt trong Thư viện"}})
+			return nil, invalidFields("Chỉ dẫn nguồn không tồn tại", []FieldError{{"fromId", "Chỉ dẫn để nhân bản không tồn tại", "Chọn lại chỉ dẫn trong Thư viện"}})
 		}
 		if err != nil {
 			return nil, err
@@ -135,7 +135,7 @@ func (s *Service) CreatePrompt(ctx context.Context, in PromptInput) (*domain.Ima
 		return nil, err
 	}
 	if fields := validatePromptFields(kind, composition, prompt); len(fields) > 0 {
-		return nil, invalidFields("Prompt ảnh không hợp lệ", fields)
+		return nil, invalidFields("Chỉ dẫn ảnh không hợp lệ", fields)
 	}
 	now := s.now().UTC()
 	p := domain.ImagePrompt{
@@ -167,7 +167,7 @@ func (s *Service) PatchPrompt(ctx context.Context, id string, in PromptPatch) (*
 			return nil, err
 		}
 		if len(using) > 0 {
-			return nil, inUsePromptError("Không đổi được loại prompt khi template còn dùng.", using)
+			return nil, inUsePromptError("Không đổi được loại chỉ dẫn khi mẫu video còn dùng.", using)
 		}
 		current.Kind = *in.Kind
 	}
@@ -185,7 +185,7 @@ func (s *Service) PatchPrompt(ctx context.Context, id string, in PromptPatch) (*
 		current.Name = name
 	}
 	if fields := validatePromptFields(current.Kind, current.Composition, current.Prompt); len(fields) > 0 {
-		return nil, invalidFields("Prompt ảnh không hợp lệ", fields)
+		return nil, invalidFields("Chỉ dẫn ảnh không hợp lệ", fields)
 	}
 	current.UpdatedAt = s.now().UTC()
 	if err := s.store.UpdatePrompt(ctx, *current); err != nil {
@@ -222,12 +222,25 @@ func (s *Service) DeletePrompt(ctx context.Context, id string) error {
 		}
 		return &Error{
 			Code:     CodeInUse,
-			Message:  "Đang dùng ở " + strings.Join(names, ", ") + ". Đổi prompt ở template đó trước rồi xoá.",
-			Recovery: "Bỏ prompt khỏi các template này rồi xoá lại",
+			Message:  "Đang dùng ở " + strings.Join(names, ", ") + ". Đổi chỉ dẫn ở mẫu video đó trước rồi xoá.",
+			Recovery: "Bỏ chỉ dẫn khỏi các mẫu video này rồi xoá lại",
 			UsedBy:   ids,
 		}
 	}
-	if err := s.store.DeletePrompt(ctx, id); err != nil {
+	if s.promptSamples != nil {
+		s.promptSamples.CancelPrompt(ctx, id)
+	}
+	// Xoá hàng prompt trong CÙNG transaction dọn ảnh mẫu: image_prompt_samples
+	// không có FK (prompt có sẵn không nằm trong image_prompts), nên xoá prompt
+	// trước rồi dọn sau mà lỗi thì hàng mẫu mồ côi vĩnh viễn. Lỗi ở đây
+	// rollback, prompt còn nguyên để người dùng thử lại.
+	deletePrompt := func(txctx context.Context) error { return s.store.DeletePrompt(txctx, id) }
+	if s.trialFiles != nil {
+		err = s.trialFiles.DropPromptSamples(ctx, id, deletePrompt)
+	} else {
+		err = deletePrompt(ctx)
+	}
+	if err != nil {
 		if errors.Is(err, ErrInUse) {
 			return s.promptInUseError(ctx, id)
 		}
@@ -241,7 +254,7 @@ func (s *Service) DeletePrompt(ctx context.Context, id string) error {
 func (s *Service) promptInUseError(ctx context.Context, id string) error {
 	using, err := s.store.TemplatesUsingPrompt(ctx, id)
 	if err != nil || len(using) == 0 {
-		return &Error{Code: CodeInUse, Message: "Prompt đang được template dùng. Đổi prompt ở template đó trước rồi thử lại.", Recovery: "Bỏ prompt khỏi template rồi thử lại"}
+		return &Error{Code: CodeInUse, Message: "Chỉ dẫn đang được mẫu video dùng. Đổi chỉ dẫn ở mẫu video đó trước rồi thử lại.", Recovery: "Bỏ chỉ dẫn khỏi mẫu video rồi thử lại"}
 	}
 	names := make([]string, 0, len(using))
 	ids := make([]string, 0, len(using))
@@ -251,8 +264,8 @@ func (s *Service) promptInUseError(ctx context.Context, id string) error {
 	}
 	return &Error{
 		Code:     CodeInUse,
-		Message:  "Đang dùng ở " + strings.Join(names, ", ") + ". Đổi prompt ở template đó trước rồi thử lại.",
-		Recovery: "Bỏ prompt khỏi các template này rồi thử lại",
+		Message:  "Đang dùng ở " + strings.Join(names, ", ") + ". Đổi chỉ dẫn ở mẫu video đó trước rồi thử lại.",
+		Recovery: "Bỏ chỉ dẫn khỏi các mẫu video này rồi thử lại",
 		UsedBy:   ids,
 	}
 }
@@ -262,10 +275,10 @@ func (s *Service) promptInUseError(ctx context.Context, id string) error {
 func (s *Service) validPromptName(ctx context.Context, name, exceptID string) (string, error) {
 	trimmed := strings.TrimSpace(name)
 	if trimmed == "" {
-		return "", invalidFields("Tên prompt đang trống", []FieldError{{"name", "Tên prompt đang trống", "Nhập tên prompt"}})
+		return "", invalidFields("Tên chỉ dẫn đang trống", []FieldError{{"name", "Tên chỉ dẫn đang trống", "Nhập tên chỉ dẫn"}})
 	}
 	if len([]rune(trimmed)) > domain.LimitPromptNameMaxChars {
-		return "", invalidFields("Tên prompt quá dài", []FieldError{{"name", "Tên prompt quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitPromptNameMaxChars)}})
+		return "", invalidFields("Tên chỉ dẫn quá dài", []FieldError{{"name", "Tên chỉ dẫn quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitPromptNameMaxChars)}})
 	}
 	if builtinNameTaken(trimmed) {
 		return "", nameTakenError(trimmed)
@@ -284,8 +297,8 @@ func (s *Service) validPromptName(ctx context.Context, name, exceptID string) (s
 func nameTakenError(name string) *Error {
 	return &Error{
 		Code:     CodeConflict,
-		Message:  "Đã có prompt tên \"" + name + "\"",
-		Recovery: "Đặt tên khác, hoặc nhân bản prompt có sẵn rồi sửa",
+		Message:  "Đã có chỉ dẫn tên \"" + name + "\"",
+		Recovery: "Đặt tên khác, hoặc nhân bản chỉ dẫn có sẵn rồi sửa",
 	}
 }
 
@@ -293,7 +306,7 @@ func nameTakenError(name string) *Error {
 func builtinPromptError() *Error {
 	return &Error{
 		Code:     CodeBuiltin,
-		Message:  "Prompt có sẵn của Viderse không sửa và không xoá được",
+		Message:  "Chỉ dẫn có sẵn của Viderse không sửa và không xoá được",
 		Recovery: "Nhân bản để có bản của bạn rồi sửa",
 	}
 }
@@ -309,7 +322,7 @@ func inUsePromptError(msg string, using []TemplateRef) *Error {
 	return &Error{
 		Code:     CodeInUse,
 		Message:  msg + " Đang dùng ở " + strings.Join(names, ", ") + ".",
-		Recovery: "Bỏ chọn prompt ở các template này rồi thử lại",
+		Recovery: "Bỏ chọn chỉ dẫn ở các mẫu video này rồi thử lại",
 		UsedBy:   ids,
 	}
 }
@@ -320,19 +333,19 @@ func validatePromptFields(kind domain.PromptKind, composition, prompt string) []
 	switch kind {
 	case domain.PromptScene:
 		if composition != "" {
-			fields = append(fields, FieldError{"composition", "Prompt ảnh cảnh không có bố cục bìa", "Bỏ trống bố cục với prompt ảnh cảnh"})
+			fields = append(fields, FieldError{"composition", "Chỉ dẫn ảnh cảnh không có bố cục bìa", "Bỏ trống bố cục với chỉ dẫn ảnh cảnh"})
 		}
 	case domain.PromptCover:
 		if composition == "" {
-			fields = append(fields, FieldError{"composition", "Prompt ảnh bìa phải chọn bố cục", "Chọn một trong: " + strings.Join(domain.ThumbnailStyles(), ", ")})
+			fields = append(fields, FieldError{"composition", "Chỉ dẫn ảnh bìa phải chọn bố cục", "Chọn một trong: " + strings.Join(domain.ThumbnailStyles(), ", ")})
 		} else if !contains(domain.ThumbnailStyles(), composition) {
 			fields = append(fields, FieldError{"composition", "Bố cục bìa không hợp lệ", "Chọn một trong: " + strings.Join(domain.ThumbnailStyles(), ", ")})
 		}
 	default:
-		fields = append(fields, FieldError{"kind", "Loại prompt không hợp lệ", "Chọn Ảnh cảnh hoặc Ảnh bìa"})
+		fields = append(fields, FieldError{"kind", "Loại chỉ dẫn không hợp lệ", "Chọn Ảnh cảnh hoặc Ảnh bìa"})
 	}
 	if len([]rune(prompt)) > domain.LimitImagePromptMaxChars {
-		fields = append(fields, FieldError{"prompt", "Prompt quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitImagePromptMaxChars)})
+		fields = append(fields, FieldError{"prompt", "Chỉ dẫn quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitImagePromptMaxChars)})
 	}
 	return fields
 }
@@ -371,7 +384,7 @@ func (s *Service) ImportPrompt(ctx context.Context, data []byte) (*domain.ImageP
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
 	var in PromptExport
-	notPromptFile := invalidInput("Tệp không phải prompt của Viderse", "Chọn tệp .json xuất từ Thư viện › Prompt ảnh")
+	notPromptFile := invalidInput("Tệp không phải chỉ dẫn của Viderse", "Chọn tệp .json xuất từ Thư viện › Chỉ dẫn ảnh")
 	if err := dec.Decode(&in); err != nil || in.Format != PromptExportFormat {
 		return nil, notPromptFile
 	}
@@ -379,7 +392,7 @@ func (s *Service) ImportPrompt(ctx context.Context, data []byte) (*domain.ImageP
 		return nil, notPromptFile
 	}
 	if in.Version != 1 {
-		return nil, invalidInput("Tệp prompt thuộc phiên bản khác", "Xuất lại từ phiên bản hiện tại rồi nhập")
+		return nil, invalidInput("Tệp chỉ dẫn thuộc phiên bản khác", "Xuất lại từ phiên bản hiện tại rồi nhập")
 	}
 	prompt := in.Prompt
 	created, err := s.CreatePrompt(ctx, PromptInput{

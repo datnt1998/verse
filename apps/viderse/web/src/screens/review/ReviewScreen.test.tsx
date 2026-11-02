@@ -71,8 +71,8 @@ vi.mock('./mobile/MReviewScreen', () => ({ MReviewScreen: () => <div>phone</div>
 vi.mock('../../components', () => ({
   Orb: () => null,
   SystemLoading: () => null,
-  DevelopEffect: ({ state: effectState, title, detail, onCancel }: { state: string; title?: string; detail?: string; onCancel?: () => void }) => (
-    <div data-develop={effectState}>{title}{detail}{onCancel && <button type="button" onClick={onCancel}>Huỷ lần vẽ</button>}</div>
+  DevelopEffect: ({ state: effectState, title, detail, onCancel, children }: { state: string; title?: string; detail?: string; onCancel?: () => void; children?: React.ReactNode }) => (
+    <div data-develop={effectState}>{children}{title}{detail}{onCancel && <button type="button" onClick={onCancel}>Huỷ lần vẽ</button>}</div>
   ),
 }))
 vi.mock('../../components/learn/LearnSlot', () => ({ LearnSlot: () => null }))
@@ -98,11 +98,11 @@ const type = async (field: HTMLInputElement | HTMLTextAreaElement, value: string
 const key = async (init: KeyboardEventInit) => { await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init })) }) }
 
 
-describe('prompt đã gửi', () => {
+describe('chỉ dẫn đã gửi', () => {
   it('hiện theo phần kèm nguồn và dòng meta của bản', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    expect(node.textContent).toContain('Prompt đã gửi')
+    expect(node.textContent).toContain('Chỉ dẫn đã gửi')
     expect(node.textContent).toContain('· Hoạ sĩ viết từ lời kể')
     expect(node.textContent).toContain('ChatGPT · gpt-image-2 · 1280×720 · vẽ 44 giây')
     expect(node.textContent).toContain('So với bản 1: Hoạ sĩ đổi 2 chỗ theo góp ý của bạn.')
@@ -118,43 +118,43 @@ describe('prompt đã gửi', () => {
   })
 })
 
-describe('sửa prompt', () => {
+describe('sửa chỉ dẫn', () => {
   it('chỉ gửi phần đã đổi và ảnh tham chiếu khi ảnh tham chiếu đổi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa prompt')!.click() })
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
     const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
     await type(scene, 'A guard on the roof at dawn.')
     await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 1"]')!.click() })
-    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
     expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], parts: { scene: 'A guard on the roof at dawn.' }, refs: [] })
   })
 
   it('sửa rồi gõ lại đúng nguyên văn thì không còn gì để gửi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa prompt')!.click() })
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
     const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
     const original = scene.value
     await type(scene, 'A guard on the roof at dawn.')
-    expect(node.textContent).toContain('Đã sửa 1 chỗ trong prompt cảnh 3')
+    expect(node.textContent).toContain('Đã sửa 1 chỗ trong chỉ dẫn cảnh 3')
     await type(scene, original)
-    expect(node.textContent).toContain('Sửa prompt cảnh 3')
-    expect(button(node, 'Vẽ lại với prompt này')!.getAttribute('aria-disabled')).toBe('true')
-    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
+    expect(node.textContent).toContain('Sửa chỉ dẫn cảnh 3')
+    expect(button(node, 'Vẽ lại với chỉ dẫn này')!.getAttribute('aria-disabled')).toBe('true')
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
     expect(state.redraw).not.toHaveBeenCalled()
   })
 
   it('Esc huỷ sửa, ⌘↵ gửi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa prompt')!.click() })
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
     expect(node.querySelector('#prompt-scene')).not.toBeNull()
     await key({ key: 'Escape' })
     expect(node.querySelector('#prompt-scene')).toBeNull()
-    expect(node.textContent).toContain('Sửa prompt')
+    expect(node.textContent).toContain('Sửa chỉ dẫn')
 
-    await act(async () => { button(node, 'Sửa prompt')!.click() })
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-style')!, 'Grainy 35mm, cold teal.')
     await key({ key: 'Enter', metaKey: true })
     expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], parts: { style: 'Grainy 35mm, cold teal.' } })
@@ -208,5 +208,17 @@ describe('đang vẽ', () => {
     await act(async () => { button(node, 'Huỷ lần vẽ')!.click() })
     expect(state.cancel).toHaveBeenCalledWith('j', 'a', 3)
     expect(node.textContent).toContain('Bản 2 vẫn dùng cho video tới khi bản mới xong.')
+  })
+
+  it('selects a completed redraw received without a live progress event', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3, { state: 'drawing', url: null })], 2)], quota: undefined }
+    const node = await render()
+    await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click() })
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3)], 2)], quota: undefined }
+    await act(async () => { root!.render(<ReviewScreen />) })
+    expect(node.querySelector('[aria-label^="Bản 3 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v3.jpg')
+    expect(node.querySelector('[data-develop="done"]')).not.toBeNull()
+    expect(state.redraw).not.toHaveBeenCalled()
   })
 })

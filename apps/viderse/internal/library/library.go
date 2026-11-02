@@ -129,16 +129,22 @@ type Deps struct {
 
 // Service là nghiệp vụ Thư viện. An toàn cho goroutine (không giữ trạng thái).
 type Service struct {
-	store    Store
-	files    Files
-	media    *media.Service
-	runner   Runner
-	bins     Binaries
-	price    PriceOf
-	importer MediaImporter
-	notify   func(topic, ref string)
-	now      func() time.Time
-	newID    func() string
+	store         Store
+	files         Files
+	media         *media.Service
+	runner        Runner
+	bins          Binaries
+	price         PriceOf
+	importer      MediaImporter
+	mediaReader   MediaReader
+	preview       PreviewBuilder
+	previewStore  PreviewStore
+	coverTrials   CoverTrialBuilder
+	promptSamples PromptSampleBuilder
+	trialFiles    TrialFiles
+	notify        func(topic, ref string)
+	now           func() time.Time
+	newID         func() string
 }
 
 // New dựng Service trên store.
@@ -370,14 +376,14 @@ func (s *Service) Get(ctx context.Context, id string) (*Detail, error) {
 	tpl, err := s.store.GetTemplate(ctx, id)
 	if err != nil {
 		if errors.Is(err, ErrNotFound) {
-			return nil, notFound("Template")
+			return nil, notFound("Mẫu video")
 		}
 		return nil, err
 	}
 	if tpl == nil {
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
-	tpl, err = s.ensureTemplateProject(ctx, tpl)
+	tpl, err = s.ensureTemplateMedia(ctx, tpl)
 	if err != nil {
 		return nil, err
 	}
@@ -483,7 +489,7 @@ func (s *Service) Duplicate(ctx context.Context, fromID, name string) (*domain.T
 		return nil, err
 	}
 	if src == nil {
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
 	src, err = s.ensureTemplateProject(ctx, src)
 	if err != nil {
@@ -526,7 +532,7 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 		return nil, err
 	}
 	if current == nil {
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
 	current, err = s.ensureTemplateProject(ctx, current)
 	if err != nil {
@@ -583,7 +589,7 @@ func (s *Service) Patch(ctx context.Context, id string, patch Patch) (*domain.Te
 		if refErr := CheckRefs(ctx, refChecker{store: s.store}, recipe); refErr != nil {
 			return nil, refErr
 		}
-		return nil, invalidInput("Một mục trong recipe không còn hợp lệ", "Kiểm tra lại prompt và video nền rồi lưu lại")
+		return nil, invalidInput("Một mục trong recipe không còn hợp lệ", "Kiểm tra lại chỉ dẫn và video nền rồi lưu lại")
 	}
 	if err != nil {
 		return nil, err
@@ -611,18 +617,18 @@ func (s *Service) Rename(ctx context.Context, id, name string, expectRevision *i
 	if !ok {
 		if expectRevision != nil {
 			if current, gerr := s.store.GetTemplate(ctx, id); gerr == nil && current == nil {
-				return nil, notFound("Template")
+				return nil, notFound("Mẫu video")
 			}
 			return nil, conflictRevision()
 		}
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
 	tpl, err := s.store.GetTemplate(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	if tpl == nil {
-		return nil, notFound("Template")
+		return nil, notFound("Mẫu video")
 	}
 	s.emit(TopicTemplate, id)
 	return tpl, nil
@@ -639,23 +645,84 @@ func (s *Service) DeleteTemplate(ctx context.Context, id string) error {
 	}
 	tpl, err := s.store.GetTemplate(ctx, id)
 	if errors.Is(err, ErrNotFound) {
-		return notFound("Template")
+		return notFound("Mẫu video")
 	}
 	if err != nil {
 		return err
 	}
 	if tpl == nil {
-		return notFound("Template")
+		return notFound("Mẫu video")
 	}
-	if err := s.store.DeleteTemplate(ctx, id); err != nil {
-		if errors.Is(err, ErrInUse) {
+	// Huỷ lần dựng đang chạy (chờ nó dừng) và thu hồi mọi project xem thử đã
+	// đăng ký trước khi xoá hàng: project xem thử không thuộc workspace người
+	// dùng, và hàng template xoá xong thì không còn dấu để dọn nữa.
+	if s.preview != nil {
+		_ = s.preview.Cancel(ctx, id)
+	}
+	// Huỷ lần vẽ thử đang chạy (chờ nó ghi trạng thái cuối) rồi mới đọc
+	// media_path: lần vẽ nào công bố ảnh sau đó sẽ không lọt vào danh sách.
+	if s.coverTrials != nil {
+		s.coverTrials.CancelTemplate(ctx, id)
+	}
+	var trialPaths []string
+	if s.trialFiles != nil {
+		paths, err := s.trialFiles.PathsForTemplate(ctx, id)
+		if err != nil {
+			// Chưa biết phải nhả media nào. Xoá lúc này sẽ làm blob đã bind
+			// mất dấu vĩnh viễn (không còn hàng để thử lại), nên dừng trước.
+			return err
+		}
+		trialPaths = paths
+	}
+	previewProjects := []string{}
+	if s.previewStore != nil {
+		previewProjects, _ = s.previewStore.PreviewProjectIDsForTemplate(ctx, id)
+	}
+	if tpl.PreviewProjectID != "" {
+		known := false
+		for _, projectID := range previewProjects {
+			if projectID == tpl.PreviewProjectID {
+				known = true
+				break
+			}
+		}
+		if !known {
+			previewProjects = append(previewProjects, tpl.PreviewProjectID)
+		}
+	}
+	// Xoá hàng template trong CÙNG transaction nhả tham chiếu media: hàng
+	// cover_trials rơi theo FK, nên xoá trước rồi nhả sau mà bước nhả lỗi thì
+	// đường dẫn đã mất dấu. Lỗi ở đây rollback cả hai và người dùng xoá lại.
+	deleteTemplate := func(txctx context.Context) error { return s.store.DeleteTemplate(txctx, id) }
+	var deleteErr error
+	if s.trialFiles != nil {
+		deleteErr = s.trialFiles.UnbindFiles(ctx, trialPaths, deleteTemplate)
+	} else {
+		deleteErr = deleteTemplate(ctx)
+	}
+	if deleteErr != nil {
+		if errors.Is(deleteErr, ErrInUse) {
 			return &Error{
 				Code:     CodeConflict,
-				Message:  "Template vừa được gắn vào một kênh. Bỏ khỏi kênh trước rồi xoá.",
+				Message:  "Mẫu video vừa được gắn vào một kênh. Bỏ khỏi kênh trước rồi xoá.",
 				Recovery: "Tải lại trang rồi thử lại",
 			}
 		}
-		return err
+		return deleteErr
+	}
+	// Xoá project best effort: dòng danh mục còn lại (template_id NULL) vẫn
+	// ẩn project khỏi Editor › Projects và giữ dấu để lần khởi động sau dọn;
+	// lỗi xoá không được biến project mồ côi thành project người dùng.
+	if s.preview != nil {
+		for _, projectID := range previewProjects {
+			if projectID == "" {
+				continue
+			}
+			if err := s.preview.Drop(ctx, projectID); err != nil {
+				continue
+			}
+			_ = s.ForgetPreviewProject(ctx, projectID)
+		}
 	}
 	s.emit(TopicTemplate, id)
 	return nil
@@ -670,7 +737,7 @@ func inUseByChannels(channels domain.ChannelRefList) *Error {
 	return &Error{
 		Code:     CodeConflict,
 		Message:  fmt.Sprintf("Đang dùng ở %d kênh. Bỏ khỏi kênh trước rồi xoá.", len(channels)),
-		Recovery: "Mở kênh đang dùng, bỏ template khỏi danh sách luân phiên rồi xoá lại",
+		Recovery: "Mở kênh đang dùng, bỏ mẫu video khỏi danh sách luân phiên rồi xoá lại",
 		Channels: names,
 	}
 }
@@ -679,10 +746,10 @@ func inUseByChannels(channels domain.ChannelRefList) *Error {
 func validTemplateName(name string) (string, error) {
 	trimmed := strings.TrimSpace(name)
 	if trimmed == "" {
-		return "", invalidInput("Tên template đang trống", "Nhập tên template")
+		return "", invalidInput("Tên mẫu video đang trống", "Nhập tên mẫu video")
 	}
 	if len([]rune(trimmed)) > domain.LimitTemplateNameMaxChars {
-		return "", invalidInput("Tên template quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitTemplateNameMaxChars))
+		return "", invalidInput("Tên mẫu video quá dài", fmt.Sprintf("Rút gọn còn tối đa %d ký tự", domain.LimitTemplateNameMaxChars))
 	}
 	return trimmed, nil
 }

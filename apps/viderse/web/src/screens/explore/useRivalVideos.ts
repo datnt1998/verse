@@ -10,12 +10,22 @@ import { useResource } from '../../data/useResource'
 
 export const VIDEO_PAGE_LIMIT = 200
 
-export type VideosFilter = { scope: string; sort: VideoSort; long: boolean; within: 0 | 7 | 30 | 90; q: string }
+export type VideosFilter = {
+  scope: string
+  sort: VideoSort
+  long: boolean
+  within: 0 | 7 | 30 | 90
+  q: string
+  /** chip Trạng thái: tất cả · chưa làm cho kênh nào · đã làm (mọi kênh) */
+  status?: 'all' | 'notMade' | 'made'
+}
 const queryOf = (f: VideosFilter, cursor: string | null): VideoQuery => ({
   sort: f.sort,
   long: f.long ? 1 : 0,
   within: f.within,
   q: f.q || undefined,
+  made: f.status === 'made' ? 'any' : undefined,
+  notMade: f.status === 'notMade' ? 'any' : undefined,
   cursor,
   limit: VIDEO_PAGE_LIMIT,
 })
@@ -40,7 +50,7 @@ export type RivalVideos = {
 
 export function useRivalVideos(filter: VideosFilter): RivalVideos {
   const first = useResource(
-    keys.rivalVideos(filter.scope, filter.sort, filter.long ? 1 : 0, filter.within, filter.q),
+    keys.rivalVideos(filter.scope, filter.sort, filter.long ? 1 : 0, filter.within, filter.q, filter.status),
     ({ signal }) => listRivalVideos(filter.scope, queryOf(filter, null), signal),
     { keepPrevious: true },
   )
@@ -62,7 +72,7 @@ export function useRivalVideos(filter: VideosFilter): RivalVideos {
     setExtra([])
     setCursor(placeholder ? null : firstData?.nextCursor ?? null)
     setMoreError(null)
-  }, [filter.scope, filter.sort, filter.long, filter.within, filter.q, firstData, placeholder])
+  }, [filter.scope, filter.sort, filter.long, filter.within, filter.q, filter.status, firstData, placeholder])
   // Cập nhật ngay trong lượt render có dữ liệu mới (mẫu "lưu từ render trước"
   // của React) để dòng đếm không chớp chuỗi cũ một khung hình.
   const [shownQ, setShownQ] = useState(filter.q)

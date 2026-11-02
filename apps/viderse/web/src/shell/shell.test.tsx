@@ -186,13 +186,12 @@ describe('OfflineStrip', () => {
       vi.useRealTimers()
     }
   })
-  it('nút Chi tiết mở đoạn giải thích; Thử lại ngay gọi retry', async () => {
+  it('hiện lời giải thích ngay trong banner; Thử lại ngay gọi retry', async () => {
     const retry = vi.fn()
     const c = await render(<OfflineStrip status={{ state: 'retrying', reconnectAt: null, failures: 1 }} retry={retry} />)
-    const [detailsBtn, retryBtn] = [...c.querySelectorAll('button')]
-    expect(c.textContent).not.toContain(t.offline.body)
-    await act(async () => { detailsBtn.click() })
     expect(c.textContent).toContain(t.offline.body)
+    const retryBtn = [...c.querySelectorAll('button')].find((button) => button.textContent === t.common.retryNow)!
+    expect(retryBtn).toBeTruthy()
     await act(async () => { retryBtn.click() })
     expect(retry).toHaveBeenCalledTimes(1)
   })

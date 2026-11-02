@@ -8,9 +8,19 @@ import { space as s, corners as r } from '../../styles/viderse.stylex'
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
 const WIDE = '@media (min-width: 1600px)'
 
+const cardInFrames = stylex.keyframes({
+  from: { opacity: 0, transform: 'translateY(6px) scale(.995)' },
+  to: { opacity: 1, transform: 'none' },
+})
+const dotFrames = stylex.keyframes({
+  '0%, 80%, 100%': { opacity: .3, transform: 'translateY(0)' },
+  '40%': { opacity: 1, transform: 'translateY(-2px)' },
+})
+const spinFrames = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
+
 export const assistantStyles = stylex.create({
   dock: { flex: '0 0 auto', display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'], minWidth: 0 },
-  thread: { width: '100%', maxWidth: { default: 800, [WIDE]: 'none' }, margin: '0 auto', marginBottom: s['--vv-s-4'], display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
+  thread: { width: '100%', maxWidth: { default: 800, [WIDE]: 'none' }, margin: '0 auto', marginBottom: s['--vv-s-4'], display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], outline: 'none' },
   wide: { maxWidth: 'none' },
   bubble: {
     alignSelf: 'flex-end', maxWidth: '70%', padding: `${s['--vv-s-9']} ${s['--vv-s-13']}`,
@@ -24,6 +34,7 @@ export const assistantStyles = stylex.create({
     backgroundColor: color['--color-surface-4'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
     boxShadow: '0 24px 60px -16px rgba(0,0,0,.9), 0 2px 8px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05)',
     width: '100%', maxWidth: { default: 800, [WIDE]: 'none' }, margin: '0 auto',
+    animationName: { default: cardInFrames, [NO_MOTION]: 'none' }, animationDuration: '.18s', animationTimingFunction: 'cubic-bezier(.2,.9,.25,1.08)', animationFillMode: 'both',
   },
   planHead: { padding: `${s['--vv-s-12']} ${s['--vv-s-14']} ${s['--vv-s-8']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
   planTitle: { fontSize: 14, fontWeight: 600, color: color['--color-fg'] },
@@ -57,13 +68,13 @@ export const assistantStyles = stylex.create({
     display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], padding: `${s['--vv-s-10']} ${s['--vv-s-14']}`,
     borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--vv-hairline)', backgroundColor: 'rgba(255,255,255,.02)', flexWrap: 'wrap',
   },
-  footTotal: { flex: '1 1 160px', fontSize: 12.5, color: color['--color-fg-3'], minWidth: 0 },
+  footTotal: { flex: '1 1 160px', fontSize: 12.5, color: color['--color-fg-3'], minWidth: 0, overflowWrap: 'anywhere' },
   askQuestion: { padding: `0 ${s['--vv-s-14']} ${s['--vv-s-8']}`, fontSize: 13, color: color['--color-fg-2'] },
   ask: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'], padding: `0 ${s['--vv-s-14']} ${s['--vv-s-12']}` },
   chip: {
-    height: 28, padding: `0 ${s['--vv-s-10']}`, display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-6'], borderRadius: r['--vv-r-8'],
+    minHeight: 28, maxWidth: '100%', padding: `${s['--vv-s-4']} ${s['--vv-s-10']}`, display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-6'], borderRadius: r['--vv-r-8'],
     backgroundColor: color['--color-surface-1'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-4'],
-    fontFamily: 'inherit', fontSize: 12, color: color['--color-fg-2'], whiteSpace: 'nowrap', cursor: 'pointer',
+    fontFamily: 'inherit', fontSize: 12, color: color['--color-fg-2'], whiteSpace: 'normal', overflowWrap: 'anywhere', textAlign: 'left', lineHeight: 1.35, cursor: 'pointer',
   },
   chipStatic: { cursor: 'default' },
   chipValue: { fontWeight: 500, color: color['--color-fg'] },
@@ -74,6 +85,7 @@ export const assistantStyles = stylex.create({
     borderRadius: r['--vv-r-16'], padding: `${s['--vv-s-12']} ${s['--vv-s-14']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'],
     backgroundColor: 'transparent', backgroundImage: 'linear-gradient(180deg, var(--color-surface-2) 0%, var(--color-surface-1) 100%)',
     borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'], boxShadow: surface['--card-shadow'],
+    animationName: { default: cardInFrames, [NO_MOTION]: 'none' }, animationDuration: '.18s', animationTimingFunction: 'cubic-bezier(.2,.9,.25,1.08)', animationFillMode: 'both',
   },
   cardConfirm: {
     borderColor: 'rgba(255,208,138,.32)',
@@ -86,7 +98,7 @@ export const assistantStyles = stylex.create({
     margin: 0, padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: 'rgba(255,208,138,.06)',
     fontSize: 13, color: color['--color-fg-2'], lineHeight: 1.55, overflowWrap: 'anywhere',
   },
-  lead: { margin: 0, fontSize: 13, color: color['--color-fg-3'], lineHeight: 1.55 },
+  lead: { margin: 0, fontSize: 13, color: color['--color-fg-3'], lineHeight: 1.55, overflowWrap: 'anywhere' },
   reruns: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
   rerunLabel: { fontSize: 12, color: 'var(--vv-fg-note)' },
   grow: { flex: 1 },
@@ -94,6 +106,13 @@ export const assistantStyles = stylex.create({
   note: { fontSize: 12.5, color: color['--color-fg-3'], lineHeight: 1.5 },
   noteError: { color: 'var(--vv-warn-ink)' },
   contents: { display: 'contents' },
+  typing: { display: 'inline-flex', alignItems: 'center', gap: 3, flex: '0 0 auto', paddingBottom: 1 },
+  typingDot: {
+    width: 4, height: 4, borderRadius: '50%', backgroundColor: 'currentColor', opacity: .35,
+    animationName: { default: dotFrames, [NO_MOTION]: 'none' }, animationDuration: '1.1s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite',
+  },
+  typingDot2: { animationDelay: '.15s' },
+  typingDot3: { animationDelay: '.3s' },
 
   // Ô nhập (form.card của board)
   ringBox: { position: 'relative' },
@@ -128,6 +147,11 @@ export const assistantStyles = stylex.create({
     backgroundColor: { default: color['--color-fg'], ':hover:not(:disabled)': 'white' }, color: color['--color-bg'], cursor: 'pointer', padding: 0,
   },
   sendOff: { opacity: 0.42, cursor: 'not-allowed' },
+  sendBusy: { opacity: 0.9, cursor: 'progress' },
+  sendSpin: {
+    display: 'inline-block', width: 16, height: 16, borderRadius: '50%', borderWidth: 2, borderStyle: 'solid', borderColor: 'rgba(0,0,0,.22)', borderTopColor: 'currentColor',
+    animationName: { default: spinFrames, [NO_MOTION]: 'none' }, animationDuration: '.8s', animationTimingFunction: 'linear', animationIterationCount: 'infinite',
+  },
   hints: {
     display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: `${s['--vv-s-4']} ${s['--vv-s-14']}`, padding: `0 ${s['--vv-s-6']}`,
     fontSize: 12, color: 'var(--vv-fg-note)',

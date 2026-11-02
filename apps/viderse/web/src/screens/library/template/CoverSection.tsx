@@ -1,27 +1,108 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
-// Mục Ảnh bìa (Template.dc.html › lib^cover): prompt ảnh bìa, vẽ thử (khoá —
-// cần video đã làm xong), ảnh bìa mặc định (khoá — chưa có kho media), cách lấy
-// ảnh bìa. Prompt có sẵn đứng trước prompt của bạn trong ô chọn.
-import { RadioCard, Icon } from '@noverse/ui'
+// Mục Ảnh bìa (Template.dc.html › lib^cover): prompt ảnh bìa, vẽ thử ảnh thật
+// (một ảnh/lần, chạy nền, giữ 12 lần gần nhất) và ảnh bìa mặc định tải từ kho
+// media của editor. Prompt có sẵn đứng trước prompt của bạn trong ô chọn.
+import { useRef, useState } from 'react'
+import { RadioCard, Icon, Dialog, Button, confirm } from '@noverse/ui'
 import { ActionButton } from '../../../components'
 import { t } from '../../../i18n/library'
-import type { ImagePrompt, Recipe } from '../../../api/library'
+import type { ImagePrompt, Recipe, ThumbnailStyle } from '../../../api/library'
+import { uploadRefImage } from '../../../api/images'
+import type { CoverTrial, CoverTrialStatus } from '../../../api/cover-trials'
+import { useRoute } from '../../../router'
+import { clock } from '../fmt'
 import { PromptPicker } from './PromptPicker'
+import { useCoverTrial } from './useCoverTrial'
+import { trialFailureText } from '../../../i18n/errorsCopy'
 
-export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
+const MAX_COVER_BYTES = 20 * 1024 * 1024
+const COVER_TYPES: Record<string, true> = { 'image/png': true, 'image/jpeg': true, 'image/webp': true }
+
+export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templateId: templateIdProp }: {
   recipe: Recipe
   prompts: ImagePrompt[]
   errors: Record<string, string>
   onSave: (patch: Partial<Recipe>) => void
   /** Ẩn h2 khi lồng trong màn con có tiêu đề riêng (MTemplate). */
   hideTitle?: boolean
+  /** Trang template truyền id; thiếu thì lấy từ route hiện tại. */
+  templateId?: string
 }) {
   const copy = t.library.template.cover
+  const route = useRoute().route
+  const templateId = templateIdProp ?? (route.name === 'template' ? route.templateId : '')
+  const trial = useCoverTrial(templateId)
   const scenes = recipe.scenes
   const setScenes = (next: Partial<Recipe['scenes']>) => onSave({ scenes: { ...scenes, ...next } })
   const ordered = [...prompts.filter((prompt) => prompt.builtIn), ...prompts.filter((prompt) => !prompt.builtIn)]
+
+  const [pickedJob, setPickedJob] = useState('')
+  const [viewing, setViewing] = useState<CoverTrial | null>(null)
+  const [mediaError, setMediaError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [dropping, setDropping] = useState(false)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+
+  const status = trial.status
+  const sources = status?.sources ?? []
+  const jobId = pickedJob || sources[0]?.jobId || ''
+  const source = sources.find((item) => item.jobId === jobId)
+  const costLabel = status?.cost.label ?? ''
+  const running = (status?.history ?? []).find((row) => row.state === 'running')
+  const drawLockedReason = running ? copy.trialRunning : !status?.ready ? status?.blockedReason ?? copy.trialLocked : undefined
+
+  const quotaText = (s: CoverTrialStatus | undefined): string => {
+    if (!s) return ''
+    if (!s.quota) return copy.trialQuotaUnknown
+    if (s.quota?.paid) return copy.trialQuota(s.quota.label, s.quota.left, s.quota.total)
+    return copy.trialQuotaFree(s.cost.label)
+  }
+
+  const draw = async (id: string, title: string) => {
+    if (!status || drawLockedReason) return
+    const accepted = await confirm({
+      title: copy.trialConfirmTitle,
+      body: copy.trialConfirmBody(title, status.cost.label, quotaText(status)),
+      confirmLabel: copy.trialCost(status.cost.label),
+      cancelLabel: t.library.cancel,
+      onConfirm: () => undefined,
+    })
+    if (accepted) await trial.start(id)
+  }
+
+  const drawSelected = async () => {
+    if (source) await draw(source.jobId, source.title)
+  }
+
+  const retry = async (row: CoverTrial) => {
+    await draw(row.jobId, row.jobTitle)
+  }
+
+  const uploadCover = async (file: File | undefined) => {
+    if (!file) return
+    setMediaError(null)
+    if (!COVER_TYPES[file.type]) {
+      setMediaError(copy.defaultBadType)
+      return
+    }
+    if (file.size > MAX_COVER_BYTES) {
+      setMediaError(copy.defaultTooBig)
+      return
+    }
+    setUploading(true)
+    try {
+      const id = await uploadRefImage(file)
+      setScenes({ coverMediaId: id, coverSource: 'upload' })
+    } catch (err) {
+      setMediaError(err instanceof Error && err.message ? err.message : copy.defaultUploadFail)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const removeCover = () => setScenes({ coverMediaId: '', coverSource: 'ai' })
 
   return (
     <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? copy.title : undefined} aria-labelledby={hideTitle ? undefined : 'vt-cover-title'}>
@@ -48,6 +129,134 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
       </div>
 
       <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+        <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
+          <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.trialTitle}</span>
+          <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialKeep}</span>
+        </div>
+
+        <div className={`vt-row ${stylex.props(sx.row).className}`}>
+          <label className={`vt-hint ${stylex.props(sx.hint).className}`} htmlFor="vt-cover-trial-source">{copy.trialSource}</label>
+          {sources.length > 0 ? (
+            <select
+              id="vt-cover-trial-source"
+              className={`vt-select ${stylex.props(sx.select).className}`}
+              aria-label={copy.trialSourceAria}
+              value={jobId}
+              disabled={trial.running}
+              onChange={(event) => setPickedJob(event.currentTarget.value)}
+            >
+              {sources.map((item) => (
+                <option key={item.jobId} value={item.jobId}>
+                  {copy.trialSourceOption(item.title, Math.max(1, Math.round(item.durationSec / 60)))}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{trial.loading ? copy.trialRunning : copy.trialLocked}</span>
+          )}
+        </div>
+
+        {running ? (
+          <div className={`vt-row ${stylex.props(sx.row).className}`}>
+            <span className={`vt-hint ${stylex.props(sx.progress).className}`} role="status">
+              {status?.task?.phase ? copy.trialPhase(status.task.phase) : copy.trialRunning}
+            </span>
+            <ActionButton variant="outline" icon={<Icon name="close" size={16} />} onClick={() => void trial.cancel(running.id)}>
+              {copy.trialCancel}
+            </ActionButton>
+          </div>
+        ) : (
+          <div className={`vt-row ${stylex.props(sx.row).className}`}>
+            <ActionButton
+              variant="outline"
+              icon={<Icon name="magicpen" size={16} />}
+              pending={trial.loading}
+              lockedReason={drawLockedReason}
+              onClick={() => void drawSelected()}
+            >
+              {copy.trialCost(costLabel || 'AI')}
+            </ActionButton>
+            <p className={`vt-hint ${stylex.props(sx.hint).className}`}>
+              {status?.blockedReason ?? (status?.quota?.paid
+                ? copy.trialHelp + ' ' + quotaText(status)
+                : copy.trialHelp)}
+            </p>
+          </div>
+        )}
+        {trial.error && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{trial.error}</p>}
+
+        {(status?.history.length ?? 0) > 0 ? (
+          <ul className={`vt-trial-grid ${stylex.props(sx.trials).className}`} aria-label={copy.trialTitle}>
+            {status!.history.map((row) => (
+              <li key={row.id} className={`vt-trial ${stylex.props(sx.trial).className}`} data-state={row.state}>
+                {row.state === 'ready' ? (
+                  <button type="button" className={`vt-trial-open ${stylex.props(sx.trialOpen).className}`} onClick={() => setViewing(row)} aria-label={copy.trialView}>
+                    <img className={`vt-trial-img ${stylex.props(sx.trialImg).className}`} src={row.imageUrl ?? ''} alt="" loading="lazy" />
+                    <span className={`vt-trial-meta ${stylex.props(sx.trialMeta).className}`}>
+                      {t.library.prompts.composition[(row.composition as ThumbnailStyle) ?? 'clean'] ?? row.composition} · {clock(row.createdAt)}
+                    </span>
+                  </button>
+                ) : row.state === 'running' ? (
+                  <div className={`vt-trial-state ${stylex.props(sx.trialState).className}`}>
+                    <span className={`vt-hint ${stylex.props(sx.hint).className}`} role="status">{copy.trialRunning}</span>
+                  </div>
+                ) : (
+                  <div className={`vt-trial-state ${stylex.props(sx.trialState).className}`}>
+                    <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{row.state === 'cancelled' ? copy.trialCancelled : trialFailureText(row.error?.code)}</span>
+                    <ActionButton size="sm" variant="outline" lockedReason={drawLockedReason} onClick={() => void retry(row)}>{copy.trialRetry}</ActionButton>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialEmpty}</p>
+        )}
+      </div>
+
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+        <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.defaultTitle}</span>
+        <div
+          className={`vt-cover-default ${stylex.props(sx.coverDefault, dropping && sx.coverDefaultDrop).className}`}
+          onDragOver={(event) => { event.preventDefault(); setDropping(true) }}
+          onDragLeave={() => setDropping(false)}
+          onDrop={(event) => {
+            event.preventDefault()
+            setDropping(false)
+            void uploadCover(event.dataTransfer.files[0])
+          }}
+        >
+          {scenes.coverMediaId ? (
+            <img className={`vt-cover-thumb ${stylex.props(sx.coverThumb).className}`} src={`/api/editor/media/${encodeURIComponent(scenes.coverMediaId)}`} alt="" />
+          ) : (
+            <span className={`vt-cover-thumb ${stylex.props(sx.coverThumb).className}`} aria-hidden="true" />
+          )}
+          <div className={`vt-cover-copy ${stylex.props(sx.coverCopy).className}`}>
+            <p {...stylex.props(sx.vtCoverCopyP)}>{scenes.coverMediaId ? copy.defaultSet : copy.defaultNone}</p>
+            <p className={`vt-hint ${stylex.props(sx.hint2).className}`}>{dropping ? copy.defaultDropActive : copy.defaultDrop}</p>
+          </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className={`vt-visually-hidden ${stylex.props(sx.fileInput).className}`}
+            onChange={(event) => {
+              void uploadCover(event.currentTarget.files?.[0])
+              event.currentTarget.value = ''
+            }}
+          />
+          {scenes.coverMediaId ? (
+            <ActionButton variant="outline" icon={<Icon name="trash" size={16} />} onClick={removeCover}>{copy.defaultRemove}</ActionButton>
+          ) : (
+            <ActionButton variant="outline" pending={uploading} onClick={() => fileRef.current?.click()}>{uploading ? copy.defaultUploading : copy.defaultChoose}</ActionButton>
+          )}
+        </div>
+        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.defaultHelp}</p>
+        {mediaError && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{mediaError}</p>}
+        {errors['scenes.coverMediaId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.coverMediaId']}</p>}
+      </div>
+
+      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.sourceLabel}</span>
         <div role="radiogroup" aria-label={copy.sourceLabel} className={`vt-sources ${stylex.props(sx.sources).className}`}>
           <RadioCard xstyle={[sx.vtSourcesRadioCard]} checked={scenes.coverSource === 'ai'} onChange={() => setScenes({ coverSource: 'ai' })}
@@ -57,31 +266,15 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle }: {
         </div>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
-        <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
-          <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.trialTitle}</span>
-          <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialKeep}</span>
-        </div>
-        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialEmpty}</p>
-        <div className={`vt-row ${stylex.props(sx.row).className}`}>
-          <ActionButton xstyle={[sx.vtSourcesRadioCard]} variant="outline" icon={<Icon name="magicpen" size={16} />} lockedReason={copy.trialLocked}>{copy.trialDraw}</ActionButton>
-          <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialHelp}</p>
-        </div>
-      </div>
-
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
-        <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.defaultTitle}</span>
-        <div className={`vt-cover-default ${stylex.props(sx.coverDefault).className}`}>
-          <span className={`vt-cover-thumb ${stylex.props(sx.coverThumb).className}`} aria-hidden="true" />
-          <div className={`vt-cover-copy ${stylex.props(sx.coverCopy).className}`}>
-            <p {...stylex.props(sx.vtCoverCopyP)}>{copy.defaultNone}</p>
-            <p className={`vt-hint ${stylex.props(sx.hint2).className}`}>{copy.defaultDrop}</p>
-          </div>
-          <ActionButton xstyle={[sx.vtSourcesRadioCard]} variant="outline" lockedReason={copy.defaultLocked}>{copy.defaultChoose}</ActionButton>
-        </div>
-        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.defaultHelp}</p>
-        {errors['scenes.coverMediaId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.coverMediaId']}</p>}
-      </div>
+      {viewing && (
+        <Dialog title={copy.trialTitle} onClose={() => setViewing(null)} width={720}
+          footer={<Button size="sm" onClick={() => setViewing(null)}>{t.library.close}</Button>}>
+          <img className={`vt-trial-full ${stylex.props(sx.trialFull).className}`} src={viewing.imageUrl ?? ''} alt="" />
+          <p className={`vt-hint ${stylex.props(sx.hint).className}`}>
+            {t.library.prompts.composition[(viewing.composition as ThumbnailStyle) ?? 'clean'] ?? viewing.composition} · {clock(viewing.createdAt)} · {viewing.promptName}
+          </p>
+        </Dialog>
+      )}
     </section>
   )
 }
@@ -123,9 +316,20 @@ const sx = stylex.create({
   vtSourcesRadioCard: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
   row: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  coverDefault: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", flexWrap: "wrap" },
-  coverThumb: { flexGrow: 0, flexShrink: 0, flexBasis: "auto", width: libraryVars.templateCoverSectionCoverThumbWidth, aspectRatio: libraryVars.videoAspectRatio, borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
+  select: { minHeight: "var(--vv-s-34)", maxWidth: "100%", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-1"], borderRightColor: line["--line-1"], borderBottomColor: line["--line-1"], borderLeftColor: line["--line-1"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: color["--color-bg"], color: color["--color-fg"], paddingLeft: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", fontSize: "var(--vv-s-13)" },
+  progress: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-2"] },
+  trials: { listStyle: "none", marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
+  trial: { minWidth: 0, borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-2"], borderRightColor: line["--line-2"], borderBottomColor: line["--line-2"], borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", overflow: "hidden", backgroundColor: "var(--vv-tile-idle)" },
+  trialOpen: { display: "flex", flexDirection: "column", width: "100%", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, borderTopWidth: 0, borderRightWidth: 0, borderBottomWidth: 0, borderLeftWidth: 0, background: "none", cursor: "pointer", textAlign: "left" },
+  trialImg: { width: "100%", aspectRatio: libraryVars.videoAspectRatio, objectFit: "cover", display: "block" },
+  trialMeta: { display: "block", paddingTop: "var(--vv-s-4)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-4)", paddingLeft: "var(--vv-s-6)", fontSize: "var(--vv-s-11)", color: color["--color-fg-3"], whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+  trialState: { display: "flex", flexDirection: "column", justifyContent: "center", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", paddingTop: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", paddingBottom: "var(--vv-s-8)", paddingLeft: "var(--vv-s-8)", minHeight: "var(--vv-s-80)" },
+  trialFull: { width: "100%", height: "auto", display: "block", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)" },
+  coverDefault: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", flexWrap: "wrap", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "dashed", borderRightStyle: "dashed", borderBottomStyle: "dashed", borderLeftStyle: "dashed", borderTopColor: "transparent", borderRightColor: "transparent", borderBottomColor: "transparent", borderLeftColor: "transparent", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)" },
+  coverDefaultDrop: { borderTopColor: color["--color-link"], borderRightColor: color["--color-link"], borderBottomColor: color["--color-link"], borderLeftColor: color["--color-link"] },
+  coverThumb: { flexGrow: 0, flexShrink: 0, flexBasis: "auto", width: libraryVars.templateCoverSectionCoverThumbWidth, aspectRatio: libraryVars.videoAspectRatio, objectFit: "cover", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: "var(--vv-tile-idle)", backgroundImage: "none" },
   coverCopy: { flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: libraryVars.templateCoverSectionCoverCopyFlexBasis, minWidth: 0, display: "flex", flexDirection: "column", rowGap: "var(--vv-s-2)", columnGap: "var(--vv-s-2)" },
   vtCoverCopyP: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-2"] },
   hint2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-2"], lineHeight: libraryVars.bodyLineHeight },
+  fileInput: { position: "absolute", width: "var(--vv-s-1)", height: "var(--vv-s-1)", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, marginTop: -1, marginRight: -1, marginBottom: -1, marginLeft: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", borderTopWidth: 0, borderRightWidth: 0, borderBottomWidth: 0, borderLeftWidth: 0 },
 })

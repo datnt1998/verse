@@ -1,16 +1,20 @@
-// Sheet Kế hoạch của trợ lý trên điện thoại (artboard MMain › plan). Gọi đúng
-// /api/assistant/plan + /run-plan, hiện câu hỏi/chưa hiểu, tích bước, chạy và
-// theo dõi tiến độ thật. Không dựng dữ liệu kế hoạch giả.
-import { useEffect, useRef, useState } from 'react'
+// Sheet Kế hoạch của trợ lý trên điện thoại (artboard MMain › plan). Cùng một máy
+// trạng thái với ô Nhắn trợ lý ở máy tính (useAssistantThread): câu → đọc câu →
+// kế hoạch chưa chạy gì → Làm → tiến độ thật từng bước. Không có phần trăm,
+// không có bước tự báo xong, không gọi endpoint nào ngoài plan/run-plan/runs.
+import { useEffect } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button, Checkbox, Sheet } from '@noverse/ui'
-import { getPlanRun, planAssistant, runPlan, type AssistantScope, type PlanReply, type PlanRun } from '../../../api/assistant'
-import { allSelected, chosenSteps, planTotals, stepCostLabel, toggleStep, totalLine, type Selection } from '../../../components/assistant/planModel'
+import type { AssistantScope } from '../../../api/assistant'
+import { Orb } from '../../../components/Orb'
+import { planTotals, stepCostLabel, totalLine, type Selection, type StepProgress } from '../../../components/assistant/planModel'
+import { useAssistantThread } from '../../../components/assistant/useAssistantThread'
+import { assistantCopy } from '../../../i18n/assistant'
+import { systemErrorText } from '../../../components/assistant/systemCopy'
 import { screenWorkbench } from '../../../i18n/screens'
 import { mw } from './mworkbench.stylex'
 
 const c = screenWorkbench.mobile.plan
-const STATE_LABEL: Record<string, string> = { queued: 'Đang chờ', running: 'Đang làm', done: 'Xong', failed: 'Chưa làm được' }
 
 export function MobilePlanSheet({ open, text, scope, onClose, onSettled }: {
   open: boolean
@@ -23,117 +27,112 @@ export function MobilePlanSheet({ open, text, scope, onClose, onSettled }: {
 }
 
 function OpenPlanSheet({ text, scope, onClose, onSettled }: { text: string; scope: AssistantScope; onClose: () => void; onSettled: () => void }) {
-  const [current, setCurrent] = useState(text)
-  const [reply, setReply] = useState<PlanReply | null>(null)
-  const [selected, setSelected] = useState<Selection>(new Set())
-  const [run, setRun] = useState<PlanRun | null>(null)
-  const [error, setError] = useState('')
-  const [busy, setBusy] = useState(false)
-  const settled = useRef(false)
-
-  const plan = reply?.kind === 'plan' ? reply.plan : null
-
-  const ask = (input: string) => {
-    setBusy(true); setError(''); setReply(null); setRun(null); settled.current = false
-    planAssistant({ scope, text: input })
-      .then((next) => {
-        setReply(next)
-        setSelected(next.kind === 'plan' ? allSelected(next.plan) : new Set())
-      })
-      .catch((err: unknown) => setError(err instanceof Error ? err.message : 'Không lập được kế hoạch.'))
-      .finally(() => setBusy(false))
-  }
-
-  useEffect(() => { ask(text) }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
+  const { thread, send, toggle, confirm, cancel, retry } = useAssistantThread(scope, onSettled)
+  // Mở sheet là gửi câu. Dọn effect huỷ lượt đọc câu còn treo (đóng sheet, đổi
+  // phạm vi, StrictMode chạy lại effect); lượt chạy đã bắt đầu thì không huỷ.
   useEffect(() => {
-    if (!run || run.state === 'done' || run.state === 'failed') return
-    let cancelled = false
-    const timer = setInterval(() => {
-      getPlanRun(run.runId)
-        .then((next) => {
-          if (cancelled) return
-          setRun(next)
-          if (next.state === 'done' || next.state === 'failed') {
-            if (!settled.current) { settled.current = true; onSettled() }
-          }
-        })
-        .catch((err: unknown) => { if (!cancelled) setError(err instanceof Error ? err.message : c.failed) })
-    }, 1200)
-    return () => { cancelled = true; clearInterval(timer) }
-  }, [run, onSettled])
+    send(text)
+    return () => cancel()
+  }, [send, text, cancel])
 
-  const start = async () => {
-    if (!plan) return
-    setBusy(true); setError('')
-    try {
-      const next = await runPlan(plan.planId, chosenSteps(plan, selected).map((step) => step.id))
-      setRun(next)
-      if (next.state === 'done' || next.state === 'failed') { settled.current = true; onSettled() }
-    } catch (err) { setError(err instanceof Error ? err.message : 'Không chạy được kế hoạch.') } finally { setBusy(false) }
-  }
+  const running = thread.phase === 'running'
+  const quote = 'text' in thread ? thread.text : text
+  const plan = thread.phase === 'plan' || thread.phase === 'running' || thread.phase === 'done' ? thread.plan : null
+  const selected: Selection | null = thread.phase === 'plan' || thread.phase === 'running' || thread.phase === 'done' ? thread.selected : null
+  const progress: StepProgress = thread.phase === 'running' || thread.phase === 'done' ? thread.steps : {}
+  const totals = plan && selected ? planTotals(plan, selected) : null
+  const steps = plan && selected ? plan.steps.filter((step) => selected.has(step.id)) : []
+  const done = steps.filter((step) => progress[step.id]?.state === 'done').length
+  const failed = steps.filter((step) => progress[step.id]?.state === 'failed').length
 
-  const totals = plan ? planTotals(plan, selected) : null
-  const runState = run ? Object.fromEntries(run.steps.map((step) => [step.id, step])) : {}
-  const finished = run?.state === 'done' || run?.state === 'failed'
+  /** Đang chạy thì không đóng: máy chủ không có endpoint huỷ lượt chạy. */
+  const closeSheet = () => { if (!running) onClose() }
+  const cancelPlan = () => { cancel(); onClose() }
 
-  return <Sheet open onClose={onClose} label={c.title} size="md" height="auto">
-    <div {...stylex.props(mw.planBody)}>
+  const announce = thread.phase === 'planning' ? assistantCopy.a11y.planning
+    : thread.phase === 'plan' ? assistantCopy.a11y.plan(thread.plan.steps.length)
+      : thread.phase === 'ask' ? assistantCopy.a11y.ask
+        : thread.phase === 'unknown' ? assistantCopy.a11y.unknown
+          : thread.phase === 'error' ? assistantCopy.a11y.error
+            : thread.phase === 'running' ? assistantCopy.a11y.running(done, steps.length)
+              : thread.phase === 'done' ? (failed > 0 ? assistantCopy.a11y.failed(failed, steps.length) : assistantCopy.a11y.done(done, steps.length))
+                : ''
+
+  const heading = plan ? c.head(plan.steps.length) : c.title
+
+  return <Sheet open onClose={closeSheet} label={c.title} size="md" height="auto" grab={!running}>
+    <div {...stylex.props(mw.planBody)} role="group" aria-label={c.title}>
+      <span role="status" aria-live="polite" aria-atomic="true" {...stylex.props(mw.srOnly)}>{announce}</span>
+
       <div {...stylex.props(mw.planHead)}>
-        <h2 {...stylex.props(mw.planTitle)}>{plan ? c.head(plan.steps.length) : c.title}</h2>
-        <p {...stylex.props(mw.planQuote)}>{c.quote(current)}</p>
+        <h2 {...stylex.props(mw.planTitle)}>{heading}</h2>
+        <p {...stylex.props(mw.planQuote)}>{c.quote(quote)}</p>
       </div>
 
-      {busy && !reply && <p role="status" {...stylex.props(mw.notice)}>Đang lập kế hoạch…</p>}
-      {error && <div role="alert" {...stylex.props(mw.error)}>{error}</div>}
-
-      {reply?.kind === 'ask' && <div {...stylex.props(mw.planAsk)}>
-        <strong {...stylex.props(mw.planStepTitle)}>{c.ask}</strong>
-        <p {...stylex.props(mw.planStepSub)}>{reply.ask.question}</p>
-        {reply.ask.options.map((option) => <Button key={option.text} variant="ghost" block disabled={busy} onClick={() => { setCurrent(option.text); ask(option.text) }}>{option.label}</Button>)}
+      {thread.phase === 'planning' && <div role="status" aria-live="polite" {...stylex.props(mw.planAck)}>
+        <Orb of="director" size={18} live />
+        <span>{assistantCopy.states.planningWho}</span>
       </div>}
 
-      {reply?.kind === 'unknown' && <div {...stylex.props(mw.planAsk)}>
-        <strong {...stylex.props(mw.planStepTitle)}>{c.unknown}</strong>
-        <p {...stylex.props(mw.planStepSub)}>{reply.unknown.lead}</p>
-        {reply.unknown.suggestions.map((option) => <Button key={option.text} variant="ghost" block disabled={busy} onClick={() => { setCurrent(option.text); ask(option.text) }}>{option.label}</Button>)}
-        {reply.unknown.link && <a {...stylex.props(mw.moreLink)} href={reply.unknown.link.href}>{reply.unknown.link.label} ›</a>}
+      {thread.phase === 'ask' && <div {...stylex.props(mw.planAsk)}>
+        <strong {...stylex.props(mw.planStepTitle)}>{assistantCopy.ask.head}</strong>
+        <p {...stylex.props(mw.planStepSub)}>{thread.ask.question}</p>
+        {thread.ask.options.map((option) => <Button key={option.text} variant="ghost" block onClick={() => void send(option.text)}>{option.label}</Button>)}
+        <Button variant="quiet" size="sm" onClick={closeSheet}>{c.editText}</Button>
       </div>}
 
-      {plan && <>
-        {plan.steps.map((step) => <div key={step.id} {...stylex.props(mw.planStep)}>
-          <Checkbox checked={selected.has(step.id)} onChange={() => setSelected((current) => toggleStep(current, step.id))} disabled={busy || Boolean(run)} label={
-            <span {...stylex.props(mw.planStepText)}>
-              <span {...stylex.props(mw.planStepTitle)}>{step.title}</span>
-              <span {...stylex.props(mw.planStepSub)}>{step.sub}</span>
-              <span {...stylex.props(mw.planCost)}>{stepCostLabel(step)}</span>
-            </span>
-          } />
-        </div>)}
-        {run && <div {...stylex.props(mw.card)}>
-          <div {...stylex.props(mw.cardHead)}>
-            <strong {...stylex.props(mw.cardTitle)}>{finished ? (run.state === 'failed' ? c.failed : c.done) : c.running}</strong>
-            <span {...stylex.props(mw.cardHint)}>{c.summary(run.steps.filter((step) => step.state === 'done').length, run.steps.length)}</span>
+      {thread.phase === 'unknown' && <div {...stylex.props(mw.planAsk)}>
+        <strong {...stylex.props(mw.planStepTitle)}>{assistantCopy.unknown.title}</strong>
+        <p {...stylex.props(mw.planStepSub)}>{thread.unknown.lead}</p>
+        {thread.unknown.suggestions.map((option) => <Button key={option.text} variant="ghost" block onClick={() => void send(option.text)}>{option.label}</Button>)}
+        {thread.unknown.link && <a {...stylex.props(mw.moreLink)} href={thread.unknown.link.href}>{thread.unknown.link.label} ›</a>}
+        <Button variant="quiet" size="sm" onClick={closeSheet}>{c.editText}</Button>
+      </div>}
+
+      {thread.phase === 'error' && <div role="alert" {...stylex.props(mw.planAsk)}>
+        <strong {...stylex.props(mw.planStepTitle)}>{assistantCopy.states.errorTitle}</strong>
+        <p {...stylex.props(mw.planStepSub)}>{systemErrorText(thread.kind, thread.message, thread.retry.type === 'run')}</p>
+        <div {...stylex.props(mw.planFooter)}>
+          <Button variant="quiet" size="sm" onClick={closeSheet}>{assistantCopy.states.edit}</Button>
+          {thread.retry.type === 'plan' && (thread.kind === 'offline' || thread.kind === 'busy' || thread.kind === 'failed' || thread.kind === 'model') && <Button variant="primary" size="sm" onClick={() => retry()}>{assistantCopy.states.retry}</Button>}
+        </div>
+      </div>}
+
+      {plan && selected && <>
+        {(thread.phase === 'plan' ? plan.steps : steps).map((step) => {
+          const on = selected.has(step.id)
+          const run = progress[step.id]
+          return <div key={step.id} {...stylex.props(mw.planStep)}>
+            <Checkbox checked={on} onChange={() => toggle(step.id)} disabled={thread.phase !== 'plan'} label={
+              <span {...stylex.props(mw.planStepText)}>
+                <span {...stylex.props(mw.planStepTitle, thread.phase === 'plan' && !on && mw.planStepOff)}>{step.title}</span>
+                <span {...stylex.props(mw.planStepSub, thread.phase === 'plan' && !on && mw.planStepOff)}>{run?.message || step.sub}</span>
+                {thread.phase === 'plan'
+                  ? <span {...stylex.props(mw.planCost)}>{stepCostLabel(step)}</span>
+                  : run && <span role="status" {...stylex.props(mw.runState, run.state === 'done' && mw.runStateDone, run.state === 'failed' && mw.runStateFailed)}>{assistantCopy.progress[run.state]}</span>}
+              </span>
+            } />
           </div>
-          {plan.steps.map((step) => {
-            const state = runState[step.id]
-            if (!state) return null
-            return <div key={step.id} {...stylex.props(mw.runRow)}>
-              <span>{step.title}</span>
-              <span {...stylex.props(mw.runState)}>{STATE_LABEL[state.state] ?? state.state}{state.message ? ` · ${state.message}` : ''}</span>
-            </div>
-          })}
+        })}
+
+        {thread.phase === 'plan' && totals && <div {...stylex.props(mw.planFooter)}>
+          <span {...stylex.props(mw.planTotal)}>{totalLine(thread.plan, selected)}{thread.plan.imagesLeftToday != null ? ` · ${assistantCopy.plan.imagesLeft(thread.plan.imagesLeftToday)}` : ''}</span>
+          <Button variant="quiet" size="sm" onClick={cancelPlan}>{c.cancel}</Button>
+          <Button variant="primary" size="lg" disabled={totals.count === 0} onClick={() => confirm()}>{c.run(totals.count)}</Button>
         </div>}
-        {!run && <div {...stylex.props(mw.planFooter)}>
-          <span {...stylex.props(mw.planTotal)}>{totalLine(plan, selected)}{plan.imagesLeftToday != null ? ` · còn ${plan.imagesLeftToday} hôm nay` : ''}</span>
-          <Button variant="primary" size="lg" disabled={busy || !totals?.count} onClick={() => void start()}>{totals?.count ? c.run(totals.count) : c.noStep}</Button>
+
+        {thread.phase !== 'plan' && <div {...stylex.props(mw.planFooter)}>
+          <span role="status" aria-live="polite" {...stylex.props(mw.planTotal, failed > 0 && mw.planFailed)}>
+            {thread.phase === 'running'
+              ? (thread.lost ? assistantCopy.states.lostProgress : c.summary(done, steps.length))
+              : failed > 0 ? assistantCopy.progress.failedSummary(failed) : c.summary(done, steps.length)}
+          </span>
+          {running
+            ? <span {...stylex.props(mw.planKeep)}>{assistantCopy.states.keepOpenWhileRunning}</span>
+            : <Button variant="primary" size="sm" onClick={closeSheet}>{c.close}</Button>}
         </div>}
       </>}
-
-      <div {...stylex.props(mw.planFooter)}>
-        <Button variant="quiet" size="sm" onClick={onClose}>{finished ? c.close : c.editText}</Button>
-        {!finished && <Button variant="ghost" size="sm" onClick={onClose}>{c.cancel}</Button>}
-      </div>
     </div>
   </Sheet>
 }
+

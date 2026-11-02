@@ -20,7 +20,6 @@ export const newScreenCopy = {
   linkedSource: 'Đối thủ đã liên kết với kênh',
   rotation: 'Theo luân phiên',
   invalid: 'Không đọc được video từ link này. Kiểm tra lại link YouTube, hoặc video có thể đã bị ẩn.',
-  duplicateTitle: (title: string) => `Video này đã làm cho kênh này. ${title}`,
   priority: (n: number) => `Ưu tiên cả ${n}`,
   priorityHint: 'Lên đầu hàng chờ, không theo nhịp kênh',
   mobileSuggestions: 'Hoặc chọn video nổi trội của đối thủ',
@@ -85,9 +84,15 @@ export const newScreenCopy = {
     batchFallback: 'Vào cuối hàng chờ.',
   },
   dup: {
-    banner: 'Video này đã được làm — mở job để xem kết quả.',
-    bannerRunning: 'Video này đã có trong hàng chờ — không cần thêm lần nữa.',
-    dupTag: 'Trùng — đã trong hàng chờ',
+    banner: (title: string) => `Kênh này đã có video từ link này: “${title}”`,
+    /** đuôi câu theo trạng thái job đang có; trạng thái lạ thì bỏ đuôi */
+    bannerState: {
+      queued: ', đang chờ lượt.',
+      running: ', đang làm.',
+      paused: ', đang tạm dừng.',
+      failed: ', cần xử lý.',
+      done: ', đã xong.',
+    } as Record<string, string>,
     open: 'Mở video đang làm',
   },
   toasts: {
@@ -162,6 +167,7 @@ export const queueScreenCopy = {
   },
   banners: {
     pausedTitle: (time: string | null) => `Đã tạm dừng${time ? ` lúc ${time}` : ''}`,
+    pausedLede: (time: string | null) => `Đã tạm dừng${time ? ` lúc ${time}` : ''}. Video đang chạy làm nốt bước hiện tại rồi dừng.`,
     pausedBody: (count: number) => `${count} video giữ nguyên thứ tự. Tự lấy video vẫn thêm video mới vào cuối hàng, nhưng chưa video nào được bắt đầu.`,
     pausedPill: 'Tạm dừng · 0 đang chạy · nguồn ảnh vẫn giữ hạn mức',
     limitedTitle: 'Hết hạn mức vẽ ảnh:',

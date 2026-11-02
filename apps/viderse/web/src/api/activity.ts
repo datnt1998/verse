@@ -12,7 +12,7 @@ import type { SuggestionKind } from './suggestions'
 
 export type TaskKind =
   | 'video' | 'identity' | 'channel_scan' | 'backdrop_scan' | 'thumbnail_preview'
-  | 'template_preview' | 'editor_export' | 'setup' | 'cleanup' | 'logs' | 'storage_move' | 'storage_migrate' | 'assistant_plan'
+  | 'template_preview' | 'image_trial' | 'editor_export' | 'setup' | 'cleanup' | 'logs' | 'storage_move' | 'storage_migrate' | 'assistant_plan'
 
 export type TaskState = 'running' | 'paused' | 'waiting' | 'failed'
 

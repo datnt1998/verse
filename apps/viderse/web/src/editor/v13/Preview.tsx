@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { ArrowLeft, ArrowRight, Eye, Pause, Play, Volume2, VolumeX } from 'lucide-react'
+import { Icon } from '@noverse/ui'
 import { HeadlessPlayer, type PlayerRef } from '@editor/runtime/player/Player'
 import { MainComposition } from '@editor/runtime/composition-runtime/compositions/main-composition'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
@@ -51,20 +51,20 @@ function Transport({ fps, duration, safe, toggleSafe }: { fps: number; duration:
     state.pause(); state.finishScrub(Math.max(0, Math.min(duration - 1, target)))
   }
   return <div {...stylex.props(s.transport)}>
-    <button type="button" aria-label="Về đầu" title="Về đầu (Home)" onClick={() => seek(0)} {...stylex.props(s.button)}><ArrowLeft size={14} aria-hidden /></button>
-    <button type="button" aria-label={playing ? 'Tạm dừng' : 'Phát'} title="Phát / tạm dừng (Space)" onClick={() => usePlaybackStore.getState().togglePlayPause()} {...stylex.props(s.button, s.play)}>{playing ? <Pause size={16} aria-hidden /> : <Play size={16} aria-hidden />}</button>
-    <button type="button" aria-label="Tới cuối" title="Tới cuối (End)" onClick={() => seek(duration - 1)} {...stylex.props(s.button)}><ArrowRight size={14} aria-hidden /></button>
+    <button type="button" aria-label="Về đầu" title="Về đầu (Home)" onClick={() => seek(0)} {...stylex.props(s.button)}><Icon name="arrow-r" size={14} style={{ transform: 'rotate(180deg)' }} /></button>
+    <button type="button" aria-label={playing ? 'Tạm dừng' : 'Phát'} title="Phát / tạm dừng (Space)" onClick={() => usePlaybackStore.getState().togglePlayPause()} {...stylex.props(s.button, s.play)}>{playing ? <Icon name="pause" size={16} /> : <Icon name="play" size={16} />}</button>
+    <button type="button" aria-label="Tới cuối" title="Tới cuối (End)" onClick={() => seek(duration - 1)} {...stylex.props(s.button)}><Icon name="arrow-r" size={14} /></button>
     <span role="timer" aria-label={`Thời gian ${frameTimecode(frame, fps)}`} {...stylex.props(s.timer)}>{frameTimecode(frame, fps)}<span {...stylex.props(s.muted)}> / {frameTimecode(duration, fps)}</span></span>
     <span {...stylex.props(s.spacer)} />
-    <button type="button" aria-pressed={safe} title="Khung an toàn" onClick={toggleSafe} {...stylex.props(s.button, s.safeButton, safe && s.safeActive)}><Eye size={13} aria-hidden /><span {...stylex.props(s.safeLabel)}>Khung an toàn</span></button>
-    <button type="button" aria-label="Chất lượng xem trước" title="Chất lượng xem trước" onClick={() => usePlaybackStore.getState().setPreviewQuality(quality === 1 ? 0.5 : quality === 0.5 ? 0.25 : 1)} {...stylex.props(s.button, s.field, s.quality)}><span {...stylex.props(s.muted)}>Xem</span>{quality === 1 ? '1/1' : quality === 0.5 ? '1/2' : quality === 0.33 ? '1/3' : '1/4'}</button>
-    <span title="Thu phóng khung xem" {...stylex.props(s.field, s.zoom)}><span {...stylex.props(s.muted)}>Zoom</span>Vừa khung</span>
+    <button type="button" aria-pressed={safe} title="Khung an toàn" onClick={toggleSafe} {...stylex.props(s.button, s.safeButton, safe && s.safeActive)}><Icon name="eye" size={13} /><span {...stylex.props(s.safeLabel)}>Khung an toàn</span></button>
+    <button type="button" aria-label="Chất lượng xem trước" title="Chất lượng xem trước" onClick={() => usePlaybackStore.getState().setPreviewQuality(quality === 1 ? 0.5 : quality === 0.5 ? 0.25 : 1)} {...stylex.props(s.button, s.field, s.quality)}><span {...stylex.props(s.muted)}>Xem</span>{quality >= 1 ? '1/1' : quality >= 0.5 ? '1/2' : '1/4'}</button>
+    <span title="Thu phóng khung xem" {...stylex.props(s.field, s.zoom)}><span {...stylex.props(s.muted)}>Thu phóng</span>Vừa khung</span>
     <div ref={volumeRoot} {...stylex.props(s.volume)} onKeyDown={event => {
       if (event.key === 'Escape' && volumeOpen) { event.preventDefault(); event.stopPropagation(); setVolumeOpen(false); volumeButton.current?.focus() }
     }}>
-      <button ref={volumeButton} type="button" aria-label="Âm lượng xem trước" title="Âm lượng xem trước" aria-expanded={volumeOpen} aria-controls="editor-preview-volume" onClick={() => setVolumeOpen(open => !open)} {...stylex.props(s.button)}>{muted || volume === 0 ? <VolumeX size={15} aria-hidden /> : <Volume2 size={15} aria-hidden />}</button>
+      <button ref={volumeButton} type="button" aria-label="Âm lượng xem trước" title="Âm lượng xem trước" aria-expanded={volumeOpen} aria-controls="editor-preview-volume" onClick={() => setVolumeOpen(open => !open)} {...stylex.props(s.button)}>{<Icon name="volume" size={15} xstyle={muted || volume === 0 ? s.mutedInk : undefined} />}</button>
       {volumeOpen && <div id="editor-preview-volume" role="group" aria-label="Âm lượng xem trước" {...stylex.props(s.volumePanel)}>
-        <button type="button" aria-label={muted ? 'Bật tiếng xem trước' : 'Tắt tiếng xem trước'} aria-pressed={muted} onClick={() => usePlaybackStore.getState().toggleMute()} {...stylex.props(s.button)}>{muted ? <VolumeX size={15} aria-hidden /> : <Volume2 size={15} aria-hidden />}</button>
+        <button type="button" aria-label={muted ? 'Bật tiếng xem trước' : 'Tắt tiếng xem trước'} aria-pressed={muted} onClick={() => usePlaybackStore.getState().toggleMute()} {...stylex.props(s.button)}>{<Icon name="volume" size={15} xstyle={muted ? s.mutedInk : undefined} />}</button>
         <input ref={volumeInput} type="range" min={0} max={1} step={0.01} value={volume} aria-label="Âm lượng xem trước" onChange={event => usePlaybackStore.getState().setVolume(Number(event.target.value))} {...stylex.props(s.volumeRange)} />
         <span {...stylex.props(s.volumeValue)}>{Math.round(volume * 100)}%</span>
       </div>}
@@ -92,7 +92,7 @@ export function Preview({ overlay }: { overlay?: ReactNode } = {}) {
           <MainComposition fps={fps} tracks={resolved} transitions={transitions} keyframes={keyframes} width={width} height={height} backgroundColor={backgroundColor} liveItemTransformSource={useItemsStore} />
         </HeadlessPlayer>
         <CanvasPreview composition={composition} quality={quality} />
-        {!items.length && <div {...stylex.props(s.empty)}>Nhập media, rồi thêm vào timeline.</div>}
+        {!items.length && <div {...stylex.props(s.empty)}>Nhập media, rồi thêm vào dòng thời gian.</div>}
         {safe && <><span aria-hidden {...stylex.props(s.outerSafe)} /><span aria-hidden {...stylex.props(s.innerSafe)} /></>}
         {overlay}
       </div>

@@ -24,9 +24,10 @@ import { ExportDoneDialog, ExportingDialog, type ExportProgress } from './Export
 import { Preview } from './Preview'
 import { Timeline } from './Timeline'
 import { Inspector } from './Inspector'
-import { ContentPanels, matchesCloneEvent } from './ContentPanels'
+import { ContentPanels, isCaption, matchesCloneEvent } from './ContentPanels'
 import { clipIdFor, drawingVersionOf, sceneNumber, undoSceneSwap, useSceneRedraws, useSceneSwapStore } from './scene-images'
 import { sx } from './editor.stylex'
+import '../../styles/editor-utilities.css'
 
 type Panel = 'fix' | 'scenes' | 'subs' | 'bg' | 'audio' | 'media'
 const panels: { id: Panel; label: string; icon: IconName }[] = [
@@ -36,6 +37,13 @@ const panels: { id: Panel; label: string; icon: IconName }[] = [
 ]
 type TaskResult = { request: { id: string; status: string; progress?: ExportProgress; error?: string | { message?: string } }; export?: { id: string; size?: number }; score?: unknown }
 type TaskAccepted = { requestId: string; stateUrl: string; request: TaskResult['request'] }
+
+function clockLabel(value: number): string {
+  return new Date(value).toLocaleTimeString('vi', { hour: '2-digit', minute: '2-digit' })
+}
+function decimalSeconds(value: number): string {
+  return Math.abs(value).toLocaleString('vi', { maximumFractionDigits: 1 })
+}
 
 export function Editor({ projectId }: { projectId: string }) {
   return <ShortcutProvider><EditorBody key={projectId} projectId={projectId} /></ShortcutProvider>
@@ -49,12 +57,14 @@ function EditorBody({ projectId }: { projectId: string }) {
   const tracks = useItemsStore((state) => state.tracks)
   const canUndo = useCommandHistory((state) => state.canUndo)
   const canRedo = useCommandHistory((state) => state.canRedo)
+  const selectedItemId = useSelectionStore((state) => state.selectedItemIds[0])
   const [panel, setPanel] = useState<Panel>('fix')
   const [quality, setQuality] = useState<EditorQuality>()
   const [error, setError] = useState<string>()
   const [selectedRange, setSelectedRange] = useState(0)
   const [alignedSnapshots, setAlignedSnapshots] = useState(new Map<string, string>())
   const [dialog, setDialog] = useState<'gate' | 'exporting' | 'done' | 'shortcuts' | null>(null)
+  const locked = dialog === 'exporting'
   const [dismissedConflict, setDismissedConflict] = useState<number>()
   const [copying, setCopying] = useState(false)
   const [task, setTask] = useState<TaskAccepted>()
@@ -151,7 +161,7 @@ function EditorBody({ projectId }: { projectId: string }) {
   useEffect(() => { if (project) document.title = documentTitle({ name: 'editor', projectId }, { project: project.name }) }, [project?.name, projectId])
   useEffect(() => {
     if (!swapNotice) return
-    const timer = window.setTimeout(() => useSceneSwapStore.getState().dismiss(swapNotice.id), 8000)
+    const timer = window.setTimeout(() => useSceneSwapStore.getState().dismiss(swapNotice.id), 4000)
     return () => window.clearTimeout(timer)
   }, [swapNotice])
   const undo = () => { getCommandExecutor().undo() }
@@ -188,6 +198,7 @@ function EditorBody({ projectId }: { projectId: string }) {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Chưa bắt đầu đo lại được') }
   }
   const startExport = async (accept = false) => {
+    if (locked) return
     if (!quality?.jobId) { setError('Video chưa liên kết với lượt làm video để xuất.'); return }
     if (!passed && !accept) { setDialog('gate'); return }
     try {
@@ -196,7 +207,7 @@ function EditorBody({ projectId }: { projectId: string }) {
       setTask(accepted); setTaskResult(undefined); setDialog('exporting'); setError(undefined)
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Chưa bắt đầu xuất được') }
   }
-  useShortcutAction({ id: 'export', label: 'Xuất video', scope: 'global', enabled: session.opening === 'ready', run: () => { void startExport() } })
+  useShortcutAction({ id: 'export', label: 'Xuất video', scope: 'global', enabled: session.opening === 'ready' && !locked, run: () => { void startExport() } })
   const goBack = async () => { if (!session.dirty || await session.save()) navigate('/') }
   const saveCopy = async () => {
     if (!project || copying) return
@@ -221,50 +232,79 @@ function EditorBody({ projectId }: { projectId: string }) {
   }
   const seconds = items.reduce((end, item) => Math.max(end, item.from + item.durationInFrames), 0) / fps
   const sceneCount = items.filter((item) => tracks.find((track) => track.id === item.trackId)?.templateSlot === 'scenes').length
+  const backgroundCount = items.filter((item) => item.type === 'video' && tracks.some((track) => track.id === item.trackId && track.templateSlot === 'background-video')).length
+  const captionCount = items.reduce((count, item) => count + (isCaption(item) ? item.type === 'subtitle' ? item.cues.length : 1 : 0), 0)
+  const cutout = tracks.find((track) => track.templateSlot === 'scenes')?.templateScenes?.style
+  const panelMeta = panel === 'fix'
+    ? passed ? 'đạt' : left ? `${left} đoạn` : issueCount ? `${issueCount} mục` : 'đo lại'
+    : panel === 'scenes' ? `${sceneCount} cảnh`
+      : panel === 'subs' ? `${captionCount} đoạn`
+        : panel === 'bg' ? `${backgroundCount} clip` : ''
+  const selectedItem = items.find((item) => item.id === selectedItemId)
+  const selectedCaptionRange = visibleRanges[selectedRange]
+  const captionSelected = Boolean(selectedItem && isCaption(selectedItem))
+  const cueStatus = captionSelected && selectedCaptionRange
+    ? {
+        ok: fixedIds.has(selectedCaptionRange.cueId ?? `${selectedCaptionRange.start}`) || ['pass', 'passed', 'aligned', 'ok'].includes(selectedCaptionRange.status),
+        text: selectedCaptionRange.offsetSec != null
+          ? `Chữ ${selectedCaptionRange.offsetSec > 0 ? 'muộn' : 'sớm'} ${decimalSeconds(selectedCaptionRange.offsetSec)} giây so với tiếng`
+          : 'Chữ lệch tiếng',
+      }
+    : undefined
   const drawingImage = redraws.images.find(image => drawingVersionOf(image))
   const drawingScene = drawingImage ? sceneNumber(clipIdFor(projectId, drawingImage) ?? '') ?? undefined : undefined
+  const drawingClipId = drawingImage ? clipIdFor(projectId, drawingImage) ?? undefined : undefined
+  const savedText = !autosave ? 'Đã tắt tự lưu'
+    : session.conflict ? 'Chưa lưu · có bản mới hơn'
+      : locked ? 'Đã lưu · khoá khi đang xuất'
+        : session.saveError ? 'Chưa lưu được'
+          : session.saving ? 'Đang lưu…'
+            : session.dirty ? 'Đang chờ lưu…'
+              : session.savedAt ? `Đã lưu · ${clockLabel(session.savedAt)}` : 'Đã lưu'
   const progress = taskResult?.request.progress
   const download = taskResult?.export ? getEditorStorage().exportUrl(projectId, taskResult.export.id) : undefined
   const conflictOpen = session.conflict && dismissedConflict !== session.conflict.timestamp
   return <main data-editor-root aria-label="Trình chỉnh sửa video" {...stylex.props(sx.root)}>
-    <div {...stylex.props(sx.narrow)}><header {...stylex.props(sx.narrowHead)}><Button variant="quiet" size="lg" onClick={() => { void goBack() }} icon={<Icon name="arrow-r" size={15} {...stylex.props(sx.backArrow)} />}>Bàn dựng</Button></header><div {...stylex.props(sx.centered)}><div role="status" {...stylex.props(sx.narrowMessage)}><Icon name="workbench" size={30} /><span {...stylex.props(sx.narrowTitle)}>Cần màn hình rộng ≥ 1024px</span><span {...stylex.props(sx.narrowCopy)}>Editor cần chỗ cho khung xem, timeline và bảng thuộc tính. Kéo rộng cửa sổ hoặc mở trên máy tính. Duyệt ảnh và theo dõi video vẫn làm được ở Bàn dựng.</span><Button size="lg" onClick={() => { void goBack() }}>Quay lại Bàn dựng</Button></div></div></div>
+    <div {...stylex.props(sx.narrow)}><header {...stylex.props(sx.narrowHead)}><Button variant="quiet" size="lg" onClick={() => { void goBack() }} icon={<Icon name="arrow-r" size={15} {...stylex.props(sx.backArrow)} />}>Bàn dựng</Button></header><div {...stylex.props(sx.centered)}><div role="status" {...stylex.props(sx.narrowMessage)}><Icon name="workbench" size={30} /><span {...stylex.props(sx.narrowTitle)}>Cần màn hình rộng ≥ 1024px</span><span {...stylex.props(sx.narrowCopy)}>Biên tập cần chỗ cho khung xem, dòng thời gian và bảng thuộc tính. Kéo rộng cửa sổ hoặc mở trên máy tính. Duyệt ảnh và theo dõi video vẫn làm được ở Bàn dựng.</span><Button size="lg" onClick={() => { void goBack() }}>Quay lại Bàn dựng</Button></div></div></div>
     <div {...stylex.props(sx.wide)}>
       {session.opening !== 'ready' || !project ? <div {...stylex.props(sx.centered)} role="status">{session.opening === 'loading' ? <Spinner size={18} /> : <div {...stylex.props(sx.stack)}><h1 {...stylex.props(sx.dialogTitle)}>{session.opening === 'not-found' ? 'Không tìm thấy video này' : 'Chưa mở được video'}</h1><Button onClick={session.reloadProject}>Thử lại</Button><Button onClick={() => navigate('/')}>Bàn dựng</Button></div>}</div> : <>
-        <header {...stylex.props(sx.header)}>
+        <header {...stylex.props(sx.header)} inert={locked || undefined}>
           <Button size="sm" variant="quiet" title="Quay lại Bàn dựng" onClick={() => { void goBack() }} icon={<Icon name="arrow-r" size={14} {...stylex.props(sx.backArrow)} />}>Bàn dựng</Button>
           <span aria-hidden="true" {...stylex.props(sx.separator)} />
-          <div {...stylex.props(sx.heading)}><h1 title={project.name} {...stylex.props(sx.title)}>{project.name}</h1><span {...stylex.props(sx.meta)}>{[quality?.channelName, rangeTime(seconds), `${sceneCount} cảnh`, quality?.templateName].filter(Boolean).join(' · ')}</span></div>
-          <span role="status" {...stylex.props(sx.saved)}><Icon name={session.saveError || session.conflict ? 'warning' : 'tick-b'} size={14} />{!autosave ? 'Đã tắt tự lưu' : session.conflict ? 'Có bản mới hơn' : session.saving ? 'Đang lưu…' : session.saveError ? 'Chưa lưu được' : session.dirty ? 'Đang chờ lưu…' : 'Đã lưu'}</span>
-          <Button size="sm" variant="icon" disabled={!canUndo || aligning} aria-label="Hoàn tác" title="Hoàn tác (⌘Z)" onClick={undo}><Icon name="undo" size={16} /></Button>
-          <Button size="sm" variant="icon" disabled={!canRedo || aligning} aria-label="Làm lại" title="Làm lại (⌘⇧Z)" onClick={redo}><Icon name="redo" size={16} /></Button>
+          <div {...stylex.props(sx.heading)}><h1 title={project.name} {...stylex.props(sx.title)}>{project.name}</h1><span {...stylex.props(sx.meta)}>{[quality?.channelName, rangeTime(seconds), `${sceneCount} cảnh`, quality?.templateName, cutout && cutout !== 'full' ? 'Tách nền' : null].filter(Boolean).join(' · ')}</span></div>
+          <span role="status" aria-live="polite" {...stylex.props(sx.saved)}><Icon name={session.saveError || session.conflict ? 'warning' : 'tick-b'} size={14} />{savedText}</span>
+          <Button size="sm" variant="icon" disabled={!canUndo || aligning || locked} aria-label="Hoàn tác" title={!canUndo ? 'Không có thay đổi để hoàn tác' : locked ? 'Không thể hoàn tác khi đang xuất' : 'Hoàn tác (⌘Z)'} onClick={undo}><Icon name="undo" size={16} /></Button>
+          <Button size="sm" variant="icon" disabled={!canRedo || aligning || locked} aria-label="Làm lại" title={!canRedo ? 'Không có thay đổi để làm lại' : locked ? 'Không thể làm lại khi đang xuất' : 'Làm lại (⌘⇧Z)'} onClick={redo}><Icon name="redo" size={16} /></Button>
           <Shortcuts />
           <span aria-hidden="true" {...stylex.props(sx.separator)} />
-          <Button size="sm" variant={passed ? 'ghost' : 'dsoft'} aria-controls="ed-left" aria-label={`Độ hoàn thiện ${quality?.total ?? 'chưa đo'}/100, mở danh sách cần sửa`} onClick={() => setPanel('fix')} icon={<Icon name={passed ? 'tick-b' : 'danger'} size={14} />}>Độ hoàn thiện <b>{quality?.total ?? '—'}/100</b></Button>
-          <Button variant={passed ? 'primary' : 'ghost'} title="Xuất MP4 (⌘E)" onClick={() => { void startExport() }} icon={<Icon name="export" size={15} />}>Xuất</Button>
+          <Button size="sm" variant={passed ? 'ghost' : 'dsoft'} aria-controls="ed-left" aria-label={`Độ hoàn thiện ${quality?.total ?? 'chưa đo'}/100, mở danh sách cần sửa`} title={quality ? `Độ hoàn thiện ${quality.total ?? '—'}/100 · mở Cần sửa` : 'Chưa đọc được độ hoàn thiện · mở Cần sửa'} onClick={() => setPanel('fix')} icon={<Icon name={passed ? 'tick-b' : 'danger'} size={14} />}>Độ hoàn thiện <b>{quality?.total ?? '—'}/100</b></Button>
+          <Button variant={passed ? 'primary' : 'ghost'} title={!quality?.jobId ? 'Video chưa liên kết với lượt làm video nên chưa xuất được' : locked ? 'Đang xuất video' : 'Xuất MP4 (⌘E)'} aria-disabled={!quality?.jobId || locked} onClick={() => { void startExport() }} icon={<Icon name="export" size={15} />}>Xuất</Button>
         </header>
         {error && <div role="alert" {...stylex.props(sx.notice, sx.danger)}>{error}<Button size="sm" variant="quiet" onClick={() => { void refreshQuality() }}>Thử lại</Button></div>}
         <div {...stylex.props(sx.body)} inert={dialog === 'exporting' ? true : undefined}>
-          <nav role="tablist" aria-label="Bảng bên trái" aria-orientation="vertical" {...stylex.props(sx.rail)}>{panels.map((entry, index) => <button key={entry.id} id={`editor-tab-${entry.id}`} type="button" role="tab" aria-selected={entry.id === panel} aria-controls="ed-left" tabIndex={entry.id === panel ? 0 : -1} {...stylex.props(sx.railButton, entry.id === panel && sx.railSelected)} onKeyDown={(event) => railKey(event, index)} onClick={() => setPanel(entry.id)}><span {...stylex.props(sx.railIcon)}><Icon name={entry.id === 'fix' && passed ? 'tick-b' : entry.icon} size={19} />{entry.id === 'fix' && issueCount > 0 && !passed && <span aria-label={`${issueCount} việc`} {...stylex.props(sx.badge)}>{issueCount}</span>}</span><span {...stylex.props(sx.railLabel)}>{entry.label}</span></button>)}</nav>
-          <aside id="ed-left" role="tabpanel" aria-labelledby={`editor-tab-${panel}`} {...stylex.props(sx.left)}><div {...stylex.props(sx.panelHead)}><><h2 {...stylex.props(sx.panelTitle)}>{panel === 'bg' ? 'Nền & lớp phủ' : panels.find((entry) => entry.id === panel)?.label}</h2><span id="editor-panel-actions" /></><span {...stylex.props(sx.panelMeta)}>{panel === 'fix' ? passed ? 'đạt' : left ? `${left} đoạn` : issueCount ? `${issueCount} mục` : 'đo lại' : ''}</span></div>{panel === 'fix' ? displayQuality ? <FixPanel quality={displayQuality} ranges={ranges} selectedRange={selectedRange} fixedIds={fixedIds} onSelectRange={selectRange} onAlignAll={() => align(true)} onMeasure={measure} aligning={aligning} /> : <div {...stylex.props(sx.fixBody)}><Spinner size={16} /></div> : <ContentPanels panel={panel} jobId={quality?.jobId} beforeMutation={session.save} onProjectChanged={session.reloadProject} measurement={{evidence:displayQuality?.items.find(item=>item.id==='loudness')?.evidence,measuredAt:displayQuality?.measuredAt,stale:displayQuality?.items.find(item=>item.id==='loudness')?.stale}} />}</aside>
+          <nav role="tablist" aria-label="Bảng bên trái" aria-orientation="vertical" {...stylex.props(sx.rail)}>{panels.map((entry, index) => <button key={entry.id} id={`editor-tab-${entry.id}`} type="button" role="tab" aria-selected={entry.id === panel} aria-controls="ed-left" tabIndex={entry.id === panel ? 0 : -1} {...stylex.props(sx.railButton, entry.id === panel && sx.railSelected)} onKeyDown={(event) => railKey(event, index)} onClick={() => setPanel(entry.id)}><span {...stylex.props(sx.railIcon)}><Icon name={entry.id === 'fix' && passed ? 'tick-b' : entry.icon} size={19} label={undefined} xstyle={[entry.id === 'fix' && (passed ? sx.railFixPass : sx.railFixFail), entry.id !== 'fix' && entry.id === panel && sx.railSelectedInk]} />{entry.id === 'fix' && issueCount > 0 && !passed && <span aria-label={`${issueCount} việc`} {...stylex.props(sx.badge)}>{issueCount}</span>}</span><span {...stylex.props(sx.railLabel)}>{entry.label}</span></button>)}</nav>
+          <aside id="ed-left" role="tabpanel" aria-labelledby={`editor-tab-${panel}`} {...stylex.props(sx.left)}><div {...stylex.props(sx.panelHead)}><><h2 {...stylex.props(sx.panelTitle)}>{panel === 'bg' ? 'Nền & lớp phủ' : panels.find((entry) => entry.id === panel)?.label}</h2><span id="editor-panel-actions" /></><span {...stylex.props(sx.panelMeta)}>{panelMeta}</span></div>{panel === 'fix' ? displayQuality ? <FixPanel quality={displayQuality} ranges={ranges} selectedRange={selectedRange} fixedIds={fixedIds} onSelectRange={selectRange} onAlignAll={() => align(true)} onMeasure={measure} aligning={aligning} /> : <div {...stylex.props(sx.fixBody)}><Spinner size={16} /></div> : <ContentPanels panel={panel} jobId={quality?.jobId} beforeMutation={session.save} onProjectChanged={session.reloadProject} ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} measurement={{evidence:displayQuality?.items.find(item=>item.id==='loudness')?.evidence,measuredAt:displayQuality?.measuredAt,stale:displayQuality?.items.find(item=>item.id==='loudness')?.stale}} />}</aside>
           <div data-shell-preview data-shortcut-scope="preview" tabIndex={-1} {...stylex.props(sx.spread, sx.stack)}>
             <Preview overlay={<>
               {drawingScene && <span role="status" {...stylex.props(sx.drawBadge)}><Icon name="magicpen" size={13} />Đang vẽ lại ảnh cảnh {drawingScene} · bạn chỉnh tiếp được</span>}
-              {swapNotice && <div role="status" {...stylex.props(sx.swapToast)}>
+              {cueStatus && <span role="status" {...stylex.props(sx.cueOverlay, cueStatus.ok ? sx.cueOverlayOk : sx.cueOverlayWarn)}><span aria-hidden="true" {...stylex.props(sx.cueDot, cueStatus.ok ? sx.cueDotOk : sx.cueDotWarn)} />{cueStatus.text}</span>}
+              {swapNotice && <div role="status" aria-live="polite" {...stylex.props(sx.swapToast)}>
                 <Icon name="tick-b" size={14} {...stylex.props(sx.swapToastOk)} />
-                <span>{swapNotice.label} đã dùng bản {swapNotice.n} · chuyển động, keyframe giữ nguyên</span>
-                <Button size="sm" variant="quiet" onClick={() => undoSceneSwap(swapNotice)}>Hoàn tác ⌘Z</Button>
+                <span>{swapNotice.label} đã dùng bản {swapNotice.n} · chuyển động, điểm mốc giữ nguyên</span>
+                <Button size="sm" variant="quiet" onClick={() => undoSceneSwap(swapNotice)}>Hoàn tác <kbd {...stylex.props(sx.kbd)}>⌘Z</kbd></Button>
+                <button type="button" aria-label="Đóng thông báo" {...stylex.props(sx.toastClose)} onClick={() => useSceneSwapStore.getState().dismiss(swapNotice.id)}><Icon name="close" size={13} /></button>
               </div>}
               {swapError && <div role="alert" {...stylex.props(sx.swapError)}>{swapError}</div>}
             </>} />
           </div>
           <Inspector ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} onAlign={() => align(false)} aligning={aligning} jobId={quality?.jobId} images={redraws.images} imageProgress={redraws.progress} imageQuota={redraws.quota} onRedrawn={redraws.reload} captionAlignmentPassed={!session.dirty && quality?.items.some(item => item.id === 'captionAlignment' && item.status === 'pass' && !item.stale)} beforeMutation={session.save} onProjectChanged={session.reloadProject} />
-        </div><div data-shortcut-scope="timeline" inert={dialog === 'exporting' ? true : undefined}><Timeline ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} /></div><MediaMetadataSync />
+        </div><div data-shortcut-scope="timeline" inert={dialog === 'exporting' ? true : undefined}><Timeline ranges={visibleRanges} selectedRange={selectedRange} onSelectRange={selectRange} drawingClipId={drawingClipId} /></div><MediaMetadataSync />
       </>}
     </div>
     {dialog === 'gate' && <ExportGateDialog quality={displayQuality} ranges={ranges.filter(range => range.status !== 'pass' && !fixedIds.has(range.cueId ?? `${range.start}`))} onAccept={() => { void startExport(true) }} onContinue={() => { setDialog(null); setPanel('fix'); selectRange(selectedRange) }} onClose={() => setDialog(null)} />}
     {dialog === 'exporting' && <ExportingDialog seconds={seconds} fps={fps} progress={progress} onCancel={() => { if (task) void mutate('DELETE', task.stateUrl).then(() => setDialog(null)).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : 'Chưa huỷ được xuất')) }} />}
     {dialog === 'done' && <ExportDoneDialog seconds={seconds} bytes={taskResult?.export?.size} download={download} onClose={() => setDialog(null)} onBack={() => navigate('/')} />}
-    {conflictOpen && <Dialog label="Dự án vừa được lưu ở nơi khác" alertDialog width={520} padBody={false}><div {...stylex.props(sx.dialogBody)}><div {...stylex.props(sx.row)}><Icon name="warning" size={20} {...stylex.props(sx.warning)} /><h2 {...stylex.props(sx.dialogTitle)}>Dự án vừa được lưu ở nơi khác</h2></div><p {...stylex.props(sx.dialogCopy)}>Dự án đã có bản mới hơn. Thay đổi bạn làm ở đây chưa được lưu. Chọn cách giữ lại thay đổi; không tự ghi đè bản mới.</p><div {...stylex.props(sx.stack)}>
+    {conflictOpen && <Dialog label="Dự án vừa được lưu ở nơi khác" alertDialog width={520} padBody={false}><div {...stylex.props(sx.dialogBody)}><div {...stylex.props(sx.row)}><Icon name="warning" size={20} {...stylex.props(sx.warning)} /><h2 {...stylex.props(sx.dialogTitle)}>Dự án vừa được lưu ở nơi khác</h2></div><p {...stylex.props(sx.dialogCopy)}>{session.conflict ? `Lúc ${clockLabel(session.conflict.timestamp)}, Kiểm định lưu lại dự án này. ` : ''}Thay đổi bạn làm ở đây chưa được lưu. Chọn cách giữ lại thay đổi; không tự ghi đè bản mới.</p><div {...stylex.props(sx.stack)}>
       <div {...stylex.props(sx.stack)}><Button block aria-describedby="editor-reload-help" onClick={() => { setAutosave(true); session.reloadProject() }}>Tải lại bản mới</Button><p id="editor-reload-help" {...stylex.props(sx.dialogCopy)}>Bỏ thay đổi chưa lưu của bạn</p></div>
       <div {...stylex.props(sx.stack)}><Button block aria-describedby="editor-continue-help" onClick={() => { setAutosave(false); setDismissedConflict(session.conflict?.timestamp) }}>Tiếp tục ở đây, tạm tắt tự lưu</Button><p id="editor-continue-help" {...stylex.props(sx.dialogCopy)}>Bạn tự quyết sau; không ghi đè bản mới</p></div>
     </div><div {...stylex.props(sx.dialogActions)}><Button variant="primary" pending={copying} onClick={() => { void saveCopy() }} icon={<Icon name="copy" size={15} />}>Lưu thay đổi thành bản sao</Button></div></div></Dialog>}

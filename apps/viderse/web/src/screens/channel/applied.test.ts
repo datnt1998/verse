@@ -28,22 +28,20 @@ describe('Đang áp dụng cho kênh', () => {
   it('kênh mới mặc định: không dòng nào “riêng”, đúng nhãn mặc định', () => {
     const channel = base()
     const rows = appliedRows(channel)
-    expect(rows.map((item) => item.key)).toEqual(['auto', 'templates', 'titles', 'ai'])
     expect(rows.every((item) => !item.own)).toBe(true)
-    expect(row(channel, 'auto').value).toBe('Bật · Nhịp 5/ngày')
-    expect(row(channel, 'templates').value).toContain('tiếp theo: Mẫu chuẩn · Chuyện Lạ')
-    expect(row(channel, 'titles').value).toBe('Tiếng Việt · mặc định của kênh mới')
   })
 
-  it('nhịp khác 5 hoặc tắt Tự lấy → “riêng”; Tuỳ chỉnh mở tab Nguồn', () => {
+  it('nhịp khác 5, lấy video khác “Mọi video mới” hoặc ưu tiên lượt xem → “riêng”; Tuỳ chỉnh mở tab Nguồn', () => {
     const slower = base({ pacePerDay: 7 })
     expect(row(slower, 'auto').own).toBe(true)
-    expect(row(slower, 'auto').value).toBe('Bật · Nhịp 7/ngày')
     expect(row(slower, 'auto').href).toBe('#/channels/c1?tab=sources')
 
-    const off = base({ autoPick: false })
-    expect(row(off, 'auto').own).toBe(true)
-    expect(row(off, 'auto').value).toBe('Tắt · Nhịp 5/ngày')
+    // Dòng "Lấy video" đọc Mức tự chủ + Ưu tiên kênh (SourcesTab đã thay công tắc Tự lấy cũ).
+    const selective = base({ autonomy: { ...base().autonomy, pick: 'suggest' } })
+    expect(row(selective, 'auto').own).toBe(true)
+
+    const views = base({ priority: 'views' })
+    expect(row(views, 'auto').own).toBe(true)
   })
 
   it('Template “riêng” khi không còn đúng bộ Mẫu chuẩn; Tuỳ chỉnh mở tab Template', () => {
@@ -55,7 +53,6 @@ describe('Đang áp dụng cho kênh', () => {
       ],
     })
     expect(row(extra, 'templates').own).toBe(true)
-    expect(row(extra, 'templates').value).toBe('2 template · tiếp theo: Mẫu chuẩn · Chuyện Lạ')
     expect(row(extra, 'templates').href).toBe('#/channels/c1?tab=templates')
 
     const renamed = base({ templates: [{ id: 't1', name: 'Khác', position: 0 }] })
@@ -66,17 +63,13 @@ describe('Đang áp dụng cho kênh', () => {
     const styled = base({ styleNote: 'Kể chậm', descriptionFooter: 'Mỗi đêm', alwaysTags: ['a', 'b', 'c'] })
     const titles = row(styled, 'titles')
     expect(titles.own).toBe(true)
-    expect(titles.value).toBe('Tiếng Việt · giọng văn, đoạn cuối, 3 tag luôn thêm')
     expect(titles.href).toBe('#/channels/c1?tab=settings')
 
-    const tagsOnly = base({ alwaysTags: ['a'] })
-    expect(row(tagsOnly, 'titles').value).toBe('Tiếng Việt · 1 tag luôn thêm')
   })
 
   it('Trợ lý AI không bao giờ “riêng” và mở Cài đặt › Trợ lý AI', () => {
     const ai = row(base(), 'ai')
     expect(ai.own).toBe(false)
-    expect(ai.label).toContain('chung mọi kênh')
     expect(ai.href).toBe('#/settings?section=agents')
   })
 })

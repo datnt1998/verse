@@ -86,10 +86,10 @@ export function SceneImagePanel({ item, number, jobId, image, progress, quota, b
   const hint = !image
     ? 'Chưa có dữ liệu ảnh cho cảnh này. Thay ảnh để chọn ảnh khác trong Media.'
     : drawing
-      ? 'Bạn chỉnh tiếp editor được. Vẽ xong, ảnh mới tự thay vào timeline; chuyển động, keyframe và thời lượng giữ nguyên.'
+      ? 'Bạn chỉnh tiếp trong Biên tập được. Vẽ xong, ảnh mới tự thay vào dòng thời gian; chuyển động, điểm mốc và thời lượng giữ nguyên.'
       : review
         ? `Ảnh mới chưa duyệt: Độ hoàn thiện kiểm lại ảnh này trước khi xuất. ⌘Z để quay lại bản ${Math.max(1, used - 1)}.`
-        : `Vẽ lại tốn 1 ảnh${priceOf(quota)}. Ảnh mới thay vào timeline, giữ chuyển động và keyframe.`
+        : `Vẽ lại tốn 1 ảnh${priceOf(quota)}. Ảnh mới thay vào dòng thời gian, giữ chuyển động và điểm mốc.`
   const status = !image
     ? null
     : review
@@ -146,7 +146,7 @@ export function SceneImagePanel({ item, number, jobId, image, progress, quota, b
                 <span {...stylex.props(sx.grow)} />
                 {changed && <span {...stylex.props(sx.psegChanged)}>Đã sửa</span>}
               </span>
-              <label htmlFor="v13-scene-part" {...stylex.props(sx.srOnly)}>Phần Cảnh của prompt</label>
+              <label htmlFor="v13-scene-part" {...stylex.props(sx.srOnly)}>Phần Cảnh của chỉ dẫn</label>
               <textarea
                 id="v13-scene-part"
                 rows={6}
@@ -159,17 +159,17 @@ export function SceneImagePanel({ item, number, jobId, image, progress, quota, b
             </div>
             <div {...stylex.props(sx.editFooter)}>
               <Button disabled={busy} onClick={() => { setEditing(false); setDraft(null) }}>Huỷ</Button>
-              <Button variant="primary" pending={busy} disabled={!changed || !!drawing} onClick={() => redraw({ parts: { scene: (draft ?? '').trim() } })} icon={<Icon name="magicpen" size={15} />}>Vẽ lại với prompt này</Button>
+              <Button variant="primary" pending={busy} aria-disabled={!changed || !!drawing} title={drawing ? 'Đang vẽ một bản khác; chờ xong hoặc huỷ lần vẽ.' : !changed ? 'Sửa phần Cảnh trước khi vẽ lại.' : 'Vẽ lại bằng chỉ dẫn vừa sửa'} onClick={() => { if (changed && !drawing) redraw({ parts: { scene: (draft ?? '').trim() } }) }} icon={<Icon name="magicpen" size={15} />}>Vẽ lại với chỉ dẫn này</Button>
             </div>
           </>
         : <>
             <div {...stylex.props(sx.promptCard)}>
               <span {...stylex.props(sx.promptHead)}>
-                <span {...stylex.props(sx.promptTitle)}>Prompt đã gửi</span>
+                <span {...stylex.props(sx.promptTitle)}>Chỉ dẫn đã gửi</span>
                 <Button size="sm" variant="quiet" onClick={() => setMore(value => !value)}>{more ? 'Thu gọn' : 'Xem đủ'}</Button>
                 <Button size="sm" onClick={() => { setEditing(true); setDraft(sceneText) }} icon={<Icon name="edit" size={13} />}>Sửa</Button>
               </span>
-              <span {...stylex.props(sx.promptText, more ? null : sx.promptClamp)}>{sceneText || 'Chưa có prompt đã gửi cho bản này.'}</span>
+              <span {...stylex.props(sx.promptText, more ? null : sx.promptClamp)}>{sceneText || 'Chưa có chỉ dẫn nào được gửi cho bản này.'}</span>
               <span {...stylex.props(sx.promptRefs)}>
                 {refs.map(ref => <img key={ref.id} src={ref.url} alt="" title={`${ref.source.label} · ${ref.role}`} {...stylex.props(sx.refThumb)} />)}
                 <span>{refs.length ? `${refs.length} ảnh tham chiếu` : 'Không dùng ảnh tham chiếu'}</span>
@@ -189,7 +189,7 @@ export function SceneImagePanel({ item, number, jobId, image, progress, quota, b
                 {...stylex.props(sx.composeField)}
               />
               <div {...stylex.props(sx.twoColumns)}>
-                <Button variant="primary" pending={busy} disabled={!jobId} onClick={() => redraw(feedback.trim() ? { feedback: feedback.trim() } : {})} icon={<Icon name="magicpen" size={15} />}>Vẽ lại</Button>
+                <Button variant="primary" pending={busy} aria-disabled={!jobId} title={!jobId ? 'Video chưa liên kết với lượt làm video nên chưa vẽ lại được.' : 'Vẽ lại ảnh cảnh này, giữ chuyển động và điểm mốc'} onClick={() => { if (jobId) redraw(feedback.trim() ? { feedback: feedback.trim() } : {}) }} icon={<Icon name="magicpen" size={15} />}>Vẽ lại</Button>
                 <Button disabled={busy} onClick={() => setPicker(true)} icon={<Icon name="gallery" size={15} />}>Thay ảnh</Button>
               </div>
             </div>}

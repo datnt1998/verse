@@ -11,6 +11,7 @@ import { navigate } from '../../router'
 import { assistantCopy as copy } from '../../i18n/assistant'
 import type { AssistantAgent, AssistantErrorKind, Plan, PlanAsk, PlanStep, PlanUnknown, StepState } from '../../api/assistant'
 import { planTotals, stepCostLabel, totalLine, type Selection, type StepProgress } from './planModel'
+import { systemErrorText } from './systemCopy'
 import { assistantStyles as styles } from './assistant.stylex'
 
 export const Bubble = ({ text }: { text: string }) => <div {...stylex.props(styles.bubble)}>{text}</div>
@@ -44,7 +45,7 @@ export function PlanCard({ plan, text, selected, mode, progress = {}, lost, onli
     event.preventDefault()
     onToggle(id)
   }
-  return <div role="group" aria-label={copy.plan.label} data-enqueues-video={totals.enqueuesVideo || undefined} {...stylex.props(styles.plan)}>
+  return <div role="group" aria-label={copy.plan.label} aria-busy={mode === 'running' || undefined} data-enqueues-video={totals.enqueuesVideo || undefined} {...stylex.props(styles.plan)}>
     <div {...stylex.props(styles.planHead)}><b {...stylex.props(styles.planTitle)}>{copy.plan.head(review ? totals.count : steps.length)}</b><span {...stylex.props(styles.planQuote)}>{copy.plan.quote(text)}</span></div>
     {steps.map((step) => {
       const on = selected.has(step.id)
@@ -56,7 +57,7 @@ export function PlanCard({ plan, text, selected, mode, progress = {}, lost, onli
         <Orb of={step.agent} size={16} />
         <span {...stylex.props(styles.stepText)}>
           <b {...stylex.props(styles.stepTitle, review && !on && styles.stepOff)}>{step.title}</b>
-          <small {...stylex.props(styles.stepSub, review && !on && styles.stepOff)}>{run?.message && run.state === 'failed' ? run.message : step.sub}</small>
+          <small {...stylex.props(styles.stepSub, review && !on && styles.stepOff)}>{run?.message || step.sub}</small>
         </span>
         {review || !run
           ? <span {...stylex.props(styles.cost)}>{stepCostLabel(step)}</span>
@@ -71,7 +72,7 @@ export function PlanCard({ plan, text, selected, mode, progress = {}, lost, onli
         <ActionButton variant="primary" size="sm" type="button" data-enqueues-video={totals.enqueuesVideo || undefined}
           disabled={totals.count === 0 || !online} disabledReason={!online ? copy.states.offlineSend : copy.plan.noStep} onClick={onRun}><span>{copy.plan.run(totals.count)}</span></ActionButton>
       </> : <>
-        <span role="status" {...stylex.props(styles.footTotal, failed > 0 && styles.stateFailed)}>
+        <span role="status" aria-live="polite" aria-atomic="true" {...stylex.props(styles.footTotal, failed > 0 && styles.stateFailed)}>
           {mode === 'running' ? (lost ? copy.states.lostProgress : copy.states.running) : failed > 0 ? copy.progress.failedSummary(failed) : copy.progress.summary(done, steps.length)}
         </span>
         {mode === 'done' && <ActionButton variant="quiet" size="sm" type="button" onClick={onClose}>{copy.progress.close}</ActionButton>}
@@ -132,22 +133,37 @@ export function UnknownCard({ unknown, online, onChoose }: { unknown: PlanUnknow
 }
 
 export function PlanningCard() {
-  return <div role="status" aria-live="polite" {...stylex.props(styles.card, styles.cardPlain)}><span {...stylex.props(styles.note)}>{copy.states.planning}</span></div>
+  return <div role="status" aria-live="polite" aria-atomic="true" {...stylex.props(styles.card, styles.cardPlain)}>
+    <div {...stylex.props(styles.cardHead)}>
+      <Orb of="director" size={22} live />
+      <span {...stylex.props(styles.note, styles.grow)}>{copy.states.planningWho}</span>
+      <span aria-hidden="true" {...stylex.props(styles.typing)}>
+        <span {...stylex.props(styles.typingDot)} />
+        <span {...stylex.props(styles.typingDot, styles.typingDot2)} />
+        <span {...stylex.props(styles.typingDot, styles.typingDot3)} />
+      </span>
+    </div>
+  </div>
 }
 
-type ErrorCardProps = { kind: AssistantErrorKind; message: string; onRetry: () => void; onEdit: () => void; onClose: () => void }
+type ErrorCardProps = { kind: AssistantErrorKind; message: string; running?: boolean; onRetry?: () => void; onEdit: () => void; onClose: () => void }
 
 /** Lỗi thật của máy chủ/mất kết nối: nói đúng chuyện đã xảy ra, và nhấn mạnh chưa làm gì. */
-export function ErrorCard({ kind, message, onRetry, onEdit, onClose }: ErrorCardProps) {
-  const text = kind === 'failed' && message ? message : copy.states[kind]
+export function ErrorCard({ kind, message, running, onRetry, onEdit, onClose }: ErrorCardProps) {
+  const text = systemErrorText(kind, message, running)
   const retryable = kind === 'offline' || kind === 'busy' || kind === 'failed' || kind === 'model'
   return <div role="alert" {...stylex.props(styles.card, styles.cardPlain)}>
+    <div {...stylex.props(styles.cardHead)}>
+      <Orb of="director" size={22} dim />
+      <span {...stylex.props(styles.cardTitle)}>{copy.states.errorTitle}</span>
+    </div>
     <span {...stylex.props(styles.note, styles.noteError)}>{text}</span>
     <div {...stylex.props(styles.reruns)}>
       <span {...stylex.props(styles.grow)} />
       <ActionButton variant="quiet" size="sm" type="button" onClick={onClose}>{copy.progress.close}</ActionButton>
       {kind !== 'expired' && kind !== 'notFound' && <ActionButton variant="quiet" size="sm" type="button" onClick={onEdit}>{copy.states.edit}</ActionButton>}
-      {retryable && <ActionButton variant="outline" size="sm" type="button" onClick={onRetry}>{copy.states.retry}</ActionButton>}
+      {/* Chỉ lập lại kế hoạch là endpoint an toàn để thử lại; lượt chạy đã bắt đầu thì máy chủ từ chối chạy lại bước. */}
+      {retryable && onRetry && <ActionButton variant="outline" size="sm" type="button" onClick={onRetry}>{copy.states.retry}</ActionButton>}
     </div>
   </div>
 }

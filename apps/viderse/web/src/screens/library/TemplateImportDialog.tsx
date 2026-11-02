@@ -31,7 +31,7 @@ type Row = {
 }
 
 /** Hộp nhập template; `onClose` do nơi mở quyết định (Dialog không tự đóng). */
-export function TemplateImportDialog({ onClose }: { onClose: () => void }) {
+export function TemplateImportDialog({ onClose, initialFiles }: { onClose: () => void; initialFiles?: File[] }) {
   const input = useRef<HTMLInputElement>(null)
   const alive = useRef(true)
   const cancelRef = useRef(false)
@@ -145,6 +145,14 @@ export function TemplateImportDialog({ onClose }: { onClose: () => void }) {
     cancelRef.current = true
     onClose()
   }
+
+  // Tệp thả vào ô "Kéo tệp template vào đây" của lưới: mở hộp này và nhập ngay.
+  const started = useRef(false)
+  useEffect(() => {
+    if (started.current || !initialFiles || initialFiles.length === 0) return
+    started.current = true
+    void run(initialFiles)
+  }, [initialFiles])
 
   const imported = rows.filter((row) => row.status === 'ok').length
   const pending = rows.filter((row) => row.status !== 'ok').length

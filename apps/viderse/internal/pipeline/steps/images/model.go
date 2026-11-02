@@ -384,10 +384,10 @@ func Review(m Manifest, id, op, prompt string, version *int) (Manifest, error) {
 			return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Chưa có ảnh để duyệt"}
 		}
 		if current(*i, chosen) == nil {
-			return m, &domain.CloneError{Code: domain.CloneErrStale, Message: "Version ảnh không còn khớp cảnh hoặc nội dung nguồn"}
+			return m, &domain.CloneError{Code: domain.CloneErrStale, Message: "Bản ảnh không còn khớp cảnh hoặc nội dung nguồn"}
 		}
 		if !validVersion(m, *i, current(*i, chosen)) {
-			return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Version ảnh chưa có bản tách nền — vẽ lại ảnh này rồi duyệt"}
+			return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Bản ảnh chưa có bản tách nền — vẽ lại ảnh này rồi duyệt"}
 		}
 		i.CurrentVersion = chosen
 		i.ReviewVersion = nil

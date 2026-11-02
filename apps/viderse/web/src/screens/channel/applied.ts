@@ -6,7 +6,7 @@ import { t } from '../../i18n/channels'
 import { paths, type ChannelTab } from '../../router'
 
 export type AppliedRow = {
-  key: 'auto' | 'templates' | 'titles' | 'ai'
+  key: 'auto' | 'autonomy' | 'templates' | 'titles' | 'ai'
   label: string
   value: string
   /** khác mặc định của kênh mới → hiện nhãn "riêng" */
@@ -31,12 +31,29 @@ export function appliedRows(channel: Channel): AppliedRow[] {
     channel.alwaysTags.length ? tt.partTags(channel.alwaysTags.length) : '',
   ].filter(Boolean)
 
+  const autonomy = channel.autonomy
+  const ta = t.autonomy
+  const pick = ta.rows.pick.options[autonomy.pick]
+  const approveMode = autonomy.approve.mode
+  const approveText = approveMode === 'score'
+    ? ta.rows.approve.score(autonomy.approve.min)
+    : ta.rows.approve.options[approveMode]
+  const approveLower = approveText.charAt(0).toLocaleLowerCase('vi') + approveText.slice(1)
+  const presetName = autonomy.preset === 'custom' ? ta.custom : ta.presets[autonomy.preset]
+
   return [
     {
       key: 'auto',
       label: tt.autoTitle,
-      value: tt.auto(channel.autoPick ? tt.on : tt.off, channel.pacePerDay),
-      own: !channel.autoPick || channel.pacePerDay !== 5,
+      value: tt.auto(pick, channel.pacePerDay, channel.priority === 'views'),
+      own: autonomy.pick !== 'all' || channel.pacePerDay !== 5 || channel.priority === 'views',
+      ...customize('sources'),
+    },
+    {
+      key: 'autonomy',
+      label: tt.autonomyTitle,
+      value: tt.autonomy(presetName, approveLower),
+      own: autonomy.preset !== 'balanced',
       ...customize('sources'),
     },
     {

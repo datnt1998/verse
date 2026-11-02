@@ -29,7 +29,11 @@ import {
 } from '@editor/features/export/deps/timeline-compositions'
 import { getPropertyKeyframes, interpolatePropertyValue } from '@editor/features/export/deps/keyframes'
 import { blobUrlManager } from '@editor/infrastructure/browser/blob-url-manager'
-import { getMediaAudioCodecById, resolveMediaUrl } from '@editor/features/export/deps/media-library'
+import {
+  getMediaAudioCodecById,
+  getMediaAudioPresenceById,
+  resolveMediaUrl,
+} from '@editor/features/export/deps/media-library'
 import { ensureAc3DecoderRegistered, isAc3AudioCodec } from '@editor/shared/utils/ac3-decoder'
 import {
   getLinkedAudioCompanion,
@@ -67,6 +71,43 @@ import type { AudioFxEffect } from '@editor/types/audio'
 import { createAudioFxStages, createAudioFxChain } from '@editor/features/audio-fx/stages'
 
 const log = createLogger('CanvasAudio')
+
+/**
+ * A decoded-audio failure with a stable, user-facing Vietnamese reason.
+ *
+ * The raw decoder/network cause stays on `cause` for support logs; callers must
+ * report `code` + `message` instead of surfacing the browser's English text.
+ */
+export class AudioDecodeError extends Error {
+  readonly code: 'audio_decode_failed' | 'audio_source_unavailable'
+
+  constructor(
+    code: AudioDecodeError['code'],
+    message: string,
+    options?: { cause?: unknown },
+  ) {
+    super(message, options)
+    this.name = 'AudioDecodeError'
+    this.code = code
+  }
+}
+
+function audioDecodeFailure(error: unknown): AudioDecodeError {
+  if (error instanceof AudioDecodeError) return error
+  const message = getErrorMessage(error)
+  if (/^Failed to fetch audio:/.test(message)) {
+    return new AudioDecodeError(
+      'audio_source_unavailable',
+      'Không tải được tệp nguồn để đo. Kiểm tra kết nối rồi thử lại.',
+      { cause: error },
+    )
+  }
+  return new AudioDecodeError(
+    'audio_decode_failed',
+    'Không giải mã được âm thanh của tệp nguồn. Kiểm tra tệp âm thanh rồi đo lại.',
+    { cause: error },
+  )
+}
 
 // =============================================================================
 // PERFORMANCE OPTIMIZATION: Audio Decode Cache
@@ -814,6 +855,7 @@ function appendCompositionAudioSegments(params: {
 
     if (subItem.type !== 'video' && subItem.type !== 'audio') continue
     if (subItem.type === 'video' && linkedSubCompVideoIds.has(subItem.id)) continue
+    if (subItem.type === 'video' && getMediaAudioPresenceById(subItem.mediaId) === 'absent') continue
     const src =
       (subItem.mediaId ? blobUrlManager.get(subItem.mediaId) : null) ??
       (subItem as VideoItem | AudioItem).src ??
@@ -959,6 +1001,9 @@ export function extractAudioSegments(
         if (linkedRootVideoIds.has(videoItem.id)) continue
         if (videoItem.embeddedAudioMuted) continue
         if (!videoItem.src) continue
+        // A probe-confirmed silent video contributes silence, not a decode attempt.
+        // `unknown` metadata still decodes so a real failure stays visible.
+        if (getMediaAudioPresenceById(videoItem.mediaId) === 'absent') continue
         videoById.set(item.id, {
           item: videoItem,
           trackId: track.id,
@@ -1290,11 +1335,21 @@ async function recoverAudioDecode(params: {
       // Continue to Web Audio fallback.
     }
   }
-  if (!params.allowWebAudioFallback) throw params.error
+  if (!params.allowWebAudioFallback) {
+    if (getErrorMessage(params.error).startsWith('WORKER_REQUIRES_MAIN_THREAD:')) throw params.error
+    throw audioDecodeFailure(params.error)
+  }
   log.warn(
     `Mediabunny audio decode failed for ${params.itemId}, using fallback: ${getErrorMessage(params.error)}`,
   )
-  return decodeAudioFallback(params.src, params.itemId, params.startTime, params.endTime)
+  try {
+    return await decodeAudioFallback(params.src, params.itemId, params.startTime, params.endTime)
+  } catch (fallbackError) {
+    // The export worker uses this sentinel to rerun the mix on the main thread;
+    // wrapping it would silently turn a recoverable capability into a failure.
+    if (getErrorMessage(fallbackError).startsWith('WORKER_REQUIRES_MAIN_THREAD:')) throw fallbackError
+    throw audioDecodeFailure(fallbackError)
+  }
 }
 
 /**

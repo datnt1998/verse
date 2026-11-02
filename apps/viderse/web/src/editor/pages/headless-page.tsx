@@ -3,6 +3,7 @@ import * as stylex from '@stylexjs/stylex'
 import { styles } from './headless.stylex'
 import { HeadlessClient, parseHeadlessCredential, type HeadlessKind, type HeadlessPageProps, type HeadlessProgress } from './headless-client'
 import { runHeadlessRequest, type HeadlessOutcome } from './headless-runner'
+import { measurementFailure } from '../ui/clone/measurement-runtime'
 
 type Stage = { kind: 'init' } | { kind: 'running'; progress: HeadlessProgress } | { kind: 'done'; outcome: HeadlessOutcome } | { kind: 'error'; message: string }
 
@@ -39,8 +40,9 @@ export function HeadlessPage({ kind, requestId, token }: HeadlessPageProps & { k
     }).catch((error: unknown) => {
       if (!mounted) return
       const cause = error instanceof Error && error.cause instanceof Error ? error.cause.message : ''
-      const message = error instanceof Error ? error.message : String(error)
-      setStage({ kind: 'error', message: cause ? `${message}: ${cause}` : message })
+      const message = kind === 'measure' ? measurementFailure(error).message : error instanceof Error ? error.message : String(error)
+      if (kind === 'measure') console.error('[measurement] page failure', { cause: cause || undefined, error })
+      setStage({ kind: 'error', message: kind === 'measure' ? message : cause ? `${message}: ${cause}` : message })
     })
     return () => { mounted = false; controller.abort(new DOMException('Đã đóng trang xử lý', 'AbortError')) }
   }, [kind, requestId, token])

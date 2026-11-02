@@ -3,13 +3,13 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi, type Mock } from 'vitest'
 import { PreviewPanel } from './PreviewPanel'
-import type { Video } from '../../api/rivals'
+import type { Video, VideoPreview } from '../../api/rivals'
 import type { ClonePlan } from '../../api/clone'
 
 let root: Root, el: HTMLDivElement
 let enqueue: Mock
 let duplicate = false
-const video = (id: string): Video => ({ id, channelId: 'r', title: id, durationSec: 60, viewCount: 10, publishedAt: null, exactTime: false, score: null, hasCaptions: null, thumbnailUrl: '', url: `https://youtu.be/${id}` })
+const video = (id: string): Video => ({ id, channelId: 'r', title: id, durationSec: 60, viewCount: 10, publishedAt: null, exactTime: false, score: null, hasCaptions: null, thumbnailUrl: '', url: `https://youtu.be/${id}`, usage: [] })
 const render = async (id: string) => {
   await act(async () => { root.render(<PreviewPanel video={video(id)} rival={undefined} channels={[{ id: 'mine', name: 'Kênh' }]} onClose={() => {}} />) })
 }
@@ -18,6 +18,10 @@ beforeEach(() => {
   duplicate = false; enqueue = vi.fn()
   vi.stubGlobal('fetch', vi.fn(async (path: string) => {
     if (path === '/api/clone/enqueue') { enqueue(); return new Response(JSON.stringify({ items: [{ id: 'q', jobId: null }], duplicates: [] })) }
+    if (path.endsWith('/preview')) {
+      const preview: VideoPreview = { videoId: decodeURIComponent(path.split('/')[5] ?? ''), source: 'youtube', state: 'ready', chapters: [] }
+      return new Response(JSON.stringify(preview))
+    }
     const plan: ClonePlan = { accepted: duplicate ? [] : [{ url: 'https://youtu.be/one', videoId: 'one', title: 'one', durationSec: 60, outlier: null, hasCaptions: false }], duplicates: duplicate ? [{ url: 'https://youtu.be/one', jobId: null, state: 'queued' }] : [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 5, overflowDays: 0, template: { id: 't', name: 'Mẫu', fromRotation: true }, imageCalls: 0, priceUSD: null }
     return new Response(JSON.stringify(plan))
   }))

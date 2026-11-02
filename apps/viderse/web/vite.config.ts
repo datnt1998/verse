@@ -1,6 +1,7 @@
 // Dev/test use the shared kit's source and stock StyleX HMR. Production emits
 // canonical critical/full StyleX sheets; noncritical routes await the full sheet.
 // scripts/size.mjs reads the cold entry closure from Vite's manifest.
+import { createRequire } from 'node:module'
 import { relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig, type Plugin } from 'vite'
@@ -33,7 +34,10 @@ function stylexPlugins(): Plugin[] {
   const plugin: Plugin = stylex.vite({ ...options, useCSSLayers: true })
   plugin.apply = 'serve'
   if (process.env.VITEST) delete plugin.configureServer
-  return [plugin, stylexRouteCSS(options, fileURLToPath(new URL('./src/screens/workbench/mobile/MobileWorkbench.tsx', import.meta.url)))]
+  return [plugin, stylexRouteCSS(options, [
+    fileURLToPath(new URL('./src/screens/workbench/mobile/MobileWorkbench.tsx', import.meta.url)),
+    createRequire(import.meta.url).resolve('react-dom/client'),
+  ])]
 }
 
 /** Preserve module provenance alongside Vite's manifest for the cold-route

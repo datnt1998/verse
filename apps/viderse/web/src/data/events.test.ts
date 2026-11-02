@@ -158,6 +158,36 @@ describe('vòng poll dự phòng', () => {
   beforeEach(() => { vi.useFakeTimers() })
   afterEach(() => { events.stop(); cache.clear(); vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks() })
 
+  it('lần nối đầu dùng request đang bay của màn; chỉ làm mới ngay khi luồng thật sự rớt', async () => {
+    // Không phát status business event ở hello: test tách vòng poll khỏi
+    // invalidation hợp lệ khi server báo revision đổi.
+    const hello = new TextEncoder().encode('event: hello\ndata: {"subscriber":"t1"}\n\n')
+    const calls = mockFetch({ events: () => hangingStream([hello]) })
+    const releases = [
+      cache.retain(keys.status(), ({ signal }) => request('/api/status', { signal })),
+      cache.retain(keys.queue(), ({ signal }) => request('/api/queue', { signal })),
+      cache.retain(keys.activity(), ({ signal }) => request('/api/activity', { signal })),
+    ]
+    const stop = startDataEvents()
+    try {
+      await vi.advanceTimersByTimeAsync(300)
+      expect(events.status().state).toBe('open')
+      for (const path of ['/api/status', '/api/queue', '/api/activity']) {
+        expect(calls.filter((url) => url === path)).toHaveLength(1)
+      }
+      // Headers/hello đã tới nhưng sau đó im hẳn: watchdog vẫn bật vòng
+      // dự phòng và làm mới ngay, không đợi mốc poll 10 s.
+      await vi.advanceTimersByTimeAsync(3800)
+      expect(events.status().state).toBe('retrying')
+      for (const path of ['/api/status', '/api/queue', '/api/activity']) {
+        expect(calls.filter((url) => url === path)).toHaveLength(2)
+      }
+    } finally {
+      stop()
+      releases.forEach((release) => release())
+    }
+  })
+
   it('chỉ poll khi tab hiện + SSE xuống; tab ẩn dừng, trở lại làm mới ngay', async () => {
     let statusCalls = 0
     mockFetch({ events: () => deferred<Response>().promise, status: () => { statusCalls++; return Promise.resolve(json(STATUS)) } })

@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from './tokens.stylex'
 import { Kbd } from './Button'
@@ -437,9 +437,71 @@ function WaveBars() {
   return <span aria-hidden="true" {...stylex.props(sx.eq)}><span {...stylex.props(sx.eqBar)} /><span {...stylex.props(sx.eqBar, sx.eqDelay('-.3s'))} /><span {...stylex.props(sx.eqBar, sx.eqDelay('-.6s'))} /></span>
 }
 
+/** Lề an toàn ngang tối thiểu giữa popover và khung nhìn (px). */
+const POP_VIEWPORT_EDGE = 12
+
+type PopFit = { left?: number; right?: number; width?: number; originX?: number }
+
+/**
+ * Popover của ô chọn: khi mở sát mép phải (chip lọc trên điện thoại, ô chọn trong
+ * cột hẹp) thì kéo hộp vào trong khung nhìn thay vì để tràn/cắt; giữ neo ở tâm
+ * trigger bằng `transform-origin` nên hộp vẫn “mọc” từ chip. Không portal: hộp
+ * vẫn nằm trong `popWrap` như bố cục cũ, chỉ đổi offset ngang.
+ */
 function Pop({ max, children, onKeyDown, upward = false, model = false, role = false, width }: { max: number; children: ReactNode; onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void; upward?: boolean; model?: boolean; role?: boolean; width?: number }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [fit, setFit] = useState<PopFit | null>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const place = () => {
+      const wrap = el.parentElement
+      if (!wrap) return
+      const wr = wrap.getBoundingClientRect()
+      const w = el.offsetWidth
+      const vw = document.documentElement.clientWidth || window.innerWidth
+      if (!w || !vw) return
+      const next: PopFit = {}
+      if (role) {
+        // `right: 0` — bám mép phải trigger; kéo vào khi tràn phải hoặc tràn trái.
+        const min = wr.right - vw + POP_VIEWPORT_EDGE
+        const max = wr.right - w - POP_VIEWPORT_EDGE
+        const value = min > max ? max : Math.min(Math.max(0, min), max)
+        if (Math.abs(value) > 0.5) next.right = value
+        const originX = value + w - wr.width / 2
+        if (Math.abs(value) > 0.5) next.originX = Math.min(w - 8, Math.max(8, originX))
+      } else {
+        // `left: 0` — bám mép trái trigger; kéo trái khi tràn phải.
+        const min = POP_VIEWPORT_EDGE - wr.left
+        const max = vw - POP_VIEWPORT_EDGE - w - wr.left
+        const value = min > max ? max : Math.min(Math.max(0, min), max)
+        if (Math.abs(value) > 0.5) {
+          next.left = value
+          // Hộp co giãn theo trigger: cố định bề rộng đo được khi phải dịch.
+          if (!width) next.width = w
+          next.originX = Math.min(w - 8, Math.max(8, wr.width / 2 - value))
+        }
+      }
+      setFit((prev) => JSON.stringify(prev ?? {}) === JSON.stringify(next) ? prev : next)
+    }
+    place()
+    const frame = requestAnimationFrame(place)
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', place, true)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [role, width, model, upward])
   const p = stylex.props(sx.pop(`${max}px`), role && sx.popRole, upward && sx.popUp, model && sx.popModel, model && upward && sx.popModelUp)
-  return <div data-select-pop data-placement={upward ? 'top' : 'bottom'} className={p.className} style={{ ...p.style, ...(width ? { width, right: 'auto' } : {}) }} onKeyDown={onKeyDown}>{children}</div>
+  const fitStyle: CSSProperties = fit ? {
+    ...(fit.left !== undefined ? { left: fit.left, right: 'auto' } : {}),
+    ...(fit.right !== undefined ? { right: fit.right, left: 'auto' } : {}),
+    ...(fit.width !== undefined ? { width: fit.width } : {}),
+    ...(fit.originX !== undefined ? { transformOrigin: `${fit.originX}px ${upward ? 'bottom' : 'top'}` } : {}),
+  } : {}
+  return <div ref={ref} data-select-pop data-placement={upward ? 'top' : 'bottom'} className={p.className} style={{ ...p.style, ...(width ? { width, right: 'auto' } : {}), ...fitStyle }} onKeyDown={onKeyDown}>{children}</div>
 }
 
 function GroupLabel({ children, count }: { children: ReactNode; count?: number }) {

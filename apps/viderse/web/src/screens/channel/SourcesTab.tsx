@@ -24,6 +24,7 @@ import { linkSource, patchChannel, unlinkSource, type Channel, type ChannelSourc
 import { addRivalError } from '../explore/AddRivalForm'
 import { channelTint } from '../../lib/channelTint'
 import { PaceStepper } from './PaceStepper'
+import { makeLatestRivalVideo } from './latest'
 import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
 import { Orb } from '../../components/Orb'
 import { TodayRow } from '../../components/autonomy/TodayRow'
@@ -102,7 +103,7 @@ export function SourcesTab({ channel, channels }: {
       <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
         <section {...stylex.props(mch.card16)} aria-label={ta.pacing.title}>
           <div {...stylex.props(mch.headRow)}>
-            <span {...stylex.props(mch.orbs)} aria-hidden="true"><Orb of="scout" size={22} live /></span>
+            <span {...stylex.props(mch.orbs)} aria-hidden="true"><Orb of="scout" size={22} /></span>
             <div {...stylex.props(mch.headText)}>
               <h2 {...stylex.props(mch.cardTitle)}>{ta.pacing.title}</h2>
               <span {...stylex.props(mch.cardSub)}>{ta.pacing.hint}</span>
@@ -112,7 +113,6 @@ export function SourcesTab({ channel, channels }: {
           <div {...stylex.props(mch.paceBox)}>
             <span {...stylex.props(mch.paceLabel)}>{tt.pace}</span>
             <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
-            <span {...stylex.props(mch.autonomyCur)}>{tt.paceUnit}</span>
           </div>
           <span {...stylex.props(mch.hint)}>{ta.pacing.note}</span>
           <PrioritySegMobile channel={channel} />
@@ -155,6 +155,7 @@ export function SourcesTab({ channel, channels }: {
           ) : channel.sources.map((source) => (
             <SourceRow
               key={source.rivalId}
+              channelId={channel.id}
               variant="mobile"
               source={source}
               rival={rivalOf(source.rivalId)}
@@ -208,6 +209,7 @@ export function SourcesTab({ channel, channels }: {
         ) : channel.sources.map((source) => (
           <SourceRow
             key={source.rivalId}
+            channelId={channel.id}
             source={source}
             rival={rivalOf(source.rivalId)}
             onUnlink={() => askUnlink(source.rivalId)}
@@ -224,7 +226,7 @@ export function SourcesTab({ channel, channels }: {
       <div {...stylex.props(autonomyStyles.rightCol)}>
         <section {...stylex.props(channelStyles.card, autonomyStyles.paceCard)} aria-label={ta.pacing.title}>
           <div {...stylex.props(autonomyStyles.head)}>
-            <span {...stylex.props(autonomyStyles.orbs)} aria-hidden="true"><Orb of="scout" size={22} live /></span>
+            <span {...stylex.props(autonomyStyles.orbs)} aria-hidden="true"><Orb of="scout" size={22} /></span>
             <div {...stylex.props(autonomyStyles.headText)}>
               <h2 {...stylex.props(autonomyStyles.title)}>{ta.pacing.title}</h2>
               <span {...stylex.props(autonomyStyles.sub)}>{ta.pacing.hint}</span>
@@ -250,7 +252,8 @@ export function SourcesTab({ channel, channels }: {
 }
 
 /** Một đối thủ đã liên kết: quét + lịch đăng đọc riêng hàng này (cache theo id). */
-function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
+function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: {
+  channelId: string
   source: ChannelSource
   rival: Rival | undefined
   onUnlink: () => void
@@ -258,6 +261,7 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
 }) {
   const tt = t.channels.sources
   const [sheet, setSheet] = useState(false)
+  const [making, setMaking] = useState(false)
   const scan = useResource(keys.rivalScan(source.rivalId), ({ signal }) => getRivalScan(source.rivalId, signal))
   const posting = useResource(keys.rivalPosting(source.rivalId, 'vn'), ({ signal }) => getPostingSlots(source.rivalId, 'vn', signal))
   // Dữ liệu quét có thể lỗi/không đúng hình (404 trong test, máy chưa quét) → chỉ
@@ -274,6 +278,20 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
     rival?.scannedAt ? tt.seen(fmtAge(rival.scannedAt)) : '',
   ].filter(Boolean).join(' · ')
 
+  const makeLatest = async () => {
+    if (making) return
+    setMaking(true)
+    try {
+      const result = await makeLatestRivalVideo(channelId, source.rivalId)
+      toast.ok(t.channels.latestQueued)
+      navigate(result.jobId ? paths.workbench({ video: result.jobId }) : paths.queue())
+    } catch (err) {
+      toast.err(err instanceof Error ? err.message : t.channels.latestFailed)
+    } finally {
+      setMaking(false)
+    }
+  }
+
   if (variant === 'mobile') {
     const href = `#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`
     return (
@@ -286,27 +304,28 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
           fontSize={12}
         />
         <div {...stylex.props(mch.rivalText)}>
-          <div {...stylex.props(mch.row6, mch.minWidth0)}>
-            <span {...stylex.props(mch.rivalName)}>{source.title}</span>
-            {source.reference && <span {...stylex.props(mch.refBadge)}>{tt.linkedBadge}</span>}
-          </div>
+          <span {...stylex.props(mch.rivalName)} title={source.title}>{source.title}</span>
+          {source.reference && <span {...stylex.props(mch.refBadge)}>{tt.linkedBadge}</span>}
           {scanning && <span {...stylex.props(mch.autonomyCur)}>{tt.scanChip}</span>}
           <span {...stylex.props(mch.rivalMeta)} title={meta}>{meta}</span>
         </div>
-        <ActionButton
-          size="sm"
-          lockedReason={t.channels.queueLock}
-          icon={<Icon name="video-add" size={14} />}
-        >
-          {tt.makeLatest}
-        </ActionButton>
-        <Button variant="icon"
+        <Button variant="icon" size="lg"
           aria-label={`${tt.unlink}: ${source.title}`}
           aria-haspopup="dialog"
           onClick={() => setSheet(true)}
         >
           <Icon name="more" size={16} />
         </Button>
+        <ActionButton
+          size="lg"
+          block
+          xstyle={mch.rivalAction}
+          pending={making}
+          onClick={() => void makeLatest()}
+          icon={<Icon name="video-add" size={14} />}
+        >
+          {tt.makeLatestShort}
+        </ActionButton>
         <ActionSheet
           open={sheet}
           onClose={() => setSheet(false)}
@@ -338,7 +357,7 @@ function SourceRow({ source, rival, onUnlink, variant = 'desktop' }: {
         </span>
         <span className={`vch-rival__meta ${stylex.props(channelStyles.rivalMeta).className}`}>{meta}</span>
         <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
-          <ActionButton size="sm" lockedReason={t.channels.queueLock} icon={<Icon name="video-add" size={14} />}>
+          <ActionButton size="sm" pending={making} onClick={() => void makeLatest()} icon={<Icon name="video-add" size={14} />}>
             {tt.makeLatest}
           </ActionButton>
           <a href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`} {...stylex.props(channelStyles.appliedLink)}>{tt.topVideos}</a>
@@ -391,7 +410,7 @@ function AddRivalRow({ channelId, onLinked, mobile = false }: { channelId: strin
         placeholder={tt.placeholder}
         onChange={(event) => setValue(event.target.value)}
       />
-      <ActionButton size={mobile ? 'lg' : 'sm'} type="submit" disabled={pending || !value.trim()} pending={pending}>
+      <ActionButton size={mobile ? 'lg' : 'sm'} block={mobile} type="submit" disabled={pending || !value.trim()} pending={pending}>
         {tt.submit}
       </ActionButton>
       {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}

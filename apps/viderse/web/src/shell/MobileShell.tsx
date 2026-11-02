@@ -28,13 +28,11 @@ const TAB_ITEMS: { key: NavKey; label: string; icon: IconName; iconActive: IconN
   { key: 'explore', label: t.nav.explore, icon: 'radar', iconActive: 'radar-b', path: paths.explore() },
 ]
 
-export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: {
+export function MobileTabBar({ route, reviewCount, channelHref }: {
   route: Route
   reviewCount: number
   /** đích tab Kênh (kênh gần nhất / tạo kênh khi chưa có) */
   channelHref?: string
-  /** false khi nhúng trong khung demo (dev kit) — đứng cuối khung thay vì dán màn hình */
-  fixed?: boolean
 }) {
   const section = navSection(route)
   const { tabMode } = useMobileRuntime()
@@ -51,7 +49,7 @@ export function MobileTabBar({ route, reviewCount, channelHref, fixed = true }: 
       : undefined,
   }))
   const slots: MobileTabBarSlots = {
-    root: `vv-tabbar ${stylex.props(mobileShellStyles.tabbar, !fixed && mobileShellStyles.embeddedTabbar).className}`,
+    root: `vv-tabbar ${stylex.props(mobileShellStyles.tabbar).className}`,
     cap: `vv-tabbar__cap ${stylex.props(mobileShellStyles.cap).className}`,
     indicator: `vv-tabbar__ind ${stylex.props(mobileShellStyles.ind).className}`,
     item: `vv-tabbar__item ${stylex.props(mobileShellStyles.item).className}`,
@@ -122,9 +120,9 @@ export function MobileShell({ route, status, online, userName, channels, channel
         slots={{ root: `vv-mbar ${stylex.props(mobileShellStyles.bar).className}`, leading: stylex.props(mobileShellStyles.lead).className, actions: stylex.props(mobileShellStyles.end).className }}
         leading={<>
           {/* Logo không phải nút chạm riêng (AppBar đợt 36) — bộ đổi kênh đứng cạnh nó. */}
-          <a href={`#${paths.workbench()}`} aria-label={t.brand.name} {...stylex.props(mobileShellStyles.logo)}>
+          <span aria-hidden="true" {...stylex.props(mobileShellStyles.logo)}>
             <LensLogo size={24} spinning={online && running > 0} />
-          </a>
+          </span>
           {showSwitcher && <ChannelSwitcher mobileBar channels={channels ?? []} current={route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined} onPick={pickChannel} />}
         </>}
         actions={<>
@@ -147,8 +145,12 @@ export function MobileShell({ route, status, online, userName, channels, channel
 }
 
 const TOUCH = '@media (max-width: 767px) and (pointer: coarse)'
+const dockIndicatorIn = stylex.keyframes({
+  from: { transform: 'scale(.7, .8)', opacity: 0 },
+  to: { transform: 'none', opacity: 1 },
+})
 export const mobileShellStyles = stylex.create({
-  shell: { height: '100dvh', display: 'flex', flexDirection: 'column', paddingTop: 'var(--m-top)', lineHeight: 1.5 },
+  shell: { position: 'relative', overflow: 'hidden', height: 'max(100dvh, var(--m-viewport-bottom, 0px))', display: 'flex', flexDirection: 'column', paddingTop: 'var(--m-top)', lineHeight: 1.5 },
   /* AppBar đợt 36: một hàng 52px, đệm 0 12 0 16, khe 10; phải đẩy sát mép khe 8. */
   bar: { position: 'relative', zIndex: 30, flex: '0 0 52px', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], height: 52, padding: `0 ${s['--vv-s-12']} 0 ${s['--vv-s-16']}`, backgroundColor: color['--color-bg'] },
   newBar: { padding: `0 ${s['--vv-s-6']}`, gap: 0 },
@@ -164,12 +166,13 @@ export const mobileShellStyles = stylex.create({
   /* Logo 24px không phải nút chạm riêng — chỉ canh giữa theo hàng 36px. */
   logo: { display: 'flex', alignItems: 'center', flex: '0 0 auto', height: 36 },
   touchHalo: { display: { default: 'none', [TOUCH]: 'block' }, position: 'absolute', inset: `calc((${s['--vv-s-44']} - 100%) / -2)` },
-  /* Thanh dưới = vỏ kính 64px cách đáy var(--m-tabbar-bottom) (Viderse 30px khi không có
-     home indicator), vạch chỉ báo trượt theo --i (artboard kit.css .vv-tabbar*). */
-  tabbar: { position: 'fixed', left: s['--vv-s-14'], right: s['--vv-s-14'], bottom: 'var(--m-tabbar-bottom)', zIndex: 30, height: 'var(--m-tabbar-h)', transitionProperty: 'transform, opacity', transitionDuration: '.42s, .3s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1), ease' },
-  embeddedTabbar: { position: 'absolute' },
+  /* Thanh dưới = vỏ kính 64px cách đáy shell var(--m-tabbar-bottom) (Viderse 30px khi
+     không có home indicator), vạch chỉ báo trượt theo --i (artboard kit.css .vv-tabbar*).
+     `absolute` trong shell (không `fixed`): iOS 26 làm lệch lớp fixed khi thanh địa chỉ
+     co giãn / sau bàn phím, còn shell đã cao đúng `--m-viewport-bottom`. */
+  tabbar: { position: 'absolute', left: s['--vv-s-14'], right: s['--vv-s-14'], bottom: 'var(--m-tabbar-bottom)', zIndex: 30, height: 'var(--m-tabbar-h)', transitionProperty: 'transform, opacity', transitionDuration: '.42s, .3s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1), ease' },
   cap: { position: 'relative', height: '100%', width: '100%', display: 'flex', padding: s['--vv-s-5'], borderRadius: pipeline.mobileDockRadius, backgroundColor: "var(--vv-glass)", backdropFilter: 'blur(26px) saturate(180%)', borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], boxShadow: '0 22px 44px -14px rgb(from var(--vv-thumb-veil) r g b / .85), 0 2px 8px rgb(from var(--vv-thumb-veil) r g b / .35), inset 0 1px 0 color-mix(in srgb, var(--line-3), var(--line-4))' },
-  ind: { position: 'absolute', top: s['--vv-s-5'], bottom: s['--vv-s-5'], width: 'calc((100% - 10px) / 5)', left: 'calc(5px + var(--i, 0) * (100% - 10px) / 5)', borderRadius: pipeline.mobileDockItemRadius, backgroundColor: 'var(--vv-tabbar-ind-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--vv-tabbar-ind-bd)', boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)', pointerEvents: 'none', transitionProperty: 'left', transitionDuration: '.45s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1.15)' },
+  ind: { position: 'absolute', top: s['--vv-s-5'], bottom: s['--vv-s-5'], width: 'calc((100% - 10px) / 5)', left: 'calc(5px + var(--i, 0) * (100% - 10px) / 5)', borderRadius: pipeline.mobileDockItemRadius, backgroundColor: 'var(--vv-tabbar-ind-bg)', borderWidth: '1px', borderStyle: 'solid', borderColor: 'var(--vv-tabbar-ind-bd)', boxShadow: 'inset 0 1px 0 var(--line-3), 0 0 18px -4px rgb(from var(--vv-red) r g b / .45)', pointerEvents: 'none', animationName: dockIndicatorIn, animationDuration: '.55s', animationTimingFunction: 'cubic-bezier(.2,.9,.25,1.15)', animationFillMode: 'both', transitionProperty: 'left', transitionDuration: '.45s', transitionTimingFunction: 'cubic-bezier(.2,.9,.25,1.15)' },
   item: { position: 'relative', zIndex: 1, flex: '1 1 0', minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: s['--vv-s-2'], padding: 0, borderRadius: pipeline.mobileDockItemRadius, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', fontFamily: 'inherit', fontSize: 10.5, fontWeight: 500, color: 'var(--vv-st-neutral)', textDecoration: 'none', cursor: 'pointer' },
   itemActive: { color: 'var(--vv-tabbar-on)', fontWeight: 600 },
   icon: { transitionProperty: 'transform', transitionDuration: '.35s', transitionTimingFunction: 'cubic-bezier(.2,.9,.3,1.4)' },
@@ -178,7 +181,7 @@ export const mobileShellStyles = stylex.create({
   labelActive: { fontWeight: 600, color: 'var(--vv-tabbar-on)' },
   badge: { position: 'absolute', top: s['--vv-s-5'], left: `calc(50% + ${s['--vv-s-6']})`, minWidth: 17, height: 17, padding: `0 ${s['--vv-s-4']}`, borderRadius: r['--vv-r-pill'], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, backgroundColor: color['--color-warn'], color: color['--color-bg'], boxShadow: `0 0 0 2px ${color['--color-surface-4']}` },
   /* FAB đỏ 46px: hai bevel inset (sáng trên, tối dưới) + quầng đỏ, đúng artboard. */
-  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--vv-red-button)', backgroundImage: visualRoles['--vv-red-button-fill'], color: 'var(--vv-red-ink)', boxShadow: '0 8px 20px -6px rgb(from var(--vv-red) r g b / .7), inset 0 1px 0 rgb(255 255 255 / .35), inset 0 -2px 4px rgb(0 0 0 / .25)', transform: { default: null, ':active': 'scale(.94)' } },
+  newButton: { width: 46, height: 46, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--vv-red-button)', backgroundImage: visualRoles['--vv-red-button-fill'], color: 'var(--vv-red-ink)', boxShadow: '0 8px 20px -6px rgb(from var(--vv-red) r g b / .7), inset 0 1px 0 rgb(255 255 255 / .35), inset 0 -2px 4px rgb(0 0 0 / .25)', transitionProperty: 'transform', transitionDuration: '.2s', transform: { default: null, ':active': 'scale(.92)' } },
 })
 
 

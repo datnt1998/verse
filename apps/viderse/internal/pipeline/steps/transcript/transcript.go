@@ -197,7 +197,7 @@ func (h *Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.St
 	if sourceHandle == nil {
 		return pipeline.StepResult{}, &domain.CloneError{
 			Code:    domain.CloneErrInternal,
-			Message: "Thiếu audio nguồn cho transcript — chạy lại download",
+			Message: "Thiếu âm thanh nguồn cho lời kể — chạy lại bước tải",
 		}
 	}
 	defer sourceHandle.Release()
@@ -257,7 +257,7 @@ func (h *Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.St
 		parsed, err := ParseTimedJson3(raw, sourceDurationMs)
 		if err != nil {
 			return pipeline.StepResult{}, &domain.CloneError{
-				Code: domain.CloneErrInternal, Message: fmt.Sprintf("json3 phụ đề không đọc được: %v", err),
+				Code: domain.CloneErrInternal, Message: fmt.Sprintf("Tệp phụ đề json3 không đọc được: %v", err),
 			}
 		}
 		cues = parsed.Cues
@@ -404,7 +404,7 @@ func (h *Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.St
 		parsedAsr, err := parseAsrReport(rawReport)
 		if err != nil {
 			return pipeline.StepResult{}, &domain.CloneError{
-				Code: domain.CloneErrInternal, Message: fmt.Sprintf("ASR adapter report sai dạng: %v", err)}
+				Code: domain.CloneErrInternal, Message: fmt.Sprintf("Bộ nhận giọng nói trả dữ liệu sai dạng: %v", err)}
 		}
 		merged := MergeAsrSegments(cues, parsedAsr.Segments, sourceDurationMs)
 		cues = merged.Cues

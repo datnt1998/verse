@@ -394,8 +394,8 @@ func (p *GrokProvider) Draw(ctx context.Context, req Request, journal JournalHan
 	}
 	if err := writeJSONAtomic(req.Output+".receipt.json", receipt); err != nil {
 		// Ảnh đã nguyên tử trên đĩa; sidecar lỗi không được xoá ảnh và không
-		// được dẫn tới vẽ lại.
-		return Receipt{}, &StoreError{Err: err}
+		// được dẫn tới vẽ lại. Grok đã trả ảnh → đã trả phí.
+		return Receipt{}, &StoreError{Err: err, Charged: true}
 	}
 	return receipt, nil
 }

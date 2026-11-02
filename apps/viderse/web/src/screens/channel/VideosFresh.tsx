@@ -23,7 +23,7 @@ export function VideosFresh({ channel, rival }: {
   const tt = t.channels
   const narrow = useMediaQuery('(max-width: 767px)')
   const latest = useResource(
-    keys.rivalVideos(rival?.id ?? '_none', 'newest', 0, 0, ''),
+    keys.rivalLatestVideo(rival?.id ?? '_none'),
     ({ signal }) => listRivalVideos(rival!.id, { sort: 'newest', limit: 1 }, signal),
     { enabled: !!rival },
   )
@@ -81,7 +81,7 @@ export function VideosFresh({ channel, rival }: {
           )}
         </section>
         <a className={`vch-auto ${stylex.props(channelStyles.freshCard, channelStyles.freshAuto).className}`} href={`#${paths.channel(channel.id, 'sources')}`}>
-          <Orb of="scout" size={22} live={channel.autoPick && hasSources} />
+          <Orb of="scout" size={22} />
           <span {...stylex.props(channelStyles.freshAutoTexts)}>
             <span {...stylex.props(channelStyles.freshAutoTitle)}>
               {tt.videos.autoTitle} · <span {...stylex.props(channelStyles.freshAutoOn, !channel.autoPick && channelStyles.leadTagOff)}>{channel.autoPick ? tt.videos.autoOn : tt.videos.autoOff}</span>
@@ -146,7 +146,7 @@ export function VideosFresh({ channel, rival }: {
         <div className={`vch-lead ${stylex.props(channelStyles.lead).className}`}>
           <span {...stylex.props(channelStyles.leadHead)}>{tt.videos.autoTitle}</span>
           <div {...stylex.props(channelStyles.leadRow)}>
-            <Orb of="scout" size={22} live={channel.autoPick && hasSources} />
+            <Orb of="scout" size={22} />
             <span {...stylex.props(channelStyles.leadAuto)}>
               {hasSources ? tt.videos.autoLine(channel.sources.length) : tt.videos.autoPaused}
             </span>

@@ -1,0 +1,9 @@
+/* Only the lazy editor imports this sheet. Keep the original source coverage:
+   utility candidates in app/kit source (including vendor runtime variants) are
+   not pruned according to the current DOM, viewport, or project contents.
+   The global sheet retains preflight; neither reset nor unlayered app/brand
+   variables are reintroduced when the editor opens. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@source "../..";
+@source "../../../../../platform/ui/src";

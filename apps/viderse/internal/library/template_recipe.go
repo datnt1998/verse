@@ -155,7 +155,7 @@ func (s *Service) projectTemplateRecipe(ctx context.Context, raw json.RawMessage
 			return domain.Recipe{}, err
 		}
 		if custom == nil {
-			return domain.Recipe{}, invalidFields("Template trỏ tới prompt ảnh không còn", []FieldError{{"scenes.coverPromptId", "Prompt ảnh không còn trong thư viện", "Chọn prompt khác cho template rồi lưu lại"}})
+			return domain.Recipe{}, invalidFields("Mẫu video trỏ tới chỉ dẫn ảnh không còn", []FieldError{{"scenes.coverPromptId", "Chỉ dẫn ảnh không còn trong thư viện", "Chọn chỉ dẫn khác cho mẫu video rồi lưu lại"}})
 		}
 		cover = *custom
 	}
@@ -178,5 +178,5 @@ func (s *Service) projectTemplateRecipe(ctx context.Context, raw json.RawMessage
 }
 
 func invalidTemplateSettings() error {
-	return invalidInput("Cấu hình track template không hợp lệ", "Mở lại template và kiểm tra cấu hình ảnh cùng video nền")
+	return invalidInput("Cấu hình track mẫu video không hợp lệ", "Mở lại mẫu video và kiểm tra cấu hình ảnh cùng video nền")
 }

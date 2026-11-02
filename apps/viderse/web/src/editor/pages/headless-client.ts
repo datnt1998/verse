@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { Project } from '@editor/types/project'
 import type { ServerMediaRecord } from '@editor/storage/types'
+import { measurementFailure } from '../ui/clone/measurement-runtime'
 
 export type HeadlessKind = 'render' | 'measure'
 export interface HeadlessPageProps { requestId: string; token?: string }
@@ -120,6 +121,12 @@ export class HeadlessClient {
     return z.object({ request: requestSchema }).parse(await (await this.post('/complete', { fence: this.requireFence(), ...(exportId ? { exportId } : {}) }, signal)).json()).request
   }
   async fail(error: unknown): Promise<void> {
+    if (this.kind === 'measure') {
+      const failure = measurementFailure(error)
+      console.error('[measurement] failure', { code: failure.code, cause: error })
+      await this.post('/fail', { fence: this.requireFence(), error: failure })
+      return
+    }
     await this.post('/fail', { fence: this.requireFence(), error: { code: error instanceof DOMException && error.name === 'AbortError' ? 'cancelled' : 'internal_error', message: error instanceof Error ? error.message : String(error) } })
   }
   async uploadPcm(seq: number, bytes: Uint8Array, signal?: AbortSignal): Promise<void> {

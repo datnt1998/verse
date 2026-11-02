@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   cancelImageVersion, getJobImages, imageProgressSchema, imageVersionSchema, jobImagesSchema, redrawImages,
-  subscribeImageProgress, tooManyRefs, useImageVersion, withProgress, type JobImage,
+  tooManyRefs, useImageVersion, withProgress, type JobImage,
 } from './images'
 
 const version = (n: number, state: 'drawing' | 'ready' | 'failed' = 'ready') => ({
@@ -142,7 +142,4 @@ describe('gọi máy chủ', () => {
     }
   })
 
-  it('đăng ký sự kiện image.progress trên luồng chung', () => {
-    expect(typeof subscribeImageProgress).toBe('function')
-  })
 })
