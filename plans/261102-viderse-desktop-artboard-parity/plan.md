@@ -1,6 +1,6 @@
 ---
 title: Viderse PC — canonical artboard parity and verified Mac mini release
-status: completed
+status: in-progress
 priority: P1
 branch: main
 ---
@@ -61,9 +61,27 @@ Design authority: [design README](../../apps/viderse/docs/design/v1/README.md), 
 - Native cuối: mobile 253/253 tại 360/390/430 và hai bộ inset; motion 23 mẫu gồm glide Segmented 320 ms và reduced-motion 0; PC Main/Review 46 hàng; Explore/Channel 239 kiểm tra; assets/settings 47 trạng thái, không PUT hay lỗi JavaScript. Editor 1440 đủ 18 trạng thái, 1280 qua đến export gate và kiểm riêng reduced-motion; dialog cuộn đến nút Đóng nằm trọn viewport. Hai marker prompt bị CSS uppercase là tiêu chí harness cũ, không phải lỗi giao diện.
 - Hotfix avatar đã triển khai: smoke public với ảnh thật tại 360/390/430 xác nhận badge nhìn thấy ngoài cạnh trái/dưới và ảnh giữ bo góc 8 px; desktop 1280/1440 không bị che, không lỗi JavaScript hay API ghi. Dữ liệu production đã ở trạng thái “Xử lý” thay vì “Duyệt”; cùng hàng thumbnail đã được kiểm đúng trạng thái hiện tại.
 - Smoke public PC và mobile: không tràn ngang hay lỗi JavaScript. Đúng một yêu cầu Director HTTP 200 trả `ok:false/unknown` cho đề nghị chỉ đọc không được hỗ trợ; UI hiện thông báo và gợi ý bằng tiếng Việt, pha chờ có animation 180/800/1.100/2.800 ms. Không thực thi kế hoạch, không sinh ảnh/giọng hay tiếp tục job. Không coi kết quả này là một kế hoạch thành công.
-- Lỗi Cách đọc đã sửa và kiểm production: worker công bố danh mục 25 giọng thật; PostgreSQL giữ mã preset khi không có khoá ngoại giọng dự án; đổi Một giọng kể/Phân vai, lưu giọng từng vai và huỷ lựa chọn đều qua. Native 360/390/430 không tràn ngang, không lỗi JavaScript; 180 test Audio và các gói Go liên quan qua. Regression mã preset thất bại trước sửa, qua sau sửa; smoke API thật xác nhận lưu/đọc lại `Adam`. Truyện QA riêng đã xoá, không có job QA, danh sách truyện trước/sau khớp.
+- Đợt sửa Cách đọc trước (`541c088a`) đã kiểm nhánh phân vai `dan`, lưu/đọc lại preset, đổi chế độ và huỷ lựa chọn; chưa kiểm lưu preset vào vai đặc biệt `single`. Báo lỗi mới xác nhận nhánh Một giọng kể vẫn lỗi. Danh mục thật hiện có 25 giọng nhưng `capabilities.preview=false` và không có sample URL, nên chưa đạt đầy đủ luồng nghe thử/chọn giọng.
 - Deploy bị chặn bởi Docker hết chỗ; đã được chủ tài khoản duyệt dọn cache build cũ hơn 24 giờ, thu hồi 22,69 GB. Không xoá image, container, volume hay dữ liệu ứng dụng; deploy chính thức sau đó hoàn tất.
 - Hotfix icon lịch/phễu trong chip lọc MExplore: trước sửa lệch lên 2,375 px do icon nằm inline trong prefix; chuyển sang slot `icon` của ChipSelect, không thêm offset CSS. Public 360/390/430/1280/1440 qua: độ lệch tâm icon 0 px, mở/chọn ngày và trạng thái, Escape trả focus, hit-test và chống tràn đều đúng; không lỗi JavaScript hay API ghi. Mười test MExplore, typecheck/build và size gate qua. Môi trường QA local chỉ kiểm xong ba kích thước mobile vì desktop gặp onboarding; nghiệm thu đủ năm kích thước dùng production thật, từng trang độc lập để tránh race remount khi đổi breakpoint.
 - Giới hạn kiểm chứng: mô phỏng Chrome, chưa kiểm bàn phím Safari trên iPhone thật; dữ liệu canonical khác dữ liệu fixture. Không tuyên bố mọi trạng thái trả phí hay mọi thiết bị đã được kiểm.
+
+## Audio follow-up — single, quick actions, preset previews
+
+- **Single narration:** sửa backend PostgreSQL nhận đúng vai đặc biệt `single`, giữ lựa chọn sau tải lại, đếm và đọc lại audio cũ đúng phạm vi khi xác nhận; không tạo speaker giả.
+- **Chapter quick actions:** đối chiếu MAudio/MVoiceGen hiện hành, đưa thao tác theo trạng thái chương ra vị trí có thể tìm thấy; thao tác mở menu không ghi hay tạo audio, cập nhật/tạo lại chỉ chọn đúng chương.
+- **Built-in voices:** danh mục worker thật, nghe thử thật qua worker hosted, trạng thái chờ/dừng/lỗi và quyền truy cập đúng; không bật cờ hỗ trợ khi chưa có đường thực thi.
+- Ba slice chỉnh mã độc lập; parent sở hữu tích hợp, schema dùng chung, docs, build/test sau freeze, smoke native và deploy server/worker. Không chạy thêm Director hay tạo lại chương của người dùng.
+- Nghiệm thu trên fixture riêng: cả cast và single, lưu/hủy/đổi chế độ; quick actions ở trạng thái audio thiếu/mới/cũ/lỗi/hàng đợi; nghe thử preset thật và mẫu đã tải lên. Khung 360/390/430 và 1280/1440, focus/overlay/reduced motion, bảo toàn audio cũ khi chưa xác nhận. Chưa chốt hoàn thành chỉ vì danh sách giọng hiện ra.
+
+### Bằng chứng bản đã triển khai
+
+- Noverse gateway và máy đọc native cùng `3d874df0a31dcbba660bb911845d0211e9fbf1f1`, qua `~/server/bin/build-deploy.sh`; bundle live `index-BfTGoPDP.js`. Migration `00022_job_priority.sql` đã đi qua lượt deploy.
+- Máy đọc live `ready`, `capabilities.preview=true`, danh mục thật 25 preset. Mẫu Hải Đăng trả HTTP 200, WAV mono PCM16/48 kHz, 222.764 byte, 2,32 giây. Nút nghe Adam trong UI dùng GET thật; CDP đọc HTMLAudio `duration=currentTime=2.72`, `ended=true`, `readyState=4`.
+- Fixture riêng: gán dẫn truyện Hải Đăng; chọn single Adam trong UI, lưu thành công, huỷ chọn Mai Anh không phát sinh PUT, mở lại vẫn Adam. Đổi sang Phân vai trên PC lưu cả `mode`/`voiceMode=cast`, giữ dẫn truyện Hải Đăng và single Adam. Không có job tạo chương; fixture đã xoá và danh sách truyện gốc không đổi.
+- Menu chương “Ca đêm lệch” đã có nghe/xuất riêng/chia sẻ/cập nhật/tạo lại; mở menu và huỷ xác nhận không ghi dữ liệu. Form xuất khoanh đúng chương 1. Khung mobile 360/390/430 và PC 1280/1440 không tràn ngang; nút `⋯` 44 px, nút đóng menu nằm trong viewport sau animation. Đã bật preference giảm chuyển động trong browser; chưa có kiểm chứng iPhone Safari vật lý hoặc bảng chia sẻ hệ điều hành.
+- 210 test web audio và build/typecheck qua. Lượt race rộng trên snapshot đầu: các gói audio, PostgreSQL, worker, migration qua; các regression sau review về ưu tiên/chọn đúng attempt/thử lại failed và HTTP cũng qua, có bằng chứng lỗi trước sửa → qua sau sửa. Nhóm web `Audio|TTS|Tts|Preview|Worker|Single|Priority` trên snapshot cuối với race qua. **Không tuyên bố toàn suite xanh:** toàn gói web với race timeout 20 phút; lượt đầu dùng nhầm DB QA có public schema cũng gây lỗi fixture, đã tách DB rỗng và dọn DB kiểm thử riêng.
+- **Còn mở trên dữ liệu gốc:** audio MP3 chương 1 trả 404; chương đang được đánh dấu `chapterChanged=true` sau khi chốt. Chưa chạy cập nhật/tạo lại trên truyện người dùng. Không tự thay điều kiện kiểm chứng revision hay phục vụ audio lỗi thời như audio hiện tại. Cần người dùng quyết định có cho cập nhật riêng chương 1 (có lượt AI soạn bản đọc) hay giữ nguyên dữ liệu.
+- Đã dừng server QA, đóng toàn bộ tab và Chrome test của phiên; xoá helper local/container/host và truyện QA. Chưa kiểm chứng native clip tải lên; không suy diễn kết quả preset thành hỗ trợ giọng clone trên hosted.
 
 Rollback: use the previous revision through the owning deployment scripts; preserve PostgreSQL and media, never reset user state or regenerate images.
