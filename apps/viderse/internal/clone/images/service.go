@@ -490,6 +490,20 @@ func (s *Service) RedrawAll(ctx context.Context, id string, input ResetInput) (G
 	}
 	return *result.Generation, nil
 }
+
+// rawImageRevision is the checkpoint revision the worker compares against when
+// it consumes a bulk-review intent. The hydrated manifest may include overlay
+// intents, so it must not be used for that CAS token.
+func rawImageRevision(snapshot jobedit.Snapshot, manifest model.Manifest) int {
+	var checkpoint struct {
+		Revision int `json:"revision"`
+	}
+	if len(snapshot.Step.Checkpoint) > 0 && json.Unmarshal(snapshot.Step.Checkpoint, &checkpoint) == nil && checkpoint.Revision > 0 {
+		return checkpoint.Revision
+	}
+	return manifest.Revision
+}
+
 func (s *Service) ApproveAll(ctx context.Context, id string, input RevisionInput) (MutationResult, error) {
 	l, err := s.load(ctx, id, input.ExpectedRevision, true)
 	if err != nil {
@@ -503,6 +517,16 @@ func (s *Service) ApproveAll(ctx context.Context, id string, input RevisionInput
 	}
 	if !model.ImagesReady(l.manifest) {
 		return MutationResult{}, cloneError(domain.CloneErrInvalidRequest, "Chưa có đủ ảnh hợp lệ để duyệt")
+	}
+	// Ảnh đã duyệt xong: lặp lại thao tác duyệt ảnh không được đánh dấu lại
+	// build. Mở đúng bản dựng đã công bố qua cổng PrepareCloneExport (không
+	// accept, quality gate giữ nguyên) thay vì dựng lại; khi build còn chạy
+	// thì ghi ý định bền vững để worker mở cổng sau.
+	if model.ImagesApproved(l.manifest) {
+		if err = s.Edits.StageDraftApproval(ctx, id, rawImageRevision(l.snapshot, l.manifest)); err != nil {
+			return MutationResult{}, err
+		}
+		return MutationResult{JobID: id, Revision: l.manifest.Revision}, nil
 	}
 	for _, i := range l.manifest.Items {
 		if i.Status == "review" {

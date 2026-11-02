@@ -27,6 +27,7 @@ type editStore struct {
 	template      json.RawMessage
 	steps         []domain.CloneStepRecord
 	sceneDoc      json.RawMessage
+	drafts        []int
 }
 
 func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (jobedit.Snapshot, error) {
@@ -52,6 +53,10 @@ func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (j
 		return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1}, Step: domain.CloneStepRecord{Step: step, Status: s.sceneStatus, Checkpoint: raw}, Manifest: raw}, nil
 	}
 	return jobedit.Snapshot{Job: domain.CloneJob{ID: id, Generation: 1, NoImages: s.noImages, TemplateSnapshot: s.template}, Step: domain.CloneStepRecord{Step: step, Checkpoint: raw}, Steps: s.steps, Manifest: raw, Artifacts: s.artifacts}, nil
+}
+func (s *editStore) ApproveDraft(_ context.Context, _ string, imageRevision int) error {
+	s.drafts = append(s.drafts, imageRevision)
+	return nil
 }
 func (s *editStore) Commit(_ context.Context, _ jobedit.Snapshot, c jobedit.Change) error {
 	s.commits++
@@ -287,6 +292,54 @@ func TestApproveAllCommitsBuildInvalidation(t *testing.T) {
 	}
 	if !model.ImagesApproved(store.m) || store.change.InvalidateFrom != domain.CloneBuild || store.change.Rerun {
 		t.Fatalf("wrong approval commit: %+v", store.change)
+	}
+}
+func approvedFixture(store *editStore) {
+	for index := range store.m.Items {
+		version := 1
+		store.m.Items[index].CurrentVersion = &version
+		store.m.Items[index].ReviewVersion = nil
+		store.m.Items[index].Status = "approved"
+	}
+}
+func TestApproveAllRepeatStagesEvenWithoutExportIntent(t *testing.T) {
+	s, store := testService()
+	approvedFixture(store)
+	store.steps = []domain.CloneStepRecord{{Step: domain.CloneBuild, Status: domain.CloneWaiting, Error: &domain.CloneError{Code: domain.CloneErrAwaitingReview, Message: "Bản dựng đang chờ duyệt"}}}
+	rev := 3
+	result, err := s.ApproveAll(context.Background(), "job", RevisionInput{ExpectedRevision: &rev})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if store.commits != 0 || len(store.drafts) != 1 || store.drafts[0] != 3 || store.m.Revision != 3 || result.Revision != 3 {
+		t.Fatalf("repeat approval touched the pipeline: commits=%d drafts=%v revision=%d result=%+v", store.commits, store.drafts, store.m.Revision, result)
+	}
+}
+func TestApproveAllRepeatStagesExistingDraft(t *testing.T) {
+	s, store := testService()
+	approvedFixture(store)
+	store.steps = []domain.CloneStepRecord{{Step: domain.CloneBuild, Status: domain.CloneWaiting, Error: &domain.CloneError{Code: domain.CloneErrAwaitingReview, Message: "Bản dựng đang chờ duyệt"}}}
+	rev := 3
+	result, err := s.ApproveAll(context.Background(), "job", RevisionInput{ExpectedRevision: &rev, ApproveExport: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if store.commits != 0 || len(store.drafts) != 1 || store.drafts[0] != 3 || result.Revision != 3 {
+		t.Fatalf("existing draft was not staged: commits=%d drafts=%v result=%+v", store.commits, store.drafts, result)
+	}
+}
+func TestApproveAllInitialApprovalCommitsOwnerExport(t *testing.T) {
+	s, store := testService()
+	s.Edits.Media = &stepstest.FakeMedia{Root: t.TempDir()}
+	rev := 3
+	if _, err := s.ApproveAll(context.Background(), "job", RevisionInput{ExpectedRevision: &rev, ApproveExport: true}); err != nil {
+		t.Fatal(err)
+	}
+	if store.commits != 1 || !store.change.ApproveExport || store.change.InvalidateFrom != domain.CloneBuild || store.change.Rerun {
+		t.Fatalf("initial owner approval did not reach the pipeline: %+v", store.change)
+	}
+	if len(store.drafts) != 0 {
+		t.Fatalf("initial approval staged instead of committing: %v", store.drafts)
 	}
 }
 func TestSceneOverridePersistsWithoutResettingCover(t *testing.T) {

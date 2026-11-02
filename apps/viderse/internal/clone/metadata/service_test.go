@@ -17,6 +17,7 @@ type metadataFixture struct{ snapshot jobedit.Snapshot }
 func (f *metadataFixture) Read(context.Context, string, domain.CloneStep) (jobedit.Snapshot, error) {
 	return f.snapshot, nil
 }
+func (f *metadataFixture) ApproveDraft(context.Context, string, int) error { return nil }
 func (f *metadataFixture) Commit(_ context.Context, before jobedit.Snapshot, change jobedit.Change) error {
 	if string(before.Step.Checkpoint) != string(f.snapshot.Step.Checkpoint) {
 		return conflict()

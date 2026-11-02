@@ -63,6 +63,8 @@ Quy tắc trạng thái:
 - “Hoạ sĩ đang vẽ cảnh 5/6”
 - “Chờ hạn mức ảnh · 07:00”
 - “7 ảnh · 42 phút trước”
+- “Chờ bạn duyệt ảnh” (bước images đỗ `awaiting_review`)
+- “Bản dựng đang chờ duyệt” (bước build đỗ `awaiting_review`; ảnh đã duyệt xong). Hai bước kỹ thuật cùng nhóm `review` phải khác dòng phụ; nếu cả hai cùng đỗ thì ưu tiên duyệt ảnh.
 
 ## §3 · Hàng chờ (mới: ưu tiên, nhịp, giải thích)
 
@@ -352,7 +354,7 @@ API:
 - `PATCH /api/clone/:id/prompts` nhận body của `plan` cùng `expectedRevision: number`; khi `cost.images > 0`, bắt buộc `confirmCount` bằng đúng tổng ảnh trong kế hoạch. Áp dụng và trả về như `plan`; revision hoặc số xác nhận cũ → `409`.
 - Với video còn trong Chờ lượt, `:id` là `queueItem.id`; `expectedRevision` lấy từ `queueItem.overrideRevision`. `plan` luôn có `redraw.scenes = 0`, `redraw.cover = false`, `cost.images = 0`, `rebuild = false`; không cần xác nhận chi phí. Lựa chọn được lưu trên hàng chờ và áp dụng khi video bắt đầu, không sửa snapshot template. Nếu mục đã chạy, bị bỏ hoặc revision đã đổi, `PATCH` trả `409`. SSE `queue.updated` báo cập nhật hàng chờ.
 - Vẽ lại một ảnh: `POST /api/clone/:id/images/:imageId` `{ op: "regenerate" | "editPrompt", prompt?: string, expectedRevision: number }`. `prompt` là góp ý (`direction`), không nhận `promptId`; ảnh đã duyệt được giữ đến khi duyệt ứng viên mới.
-- Duyệt một ảnh dùng cùng route `{ op: "approve", version: number, expectedRevision: number }`; duyệt hàng loạt qua `POST /api/clone/:id/images` `{ op: "approveAll", expectedRevision: number }`. Vẽ lại hàng loạt `{ op: "regenerateAll", expectedRevision: number, confirmCount: number, kind?: "scene" | "thumbnail" }` kiểm tra số ảnh ở server trước khi xếp hàng.
+- Duyệt một ảnh dùng cùng route `{ op: "approve", version: number, expectedRevision: number }`; duyệt hàng loạt qua `POST /api/clone/:id/images` `{ op: "approveAll", expectedRevision: number }` ghi ý định chủ duyệt bền vững (không có `accept`). Lần duyệt đầu commit manifest rồi để pipeline dựng lại nếu cần. Khi mọi ảnh đã duyệt và build đang đỗ `awaiting_review`, route mở đúng bản dựng đã công bố qua `PrepareCloneExport` trong cùng transaction (giữ `output_manifest` của build, chỉ reset `score`/`export`), không dựng lại; khi build còn `pending`/`running` thì ý định chờ worker tiêu thụ. Lặp lại khi build đã `succeeded` là no-op, không đổi revision và không thêm lượt dựng. Cổng Độ hoàn thiện vẫn chặn xuất (`accept` chỉ đến từ `POST /export`). Vẽ lại hàng loạt `{ op: "regenerateAll", expectedRevision: number, confirmCount: number, kind?: "scene" | "thumbnail" }` kiểm tra số ảnh ở server trước khi xếp hàng.
 - `POST /api/clone/:id/cover?expectedRevision=N` nhận bytes PNG/JPEG/WebP tối đa 20 MB; ảnh thật được decode, chuẩn hoá WebP 1280×720 và duyệt ngay. `GET /api/clone/:id/images/:imageId?variant=cutout` trả PNG tách nền đã công bố; `GET /api/clone/:id/thumbnail` tải JPG.
 - `GET /api/clone/:id/backdrop` trả `{ backdrop }`; `POST` nhận `{ op: "reroll" | "swap" | "add" | "remove", revision?: string, itemId?: string, channelId?: string, videoId?: string, startSec?: number, endSec?: number }`. Revision chuỗi cũ → `409`; `reroll` có `itemId` chỉ đổi một slot. Chỉ xoá clip thì dựng lại; clip mới/đổi chạy bước lấy nền trước.
 - Nền của timeline giữ `cloneBackdropId`; bản đọc nền có `editorMediaId`, `rebuilding` và `projectRevision` để UI chờ đúng revision dựng xong, không nhầm revision autosave. Ảnh cảnh dùng timeline id `${projectId}-scene-${sceneId}`.

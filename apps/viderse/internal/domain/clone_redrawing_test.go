@@ -7,6 +7,31 @@ import (
 	"time"
 )
 
+func TestReviewSublineSeparatesBuildDraftFromImageApproval(t *testing.T) {
+	job := CloneJob{Status: CloneWaiting}
+	build := []CloneStepRecord{
+		{Step: CloneImages, Status: CloneSucceeded},
+		{Step: CloneBuild, Status: CloneWaiting, Error: &CloneError{Code: CloneErrAwaitingReview, Message: "Bản dựng đang chờ duyệt"}},
+	}
+	if got := StageGroupOf(job, build); got != StageReview {
+		t.Fatalf("build gate group = %s", got)
+	}
+	if got := Subline(job, build, time.Now()); got != "Bản dựng đang chờ duyệt" {
+		t.Fatalf("build gate subline = %q", got)
+	}
+	images := []CloneStepRecord{
+		{Step: CloneImages, Status: CloneWaiting, Error: &CloneError{Code: CloneErrAwaitingReview, Message: "Chờ duyệt ảnh"}},
+		{Step: CloneBuild, Status: ClonePending},
+	}
+	if got := Subline(job, images, time.Now()); got != "Chờ bạn duyệt ảnh" {
+		t.Fatalf("image gate subline = %q", got)
+	}
+	both := append(append([]CloneStepRecord{}, images...), build[1])
+	if got := Subline(job, both, time.Now()); got != "Chờ bạn duyệt ảnh" {
+		t.Fatalf("image gate must win over a stale build gate: %q", got)
+	}
+}
+
 func TestReviewOriginRedrawKeepsReviewGroup(t *testing.T) {
 	job := CloneJob{Status: CloneRunning}
 	steps := []CloneStepRecord{{Step: CloneImages, Status: CloneRunning, Checkpoint: json.RawMessage(`{"reviewOrigin":true,"items":[{"id":"a","status":"running"},{"id":"b","status":"pending"},{"id":"c","status":"approved"}]}`)}}

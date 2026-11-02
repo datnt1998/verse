@@ -223,7 +223,10 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 		}
 		switch input.Op {
 		case "approveAll":
-			out, err := ops.Images.ApproveAll(r.Context(), id, cloneimages.RevisionInput{ExpectedRevision: input.ExpectedRevision})
+			// "Duyệt cả video & dựng" ghi ý định chủ duyệt bền vững; bước
+			// duyệt chỉ mở cổng build qua PrepareCloneExport, không truyền
+			// accept nên cổng Độ hoàn thiện vẫn giữ nguyên.
+			out, err := ops.Images.ApproveAll(r.Context(), id, cloneimages.RevisionInput{ExpectedRevision: input.ExpectedRevision, ApproveExport: true})
 			cloneOperationJSON(w, out, err)
 		case "regenerateAll":
 			out, err := ops.Images.RedrawAll(r.Context(), id, cloneimages.ResetInput{ExpectedRevision: input.ExpectedRevision, ConfirmCount: input.ConfirmCount, Kind: input.Kind, Feedback: input.Feedback})

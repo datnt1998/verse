@@ -16,9 +16,9 @@ import (
 
 type imageHTTPFixture struct {
 	*cloneimages.Service
-	input cloneimages.ReviewInput
-	calls int
-	err   error
+	input   cloneimages.ReviewInput
+	calls   int
+	err     error
 }
 
 func (f *imageHTTPFixture) Read(context.Context, string) (cloneimages.View, error) {
@@ -29,6 +29,10 @@ func (f *imageHTTPFixture) Review(_ context.Context, _ string, input cloneimages
 	f.input = input
 	f.calls++
 	return cloneimages.ReviewResult{}, f.err
+}
+func (f *imageHTTPFixture) ApproveAll(_ context.Context, _ string, input cloneimages.RevisionInput) (cloneimages.MutationResult, error) {
+	f.calls++
+	return cloneimages.MutationResult{JobID: "job", Revision: 7}, f.err
 }
 func (f *imageHTTPFixture) UploadCover(context.Context, string, string, cloneimages.RevisionInput) (cloneimages.CoverResult, error) {
 	f.calls++

@@ -41,6 +41,7 @@ func (f *fixtureStore) Read(_ context.Context, id string, step domain.CloneStep)
 	return s, nil
 }
 func (*fixtureStore) Commit(context.Context, jobedit.Snapshot, jobedit.Change) error { return nil }
+func (*fixtureStore) ApproveDraft(context.Context, string, int) error                { return nil }
 
 type fixtureMedia struct{ root string }
 

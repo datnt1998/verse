@@ -47,6 +47,7 @@ func (s *pendingStore) Read(context.Context, string, domain.CloneStep) (jobedit.
 	}, nil
 }
 
+func (s *pendingStore) ApproveDraft(context.Context, string, int) error { return nil }
 func (s *pendingStore) Commit(_ context.Context, _ jobedit.Snapshot, c jobedit.Change) error {
 	s.change = c
 	return nil

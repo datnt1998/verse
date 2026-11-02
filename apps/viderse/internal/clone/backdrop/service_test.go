@@ -31,6 +31,7 @@ func (s *editStore) Read(_ context.Context, id string, step domain.CloneStep) (j
 	}
 	return s.snapshot, nil
 }
+func (s *editStore) ApproveDraft(context.Context, string, int) error { return nil }
 func (s *editStore) Commit(_ context.Context, old jobedit.Snapshot, change jobedit.Change) error {
 	if s.beforeCommit != nil {
 		s.beforeCommit()

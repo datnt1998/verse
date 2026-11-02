@@ -47,6 +47,9 @@ type Change struct {
 type Store interface {
 	Read(context.Context, string, domain.CloneStep) (Snapshot, error)
 	Commit(context.Context, Snapshot, Change) error
+	// ApproveDraft stages an already-approved image manifest at the current
+	// build state without invalidating the published draft.
+	ApproveDraft(context.Context, string, int) error
 }
 type Service struct {
 	Store   Store
@@ -176,6 +179,23 @@ func (s *Service) CommitBuildMedia(ctx context.Context, before Snapshot, checkpo
 }
 func (s *Service) CommitOwnerApproval(ctx context.Context, before Snapshot, checkpoint any) error {
 	return s.commit(ctx, before, checkpoint, domain.CloneBuild, false, nil, true, nil, false)
+}
+
+// StageDraftApproval stages an owner approval against an already-published
+// build draft without invalidating it. The store decides from the current build
+// state: open the parked draft, remember the intent while it is still building,
+// or no-op when the gate is already open.
+func (s *Service) StageDraftApproval(ctx context.Context, jobID string, imageRevision int) error {
+	if err := s.Store.ApproveDraft(ctx, jobID, imageRevision); err != nil {
+		return err
+	}
+	if s.Publish != nil {
+		s.Publish(domain.CloneEventUpdated, map[string]any{"jobId": jobID, "step": domain.CloneBuild})
+	}
+	if s.Wake != nil {
+		s.Wake()
+	}
+	return nil
 }
 func (s *Service) CommitImageReview(ctx context.Context, before Snapshot, checkpoint any, from domain.CloneStep, rerun bool, imageIDs []string) error {
 	if before.Step.Status == domain.CloneRunning {

@@ -8,7 +8,8 @@ import (
 )
 
 // AutoReviewer cho Mức tự chủ đọc điểm ảnh và duyệt qua đúng đường "Duyệt hết"
-// của chủ kênh: cùng cổng ImagesReady/mutable, cùng CommitOwnerApproval.
+// của chủ kênh: cùng cổng ImagesReady/mutable và cùng đường chủ duyệt
+// (CommitOwnerApproval khi còn ảnh chờ, StageDraftApproval khi bản dựng đã đỗ).
 type AutoReviewer struct{ Service *Service }
 
 var _ autonomy.Reviewer = AutoReviewer{}

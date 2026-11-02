@@ -358,6 +358,18 @@ func CloneExportBytes(steps []CloneStepRecord) *int64 {
 	return nil
 }
 
+// waitingAtReview reports a step parked on the owner-approval gate. Both the
+// images step and the build draft can park this way; the subline and the review
+// queue need to tell them apart.
+func waitingAtReview(steps []CloneStepRecord, step CloneStep) bool {
+	for _, record := range steps {
+		if record.Step == step && record.Status == CloneWaiting && record.Error != nil && record.Error.Code == CloneErrAwaitingReview {
+			return true
+		}
+	}
+	return false
+}
+
 // Subline tính dòng phụ của mọi trạng thái (§2) từ job + steps + giờ hiện
 // tại: câu việc đang làm, giờ hết chờ hạn mức, hoặc tóm tắt xong.
 func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
@@ -368,6 +380,13 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 	case StageReview:
 		if n := RedrawingCount(steps); n > 0 {
 			return fmt.Sprintf("Đang vẽ lại %d ảnh", n)
+		}
+		// Cùng một thao tác duyệt của chủ, nhưng máy có thể đỗ ở hai bước kỹ
+		// thuật khác nhau: images chờ duyệt ảnh, hoặc build đã dựng xong bản
+		// nháp và chờ cổng duyệt mở. Dòng phụ nói đúng bước đang đỗ, không
+		// ngụ ý hai quyết định khác nhau.
+		if !waitingAtReview(steps, CloneImages) && waitingAtReview(steps, CloneBuild) {
+			return "Bản dựng đang chờ duyệt"
 		}
 		return "Chờ bạn duyệt ảnh"
 	case StageReady:

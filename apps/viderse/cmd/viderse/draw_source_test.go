@@ -21,6 +21,7 @@ func (s manifestStore) Read(context.Context, string, domain.CloneStep) (jobedit.
 	}, nil
 }
 func (s manifestStore) Commit(context.Context, jobedit.Snapshot, jobedit.Change) error { return nil }
+func (manifestStore) ApproveDraft(context.Context, string, int) error                  { return nil }
 
 func TestWithVideoDrawSourcePutsTheOverrideFirst(t *testing.T) {
 	global := []domain.ModelRef{
