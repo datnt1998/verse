@@ -57,8 +57,8 @@ export interface ResourceCache {
   retain<T>(key: Key, fetcher: Fetcher<T>, opts?: { staleTime?: number }): () => void
   /** Tải lại ngay (nút Thử lại / refresh()); đang bay thì tải thêm một lần khi xong. */
   refresh(key: Key): Promise<unknown>
-  /** Imperative consumers share the same refresh bookkeeping and in-flight request. */
-  fetch<T>(key: Key, fetcher: Fetcher<T>): Promise<unknown>
+  /** Imperative fetch shares in-flight work; staleTime reuses fresh data but never an invalidated/error result. */
+  fetch<T>(key: Key, fetcher: Fetcher<T>, opts?: { staleTime?: number }): Promise<unknown>
   /**
    * Nạp trước (rê chuột/focus vào mục điều hướng): tải khoá mà không cần ai “giữ”.
    * Không huỷ khi không còn người giữ — dữ liệu nằm lại trong bộ đệm cho lần mở thật.
@@ -234,9 +234,12 @@ export function createCache(options: CacheOptions = {}): ResourceCache {
       return load(entry)
     },
 
-    fetch<T>(key: Key, fetcher: Fetcher<T>) {
+    fetch<T>(key: Key, fetcher: Fetcher<T>, opts?: { staleTime?: number }) {
       const entry = entryOf(key)
       entry.fetcher = fetcher as Fetcher<unknown>
+      if (opts?.staleTime !== undefined && !entry.stale && !entry.snap.error && entry.snap.data !== undefined && entry.snap.updatedAt !== null && now() - entry.snap.updatedAt < opts.staleTime) {
+        return Promise.resolve(entry.snap.data)
+      }
       return load(entry)
     },
 

@@ -3,7 +3,7 @@
 // Provider này KHÔNG biết phiên đăng nhập, mạng hay outbox — app bọc nó ở ngoài và
 // tự vẽ băng mất kết nối / sheet hết phiên. App nào cũng có thể gọi `useTabMode`,
 // `useMobileScroll`, `MobilePaneScope` mà không cần tự dựng lại state.
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useInsertionEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import { tabModeFor, useVisualViewportKeyboard } from './safeArea'
 import type { TabMode } from './safeArea'
@@ -63,7 +63,8 @@ export function MobileRuntimeProvider({ children, hidden = false }: { children: 
   const actions = useMemo(() => ({ setScroll, setMode }), [setScroll, setMode])
   const value = useMemo(() => ({ keyboard, tabMode, down: scroll.down, setScroll }), [keyboard, tabMode, scroll.down, setScroll])
 
-  useEffect(() => { document.documentElement.dataset.tabMode = tabMode }, [tabMode])
+  // CSS theo tab-mode phải sẵn trước layout effects đo vùng cuộn của màn con.
+  useInsertionEffect(() => { document.documentElement.dataset.tabMode = tabMode }, [tabMode])
   return <RuntimeActionsContext.Provider value={actions}><RuntimeContext.Provider value={value}>{children}</RuntimeContext.Provider></RuntimeActionsContext.Provider>
 }
 

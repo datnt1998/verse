@@ -6,7 +6,6 @@
   65% { opacity: 0; transform: translateY(34px) scale(.5); filter: blur(3px) }
   100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px) }
 }
-@keyframes ui-toast-collapse { to { max-height: 0; padding-top: 0 } }
 .ui-toast-close:hover .ui-toast-countdown { opacity: .25 !important; }
 
 /* Nhánh activity (Viderse): chuyển động riêng của artboard r35 — trồi 18px + scale

@@ -111,7 +111,14 @@ html[data-standalone]{ --m-edge: 40px }
 .kit-seg{max-width:100%;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain}
 .kit-seg::-webkit-scrollbar{display:none}
 @media (prefers-reduced-motion:no-preference){
-.kit-seg-thumb{transition:transform .3s cubic-bezier(.34,1.25,.5,1)}
+/* Viên trượt đo bằng JS: trượt VÀ co bề rộng cùng một nhịp 320 ms (04-components ›
+   Nhóm chọn; kit.css › .vv-seg.is-glide::before). Thiếu transition width thì mục
+   co theo nhãn đổi bề rộng là viên nhảy giật. */
+.kit-seg-thumb{transition:transform .32s cubic-bezier(.3,.7,.2,1),width .32s cubic-bezier(.3,.7,.2,1)}
+/* Nhãn đổi màu 150 ms, nhấn thu .97 (`.vv-seg > button:active`) — nhóm chọn kiểu
+   tablist (role=tab) không nằm trong luật [role=radio]:active bên dưới. */
+.kit-seg > button{transition:color .15s,background-color .15s,transform 80ms}
+.kit-seg > button:active:not(:disabled){transform:scale(.97)}
 .kit-switch-thumb{transition:transform .3s cubic-bezier(.34,1.45,.5,1),background-color .2s ease}
 [role=switch]:active:not(:disabled) .kit-switch-thumb{--kit-sx:1.22;transform-origin:left center}
 [role=switch][aria-checked=true]:active:not(:disabled) .kit-switch-thumb{transform-origin:right center}
@@ -124,7 +131,9 @@ html[data-standalone]{ --m-edge: 40px }
 [role=checkbox][aria-checked=true] .kit-cb-box svg path{stroke-dasharray:28;stroke-dashoffset:28;animation:mo-draw .26s .06s ease-out forwards}
 }
 @media (prefers-reduced-motion:reduce){
-[role=switch],[role=radio],[role=checkbox],[role=switch] *,[role=radio] *,[role=checkbox] *,.kit-rdot>span,.kit-switch-track,.kit-switch-thumb,.kit-seg-thumb{animation:none !important;transition:background-color .2s ease,border-color .2s ease,color .2s ease !important}
+[role=switch],[role=radio],[role=checkbox],[role=switch] *,[role=radio] *,[role=checkbox] *,.kit-rdot>span,.kit-switch-track,.kit-switch-thumb{animation:none !important;transition:background-color .2s ease,border-color .2s ease,color .2s ease !important}
+/* Nhóm chọn: giảm chuyển động thì viên về đúng mục ngay, không trượt (kit canonical). */
+.kit-seg-thumb,.kit-seg>button{animation:none !important;transition:none !important}
 }
 @keyframes mo-dot{from{transform:scale(0)}to{transform:scale(1)}}
 @keyframes mo-pop{0%{transform:scale(.82)}55%{transform:scale(1.08)}100%{transform:scale(1)}}
@@ -158,6 +167,10 @@ html[data-standalone]{ --m-edge: 40px }
   .kit-sel-trg, .kit-sel-chev { transition: none !important; }
 }
 /* @keyframes — tên cố định, stylex.create tham chiếu bằng chuỗi; không đổi tên (computed animation-name nằm trong snapshot). */
+/* AgentOrb .live tham chiếu tên này. Noverse khai báo trùng trong styles/tokens.css;
+   Viderse không nạp tokens.css của Noverse nên thiếu khai báo đó thì orb "đang chạy"
+   đứng yên. Cùng nhịp 2,8 s với 04-components › AgentOrb. */
+@keyframes ai-breathe { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.07) } }
 @keyframes kit-pop { from { opacity: 0; transform: translateY(-4px) scale(.97); } to { opacity: 1; transform: none; } }
 @keyframes kit-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes kit-fade-out { to { opacity: 0; } }
@@ -185,6 +198,10 @@ html[data-standalone]{ --m-edge: 40px }
 .m-overlay{position:fixed;inset:0;z-index:80;color:#EDEDEF;font-size:15px;line-height:1.5}
 .m-scrim{position:absolute;inset:0;background:rgba(4,4,6,.58);animation:m-fade .25s both}
 .m-sheet{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;max-height:var(--m-sheet-max-height,calc(100dvh - var(--m-top) - 12px));padding-bottom:max(26px,var(--m-safe-bottom));background:#18181A;border-radius:26px 26px 0 0;border-top:1px solid #ffffff1a;box-shadow:0 -24px 60px -10px #000c;animation:m-sheet-in .44s cubic-bezier(.2,.9,.25,1.03) both;outline:none}
+/* Vuốt tay cầm (Sheet.tsx): bám tay 1:1 while dragging, thả chưa đủ 30% thì lò xo về
+   chỗ cũ .26 s (cùng nhịp đóng); đang kéo thì không transition để không trễ tay. */
+.m-sheet.m-sheet--dragging{transition:none}
+@media (prefers-reduced-motion:no-preference){.m-sheet:not(.m-sheet--dragging){transition:transform .26s cubic-bezier(.2,.8,.2,1)}}
 .m-out .m-sheet{animation:m-sheet-out .26s cubic-bezier(.5,0,.75,0) both}
 .m-out .m-scrim{animation:m-fade .26s reverse both}
 .m-drag{height:19px;min-height:19px;display:flex;justify-content:center;padding-top:8px;touch-action:none;cursor:grab}

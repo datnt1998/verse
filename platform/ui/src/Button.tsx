@@ -45,6 +45,7 @@ const styles = stylex.create({
   },
   /* Nút chỉ có icon vẫn VUÔNG theo cỡ: 44 (lg) và 48 (xl) — vùng chạm điện thoại
      của artboard MKit/MExplore. Trước đây `icon` khoá 36×36 nên size bị bỏ qua. */
+  iconSm: { width: 30, borderRadius: 8 },
   iconLg: { width: 44, borderRadius: 12 },
   iconXl: { width: 48, borderRadius: 13 },
   sm: { height: 30, paddingInline: 10, fontSize: 12, borderRadius: 8 },
@@ -123,6 +124,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     size === 'sm' && styles.sm,
     size === 'lg' && styles.lg,
     size === 'xl' && styles.xl,
+    iconOnly && size === 'sm' && styles.iconSm,
     iconOnly && size === 'lg' && styles.iconLg,
     iconOnly && size === 'xl' && styles.iconXl,
     block && styles.block,

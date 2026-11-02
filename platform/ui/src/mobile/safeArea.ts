@@ -67,28 +67,151 @@ export function useToastBottom(px: number | null | undefined, priority = 0) {
   }, [px, priority])
 }
 
+export type VisualViewportMetrics = {
+  /** `window.innerHeight` — trên iOS là chiều cao layout viewport (không co theo bàn phím). */
+  innerHeight: number
+  /** `visualViewport.height` — phần thật sự nhìn thấy. */
+  height: number
+  /** `visualViewport.offsetTop` — đỉnh vùng nhìn thấy lệch khỏi đỉnh layout viewport. */
+  offsetTop: number
+  /** `visualViewport.scale` — > 1 khi người dùng chụm để thu phóng. */
+  scale: number
+  /** `document.activeElement` có phải ô nhập liệu có thể mở bàn phím ảo hay không. */
+  editing: boolean
+}
+
+export type VisualViewportLayout = {
+  /** Chiều cao bàn phím ảo (px), 0 khi đóng hoặc khi chỉ là thanh địa chỉ co giãn. */
+  keyboard: number
+  /**
+   * Đáy shell trong toạ độ layout viewport — mốc cao hơn giữa `innerHeight` và đáy
+   * vùng nhìn thấy (`offsetTop + height`), hoặc `null` khi không được dùng làm chiều
+   * cao khung (bàn phím mở / đang thu phóng).
+   */
+  bottom: number | null
+}
+
 /**
- * Bàn phím ảo: `delta = innerHeight - visualViewport.height - offsetTop`, chỉ tính khi
- * > 80px (ngưỡng để không nhầm với thanh địa chỉ co giãn của Safari). Ghi `--kb` lên
- * `<html>` để CSS (thanh dính đáy, sheet, toast) né bàn phím.
+ * Hình học khung nhìn thật — nguồn duy nhất cho chiều cao shell điện thoại.
+ *
+ * Chỉ coi là bàn phím khi đang focus một ô nhập liệu, chưa thu phóng và phần bị che
+ * > 80px. Safari co giãn thanh địa chỉ cũng làm lệch `innerHeight`/`visualViewport`
+ * nhưng đó không phải bàn phím: nếu phân loại bằng hình học thuần, nav bị ẩn oan khi
+ * người dùng chỉ cuộn trang. Khi không có bàn phím và không thu phóng, đáy shell là
+ * mốc cao hơn giữa layout viewport (`innerHeight`) và đáy vùng nhìn thấy
+ * (`offsetTop + height`). iOS 26 / Safari có thể để lại `offsetTop > 0` và
+ * `visualViewport.height` hụt so với `innerHeight` sau khi đóng bàn phím; các phần tử
+ * neo vào `100dvh`/`position: fixed` khi đó bị đẩy lên khỏi đáy cho tới cú cuộn kế
+ * tiếp. Neo shell/thanh tab vào mốc này khôi phục đáy thiết bị mà không cần cuộn.
+ * Số đo rỗng hoặc đang thu phóng thì không suy ra chiều cao khung từ đây (giữ
+ * `100dvh` và `--kb` như cũ).
+ */
+export function visualViewportLayout({ innerHeight, height, offsetTop, scale, editing }: VisualViewportMetrics): VisualViewportLayout {
+  const pan = Math.max(0, offsetTop)
+  const valid = height > 0 && innerHeight > 0
+  const zoomed = Math.abs((scale || 1) - 1) > .01
+  const occluded = innerHeight - height - pan
+  const keyboard = valid && editing && !zoomed && occluded > 80 ? Math.round(occluded) : 0
+  const usable = valid && !zoomed && keyboard === 0
+  return { keyboard, bottom: usable ? Math.round(Math.max(innerHeight, pan + height)) : null }
+}
+
+const TEXT_INPUT_TYPES = /^(text|search|email|url|tel|password|number|date|datetime-local|month|time|week)$/
+
+/**
+ * Chỉ các ô nhập chữ mới có thể mở bàn phím ảo. Xét cả shadow root để composer trong
+ * web component vẫn nhận đúng trạng thái.
+ */
+function isEditingElement(element: Element | null): boolean {
+  let node: Element | null = element
+  while (node) {
+    if (node instanceof HTMLElement) {
+      if (node.isContentEditable) return true
+      if (node instanceof HTMLTextAreaElement) return !node.readOnly && !node.disabled
+      if (node instanceof HTMLInputElement) return !node.readOnly && !node.disabled && TEXT_INPUT_TYPES.test(node.type)
+    }
+    node = node.shadowRoot?.activeElement ?? null
+  }
+  return false
+}
+
+/**
+ * Bàn phím ảo + đáy khung nhìn thật. Ghi `--kb` và `--m-viewport-bottom` lên `<html>`:
+ * - `--kb` cho CSS (chân trang, sheet, toast) né bàn phím;
+ * - `--m-viewport-bottom` là mốc đáy shell; CSS dùng
+ *   `max(100dvh, var(--m-viewport-bottom, 0px))`, sửa đúng trạng thái lệch còn lại sau
+ *   khi Safari đóng bàn phím hoặc co giãn thanh địa chỉ.
+ *
+ * Nghe thêm `window.resize`, `orientationchange`, `pageshow`, `focusin/focusout` và
+ * `visibilitychange`: iOS không phải lúc nào cũng phát `visualViewport` event ở nhịp
+ * cuối của transition. `focusin/focusout` cũng là nguồn phân loại bàn phím: chỉ ô
+ * nhập đang focus mới coi là bàn phím, còn thanh địa chỉ co giãn thì không. Sau
+ * `focusout` chỉ đo lại một lần (hẹn giờ, không polling) vì Safari hoàn tất animation
+ * đóng bàn phím sau sự kiện.
  */
 export function useVisualViewportKeyboard(): number {
   const [keyboard, setKeyboard] = useState(0)
   useEffect(() => {
+    const root = document.documentElement
     const viewport = window.visualViewport
+    let frame = 0
+    let settle = 0
+
     const measure = () => {
-      const delta = viewport ? window.innerHeight - viewport.height - viewport.offsetTop : 0
-      const px = delta > 80 ? Math.round(delta) : 0
-      document.documentElement.style.setProperty('--kb', `${px}px`)
-      setKeyboard(px)
+      frame = 0
+      if (!viewport) {
+        root.style.setProperty('--kb', '0px')
+        root.style.removeProperty('--m-viewport-bottom')
+        setKeyboard(0)
+        return
+      }
+      const layout = visualViewportLayout({
+        innerHeight: window.innerHeight,
+        height: viewport.height,
+        offsetTop: viewport.offsetTop,
+        scale: viewport.scale,
+        editing: isEditingElement(document.activeElement),
+      })
+      root.style.setProperty('--kb', `${layout.keyboard}px`)
+      if (layout.bottom === null) root.style.removeProperty('--m-viewport-bottom')
+      else root.style.setProperty('--m-viewport-bottom', `${layout.bottom}px`)
+      setKeyboard(layout.keyboard)
     }
+    const schedule = () => {
+      if (frame) return
+      if (typeof window.requestAnimationFrame === 'function') frame = window.requestAnimationFrame(measure)
+      else measure()
+    }
+    /** Một nhịp đo lại sau khi mất focus; event cuối của Safari có thể tới trước animation. */
+    const resettle = () => {
+      schedule()
+      window.clearTimeout(settle)
+      settle = window.setTimeout(measure, 350)
+    }
+    const onVisibility = () => { if (document.visibilityState === 'visible') measure() }
+
     measure()
-    viewport?.addEventListener('resize', measure)
-    viewport?.addEventListener('scroll', measure)
+    viewport?.addEventListener('resize', schedule)
+    viewport?.addEventListener('scroll', schedule)
+    window.addEventListener('resize', schedule)
+    window.addEventListener('orientationchange', schedule)
+    window.addEventListener('pageshow', measure)
+    document.addEventListener('focusin', schedule)
+    document.addEventListener('focusout', resettle)
+    document.addEventListener('visibilitychange', onVisibility)
     return () => {
-      viewport?.removeEventListener('resize', measure)
-      viewport?.removeEventListener('scroll', measure)
-      document.documentElement.style.removeProperty('--kb')
+      if (frame && typeof window.cancelAnimationFrame === 'function') window.cancelAnimationFrame(frame)
+      window.clearTimeout(settle)
+      viewport?.removeEventListener('resize', schedule)
+      viewport?.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      window.removeEventListener('orientationchange', schedule)
+      window.removeEventListener('pageshow', measure)
+      document.removeEventListener('focusin', schedule)
+      document.removeEventListener('focusout', resettle)
+      document.removeEventListener('visibilitychange', onVisibility)
+      root.style.removeProperty('--kb')
+      root.style.removeProperty('--m-viewport-bottom')
     }
   }, [])
   return keyboard

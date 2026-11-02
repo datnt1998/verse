@@ -12,11 +12,7 @@ const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
 
 const sx = stylex.create({
   wrap: { maxWidth: '100%', maxHeight: 240, paddingTop: 8, pointerEvents: 'auto' },
-  wrapLeaving: {
-    overflow: 'hidden',
-    animationName: { default: 'ui-toast-collapse', [NO_MOTION]: 'none' },
-    animationDuration: '.32s', animationTimingFunction: 'cubic-bezier(.4,0,.2,1)', animationDelay: '.2s', animationFillMode: 'both',
-  },
+
   in: {
     animationName: { default: 'ui-toast-in', [NO_MOTION]: 'none' },
     animationDuration: '.4s', animationTimingFunction: 'cubic-bezier(.2,.9,.25,1.12)', animationFillMode: 'both',
@@ -75,6 +71,34 @@ const sx = stylex.create({
     width: 'min(640px, calc(100% - 28px))', pointerEvents: 'none',
   }),
 })
+
+/** Thu khung toast khi rời đi: đo chiều cao THẬT rồi mới về 0, để thẻ phía trên trượt
+ *  xuống liền — animate `max-height` từ 240 (trần của chồng) thì hộp chỉ bắt đầu co ở
+ *  ~70% thời gian và thẻ phía trên nhảy một nhịp. `prefers-reduced-motion`: thu ngay. */
+function useCollapseOnLeave(leaving: boolean) {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !leaving) return
+    el.style.maxHeight = `${el.getBoundingClientRect().height}px`
+    el.style.overflow = 'hidden'
+    if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.style.maxHeight = '0px'
+      el.style.paddingTop = '0px'
+      return
+    }
+    const collapse = () => {
+      el.style.transition = 'max-height .3s cubic-bezier(.4,0,.2,1) .2s, padding-top .3s cubic-bezier(.4,0,.2,1) .2s'
+      void el.offsetHeight
+      el.style.maxHeight = '0px'
+      el.style.paddingTop = '0px'
+    }
+    if (typeof requestAnimationFrame !== 'function') { collapse(); return }
+    const frame = requestAnimationFrame(collapse)
+    return () => cancelAnimationFrame(frame)
+  }, [leaving])
+  return ref
+}
 
 export type ToastAgent = 'scout' | 'director' | 'artist' | 'qa'
 export type ToastItem = { id: number; key?: string; tone: Tone; text: string; /** nội dung dạng thẻ (toast.card) — mặc định không hết hạn */ card?: { title: string; text?: string; meta?: string; secondaryAction?: { label: string; onClick: () => void | Promise<void> }; agent?: ToastAgent }; action?: { label: string; onClick: () => void | Promise<void> }; expiresAt: number; duration: number; undo?: boolean; leaving: boolean; /** đang dừng đếm ngược (rê chuột vào chồng toast) — `remaining` là thời gian còn lại */ paused?: boolean; remaining?: number }
@@ -145,13 +169,17 @@ const CIRCUMFERENCE = 2 * Math.PI * 12
 function Notification({ item, front, held }: { item: ToastItem; front: boolean; held: boolean }) {
   const [now, setNow] = useState(Date.now)
   const [busy, setBusy] = useState(false)
+  // Thẻ ở lại tới khi đóng (duration = ∞) hoặc đang bị rê chuột: không cần nhịp 120 ms.
+  const finite = Number.isFinite(item.duration)
   useEffect(() => {
+    if (!finite || item.paused) return
     const timer = setInterval(() => setNow(Date.now()), 120)
     return () => clearInterval(timer)
-  }, [item.expiresAt])
+  }, [finite, item.paused, item.expiresAt])
   const c = TONE[item.tone]
   const left = item.paused ? item.remaining ?? item.duration : Math.max(0, item.expiresAt - now)
-  const wrap = stylex.props(sx.wrap, item.leaving && sx.wrapLeaving)
+  const collapse = useCollapseOnLeave(item.leaving)
+  const wrap = stylex.props(sx.wrap)
   const box = item.card
     ? stylex.props(sx.toastCard, sx.toastTone(item.tone === 'neutral' ? line['--line-4'] : c.bd))
     : stylex.props(sx.toast, item.tone === 'ok' ? sx.toastOk : item.tone === 'neutral' ? sx.toastNeutral : sx.toastTone(c.bd))
@@ -159,7 +187,7 @@ function Notification({ item, front, held }: { item: ToastItem; front: boolean; 
   const ring = stylex.props(sx.countdown)
   const anim = stylex.props(item.leaving ? sx.out : sx.in)
   const urgent = item.tone === 'err' || !!item.card
-  return <div className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} onMouseEnter={() => holdToasts(true)} onMouseLeave={() => holdToasts(false)}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
+  return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} onMouseEnter={() => holdToasts(true)} onMouseLeave={() => holdToasts(false)}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
     {item.card ? <>
       <span {...stylex.props(sx.cardHead)}>{TONE_ICON[item.tone] && <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />}<span {...stylex.props(sx.cardTitle)}>{item.card.title}</span>
         <button type="button" className={`hov-ghost ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} disabled={item.leaving} onClick={() => dismissToast(item.id)}>
@@ -289,14 +317,18 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   const [now, setNow] = useState(Date.now)
   const [busy, setBusy] = useState(false)
   const touchY = useRef<number | null>(null)
+  // Thẻ việc nền (duration = ∞) ở lại tới khi bị đóng — không có vòng đếm ngược
+  // và không có gì để vẽ lại, nên đừng giữ một interval 120 ms chạy mãi.
+  // Đang rê chuột (paused) thì số còn lại đứng yên, cũng không cần nhịp.
+  const finite = Number.isFinite(item.duration)
   useEffect(() => {
+    if (!finite || item.paused) return
     const timer = setInterval(() => setNow(Date.now()), 120)
     return () => clearInterval(timer)
-  }, [item.expiresAt])
+  }, [finite, item.paused, item.expiresAt])
   const agent = item.card?.agent
   const tint = agent ? ACT_AGENT[agent].tint : ACT_TINT[item.tone].tint
   const fg = agent ? ACT_AGENT[agent].fg : ACT_TINT[item.tone].fg
-  const finite = Number.isFinite(item.duration)
   const left = item.paused ? item.remaining ?? item.duration : Math.max(0, item.expiresAt - now)
   const labels = getKitLabels().toast
   const closeTitle = !finite ? labels.staysUntilDismissed : item.paused ? labels.pausedAutoDismiss : labels.autoDismissAfter(Math.ceil(left / 1000))
@@ -304,7 +336,8 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
     setBusy(true)
     void Promise.resolve().then(() => fn()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : labels.actionFailed) })
   }
-  const wrap = stylex.props(sx.wrap, item.leaving && sx.wrapLeaving)
+  const collapse = useCollapseOnLeave(item.leaving)
+  const wrap = stylex.props(sx.wrap)
   const anim = stylex.props(item.leaving ? ax.actOut : ax.actIn)
   const ring = stylex.props(sx.countdown)
   const ringSvg = finite && <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" {...stylex.props(sx.ring)}><circle cx="14" cy="14" r="12" fill="none" stroke="var(--vv-toast-ring, var(--line-2))" strokeWidth="1.6" /><circle className={`ui-toast-countdown ${ring.className}`} cx="14" cy="14" r="12" fill="none" stroke={fg} strokeWidth="1.6" strokeLinecap="round" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, left / item.duration)))} style={{ opacity: item.paused ? 0.3 : 1 }} /></svg>
@@ -327,7 +360,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   if (!item.card) {
     // Viên kết quả thao tác: icon · câu một dòng · tối đa một nút · đóng có vòng.
     const pill = stylex.props(ax.pill, ax.pillTone(item.tone === 'ok' ? 'var(--vv-st-ready-28, var(--kit-ok-30))' : item.tone === 'warn' ? 'var(--vv-st-review-border, var(--kit-warn-30))' : item.tone === 'err' ? 'var(--vv-danger-border, var(--kit-errf-30))' : 'var(--vv-toast-border, var(--kit-wash-12))'))
-    return <div className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style}>
+    return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style}>
       <div className={['ui-toast-pill', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
         <div className={['ui-toast-glass', pill.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={pill.style}>
           {ACT_PILL_ICON[item.tone] && <Icon name={ACT_PILL_ICON[item.tone]!} size={16} style={{ color: fg, flexShrink: 0 }} />}
@@ -345,7 +378,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   const card = stylex.props(ax.tcard, sx.card, item.tone === 'err' && ax.tcardErr, !front && (item.paused ? sx.backHeld : sx.back))
   const primaryStyle = stylex.props(sx.action, ax.primary)
   const ghostStyle = stylex.props(sx.action)
-  return <div className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...swipe}>
+  return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...swipe}>
     <div className={['ui-toast-card', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
       <div className={['ui-toast-glass', card.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, '--vv-tcard-tint': tint } as CSSProperties}>
         <span {...stylex.props(ax.tcardTint)} aria-hidden="true" />

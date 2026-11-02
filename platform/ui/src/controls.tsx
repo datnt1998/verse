@@ -143,7 +143,7 @@ export type CheckboxProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onCha
   variant?: 'box' | 'chip'
   /** 'accent' = ô tím ✓ đậm (mặc định) · 'mono' = ô sáng #EDEDEF ✓ đậm (NewProject, Auth, Account). */
   tone?: 'accent' | 'mono'
-  size?: 16 | 18
+  size?: 16 | 18 | 22
   showMark?: boolean
   xstyle?: stylex.StyleXStyles
 }
@@ -169,7 +169,7 @@ export function Checkbox({ checked, onChange, label, disabled, indeterminate, va
       onClick={(event) => { onClick?.(event); if (!event.defaultPrevented) onChange(mixed || !checked) }} style={{ ...button.style, ...style }}>
       {/* kit-cb-box nảy khi chọn; ✓ vẽ bằng stroke-dashoffset, mờ đi khi bỏ chọn (giữ trong DOM). */}
       <span aria-hidden="true" className="kit-cb-box" style={{
-        width: size, height: size, borderRadius: 5, flex: '0 0 auto', boxSizing: 'border-box',
+        width: size, height: size, borderRadius: size === 22 ? 6 : 5, flex: '0 0 auto', boxSizing: 'border-box',
         position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         background: selected ? boxOn : 'transparent',
         border: `1.5px solid ${selected ? boxOn : 'var(--kit-wash-28)'}`,

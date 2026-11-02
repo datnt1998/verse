@@ -40,6 +40,11 @@ export type SheetProps = {
 export function Sheet({ open, onClose, title, label, children, height = 640, style, xstyle, bodyStyle, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator }: SheetProps) {
   const [mounted, setMounted] = useState(open)
   const [distance, setDistance] = useState(0)
+  // Đang kéo tay cầm: tắt transition để sheet bám tay 1:1; thả ra thì lò xo về
+  // (kit.css › .m-sheet). `dragged` giữ animation vào đã tắt sau khi thả — nếu bật
+  // lại, `.m-sheet-in` chạy lại từ translateY(100%) và sheet trượt lên lần nữa.
+  const [dragging, setDragging] = useState(false)
+  const dragged = useRef(false)
   const ref = useRef<HTMLElement>(null)
   const start = useRef<number | null>(null)
   const titleId = useId()
@@ -47,7 +52,14 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
   closeRef.current = onClose
   const t = getKitLabels()
   useEffect(() => {
-    if (open) { setMounted(true); setDistance(0); return }
+    if (open) { setMounted(true); setDistance(0); dragged.current = false; setDragging(false); return }
+    // Mở lại trong 260 ms: lần render kế đọc `dragged` = false nên `.m-sheet-in` chạy
+    // lại như lần đầu, không kẹt ở `animation:none` của lần kéo trước.
+    dragged.current = false
+    start.current = null
+    // Giảm chuyển động: không có hoạt cảnh đóng, gỡ ngay (nếu chờ 260 ms thì tấm
+    // đứng nguyên/đứng ở chỗ đang kéo dở rồi biến mất).
+    if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) { setMounted(false); return }
     const timer = setTimeout(() => setMounted(false), 260)
     return () => clearTimeout(timer)
   }, [open])
@@ -79,18 +91,23 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
   if (!mounted) return null
   return createPortal(<div className={`m-overlay${!open ? ' m-out' : ''}`}>
     <div className="m-scrim" onClick={onClose} />
-    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''} ${stylex.props(xstyle).className ?? ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
-      style={{ ...stylex.props(xstyle).style, height, ...(distance ? { transform: `translateY(${distance}px)`, animation: open ? 'none' : undefined } : {}), ...style }}>
+    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''}${dragging ? ' m-sheet--dragging' : ''} ${stylex.props(xstyle).className ?? ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
+      style={{ ...stylex.props(xstyle).style, height, ...(distance ? { transform: `translateY(${distance}px)` } : {}), ...(open && dragged.current ? { animation: 'none' } : {}), ...style }}>
       {grab && <div className="m-drag" aria-label={t.sheet.grabHandle}
-        onPointerDown={(event) => { start.current = event.clientY; event.currentTarget.setPointerCapture(event.pointerId) }}
+        onPointerDown={(event) => { start.current = event.clientY; dragged.current = true; setDragging(true); event.currentTarget.setPointerCapture(event.pointerId) }}
         onPointerMove={(event) => { if (start.current !== null) setDistance(Math.max(0, event.clientY - start.current)) }}
         onPointerUp={(event) => {
           const dy = start.current === null ? 0 : Math.max(0, event.clientY - start.current)
           start.current = null
+          setDragging(false)
           if (sheetCloseThreshold(dy, ref.current?.getBoundingClientRect().height ?? 0)) onClose()
           else setDistance(0)
         }}
-        onPointerCancel={() => { start.current = null; setDistance(0) }}><span /></div>}
+        onPointerCancel={() => { start.current = null; setDragging(false); setDistance(0) }}
+        /* Mất capture (hệ điều hành huỷ chạm, phần tử bị gỡ) mà chưa pointerup/cancel:
+           kết thúc cử chỉ như cancel để `--dragging` không kẹt. pointerup đã tự nhả
+           capture nên lúc đó `start.current` = null, luật này không chạy. */
+        onLostPointerCapture={() => { if (start.current === null) return; start.current = null; setDragging(false); setDistance(0) }}><span /></div>}
       {title && <div className="m-sheet-title"><h2 id={titleId}>{title}</h2>{subtitle != null && <span className="m-sheet-sub">{subtitle}</span>}</div>}
       <div className={`m-sheet-body ${stylex.props(bodyStyle).className ?? ''}`} style={stylex.props(bodyStyle).style}>{children}</div>
       {homeIndicator && <div className="m-sheet-home" aria-hidden="true"><span /></div>}

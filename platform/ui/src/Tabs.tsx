@@ -1,8 +1,8 @@
 // Tabs (tablist) + Segmented (radiogroup) — nền surface-1, mục chọn surface-6.
-// Segmented: khối nền trượt .kit-seg-thumb (kit.css › motion:controls) trượt 300ms
-// cubic-bezier(.34,1.25,.5,1) giữa các nút; vị trí đo từ bố cục nút nên
-// cả nhóm bằng nhau lẫn pill bề rộng tự do đều trượt đúng.
-import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+// Segmented: khối nền trượt .kit-seg-thumb (kit.css › motion:controls) trượt 320ms
+// cubic-bezier(.3,.7,.2,1) — cả vị trí lẫn bề rộng (04-components › Nhóm chọn);
+// vị trí đo từ bố cục nút nên cả nhóm chia đều lẫn pill bề rộng tự do đều trượt đúng.
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from './tokens.stylex'
 import './kit.css'
@@ -161,6 +161,15 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
   const tabStop = options.find(option => option.id === value && !option.disabled)?.id ?? options.find(option => !option.disabled)?.id
   const groupRef = useRef<HTMLDivElement>(null)
   const [thumb, setThumb] = useState<SegRect | null>(null)
+  // Lần đo ĐẦU đặt viên vào đúng mục rồi mới bật transition, nếu không viên "mọc"
+  // từ bề rộng 0 trong 320 ms ngay khi mở màn.
+  const [anim, setAnim] = useState(false)
+  useEffect(() => {
+    if (!thumb) return
+    const frame = typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => setAnim(true)) : null
+    if (frame === null) { setAnim(true); return }
+    return () => cancelAnimationFrame(frame)
+  }, [thumb])
   useLayoutEffect(() => {
     const group = groupRef.current
     if (!group) return
@@ -219,6 +228,7 @@ export function Segmented({ options, value, onChange, label, style, xstyle, butt
         width: thumb?.w ?? 0, height: thumb?.h ?? 0, borderRadius: btnR, visibility: thumb ? 'visible' : 'hidden',
         background: simple ? 'var(--color-surface-7)' : 'var(--color-surface-6)',
         boxShadow: 'var(--kit-shadow-segment)',
+        transition: anim ? undefined : 'none',
         ...thumbStyle,
         transform: `translate(${thumb?.x ?? 0}px, ${thumb?.y ?? 0}px)`,
       }} />

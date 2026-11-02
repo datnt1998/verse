@@ -34,7 +34,7 @@ const sx = stylex.create({
   context: { display: 'flex', alignItems: 'center', gap: 10 },
 })
 
-export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; disabled?: boolean; /** khoá nhưng vẫn focus được (aria-disabled): lý do thay dòng phụ và là aria-describedby; bấm không làm gì */ lockedReason?: string; selected?: boolean; children?: ActionMenuItem[]; href?: string; target?: AnchorHTMLAttributes<HTMLAnchorElement>['target']; rel?: string; onSelect?: () => void }
+export type ActionMenuItem = { id: string; label: string; icon?: ReactNode; kbd?: ReactNode; /** số/ghi chú nhỏ bên phải (vd “24 ch”) */ meta?: ReactNode; description?: string; tooltip?: string; danger?: boolean; separatorBefore?: boolean; disabled?: boolean; /** khoá nhưng vẫn focus được (aria-disabled): lý do thay dòng phụ và là aria-describedby; bấm không làm gì */ lockedReason?: string; selected?: boolean; children?: ActionMenuItem[]; href?: string; target?: AnchorHTMLAttributes<HTMLAnchorElement>['target']; rel?: string; onSelect?: () => void }
 export type MenuPoint = { x: number; y: number }
 /** Icon của mục menu: 16 px (15 px ở mục chọn một), màu fg-3 — mục nguy hiểm --kit-err-bright. */
 function itemIcon(item: ActionMenuItem) {
@@ -76,7 +76,7 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
       ? <a role="menuitem" href={item.href} target={item.target} rel={item.rel} className={className} style={opt.style} onClick={() => { item.onSelect?.(); close() }}>{content}</a>
       : <button type="button" role={item.selected !== undefined ? 'menuitemradio' : 'menuitem'} aria-checked={item.selected} aria-haspopup={item.children ? 'menu' : undefined} aria-expanded={item.children ? submenu === item.id : undefined} disabled={item.disabled} aria-disabled={ids ? true : undefined} aria-labelledby={ids?.label} aria-describedby={ids?.note} className={className} onClick={() => { if (ids) return; if (item.children) setSubmenu(item.id); else { item.onSelect?.(); close() } }} style={opt.style}>{content}</button>
     return <div key={item.id} data-menu-row {...stylex.props(sx.row)} onPointerEnter={() => setSubmenu(item.children ? item.id : null)}>
-      {item.danger && !items[index - 1]?.danger && <div role="separator" className="kit-separator" />}
+      {(item.separatorBefore || item.danger && !items[index - 1]?.danger) && <div role="separator" className="kit-separator" />}
       {item.tooltip ? <Tooltip content={item.tooltip} block>{button}</Tooltip> : button}
       {item.children && submenu === item.id && <div className="kit-pop kit-fly" data-flip={flip}><MenuList items={item.children} close={close} nested onBack={() => { setSubmenu(null); list.current?.children[index]?.querySelector<HTMLElement>('button, a[href]')?.focus() }} /></div>}
     </div>
@@ -87,7 +87,7 @@ function MenuList({ items, close, nested = false, onBack, initialSubmenu = null 
  * Menu thao tác ⋯. Đặt `data-menu-anchor` lên dòng chứa nút để menu mở ngay dưới dòng (4 px) như artboard;
  * không có thì mở dưới nút (6 px). `defaultOpen`/`defaultSubmenu` cho gallery mở sẵn; `onOpen` báo khi người dùng mở.
  */
-export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, triggerStyle, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null, width = 264 }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; triggerStyle?: stylex.StyleXStyles; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null; /** bề rộng popover (mặc định 264); menu có dòng phụ dài dùng rộng hơn. */ width?: number }) {
+export function ActionMenu({ items, label = getKitLabels().menus.actions, trigger, triggerStyle, point, onClose, onOpen, alwaysVisible = false, defaultOpen = false, defaultSubmenu = null, width = 264, align = 'end' }: { items: ActionMenuItem[]; label?: string; trigger?: ReactNode; triggerStyle?: stylex.StyleXStyles; point?: MenuPoint | null; onClose?: () => void; onOpen?: () => void; alwaysVisible?: boolean; defaultOpen?: boolean; defaultSubmenu?: string | null; /** bề rộng popover (mặc định 264); menu có dòng phụ dài dùng rộng hơn. */ width?: number; align?: 'start' | 'end' }) {
   const [open, setOpen] = useState(defaultOpen)
   const [position, setPosition] = useState<MenuPoint>({ x: 0, y: 0 })
   const button = useRef<HTMLButtonElement>(null)
@@ -102,11 +102,11 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
     const place = () => {
       const rect = button.current?.getBoundingClientRect()
       const row = button.current?.closest<HTMLElement>('[data-menu-anchor]')?.getBoundingClientRect()
-      const origin = point ?? { x: (rect?.right ?? 0) + 4, y: row ? row.bottom + 4 : (rect?.bottom ?? 0) + 6 }
+      const origin = point ?? { x: align === 'start' ? (rect?.left ?? 0) : (rect?.right ?? 0) + 4, y: row ? row.bottom + 4 : (rect?.bottom ?? 0) + 6 }
       // offsetWidth/Height (không bị scale của animation mở menu làm lệch).
       const w = menu.current?.offsetWidth ?? width
       const height = menu.current?.offsetHeight ?? 250
-      setPosition({ x: Math.max(8, Math.min(point ? origin.x : origin.x - w, window.innerWidth - w - 8)), y: Math.max(8, Math.min(origin.y, window.innerHeight - height - 8)) })
+      setPosition({ x: Math.max(8, Math.min(point || align === 'start' ? origin.x : origin.x - w, window.innerWidth - w - 8)), y: Math.max(8, Math.min(origin.y, window.innerHeight - height - 8)) })
     }
     place()
     // Bố cục có thể còn dịch sau lần vẽ đầu (font, thanh cuộn) — đo lại một lần nữa ở khung hình kế.
@@ -115,7 +115,7 @@ export function ActionMenu({ items, label = getKitLabels().menus.actions, trigge
     if (keyboard.current) menu.current?.querySelector<HTMLElement>('button:not(:disabled), a[href]')?.focus()
     else menu.current?.querySelector<HTMLElement>('[role=menu]')?.focus({ preventScroll: true })
     return () => cancelAnimationFrame(frame)
-  }, [isOpen, point, width])
+  }, [isOpen, point, width, align])
   useEffect(() => {
     if (!point) return
     const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node)) close() }

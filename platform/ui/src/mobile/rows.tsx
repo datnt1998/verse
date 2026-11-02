@@ -1,7 +1,7 @@
 // Hàng và chỉ báo của điện thoại theo artboard Viderse MKit: ListRow (`.vv-row--m`),
 // VideoRow, StatusPill (`.vv-status`), MeterBar (`.vv-progress`), InitialsAvatar
 // (`.vv-avatar`), Stepper (`.vv-stepper--m`).
-import type { CSSProperties, MouseEventHandler, ReactNode } from 'react'
+import type { AriaAttributes, CSSProperties, MouseEventHandler, ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, kit, line, radius } from '../tokens.stylex'
 import { Icon } from '../Icon'
@@ -34,6 +34,7 @@ const styles = stylex.create({
     ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: line['--line-focus'], outlineOffset: -2 },
   },
   rowStatic: { cursor: 'default', ':hover': { backgroundColor: 'transparent' } },
+  rowDisabled: { opacity: .42, cursor: 'not-allowed', ':hover': { backgroundColor: 'transparent' } },
   rowActive: { backgroundColor: kit['--kit-wash-4'], boxShadow: `inset 0 0 0 1px ${line['--line-3']}` },
   rowDivider: { borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'], borderRadius: 0 },
   rowIcon: { flex: '0 0 auto', display: 'inline-flex', color: kit['--kit-fg-sub'] },
@@ -156,7 +157,7 @@ const styles = stylex.create({
   },
 })
 
-export type ListRowProps = {
+export type ListRowProps = Pick<AriaAttributes, 'aria-label' | 'aria-haspopup'> & {
   icon?: IconName
   title: ReactNode
   hint?: ReactNode
@@ -164,6 +165,7 @@ export type ListRowProps = {
   value?: ReactNode
   chevron?: boolean
   onClick?: MouseEventHandler<HTMLElement>
+  disabled?: boolean
   href?: string
   /** hàng nguy hiểm: chữ cam */
   destructive?: boolean
@@ -177,8 +179,10 @@ export type ListRowProps = {
   children?: ReactNode
 }
 
+const preventRowAction: MouseEventHandler<HTMLElement> = (event) => event.preventDefault()
+
 export function ListRow({
-  icon, title, hint, value, chevron, onClick, href, destructive, active, divider, trailing, xstyle, children,
+  icon, title, hint, value, chevron, onClick, href, disabled, destructive, active, divider, trailing, xstyle, children, 'aria-label': ariaLabel, 'aria-haspopup': ariaHasPopup,
 }: ListRowProps) {
   const interactive = Boolean(onClick || href)
   const sx = stylex.props(
@@ -188,6 +192,7 @@ export function ListRow({
     divider && styles.rowDivider,
     destructive && styles.danger,
     xstyle,
+    disabled && styles.rowDisabled,
   )
   const body = (
     <>
@@ -202,8 +207,8 @@ export function ListRow({
       {chevron && <span {...stylex.props(styles.rowChevron)} aria-hidden="true"><Icon name="arrow-r" size={15} /></span>}
     </>
   )
-  if (href) return <a href={href} className={`m-row ${sx.className ?? ''}`} style={sx.style} onClick={onClick}>{body}</a>
-  if (onClick) return <button type="button" className={`m-row ${sx.className ?? ''}`} style={sx.style} onClick={onClick}>{body}</button>
+  if (href) return <a href={disabled ? undefined : href} role={disabled ? 'link' : undefined} className={`m-row ${sx.className ?? ''}`} style={sx.style} aria-label={ariaLabel} aria-haspopup={ariaHasPopup} aria-disabled={disabled || undefined} tabIndex={disabled ? -1 : undefined} onClick={disabled ? preventRowAction : onClick}>{body}</a>
+  if (onClick) return <button type="button" disabled={disabled} className={`m-row ${sx.className ?? ''}`} style={sx.style} aria-label={ariaLabel} aria-haspopup={ariaHasPopup} onClick={onClick}>{body}</button>
   return <div className={`m-row ${sx.className ?? ''}`} style={sx.style}>{body}</div>
 }
 

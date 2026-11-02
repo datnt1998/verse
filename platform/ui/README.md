@@ -237,6 +237,9 @@ Notable behaviours:
   the first enabled choice remains keyboard-reachable and arrows move from focus.
 - `Switch`, `Checkbox`, `Radio`, `RadioCard` — motion:controls v1 (no replay
   on re-render), roving arrow keys with `radioGroupKeys`.
+  `Checkbox.size` is `16 | 18 | 22` (default `18`); the mobile 22 px box uses
+  a 6 px radius. This changes the drawn mark only — size the row/button hit
+  area separately.
 - `ToastHost` + `toast()` — imperative toast API; mount one host per app.
 - `ActionMenu` / `ContextMenu` — popover width 264 by default, override with
   `width` (272 for menus whose descriptions run long); rows show
@@ -247,10 +250,19 @@ Notable behaviours:
   Navigation items accept `href`, optional `target` and `rel`, and render as
   native links inside the same menu. Links participate in arrow/Home/End
   navigation alongside commands; disabled or locked destinations cannot navigate.
+  Trigger alignment defaults to `end`; `align="start"` anchors a channel/account menu to the trigger's start while still clamping it inside the viewport. `separatorBefore` starts a logical item group without duplicating the danger separator.
 - `Dialog`, `Tooltip`, `InfoPopover` share the escape-layer stack
   (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
   `Dialog` restores the exact connected opener on close, including nested
   dialogs; rerendering its callback does not move focus or rebuild the stack.
+- Mobile `ListRow` (`@noverse/ui`) — use the row's title/hint/trailing
+  slots rather than a centred `Button` for full-width navigation. `disabled`
+  blocks native activation; disabled links omit `href` and leave the tab order.
+  `aria-label` and `aria-haspopup` describe row actions without replacing native
+  link/button semantics.
+- Mobile viewport ownership and bottom-nav recovery:
+  [shell invariant](../../apps/noverse/web/src/mobile/README.md). Keep the dock
+  inside the clipped layout frame; do not restore a viewport-fixed variant.
 
 ## Icons
 
@@ -277,6 +289,10 @@ that want the raw assets.
   used by ConfirmDialog and host confirm flows.
 - `useScrollTop` — scroll position for `ScrollTopButton`.
 - `MOTION` — shared easing/duration presets (`motion.ts`).
+
+## Shared data cache
+
+`@noverse/ui/data` exports the cache and SSE primitives; apps own endpoint keys, data types and event-to-key mappings. Imperative `cache.fetch(key, fetcher, { staleTime })` shares in-flight work and reuses a fresh successful result; invalidation/error always wins over the TTL. Omit `staleTime` to explicitly fetch. This lets a prefetch complete while a retained pane is hidden without discarding it or fetching it again on return.
 
 ## Consuming from another project
 

@@ -68,3 +68,22 @@ it('AbortError bên trong fetcher không giữ yêu cầu đang bay mãi', async
   expect(fetcher).toHaveBeenCalledTimes(2)
   expect(cache.get(['aborted']).data).toBe('đã tải lại')
 })
+
+it('imperative reuse respects invalidation and freshness at the boundary', async () => {
+  let now = 0
+  let revision = 1
+  const cache = createCache({ now: () => now })
+  const fetcher = async () => ({ revision })
+  await cache.fetch(['image', 'a'], fetcher, { staleTime: 100 })
+  revision = 2
+  now = 99
+  await cache.fetch(['image', 'a'], fetcher, { staleTime: 100 })
+  expect(cache.get<{ revision: number }>(['image', 'a']).data?.revision).toBe(1)
+  await cache.invalidate(['image', 'a'])
+  await cache.fetch(['image', 'a'], fetcher, { staleTime: 100 })
+  expect(cache.get<{ revision: number }>(['image', 'a']).data?.revision).toBe(2)
+  revision = 3
+  now = 199
+  await cache.fetch(['image', 'a'], fetcher, { staleTime: 100 })
+  expect(cache.get<{ revision: number }>(['image', 'a']).data?.revision).toBe(3)
+})

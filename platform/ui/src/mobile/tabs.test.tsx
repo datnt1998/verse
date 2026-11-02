@@ -5,7 +5,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MobileTabBar, type MobileTabItem } from './tabs'
 import { MobileRuntimeProvider, useMobileRuntime, useTabMode, MobilePaneScope } from './runtime'
-import { useToastBottom, useVisualViewportKeyboard } from './safeArea'
+import { useToastBottom } from './safeArea'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 let host: HTMLDivElement
@@ -81,39 +81,56 @@ describe('MobileRuntimeProvider', () => {
   function Probe({ mode }: { mode?: 'default' | 'mini' | 'hide' }) {
     useTabMode(mode)
     const runtime = useMobileRuntime()
-    return <output data-mode={runtime.tabMode}>{runtime.tabMode}</output>
+    return <MobileTabBar items={items} mode={runtime.tabMode} />
   }
 
   it('màn xin hide thì cả provider ẩn thanh tab, gỡ ra thì trả lại', () => {
     act(() => root.render(<MobileRuntimeProvider><Probe mode="hide" /></MobileRuntimeProvider>))
-    expect(host.querySelector('output')?.getAttribute('data-mode')).toBe('hide')
+    expect(host.querySelector('nav')?.getAttribute('aria-hidden')).toBe('true')
     expect(document.documentElement.dataset.tabMode).toBe('hide')
     act(() => root.render(<MobileRuntimeProvider><Probe /></MobileRuntimeProvider>))
-    expect(host.querySelector('output')?.getAttribute('data-mode')).toBe('default')
+    expect(host.querySelector('nav:not([aria-hidden="true"])')).not.toBeNull()
     expect(document.documentElement.dataset.tabMode).toBe('default')
   })
 
   it('pane ẩn không đẩy chế độ thanh tab', () => {
     act(() => root.render(<MobileRuntimeProvider><MobilePaneScope active={false}><Probe mode="hide" /></MobilePaneScope></MobileRuntimeProvider>))
-    expect(host.querySelector('output')?.getAttribute('data-mode')).toBe('default')
+    expect(host.querySelector('nav:not([aria-hidden="true"])')).not.toBeNull()
   })
 
   it('hidden (hết phiên) ẩn thanh tab bất kể màn', () => {
     act(() => root.render(<MobileRuntimeProvider hidden><Probe /></MobileRuntimeProvider>))
-    expect(host.querySelector('output')?.getAttribute('data-mode')).toBe('hide')
+    expect(host.querySelector('nav')?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  it('bàn phím ảo ghi --kb và ẩn thanh tab', () => {
-    const listeners: Record<string, () => void> = {}
-    const viewport = { height: window.innerHeight, offsetTop: 0, addEventListener: (type: string, fn: () => void) => { listeners[type] = fn }, removeEventListener: () => {} }
+  it('bàn phím nhập chữ ẩn nav và blur trả lại nav mà không cần cuộn', async () => {
+    vi.useFakeTimers()
+    const viewport = Object.assign(new EventTarget(), { height: window.innerHeight, offsetTop: 0, scale: 1 })
     vi.stubGlobal('visualViewport', viewport)
-    act(() => root.render(<MobileRuntimeProvider><Probe /></MobileRuntimeProvider>))
-    expect(document.documentElement.style.getPropertyValue('--kb')).toBe('0px')
-    viewport.height = window.innerHeight - 300
-    act(() => listeners.resize())
-    expect(document.documentElement.style.getPropertyValue('--kb')).toBe('300px')
-    expect(host.querySelector('output')?.getAttribute('data-mode')).toBe('hide')
-    vi.unstubAllGlobals()
+    try {
+      act(() => root.render(<MobileRuntimeProvider><Probe /><textarea /></MobileRuntimeProvider>))
+      const input = host.querySelector('textarea')!
+      await act(async () => {
+        input.focus()
+        viewport.height = window.innerHeight - 300
+        viewport.dispatchEvent(new Event('resize'))
+        await vi.advanceTimersByTimeAsync(20)
+      })
+      expect(document.documentElement.style.getPropertyValue('--kb')).toBe('300px')
+      expect(host.querySelector('nav')?.getAttribute('aria-hidden')).toBe('true')
+      expect(tabButtons().every((button) => button.tabIndex === -1)).toBe(true)
+      await act(async () => {
+        input.blur()
+        await vi.advanceTimersByTimeAsync(20)
+      })
+      expect(document.documentElement.style.getPropertyValue('--kb')).toBe('0px')
+      expect(host.querySelector('nav:not([aria-hidden="true"])')).not.toBeNull()
+      expect(tabButtons().every((button) => button.tabIndex !== -1)).toBe(true)
+    } finally {
+      act(() => root.render(null))
+      vi.useRealTimers()
+      vi.unstubAllGlobals()
+    }
   })
 })
 
@@ -133,24 +150,3 @@ describe('useToastBottom', () => {
   })
 })
 
-describe('useVisualViewportKeyboard', () => {
-  function Probe() {
-    const px = useVisualViewportKeyboard()
-    return <output data-kb={px} />
-  }
-
-  it('ngưỡng 80px: thanh địa chỉ co giãn không bị coi là bàn phím', () => {
-    const listeners: Record<string, () => void> = {}
-    const viewport = { height: window.innerHeight, offsetTop: 0, addEventListener: (type: string, fn: () => void) => { listeners[type] = fn }, removeEventListener: () => {} }
-    vi.stubGlobal('visualViewport', viewport)
-    act(() => root.render(<Probe />))
-    viewport.height = window.innerHeight - 60
-    act(() => listeners.resize())
-    expect(host.querySelector('output')?.getAttribute('data-kb')).toBe('0')
-    viewport.height = window.innerHeight - 200
-    act(() => listeners.resize())
-    expect(host.querySelector('output')?.getAttribute('data-kb')).toBe('200')
-    expect(document.documentElement.style.getPropertyValue('--kb')).toBe('200px')
-    vi.unstubAllGlobals()
-  })
-})

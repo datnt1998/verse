@@ -216,11 +216,31 @@ describe('chỉ báo', () => {
     expect(byText('Duyệt')).toBeTruthy()
   })
 
-  it('ListRow bấm được và có dòng phụ', async () => {
+  it('hàng tác vụ không kích hoạt khi khoá và hoạt động lại khi mở khoá', async () => {
     const onClick = vi.fn()
-    await mount(<ListRow icon="trend" title="Tự lấy video" hint="Video mới tự vào hàng chờ" onClick={onClick} />)
-    expect(document.body.textContent).toContain('Video mới tự vào hàng chờ')
-    await click(document.querySelector('.m-row'))
+    await mount(<ListRow title="Tự lấy video" onClick={onClick} disabled />)
+    await click(host.querySelector('button'))
+    expect(onClick).not.toHaveBeenCalled()
+    await act(() => root.render(<ListRow title="Tự lấy video" onClick={onClick} />))
+    await click(host.querySelector('button'))
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('hàng liên kết bị khoá chặn điều hướng nhưng giữ đích khi mở khoá', async () => {
+    const onClick = vi.fn()
+    await mount(<ListRow title="Kênh" href="#/channel/example" onClick={onClick} disabled />)
+    const blocked = new MouseEvent('click', { bubbles: true, cancelable: true })
+    host.querySelector('a')!.dispatchEvent(blocked)
+    expect(blocked.defaultPrevented).toBe(true)
+    expect(onClick).not.toHaveBeenCalled()
+    expect(host.querySelector('a')!.tabIndex).toBe(-1)
+    // Không có URL để trình duyệt mở qua nhấn giữ, kéo hay nút chuột giữa.
+    expect(host.querySelector('a')!.hasAttribute('href')).toBe(false)
+    await act(() => root.render(<ListRow title="Kênh" href="#/channel/example" onClick={onClick} />))
+    const enabled = new MouseEvent('click', { bubbles: true, cancelable: true })
+    host.querySelector('a')!.dispatchEvent(enabled)
+    expect(enabled.defaultPrevented).toBe(false)
+    expect(host.querySelector('a')!.getAttribute('href')).toBe('#/channel/example')
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 })
