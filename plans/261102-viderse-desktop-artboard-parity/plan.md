@@ -50,8 +50,8 @@ Design authority: [design README](../../apps/viderse/docs/design/v1/README.md), 
 
 ## Current state
 
-- Noverse voice, admin project visibility and chapter recovery are deployed and verified; original story remains paused.
-- Viderse production is `16ad5f5b` with the approval recovery; the complete PC/mobile UI update is not deployed.
+- Noverse và Viderse đã triển khai bản `ec3d2aed`; Noverse public nạp `index-CqmhAx93.js`, Viderse nạp `index-BWdKB7dj.js`. Máy đọc đã khôi phục sau lỗi launchd handoff; `/api/tts/status` trả `ready: true`.
+- Truyện gốc `dit-dang-audio/01-truyen-moi` hiện đang chạy 10/12 chương, khác baseline tạm dừng trước deploy. Chưa xác định người khởi động; đã hỏi chủ tài khoản, không tự dừng hay tiếp tục truyện.
 - Bản chốt `index-BWdKB7dj.js`: build/typecheck/size qua (entry 141,7 KiB, initial JS 191,3 KiB, CSS 33,8 KiB gzip). Ba lượt cold độc lập xấu nhất FCP 768 ms, TBT 26 ms, long task 76 ms, 25 request; CLS 0, không lỗi JavaScript.
 - Bộ kiểm hiện tại: app 798 tests, UIKit 239 tests, editor scene 18 tests đều qua; cổng phiên 36 tests qua lại sau khi đổi boot; timeline façade 35 tests qua, gồm preview chỉ đọc không lưu và editor vẫn sửa bản lưu. Toàn bộ gói Go đã qua; PostgreSQL qua ở timeout 10 phút (269,6 giây). Regression lease và toàn gói preview cũng qua.
 - Expanded acceptance: Vietnamese visible system copy and progress journal; Agent–User acknowledgement, pending/review/error feedback; 360/390/430 mobile and 1280/1440 desktop. Reuse Noverse interaction patterns without changing user content, provider names or API identifiers.
@@ -59,6 +59,7 @@ Design authority: [design README](../../apps/viderse/docs/design/v1/README.md), 
 - Đã đóng lỗi native: template detail/preview tự chờ lease; cue không sáng; motion bị giữ trong reduced-motion; landmark kênh mới; lý do provider hết hạn bị che; cold deep-link prompt; template trắng trang vì thiếu TooltipProvider; preview tự PUT project; popup lọc tràn mép; tên đối thủ dài bị cắt; hộp thoại phím tắt cao hơn viewport.
 - Khám phá điện thoại trước sửa: nạp 1.000 video làm DOM lên 15.906 nút và heap 36,68 MiB. Sau virtualize, smoke API thật nạp 5.000 video: 10 thẻ đang gắn, 1.107 nút DOM, heap tăng 5,15 MiB, 60 fps; không sửa DOM/API trong harness.
 - Native cuối: mobile 253/253 tại 360/390/430 và hai bộ inset; motion 23 mẫu gồm glide Segmented 320 ms và reduced-motion 0; PC Main/Review 46 hàng; Explore/Channel 239 kiểm tra; assets/settings 47 trạng thái, không PUT hay lỗi JavaScript. Editor 1440 đủ 18 trạng thái, 1280 qua đến export gate và kiểm riêng reduced-motion; dialog cuộn đến nút Đóng nằm trọn viewport. Hai marker prompt bị CSS uppercase là tiêu chí harness cũ, không phải lỗi giao diện.
+- Hotfix avatar ở hàng duyệt mobile: cho badge tràn khỏi thumbnail nhưng giữ bo góc riêng cho ảnh. Smoke native 360/390/430 xác nhận điểm vẽ và hit-test ngoài cạnh trái/dưới đều nhìn thấy; desktop 1280/1440 không bị che, không lỗi JavaScript hay API ghi. Bản build `index-BuCmsTN2.js`, đang chờ triển khai.
 - Giới hạn kiểm chứng: mô phỏng Chrome, chưa kiểm bàn phím Safari trên iPhone thật; dữ liệu canonical khác dữ liệu fixture. Không gọi sinh ảnh/giọng hay thực thi kế hoạch Director trong native. Chờ kiểm production và đúng một yêu cầu lập kế hoạch đã được cho phép.
 
 Rollback: use the previous revision through the owning deployment scripts; preserve PostgreSQL and media, never reset user state or regenerate images.

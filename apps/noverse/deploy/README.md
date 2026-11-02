@@ -296,12 +296,12 @@ Postgres hay khoá bucket.
 
 | Khi cần | Nguồn sở hữu / cách tra |
 |---|---|
-| Deploy app và worker cùng revision | `ssh macmini`, script `~/server/bin/build-deploy.sh`. Script build image hosted và binary `darwin/arm64` từ cùng commit, kiểm tra binary chạy được, đợi app readiness rồi mới đổi worker. Không tự thay tuyến deploy bằng build thủ công ở thư mục khác. |
-| Runner và lịch tự khởi động | `~/server/bin/noverse-tts-run.sh`, plist `~/Library/LaunchAgents/com.dat.noverse-tts.plist`; tra service bằng `launchctl list com.dat.noverse-tts`. Runtime có HOME riêng `~/server/apps/noverse/tts-home`, không dùng `~/.ainovel` cá nhân. |
+| Deploy app và worker cùng revision | `ssh macmini`, script `~/server/bin/build-deploy.sh`. Script build image hosted và binary `darwin/arm64` từ cùng commit, kiểm tra binary chạy được, đợi app readiness rồi mới đổi worker. Sau `bootout`, đợi đăng ký cũ biến mất khỏi đúng domain trước khi bootstrap; launchd có thể trả lỗi 37/5 nếu bootstrap ngay khi tiến trình cũ còn đang dừng. Không tự thay tuyến deploy bằng build thủ công ở thư mục khác. |
+| Runner và lịch tự khởi động | `~/server/bin/noverse-tts-run.sh`, plist `~/Library/LaunchAgents/com.dat.noverse-tts.plist`; tra service bằng `launchctl print "gui/$(id -u)/com.dat.noverse-tts"`, không dùng domain ngầm của phiên SSH. Runtime có HOME riêng `~/server/apps/noverse/tts-home`, không dùng `~/.ainovel` cá nhân. |
 | Nơi giữ credential | `~/server/apps/noverse/tts-worker.env` (0600), được runner nạp; tạo ban đầu bằng `~/server/bin/noverse-tts-setup-token.sh`. Chỉ kiểm metadata/quyền tệp, không in nội dung, không đặt token trong plist hoặc tham số dòng lệnh. |
 | Lỗi native / lỗi cài model | `~/server/logs/noverse-tts.log`; log cài bộ đọc trong `~/server/apps/noverse/tts-home/.ainovel/voice/vieneu/server.log`. Chỉ đọc đoạn liên quan, không gom log hoặc dữ liệu truyện của người dùng. |
 | Listener nội bộ | `~/server/apps/noverse/compose.yml` sở hữu bind `127.0.0.1:8081:8081`; không mở qua tunnel, Access hay cổng công khai. Kiểm lại claim không token trả 401 sau rollout. |
-| Revision và rollback | Sau deploy thành công: `~/server/apps/noverse/bin/noverse-tts.commit`; binary trước ở `noverse-tts.previous` cùng thư mục. App rollback theo `~/server/bin/deploy.sh`; nếu phải phục hồi native, dừng đúng service của worker trước khi thay binary rồi bootstrap lại plist. Không chỉ rollback một phía khi wire contract đã đổi. |
+| Revision và rollback | Sau bootstrap thành công mới ghi `~/server/apps/noverse/bin/noverse-tts.commit`; kiểm thêm service có PID và `/api/tts/status` trả `ready: true`. Binary trước ở `noverse-tts.previous` cùng thư mục. App rollback theo `~/server/bin/deploy.sh`; nếu phải phục hồi native, dừng đúng service của worker và đợi gỡ đăng ký trước khi thay binary rồi bootstrap lại plist. Không chỉ rollback một phía khi wire contract đã đổi. |
 
 Nếu route/script không tồn tại hoặc quyền thay đổi, dừng ở lỗi đó và tra lại
 operator của môi trường; không dò sang HOME cá nhân, không in token để chẩn đoán.
