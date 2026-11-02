@@ -1,6 +1,6 @@
 ---
 title: Viderse PC — canonical artboard parity and verified Mac mini release
-status: in-progress
+status: completed
 priority: P1
 branch: main
 ---
@@ -50,8 +50,8 @@ Design authority: [design README](../../apps/viderse/docs/design/v1/README.md), 
 
 ## Current state
 
-- Noverse đã triển khai `ec3d2aed`, public entry `index-CqmhAx93.js`; Viderse đã triển khai `ac352770`, public entry `index-BuCmsTN2.js`, health/readiness 200. Máy đọc đã khôi phục sau lỗi launchd handoff; `/api/tts/status` trả `ready: true`.
-- Truyện gốc `dit-dang-audio/01-truyen-moi` hiện đang chạy 10/12 chương, khác baseline tạm dừng trước deploy. Chưa xác định người khởi động; đã hỏi chủ tài khoản, không tự dừng hay tiếp tục truyện.
+- Noverse server và worker native đã triển khai `541c088a`, public entry `index-BRE816z1.js`; Viderse đã triển khai `ac352770`, public entry `index-BuCmsTN2.js`. Cả hai health/readiness 200; máy đọc remote `ready: true`.
+- Sau đợt deploy chuẩn, đã ghi nhận truyện gốc `dit-dang-audio/01-truyen-moi` chạy 10/12 chương, khác baseline tạm dừng. Chưa xác định người khởi động; đã hỏi chủ tài khoản, không tự dừng hay tiếp tục truyện.
 - Bản chốt `index-BWdKB7dj.js`: build/typecheck/size qua (entry 141,7 KiB, initial JS 191,3 KiB, CSS 33,8 KiB gzip). Ba lượt cold độc lập xấu nhất FCP 768 ms, TBT 26 ms, long task 76 ms, 25 request; CLS 0, không lỗi JavaScript.
 - Bộ kiểm hiện tại: app 798 tests, UIKit 239 tests, editor scene 18 tests đều qua; cổng phiên 36 tests qua lại sau khi đổi boot; timeline façade 35 tests qua, gồm preview chỉ đọc không lưu và editor vẫn sửa bản lưu. Toàn bộ gói Go đã qua; PostgreSQL qua ở timeout 10 phút (269,6 giây). Regression lease và toàn gói preview cũng qua.
 - Expanded acceptance: Vietnamese visible system copy and progress journal; Agent–User acknowledgement, pending/review/error feedback; 360/390/430 mobile and 1280/1440 desktop. Reuse Noverse interaction patterns without changing user content, provider names or API identifiers.
@@ -61,6 +61,8 @@ Design authority: [design README](../../apps/viderse/docs/design/v1/README.md), 
 - Native cuối: mobile 253/253 tại 360/390/430 và hai bộ inset; motion 23 mẫu gồm glide Segmented 320 ms và reduced-motion 0; PC Main/Review 46 hàng; Explore/Channel 239 kiểm tra; assets/settings 47 trạng thái, không PUT hay lỗi JavaScript. Editor 1440 đủ 18 trạng thái, 1280 qua đến export gate và kiểm riêng reduced-motion; dialog cuộn đến nút Đóng nằm trọn viewport. Hai marker prompt bị CSS uppercase là tiêu chí harness cũ, không phải lỗi giao diện.
 - Hotfix avatar đã triển khai: smoke public với ảnh thật tại 360/390/430 xác nhận badge nhìn thấy ngoài cạnh trái/dưới và ảnh giữ bo góc 8 px; desktop 1280/1440 không bị che, không lỗi JavaScript hay API ghi. Dữ liệu production đã ở trạng thái “Xử lý” thay vì “Duyệt”; cùng hàng thumbnail đã được kiểm đúng trạng thái hiện tại.
 - Smoke public PC và mobile: không tràn ngang hay lỗi JavaScript. Đúng một yêu cầu Director HTTP 200 trả `ok:false/unknown` cho đề nghị chỉ đọc không được hỗ trợ; UI hiện thông báo và gợi ý bằng tiếng Việt, pha chờ có animation 180/800/1.100/2.800 ms. Không thực thi kế hoạch, không sinh ảnh/giọng hay tiếp tục job. Không coi kết quả này là một kế hoạch thành công.
-- Giới hạn kiểm chứng: mô phỏng Chrome, chưa kiểm bàn phím Safari trên iPhone thật; dữ liệu canonical khác dữ liệu fixture. Ảnh filter đang đóng chưa mô tả lỗi cụ thể. Lỗi Cách đọc mới: bảng chọn mở được, danh mục giọng dự án trả `[]` dù máy đọc remote sẵn sàng; `/api/tts/voices` trả 503 với lời nhắc cài máy đọc local. Đang sửa nguồn danh mục remote, không thay cấu hình hay tạo âm thanh trên truyện thật.
+- Lỗi Cách đọc đã sửa và kiểm production: worker công bố danh mục 25 giọng thật; PostgreSQL giữ mã preset khi không có khoá ngoại giọng dự án; đổi Một giọng kể/Phân vai, lưu giọng từng vai và huỷ lựa chọn đều qua. Native 360/390/430 không tràn ngang, không lỗi JavaScript; 180 test Audio và các gói Go liên quan qua. Regression mã preset thất bại trước sửa, qua sau sửa; smoke API thật xác nhận lưu/đọc lại `Adam`. Truyện QA riêng đã xoá, không có job QA, danh sách truyện trước/sau khớp.
+- Deploy bị chặn bởi Docker hết chỗ; đã được chủ tài khoản duyệt dọn cache build cũ hơn 24 giờ, thu hồi 22,69 GB. Không xoá image, container, volume hay dữ liệu ứng dụng; deploy chính thức sau đó hoàn tất.
+- Giới hạn kiểm chứng: mô phỏng Chrome, chưa kiểm bàn phím Safari trên iPhone thật; dữ liệu canonical khác dữ liệu fixture. Ảnh hai bộ lọc đang đóng chưa mô tả lỗi cụ thể, chờ chủ tài khoản chỉ rõ. Không tuyên bố mọi trạng thái trả phí hay mọi thiết bị đã được kiểm.
 
 Rollback: use the previous revision through the owning deployment scripts; preserve PostgreSQL and media, never reset user state or regenerate images.
