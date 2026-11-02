@@ -227,7 +227,8 @@ Artifact 在 `store/outline.go` `drafts.go` `summaries.go` `characters.go` `worl
 - `internal/entry/web/{gateway,run_worker}.go`：hosted worker 没有故事目录——cwd 是 `os.MkdirTemp` 私有 scratch，scope/DSN 只走 env（`AINOVEL_STORY_SCOPE`、`STORE_DRIVER`、`DATABASE_URL`），子进程自己 resolve scope 并申领 story lease；`postgres.ErrLeaseLost` 映射为 409 而不是 502。
 - 读者/工具：`NewStoryReaderWithStore`、`edit_chapter`、comment hook、ledger 全部走 backend 面；`Dir()==""` 且没有 backend 面时返回显式能力错误（501），绝不回退目录。
 - `docstore` 的 `meta/chapter_records/%06d.json` 是**只读派生视图**（读 = 当前 revision 行的 JSON，写/删一律拒绝）：`commit_chapter` 的 checkpoint 摘要按 file 路径读取该工件，行后端必须能回答，否则 hosted 提交在 checkpoint 步失败并留下 `progress_marked` 的 PendingCommit。
-- 门禁：`internal/entry/web/storage_cutover_test.go` 在 PG 上用空且 `0555` 的书库根、空 cwd 跑完整 HTTP 流程（建故事 → 放行一章 → 真实 engine 写 plan/draft/check/commit → 读章节 → 写/读 góp ý），并断言根与 cwd 一个文件都没有；`internal/persistence/postgres` 的 `chapter_record_document_view` 子测试钉住该视图。
+- `docstore` 的 `reviews/NN[-global].json` 同样是**只读派生视图**（读 = 该 scope_key 最新未作废 review 轮的、与 file backend 相同缩进的 JSON；写/删拒绝）：`save_review` 先写 typed review 轮与 progress，再按 file 路径 digest 该工件；缺映射会让已落库的评审在 checkpoint 步报错并让调用方误以为保存失败。轮次只经 `Narrative.SaveReview*` 追加，文档层绝不成为第二个评审源。
+- 门禁：`internal/entry/web/storage_cutover_test.go` 在 PG 上用空且 `0555` 的书库根、空 cwd 跑完整 HTTP 流程（建故事 → 放行一章 → 真实 engine 写 plan/draft/check/commit → 读章节 → 写/读 góp ý），并断言根与 cwd 一个文件都没有；`internal/persistence/postgres` 的 `chapter_record_document_view` 子测试与 `TestPostgresReviewDocumentView` 钉住这两个只读视图。
 
 ---
 

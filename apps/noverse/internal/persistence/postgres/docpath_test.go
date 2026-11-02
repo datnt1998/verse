@@ -36,6 +36,8 @@ func TestDocumentPathIsInverseOfResolve(t *testing.T) {
 		"summaries/01.json", "summaries/arc-1.json",
 		"meta/snapshots/v01a02.json",
 		"meta/chapter_records/000001.json",
+		// typed review rows rendered through their file-backend paths
+		"reviews/01.json", "reviews/05-global.json",
 		// markdown views
 		"book.md", "characters.md", "world_rules.md", "timeline.md",
 		"foreshadow_ledger.md", "relationship_state.md", "outline.md",
@@ -73,6 +75,10 @@ func TestDocumentPathRejectsUnproducibleIdentities(t *testing.T) {
 		{Class: postgres.DocClassStream, Kind: "decisions", Key: "extra"},
 		{Class: postgres.DocClassChapterDraft, Chapter: 0},
 		{Class: postgres.DocClassChapterRecord, Chapter: -1},
+		{Class: postgres.DocClassReview, Chapter: 0, Key: "05"},
+		{Class: postgres.DocClassReview, Chapter: 5, Key: ""},
+		{Class: postgres.DocClassReview, Chapter: 5, Key: "global"},
+		{Class: postgres.DocClassReview, Chapter: 5, Key: "05-global-r1"},
 	}
 	for _, ref := range cases {
 		if rel, ok := postgres.DocumentPath(ref); ok {

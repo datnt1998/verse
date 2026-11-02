@@ -55,6 +55,11 @@ const (
 	// path, but the record itself is only ever written through the revision
 	// invariants (pgChapterRecords), never as a document.
 	docChapterRecord
+	// docReview is a read-only derived view of the reviews table. save_review
+	// digests reviews/NN[-global].json after writing the typed round; rows are
+	// the only source of review truth, so the document path renders the latest
+	// valid round instead of becoming a second writable review store.
+	docReview
 )
 
 // docRef is one resolved path: which table, which kind/stream, which key.
@@ -83,6 +88,8 @@ var (
 	docSessionRe  = regexp.MustCompile(`^meta/sessions/agents/(.+)\.jsonl$`)
 	// Accepted chapter records are typed rows; the path is only readable.
 	docChapterRecordRe = regexp.MustCompile(`^meta/chapter_records/(\d+)\.json$`)
+	// Review rounds are typed rows; the current review file path is derived.
+	docReviewRe = regexp.MustCompile(`^reviews/(\d+)(-global)?\.json$`)
 )
 
 // stateKinds maps meta/*.json singletons onto story_state kinds.
@@ -206,6 +213,17 @@ func resolveDoc(rel string) (docRef, error) {
 		chapter, _ := strconv.Atoi(m[1])
 		return docRef{class: docChapterRecord, chapter: chapter}, nil
 	}
+	if m := docReviewRe.FindStringSubmatch(rel); m != nil {
+		chapter, _ := strconv.Atoi(m[1])
+		if chapter <= 0 {
+			return docRef{}, fmt.Errorf("postgres document backend has no mapping for %q: %w", rel, errUnmappedPath)
+		}
+		scope := store.ReviewScopeChapter
+		if m[2] != "" {
+			scope = store.ReviewScopeGlobal
+		}
+		return docRef{class: docReview, name: "review", key: ReviewScopeKey(chapter, scope), chapter: chapter}, nil
+	}
 	if isMarkdownView(rel) {
 		return docRef{class: docArtifact, name: "markdown_view", key: rel, text: true}, nil
 	}
@@ -219,6 +237,11 @@ var errUnmappedPath = fmt.Errorf("unmapped document path")
 // and a document write would bypass its invariants.
 var errChapterRecordReadOnly = fmt.Errorf("chapter records are append-only through the revision store, not documents: %w", errUnmappedPath)
 
+// errReviewReadOnly refuses a document write/delete of reviews/NN[-global].json:
+// review rounds are append-only typed rows with invalidation semantics, and a
+// document write would create a second, conflicting review source.
+var errReviewReadOnly = fmt.Errorf("reviews are append-only rounds in the review store, not documents: %w", errUnmappedPath)
+
 // DocClass names the row family a file-backend document path maps onto.
 type DocClass string
 
@@ -231,6 +254,7 @@ const (
 	DocClassAgentSession  DocClass = "agent_session"
 	DocClassChapterDraft  DocClass = "chapter_draft"
 	DocClassChapterRecord DocClass = "chapter_record"
+	DocClassReview        DocClass = "review"
 )
 
 // DocumentRef is the canonical row identity of one file-backend relative path.
@@ -280,6 +304,8 @@ func ResolveDocument(rel string) (DocumentRef, error) {
 	case docChapterRecord:
 		out.Class = DocClassChapterRecord
 		out.Key = fmt.Sprintf("%06d", ref.chapter)
+	case docReview:
+		out.Class = DocClassReview
 	default:
 		return DocumentRef{}, fmt.Errorf("lớp tài liệu %v: %w", ref.class, errUnmappedPath)
 	}
@@ -366,6 +392,16 @@ func DocumentPath(ref DocumentRef) (string, bool) {
 			return "", false
 		}
 		return fmt.Sprintf("meta/chapter_records/%06d.json", ref.Chapter), true
+	case DocClassReview:
+		if ref.Chapter <= 0 || ref.Key == "" {
+			return "", false
+		}
+		rel := "reviews/" + ref.Key + ".json"
+		back, err := resolveDoc(rel)
+		if err != nil || back.class != docReview || back.key != ref.Key || back.chapter != ref.Chapter {
+			return "", false
+		}
+		return rel, true
 	case DocClassArtifact:
 		switch ref.Kind {
 		case "chapter_plan", "chapter_text":
@@ -655,6 +691,21 @@ func (o *docOps) readRef(tx pgx.Tx, ref docRef) ([]byte, error) {
 		}
 		record := chapterVersionRecord(ref.chapter, version)
 		return json.Marshal(record)
+	case docReview:
+		// save_review digests the current review file after saving its typed
+		// round. Render the latest valid round in the file backend's indented
+		// shape, so the digest tracks review content (and a new round changes
+		// it) instead of failing on the unmapped path.
+		row, err := q.LatestReviewByScope(o.ctx, gen.LatestReviewByScopeParams{
+			ProjectID: o.scope.ProjectID, StoryID: o.scope.StoryID, ScopeKey: ref.key})
+		if err != nil {
+			return nil, o.notFound(err)
+		}
+		var review domain.ReviewEntry
+		if err := json.Unmarshal(row.Payload, &review); err != nil {
+			return nil, fmt.Errorf("render review %s: %w", ref.key, err)
+		}
+		return json.MarshalIndent(review, "", "  ")
 	}
 	return nil, errUnmappedPath
 }
@@ -766,6 +817,8 @@ func (o *docOps) writeRef(tx pgx.Tx, ref docRef, data []byte) error {
 		return nil
 	case docChapterRecord:
 		return errChapterRecordReadOnly
+	case docReview:
+		return errReviewReadOnly
 	}
 	return errUnmappedPath
 }
@@ -995,6 +1048,8 @@ func (o *docOps) removeRef(tx pgx.Tx, ref docRef) error {
 		return nil
 	case docChapterRecord:
 		return errChapterRecordReadOnly
+	case docReview:
+		return errReviewReadOnly
 	}
 	return errUnmappedPath
 }
@@ -1271,6 +1326,13 @@ func (o *docOps) Exists(rel string) (bool, error) {
 				return sanitizeErr(verr)
 			}
 			ok = verr == nil
+		case docReview:
+			_, err := q.LatestReviewByScope(o.ctx, gen.LatestReviewByScopeParams{
+				ProjectID: o.scope.ProjectID, StoryID: o.scope.StoryID, ScopeKey: ref.key})
+			ok = err == nil
+			if err != nil && !noRows(err) {
+				return sanitizeErr(err)
+			}
 		}
 		return nil
 	})
