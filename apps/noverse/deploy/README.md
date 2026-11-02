@@ -306,6 +306,17 @@ Postgres hay khoá bucket.
 Nếu route/script không tồn tại hoặc quyền thay đổi, dừng ở lỗi đó và tra lại
 operator của môi trường; không dò sang HOME cá nhân, không in token để chẩn đoán.
 
+Nếu HTTPS Git fetch không còn credential nhưng operator đã có GitHub SSH hợp lệ,
+có thể chạy **chính script deploy hiện hữu** qua một SSH agent tạm, chỉ nạp đúng
+key cần dùng với TTL. Forward agent vào `ssh macmini`, dùng env chỉ cho lệnh đó:
+`GIT_CONFIG_COUNT=1`, `GIT_CONFIG_KEY_0=url.git@github.com:.insteadOf`,
+`GIT_CONFIG_VALUE_0=https://github.com/`; `GIT_SSH_COMMAND` phải bật
+`BatchMode=yes`, `StrictHostKeyChecking=yes` và trỏ tới bản public `known_hosts`
+đã kiểm chứng của operator. Không chép private key lên server, không tắt kiểm
+host key, không đổi remote/global Git config hay ghi token vào URL. Dừng đúng
+agent đã tạo sau fetch/deploy; đọc revision app/native và health/ready như tuyến
+chuẩn ở trên. Đây là fallback xác thực, không phải tuyến build/deploy thứ hai.
+
 
 #### Biến thể: Mac từ xa qua Tailscale
 

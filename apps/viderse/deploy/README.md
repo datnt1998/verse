@@ -23,6 +23,13 @@ triển khai. Không chạy đồng thời script này và `build-deploy.sh` c�
 hai tuyến dùng chung checkout nguồn. Secret chỉ đọc từ cấu hình runtime hiện
 có; không truyền token hoặc DSN trên đối số hay chép vào tài liệu.
 
+Nếu fetch HTTPS thất bại vì credential, dùng fallback SSH agent tạm theo
+[tuyến Mac mini dùng chung](../../noverse/deploy/README.md#tuyến-vận-hành-mac-mini-hiện-dùng),
+vẫn gọi `build-deploy-viderse.sh`: forward đúng key có TTL, ép URL HTTPS→SSH
+chỉ bằng env của lệnh, xác minh GitHub host key, không chép private key hoặc
+đổi global Git config. Dừng agent đã tạo và kiểm `viderse.commit`/health/ready
+sau rollout.
+
 
 ## Data DB
 
