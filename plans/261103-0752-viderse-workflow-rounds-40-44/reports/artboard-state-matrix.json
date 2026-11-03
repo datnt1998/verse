@@ -68,7 +68,7 @@
     "plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md": "afbe00cca3745e93fdaf8fcbe76c2aa3710e220e289b5f3d744abecc695f366d",
     "plans/261103-0752-viderse-workflow-rounds-40-44/verification.md": "eae9484fe822f949493df055c1cd3d7859a3cf360adee49af6f066a4617241ff",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-01-inventory.md": "ba5af68912c911acb716b6b77cf0ecc6124ed745f215cd13dc9c67163ee4c459",
-    "plans/261103-0752-viderse-workflow-rounds-40-44/phase-03-v36-viewer-and-actions.md": "466ca31ccf2b441f26eda735575d3401b7ad6912d12dab73b2b9c354640eb610",
+    "plans/261103-0752-viderse-workflow-rounds-40-44/phase-03-v36-viewer-and-actions.md": "c6b4259a6fb8a756dd6d5027afe9603e8f8fba912c3bf87b15ed0a32b076737f",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-04-v37-compact-studio.md": "58c12a2d9021449785e6bd18897b32536404d0bcbbc1c9c89e2c5912a7228fa1",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-05-v38-channels-and-library.md": "5c120f534f8e8f4d43133925be195f541a8ea4e02604c13ba6edd86ad563c23a",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md": "f6714121d030e6e4e1aa558508888b44e2a68ed421975e3b5579a5e17a0530a3",
@@ -79,7 +79,7 @@
     "apps/viderse/docs/design/v1/06-copy.md": "f3f92d94cbd4e9031cd0ae195164f72495980e98da820d2f8ca0155acaa61b97",
     "apps/viderse/docs/design/v1/07-data-contract.md": "ed441019f8712e9b31ee36f51b6b467067822f2611c0d1e2321388c37b018bdb",
     "apps/viderse/docs/design/v1/08-dev-prompt.md": "7665372b7fe169af7cbf0cc1aae51b1b5c20a8d600571bcbf355b0cb56156485",
-    "apps/viderse/docs/design/v1/10-gap-closure.md": "15d7ba9a15aea9dede1ab70f199168df15836efc0f12fac07c5a8b4085b4cfb3"
+    "apps/viderse/docs/design/v1/10-gap-closure.md": "b5c023f9cda87f2b474fbfd216682e13aecc7ee7ce60119aa7dd32a920f1789d"
   },
   "runtimeProtocol": {
     "source": "apps/viderse/docs/design/v1/artboards/support.js",

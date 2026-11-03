@@ -1,6 +1,6 @@
 # V36 · Trình xem ảnh và nối thao tác
 
-Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3) đã mở, source commit `ee94b6f3`; đang nghiệm thu, chưa merge PR2, chưa deploy**. PR nền [#2](https://github.com/datnt1998/verse/pull/2) đã merge `a7341d37db67e7cfafdb8035818f700820a11594`. Không đọc báo cáo này thành kết quả của V37–V40.
+Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3), source followup đã đẩy `84458549b6250b8098026dbda5e14e74d6015781`; chưa merge PR2, chưa deploy; cần chốt #84**. PR nền [#2](https://github.com/datnt1998/verse/pull/2) đã merge `a7341d37db67e7cfafdb8035818f700820a11594`. Không đọc báo cáo này thành kết quả của V37–V40.
 
 ## Màn → đã sửa / còn lệch
 

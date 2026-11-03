@@ -1,5 +1,6 @@
 {
   "sourceCommitBase": "ee94b6f36db1048beaeeeed640f30a14ca72c2a9",
+  "verifiedFollowupCommit": "84458549b6250b8098026dbda5e14e74d6015781",
   "status": "draft; semantic blocker design question84 remains",
   "sourceSHA256": {
     "apps/viderse/web/src/screens/settings/connect/ProviderCard.tsx": "b53abbbdd1e616a43d5dc8ff22111fd7f6c7b31b268b0631c5ff1f66cad2e3af",
