@@ -1,0 +1,84 @@
+{
+  "date": "2026-11-03",
+  "note": "Historical failed attempts are not acceptance results. Canonical capture receipts are the later complete runs.",
+  "attempts": [
+    {
+      "surface": "temporary QA fixture",
+      "result": "failed",
+      "observedCause": "Installed FFmpeg lacks libwebp encoder",
+      "repair": "Use installed cwebp after PNG authoring; no production validator changes"
+    },
+    {
+      "surface": "temporary QA fixture",
+      "result": "failed",
+      "observedCause": "Build step rejected image version in PNG format; fixture had not met real WebP contract",
+      "repair": "Authored WebP via cwebp; recreated only owned QA databases; full seeded pipeline then exited 0"
+    },
+    {
+      "surface": "native managed-browser baseline",
+      "result": "rejected by review",
+      "observedCause": "Loading skeletons, unsupported tweak parents, missing below-fold framing and stale UI scope; native/raw viewport contexts diverged",
+      "repair": "Playwright headless runner with real parent contexts, scroll target and metadata, isolated per-board context"
+    },
+    {
+      "surface": "strict app capture with shared page/reload",
+      "result": {
+        "mode": "app",
+        "captured": 1,
+        "failed": 27,
+        "apiErrors": 4,
+        "unexpectedApiErrors": 0,
+        "error": null
+      },
+      "observedCause": "API idle tracker retained old boot request across reload/navigation; 27 failed capture rows were not called product failures"
+    },
+    {
+      "surface": "narrow Review/Main/Template shared-page reproduction",
+      "exitCode": 1,
+      "result": {
+        "mode": "app",
+        "captured": 1,
+        "failed": 2,
+        "apiErrors": 0,
+        "unexpectedApiErrors": 0,
+        "error": null
+      },
+      "pendingRequestEvidence": [
+        {
+          "board": "Main",
+          "method": "GET",
+          "path": "/api/setup/state"
+        },
+        {
+          "board": "Template",
+          "method": "GET",
+          "path": "/api/setup/state"
+        }
+      ]
+    },
+    {
+      "surface": "same Review/Main/Template sequence with fresh context per board",
+      "exitCode": 0,
+      "result": {
+        "mode": "app",
+        "captured": 3,
+        "failed": 0,
+        "apiErrors": 0,
+        "unexpectedApiErrors": 0,
+        "error": null
+      }
+    },
+    {
+      "surface": "full app after context repair",
+      "exitCode": 0,
+      "result": {
+        "mode": "app",
+        "captured": 28,
+        "failed": 0,
+        "apiErrors": 4,
+        "unexpectedApiErrors": 0,
+        "error": null
+      }
+    }
+  ]
+}
