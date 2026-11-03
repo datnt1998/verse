@@ -13,7 +13,7 @@ created: 2026-11-03
 # Viderse · Workflow gọn theo thiết kế đợt40–44
 
 ## Kết quả và ranh giới
-HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory/QA đã có commit `d245db8c`; PR0 chờ publication/merge. **Chưa sửa UI sản phẩm hoặc deploy**. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
+HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory/QA đã có commit `d245db8c` và [PR riêng #1](https://github.com/datnt1998/verse/pull/1), chờ merge gate. **Chưa sửa UI sản phẩm hoặc deploy**. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
 Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 01-ia-flows §0.3/§6.1/§6.2 Đợt44/W3–W13 → 08-dev-prompt V36–V40 → artboard/footer/kit/copy/data/stack. Không sửa artboards; muốn lệch phải ghi `11-hoi-dap.md` và chờ trả lời.
 
 ## Bảng kiểm kê gửi trước sửa code

@@ -1,0 +1,84 @@
+{
+  "observedAt": "2026-11-03T11:35:54.553389+00:00",
+  "scope": "PR0 inventory/QA; no product UI/backend source changes",
+  "productSourceRevision": "c34cd512002af842ba48532adcc66f026038e51f",
+  "github": {
+    "repo": "datnt1998/verse",
+    "pr": "https://github.com/datnt1998/verse/pull/1",
+    "actionsEnabled": false,
+    "workflowDefinitions": "CI, Build Docker and Release remain active definitions, but repository Actions is disabled",
+    "prCheckRollup": [],
+    "mainProtected": false,
+    "settingsChanged": false,
+    "decision": "Preserve existing Actions setting. No hosted CI pass is claimed. Normal PR merge gates remain authoritative; no admin bypass."
+  },
+  "local": {
+    "workspaceTypecheck": {
+      "command": "npm run typecheck --workspaces",
+      "exitCode": 0,
+      "workspaces": [
+        "@noverse/ui",
+        "ainovel-web",
+        "viderse-web"
+      ]
+    },
+    "viderseTypecheckAfterCleanup": {
+      "command": "npm run typecheck -w apps/viderse/web",
+      "exitCode": 0
+    },
+    "goVet": {
+      "command": "GOWORK=off go vet ./...",
+      "exitCode": 0
+    },
+    "workspaceTests": {
+      "command": "npm test --workspaces",
+      "exitCode": 0,
+      "workspaces": [
+        {
+          "name": "@noverse/ui",
+          "testFilesPassed": 32,
+          "testsPassed": 239
+        },
+        {
+          "name": "ainovel-web",
+          "testFilesPassed": 227,
+          "testsPassed": 1894
+        },
+        {
+          "name": "viderse-web",
+          "testFilesPassed": 452,
+          "testsPassed": 3700,
+          "existingSkippedTests": 4
+        }
+      ],
+      "notes": "Existing act(), expected decoder-error and localhost-request warnings were printed; this is not a warning-free claim."
+    },
+    "exportDialogNarrow": {
+      "command": "npm run test -w apps/viderse/web -- --project editor src/editor/v13/ExportDialogs.test.tsx",
+      "exitCode": 0,
+      "testsPassed": 3,
+      "testFileSha256": "960ffd0aede1415cac364a90db597f458df3e8e900a1fa14339bb05593c1e6fc"
+    }
+  },
+  "preexistingTestCleanup": {
+    "initialWorkspaceExitCode": 1,
+    "initialViderseFiles": {
+      "failed": 1,
+      "passed": 451
+    },
+    "file": "apps/viderse/web/src/editor/v13/ExportDialogs.test.tsx",
+    "finding": "One obsolete test demanded absence of a browser-tab warning despite real browser-owned export work; another case pinned copy/duplicate-label counts. Both incidental wording cases removed, not repinned. Cancellation/indeterminate state, real playback/end transition and playback rejection tests retained. No product warning, export lifecycle or ETA changed.",
+    "sourceEvidence": [
+      "apps/viderse/web/src/editor/v13/ExportDialogs.tsx:25",
+      "apps/viderse/web/src/editor/engine/features/export/workers/export-render.worker.ts:71-110"
+    ],
+    "after": "Focused three tests and full workspace command passed"
+  },
+  "notClaimed": [
+    "hosted GitHub CI green",
+    "Go integration tests with Postgres/Garage from CI recipe",
+    "sqlc diff and embedded-bundle reproducibility from CI recipe",
+    "full-control/motion/Safari/provider acceptance",
+    "production deployment"
+  ]
+}

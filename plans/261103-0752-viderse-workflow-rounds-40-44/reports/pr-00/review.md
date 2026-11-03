@@ -12,6 +12,8 @@ Ngày 2026-11-03. Scope: inventory, runner và bằng chứng baseline; không s
 | Capture runner | Gate text >150 không chứng minh ready; cookie clearing làm MAuth mang banner phiên cũ | Không dùng char count. Đợi đúng route, content, không aria-busy, API hữu hạn kết thúc, font/ảnh decode; mỗi board có context mới, MAuth không có cookie/storage |
 | Runtime narrowing | API-idle tracker giữ boot request `/api/setup/state` từ page/reload cũ | Tái hiện bằng sequence Review/Main/Template, hai bước sau fail. Không bỏ qua endpoint: chuyển sang context riêng từng board, cùng sequence qua 3/3 rồi full app 28/28 |
 | Security boundary | Capture có thể bị cấu hình trỏ production hoặc cookie nằm trong repo | Origin loopback không chứa credential; cookie phải ngoài repo; QA identity phải workflow.qa. Bốn guard smoke đạt expected rejection, không gọi provider |
+| Workspace regression | Một test cũ bắt buộc không có lời nhắc giữ tab; một case khác pin wording/số nhãn trùng. Export thực chạy browser worker, lời nhắc hiện tại đúng | Xoá hai case incidental, không sửa UI hoặc pin câu chữ mới. Giữ cancel/indeterminate và play/end/rejection. Focused 3 test pass, full workspace 32/227/452 file pass; chi tiết [local gates](local-gates.json) |
+| Hosted CI | GitHub Actions repo disabled, dù workflow definitions vẫn active; main protected=false, PR rollup rỗng | Không đổi cấu hình/bật phút CI tính phí, không gọi đó là CI xanh. Typecheck, unit và Go vet local được ghi riêng; normal GitHub merge gate vẫn áp dụng |
 
 ## Kết luận đúng scope
 

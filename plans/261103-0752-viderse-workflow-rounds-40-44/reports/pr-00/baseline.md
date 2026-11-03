@@ -16,8 +16,9 @@ Ngày: 2026-11-03. Revision nguồn lúc chụp: `c34cd512002af842ba48532adcc66f
 | Control inventory | 577 control hiện hữu, 553 enabled trong receipt Playwright cuối | Chưa chạy audit mọi control; không được gọi “0 nút chết” |
 | Smoke tương tác | Ảnh sau → đúng ảnh kế và URL artifact khác; Ảnh trước → khôi phục ảnh cũ; Chỉ dẫn đã gửi → sheet vào màn, Esc tháo sheet và trả focus | 3 control trên Chromium mobile emulation; chưa Safari thiết bị thật, chưa full motion/reduced-motion |
 | Preflight production | GET channels/templates/notification settings/queue đều 200; 1 kênh, 2 template, 0 rotation rỗng/dangling, 0 nhịp ngoài 1–20, 0 notification exception, 0 queued/running | Không ghi production. Snapshot trong DB và effective autonomy tại admission chưa được kiểm |
+| Regression local trước merge | Typecheck cả 3 workspace; Go vet; unit UI 239, Noverse 1894, Viderse 3700 pass / 4 skip có sẵn; focused export dialog 3 pass | GitHub Actions đang tắt, không claim hosted CI xanh hoặc đã chạy lại mọi task trong CI recipe |
 
-Nguồn máy đọc: [state matrix](../artboard-state-matrix.json), [runtime trace index](capture-index.json), [reference captures](reference-captures.json), [app baseline](app-baseline.json), [comparison paths](comparisons.json), [control smoke](control-smoke.json), [commands](commands.json), [isolation](isolation.json), [legacy preflight](legacy-preflight.json), [preview prerequisite](template-preview-prerequisite.json).
+Nguồn máy đọc: [state matrix](../artboard-state-matrix.json), [runtime trace index](capture-index.json), [reference captures](reference-captures.json), [app baseline](app-baseline.json), [comparison paths](comparisons.json), [control smoke](control-smoke.json), [commands](commands.json), [local gates và test cleanup](local-gates.json), [isolation](isolation.json), [legacy preflight](legacy-preflight.json), [preview prerequisite](template-preview-prerequisite.json).
 
 ## Bảng màn → hiện trạng và owner sửa
 
@@ -58,5 +59,5 @@ Các màn chỉ có artboard desktop dùng 1440×900; các màn M* dùng 390×84
 - Tổ hợp phụ thuộc, probe số/text, preview ready/building, discovery detail, overlay và mọi control/oracle chưa đủ. PR0 chưa có full-control Playwright pass.
 - Chưa có ảnh/video chứng minh normal + reduced-motion cho toàn bộ workflow, slider ≤2px sau font, hit area ≥44px trên mọi control, hay Safari keyboard/dock thật.
 - Chưa có kiểm chứng provider QA có hạn mức được duyệt; không gọi provider production để lấp thiếu này.
-- Commit inventory/QA thật: `d245db8c38c95d0d9d3c98cf84f24294b7c190e9`. Chưa có PR/merge receipt. PR1 chỉ bắt đầu sau PR0 riêng theo dependency đã chốt.
+- Commit inventory/QA thật: `d245db8c38c95d0d9d3c98cf84f24294b7c190e9`; [PR riêng #1](https://github.com/datnt1998/verse/pull/1), chưa merge. Actions của repo đang tắt, giữ nguyên cấu hình và dùng gate local đã ghi rõ; PR1 chỉ bắt đầu sau PR0 merge.
 - Chưa phát sinh câu hỏi policy legacy có dữ liệu thực buộc phải quyết định; không tự clamp nhịp, đổi template hay đổi notification preference.

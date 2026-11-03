@@ -16,7 +16,7 @@ Nguồn: `Workflow.dc.html` mục 04; `UkControls`, `UkInputs`, `UkFeedback`, `U
 - `/Users/dat/Projects/verse/platform/ui/src/Tabs.tsx:173-214` đã đo bằng hộp thật, quan sát nhóm và từng nút, chờ `document.fonts.ready`. Không xây lại thuật toán chỉ vì checklist nhắc nó; kiểm các consumer còn tự vẽ nhóm chọn, toạ độ, scroll và font tải muộn.
 - `Sheet.tsx:40-115` đã có portal, scrim, Esc, focus trap, scroll lock và reduced motion; `Overlays.tsx:18-49` đã sở hữu stack Esc.
 - `Selects.tsx:185-190` dùng absolute popover; `Menus.tsx:90-130` dùng portal menu. Tái dùng, không dựng danh sách trong document flow.
-- `Toast.tsx:147-156` đang có thời gian khác nhau và `undo` ép 5 giây. Viderse cần policy 4 giây; không đổi mặc định của Noverse.
+- `Toast.tsx:147-156` đang có thời gian khác nhau và `undo` ép 5 giây. `src/App.tsx:81` mount `ToastHost activity`, không có ToastProvider hay components/Toast.tsx riêng. Viderse cần policy 4 giây; không đổi mặc định của Noverse.
 - `mobile/sheets.tsx:156-237` đã có ConfirmSheet, lỗi tại chỗ và pending lock. `components/confirm.tsx` đã có các thân xác nhận; bỏ các biến thể autonomy khi tới V38.
 
 ## Phạm vi file
@@ -24,7 +24,7 @@ Nguồn: `Workflow.dc.html` mục 04; `UkControls`, `UkInputs`, `UkFeedback`, `U
 |---|---|---|
 | Giữ, chỉ sửa khi chứng minh sai | `/Users/dat/Projects/verse/platform/ui/src/Tabs.tsx`, `Sheet.tsx`, `Overlays.tsx`, `Selects.tsx`, `Menus.tsx`, `mobile/sheets.tsx` | Reuse primitive; regression cho hành vi thật, không test cấu trúc source |
 | Sửa có giới hạn | `/Users/dat/Projects/verse/platform/ui/src/Toast.tsx` | Cho explicit duration thắng mặc định undo, giữ nguyên fallback của consumer khác |
-| Sửa | `/Users/dat/Projects/verse/apps/viderse/web/src/components/Segmented.tsx`, `confirm.tsx`, `index.ts`; `src/shell/AppShell.tsx`, `toastAnchor.ts` | Policy ứng dụng, ranh giới session, xác nhận responsive, neo toast |
+| Sửa | `/Users/dat/Projects/verse/apps/viderse/web/src/App.tsx`; `src/components/Segmented.tsx`, `confirm.tsx`, `index.ts`; `src/shell/AppShell.tsx`, `toastAnchor.ts` | Policy ứng dụng ở host thật, ranh giới session, xác nhận responsive, neo toast |
 | Tạo khi chưa có owner tương đương | `/Users/dat/Projects/verse/apps/viderse/web/src/components/responsive-overlays.tsx`, `action-feedback.ts` | Adapter mỏng cho cùng options/actions và toast 4 giây; không copy primitive hay tạo service |
 | Sửa/tạo kiểm thử | Các test kit liền kề đã có; `/Users/dat/Projects/verse/tests/pc-uikit/` | Bổ sung browser audit responsive theo [giao thức nghiệm thu](verification.md) |
 
