@@ -64,8 +64,8 @@
     "apps/viderse/docs/design/v1/artboards/Workflow.dc.html": "207cf375f69da1ca8b1136eed71c0451b3a970310973cf4a7acbbc44075a71e6",
     "apps/viderse/web/src/router.ts": "26d11d6c51a5438c8f80c0d6be0aa839c58fe30cc0456c2bb89c6a3542831c1e",
     "apps/viderse/docs/design/v1/artboards/support.js": "b795ee21261f2e7da1b10cb25b4a4cfa275d1b96165f89396f1fed426e191844",
-    "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md": "a3bd76bdc0dc5faf7ab3e86718a3453d8391c023a867f389b79a8c5dea63db03",
-    "plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md": "d79cac16fdadebddc82e96041c8aaca5fd89cb5857bd4947243dbd39dc58b00c",
+    "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md": "0818fd662fca69898cf5860f6dd0af628c5fd853406601707d62e809db44ea79",
+    "plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md": "c58eb37b54ac24cae435b69220cfc982aa9889f927135d491eaa70cd99c3995e",
     "plans/261103-0752-viderse-workflow-rounds-40-44/verification.md": "0e8db334a5fb228b2eb9ab02868b96367ddd900e784b923bdab493582ffeebf6",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-01-inventory.md": "bfd65bb320467838e32dd3e5b06a8119f6c3a18381f64940c983188f41496621",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-03-v36-viewer-and-actions.md": "6809327fefb3be61e6a7ef8df7fe8d908f4e2bf18d6699714644208e6168168e",
@@ -79,7 +79,7 @@
     "apps/viderse/docs/design/v1/06-copy.md": "f3f92d94cbd4e9031cd0ae195164f72495980e98da820d2f8ca0155acaa61b97",
     "apps/viderse/docs/design/v1/07-data-contract.md": "ed441019f8712e9b31ee36f51b6b467067822f2611c0d1e2321388c37b018bdb",
     "apps/viderse/docs/design/v1/08-dev-prompt.md": "7665372b7fe169af7cbf0cc1aae51b1b5c20a8d600571bcbf355b0cb56156485",
-    "apps/viderse/docs/design/v1/10-gap-closure.md": "2a5ac57f7371714df7c8b5540c49f32eb3e0f101d1290c70011de1e9f28c3202"
+    "apps/viderse/docs/design/v1/10-gap-closure.md": "04c261b976bac65dca3e7782599ef704e731a9ccf211ac8fd5902b38d1d41f68"
   },
   "runtimeProtocol": {
     "source": "apps/viderse/docs/design/v1/artboards/support.js",

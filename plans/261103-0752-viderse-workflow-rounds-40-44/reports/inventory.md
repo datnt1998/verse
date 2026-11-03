@@ -55,4 +55,4 @@ Notification preferences phải migrate cùng PR3; collector đọc hiệu quả
 - Đã GET-only preflight production: 1 kênh, 2 template, 0 nhịp ngoài 1–20, 0 rotation rỗng/dangling, 0 notification exception, 0 queued/running. Chưa đọc snapshot DB hoặc migrate; xem [receipt và giới hạn](pr-00/legacy-preflight.json).
 - Editor/template đã có owner nguồn như bảng; phải lấy references mới trước PR2/PR3, không tạo API/action giả khi data contract chưa cấp.
 - Current preview API đã có `building` (`api/library.ts:30,129-140`); historical gap tại 10-gap-closure:326 không còn là bằng chứng thiếu API. PR0 kiểm runtime builder và seed completed QA video hợp lệ; chỉ block theo prerequisite thực sự thiếu, không thêm service/API thay thế.
-- Chưa tạo PR, commit, deploy, hoặc tuyên bố V36–V40 hoàn tất. Các trạng thái chưa map/seed, preview hoàn tất, full click/motion audit và Safari thật vẫn pending.
+- Inventory/QA đã có commit `d245db8c`; chưa tạo PR/merge/deploy hoặc tuyên bố V36–V40 hoàn tất. Các trạng thái chưa map/seed, preview hoàn tất, full click/motion audit và Safari thật vẫn pending.

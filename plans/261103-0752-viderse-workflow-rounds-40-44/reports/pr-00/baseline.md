@@ -58,5 +58,5 @@ Các màn chỉ có artboard desktop dùng 1440×900; các màn M* dùng 390×84
 - Tổ hợp phụ thuộc, probe số/text, preview ready/building, discovery detail, overlay và mọi control/oracle chưa đủ. PR0 chưa có full-control Playwright pass.
 - Chưa có ảnh/video chứng minh normal + reduced-motion cho toàn bộ workflow, slider ≤2px sau font, hit area ≥44px trên mọi control, hay Safari keyboard/dock thật.
 - Chưa có kiểm chứng provider QA có hạn mức được duyệt; không gọi provider production để lấp thiếu này.
-- Chưa có commit/PR/merge receipt. PR1 chỉ bắt đầu sau PR0 riêng theo dependency đã chốt. Không tự ghi commit tương lai vào gap.
+- Commit inventory/QA thật: `d245db8c38c95d0d9d3c98cf84f24294b7c190e9`. Chưa có PR/merge receipt. PR1 chỉ bắt đầu sau PR0 riêng theo dependency đã chốt.
 - Chưa phát sinh câu hỏi policy legacy có dữ liệu thực buộc phải quyết định; không tự clamp nhịp, đổi template hay đổi notification preference.
