@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Bước 0 · Kiểm kê và chốt baseline"
-status: in-progress
+status: completed
 priority: P1
 dependencies: []
 ---
@@ -43,7 +43,7 @@ Gửi bảng code ↔ artboard ↔ V36–V40 ↔ giữ/sửa/xoá, xác nhận h
 - [x] Gửi inventory và chốt actual contracts/callers trước sửa code.
 - [x] Hoàn tất state inventory và baseline theo viewport artboard; trạng thái target chưa seed/map được giữ pending với owner, không gọi UI acceptance.
 - [x] Có preflight legacy API và giới hạn đã kiểm; DB snapshot/admission và release gate vẫn thuộc PR migration. Chưa có policy legacy thực tế cần hỏi.
-- [ ] Merge PR0 riêng, chuyển PR1 nền theo đúng dependencies.
+- [x] Merge PR0 riêng, chuyển PR1 nền theo đúng dependencies. [PR #1](https://github.com/datnt1998/verse/pull/1) merged 2026-11-03, commit `f120a62c8ce664b8e4c42f8edda6a74a24e55d91`; local gates có trong [receipt](reports/pr-00/local-gates.json), không có hosted CI vì Actions đang tắt.
 
 ## Quay lui và bảo mật
 PR0 không đổi runtime/DB. Không commit credentials/raw private data/trace chưa rà. Hoàn tác chỉ là revert tài liệu của PR, không xoá baseline người dùng hoặc chỉnh repo `verse-os`.

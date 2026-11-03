@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Bước 1 · Nền UI dùng chung"
-status: pending
+status: in-progress
 priority: P1
 dependencies: [1]
 ---
@@ -60,7 +60,7 @@ Nếu stack primitive không đủ, chứng minh bằng scenario trên rồi s�
 Rollback bằng revert PR trước PR kế tiếp; không reset dữ liệu hay thay branch người dùng.
 
 ## Checklist
-- [ ] Chốt lại source map và adapter cần dùng, không tái tạo primitive đã đạt.
-- [ ] Hoàn thành responsive overlay/confirmation và policy toast 4 giây.
-- [ ] Qua focused checks, browser smoke hai app và toàn bộ gate liên quan.
+- [x] Chốt lại source map và adapter cần dùng, không tái tạo primitive đã đạt.
+- [x] Hoàn thành responsive overlay/confirmation và policy toast 4 giây.
+- [x] Qua focused checks, browser smoke hai app và toàn bộ gate liên quan; [bằng chứng và giới hạn](reports/pr-01/foundation.md).
 - [ ] Gửi báo cáo ảnh, control ledger, gap; merge PR nền trước V36.

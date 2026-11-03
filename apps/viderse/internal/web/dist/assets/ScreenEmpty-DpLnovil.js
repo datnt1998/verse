@@ -1,0 +1,1 @@
+import{j as t,W as x}from"./responsive-overlays-BLj823V8.js";function n({icon:a="magic-star",title:m,hint:r,action:s}){return t.jsx("div",{className:"x78zum5 x6s0dn4 xl56j7k xjxljni x16mkdm",children:t.jsx(x,{variant:"frame",icon:a,title:m,hint:r,action:s})})}export{n as S};

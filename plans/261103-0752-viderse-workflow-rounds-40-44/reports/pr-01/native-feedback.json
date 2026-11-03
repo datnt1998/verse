@@ -1,0 +1,31 @@
+{
+  "scope": "Shared UI Kit timing only; not business mutation/undo proof",
+  "viderseResult": {
+    "durationMs": 4001.0999999046326,
+    "totalMs": 4520.399999856949
+  },
+  "noverseResult": {
+    "durationMs": 5999.099999904633,
+    "totalMs": 6515.399999856949
+  },
+  "noverseUndo": {
+    "durationMs": 5002.899999856949,
+    "totalMs": 5518.199999809265
+  },
+  "noverseSegment": {
+    "selected": "Đồng sáng tác",
+    "edgeErrors": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "mobileRealDelete": {
+    "confirmed": false,
+    "serverError": "Thao tác làm video không hợp lệ.",
+    "jobReadbackStatus": 200,
+    "owner": "PR2 V36 existing frontend action/client contract; server DELETE already exists"
+  },
+  "physicalSafariVerified": false
+}

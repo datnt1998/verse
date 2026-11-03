@@ -5,8 +5,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Button, Checkbox, ChipSelect, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
+  ActionSheet, Button, Checkbox, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
 } from '@noverse/ui'
+import { ResponsiveChipSelect } from '../../../components/responsive-overlays'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/explore'
 import type { Route } from '../../../router'
@@ -389,7 +390,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
             >
               {tt.filterLong} <b>{tt.filterLongValue}</b>
             </Button>
-            <ChipSelect
+            <ResponsiveChipSelect
               label={tt.withinLabel}
               size="m"
               options={WITHIN.map((w) => ({ value: String(w.value), label: w.label }))}
@@ -400,7 +401,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               prefix={tt.filterWithin}
               custom={within !== 30}
             />
-            <ChipSelect
+            <ResponsiveChipSelect
               label={tt.statusLabel}
               size="m"
               options={[

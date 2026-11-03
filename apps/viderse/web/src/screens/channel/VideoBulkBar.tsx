@@ -2,7 +2,8 @@
 // “Đã chọn N”, mỗi nút kèm số video hợp lệ trong số đã chọn (khoá khi 0, lý do ở
 // tooltip), ⋯ cho Huỷ/Xoá, “Thoát chọn Esc”. Thay chỗ ô nhắn trợ lý ở dock.
 import * as stylex from '@stylexjs/stylex'
-import { ActionMenu, Button, Icon, type ActionMenuItem } from '@noverse/ui'
+import { Button, Icon, type ActionMenuItem } from '@noverse/ui'
+import { ResponsiveActionMenu } from '../../components/responsive-overlays'
 import { ActionButton } from '../../components'
 import { t } from '../../i18n/channels'
 import type { BulkCounts } from './videosLogic'
@@ -54,7 +55,7 @@ export function VideoBulkBar({ count, counts, busy, onRetry, onApprove, onBundle
           </ActionButton>
         )
       })}
-      <ActionMenu alwaysVisible label={tt.more} items={more} width={248} trigger={<Icon name="more" size={16} />} />
+      <ResponsiveActionMenu alwaysVisible label={tt.more} items={more} width={248} trigger={<Icon name="more" size={16} />} />
       <span {...stylex.props(sx.spacer)} />
       <Button variant="quiet" size="sm" onClick={onExit}>
         {tt.exit}

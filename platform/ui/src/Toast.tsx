@@ -1,5 +1,5 @@
 // Une seule hôte pour les notifications, y compris avant le montage du shell.
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FocusEvent, type TouchEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type FocusEvent, type TouchEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from './tokens.stylex'
 import { Icon } from './Icon'
@@ -77,9 +77,13 @@ const sx = stylex.create({
  *  ~70% thời gian và thẻ phía trên nhảy một nhịp. `prefers-reduced-motion`: thu ngay. */
 function useCollapseOnLeave(leaving: boolean) {
   const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current
-    if (!el || !leaving) return
+    if (!el) return
+    if (!leaving) {
+      el.style.maxHeight = ''; el.style.overflow = ''; el.style.paddingTop = ''; el.style.transition = ''
+      return
+    }
     el.style.maxHeight = `${el.getBoundingClientRect().height}px`
     el.style.overflow = 'hidden'
     if (typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -109,13 +113,23 @@ const listeners = new Set<() => void>()
 const timers = new Map<number, ReturnType<typeof setTimeout>>()
 const publish = () => listeners.forEach((listener) => listener())
 let held = false
+let appToastDuration: number | undefined
+/** Chính sách thời lượng của app đang chạy (Viderse đặt 4000 ngay trước lần render đầu).
+ *  `undefined` trả lại mặc định cũ của kit. Không áp cho `toast.card` — thẻ vẫn ở tới khi đóng. */
+export const setToastDuration = (duration: number | undefined) => { appToastDuration = duration }
+/** Thao tác đang chạy trên từng toast: chặn lần bấm thứ hai và giữ thời gian còn lại khi chờ. */
+const pendingActions = new Map<number, symbol>()
+const hoverHolds = new Set<number>()
+const focusHolds = new Set<number>()
 /** Rê chuột vào chồng toast: dừng đếm ngược của tất cả, rời chuột thì chạy tiếp (14-jobs-dock §1.4). */
-export function holdToasts(hold: boolean) {
+function holdToasts(hold: boolean) {
   if (hold === held) return
   held = hold
   items = items.map((item) => {
     if (item.leaving) return item
-    if (hold) { clearTimeout(timers.get(item.id)); return { ...item, paused: true, remaining: Math.max(0, item.expiresAt - Date.now()) } }
+    if (hold) { clearTimeout(timers.get(item.id)); return { ...item, paused: true, remaining: item.paused ? item.remaining : Math.max(0, item.expiresAt - Date.now()) } }
+    // Thao tác đang chạy giữ toast sống tới khi xong — rời chuột không được khởi động lại hẹn giờ.
+    if (pendingActions.has(item.id)) return item
     // Thẻ (toast.card) không có hẹn giờ — quay lại trạng thái chưa dừng.
     if (!Number.isFinite(item.expiresAt)) return { ...item, paused: false, remaining: undefined }
     const remaining = item.remaining ?? item.duration
@@ -124,10 +138,54 @@ export function holdToasts(hold: boolean) {
   })
   publish()
 }
+function setToastHold(id: number, source: Set<number>, hold: boolean) {
+  if (hold && !items.some((item) => item.id === id && !item.leaving)) return
+  if (hold) source.add(id)
+  else source.delete(id)
+  holdToasts(hoverHolds.size > 0 || focusHolds.size > 0)
+}
+function useToastHolds(id: number) {
+  useEffect(() => () => {
+    hoverHolds.delete(id)
+    focusHolds.delete(id)
+    holdToasts(hoverHolds.size > 0 || focusHolds.size > 0)
+  }, [id])
+  return {
+    onMouseEnter: () => setToastHold(id, hoverHolds, true),
+    onMouseLeave: () => setToastHold(id, hoverHolds, false),
+    onFocus: () => setToastHold(id, focusHolds, true),
+    onBlur: (event: FocusEvent<HTMLDivElement>) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) setToastHold(id, focusHolds, false)
+    },
+  }
+}
+/** Kết thúc phiên/đổi tài khoản: bỏ ngay mọi toast, không animate để chữ và action
+ *  của phiên cũ không còn cơ hội hiện hay chạy. `toast.card` cũng bị xoá. */
+export function dismissToasts() {
+  for (const timer of timers.values()) clearTimeout(timer)
+  timers.clear()
+  pendingActions.clear()
+  hoverHolds.clear()
+  focusHolds.clear()
+  held = false
+  items = []
+  publish()
+}
 export function dismissToast(id: number) {
+  if (pendingActions.has(id)) return
   if (!items.some((item) => item.id === id && !item.leaving)) return
+  // Gỡ focus khỏi toast sắp biến mất: trình duyệt không phát blur khi node bị xoá,
+  // nên không nhả ở đây sẽ giữ `held` và dừng đếm ngược của mọi toast sau đó.
+  if (typeof document !== 'undefined') {
+    const active = document.activeElement
+    if (active instanceof HTMLElement && active.closest('.ui-toast-wrap')?.getAttribute('data-toast-id') === String(id)) active.blur()
+  }
   clearTimeout(timers.get(id))
+  pendingActions.delete(id)
   items = items.map((item) => item.id === id ? { ...item, leaving: true } : item)
+  hoverHolds.delete(id)
+  focusHolds.delete(id)
+  holdToasts(hoverHolds.size > 0 || focusHolds.size > 0)
   publish()
   const delay = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 520
   timers.set(id, setTimeout(() => {
@@ -136,16 +194,59 @@ export function dismissToast(id: number) {
     publish()
   }, delay))
 }
+/** Giữ thời gian còn lại của toast đang chạy thao tác; trả token để lần xong cũ không đụng bản mới. */
+function beginAction(id: number): symbol | null {
+  if (pendingActions.has(id)) return null
+  const target = items.find((item) => item.id === id)
+  if (!target || target.leaving) return null
+  const token = Symbol('toast-action')
+  pendingActions.set(id, token)
+  if (Number.isFinite(target.duration)) {
+    clearTimeout(timers.get(id))
+    timers.delete(id)
+    items = items.map((item) => item.id === id ? { ...item, paused: true, remaining: item.paused ? item.remaining : Math.max(0, item.expiresAt - Date.now()) } : item)
+    publish()
+  }
+  return token
+}
+/** Lỗi thật + nút thử lại: không báo thành công giả, không đóng toast khi thao tác chưa xong. */
+function showActionError(error: unknown, retry: () => void | Promise<void>) {
+  const labels = getKitLabels()
+  toast(error instanceof Error ? error.message : labels.toast.actionFailed, 'err', { label: labels.retry, onClick: retry })
+}
+function resumeItem(id: number) {
+  if (held) return
+  let changed = false
+  items = items.map((item) => {
+    if (item.id !== id || item.leaving || !Number.isFinite(item.duration) || !item.paused) return item
+    changed = true
+    const remaining = item.remaining ?? item.duration
+    timers.set(item.id, setTimeout(() => dismissToast(item.id), remaining))
+    return { ...item, paused: false, remaining: undefined, expiresAt: Date.now() + remaining }
+  })
+  if (changed) publish()
+}
+/** Kết thúc thao tác: thành công đóng toast; lỗi giữ toast sống với thời gian còn lại và báo lỗi thật. */
+function endAction(id: number, failed: boolean, error?: unknown, retry?: () => void | Promise<void>) {
+  pendingActions.delete(id)
+  if (failed) {
+    if (retry) showActionError(error, retry)
+    resumeItem(id)
+    return
+  }
+  dismissToast(id)
+}
 const push = (item: ToastItem) => {
   const previous = item.key === undefined ? undefined : items.find((notice) => notice.key === item.key)
-  if (previous) { clearTimeout(timers.get(previous.id)); item.id = previous.id }
+  if (previous) { clearTimeout(timers.get(previous.id)); pendingActions.delete(previous.id); item.id = previous.id }
   items = previous ? items.map((notice) => notice.id === previous.id ? item : notice) : [...items, item]
   if (!held && Number.isFinite(item.duration)) timers.set(item.id, setTimeout(() => dismissToast(item.id), item.duration))
   publish()
   return item.id
 }
 export function toast(text: string, tone: Tone = 'neutral', action?: ToastItem['action'], options: ToastOptions = {}) {
-  const duration = options.undo ? 5000 : options.duration ?? (typeof matchMedia !== 'undefined' && matchMedia(phoneQuery(getPhoneMax())).matches ? 2500 : 6000)
+  // Thứ tự: thời lượng chỉ định → chính sách app → undo cũ → mặc định cũ theo mốc điện thoại.
+  const duration = options.duration ?? appToastDuration ?? (options.undo ? 5000 : (typeof matchMedia !== 'undefined' && matchMedia(phoneQuery(getPhoneMax())).matches ? 2500 : 6000))
   const item: ToastItem = { id: ++seq, key: options.key, tone, text, action, expiresAt: Date.now() + duration, duration, undo: options.undo, leaving: false, paused: held || undefined, remaining: held ? duration : undefined }
   return push(item)
 }
@@ -169,6 +270,21 @@ const CIRCUMFERENCE = 2 * Math.PI * 12
 function Notification({ item, front, held }: { item: ToastItem; front: boolean; held: boolean }) {
   const [now, setNow] = useState(Date.now)
   const [busy, setBusy] = useState(false)
+  const hold = useToastHolds(item.id)
+  // Thao tác bất đồng bộ: giữ toast + thời gian còn lại, chặn bấm lần hai, lỗi thì mở nút thử lại.
+  const run = (fn: () => void | Promise<void>) => {
+    const token = beginAction(item.id)
+    if (!token) return
+    setBusy(true)
+    const settle = (failed: boolean, error?: unknown) => {
+      if (pendingActions.get(item.id) !== token) return
+      setBusy(false)
+      endAction(item.id, failed, error, fn)
+    }
+    void Promise.resolve().then(fn).then(() => settle(false), (error: unknown) => settle(true, error))
+  }
+  // Bản keyed thay nội dung/độ ưu tiên dưới cùng một id: mở lại nút cho lần bấm mới.
+  useEffect(() => { setBusy(false) }, [item.action, item.card?.secondaryAction, item.expiresAt])
   // Thẻ ở lại tới khi đóng (duration = ∞) hoặc đang bị rê chuột: không cần nhịp 120 ms.
   const finite = Number.isFinite(item.duration)
   useEffect(() => {
@@ -187,32 +303,23 @@ function Notification({ item, front, held }: { item: ToastItem; front: boolean; 
   const ring = stylex.props(sx.countdown)
   const anim = stylex.props(item.leaving ? sx.out : sx.in)
   const urgent = item.tone === 'err' || !!item.card
-  return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} onMouseEnter={() => holdToasts(true)} onMouseLeave={() => holdToasts(false)}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
+  return <div ref={collapse} data-toast-id={item.id} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...hold}><div className={[item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}><div className={[card.className, box.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, ...box.style }}>
     {item.card ? <>
       <span {...stylex.props(sx.cardHead)}>{TONE_ICON[item.tone] && <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />}<span {...stylex.props(sx.cardTitle)}>{item.card.title}</span>
-        <button type="button" className={`hov-ghost ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} disabled={item.leaving} onClick={() => dismissToast(item.id)}>
+        <button type="button" className={`hov-ghost ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} disabled={busy || item.leaving} onClick={() => dismissToast(item.id)}>
           <Icon name="add" size={14} style={{ transform: 'rotate(45deg)' }} />
         </button>
       </span>
       {item.card.text && <span {...stylex.props(sx.cardText)}>{item.card.text}</span>}
-      <span {...stylex.props(sx.cardActions)}><button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
-        setBusy(true)
-        void Promise.resolve().then(() => item.action!.onClick()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : getKitLabels().toast.actionFailed) })
-      }}>{item.action!.label}</button>{item.card.secondaryAction && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
-        setBusy(true)
-        void Promise.resolve().then(() => item.card!.secondaryAction!.onClick()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : getKitLabels().toast.actionFailed) })
-      }}>{item.card.secondaryAction.label}</button>}</span>
+      <span {...stylex.props(sx.cardActions)}><button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.action!.onClick)}>{item.action!.label}</button>{item.card.secondaryAction && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.card!.secondaryAction!.onClick)}>{item.card.secondaryAction.label}</button>}</span>
       {item.card.meta && <span {...stylex.props(sx.cardMeta)}>{item.card.meta}</span>}
     </> : <>
       {TONE_ICON[item.tone] && <Icon name={TONE_ICON[item.tone]!} size={16} style={{ color: c.fg, flexShrink: 0 }} />}
       <span {...stylex.props(sx.text)}>{item.text}</span>
-      {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => {
-        setBusy(true)
-        void Promise.resolve().then(() => item.action!.onClick()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : getKitLabels().toast.actionFailed) })
-      }}>
+      {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.action!.onClick)}>
         {item.action.label}{item.undo && <span aria-hidden="true"> · {Math.ceil(left / 1000)}s</span>}
       </button>}
-      <button type="button" className={`hov-ghost ui-toast-close ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} title={item.paused ? getKitLabels().toast.pausedAutoDismiss : getKitLabels().toast.autoDismissAfter(Math.ceil(left / 1000))} disabled={item.leaving} onClick={() => dismissToast(item.id)}>
+      <button type="button" className={`hov-ghost ui-toast-close ${stylex.props(sx.close).className}`} aria-label={getKitLabels().toast.dismiss} title={item.paused ? getKitLabels().toast.pausedAutoDismiss : getKitLabels().toast.autoDismissAfter(Math.ceil(left / 1000))} disabled={busy || item.leaving} onClick={() => dismissToast(item.id)}>
         <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" {...stylex.props(sx.ring)}><circle cx="14" cy="14" r="12" fill="none" stroke="var(--line-2)" strokeWidth="1.6" /><circle className={`ui-toast-countdown ${ring.className}`} cx="14" cy="14" r="12" fill="none" stroke={c.fg} strokeWidth="1.6" strokeLinecap="round" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, left / item.duration)))} style={{ opacity: item.paused ? 0.3 : 1 }} /></svg>
         <Icon name="add" size={14} style={{ position: 'relative', transform: 'rotate(45deg)' }} />
       </button>
@@ -316,6 +423,7 @@ const ACT_AGENT: Record<ToastAgent, { tint: string; fg: string; orb: string }> =
 function ActivityNotification({ item, front }: { item: ToastItem; front: boolean }) {
   const [now, setNow] = useState(Date.now)
   const [busy, setBusy] = useState(false)
+  const hold = useToastHolds(item.id)
   const touchY = useRef<number | null>(null)
   // Thẻ việc nền (duration = ∞) ở lại tới khi bị đóng — không có vòng đếm ngược
   // và không có gì để vẽ lại, nên đừng giữ một interval 120 ms chạy mãi.
@@ -333,16 +441,30 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   const labels = getKitLabels().toast
   const closeTitle = !finite ? labels.staysUntilDismissed : item.paused ? labels.pausedAutoDismiss : labels.autoDismissAfter(Math.ceil(left / 1000))
   const run = (fn: () => void | Promise<void>) => {
+    const token = beginAction(item.id)
+    if (!token) return
     setBusy(true)
-    void Promise.resolve().then(() => fn()).then(() => dismissToast(item.id), (error: unknown) => { setBusy(false); toast.err(error instanceof Error ? error.message : labels.actionFailed) })
+    const settle = (failed: boolean, error?: unknown) => {
+      if (pendingActions.get(item.id) !== token) return
+      setBusy(false)
+      endAction(item.id, failed, error, fn)
+    }
+    void Promise.resolve().then(fn).then(() => settle(false), (error: unknown) => settle(true, error))
   }
+  // Bản keyed thay nội dung/độ ưu tiên dưới cùng một id: mở lại nút cho lần bấm mới.
+  useEffect(() => { setBusy(false) }, [item.action, item.card?.secondaryAction, item.expiresAt])
   const collapse = useCollapseOnLeave(item.leaving)
+  const entered = useRef(!item.leaving)
+  if (!item.leaving) entered.current = true
+  // A pending pill can be hidden by a newer result. Settling it must not mount
+  // a fresh exit animation for content that is no longer on screen.
+  if (!entered.current) return null
   const wrap = stylex.props(sx.wrap)
   const anim = stylex.props(item.leaving ? ax.actOut : ax.actIn)
   const ring = stylex.props(sx.countdown)
   const ringSvg = finite && <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" {...stylex.props(sx.ring)}><circle cx="14" cy="14" r="12" fill="none" stroke="var(--vv-toast-ring, var(--line-2))" strokeWidth="1.6" /><circle className={`ui-toast-countdown ${ring.className}`} cx="14" cy="14" r="12" fill="none" stroke={fg} strokeWidth="1.6" strokeLinecap="round" strokeDasharray={CIRCUMFERENCE} strokeDashoffset={CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, left / item.duration)))} style={{ opacity: item.paused ? 0.3 : 1 }} /></svg>
   const closeButton = (closeStyle: { className?: string; style?: CSSProperties }) => (
-    <button type="button" className={`hov-ghost ui-toast-close ${closeStyle.className}`} style={closeStyle.style} aria-label={labels.dismiss} title={closeTitle} disabled={item.leaving} onClick={() => dismissToast(item.id)}>
+    <button type="button" className={`hov-ghost ui-toast-close ${closeStyle.className}`} style={closeStyle.style} aria-label={labels.dismiss} title={closeTitle} disabled={busy || item.leaving} onClick={() => dismissToast(item.id)}>
       {ringSvg}
       <Icon name="add" size={14} style={{ position: 'relative', transform: 'rotate(45deg)' }} />
     </button>
@@ -360,7 +482,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   if (!item.card) {
     // Viên kết quả thao tác: icon · câu một dòng · tối đa một nút · đóng có vòng.
     const pill = stylex.props(ax.pill, ax.pillTone(item.tone === 'ok' ? 'var(--vv-st-ready-28, var(--kit-ok-30))' : item.tone === 'warn' ? 'var(--vv-st-review-border, var(--kit-warn-30))' : item.tone === 'err' ? 'var(--vv-danger-border, var(--kit-errf-30))' : 'var(--vv-toast-border, var(--kit-wash-12))'))
-    return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style}>
+    return <div ref={collapse} data-toast-id={item.id} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...hold}>
       <div className={['ui-toast-pill', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
         <div className={['ui-toast-glass', pill.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={pill.style}>
           {ACT_PILL_ICON[item.tone] && <Icon name={ACT_PILL_ICON[item.tone]!} size={16} style={{ color: fg, flexShrink: 0 }} />}
@@ -378,7 +500,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   const card = stylex.props(ax.tcard, sx.card, item.tone === 'err' && ax.tcardErr, !front && (item.paused ? sx.backHeld : sx.back))
   const primaryStyle = stylex.props(sx.action, ax.primary)
   const ghostStyle = stylex.props(sx.action)
-  return <div ref={collapse} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...swipe}>
+  return <div ref={collapse} data-toast-id={item.id} className={['ui-toast-wrap', item.leaving && 'ui-toast-leaving', wrap.className].filter(Boolean).join(' ')} style={wrap.style} {...hold} {...swipe}>
     <div className={['ui-toast-card', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
       <div className={['ui-toast-glass', card.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={{ ...card.style, '--vv-tcard-tint': tint } as CSSProperties}>
         <span {...stylex.props(ax.tcardTint)} aria-hidden="true" />
@@ -426,7 +548,8 @@ export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   const pills = notices.filter((notice) => !notice.card)
   const cards = notices.filter((notice) => !!notice.card && !notice.leaving)
   // Thẻ thứ ba đẩy đi thẻ cũ nhất không phải Cần xử lý (thẻ đó ở lại tới khi đóng).
-  const droppedCards = cards.filter((card) => card.tone !== 'err').slice(0, Math.max(0, cards.length - cap))
+  const pendingCards = cards.filter((card) => pendingActions.has(card.id)).length
+  const droppedCards = cards.filter((card) => card.tone !== 'err' && !pendingActions.has(card.id)).slice(0, Math.max(0, cards.length - pendingCards - cap))
   const shown = cards.filter((card) => !droppedCards.includes(card))
   useEffect(() => {
     for (const pill of pills.slice(0, -1)) if (!pill.leaving) dismissToast(pill.id)
@@ -434,15 +557,13 @@ export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   })
   const visiblePills = pills.filter((pill, index) => pill.leaving || index === pills.length - 1)
   const renderCards = [...shown, ...notices.filter((notice) => !!notice.card && notice.leaving)].reverse()
-  const blur = (event: FocusEvent<HTMLDivElement>) => { if (!event.currentTarget.contains(event.relatedTarget)) holdToasts(false) }
-  const hold = { onMouseEnter: () => holdToasts(true), onMouseLeave: () => holdToasts(false), onFocus: () => holdToasts(true), onBlur: blur }
   const pillHost = stylex.props(ax.pillHost(mobile ? 'var(--m-toast-bottom)' : 'var(--vv-toast-bottom, calc(18px + var(--m-safe-bottom)))'))
   const stack = stylex.props(ax.stack)
   return <>
-    <div className={pillHost.className} style={{ ...pillHost.style, ...style }} {...hold}>
+    <div className={pillHost.className} style={{ ...pillHost.style, ...style }}>
       {visiblePills.map((item) => <ActivityNotification key={item.id} item={item} front />)}
     </div>
-    <div role="region" aria-label={getKitLabels().toast.notifications} className={stack.className} style={stack.style} {...hold}>
+    <div role="region" aria-label={getKitLabels().toast.notifications} className={stack.className} style={stack.style}>
       {renderCards.map((item, index) => <ActivityNotification key={item.id} item={item} front={index === 0} />)}
     </div>
   </>

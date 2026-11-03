@@ -168,7 +168,7 @@ it('uses daily pace separately from remaining turns without repeating skipped li
 const picker = (label: string) => el.querySelector<HTMLButtonElement>(`button[role="combobox"][aria-label="${label}"]`)!
 const pick = async (label: string, option: string) => {
   await act(async () => picker(label).click())
-  const target = [...el.querySelectorAll<HTMLElement>('[role="option"]')].find((node) => node.textContent === option)
+  const target = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find((node) => node.textContent === option)
   expect(target, `lựa chọn “${option}” trong ${label}`).toBeDefined()
   await act(async () => target!.click())
 }
@@ -195,4 +195,3 @@ it('names a channel that was created without a name instead of showing an empty 
   expect([...el.querySelectorAll('[role="option"]')].map((node) => node.textContent)).toEqual(['Kênh của tôi', 'Kênh chưa đặt tên'])
   expect(picker('Kênh').textContent).toContain('Kênh của tôi')
 })
-

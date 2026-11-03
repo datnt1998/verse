@@ -3,7 +3,8 @@
 // chi tiết, template, nút “Việc tiếp” theo trạng thái và menu ⋯.
 import { memo, type MouseEvent } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { ActionMenu, Button, Checkbox, Icon, type ActionMenuItem } from '@noverse/ui'
+import { Button, Checkbox, Icon, type ActionMenuItem } from '@noverse/ui'
+import { ResponsiveActionMenu } from '../../components/responsive-overlays'
 import type { ChannelJob } from '../../api/channelVideos'
 import { statusColor, statusName } from '../../components/StatusLabel'
 import { requestMarkPosted } from '../../components/performance'
@@ -54,7 +55,7 @@ function menuItems(job: ChannelJob, props: Pick<VideoRowProps, 'onRefresh' | 'on
   }
   if (!job.supersededAt) items.push({ id: 'restart', label: m.restart, onSelect: () => restartVideo(job, { onRefresh: props.onRefresh, onError: report }) })
   if (job.stageGroup === 'working' || job.stageGroup === 'paused') items.push({ id: 'stop', label: m.stop, onSelect: () => stopVideo(job, { onRefresh: props.onRefresh, onError: report }) })
-  if (/^https?:\/\//i.test(job.source.url)) items.push({ id: 'source', label: m.source, onSelect: () => window.open(job.source.url, '_blank', 'noreferrer') })
+  if (/^https?:\/\//i.test(job.source.url)) items.push({ id: 'source', label: m.source, href: job.source.url, target: '_blank' })
   items.push({ id: 'remove', label: m.remove, danger: true, lockedReason: job.stageGroup === 'working' ? m.removeLocked : undefined, onSelect: () => removeVideo(job, { onRefresh: props.onRefresh, onError: report, afterRemove: props.onRefresh }) })
   return items
 }
@@ -96,7 +97,7 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
                   ? <a href={workbenchHref(job)} {...stylex.props(mch.vAction)}>{tt.open}</a>
                   : null}
         </div>
-        <ActionMenu
+        <ResponsiveActionMenu
           alwaysVisible
           label={tt.moreFor(title)}
           items={menuItems(job, props)}
@@ -145,7 +146,7 @@ export const VideoRow = memo(function VideoRow(props: VideoRowProps) {
               : action === 'open'
                 ? <a href={workbenchHref(job)} {...stylex.props(sx.actionLink)}>{tt.open}</a>
                 : null}
-        <ActionMenu
+        <ResponsiveActionMenu
           alwaysVisible
           label={tt.moreFor(title)}
           items={menuItems(job, props)}

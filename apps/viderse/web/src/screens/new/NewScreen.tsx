@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Button, Icon, KitSelect, Segmented, Switch, toast } from '@noverse/ui'
+import { Button, Icon, Segmented, Switch, toast } from '@noverse/ui'
 import { ActionButton, LensLogo, Orb, type Assistant } from '../../components'
+import { ResponsiveSelect } from '../../components/responsive-overlays'
 import { useResource } from '../../data/useResource'
 import { useStatus } from '../../data/status'
 import { keys } from '../../data/keys'
@@ -156,10 +157,10 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
         {invalid && !multi && <div className={`nv-banner ${stylex.props(styles.banner).className}`} role="alert"><Icon name="danger" size={16} /><span {...stylex.props(styles.bannerText)}>{tt.invalid}</span></div>}
         {multi && current && <div className={`nv-summary ${stylex.props(styles.summary).className}`}><span className={`nv-chip nv-chip--ok ${stylex.props(styles.chip, styles.chipOk).className}`}><Icon xstyle={styles.summaryIcon} name="tick-b" size={15} />{tt.accepted(current.accepted.length)}</span>{current.duplicates.length > 0 && <span className={`nv-chip nv-chip--warn ${stylex.props(styles.chip, styles.chipWarn).className}`}><Icon xstyle={styles.summaryIcon} name="flag" size={15} />{tt.plan.skipDup(current.duplicates.length)}</span>}{current.invalid.length > 0 && <span className={`nv-chip ${stylex.props(styles.chip, styles.chipPlain).className}`}>{tt.plan.skipInvalid(current.invalid.length)}</span>}{line?.detail && <span className={`nv-chip ${stylex.props(styles.chip, styles.chipPlain).className}`}>{line.detail}</span>}</div>}
         <div className={`nv-options ${stylex.props(styles.options, state === 'empty' && styles.emptyHidden).className}`}>
-          <KitSelect aria-label={tt.channel} value={channel?.id ?? ''} options={channelOptions} onChange={(id) => { setChannelId(id); setTemplateId('') }}
+          <ResponsiveSelect aria-label={tt.channel} value={channel?.id ?? ''} options={channelOptions} onChange={(id) => { setChannelId(id); setTemplateId('') }}
             icon={<Icon name="channel" size={mobile ? 17 : 14} />} prefix={<span {...stylex.props(styles.optionLabel)}>{tt.channel}</span>}
             chevronSize={mobile ? 15 : 12} xstyle={styles.optionSelect} triggerStyle={styles.optionTrigger} />
-          <KitSelect aria-label={tt.template} value={templateId} options={templateOptions} onChange={setTemplateId}
+          <ResponsiveSelect aria-label={tt.template} value={templateId} options={templateOptions} onChange={setTemplateId}
             icon={<Icon name="layer" size={mobile ? 17 : 14} />} prefix={<span {...stylex.props(styles.optionLabel)}>{tt.template}</span>}
             chevronSize={mobile ? 15 : 12} xstyle={styles.optionSelect} triggerStyle={styles.optionTrigger} />
           {mobile && multi && <div className={`nv-option nv-priority-row ${stylex.props(styles.option, styles.priorityRow).className}`}><Icon name="arrow-up" size={17} xstyle={styles.priorityIcon} /><span {...stylex.props(styles.priorityText)}><span>{tt.priority(acceptedCount)}</span><span {...stylex.props(styles.prioritySubtitle)} title={tt.priorityHint}>{tt.priorityHint}</span></span><Switch size={[44, 26]} checked={priority} onChange={setPriority} aria-label={tt.priority(acceptedCount)} /></div>}

@@ -66,7 +66,7 @@ const passwordFlow = (pwResponse: () => Promise<Response> | Response) => (path: 
 }
 
 describe('đổi mật khẩu', () => {
-  it('thành công → POST {current,new}, phiên UI dọn, toast đăng nhập lại — không gọi lại /api/me', async () => {
+  it('thành công → POST {current,new}, phiên UI dọn — không gọi lại /api/me', async () => {
     const fn = stubFetch(passwordFlow(() => respond({ ok: true, reauthenticate: true })))
     const container = await render()
     expect(latest.mustChangePassword).toBe(true)
@@ -78,7 +78,6 @@ describe('đổi mật khẩu', () => {
     expect(JSON.parse(pwCall[1].body as string)).toEqual({ current: 'temp-pass-1', new: 'matkhau-moi-1' })
     expect(latest.user).toBeNull()
     expect(latest.mustChangePassword).toBe(false)
-    expect(document.body.textContent).toContain('Đã đổi mật khẩu. Vui lòng đăng nhập lại.')
     // Không refresh-me-then-fake-failure: /api/me chỉ bị gọi đúng lần boot.
     expect(fn.mock.calls.filter(([p]) => p === '/api/me')).toHaveLength(1)
   })

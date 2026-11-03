@@ -23,6 +23,19 @@ export const corners = stylex.defineVars({
   '--vv-r-16': '16px', '--vv-r-22': '22px', '--vv-r-26': '26px', '--vv-r-pill': '999px',
 })
 
+/** Semantic values already defined by design/v1/tokens.css and kit.css. */
+export const typography = stylex.defineVars({
+  '--vv-fs-ui': '13px',
+  '--vv-fs-meta': '12px',
+  '--vv-fs-small': '11.5px',
+  '--vv-fs-group': '11px',
+})
+
+export const controlMotion = stylex.defineVars({
+  // kit.css: .vv-select__chev and chip arrows.
+  selectChevron: '180ms',
+})
+
 /** Exact clone-pipeline artboard measurements outside the shared token scale. */
 export const pipeline = stylex.defineVars({
   newFooterClearance: '93.75px',
