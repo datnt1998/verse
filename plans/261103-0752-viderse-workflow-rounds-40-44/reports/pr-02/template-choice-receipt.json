@@ -1,0 +1,9 @@
+{
+  "templateId": "5fa15b48-ed8b-4614-ab75-897009d958a2",
+  "savedPromptId": "11d073f4-c756-4f6d-a5ab-8e73a7e02ac5",
+  "patchStatusObserved": 200,
+  "readbackStatus": 200,
+  "nativeToastObserved": "Template dùng prompt “Ảnh mẫu QA tự tạo · 1” · video mới vẽ theo prompt này",
+  "modalCountAfterChoiceObserved": 0,
+  "providerCalls": 0
+}

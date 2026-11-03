@@ -1,0 +1,14 @@
+{
+  "changedClipIds": [
+    "clone-5f79fcf4-2805-41af-a2a1-ef8e219e4e98-g1-scene-sc-03"
+  ],
+  "changedFields": [
+    "mediaId",
+    "src"
+  ],
+  "keyframesPreserved": true,
+  "undoRestoredItems": true,
+  "undoRestoredKeyframes": true,
+  "linkRejectedBeforeFix": "Content-Type phải là application/json",
+  "providerInvocations": 0
+}

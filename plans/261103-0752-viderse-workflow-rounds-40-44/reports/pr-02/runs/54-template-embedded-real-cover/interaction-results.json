@@ -1,0 +1,1241 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "template-state-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "template-state-audit.pw.ts",
+      "file": "template-state-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "template default and cover tab bind native section state without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2314,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:26.701Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-section-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJwcm9kdWN0U3RhdGUiOiAiZGVmYXVsdCBpbWFnZXMg4oaSIGNvdmVyIHRhYiDihpIgaW1hZ2VzIHJldHVybiIsCiAgIm5vV3JpdGVzIjogdHJ1ZSwKICAicmV2aXNpb25CZWZvcmUiOiAzLAogICJyZXZpc2lvbkFmdGVyIjogMywKICAicHJldmlld1N0YXRlIjogIm5vbmUiCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-aaef3-ection-state-without-writes-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-9a19308ce04d9c43cbfa",
+          "file": "template-state-audit.pw.ts",
+          "line": 182,
+          "column": 5
+        },
+        {
+          "title": "cover prompt samples keep the saved cover selection and expose the correct group label",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2423,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:29.612Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-composition-inventory.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInNlbGVjdGVkUHJvbXB0IjogewogICAgImlkIjogImJ1aWx0aW46Y292ZXItY2xlYW4iLAogICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgICAibGFiZWwiOiAi4bqibmggc+G6oWNoIgogIH0sCiAgInByb21wdHMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJidWlsdGluOmNvdmVyLWNsZWFuIiwKICAgICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICAgImNvbXBvc2l0aW9uIjogImNsZWFuIiwKICAgICAgImxhYmVsIjogIuG6om5oIHPhuqFjaCIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vayIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2siLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vayIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jaXJjbGUtYXJyb3ciLAogICAgICAibmFtZSI6ICJLaG9hbmggdHLDsm4gKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiY2lyY2xlLWFycm93IiwKICAgICAgImxhYmVsIjogIktob2FuaCB0csOybiArIG3FqWkgdMOqbiIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vay1hcnJvdyIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2sgKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vay1hcnJvdyIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rICsgbcWpaSB0w6puIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1zcGxpdCIsCiAgICAgICJuYW1lIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImNvbXBvc2l0aW9uIjogInNwbGl0IiwKICAgICAgImxhYmVsIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jbG9zZXVwIiwKICAgICAgIm5hbWUiOiAiQ+G6rW4gbeG6t3QgY+G6o20geMO6YyIsCiAgICAgICJjb21wb3NpdGlvbiI6ICJjbG9zZXVwIiwKICAgICAgImxhYmVsIjogIkPhuq1uIG3hurd0IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9CiAgXSwKICAiY29tcG9zaXRpb25zIjogWwogICAgImNpcmNsZS1hcnJvdyIsCiAgICAiY2xlYW4iLAogICAgImNsb3NldXAiLAogICAgImhvb2siLAogICAgImhvb2stYXJyb3ciLAogICAgInNwbGl0IgogIF0sCiAgInByb21wdEdyb3VwQWNjZXNzaWJsZU5hbWVzIjogWwogICAgIkNo4buJIGThuqtuIOG6o25oIGLDrGEiLAogICAgIkPDoWNoIGzhuqV5IOG6o25oIGLDrGEiCiAgXSwKICAibm9Xcml0ZXMiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-2a8c6-ose-the-correct-group-label-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-a1fc4cc08c5257e12382",
+          "file": "template-state-audit.pw.ts",
+          "line": 256,
+          "column": 5
+        },
+        {
+          "title": "cover default and source controls mirror the saved recipe without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1304,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:32.042Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-default-source-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgImNvdmVyU291cmNlIjogInVwbG9hZCIsCiAgImV4cGVjdGVkU291cmNlIjogIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmgiLAogICJjb3Zlck1lZGlhSWQiOiBudWxsLAogICJzb3VyY2VSYWRpb3MiOiBbCiAgICAiSG/huqEgc8SpIHbhur0gdGhlbyBjaOG7iSBk4bqrbk3hu5dpIHZpZGVvIG3hu5l0IOG6o25oIGLDrGEgbeG7m2kgdGhlbyBjaOG7iSBk4bqrbiB2w6AgY8OidSBjaHV54buHbi4iLAogICAgIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmhN4buNaSB2aWRlbyBkw7luZyBjaHVuZyBt4buZdCDhuqNuaCBiw6xhLiIKICBdLAogICJub1dyaXRlcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f28cf-saved-recipe-without-writes-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-a3a3c52a6ef404bc37c6",
+          "file": "template-state-audit.pw.ts",
+          "line": 332,
+          "column": 5
+        },
+        {
+          "title": "actual saved cover trial previews in one surface and preserves source, settings and focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2221,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:33.354Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-viewer-motion.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJyZWR1Y2VkIjogZmFsc2UsCiAgImFuaW1hdGlvbk5hbWUiOiAia2l0LWRpYWxvZyIsCiAgImFuaW1hdGlvbkR1cmF0aW9uIjogIjAuM3MiLAogICJhbmltYXRpb25zIjogWwogICAgewogICAgICAicGxheVN0YXRlIjogImZpbmlzaGVkIiwKICAgICAgImR1cmF0aW9uIjogMzAwCiAgICB9CiAgXQp9"
+                    },
+                    {
+                      "name": "cover-trial-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInRyaWFsSWQiOiAiNmIyODcwMzUtNDBiYi00NzIyLWJjOTgtZDZkMzQ5NTk0ZTFjIiwKICAic291cmNlIjogImF1dGhvcml6ZWQgYWN0dWFsIHByb3ZpZGVyIGNvdmVyIHRyaWFsIChyZXVzZWQsIG5vdCByZWdlbmVyYXRlZCkiLAogICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgImNvbXBvc2l0aW9uTGFiZWwiOiAi4bqibmggc+G6oWNoIiwKICAiaG9va1RleHRQcmVzZW50IjogZmFsc2UsCiAgImNvdmVyU2VjdGlvbkhvb2tUZXh0TWF0Y2hlcyI6IG51bGwsCiAgImRpbWVuc2lvbnMiOiB7CiAgICAid2lkdGgiOiAxNjcyLAogICAgImhlaWdodCI6IDk0MQogIH0sCiAgImNvc3RJbWFnZXMiOiAxLAogICJxdW90YSI6IHsKICAgICJwcm92aWRlciI6ICJjaGF0Z3B0IiwKICAgICJsYWJlbCI6ICJDaGF0R1BUIiwKICAgICJwYWlkIjogdHJ1ZSwKICAgICJsZWZ0IjogMCwKICAgICJ0b3RhbCI6IDIsCiAgICAicmVzZXRBdCI6ICIyMDI2LTExLTA1VDAwOjAwOjAwKzA3OjAwIgogIH0sCiAgInJlYWR5VG9EcmF3Tm93IjogZmFsc2UsCiAgImRyYXdQcmVzc2VkIjogZmFsc2UsCiAgIndyaXRlcyI6IFtdLAogICJwcm92aWRlckNhbGxzIjogMCwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAxNDQwLAogICAgImhlaWdodCI6IDkwMAogIH0sCiAgInN1cmZhY2UiOiAia2l0IERpYWxvZyIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f390f-s-source-settings-and-focus-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-8cb624ac69267ce7ae24",
+          "file": "template-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        },
+        {
+          "title": "template default and cover tab bind native section state without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1723,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:36.179Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-section-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJwcm9kdWN0U3RhdGUiOiAiZGVmYXVsdCBpbWFnZXMg4oaSIGNvdmVyIHRhYiDihpIgaW1hZ2VzIHJldHVybiIsCiAgIm5vV3JpdGVzIjogdHJ1ZSwKICAicmV2aXNpb25CZWZvcmUiOiAzLAogICJyZXZpc2lvbkFmdGVyIjogMywKICAicHJldmlld1N0YXRlIjogIm5vbmUiCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-aaef3-ection-state-without-writes-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-abd771cddf149e4ff96e",
+          "file": "template-state-audit.pw.ts",
+          "line": 182,
+          "column": 5
+        },
+        {
+          "title": "cover prompt samples keep the saved cover selection and expose the correct group label",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:38.426Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-composition-inventory.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInNlbGVjdGVkUHJvbXB0IjogewogICAgImlkIjogImJ1aWx0aW46Y292ZXItY2xlYW4iLAogICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgICAibGFiZWwiOiAi4bqibmggc+G6oWNoIgogIH0sCiAgInByb21wdHMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJidWlsdGluOmNvdmVyLWNsZWFuIiwKICAgICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICAgImNvbXBvc2l0aW9uIjogImNsZWFuIiwKICAgICAgImxhYmVsIjogIuG6om5oIHPhuqFjaCIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vayIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2siLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vayIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jaXJjbGUtYXJyb3ciLAogICAgICAibmFtZSI6ICJLaG9hbmggdHLDsm4gKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiY2lyY2xlLWFycm93IiwKICAgICAgImxhYmVsIjogIktob2FuaCB0csOybiArIG3FqWkgdMOqbiIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vay1hcnJvdyIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2sgKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vay1hcnJvdyIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rICsgbcWpaSB0w6puIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1zcGxpdCIsCiAgICAgICJuYW1lIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImNvbXBvc2l0aW9uIjogInNwbGl0IiwKICAgICAgImxhYmVsIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jbG9zZXVwIiwKICAgICAgIm5hbWUiOiAiQ+G6rW4gbeG6t3QgY+G6o20geMO6YyIsCiAgICAgICJjb21wb3NpdGlvbiI6ICJjbG9zZXVwIiwKICAgICAgImxhYmVsIjogIkPhuq1uIG3hurd0IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9CiAgXSwKICAiY29tcG9zaXRpb25zIjogWwogICAgImNpcmNsZS1hcnJvdyIsCiAgICAiY2xlYW4iLAogICAgImNsb3NldXAiLAogICAgImhvb2siLAogICAgImhvb2stYXJyb3ciLAogICAgInNwbGl0IgogIF0sCiAgInByb21wdEdyb3VwQWNjZXNzaWJsZU5hbWVzIjogWwogICAgIkNo4buJIGThuqtuIOG6o25oIGLDrGEiLAogICAgIkPDoWNoIGzhuqV5IOG6o25oIGLDrGEiCiAgXSwKICAibm9Xcml0ZXMiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-2a8c6-ose-the-correct-group-label-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-78e7999fdd7987dea88a",
+          "file": "template-state-audit.pw.ts",
+          "line": 256,
+          "column": 5
+        },
+        {
+          "title": "cover default and source controls mirror the saved recipe without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1294,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:40.809Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-default-source-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgImNvdmVyU291cmNlIjogInVwbG9hZCIsCiAgImV4cGVjdGVkU291cmNlIjogIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmgiLAogICJjb3Zlck1lZGlhSWQiOiBudWxsLAogICJzb3VyY2VSYWRpb3MiOiBbCiAgICAiSG/huqEgc8SpIHbhur0gdGhlbyBjaOG7iSBk4bqrbk3hu5dpIHZpZGVvIG3hu5l0IOG6o25oIGLDrGEgbeG7m2kgdGhlbyBjaOG7iSBk4bqrbiB2w6AgY8OidSBjaHV54buHbi4iLAogICAgIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmhN4buNaSB2aWRlbyBkw7luZyBjaHVuZyBt4buZdCDhuqNuaCBiw6xhLiIKICBdLAogICJub1dyaXRlcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f28cf-saved-recipe-without-writes-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-3893c166bd1383d00092",
+          "file": "template-state-audit.pw.ts",
+          "line": 332,
+          "column": 5
+        },
+        {
+          "title": "actual saved cover trial previews in one surface and preserves source, settings and focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1578,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:42.110Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-viewer-motion.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInJlZHVjZWQiOiB0cnVlLAogICJhbmltYXRpb25OYW1lIjogIm5vbmUiLAogICJhbmltYXRpb25EdXJhdGlvbiI6ICIwcyIsCiAgImFuaW1hdGlvbnMiOiBbXQp9"
+                    },
+                    {
+                      "name": "cover-trial-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInRyaWFsSWQiOiAiNmIyODcwMzUtNDBiYi00NzIyLWJjOTgtZDZkMzQ5NTk0ZTFjIiwKICAic291cmNlIjogImF1dGhvcml6ZWQgYWN0dWFsIHByb3ZpZGVyIGNvdmVyIHRyaWFsIChyZXVzZWQsIG5vdCByZWdlbmVyYXRlZCkiLAogICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgImNvbXBvc2l0aW9uTGFiZWwiOiAi4bqibmggc+G6oWNoIiwKICAiaG9va1RleHRQcmVzZW50IjogZmFsc2UsCiAgImNvdmVyU2VjdGlvbkhvb2tUZXh0TWF0Y2hlcyI6IG51bGwsCiAgImRpbWVuc2lvbnMiOiB7CiAgICAid2lkdGgiOiAxNjcyLAogICAgImhlaWdodCI6IDk0MQogIH0sCiAgImNvc3RJbWFnZXMiOiAxLAogICJxdW90YSI6IHsKICAgICJwcm92aWRlciI6ICJjaGF0Z3B0IiwKICAgICJsYWJlbCI6ICJDaGF0R1BUIiwKICAgICJwYWlkIjogdHJ1ZSwKICAgICJsZWZ0IjogMCwKICAgICJ0b3RhbCI6IDIsCiAgICAicmVzZXRBdCI6ICIyMDI2LTExLTA1VDAwOjAwOjAwKzA3OjAwIgogIH0sCiAgInJlYWR5VG9EcmF3Tm93IjogZmFsc2UsCiAgImRyYXdQcmVzc2VkIjogZmFsc2UsCiAgIndyaXRlcyI6IFtdLAogICJwcm92aWRlckNhbGxzIjogMCwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAxNDQwLAogICAgImhlaWdodCI6IDkwMAogIH0sCiAgInN1cmZhY2UiOiAia2l0IERpYWxvZyIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f390f-s-source-settings-and-focus-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-87944536f9cad3d38d0f",
+          "file": "template-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        },
+        {
+          "title": "template default and cover tab bind native section state without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:44.323Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-section-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMzkwLAogICAgImhlaWdodCI6IDg0NAogIH0sCiAgInByb2R1Y3RTdGF0ZSI6ICJtb2JpbGUgbGlzdCDihpIgY292ZXIgY2hpbGQgc2NyZWVuIOKGkiBiYWNrIiwKICAibm9Xcml0ZXMiOiB0cnVlLAogICJyZXZpc2lvbkJlZm9yZSI6IDMsCiAgInJldmlzaW9uQWZ0ZXIiOiAzLAogICJwcmV2aWV3U3RhdGUiOiBudWxsCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-aaef3-ection-state-without-writes-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-b44f2097d6dbc7b524f3",
+          "file": "template-state-audit.pw.ts",
+          "line": 182,
+          "column": 5
+        },
+        {
+          "title": "cover prompt samples keep the saved cover selection and expose the correct group label",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1215,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:46.576Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-composition-inventory.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInNlbGVjdGVkUHJvbXB0IjogewogICAgImlkIjogImJ1aWx0aW46Y292ZXItY2xlYW4iLAogICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgICAibGFiZWwiOiAi4bqibmggc+G6oWNoIgogIH0sCiAgInByb21wdHMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJidWlsdGluOmNvdmVyLWNsZWFuIiwKICAgICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICAgImNvbXBvc2l0aW9uIjogImNsZWFuIiwKICAgICAgImxhYmVsIjogIuG6om5oIHPhuqFjaCIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vayIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2siLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vayIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jaXJjbGUtYXJyb3ciLAogICAgICAibmFtZSI6ICJLaG9hbmggdHLDsm4gKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiY2lyY2xlLWFycm93IiwKICAgICAgImxhYmVsIjogIktob2FuaCB0csOybiArIG3FqWkgdMOqbiIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vay1hcnJvdyIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2sgKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vay1hcnJvdyIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rICsgbcWpaSB0w6puIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1zcGxpdCIsCiAgICAgICJuYW1lIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImNvbXBvc2l0aW9uIjogInNwbGl0IiwKICAgICAgImxhYmVsIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jbG9zZXVwIiwKICAgICAgIm5hbWUiOiAiQ+G6rW4gbeG6t3QgY+G6o20geMO6YyIsCiAgICAgICJjb21wb3NpdGlvbiI6ICJjbG9zZXVwIiwKICAgICAgImxhYmVsIjogIkPhuq1uIG3hurd0IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9CiAgXSwKICAiY29tcG9zaXRpb25zIjogWwogICAgImNpcmNsZS1hcnJvdyIsCiAgICAiY2xlYW4iLAogICAgImNsb3NldXAiLAogICAgImhvb2siLAogICAgImhvb2stYXJyb3ciLAogICAgInNwbGl0IgogIF0sCiAgInByb21wdEdyb3VwQWNjZXNzaWJsZU5hbWVzIjogWwogICAgIkNo4buJIGThuqtuIOG6o25oIGLDrGEiLAogICAgIkPDoWNoIGzhuqV5IOG6o25oIGLDrGEiCiAgXSwKICAibm9Xcml0ZXMiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-2a8c6-ose-the-correct-group-label-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-d31976ec96e2e5ba30d7",
+          "file": "template-state-audit.pw.ts",
+          "line": 256,
+          "column": 5
+        },
+        {
+          "title": "cover default and source controls mirror the saved recipe without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:47.798Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-default-source-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgImNvdmVyU291cmNlIjogInVwbG9hZCIsCiAgImV4cGVjdGVkU291cmNlIjogIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmgiLAogICJjb3Zlck1lZGlhSWQiOiBudWxsLAogICJzb3VyY2VSYWRpb3MiOiBbCiAgICAiSG/huqEgc8SpIHbhur0gdGhlbyBjaOG7iSBk4bqrbk3hu5dpIHZpZGVvIG3hu5l0IOG6o25oIGLDrGEgbeG7m2kgdGhlbyBjaOG7iSBk4bqrbiB2w6AgY8OidSBjaHV54buHbi4iLAogICAgIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmhN4buNaSB2aWRlbyBkw7luZyBjaHVuZyBt4buZdCDhuqNuaCBiw6xhLiIKICBdLAogICJub1dyaXRlcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f28cf-saved-recipe-without-writes-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-3dfa25596ecfc4df7752",
+          "file": "template-state-audit.pw.ts",
+          "line": 332,
+          "column": 5
+        },
+        {
+          "title": "actual saved cover trial previews in one surface and preserves source, settings and focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:49.027Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-trial-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInRyaWFsSWQiOiAiNmIyODcwMzUtNDBiYi00NzIyLWJjOTgtZDZkMzQ5NTk0ZTFjIiwKICAic291cmNlIjogImF1dGhvcml6ZWQgYWN0dWFsIHByb3ZpZGVyIGNvdmVyIHRyaWFsIChyZXVzZWQsIG5vdCByZWdlbmVyYXRlZCkiLAogICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgImNvbXBvc2l0aW9uTGFiZWwiOiAi4bqibmggc+G6oWNoIiwKICAiaG9va1RleHRQcmVzZW50IjogZmFsc2UsCiAgImNvdmVyU2VjdGlvbkhvb2tUZXh0TWF0Y2hlcyI6IG51bGwsCiAgImRpbWVuc2lvbnMiOiB7CiAgICAid2lkdGgiOiAxNjcyLAogICAgImhlaWdodCI6IDk0MQogIH0sCiAgImNvc3RJbWFnZXMiOiAxLAogICJxdW90YSI6IHsKICAgICJwcm92aWRlciI6ICJjaGF0Z3B0IiwKICAgICJsYWJlbCI6ICJDaGF0R1BUIiwKICAgICJwYWlkIjogdHJ1ZSwKICAgICJsZWZ0IjogMCwKICAgICJ0b3RhbCI6IDIsCiAgICAicmVzZXRBdCI6ICIyMDI2LTExLTA1VDAwOjAwOjAwKzA3OjAwIgogIH0sCiAgInJlYWR5VG9EcmF3Tm93IjogZmFsc2UsCiAgImRyYXdQcmVzc2VkIjogZmFsc2UsCiAgIndyaXRlcyI6IFtdLAogICJwcm92aWRlckNhbGxzIjogMCwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAic3VyZmFjZSI6ICJzYW1lIGluLXBhZ2UgY292ZXIgc2VjdGlvbiAoYXBwcm92ZWQgIzgxKSIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f390f-s-source-settings-and-focus-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-609c07f36137d1aa6bd9",
+          "file": "template-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        },
+        {
+          "title": "template default and cover tab bind native section state without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1566,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:51.353Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-section-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMzkwLAogICAgImhlaWdodCI6IDg0NAogIH0sCiAgInByb2R1Y3RTdGF0ZSI6ICJtb2JpbGUgbGlzdCDihpIgY292ZXIgY2hpbGQgc2NyZWVuIOKGkiBiYWNrIiwKICAibm9Xcml0ZXMiOiB0cnVlLAogICJyZXZpc2lvbkJlZm9yZSI6IDMsCiAgInJldmlzaW9uQWZ0ZXIiOiAzLAogICJwcmV2aWV3U3RhdGUiOiBudWxsCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-aaef3-ection-state-without-writes-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-938dc5f7d7e6198dec1d",
+          "file": "template-state-audit.pw.ts",
+          "line": 182,
+          "column": 5
+        },
+        {
+          "title": "cover prompt samples keep the saved cover selection and expose the correct group label",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1235,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:53.389Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-composition-inventory.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInNlbGVjdGVkUHJvbXB0IjogewogICAgImlkIjogImJ1aWx0aW46Y292ZXItY2xlYW4iLAogICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgICAibGFiZWwiOiAi4bqibmggc+G6oWNoIgogIH0sCiAgInByb21wdHMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJidWlsdGluOmNvdmVyLWNsZWFuIiwKICAgICAgIm5hbWUiOiAi4bqibmggc+G6oWNoIiwKICAgICAgImNvbXBvc2l0aW9uIjogImNsZWFuIiwKICAgICAgImxhYmVsIjogIuG6om5oIHPhuqFjaCIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vayIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2siLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vayIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jaXJjbGUtYXJyb3ciLAogICAgICAibmFtZSI6ICJLaG9hbmggdHLDsm4gKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiY2lyY2xlLWFycm93IiwKICAgICAgImxhYmVsIjogIktob2FuaCB0csOybiArIG3FqWkgdMOqbiIsCiAgICAgICJoYXNTYW1wbGUiOiBmYWxzZQogICAgfSwKICAgIHsKICAgICAgImlkIjogImJ1aWx0aW46Y292ZXItaG9vay1hcnJvdyIsCiAgICAgICJuYW1lIjogIkNo4buvIGhvb2sgKyBtxalpIHTDqm4iLAogICAgICAiY29tcG9zaXRpb24iOiAiaG9vay1hcnJvdyIsCiAgICAgICJsYWJlbCI6ICJDaOG7ryBob29rICsgbcWpaSB0w6puIiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1zcGxpdCIsCiAgICAgICJuYW1lIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImNvbXBvc2l0aW9uIjogInNwbGl0IiwKICAgICAgImxhYmVsIjogIlRyxrDhu5tjIC8gc2F1IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9LAogICAgewogICAgICAiaWQiOiAiYnVpbHRpbjpjb3Zlci1jbG9zZXVwIiwKICAgICAgIm5hbWUiOiAiQ+G6rW4gbeG6t3QgY+G6o20geMO6YyIsCiAgICAgICJjb21wb3NpdGlvbiI6ICJjbG9zZXVwIiwKICAgICAgImxhYmVsIjogIkPhuq1uIG3hurd0IiwKICAgICAgImhhc1NhbXBsZSI6IGZhbHNlCiAgICB9CiAgXSwKICAiY29tcG9zaXRpb25zIjogWwogICAgImNpcmNsZS1hcnJvdyIsCiAgICAiY2xlYW4iLAogICAgImNsb3NldXAiLAogICAgImhvb2siLAogICAgImhvb2stYXJyb3ciLAogICAgInNwbGl0IgogIF0sCiAgInByb21wdEdyb3VwQWNjZXNzaWJsZU5hbWVzIjogWwogICAgIkNo4buJIGThuqtuIOG6o25oIGLDrGEiLAogICAgIkPDoWNoIGzhuqV5IOG6o25oIGLDrGEiCiAgXSwKICAibm9Xcml0ZXMiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-2a8c6-ose-the-correct-group-label-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-2fc285e0088faffe6f9e",
+          "file": "template-state-audit.pw.ts",
+          "line": 256,
+          "column": 5
+        },
+        {
+          "title": "cover default and source controls mirror the saved recipe without writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:54.630Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-default-source-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgImNvdmVyU291cmNlIjogInVwbG9hZCIsCiAgImV4cGVjdGVkU291cmNlIjogIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmgiLAogICJjb3Zlck1lZGlhSWQiOiBudWxsLAogICJzb3VyY2VSYWRpb3MiOiBbCiAgICAiSG/huqEgc8SpIHbhur0gdGhlbyBjaOG7iSBk4bqrbk3hu5dpIHZpZGVvIG3hu5l0IOG6o25oIGLDrGEgbeG7m2kgdGhlbyBjaOG7iSBk4bqrbiB2w6AgY8OidSBjaHV54buHbi4iLAogICAgIkTDuW5nIOG6o25oIG3hurdjIMSR4buLbmhN4buNaSB2aWRlbyBkw7luZyBjaHVuZyBt4buZdCDhuqNuaCBiw6xhLiIKICBdLAogICJub1dyaXRlcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f28cf-saved-recipe-without-writes-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-57e8a5985af1d0a50a3a",
+          "file": "template-state-audit.pw.ts",
+          "line": 332,
+          "column": 5
+        },
+        {
+          "title": "actual saved cover trial previews in one surface and preserves source, settings and focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1407,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:30:55.850Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cover-trial-state.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZW1wbGF0ZUlkIjogImVjN2Q3YjQ0LTM5YjQtNDE3Yy05ZGJmLTk1OGJjZjAyNDE0MiIsCiAgInRyaWFsSWQiOiAiNmIyODcwMzUtNDBiYi00NzIyLWJjOTgtZDZkMzQ5NTk0ZTFjIiwKICAic291cmNlIjogImF1dGhvcml6ZWQgYWN0dWFsIHByb3ZpZGVyIGNvdmVyIHRyaWFsIChyZXVzZWQsIG5vdCByZWdlbmVyYXRlZCkiLAogICJjb21wb3NpdGlvbiI6ICJjbGVhbiIsCiAgImNvbXBvc2l0aW9uTGFiZWwiOiAi4bqibmggc+G6oWNoIiwKICAiaG9va1RleHRQcmVzZW50IjogZmFsc2UsCiAgImNvdmVyU2VjdGlvbkhvb2tUZXh0TWF0Y2hlcyI6IG51bGwsCiAgImRpbWVuc2lvbnMiOiB7CiAgICAid2lkdGgiOiAxNjcyLAogICAgImhlaWdodCI6IDk0MQogIH0sCiAgImNvc3RJbWFnZXMiOiAxLAogICJxdW90YSI6IHsKICAgICJwcm92aWRlciI6ICJjaGF0Z3B0IiwKICAgICJsYWJlbCI6ICJDaGF0R1BUIiwKICAgICJwYWlkIjogdHJ1ZSwKICAgICJsZWZ0IjogMCwKICAgICJ0b3RhbCI6IDIsCiAgICAicmVzZXRBdCI6ICIyMDI2LTExLTA1VDAwOjAwOjAwKzA3OjAwIgogIH0sCiAgInJlYWR5VG9EcmF3Tm93IjogZmFsc2UsCiAgImRyYXdQcmVzc2VkIjogZmFsc2UsCiAgIndyaXRlcyI6IFtdLAogICJwcm92aWRlckNhbGxzIjogMCwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAic3VyZmFjZSI6ICJzYW1lIGluLXBhZ2UgY292ZXIgc2VjdGlvbiAoYXBwcm92ZWQgIzgxKSIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/54-template-embedded-real-cover/browser/template-state-audit.pw.ts-f390f-s-source-settings-and-focus-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bb0785bf6e71686cbfad-92cd1f4e5772006de98b",
+          "file": "template-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T23:30:26.444Z",
+    "duration": 31213.662,
+    "expected": 16,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

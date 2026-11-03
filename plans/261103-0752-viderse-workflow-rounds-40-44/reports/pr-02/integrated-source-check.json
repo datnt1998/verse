@@ -1,0 +1,133 @@
+{
+  "sourceCommitBase": "ee94b6f36db1048beaeeeed640f30a14ca72c2a9",
+  "status": "draft; semantic blocker design question84 remains",
+  "sourceSHA256": {
+    "apps/viderse/web/src/screens/settings/connect/ProviderCard.tsx": "b53abbbdd1e616a43d5dc8ff22111fd7f6c7b31b268b0631c5ff1f66cad2e3af",
+    "apps/viderse/web/src/i18n/ai.ts": "092a37af825427f2667b26ce9014345fa1c9002d0da5b0306f6f94db38868ce9",
+    "apps/viderse/web/src/screens/review/ImageRail.tsx": "edc7640ea78651574badaf1530abb18f47fa76022f03133024d1e7388e45a20d",
+    "platform/ui/src/Toast.tsx": "30f2249b6b4ffeac4607aedba47de94850015d8b2b30a9988c4b4c96a4c773b6",
+    "platform/ui/src/Toast.css": "85f392b970a4c148f7c6f631ce7e8b42091a17cfff408749cba49b7e1a40f9de",
+    "apps/viderse/web/src/screens/settings/connect/ConnectSection.test.tsx": "a73ef3b5df75c15cd3b5e5ab7c9bee2c07dbf065a9f675bfa9656ccc4e3d4d48",
+    "apps/viderse/web/src/screens/review/ReviewScreen.test.tsx": "fc7201e36931a0bec524389e93deac7b80455fefa8538feaff8eb0576d4f45fd",
+    "tests/viderse-workflow/provider-catalog-audit.pw.ts": "e01bf591f0b37cf8361b7e6fe4fec69e1f862248d2cbce93fe64387fce71ed91",
+    "tests/viderse-workflow/settings-state-audit.pw.ts": "5972b52f4f9dac1795e55afd88b4d1e335f666ab028d724e2877f10b86c5fd28",
+    "tests/viderse-workflow/playwright.config.ts": "ad16ff49fda6ddae879e5beef9b04b8abe47d959a149bb59f2caf889d446cce6"
+  },
+  "embeddedBinarySHA256": "8974bd9f6fb6e6cf84b3882504b7cba0e107396d979b1cddf0bebe06cb54380b",
+  "embeddedIndexSHA256": "6b916e474afba22616d3678d500a4af01717a2d02f461161dede714ffe026103",
+  "checks": {
+    "viderseFull": {
+      "success": true,
+      "numPassedTests": 3723,
+      "numFailedTests": 0,
+      "numPendingTests": 4
+    },
+    "noverseFull": {
+      "success": true,
+      "numPassedTests": 1894,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "sharedKit": {
+      "passedTests": 261,
+      "passedFiles": 33,
+      "typecheck": "passed"
+    },
+    "viderseTypecheck": "passed",
+    "productionAndEmbeddedBuild": "passed",
+    "focusedReviewConnect": {
+      "passed": 32,
+      "failed": 0
+    },
+    "settingsNative": {
+      "run": "52-settings-server-oracle",
+      "passed": 14,
+      "failed": 0,
+      "skipped": 2,
+      "skipOwner": "PR6 mobile Tools recheck parity"
+    },
+    "providerNative": {
+      "run": "51-provider-feedback-layout",
+      "passed": 8,
+      "failed": 0,
+      "actualLayout": "feedback in viewport and zero CTA overlap"
+    },
+    "templateEmbeddedNative": {
+      "run": "54-template-embedded-real-cover",
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "additionalImageCalls": 0
+    },
+    "reviewEmbeddedNative": {
+      "run": "55-review-integrated-embedded",
+      "capturedRows": 24,
+      "inapplicable": 2,
+      "originalSourceUnchanged": true,
+      "replayRestored": true,
+      "additionalProviderRequests": 0,
+      "semanticDraftVersionGate": "blocked by question84, not covered as pass"
+    },
+    "manifest": {
+      "rows": 480,
+      "probes": 12,
+      "check": "passed",
+      "artboardsChanged": false
+    }
+  },
+  "cleanup": {
+    "temporaryQaAccessRemoved": true,
+    "productionCredentialHashUnchanged": true,
+    "paidImageBudget": "2/2 already spent; zero additional calls in these checks",
+    "ownedOllamaStopped": true
+  },
+  "comparisons": [
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.prompt.raw.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-prompt-raw.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-prompt-raw.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    },
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.prompt.edit.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-prompt-edit-draft.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-prompt-edit.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    },
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.refs.add.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-refs-add.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-refs-add.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    },
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.view.cutout.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-cutout.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-cutout.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    },
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.state.batch.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-batch.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-batch.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    },
+    {
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.confirm.redrawAll.png",
+      "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-redraw-all-confirm.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/desktop-review-redraw-all-confirm.png",
+      "positions": "canonical left; unmodified actual capture right",
+      "semanticLimit": "Draft base-version defect remains open in question84; these are evidence, not a pixel-perfect pass."
+    }
+  ],
+  "limits": [
+    "No physical iPhone/Safari proof",
+    "Cold phone and Explore latency remain final-release gates under approved question83",
+    "No merge or deploy while question84 remains unresolved"
+  ]
+}

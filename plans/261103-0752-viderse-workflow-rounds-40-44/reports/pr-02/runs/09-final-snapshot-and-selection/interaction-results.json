@@ -1,0 +1,590 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "tests/viderse-workflow/playwright.config.ts",
+      "viewer-audit.pw.ts",
+      "--grep",
+      "Editor replacement|template sample",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=post-delete-desktop",
+      "--project=post-delete-desktop-reduced",
+      "--no-deps"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": "viewer-audit.pw.ts",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [
+          "delete-desktop-reduced"
+        ],
+        "ignoreSnapshots": false,
+        "__projectId": "post-delete-desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": "viewer-audit.pw.ts",
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [
+          "delete-desktop-reduced"
+        ],
+        "ignoreSnapshots": false,
+        "__projectId": "post-delete-desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6010,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T17:31:13.978Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-35f743b28008700e94bb",
+          "file": "viewer-audit.pw.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T17:31:22.575Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-54ad26a216fe2bcf826f",
+          "file": "viewer-audit.pw.ts",
+          "line": 161,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "post-delete-desktop",
+              "projectName": "post-delete-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 26231,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T17:31:30.661Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "scene-replacement.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0YXJnZXRJZCI6ICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDMiLAogICJjaGFuZ2VkQ2xpcElkcyI6IFsKICAgICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDMiCiAgXSwKICAiZ2VvbWV0cnlQcmVzZXJ2ZWQiOiB0cnVlLAogICJrZXlmcmFtZXNQcmVzZXJ2ZWQiOiB0cnVlLAogICJ1bmRvUmVzdG9yZWRQZXJzaXN0ZWRJdGVtcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-post-delete-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-0109d6e1b7ef9ff251e2",
+          "file": "viewer-audit.pw.ts",
+          "line": 205,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "post-delete-desktop-reduced",
+              "projectName": "post-delete-desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10042,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T17:31:58.656Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "scene-replacement.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0YXJnZXRJZCI6ICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDMiLAogICJjaGFuZ2VkQ2xpcElkcyI6IFsKICAgICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDMiCiAgXSwKICAiZ2VvbWV0cnlQcmVzZXJ2ZWQiOiB0cnVlLAogICJrZXlmcmFtZXNQcmVzZXJ2ZWQiOiB0cnVlLAogICJ1bmRvUmVzdG9yZWRQZXJzaXN0ZWRJdGVtcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/09-final-snapshot-and-selection/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-post-delete-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-ca158e5783ba6f073f8f",
+          "file": "viewer-audit.pw.ts",
+          "line": 205,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T17:31:13.527Z",
+    "duration": 56398.062000000005,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

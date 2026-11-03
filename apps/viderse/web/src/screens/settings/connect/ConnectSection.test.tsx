@@ -285,6 +285,24 @@ describe('Kết nối AI', () => {
     }
   })
 
+  it.each([false, true])('local connection failure edits the saved address rather than requesting an API key (mobile=%s)', async (mobile) => {
+    providerState = [{
+      ...failedProvider, id: 'p-local', kind: 'ollama', auth: 'local',
+      label: 'Ollama', status: 'unreachable', baseUrl: 'http://127.0.0.1:11435',
+    }]
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
+      matches: mobile, addEventListener: () => {}, removeEventListener: () => {},
+    })))
+    const el = await render()
+    const card = el.querySelector('[data-kind="ollama"]')!
+    const error = card.querySelector('[role="alert"]')!
+    await click(byText(error, 'button', 'Đổi địa chỉ'))
+    const field = card.querySelector('.conn-edit input') as HTMLInputElement
+    expect(field.value).toBe('http://127.0.0.1:11435')
+    expect(field.type).not.toBe('password')
+    expect(calls.some((call) => call.method !== 'GET')).toBe(false)
+  })
+
   it('gỡ provider api_key trong hàng Đổi khoá → cam xác nhận trước DELETE; Huỷ giữ nguyên', async () => {
     providerState = [openrouter]
     const el = await render()

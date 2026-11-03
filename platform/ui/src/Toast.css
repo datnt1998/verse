@@ -18,3 +18,8 @@
   100% { opacity: 0; transform: translateY(40px) scale(.45); filter: blur(3px) }
 }
 .ui-toast-glass { -webkit-backdrop-filter: blur(18px) saturate(150%); }
+
+/* Nhánh activity: host đổi dải đáy khi một tấm trượt mở/đóng (đáy màn ↔ trên tấm).
+   Trượt theo nhịp đóng của tấm thay vì nhảy; giảm chuyển động thì đổi ngay. */
+.ui-toast-sheet-layer { transition: bottom .26s var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .ui-toast-sheet-layer { transition: none; } }

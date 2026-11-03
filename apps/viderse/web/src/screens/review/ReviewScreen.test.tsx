@@ -361,3 +361,21 @@ it('makes an added reference immediately visible as an editable draft and cancel
   expect(node.querySelector('button[aria-label="Bỏ ảnh tham chiếu 1"]')).toBeNull()
   expect(state.redraw).not.toHaveBeenCalled()
 })
+
+it('returns reference-picker focus on cancellation without stealing focus from an outside field', async () => {
+  state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
+  const node = await render()
+  const opener = node.querySelector<HTMLButtonElement>('button[aria-label="Thêm"]')!
+  await act(async () => opener.click())
+  const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
+  expect(picker.contains(document.activeElement)).toBe(true)
+  await act(async () => button(picker, 'Huỷ')!.click())
+  expect(document.activeElement).toBe(opener)
+  await act(async () => opener.click())
+  const outside = node.querySelector<HTMLInputElement>('#redraw')!
+  outside.focus()
+  await act(async () => outside.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })))
+  expect(node.querySelector('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')).toBeNull()
+  expect(document.activeElement).toBe(outside)
+  expect(state.redraw).not.toHaveBeenCalled()
+})

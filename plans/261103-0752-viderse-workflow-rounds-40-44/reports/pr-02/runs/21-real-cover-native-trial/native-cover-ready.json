@@ -1,0 +1,71 @@
+{
+  "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "templateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+  "cancelWrites": 0,
+  "paidPOSTs": 1,
+  "startStatus": 202,
+  "response": {
+    "sources": [
+      {
+        "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+        "title": "Kiểm thử QA · Midnight Tales · sáu giây",
+        "channelName": "Midnight Tales",
+        "durationSec": 6
+      }
+    ],
+    "history": [
+      {
+        "id": "6b287035-40bb-4722-bc98-d6d349594e1c",
+        "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+        "jobTitle": "Kiểm thử QA · Midnight Tales · sáu giây",
+        "promptId": "builtin:cover-clean",
+        "promptName": "Ảnh sạch",
+        "composition": "clean",
+        "state": "running",
+        "provider": "codex",
+        "model": "gpt-image-2",
+        "costImages": 0,
+        "createdAt": "2026-11-04T03:13:49.880212+07:00"
+      }
+    ],
+    "quota": {
+      "provider": "chatgpt",
+      "label": "ChatGPT",
+      "paid": true,
+      "left": 49,
+      "total": 50,
+      "resetAt": "2026-11-05T00:00:00+07:00"
+    },
+    "cost": {
+      "images": 1,
+      "provider": "codex",
+      "label": "ChatGPT",
+      "quotaLeft": 49
+    },
+    "prompt": {
+      "id": "builtin:cover-clean",
+      "name": "Ảnh sạch",
+      "composition": "clean"
+    },
+    "ready": true
+  },
+  "maximumAuthorizedTotal": 2,
+  "priorRealImages": 1,
+  "completed": {
+    "id": "6b287035-40bb-4722-bc98-d6d349594e1c",
+    "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+    "jobTitle": "Kiểm thử QA · Midnight Tales · sáu giây",
+    "promptId": "builtin:cover-clean",
+    "promptName": "Ảnh sạch",
+    "composition": "clean",
+    "state": "ready",
+    "provider": "codex",
+    "model": "gpt-image-2",
+    "width": 1672,
+    "height": 941,
+    "costImages": 1,
+    "createdAt": "2026-11-04T03:13:49.880212+07:00",
+    "finishedAt": "2026-11-04T03:15:43.492732+07:00",
+    "imageUrl": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image"
+  }
+}

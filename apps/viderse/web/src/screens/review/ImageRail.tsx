@@ -47,9 +47,20 @@ export function ImageRail({
   const [diffHidden, setDiffHidden] = useState(false)
   const copyTimer = useRef<number | undefined>(undefined)
   const uploadInput = useRef<HTMLInputElement>(null)
+  const refsTrigger = useRef<HTMLButtonElement>(null)
   useEffect(() => () => window.clearTimeout(copyTimer.current), [])
   useEffect(() => { setRefsOpen(false); setPicked(null); setCopied(false); setDiffHidden(false) }, [item.id])
-  useEffect(() => { if (refsOpen) refPopup.root.current?.querySelector<HTMLButtonElement>('[role="dialog"] button:not(:disabled)')?.focus() }, [refsOpen, refPopup.root])
+  useEffect(() => {
+    if (!refsOpen) return
+    const panel = refPopup.root.current?.querySelector<HTMLElement>('[role="dialog"]')
+    panel?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus()
+    return () => {
+      const active = document.activeElement
+      if (refsTrigger.current?.isConnected && (active === document.body || panel?.contains(active))) {
+        refsTrigger.current.focus()
+      }
+    }
+  }, [refsOpen, refPopup.root])
 
   const version = item.versions.find((candidate) => candidate.n === selected) ?? item.versions.at(-1)
   const drawingVersion = item.versions.find((candidate) => candidate.state === 'drawing')
@@ -146,6 +157,7 @@ export function ImageRail({
         <div {...stylex.props(sx.sectionHead)}>
           <span {...stylex.props(sx.sectionTitle)}>Ảnh tham chiếu · {refs.length}/{item.refLimit}</span>
           <Button size="sm" type="button"
+          ref={refsTrigger}
           onClick={() => { setRefsOpen((open) => !open); setPicked(null) }}
           aria-label="Thêm"
           title="Thêm"

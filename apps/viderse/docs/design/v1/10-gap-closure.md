@@ -377,3 +377,9 @@ Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và
 | Phạm vi | Ngày | Commit thật | Bằng chứng và chỗ lệch |
 |---|---|---|---|
 | Nền trước V36–V40 — không phải nghiệm thu toàn bộ workflow | 03/11/2026 | `2acab2d40c645531c9daf0df10f9f259c82e5801` | [Báo cáo, ảnh cạnh artboard, kiểm tra và giới hạn](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/foundation.md). Responsive select/menu/confirm, handoff/focus/scroll, toast Viderse 4 giây, pending/undo/session isolation; giữ mặc định Noverse. Playwright 12/12 desktop/mobile normal/reduced, slider ≤2 px; actual compiled UI smoke qua. Trang New còn cũ, cutover PR5/PR6; nút xoá video gọi sai POST đã xác định, sửa ở V36; chưa có Safari thiết bị thật. Chưa deploy. |
+
+## Workflow đợt40–44 · V36 đang nghiệm thu (04/11/2026)
+
+| Phạm vi | Ngày | Commit thật | Bằng chứng và chỗ lệch |
+|---|---|---|---|
+| V36 — chưa hoàn tất, chưa merge/deploy | 04/11/2026 | `ee94b6f36db1048beaeeeed640f30a14ca72c2a9` | [PR nháp #3](https://github.com/datnt1998/verse/pull/3), [màn → đã sửa/còn lệch và native receipts](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/viewer-and-actions.md), [ảnh đặt cạnh artboard](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-current/). Viewer desktop/actions, URL theo ảnh/video, mobile preview cùng surface theo #81, use-version, xác nhận đăng xuất, sửa DELETE/paused/cutout theo #82 đã có proof thật. Full Viderse3720qua/4skip trước sửa local-provider failure sau commit; Noverse1894qua, kit261qua. Settings/catalog/control ledger và bản nhúng nguồn cuối còn nghiệm thu. Hai gate cold-phone202,7/200KiB và Khám phá p95=1371,48/400ms còn mở theo #83, không miễn kiểm trước deploy. Đã dùng đủ2/2 ảnh QA thật, không gọi thêm. Không triển khai viewer mobile đợt45; chưa có Safari/iPhone vật lý. |

@@ -1,0 +1,26 @@
+{
+  "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "status": "succeeded",
+  "stageGroup": "ready",
+  "exportBytes": 630653,
+  "steps": [
+    {
+      "step": "build",
+      "status": "succeeded",
+      "error": null
+    },
+    {
+      "step": "score",
+      "status": "succeeded",
+      "error": null
+    },
+    {
+      "step": "export",
+      "status": "succeeded",
+      "error": null
+    }
+  ],
+  "qualityOverride": "native V\u1eabn xu\u1ea5t \u2192 POST export202; subsequent actual readback succeeded",
+  "providerImagesConsumed": 1,
+  "savedDerivativeRepairUsedAI": false
+}

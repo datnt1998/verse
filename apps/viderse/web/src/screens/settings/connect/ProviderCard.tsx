@@ -538,10 +538,12 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
       {failed && (
         <div className={`conn-err ${stylex.props(settingsStyles.connErr).className}`} role="alert">
           <span className={`conn-err__text ${stylex.props(connErrTextMarker, settingsStyles.connErrText).className}`}>
-            <b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.failedTitle}</b> {c.failedText(provider.label)}
+            <b {...stylex.props(settingsStyles.ConnErrTextB)}>{c.failedTitle}</b> {provider.status === 'unreachable'
+              ? c.subUnreachable(provider.baseUrl ?? provider.label)
+              : subscription ? c.subExpired : c.failedText(provider.label)}
           </span>
           <div className={`conn-err__acts ${stylex.props(settingsStyles.connErrActs).className}`}>
-            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" onClick={secondaryGo}>{c.changeKey}</Button>
+            <Button size={mobile ? 'lg' : 'compact'} variant="warnGhost" onClick={secondaryGo}>{secondary}</Button>
             <Button size={mobile ? 'lg' : 'compact'} variant="ghost" icon={<Icon name="refresh" size={14} />} pending={testing} onClick={() => void runTest()}>{c.retry}</Button>
             <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => { setOpen(true); onOpenModels?.(provider) }}>{c.addManualShort}</Button>
           </div>

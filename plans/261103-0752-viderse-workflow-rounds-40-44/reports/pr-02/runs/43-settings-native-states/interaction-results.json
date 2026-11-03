@@ -1,0 +1,1741 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "tests/viderse-workflow/playwright.config.ts",
+      "settings-state-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "settings-state-audit.pw.ts",
+      "file": "settings-state-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 20525,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:292:72",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 72,
+                      "line": 292
+                    },
+                    "snippet": "  290 |   await expect(page.getByText('Trinh sát', { exact: true }).first()).toBeVisible()\n  291 |   await expect(page.getByText('Kiểm định', { exact: true }).first()).toBeVisible()\n> 292 |   await expect(page.getByText('gpt-6.1-sol', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n      |                                                                        ^\n  293 |   await expect(page.getByText('gpt-image-2', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n  294 |   const drawProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)\n  295 |   if (drawProvider?.quota) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 72,
+                        "line": 292
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n\n\n  290 |   await expect(page.getByText('Trinh sát', { exact: true }).first()).toBeVisible()\n  291 |   await expect(page.getByText('Kiểm định', { exact: true }).first()).toBeVisible()\n> 292 |   await expect(page.getByText('gpt-6.1-sol', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n      |                                                                        ^\n  293 |   await expect(page.getByText('gpt-image-2', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n  294 |   const drawProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)\n  295 |   if (drawProvider?.quota) {\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:292:72"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:35.599Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS50b29scyIsCiAgICAiZXhwZWN0ZWQiOiAiTmF0aXZlIHRvb2xzIHNlY3Rpb24gb3BlbnMgd2l0aCBpdHMgZGVza3RvcC9tb2JpbGUgdGl0bGUiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiZnJhbWUuY29ubmVjdCIsCiAgICAiZXhwZWN0ZWQiOiAiRGVza3RvcCBuYXYgb3BlbnMgS+G6v3QgbuG7kWkgQUkiLAogICAgIm9ic2VydmVkIjogIkvhur90IG7hu5FpIEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hY2NvdW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiRGVza3RvcCBuYXYgb3BlbnMgVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAib2JzZXJ2ZWQiOiAiVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiZnJhbWUudG9vbHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIEPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAib2JzZXJ2ZWQiOiAiQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5sb2dzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBCw6FvIGzhu5dpIiwKICAgICJvYnNlcnZlZCI6ICJCw6FvIGzhu5dpIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9Cl0="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 72,
+                    "line": 292
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-4f19c784dfb032383834",
+          "file": "settings-state-audit.pw.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "connect: truthful provider cards, all safe add radios, scrim/Esc and conditional model catalog",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13622,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:585:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 585
+                    },
+                    "snippet": "  583 |   const first = await initialResponse\n  584 |   const catalog = card.locator('.conn-cat')\n> 585 |   await expect(catalog).toBeVisible()\n      |                         ^\n  586 |   const firstPage = first.status() === 200 ? await first.json() as ModelPage : undefined\n  587 |   if (!firstPage) {\n  588 |     await expect(catalog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 585
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n\n\n  583 |   const first = await initialResponse\n  584 |   const catalog = card.locator('.conn-cat')\n> 585 |   await expect(catalog).toBeVisible()\n      |                         ^\n  586 |   const firstPage = first.status() === 200 ? await first.json() as ModelPage : undefined\n  587 |   if (!firstPage) {\n  588 |     await expect(catalog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:585:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:30:57.715Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0Lmxpc3QiLAogICAgImV4cGVjdGVkIjogIlByb3ZpZGVyIGxpc3QgbWF0Y2hlcyBHRVQgL2FwaS9haS9wcm92aWRlcnMiLAogICAgIm9ic2VydmVkIjogIjIgZ2VudWluZSBwcm92aWRlcnMiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QuY2FyZC5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJUcnV0aGZ1bCByZWFkeS9zdWJzY3JpcHRpb24gc3VibGluZSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyDEkcSDbmcgbmjhuq1wIMK3IGfDs2kgUHJvbGl0ZSDCtyAyIG1vZGVsIMSRw6MgY2jhu41uIMK3IGtp4buDbSB0cmEgbMO6YyAwMjo1NSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5xdW90YS5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJRdW90YSBsaW5lIGFuZCBiYXIgYXJlIHRydXRoZnVsIGFuZCBjb250YWluZWQiLAogICAgIm9ic2VydmVkIjogIuG6om5oIGjDtG0gbmF5IDIvMsSR4bq3dCBs4bqhaSAwMDowMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5jYXJkLmdyb2siLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIGxvZ2dlZF9vdXQvc3Vic2NyaXB0aW9uIHN1YmxpbmUiLAogICAgIm9ic2VydmVkIjogIkNoxrBhIMSRxINuZyBuaOG6rXAgwrcgY+G6p24gZ8OzaSBTdXBlckdyb2sgaG/hurdjIFggUHJlbWl1bSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuZ3JvdXAiLAogICAgImV4cGVjdGVkIjogIkVpZ2h0IGFkZC1wcm92aWRlciByYWRpbyBjYXJkcyBpbiBuYXRpdmUgb3JkZXIiLAogICAgIm9ic2VydmVkIjogIk9wZW5BSUtob8OhIEFQSSDCtyBjaOG7rywgduG6vSDhuqNuaCB8IEdlbWluaUtob8OhIEFQSSDCtyBjaOG7rywgxJHhu41jIOG6o25oLCB24bq9IOG6o25oIHwgT3BlblJvdXRlck3hu5l0IGtob8OhLCBow6BuZyB0csSDbSBtb2RlbCB8IERlZXBTZWVrS2hvw6EgQVBJIMK3IGNo4buvIHwgeEFJS2hvw6EgQVBJIMK3IGNo4buvLCB24bq9IOG6o25oIHwgQW50aHJvcGljS2hvw6EgQVBJIMK3IGNo4buvLCDEkeG7jWMg4bqjbmggfCBPbGxhbWFDaOG6oXkgdHLDqm4gbcOheSBuw6B5IHwgVMawxqFuZyB0aMOtY2ggT3BlbkFJxJDhu4thIGNo4buJIHJpw6puZyArIGtob8OhIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vcGVuYWkiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIk9wZW5BSSBLaG/DoSBBUEkgwrcgY2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmdlbWluaSIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiR2VtaW5pIEtob8OhIEFQSSDCtyBjaOG7rywgxJHhu41jIOG6o25oLCB24bq9IOG6o25oIFtrZXldIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vcGVucm91dGVyIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJPcGVuUm91dGVyIE3hu5l0IGtob8OhLCBow6BuZyB0csSDbSBtb2RlbCBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuZGVlcHNlZWsiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIkRlZXBTZWVrIEtob8OhIEFQSSDCtyBjaOG7ryBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQueGFpIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJ4QUkgS2hvw6EgQVBJIMK3IGNo4buvLCB24bq9IOG6o25oIFtrZXldIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5hbnRocm9waWMiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIkFudGhyb3BpYyBLaG/DoSBBUEkgwrcgY2jhu68sIMSR4buNYyDhuqNuaCBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub2xsYW1hIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJPbGxhbWEgQ2jhuqF5IHRyw6puIG3DoXkgbsOgeSBbdXJsXSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3BlbmFpX2NvbXBhdCIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiVMawxqFuZyB0aMOtY2ggT3BlbkFJIMSQ4buLYSBjaOG7iSByacOqbmcgKyBraG/DoSBbYm90aF0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLm92ZXJsYXkiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgaW5saW5lIHBhbmVsIGNsb3NlcyB2aWEgaXRzIG5hdGl2ZSDEkMOzbmcgY29udHJvbCIsCiAgICAib2JzZXJ2ZWQiOiAiY2xvc2VkOyBubyBkaWFsb2cgbGF5ZXIgZXhpc3RzIG9uIGRlc2t0b3AiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QubW9kZWxzLmVudHJ5IiwKICAgICJleHBlY3RlZCI6ICJEaXJlY3QgTW9kZWwgY29udHJvbCBvcGVucyB0aGUgZ2VudWluZSBjYXRhbG9nIiwKICAgICJvYnNlcnZlZCI6ICJoZWFkZXIgTW9kZWwgY29udHJvbCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 585
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-f6e2abc653c71879639e",
+          "file": "settings-state-audit.pw.ts",
+          "line": 338,
+          "column": 5
+        },
+        {
+          "title": "tools: genuine read-only rows, status pills, details and no install mutation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12888,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:682:50",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 50,
+                      "line": 682
+                    },
+                    "snippet": "  680 |     const expectedPill = queued ? 'Chờ' : (PILLS[tool.state] ?? tool.state)\n  681 |     await expect(row).toBeVisible()\n> 682 |     await expect(row.locator('.vv-tools__pill')).toHaveText(expectedPill)\n      |                                                  ^\n  683 |     if (queued) {\n  684 |       await expect(row.getByRole('button', { name: /^(Cài|Cập nhật|Tải tiếp)$/ })).toHaveCount(0)\n  685 |     } else if (tool.state === 'update') {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 50,
+                        "line": 682
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n\n  680 |     const expectedPill = queued ? 'Chờ' : (PILLS[tool.state] ?? tool.state)\n  681 |     await expect(row).toBeVisible()\n> 682 |     await expect(row.locator('.vv-tools__pill')).toHaveText(expectedPill)\n      |                                                  ^\n  683 |     if (queued) {\n  684 |       await expect(row.getByRole('button', { name: /^(Cài|Cập nhật|Tải tiếp)$/ })).toHaveCount(0)\n  685 |     } else if (tool.state === 'update') {\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:682:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:12.558Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJ0b29scy5zdW1tYXJ5IiwKICAgICJleHBlY3RlZCI6ICJTdW1tYXJ5IHNldmVyaXR5IGRlcml2ZXMgZnJvbSBnZW51aW5lIEdFVCAvYXBpL3Rvb2xzIiwKICAgICJvYnNlcnZlZCI6ICJNw6F5IHPhurVuIHPDoG5nIMK3IGPDsyAxIGLhuqNuIGPhuq1wIG5o4bqtdCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAidG9vbHMucm93Lnl0LWRscCIsCiAgICAiZXhwZWN0ZWQiOiAiVHJ1dGhmdWwgcGlsbC9hY3Rpb24gZm9yIHVwZGF0ZSIsCiAgICAib2JzZXJ2ZWQiOiAiQ8OzIGLhuqNuIG3hu5tpIMK3IDIwMjYuMDguMTkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogInRvb2xzLnJvdy5mZm1wZWciLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciByZWFkeSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyBjw6BpIMK3IDYuMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAidG9vbHMucm93LnRyYW5zY3JpcHRpb24iLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciByZWFkeSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyBjw6BpIMK3IDEuMi4xIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJ0b29scy5yb3cuY2hyb21lIiwKICAgICJleHBlY3RlZCI6ICJUcnV0aGZ1bCBwaWxsL2FjdGlvbiBmb3IgcmVhZHkiLAogICAgIm9ic2VydmVkIjogIsSQw6MgY8OgaSDCtyAxNTUuMC44MDU5Ljc5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJ0b29scy5yb3cuY29kZXgiLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciByZWFkeSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyBjw6BpIMK3IDAuMTYyLjEiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 50,
+                    "line": 682
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-d66ffb15896bda804353",
+          "file": "settings-state-audit.pw.ts",
+          "line": 656,
+          "column": 5
+        },
+        {
+          "title": "tools recheck: only the safe POST /api/tools/check probe, never install",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12567,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:737:111",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 111,
+                      "line": 737
+                    },
+                    "snippet": "  735 |   for (const tool of after.tools) {\n  736 |     const name = TOOL_NAMES[tool.id] ?? tool.id\n> 737 |     await expect(page.locator('.vv-tools__row').filter({ hasText: name }).first().locator('.vv-tools__pill')).toHaveText(PILLS[tool.state] ?? tool.state)\n      |                                                                                                               ^\n  738 |   }\n  739 |   const recent = await getJson<ToolsStatus>(page, '/api/tools')\n  740 |   expect(recent.tools.map((tool) => tool.state)).toEqual(after.tools.map((tool) => tool.state))"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 111,
+                        "line": 737
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n\n  735 |   for (const tool of after.tools) {\n  736 |     const name = TOOL_NAMES[tool.id] ?? tool.id\n> 737 |     await expect(page.locator('.vv-tools__row').filter({ hasText: name }).first().locator('.vv-tools__pill')).toHaveText(PILLS[tool.state] ?? tool.state)\n      |                                                                                                               ^\n  738 |   }\n  739 |   const recent = await getJson<ToolsStatus>(page, '/api/tools')\n  740 |   expect(recent.tools.map((tool) => tool.state)).toEqual(after.tools.map((tool) => tool.state))\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:737:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:26.692Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAicGF0aCI6ICIvYXBpL3Rvb2xzL2NoZWNrIiwKICAgICJzZWFyY2giOiAiIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 111,
+                    "line": 737
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-18838468b243136b1628",
+          "file": "settings-state-audit.pw.ts",
+          "line": 712,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 19507,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:292:72",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 72,
+                      "line": 292
+                    },
+                    "snippet": "  290 |   await expect(page.getByText('Trinh sát', { exact: true }).first()).toBeVisible()\n  291 |   await expect(page.getByText('Kiểm định', { exact: true }).first()).toBeVisible()\n> 292 |   await expect(page.getByText('gpt-6.1-sol', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n      |                                                                        ^\n  293 |   await expect(page.getByText('gpt-image-2', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n  294 |   const drawProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)\n  295 |   if (drawProvider?.quota) {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 72,
+                        "line": 292
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('gpt-6.1-sol', { exact: true }).first()\nExpected: visible\nTimeout: 15000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('gpt-6.1-sol', { exact: true }).first() with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for getByText('gpt-6.1-sol', { exact: true }).first()\u001b[22m\n\n\n  290 |   await expect(page.getByText('Trinh sát', { exact: true }).first()).toBeVisible()\n  291 |   await expect(page.getByText('Kiểm định', { exact: true }).first()).toBeVisible()\n> 292 |   await expect(page.getByText('gpt-6.1-sol', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n      |                                                                        ^\n  293 |   await expect(page.getByText('gpt-image-2', { exact: true }).first()).toBeVisible({ timeout: 15_000 })\n  294 |   const drawProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)\n  295 |   if (drawProvider?.quota) {\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:292:72"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:31:40.249Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJOYXRpdmUgdG9vbHMgc2VjdGlvbiBvcGVucyB3aXRoIGl0cyBkZXNrdG9wL21vYmlsZSB0aXRsZSIsCiAgICAib2JzZXJ2ZWQiOiAiQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIEvhur90IG7hu5FpIEFJIiwKICAgICJvYnNlcnZlZCI6ICJL4bq/dCBu4buRaSBBSSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmFjY291bnRzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBUw6BpIGtob+G6o24gbuG7gW4gdOG6o25nIiwKICAgICJvYnNlcnZlZCI6ICJUw6BpIGtob+G6o24gbuG7gW4gdOG6o25nIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmxvZ3MiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIELDoW8gbOG7l2kiLAogICAgIm9ic2VydmVkIjogIkLDoW8gbOG7l2kiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 72,
+                    "line": 292
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-f27f99567d471e480098",
+          "file": "settings-state-audit.pw.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "connect: truthful provider cards, all safe add radios, scrim/Esc and conditional model catalog",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13343,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:585:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 585
+                    },
+                    "snippet": "  583 |   const first = await initialResponse\n  584 |   const catalog = card.locator('.conn-cat')\n> 585 |   await expect(catalog).toBeVisible()\n      |                         ^\n  586 |   const firstPage = first.status() === 200 ? await first.json() as ModelPage : undefined\n  587 |   if (!firstPage) {\n  588 |     await expect(catalog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 585
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'ChatGPT' }).locator('.conn-cat')\u001b[22m\n\n\n  583 |   const first = await initialResponse\n  584 |   const catalog = card.locator('.conn-cat')\n> 585 |   await expect(catalog).toBeVisible()\n      |                         ^\n  586 |   const firstPage = first.status() === 200 ? await first.json() as ModelPage : undefined\n  587 |   if (!firstPage) {\n  588 |     await expect(catalog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:585:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:00.771Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QubGlzdCIsCiAgICAiZXhwZWN0ZWQiOiAiUHJvdmlkZXIgbGlzdCBtYXRjaGVzIEdFVCAvYXBpL2FpL3Byb3ZpZGVycyIsCiAgICAib2JzZXJ2ZWQiOiAiMiBnZW51aW5lIHByb3ZpZGVycyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmNhcmQuY2hhdGdwdCIsCiAgICAiZXhwZWN0ZWQiOiAiVHJ1dGhmdWwgcmVhZHkvc3Vic2NyaXB0aW9uIHN1YmxpbmUiLAogICAgIm9ic2VydmVkIjogIsSQw6MgxJHEg25nIG5o4bqtcCDCtyBnw7NpIFByb2xpdGUgwrcgMiBtb2RlbCDEkcOjIGNo4buNbiDCtyBraeG7g20gdHJhIGzDumMgMDI6NTUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5xdW90YS5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJRdW90YSBsaW5lIGFuZCBiYXIgYXJlIHRydXRoZnVsIGFuZCBjb250YWluZWQiLAogICAgIm9ic2VydmVkIjogIuG6om5oIGjDtG0gbmF5IDIvMsSR4bq3dCBs4bqhaSAwMDowMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmNhcmQuZ3JvayIsCiAgICAiZXhwZWN0ZWQiOiAiVHJ1dGhmdWwgbG9nZ2VkX291dC9zdWJzY3JpcHRpb24gc3VibGluZSIsCiAgICAib2JzZXJ2ZWQiOiAiQ2jGsGEgxJHEg25nIG5o4bqtcCDCtyBj4bqnbiBnw7NpIFN1cGVyR3JvayBob+G6t2MgWCBQcmVtaXVtIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmdyb3VwIiwKICAgICJleHBlY3RlZCI6ICJFaWdodCBhZGQtcHJvdmlkZXIgcmFkaW8gY2FyZHMgaW4gbmF0aXZlIG9yZGVyIiwKICAgICJvYnNlcnZlZCI6ICJPcGVuQUlLaG/DoSBBUEkgwrcgY2jhu68sIHbhur0g4bqjbmggfCBHZW1pbmlLaG/DoSBBUEkgwrcgY2jhu68sIMSR4buNYyDhuqNuaCwgduG6vSDhuqNuaCB8IE9wZW5Sb3V0ZXJN4buZdCBraG/DoSwgaMOgbmcgdHLEg20gbW9kZWwgfCBEZWVwU2Vla0tob8OhIEFQSSDCtyBjaOG7ryB8IHhBSUtob8OhIEFQSSDCtyBjaOG7rywgduG6vSDhuqNuaCB8IEFudGhyb3BpY0tob8OhIEFQSSDCtyBjaOG7rywgxJHhu41jIOG6o25oIHwgT2xsYW1hQ2jhuqF5IHRyw6puIG3DoXkgbsOgeSB8IFTGsMahbmcgdGjDrWNoIE9wZW5BScSQ4buLYSBjaOG7iSByacOqbmcgKyBraG/DoSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vcGVuYWkiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIk9wZW5BSSBLaG/DoSBBUEkgwrcgY2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuZ2VtaW5pIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJHZW1pbmkgS2hvw6EgQVBJIMK3IGNo4buvLCDEkeG7jWMg4bqjbmgsIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3BlbnJvdXRlciIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiT3BlblJvdXRlciBN4buZdCBraG/DoSwgaMOgbmcgdHLEg20gbW9kZWwgW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuZGVlcHNlZWsiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIkRlZXBTZWVrIEtob8OhIEFQSSDCtyBjaOG7ryBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC54YWkiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogInhBSSBLaG/DoSBBUEkgwrcgY2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuYW50aHJvcGljIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJBbnRocm9waWMgS2hvw6EgQVBJIMK3IGNo4buvLCDEkeG7jWMg4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub2xsYW1hIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJPbGxhbWEgQ2jhuqF5IHRyw6puIG3DoXkgbsOgeSBbdXJsXSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vcGVuYWlfY29tcGF0IiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJUxrDGoW5nIHRow61jaCBPcGVuQUkgxJDhu4thIGNo4buJIHJpw6puZyArIGtob8OhIFtib3RoXSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vdmVybGF5IiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIGlubGluZSBwYW5lbCBjbG9zZXMgdmlhIGl0cyBuYXRpdmUgxJDDs25nIGNvbnRyb2wiLAogICAgIm9ic2VydmVkIjogImNsb3NlZDsgbm8gZGlhbG9nIGxheWVyIGV4aXN0cyBvbiBkZXNrdG9wIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImNvbm5lY3QubW9kZWxzLmVudHJ5IiwKICAgICJleHBlY3RlZCI6ICJEaXJlY3QgTW9kZWwgY29udHJvbCBvcGVucyB0aGUgZ2VudWluZSBjYXRhbG9nIiwKICAgICJvYnNlcnZlZCI6ICJoZWFkZXIgTW9kZWwgY29udHJvbCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 585
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-8e881b882197104fb74f",
+          "file": "settings-state-audit.pw.ts",
+          "line": 338,
+          "column": 5
+        },
+        {
+          "title": "tools: genuine read-only rows, status pills, details and no install mutation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12423,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:682:50",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 50,
+                      "line": 682
+                    },
+                    "snippet": "  680 |     const expectedPill = queued ? 'Chờ' : (PILLS[tool.state] ?? tool.state)\n  681 |     await expect(row).toBeVisible()\n> 682 |     await expect(row.locator('.vv-tools__pill')).toHaveText(expectedPill)\n      |                                                  ^\n  683 |     if (queued) {\n  684 |       await expect(row.getByRole('button', { name: /^(Cài|Cập nhật|Tải tiếp)$/ })).toHaveCount(0)\n  685 |     } else if (tool.state === 'update') {"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 50,
+                        "line": 682
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n\n  680 |     const expectedPill = queued ? 'Chờ' : (PILLS[tool.state] ?? tool.state)\n  681 |     await expect(row).toBeVisible()\n> 682 |     await expect(row.locator('.vv-tools__pill')).toHaveText(expectedPill)\n      |                                                  ^\n  683 |     if (queued) {\n  684 |       await expect(row.getByRole('button', { name: /^(Cài|Cập nhật|Tải tiếp)$/ })).toHaveCount(0)\n  685 |     } else if (tool.state === 'update') {\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:682:50"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:15.221Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogInRvb2xzLnN1bW1hcnkiLAogICAgImV4cGVjdGVkIjogIlN1bW1hcnkgc2V2ZXJpdHkgZGVyaXZlcyBmcm9tIGdlbnVpbmUgR0VUIC9hcGkvdG9vbHMiLAogICAgIm9ic2VydmVkIjogIk3DoXkgc+G6tW4gc8OgbmcgwrcgY8OzIDEgYuG6o24gY+G6rXAgbmjhuq10IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogInRvb2xzLnJvdy55dC1kbHAiLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciB1cGRhdGUiLAogICAgIm9ic2VydmVkIjogIkPDsyBi4bqjbiBt4bubaSDCtyAyMDI2LjA4LjE5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogInRvb2xzLnJvdy5mZm1wZWciLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciByZWFkeSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyBjw6BpIMK3IDYuMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJ0b29scy5yb3cudHJhbnNjcmlwdGlvbiIsCiAgICAiZXhwZWN0ZWQiOiAiVHJ1dGhmdWwgcGlsbC9hY3Rpb24gZm9yIHJlYWR5IiwKICAgICJvYnNlcnZlZCI6ICLEkMOjIGPDoGkgwrcgMS4yLjEiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAidG9vbHMucm93LmNocm9tZSIsCiAgICAiZXhwZWN0ZWQiOiAiVHJ1dGhmdWwgcGlsbC9hY3Rpb24gZm9yIHJlYWR5IiwKICAgICJvYnNlcnZlZCI6ICLEkMOjIGPDoGkgwrcgMTU1LjAuODA1OS43OSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJ0b29scy5yb3cuY29kZXgiLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHBpbGwvYWN0aW9uIGZvciByZWFkeSIsCiAgICAib2JzZXJ2ZWQiOiAixJDDoyBjw6BpIMK3IDAuMTYyLjEiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-desktop-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 50,
+                    "line": 682
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-9641c3f1fff3418a9a2b",
+          "file": "settings-state-audit.pw.ts",
+          "line": 656,
+          "column": 5
+        },
+        {
+          "title": "tools recheck: only the safe POST /api/tools/check probe, never install",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12601,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:737:111",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 111,
+                      "line": 737
+                    },
+                    "snippet": "  735 |   for (const tool of after.tools) {\n  736 |     const name = TOOL_NAMES[tool.id] ?? tool.id\n> 737 |     await expect(page.locator('.vv-tools__row').filter({ hasText: name }).first().locator('.vv-tools__pill')).toHaveText(PILLS[tool.state] ?? tool.state)\n      |                                                                                                               ^\n  738 |   }\n  739 |   const recent = await getJson<ToolsStatus>(page, '/api/tools')\n  740 |   expect(recent.tools.map((tool) => tool.state)).toEqual(after.tools.map((tool) => tool.state))"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 111,
+                        "line": 737
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\nExpected: \u001b[32m\"Đã \u001b[7mcài\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"Đã \u001b[7mđăng nhập\u001b[27m\"\u001b[39m\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__row').filter({ hasText: 'Đăng nhập ChatGPT' }).first().locator('.vv-tools__pill')\u001b[22m\n\u001b[2m    24 × locator resolved to <span class=\"vv-tools__pill settings__styles.toolsPill x15bktir x1wuz35i x1rwrwhh xalvoc x3nfvp2 x6s0dn4 x1cxnlwa xqvmavz xjm57lr xm502mn xuxw1ft x18o3ruo x8jmlfi xabhbpk xcyas7m x1yxlzaz\">Đã đăng nhập</span>\u001b[22m\n\u001b[2m       - unexpected value \"Đã đăng nhập\"\u001b[22m\n\n\n  735 |   for (const tool of after.tools) {\n  736 |     const name = TOOL_NAMES[tool.id] ?? tool.id\n> 737 |     await expect(page.locator('.vv-tools__row').filter({ hasText: name }).first().locator('.vv-tools__pill')).toHaveText(PILLS[tool.state] ?? tool.state)\n      |                                                                                                               ^\n  738 |   }\n  739 |   const recent = await getJson<ToolsStatus>(page, '/api/tools')\n  740 |   expect(recent.tools.map((tool) => tool.state)).toEqual(after.tools.map((tool) => tool.state))\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:737:111"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:28.641Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAicGF0aCI6ICIvYXBpL3Rvb2xzL2NoZWNrIiwKICAgICJzZWFyY2giOiAiIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-desktop-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 111,
+                    "line": 737
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-cc62841f7db01bb377e8",
+          "file": "settings-state-audit.pw.ts",
+          "line": 712,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5930,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:42.236Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiZnJhbWUudG9vbHMiLAogICAgImV4cGVjdGVkIjogIk5hdGl2ZSB0b29scyBzZWN0aW9uIG9wZW5zIHdpdGggaXRzIGRlc2t0b3AvbW9iaWxlIHRpdGxlIiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5tb2JpbGUtbGlzdCIsCiAgICAiZXhwZWN0ZWQiOiAiTGlzdCB2YWx1ZXMgbWF0Y2ggbGl2ZSBwcm92aWRlcnMvcGxhdGZvcm1zL2FnZW50cy90b29scyByZXNvdXJjZXMiLAogICAgIm9ic2VydmVkIjogIjIgcHJvdmlkZXJzLCAzIHBsYXRmb3JtcyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBL4bq/dCBu4buRaSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiS+G6v3QgbuG7kWkgQUkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBUcuG7oyBsw70gQUkiLAogICAgIm9ic2VydmVkIjogIlRy4bujIGzDvSBBSSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmFjY291bnRzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAib2JzZXJ2ZWQiOiAiVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgTMawdSB0cuG7ryIsCiAgICAib2JzZXJ2ZWQiOiAiTMawdSB0cuG7ryIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmxvZ3MiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsb2dzIGRlZXAgbGluayByZW5kZXJzOyBsaXN0IHJvdyBpcyB0aGUgbmF0aXZlIGV4cG9ydCBhY3Rpb24sIG5vdCBhIHNlY3Rpb24gcm93IiwKICAgICJvYnNlcnZlZCI6ICJsb2dzIHNjcmVlbiArIGV4cG9ydCBjYXJkIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucXVvdGEiLAogICAgImV4cGVjdGVkIjogIkRyYXctc291cmNlIHF1b3RhIG1pcnJvcnMgcHJvdmlkZXIucXVvdGEgd2l0aG91dCBpbnZlbnRpbmcgYSBwbGFuIiwKICAgICJvYnNlcnZlZCI6ICIyLzIgZGF5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiYWdlbnRzLnJlYWRvbmx5IiwKICAgICJleHBlY3RlZCI6ICJMaXZlIGFnZW50IG5hbWVzIGFuZCBzZWxlY3RlZCBtb2RlbCBpZHMgcmVuZGVyIHdpdGhvdXQgYSBwaWNrZXIgbXV0YXRpb24iLAogICAgIm9ic2VydmVkIjogImRpcmVjdG9yL2FydGlzdC9zY291dC9xYSArIGdwdC02LjEtc29sL2dwdC1pbWFnZS0yIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhY2NvdW50cy5yZWFkb25seSIsCiAgICAiZXhwZWN0ZWQiOiAiUGxhdGZvcm0gY2FyZHMgcmVuZGVyIGdlbnVpbmUgc3RhdHVzIGFuZCBsb2dpbiBjb250cm9scyB3aXRob3V0IGFjdGl2YXRpb24iLAogICAgIm9ic2VydmVkIjogIjMgcGxhdGZvcm0gY2FyZHMsIHN0YXRlcyBhc3NlcnRlZCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-e8b9c1854088b021ef04",
+          "file": "settings-state-audit.pw.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "connect: truthful provider cards, all safe add radios, scrim/Esc and conditional model catalog",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "state-gap",
+                  "description": "conn.failed: No genuine provider is auth_failed/unreachable; the orange failed card is unreachable without creating a provider | conn.added: conn=added is local state set only by a successful POST /api/ai/providers in this session; no seeded card can produce it and faking is forbidden"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4973,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:48.513Z",
+                  "annotations": [
+                    {
+                      "type": "state-gap",
+                      "description": "conn.failed: No genuine provider is auth_failed/unreachable; the orange failed card is unreachable without creating a provider | conn.added: conn=added is local state set only by a successful POST /api/ai/providers in this session; no seeded card can produce it and faking is forbidden"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "settings-state-gaps.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJjb25uLmZhaWxlZCIsCiAgICAicmVhc29uIjogIk5vIGdlbnVpbmUgcHJvdmlkZXIgaXMgYXV0aF9mYWlsZWQvdW5yZWFjaGFibGU7IHRoZSBvcmFuZ2UgZmFpbGVkIGNhcmQgaXMgdW5yZWFjaGFibGUgd2l0aG91dCBjcmVhdGluZyBhIHByb3ZpZGVyIiwKICAgICJuZWVkZWQiOiAiSXNvbGF0ZWQgc2VlZGVkIHByb3ZpZGVyIHdpdGggc3RhdHVzIGF1dGhfZmFpbGVkIG9yIHVucmVhY2hhYmxlIChQT1NUIGFkZCArIGJhZCBjcmVkZW50aWFsIGlzIGZvcmJpZGRlbikiCiAgfSwKICB7CiAgICAiaWQiOiAiY29ubi5hZGRlZCIsCiAgICAicmVhc29uIjogImNvbm49YWRkZWQgaXMgbG9jYWwgc3RhdGUgc2V0IG9ubHkgYnkgYSBzdWNjZXNzZnVsIFBPU1QgL2FwaS9haS9wcm92aWRlcnMgaW4gdGhpcyBzZXNzaW9uOyBubyBzZWVkZWQgY2FyZCBjYW4gcHJvZHVjZSBpdCBhbmQgZmFraW5nIGlzIGZvcmJpZGRlbiIsCiAgICAibmVlZGVkIjogIkV4cGxpY2l0IGlzb2xhdGVkIG5ldy1wcm92aWRlciByZWNvcmQgd2l0aCBwcm92ZW4gY2xlYW51cCwgb3IgYWNjZXB0ZWQgcmVwb3J0LW9ubHkgc3RhdHVzIGZvciB0aGlzIHN0YXRlIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5saXN0IiwKICAgICJleHBlY3RlZCI6ICJQcm92aWRlciBsaXN0IG1hdGNoZXMgR0VUIC9hcGkvYWkvcHJvdmlkZXJzIiwKICAgICJvYnNlcnZlZCI6ICIyIGdlbnVpbmUgcHJvdmlkZXJzIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5jYXJkLmNoYXRncHQiLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIHJlYWR5L3N1YnNjcmlwdGlvbiBzdWJsaW5lIiwKICAgICJvYnNlcnZlZCI6ICJHw7NpIFByb2xpdGUgwrcgY2jhu68gdsOgIMSR4buNYyDhuqNuaCDCtyAyIG1vZGVsIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5xdW90YS5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJRdW90YSBsaW5lIGFuZCBiYXIgYXJlIHRydXRoZnVsIGFuZCBjb250YWluZWQiLAogICAgIm9ic2VydmVkIjogIuG6om5oIGjDtG0gbmF5IDIvMsSR4bq3dCBs4bqhaSAwMDowMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuY2FyZC5ncm9rIiwKICAgICJleHBlY3RlZCI6ICJUcnV0aGZ1bCBsb2dnZWRfb3V0L3N1YnNjcmlwdGlvbiBzdWJsaW5lIiwKICAgICJvYnNlcnZlZCI6ICJDaMawYSDEkcSDbmcgbmjhuq1wIMK3IGNo4buJIHbhur0g4bqjbmgiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5ncm91cCIsCiAgICAiZXhwZWN0ZWQiOiAiRWlnaHQgYWRkLXByb3ZpZGVyIHJhZGlvIGNhcmRzIGluIG5hdGl2ZSBvcmRlciIsCiAgICAib2JzZXJ2ZWQiOiAiT3BlbkFJQ2jhu68sIHbhur0g4bqjbmggfCBHZW1pbmlDaOG7rywgxJHhu41jIOG6o25oLCB24bq9IOG6o25oIHwgT3BlblJvdXRlckjDoG5nIHRyxINtIG1vZGVsIHwgRGVlcFNlZWtDaOG7ryB8IHhBSUNo4buvLCB24bq9IOG6o25oIHwgQW50aHJvcGljQ2jhu68sIMSR4buNYyDhuqNuaCB8IE9sbGFtYVRyw6puIG3DoXkgfCBUxrDGoW5nIHRow61jaCBPcGVuQUnEkOG7i2EgY2jhu4kgcmnDqm5nIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3BlbmFpIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJPcGVuQUkgQ2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5nZW1pbmkiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIkdlbWluaSBDaOG7rywgxJHhu41jIOG6o25oLCB24bq9IOG6o25oIFtrZXldIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3BlbnJvdXRlciIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiT3BlblJvdXRlciBIw6BuZyB0csSDbSBtb2RlbCBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmRlZXBzZWVrIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJEZWVwU2VlayBDaOG7ryBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLnhhaSIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAieEFJIENo4buvLCB24bq9IOG6o25oIFtrZXldIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuYW50aHJvcGljIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJBbnRocm9waWMgQ2jhu68sIMSR4buNYyDhuqNuaCBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLm9sbGFtYSIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiT2xsYW1hIFRyw6puIG3DoXkgW3VybF0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vcGVuYWlfY29tcGF0IiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJUxrDGoW5nIHRow61jaCBPcGVuQUkgxJDhu4thIGNo4buJIHJpw6puZyBbYm90aF0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0LmFkZC5vdmVybGF5IiwKICAgICJleHBlY3RlZCI6ICJTY3JpbSBhbmQgRXNjYXBlIGNsb3NlIHRoZSBzaGVldCwgcmVzdG9yZSBmb2N1cyBhbmQgYm9keSBvdmVyZmxvdyIsCiAgICAib2JzZXJ2ZWQiOiAiYm90aCBkaXNtaXNzYWwgcGF0aHMgcGFzc2VkIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5tb2RlbHMuZW50cnkiLAogICAgImV4cGVjdGVkIjogIkRpcmVjdCBNb2RlbCBjb250cm9sIG9wZW5zIHRoZSBnZW51aW5lIGNhdGFsb2ciLAogICAgIm9ic2VydmVkIjogImhlYWRlciBNb2RlbCBjb250cm9sIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5tb2RlbHMuc2hlZXQiLAogICAgImV4cGVjdGVkIjogIkdlbnVpbmUgbW9kZWxzIHNoZWV0IHJlbmRlcnMgcm93cyBhbmQgb2JleXMgTVNldHRpbmdzIChubyBmaWx0ZXIvc2VhcmNoL21hbnVhbCkiLAogICAgIm9ic2VydmVkIjogIjEyLzEyIG1vZGVscyBpbiBmaXJzdCBwYWdlIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5tb2RlbHMub3ZlcmxheSIsCiAgICAiZXhwZWN0ZWQiOiAiTW9kZWxzIHNoZWV0IHNjcmltIGFuZCBFc2NhcGUgZGlzbWlzcyB3aXRoIGZvY3VzL3Njcm9sbCByZXN0b3JhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiYm90aCBwYXRocyBwYXNzZWQiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJzdGF0ZS1nYXBzIiwKICAgICJleHBlY3RlZCI6ICJFdmVyeSBhcnRib2FyZCB0d2VhayBlaXRoZXIgZXhlcmNpc2VkIG9yIGV4cGxpY2l0bHkgcmVwb3J0ZWQiLAogICAgIm9ic2VydmVkIjogImNvbm4uZmFpbGVkLCBjb25uLmFkZGVkIiwKICAgICJ2ZXJpZmllZCI6IGZhbHNlCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-69822ffc4efe427e9fe3",
+          "file": "settings-state-audit.pw.ts",
+          "line": 338,
+          "column": 5
+        },
+        {
+          "title": "tools: genuine read-only rows, status pills, details and no install mutation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11982,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:669:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 669
+                    },
+                    "snippet": "  667 |   const missing = status.tools.filter((tool) => tool.state === 'missing').length\n  668 |   const summary = page.locator('.vv-tools__sum')\n> 669 |   await expect(summary).toBeVisible()\n      |                         ^\n  670 |   const expectedSummary = failed > 0 ? `${failed} công cụ cần sửa` : installing > 0 ? /Đang cài/ : updates > 0 ? new RegExp(`Máy sẵn sàng · có ${updates} bản cập nhật`) : missing > 0 ? `${missing} công cụ chưa cài` : 'Máy sẵn sàng'\n  671 |   await expect(summary.locator('.vv-tools__sum-title')).toHaveText(expectedSummary)\n  672 |   record(page, testInfo, 'tools.summary', 'Summary severity derives from genuine GET /api/tools', (await summary.locator('.vv-tools__sum-title').textContent()) ?? '')"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 669
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  667 |   const missing = status.tools.filter((tool) => tool.state === 'missing').length\n  668 |   const summary = page.locator('.vv-tools__sum')\n> 669 |   await expect(summary).toBeVisible()\n      |                         ^\n  670 |   const expectedSummary = failed > 0 ? `${failed} công cụ cần sửa` : installing > 0 ? /Đang cài/ : updates > 0 ? new RegExp(`Máy sẵn sàng · có ${updates} bản cập nhật`) : missing > 0 ? `${missing} công cụ chưa cài` : 'Máy sẵn sàng'\n  671 |   await expect(summary.locator('.vv-tools__sum-title')).toHaveText(expectedSummary)\n  672 |   record(page, testInfo, 'tools.summary', 'Summary severity derives from genuine GET /api/tools', (await summary.locator('.vv-tools__sum-title').textContent()) ?? '')\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:669:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:32:53.492Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 669
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-ad7d34984fdb4a4348d6",
+          "file": "settings-state-audit.pw.ts",
+          "line": 656,
+          "column": 5
+        },
+        {
+          "title": "tools recheck: only the safe POST /api/tools/check probe, never install",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12090,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:723:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 723
+                    },
+                    "snippet": "  721 |   // The control exists in both desktop and mobile implementations; if a future\n  722 |   // MSettings parity change removes it, this assertion is the parity failure.\n> 723 |   await expect(recheck).toBeVisible()\n      |                         ^\n  724 |\n  725 |   const responsePromise = page.waitForResponse((response) => {\n  726 |     const url = new URL(response.url())"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 723
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n\n\n  721 |   // The control exists in both desktop and mobile implementations; if a future\n  722 |   // MSettings parity change removes it, this assertion is the parity failure.\n> 723 |   await expect(recheck).toBeVisible()\n      |                         ^\n  724 |\n  725 |   const responsePromise = page.waitForResponse((response) => {\n  726 |     const url = new URL(response.url())\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:723:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:33:06.124Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 723
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-bcc4f3750cced539f8f3",
+          "file": "settings-state-audit.pw.ts",
+          "line": 712,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:33:19.259Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS50b29scyIsCiAgICAiZXhwZWN0ZWQiOiAiTmF0aXZlIHRvb2xzIHNlY3Rpb24gb3BlbnMgd2l0aCBpdHMgZGVza3RvcC9tb2JpbGUgdGl0bGUiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiZnJhbWUubW9iaWxlLWxpc3QiLAogICAgImV4cGVjdGVkIjogIkxpc3QgdmFsdWVzIG1hdGNoIGxpdmUgcHJvdmlkZXJzL3BsYXRmb3Jtcy9hZ2VudHMvdG9vbHMgcmVzb3VyY2VzIiwKICAgICJvYnNlcnZlZCI6ICIyIHByb3ZpZGVycywgMyBwbGF0Zm9ybXMiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBL4bq/dCBu4buRaSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiS+G6v3QgbuG7kWkgQUkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmFnZW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9iaWxlIGxpc3Qgcm93IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hY2NvdW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9iaWxlIGxpc3Qgcm93IG9wZW5zIFTDoGkga2hv4bqjbiBu4buBbiB04bqjbmciLAogICAgIm9ic2VydmVkIjogIlTDoGkga2hv4bqjbiBu4buBbiB04bqjbmciLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnN0b3JhZ2UiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5sb2dzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbG9ncyBkZWVwIGxpbmsgcmVuZGVyczsgbGlzdCByb3cgaXMgdGhlIG5hdGl2ZSBleHBvcnQgYWN0aW9uLCBub3QgYSBzZWN0aW9uIHJvdyIsCiAgICAib2JzZXJ2ZWQiOiAibG9ncyBzY3JlZW4gKyBleHBvcnQgY2FyZCB2aXNpYmxlIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucXVvdGEiLAogICAgImV4cGVjdGVkIjogIkRyYXctc291cmNlIHF1b3RhIG1pcnJvcnMgcHJvdmlkZXIucXVvdGEgd2l0aG91dCBpbnZlbnRpbmcgYSBwbGFuIiwKICAgICJvYnNlcnZlZCI6ICIyLzIgZGF5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIkxpdmUgYWdlbnQgbmFtZXMgYW5kIHNlbGVjdGVkIG1vZGVsIGlkcyByZW5kZXIgd2l0aG91dCBhIHBpY2tlciBtdXRhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiZGlyZWN0b3IvYXJ0aXN0L3Njb3V0L3FhICsgZ3B0LTYuMS1zb2wvZ3B0LWltYWdlLTIgdmlzaWJsZSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiYWNjb3VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIlBsYXRmb3JtIGNhcmRzIHJlbmRlciBnZW51aW5lIHN0YXR1cyBhbmQgbG9naW4gY29udHJvbHMgd2l0aG91dCBhY3RpdmF0aW9uIiwKICAgICJvYnNlcnZlZCI6ICIzIHBsYXRmb3JtIGNhcmRzLCBzdGF0ZXMgYXNzZXJ0ZWQiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-77de902e856342b4657f",
+          "file": "settings-state-audit.pw.ts",
+          "line": 203,
+          "column": 5
+        },
+        {
+          "title": "connect: truthful provider cards, all safe add radios, scrim/Esc and conditional model catalog",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "state-gap",
+                  "description": "conn.failed: No genuine provider is auth_failed/unreachable; the orange failed card is unreachable without creating a provider | conn.added: conn=added is local state set only by a successful POST /api/ai/providers in this session; no seeded card can produce it and faking is forbidden"
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2832,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:33:24.086Z",
+                  "annotations": [
+                    {
+                      "type": "state-gap",
+                      "description": "conn.failed: No genuine provider is auth_failed/unreachable; the orange failed card is unreachable without creating a provider | conn.added: conn=added is local state set only by a successful POST /api/ai/providers in this session; no seeded card can produce it and faking is forbidden"
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "settings-state-gaps.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJjb25uLmZhaWxlZCIsCiAgICAicmVhc29uIjogIk5vIGdlbnVpbmUgcHJvdmlkZXIgaXMgYXV0aF9mYWlsZWQvdW5yZWFjaGFibGU7IHRoZSBvcmFuZ2UgZmFpbGVkIGNhcmQgaXMgdW5yZWFjaGFibGUgd2l0aG91dCBjcmVhdGluZyBhIHByb3ZpZGVyIiwKICAgICJuZWVkZWQiOiAiSXNvbGF0ZWQgc2VlZGVkIHByb3ZpZGVyIHdpdGggc3RhdHVzIGF1dGhfZmFpbGVkIG9yIHVucmVhY2hhYmxlIChQT1NUIGFkZCArIGJhZCBjcmVkZW50aWFsIGlzIGZvcmJpZGRlbikiCiAgfSwKICB7CiAgICAiaWQiOiAiY29ubi5hZGRlZCIsCiAgICAicmVhc29uIjogImNvbm49YWRkZWQgaXMgbG9jYWwgc3RhdGUgc2V0IG9ubHkgYnkgYSBzdWNjZXNzZnVsIFBPU1QgL2FwaS9haS9wcm92aWRlcnMgaW4gdGhpcyBzZXNzaW9uOyBubyBzZWVkZWQgY2FyZCBjYW4gcHJvZHVjZSBpdCBhbmQgZmFraW5nIGlzIGZvcmJpZGRlbiIsCiAgICAibmVlZGVkIjogIkV4cGxpY2l0IGlzb2xhdGVkIG5ldy1wcm92aWRlciByZWNvcmQgd2l0aCBwcm92ZW4gY2xlYW51cCwgb3IgYWNjZXB0ZWQgcmVwb3J0LW9ubHkgc3RhdHVzIGZvciB0aGlzIHN0YXRlIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0Lmxpc3QiLAogICAgImV4cGVjdGVkIjogIlByb3ZpZGVyIGxpc3QgbWF0Y2hlcyBHRVQgL2FwaS9haS9wcm92aWRlcnMiLAogICAgIm9ic2VydmVkIjogIjIgZ2VudWluZSBwcm92aWRlcnMiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuY2FyZC5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJUcnV0aGZ1bCByZWFkeS9zdWJzY3JpcHRpb24gc3VibGluZSIsCiAgICAib2JzZXJ2ZWQiOiAiR8OzaSBQcm9saXRlIMK3IGNo4buvIHbDoCDEkeG7jWMg4bqjbmggwrcgMiBtb2RlbCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5xdW90YS5jaGF0Z3B0IiwKICAgICJleHBlY3RlZCI6ICJRdW90YSBsaW5lIGFuZCBiYXIgYXJlIHRydXRoZnVsIGFuZCBjb250YWluZWQiLAogICAgIm9ic2VydmVkIjogIuG6om5oIGjDtG0gbmF5IDIvMsSR4bq3dCBs4bqhaSAwMDowMCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5jYXJkLmdyb2siLAogICAgImV4cGVjdGVkIjogIlRydXRoZnVsIGxvZ2dlZF9vdXQvc3Vic2NyaXB0aW9uIHN1YmxpbmUiLAogICAgIm9ic2VydmVkIjogIkNoxrBhIMSRxINuZyBuaOG6rXAgwrcgY2jhu4kgduG6vSDhuqNuaCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQuZ3JvdXAiLAogICAgImV4cGVjdGVkIjogIkVpZ2h0IGFkZC1wcm92aWRlciByYWRpbyBjYXJkcyBpbiBuYXRpdmUgb3JkZXIiLAogICAgIm9ic2VydmVkIjogIk9wZW5BSUNo4buvLCB24bq9IOG6o25oIHwgR2VtaW5pQ2jhu68sIMSR4buNYyDhuqNuaCwgduG6vSDhuqNuaCB8IE9wZW5Sb3V0ZXJIw6BuZyB0csSDbSBtb2RlbCB8IERlZXBTZWVrQ2jhu68gfCB4QUlDaOG7rywgduG6vSDhuqNuaCB8IEFudGhyb3BpY0No4buvLCDEkeG7jWMg4bqjbmggfCBPbGxhbWFUcsOqbiBtw6F5IHwgVMawxqFuZyB0aMOtY2ggT3BlbkFJxJDhu4thIGNo4buJIHJpw6puZyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3BlbmFpIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJPcGVuQUkgQ2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmdlbWluaSIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiR2VtaW5pIENo4buvLCDEkeG7jWMg4bqjbmgsIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLm9wZW5yb3V0ZXIiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIk9wZW5Sb3V0ZXIgSMOgbmcgdHLEg20gbW9kZWwgW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmRlZXBzZWVrIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJEZWVwU2VlayBDaOG7ryBba2V5XSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQueGFpIiwKICAgICJleHBlY3RlZCI6ICJSYWRpbyBzZWxlY3RzLCByZXF1aXJlZCBmaWVsZHMgYXBwZWFyLCBzdWJtaXQgZW5hYmxlcyBvbmx5IHdpdGggaW5wdXQgYW5kIHdhcyBuZXZlciBjbGlja2VkIiwKICAgICJvYnNlcnZlZCI6ICJ4QUkgQ2jhu68sIHbhur0g4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLmFudGhyb3BpYyIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiQW50aHJvcGljIENo4buvLCDEkeG7jWMg4bqjbmggW2tleV0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLm9sbGFtYSIsCiAgICAiZXhwZWN0ZWQiOiAiUmFkaW8gc2VsZWN0cywgcmVxdWlyZWQgZmllbGRzIGFwcGVhciwgc3VibWl0IGVuYWJsZXMgb25seSB3aXRoIGlucHV0IGFuZCB3YXMgbmV2ZXIgY2xpY2tlZCIsCiAgICAib2JzZXJ2ZWQiOiAiT2xsYW1hIFRyw6puIG3DoXkgW3VybF0iLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QuYWRkLm9wZW5haV9jb21wYXQiLAogICAgImV4cGVjdGVkIjogIlJhZGlvIHNlbGVjdHMsIHJlcXVpcmVkIGZpZWxkcyBhcHBlYXIsIHN1Ym1pdCBlbmFibGVzIG9ubHkgd2l0aCBpbnB1dCBhbmQgd2FzIG5ldmVyIGNsaWNrZWQiLAogICAgIm9ic2VydmVkIjogIlTGsMahbmcgdGjDrWNoIE9wZW5BSSDEkOG7i2EgY2jhu4kgcmnDqm5nIFtib3RoXSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5hZGQub3ZlcmxheSIsCiAgICAiZXhwZWN0ZWQiOiAiU2NyaW0gYW5kIEVzY2FwZSBjbG9zZSB0aGUgc2hlZXQsIHJlc3RvcmUgZm9jdXMgYW5kIGJvZHkgb3ZlcmZsb3ciLAogICAgIm9ic2VydmVkIjogImJvdGggZGlzbWlzc2FsIHBhdGhzIHBhc3NlZCIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiY29ubmVjdC5tb2RlbHMuZW50cnkiLAogICAgImV4cGVjdGVkIjogIkRpcmVjdCBNb2RlbCBjb250cm9sIG9wZW5zIHRoZSBnZW51aW5lIGNhdGFsb2ciLAogICAgIm9ic2VydmVkIjogImhlYWRlciBNb2RlbCBjb250cm9sIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJjb25uZWN0Lm1vZGVscy5zaGVldCIsCiAgICAiZXhwZWN0ZWQiOiAiR2VudWluZSBtb2RlbHMgc2hlZXQgcmVuZGVycyByb3dzIGFuZCBvYmV5cyBNU2V0dGluZ3MgKG5vIGZpbHRlci9zZWFyY2gvbWFudWFsKSIsCiAgICAib2JzZXJ2ZWQiOiAiMTIvMTIgbW9kZWxzIGluIGZpcnN0IHBhZ2UiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImNvbm5lY3QubW9kZWxzLm92ZXJsYXkiLAogICAgImV4cGVjdGVkIjogIk1vZGVscyBzaGVldCBzY3JpbSBhbmQgRXNjYXBlIGRpc21pc3Mgd2l0aCBmb2N1cy9zY3JvbGwgcmVzdG9yYXRpb24iLAogICAgIm9ic2VydmVkIjogImJvdGggcGF0aHMgcGFzc2VkIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJzdGF0ZS1nYXBzIiwKICAgICJleHBlY3RlZCI6ICJFdmVyeSBhcnRib2FyZCB0d2VhayBlaXRoZXIgZXhlcmNpc2VkIG9yIGV4cGxpY2l0bHkgcmVwb3J0ZWQiLAogICAgIm9ic2VydmVkIjogImNvbm4uZmFpbGVkLCBjb25uLmFkZGVkIiwKICAgICJ2ZXJpZmllZCI6IGZhbHNlCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-3d0554b3ca2751fbc20f",
+          "file": "settings-state-audit.pw.ts",
+          "line": 338,
+          "column": 5
+        },
+        {
+          "title": "tools: genuine read-only rows, status pills, details and no install mutation",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12067,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:669:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 669
+                    },
+                    "snippet": "  667 |   const missing = status.tools.filter((tool) => tool.state === 'missing').length\n  668 |   const summary = page.locator('.vv-tools__sum')\n> 669 |   await expect(summary).toBeVisible()\n      |                         ^\n  670 |   const expectedSummary = failed > 0 ? `${failed} công cụ cần sửa` : installing > 0 ? /Đang cài/ : updates > 0 ? new RegExp(`Máy sẵn sàng · có ${updates} bản cập nhật`) : missing > 0 ? `${missing} công cụ chưa cài` : 'Máy sẵn sàng'\n  671 |   await expect(summary.locator('.vv-tools__sum-title')).toHaveText(expectedSummary)\n  672 |   record(page, testInfo, 'tools.summary', 'Summary severity derives from genuine GET /api/tools', (await summary.locator('.vv-tools__sum-title').textContent()) ?? '')"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 669
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.vv-tools__sum')\nExpected: visible\nReceived: hidden\nTimeout:  10000ms\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.vv-tools__sum') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.vv-tools__sum')\u001b[22m\n\u001b[2m    24 × locator resolved to <section role=\"status\" class=\"vv-tools__sum settings__styles.card x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd settings__styles.toolsSum x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si\">…</section>\u001b[22m\n\u001b[2m       - unexpected value \"hidden\"\u001b[22m\n\n\n  667 |   const missing = status.tools.filter((tool) => tool.state === 'missing').length\n  668 |   const summary = page.locator('.vv-tools__sum')\n> 669 |   await expect(summary).toBeVisible()\n      |                         ^\n  670 |   const expectedSummary = failed > 0 ? `${failed} công cụ cần sửa` : installing > 0 ? /Đang cài/ : updates > 0 ? new RegExp(`Máy sẵn sàng · có ${updates} bản cập nhật`) : missing > 0 ? `${missing} công cụ chưa cài` : 'Máy sẵn sàng'\n  671 |   await expect(summary.locator('.vv-tools__sum-title')).toHaveText(expectedSummary)\n  672 |   record(page, testInfo, 'tools.summary', 'Summary severity derives from genuine GET /api/tools', (await summary.locator('.vv-tools__sum-title').textContent()) ?? '')\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:669:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:33:26.925Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-d2386-ils-and-no-install-mutation-mobile-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 669
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-df40bf1197ad99fec9d9",
+          "file": "settings-state-audit.pw.ts",
+          "line": 656,
+          "column": 5
+        },
+        {
+          "title": "tools recheck: only the safe POST /api/tools/check probe, never install",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12300,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:723:25",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                      "column": 25,
+                      "line": 723
+                    },
+                    "snippet": "  721 |   // The control exists in both desktop and mobile implementations; if a future\n  722 |   // MSettings parity change removes it, this assertion is the parity failure.\n> 723 |   await expect(recheck).toBeVisible()\n      |                         ^\n  724 |\n  725 |   const responsePromise = page.waitForResponse((response) => {\n  726 |     const url = new URL(response.url())"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                        "column": 25,
+                        "line": 723
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Kiểm tra lại' })\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('button', { name: 'Kiểm tra lại' }) with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Kiểm tra lại' })\u001b[22m\n\n\n  721 |   // The control exists in both desktop and mobile implementations; if a future\n  722 |   // MSettings parity change removes it, this assertion is the parity failure.\n> 723 |   await expect(recheck).toBeVisible()\n      |                         ^\n  724 |\n  725 |   const responsePromise = page.waitForResponse((response) => {\n  726 |     const url = new URL(response.url())\n    at /Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts:723:25"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:33:40.362Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/43-settings-native-states/browser/settings-state-audit.pw.ts-0ba04-s-check-probe-never-install-mobile-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/settings-state-audit.pw.ts",
+                    "column": 25,
+                    "line": 723
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-4c1d8050f98a1ec08cd6",
+          "file": "settings-state-audit.pw.ts",
+          "line": 712,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T22:30:35.159Z",
+    "duration": 198409.01,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 12,
+    "flaky": 0
+  }
+}

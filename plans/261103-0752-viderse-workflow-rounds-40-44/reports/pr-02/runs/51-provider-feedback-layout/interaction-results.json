@@ -1,0 +1,801 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "provider-catalog-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "provider-catalog-audit.pw.ts",
+      "file": "provider-catalog-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:25:54.598Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTM3NGIzZTA1IiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtMzc0YjNlMDUiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-5878046f5549cbe595ab",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3443,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:25:59.144Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLWFjZmY0OTMwIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjpmYWxzZSwibW9kZWxzRG93bmxvYWRlZCI6MCwiaW5mZXJlbmNlUmVxdWVzdHMiOjAsInNvdXJjZUFuZEFnZW50Q29uZmlndXJhdGlvblVuY2hhbmdlZCI6dHJ1ZSwicHJvdmlkZXJSZWNvcmRzUmVzdG9yZWQiOnRydWUsImJyb3dzZXJNdXRhdGlvbnMiOlt7Im1ldGhvZCI6IlBPU1QiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX0seyJtZXRob2QiOiJERUxFVEUiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMvb2xsYW1hLWFjZmY0OTMwIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-cd3d7657d26433d2e3af",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1885,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:03.246Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTI5ZmVhOGJlIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtMjlmZWE4YmUiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-e3e15145602bc0d657c3",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1943,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:05.514Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLWFmMjhiYzgyIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjpmYWxzZSwibW9kZWxzRG93bmxvYWRlZCI6MCwiaW5mZXJlbmNlUmVxdWVzdHMiOjAsInNvdXJjZUFuZEFnZW50Q29uZmlndXJhdGlvblVuY2hhbmdlZCI6dHJ1ZSwicHJvdmlkZXJSZWNvcmRzUmVzdG9yZWQiOnRydWUsImJyb3dzZXJNdXRhdGlvbnMiOlt7Im1ldGhvZCI6IlBPU1QiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX0seyJtZXRob2QiOiJERUxFVEUiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMvb2xsYW1hLWFmMjhiYzgyIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-c53dba980433551a7d8e",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:08.079Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTc3MGNkN2YyIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtNzcwY2Q3ZjIiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-6b815d6b0a98b429a33c",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4794,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:12.147Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "feedback-layout.json",
+                      "contentType": "application/json",
+                      "body": "eyJmZWVkYmFjayI6eyJ4IjozNS4wNzgxMjUsInkiOjIwMCwid2lkdGgiOjMxOS44NDM3NSwiaGVpZ2h0Ijo0MH0sImFjdGlvbiI6eyJ4IjoxNiwieSI6NzUwLCJ3aWR0aCI6MzU4LCJoZWlnaHQiOjQ4fSwib3ZlcmxhcHMiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTM5Njg1NWZmIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjpmYWxzZSwibW9kZWxzRG93bmxvYWRlZCI6MCwiaW5mZXJlbmNlUmVxdWVzdHMiOjAsInNvdXJjZUFuZEFnZW50Q29uZmlndXJhdGlvblVuY2hhbmdlZCI6dHJ1ZSwicHJvdmlkZXJSZWNvcmRzUmVzdG9yZWQiOnRydWUsImJyb3dzZXJNdXRhdGlvbnMiOlt7Im1ldGhvZCI6IlBPU1QiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX0seyJtZXRob2QiOiJERUxFVEUiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMvb2xsYW1hLTM5Njg1NWZmIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-545a9e2aaea290460f04",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1943,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:17.555Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTJlZDJjODhjIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtMmVkMmM4OGMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-93c614890898b1a566b7",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T23:26:19.864Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "feedback-layout.json",
+                      "contentType": "application/json",
+                      "body": "eyJmZWVkYmFjayI6eyJ4IjozNS4wNzgxMjUsInkiOjIwMCwid2lkdGgiOjMxOS44NDM3NSwiaGVpZ2h0Ijo0MH0sImFjdGlvbiI6eyJ4IjoxNiwieSI6NzUwLCJ3aWR0aCI6MzU4LCJoZWlnaHQiOjQ4fSwib3ZlcmxhcHMiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTNlNjE1YTAzIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjpmYWxzZSwibW9kZWxzRG93bmxvYWRlZCI6MCwiaW5mZXJlbmNlUmVxdWVzdHMiOjAsInNvdXJjZUFuZEFnZW50Q29uZmlndXJhdGlvblVuY2hhbmdlZCI6dHJ1ZSwicHJvdmlkZXJSZWNvcmRzUmVzdG9yZWQiOnRydWUsImJyb3dzZXJNdXRhdGlvbnMiOlt7Im1ldGhvZCI6IlBPU1QiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX0seyJtZXRob2QiOiJERUxFVEUiLCJwYXRoIjoiL2FwaS9haS9wcm92aWRlcnMvb2xsYW1hLTNlNjE1YTAzIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/51-provider-feedback-layout/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-d51673c9dbb2fb518bd8",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T23:25:54.250Z",
+    "duration": 27746.593,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
