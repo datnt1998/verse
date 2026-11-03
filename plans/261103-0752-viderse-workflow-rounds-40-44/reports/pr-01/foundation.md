@@ -26,6 +26,8 @@ Trạng thái: **local verification đã qua; đang chốt PR, chưa deploy**. P
 | Playwright desktop/mobile × normal/reduced | 12/12 qua, 0 flaky/skip/unexpected; 96.6 giây |
 | Chương trình Go chứa UI build thật | `/` và `/api/me` 200; mobile font loaded, slider 0 px, width 390/390, không page error/request failure |
 
+Ngoài workspace đang dùng, đã export chính xác proposed Git tree `8dc94957c1cc89519a22a6c4123add8beefcf004` sang thư mục tạm (không tạo worktree), chạy Viderse typecheck qua trong 51.27 giây. Bước này tránh lấy nhầm file từ ordinary index cũ làm điều kiện compile.
+
 Lượt root test chạy đồng thời build ban đầu có timeout Noverse; không tính là xanh. Hai file ảnh hưởng chạy lại qua 9 ca, rồi toàn bộ Noverse qua riêng. Build đầu timeout khi tranh tài nguyên; build riêng sau đó qua. Lịch sử browser lỗi môi trường/readiness/locator được giữ trong `runs/`; kết quả chuẩn cuối là [run 07](runs/07-settled-foundation/interaction-results.json). Không nới tolerance hoặc sửa Tabs để che thời điểm đang animation.
 
 [Receipt và hash source](receipt.json) · [báo cáo Playwright](runs/07-settled-foundation/html/index.html) · [native timing và lỗi action thật](native-feedback.json) · [compiled smoke](compiled-smoke.json) · [ảnh compiled mobile](compiled-mobile.png) · [quan sát resize theo frame](segment-resize-observation.json).

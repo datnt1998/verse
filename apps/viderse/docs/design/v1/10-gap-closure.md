@@ -371,3 +371,9 @@ thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi t
 | Inventory/QA trước V36–V40 — không phải nghiệm thu gói UI | 03/11/2026 | `d245db8c38c95d0d9d3c98cf84f24294b7c190e9` | [Inventory code ↔ board ↔ giữ/sửa/xoá](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md); [baseline, ảnh, command và giới hạn](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/baseline.md). 480 reference rows có context/framing, 28 baseline code ở viewport thiết kế; QA riêng, không gọi provider. Code vẫn theo workflow cũ. Sáu board thiếu target prerequisite, preview chưa có source hoàn tất; mọi target acceptance vẫn pending theo owner. |
 
 Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và reference 480/480 không có lỗi capture. Smoke MReview có 3 control/oracle, **không** gọi full-control Playwright đạt hoặc UI giống 1:1. Chưa kiểm đủ motion/reduced-motion, slider sau font, mọi hit area và Safari bàn phím/dock thật. Không sửa artboard hay đổi provider/queue production. V36–V40 chỉ được ghi hoàn tất sau PR cutover và bằng chứng tương ứng.
+
+## Workflow đợt40–44 · Nền UI dùng chung (03/11/2026)
+
+| Phạm vi | Ngày | Commit thật | Bằng chứng và chỗ lệch |
+|---|---|---|---|
+| Nền trước V36–V40 — không phải nghiệm thu toàn bộ workflow | 03/11/2026 | `2acab2d40c645531c9daf0df10f9f259c82e5801` | [Báo cáo, ảnh cạnh artboard, kiểm tra và giới hạn](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/foundation.md). Responsive select/menu/confirm, handoff/focus/scroll, toast Viderse 4 giây, pending/undo/session isolation; giữ mặc định Noverse. Playwright 12/12 desktop/mobile normal/reduced, slider ≤2 px; actual compiled UI smoke qua. Trang New còn cũ, cutover PR5/PR6; nút xoá video gọi sai POST đã xác định, sửa ở V36; chưa có Safari thiết bị thật. Chưa deploy. |
