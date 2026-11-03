@@ -1,0 +1,539 @@
+{
+  "revision": "c34cd512002af842ba48532adcc66f026038e51f",
+  "composedAt": "2026-11-03T11:07:39.241901+00:00",
+  "comparisons": [
+    {
+      "board": "Activity",
+      "row": "Activity.view.running",
+      "reference": "reference/Activity.view.running.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Activity.baseline.png",
+      "capturedAt": "2026-11-03T10:59:49.134Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Background-activity popover not opened; route background only",
+      "comparison": "comparison/Activity.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Channel",
+      "row": "Channel.tab.sources",
+      "reference": "reference/Channel.tab.sources.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Channel.baseline.png",
+      "capturedAt": "2026-11-03T10:59:41.837Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Channel.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "CreateChannel",
+      "row": "CreateChannel.step.create",
+      "reference": "reference/CreateChannel.step.create.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/CreateChannel.baseline.png",
+      "capturedAt": "2026-11-03T10:59:43.041Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/CreateChannel.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Dialogs",
+      "row": "Dialogs.dialog.delete-video",
+      "reference": "reference/Dialogs.dialog.delete-video.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Dialogs.baseline.png",
+      "capturedAt": "2026-11-03T10:59:50.960Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Confirmation not opened; channel background only",
+      "comparison": "comparison/Dialogs.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Editor",
+      "row": "Editor.state.editing",
+      "reference": "reference/Editor.state.editing.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Editor.baseline.png",
+      "capturedAt": "2026-11-03T10:59:36.281Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Editor.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Explore",
+      "row": "Explore.empty.true",
+      "reference": "reference/Explore.empty.true.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Explore.baseline.png",
+      "capturedAt": "2026-11-03T10:59:46.875Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Explore.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Library",
+      "row": "Library.tab.templates",
+      "reference": "reference/Library.tab.templates.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Library.baseline.png",
+      "capturedAt": "2026-11-03T10:59:39.217Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Library.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MAuth",
+      "row": "MAuth.screen.login",
+      "reference": "reference/MAuth.screen.login.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MAuth.baseline.png",
+      "capturedAt": "2026-11-03T11:00:11.008Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MAuth.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MChannel",
+      "row": "MChannel.tab.sources",
+      "reference": "reference/MChannel.tab.sources.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MChannel.baseline.png",
+      "capturedAt": "2026-11-03T10:59:56.581Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MChannel.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MCompVideo",
+      "row": "MCompVideo.sheet.none",
+      "reference": "reference/MCompVideo.sheet.none.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MCompVideo.baseline.png",
+      "capturedAt": "2026-11-03T11:00:03.341Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "No QA rival/source video detail fixture; Explore background only",
+      "comparison": "comparison/MCompVideo.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MCreate",
+      "row": "MCreate.step.create",
+      "reference": "reference/MCreate.step.create.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MCreate.baseline.png",
+      "capturedAt": "2026-11-03T11:00:09.404Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MCreate.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MExplore",
+      "row": "MExplore.list.noRivals",
+      "reference": "reference/MExplore.list.noRivals.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MExplore.baseline.png",
+      "capturedAt": "2026-11-03T11:00:01.945Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MExplore.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MLibrary",
+      "row": "MLibrary.tab.templates",
+      "reference": "reference/MLibrary.tab.templates.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MLibrary.baseline.png",
+      "capturedAt": "2026-11-03T10:59:58.078Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MLibrary.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MMain",
+      "row": "MMain.scope.all",
+      "reference": "reference/MMain.scope.all.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MMain.baseline.png",
+      "capturedAt": "2026-11-03T10:59:55.114Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MMain.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MNew",
+      "row": "MNew.input.empty",
+      "reference": "reference/MNew.input.empty.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MNew.baseline.png",
+      "capturedAt": "2026-11-03T11:00:00.555Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MNew.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MQueue",
+      "row": "MQueue.state.empty",
+      "reference": "reference/MQueue.state.empty.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MQueue.baseline.png",
+      "capturedAt": "2026-11-03T11:00:04.683Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MQueue.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MReview",
+      "row": "MReview.state.review",
+      "reference": "reference/MReview.state.review.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MReview.baseline.png",
+      "capturedAt": "2026-11-03T10:59:53.395Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MReview.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MSettings",
+      "row": "MSettings.screen.connect",
+      "reference": "reference/MSettings.screen.connect.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MSettings.baseline.png",
+      "capturedAt": "2026-11-03T11:00:08.152Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MSettings.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MSystem",
+      "row": "MSystem.state.loading",
+      "reference": "reference/MSystem.state.loading.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MSystem.baseline.png",
+      "capturedAt": "2026-11-03T11:00:06.523Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Confirmation sheet not opened; channel background only",
+      "comparison": "comparison/MSystem.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MTemplate",
+      "row": "MTemplate.screen.list",
+      "reference": "reference/MTemplate.screen.list.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MTemplate.baseline.png",
+      "capturedAt": "2026-11-03T10:59:59.321Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/MTemplate.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Main",
+      "row": "Main.stage.review",
+      "reference": "reference/Main.stage.review.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Main.baseline.png",
+      "capturedAt": "2026-11-03T10:59:32.366Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Main.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "NewVideo",
+      "row": "NewVideo.input.empty",
+      "reference": "reference/NewVideo.input.empty.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/NewVideo.baseline.png",
+      "capturedAt": "2026-11-03T10:59:45.688Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/NewVideo.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Onboard",
+      "row": "Onboard.step.setup",
+      "reference": "reference/Onboard.step.setup.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Onboard.baseline.png",
+      "capturedAt": "2026-11-03T10:59:44.448Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Onboarding wizard needs a channel-less account; this route renders CreateChannel",
+      "comparison": "comparison/Onboard.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Queue",
+      "row": "Queue.state.empty",
+      "reference": "reference/Queue.state.empty.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Queue.baseline.png",
+      "capturedAt": "2026-11-03T10:59:48.071Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Queue.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Review",
+      "row": "Review.confirm.none",
+      "reference": "reference/Review.confirm.none.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Review.baseline.png",
+      "capturedAt": "2026-11-03T10:59:30.433Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Review.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Settings",
+      "row": "Settings.section.connect",
+      "reference": "reference/Settings.section.connect.png",
+      "selection": "corresponding reachable baseline state",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Settings.baseline.png",
+      "capturedAt": "2026-11-03T10:59:40.505Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Settings.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "System",
+      "row": "System.state.loading",
+      "reference": "reference/System.state.loading.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/System.baseline.png",
+      "capturedAt": "2026-11-03T10:59:51.939Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "System overlay prerequisites not seeded; route background only",
+      "comparison": "comparison/System.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Template",
+      "row": "Template.section.images",
+      "reference": "reference/Template.section.images.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Template.baseline.png",
+      "capturedAt": "2026-11-03T10:59:37.931Z",
+      "dpr": 1,
+      "fontStatus": "loaded",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "comparison": "comparison/Template.png",
+      "targetMatched": false,
+      "productAcceptance": false
+    }
+  ],
+  "productAcceptance": false
+}

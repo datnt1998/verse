@@ -363,3 +363,11 @@ thì qua. Phép kiểm không thay lease bằng mock và không bỏ qua lỗi t
 - Bản production đã kiểm native 390/360 px với safe-area59/34: chọn model không cắt mục cuối, More Sheet giữ lề/chạm và trả focus, bộ lọc Khám phá đổi ngay cùng GET200, sheet theo dõi giữ lề ngang16 px. Màu hồng Viderse không còn bị token mặc định nối sau CSS đổi thành tím.
 - Chứng cứ, giới hạn fixture/provider và kiểm tra tích hợp nằm ở [báo cáo control](../../../../../plans/reports/2026-11-02-settings-explore-kit.md), [Kênh/Hàng chờ](../../../../../plans/reports/2026-11-02-v33-channel-queue-kit.md) và [ảnh native bản dựng cuối](../../../../../plans/reports/261102-final-built-mobile/). Số đo hiệu năng/phát hành cuối thuộc báo cáo triển khai, không suy ra từ test control.
 
+
+## Workflow đợt40–44 · Kiểm kê và baseline (03/11/2026)
+
+| Phạm vi | Ngày | Commit thật | Bằng chứng và chỗ lệch |
+|---|---|---|---|
+| Inventory/QA trước V36–V40 — không phải nghiệm thu gói UI | 03/11/2026 | `d245db8c38c95d0d9d3c98cf84f24294b7c190e9` | [Inventory code ↔ board ↔ giữ/sửa/xoá](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md); [baseline, ảnh, command và giới hạn](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/baseline.md). 480 reference rows có context/framing, 28 baseline code ở viewport thiết kế; QA riêng, không gọi provider. Code vẫn theo workflow cũ. Sáu board thiếu target prerequisite, preview chưa có source hoàn tất; mọi target acceptance vẫn pending theo owner. |
+
+Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và reference 480/480 không có lỗi capture. Smoke MReview có 3 control/oracle, **không** gọi full-control Playwright đạt hoặc UI giống 1:1. Chưa kiểm đủ motion/reduced-motion, slider sau font, mọi hit area và Safari bàn phím/dock thật. Không sửa artboard hay đổi provider/queue production. V36–V40 chỉ được ghi hoàn tất sau PR cutover và bằng chứng tương ứng.

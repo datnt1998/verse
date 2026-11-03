@@ -1,0 +1,173 @@
+{
+  "references": [
+    {
+      "board": "Activity",
+      "row": "Activity.view.running",
+      "reference": "reference/Activity.view.running.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Channel",
+      "row": "Channel.tab.sources",
+      "reference": "reference/Channel.tab.sources.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "CreateChannel",
+      "row": "CreateChannel.step.create",
+      "reference": "reference/CreateChannel.step.create.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Dialogs",
+      "row": "Dialogs.dialog.delete-video",
+      "reference": "reference/Dialogs.dialog.delete-video.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Editor",
+      "row": "Editor.state.editing",
+      "reference": "reference/Editor.state.editing.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Explore",
+      "row": "Explore.empty.true",
+      "reference": "reference/Explore.empty.true.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "Library",
+      "row": "Library.tab.templates",
+      "reference": "reference/Library.tab.templates.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MAuth",
+      "row": "MAuth.screen.login",
+      "reference": "reference/MAuth.screen.login.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MChannel",
+      "row": "MChannel.tab.sources",
+      "reference": "reference/MChannel.tab.sources.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MCompVideo",
+      "row": "MCompVideo.sheet.none",
+      "reference": "reference/MCompVideo.sheet.none.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MCreate",
+      "row": "MCreate.step.create",
+      "reference": "reference/MCreate.step.create.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MExplore",
+      "row": "MExplore.list.noRivals",
+      "reference": "reference/MExplore.list.noRivals.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "MLibrary",
+      "row": "MLibrary.tab.templates",
+      "reference": "reference/MLibrary.tab.templates.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MMain",
+      "row": "MMain.scope.all",
+      "reference": "reference/MMain.scope.all.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MNew",
+      "row": "MNew.input.empty",
+      "reference": "reference/MNew.input.empty.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "MQueue",
+      "row": "MQueue.state.empty",
+      "reference": "reference/MQueue.state.empty.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "MReview",
+      "row": "MReview.state.review",
+      "reference": "reference/MReview.state.review.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MSettings",
+      "row": "MSettings.screen.connect",
+      "reference": "reference/MSettings.screen.connect.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "MSystem",
+      "row": "MSystem.state.loading",
+      "reference": "reference/MSystem.state.loading.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "MTemplate",
+      "row": "MTemplate.screen.list",
+      "reference": "reference/MTemplate.screen.list.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Main",
+      "row": "Main.stage.review",
+      "reference": "reference/Main.stage.review.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "NewVideo",
+      "row": "NewVideo.input.empty",
+      "reference": "reference/NewVideo.input.empty.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "Onboard",
+      "row": "Onboard.step.setup",
+      "reference": "reference/Onboard.step.setup.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Queue",
+      "row": "Queue.state.empty",
+      "reference": "reference/Queue.state.empty.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "Review",
+      "row": "Review.confirm.none",
+      "reference": "reference/Review.confirm.none.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Settings",
+      "row": "Settings.section.connect",
+      "reference": "reference/Settings.section.connect.png",
+      "selection": "corresponding reachable baseline state"
+    },
+    {
+      "board": "System",
+      "row": "System.state.loading",
+      "reference": "reference/System.state.loading.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    },
+    {
+      "board": "Template",
+      "row": "Template.section.images",
+      "reference": "reference/Template.section.images.png",
+      "selection": "artboard default; data/feature differences remain baseline gaps"
+    }
+  ],
+  "productAcceptance": false
+}

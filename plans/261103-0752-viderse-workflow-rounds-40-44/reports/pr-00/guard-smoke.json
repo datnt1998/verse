@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-11-03T11:05:18.388294+00:00",
+  "checks": [
+    {
+      "case": "filtered capture without separate output directory",
+      "exitCode": 1,
+      "observed": "rejected before browser launch; canonical full app receipt SHA256 unchanged",
+      "sha256": "48aeb03cb89074b94ade480418887c57f29fbe5daba4e250bf8b27063c7d697e",
+      "passed": true
+    },
+    {
+      "case": "missing source revision",
+      "exitCode": 1,
+      "observed": {
+        "status": "aborted",
+        "error": "Error: WORKFLOW_REVISION must identify the captured source",
+        "browser": null,
+        "captures": []
+      },
+      "passed": true
+    },
+    {
+      "case": "cookie path under tracked repository",
+      "exitCode": 1,
+      "observed": {
+        "status": "aborted",
+        "error": "Error: QA cookies must remain outside the repository",
+        "browser": null,
+        "captures": []
+      },
+      "passed": true
+    },
+    {
+      "case": "production/non-loopback app origin",
+      "exitCode": 1,
+      "observed": "rejected by origin guard before browser launch or network request",
+      "passed": true
+    }
+  ],
+  "productAcceptance": false
+}
