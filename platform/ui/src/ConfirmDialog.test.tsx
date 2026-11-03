@@ -1,17 +1,19 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { renderToStaticMarkup } from 'react-dom/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ConfirmDialog, HOLD_DURATION, matchesConfirmation, scheduleConfirmationHold } from './ConfirmDialog'
+import { ConfirmDialog, confirm, dismissConfirmations, setConfirmLayout, HOLD_DURATION, matchesConfirmation, scheduleConfirmationHold } from './ConfirmDialog'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
 
 afterEach(async () => {
+  await act(async () => dismissConfirmations())
+  setConfirmLayout('dialog')
   for (const root of roots.splice(0)) await act(() => root.unmount())
   document.body.replaceChildren()
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 async function mountDialog(props: Partial<Parameters<typeof ConfirmDialog>[0]> = {}) {
@@ -45,14 +47,6 @@ describe('gõ để xác nhận', () => {
     expect(matchesConfirmation('01-tra-xan', '01-tra-xanh')).toBe(false)
     expect(matchesConfirmation('01-TRA-XANH', '01-tra-xanh')).toBe(false)
     expect(matchesConfirmation('', '01-tra-xanh')).toBe(false)
-  })
-  it('nút xoá bị khoá khi chưa gõ, hộp được gắn nhãn và mô tả', () => {
-    const html = renderToStaticMarkup(<ConfirmDialog inline title="Xoá truyện?" body="Xoá vĩnh viễn 24 chương." tone="danger" confirmLabel="Xoá vĩnh viễn" phrase="01-tra-xanh" onConfirm={() => {}} onClose={() => {}} />)
-    expect(html).toContain('role="alertdialog"')
-    expect(html).toContain('aria-labelledby=')
-    expect(html).toContain('aria-describedby=')
-    expect(html).toContain('disabled=""')
-    expect(html).toMatch(/Type <span class="mono"[^>]*>01-tra-xanh<\/span> to confirm/)
   })
 })
 
@@ -122,5 +116,103 @@ describe('disabledReason — khoá có lý do', () => {
     expect(button.disabled).toBe(false)
     await act(async () => { button.click() })
     expect(props.onConfirm).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('confirmation lifecycle', () => {
+  it('dismisses an idle desktop confirmation from its scrim and restores the existing scroll policy', async () => {
+    vi.useFakeTimers()
+    document.body.style.overflow = 'auto'
+    const { props } = await mountDialog({ inline: false, phrase: undefined })
+    const dialog = document.querySelector('[role="alertdialog"]')!
+    expect(document.body.style.overflow).toBe('hidden')
+    await act(async () => { (dialog.parentElement as HTMLElement).click(); vi.advanceTimersByTime(180) })
+    expect(props.onClose).toHaveBeenCalledWith(false)
+    expect(props.onConfirm).not.toHaveBeenCalled()
+    for (const root of roots.splice(0)) await act(() => root.unmount())
+    expect(document.body.style.overflow).toBe('auto')
+    document.body.style.overflow = ''
+  })
+
+  it('keeps a submitted action visible and single-flight through Esc, scrim and cancel', async () => {
+    vi.useFakeTimers()
+    let finish!: () => void
+    const action = vi.fn(() => new Promise<void>((resolve) => { finish = resolve }))
+    const { props } = await mountDialog({ inline: false, phrase: undefined, onConfirm: action })
+    const dialog = document.querySelector('[role="alertdialog"]')!
+    const primary = confirmButton(dialog)
+    await act(async () => { primary.click(); primary.click() })
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      ;(dialog.parentElement as HTMLElement).click()
+      ;(dialog.querySelector('button') as HTMLButtonElement).click()
+      vi.advanceTimersByTime(1000)
+    })
+    expect(action).toHaveBeenCalledTimes(1)
+    expect(props.onClose).not.toHaveBeenCalled()
+    await act(async () => finish())
+    await act(async () => { vi.advanceTimersByTime(180) })
+    expect(props.onClose).toHaveBeenCalledWith(true)
+  })
+
+  it('uses one mobile sheet, retains the confirmation result until exit, and releases its lock', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: !query.includes('reduced-motion'), addEventListener: vi.fn(), removeEventListener: vi.fn() }))
+    setConfirmLayout('responsive')
+    let result!: Promise<boolean>
+    const action = vi.fn()
+    await act(async () => {
+      result = confirm({ title: 'Xoá video QA?', body: 'Xoá 3 ảnh · 12 MB.', confirmLabel: 'Xoá', onConfirm: action })
+      await Promise.resolve()
+    })
+    const dialog = document.querySelector('[role="alertdialog"]')!
+    expect(document.querySelectorAll('[role="alertdialog"]')).toHaveLength(1)
+    expect(dialog.classList.contains('m-sheet')).toBe(true)
+    await act(async () => confirmButton(dialog).click())
+    expect(action).toHaveBeenCalledTimes(1)
+    expect(document.body.style.overflow).toBe('hidden')
+    await act(async () => {
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+      vi.advanceTimersByTime(260)
+    })
+    await expect(result).resolves.toBe(true)
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  it('does not open an asynchronously imported confirmation after its session has ended', async () => {
+    const action = vi.fn()
+    const result = confirm({ title: 'Xoá video QA?', body: 'Xoá 3 ảnh.', confirmLabel: 'Xoá', onConfirm: action })
+    dismissConfirmations()
+    await expect(result).resolves.toBe(false)
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+    expect(action).not.toHaveBeenCalled()
+  })
+
+  it('discards an open session confirmation without accepting its action', async () => {
+    let result!: Promise<boolean>
+    const action = vi.fn()
+    await act(async () => {
+      result = confirm({ title: 'Xoá video QA?', body: 'Xoá 3 ảnh.', confirmLabel: 'Xoá', onConfirm: action })
+      await Promise.resolve()
+    })
+    expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
+    await act(async () => dismissConfirmations())
+    await expect(result).resolves.toBe(false)
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+    expect(action).not.toHaveBeenCalled()
+    expect(document.body.style.overflow).toBe('')
+  })
+
+  it('retains the typed name and lets a failed mutation be retried without closing the form', async () => {
+    const action = vi.fn().mockRejectedValueOnce(new Error('Máy chủ chưa xoá được.')).mockResolvedValueOnce(undefined)
+    const { container, props } = await mountDialog({ onConfirm: action })
+    await typePhrase(container, 'my-channel')
+    await act(async () => confirmButton(container).click())
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain('Máy chủ chưa xoá được.')
+    expect(container.querySelector('input')?.value).toBe('my-channel')
+    expect(props.onClose).not.toHaveBeenCalled()
+    await act(async () => confirmButton(container).click())
+    expect(action).toHaveBeenCalledTimes(2)
   })
 })

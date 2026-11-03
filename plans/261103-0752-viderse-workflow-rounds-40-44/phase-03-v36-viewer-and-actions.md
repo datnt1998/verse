@@ -32,6 +32,7 @@ Mọi entrypoint xem ảnh **desktop** dùng cùng viewer có context thật; kh
 5. Nối `Vẽ lại tất cả` trong Review với confirmCount/expectedRevision thật; không chỉ có nút ở Dialogs/demo. Mọi ảnh mẫu/preview entrypoint có cùng viewer, không mở các popup độc lập còn sót.
 6. Bỏ YouTube Data API card và route `/api/youtube/data-key` thực tế; không xoá cả performance.go nếu còn API hợp lệ. Deferred removals learned-rules/suggestions/assistant chỉ xoá cùng final FE consumer ở PR3/PR4 để PR2 không để nút hỏng.
 7. Structured prompt mới bỏ learned khi wire viewer; raw prompt cũ là provenance bất biến. Backend chỉ bổ sung contract/action mà V36 cho phép, reuse image APIs; không dựng provider preview giả.
+8. Nối thao tác xoá video tới HTTP DELETE có sẵn, không gửi `jobAction('delete')` qua POST. Smoke QA thật ở PR nền đã giữ đúng form pending/lỗi nhưng máy chủ trả “Thao tác làm video không hợp lệ.”; readback job vẫn200. Owner: `screens/workbench/jobActions.tsx`, `api/workbench.ts` đối chiếu `internal/web/clone.go` (DELETE đã có, action switch không nhận delete). Di trú mọi caller và regression consumer/API thật; không thêm backend route hay tính năng ngoài gói. Nghiệm thu: confirm pending chặn đóng/nhấn đôi, thành công readback404, lỗi vẫn giữ form, toast kết quả đúng4s.
 
 ## Ma trận test và acceptance
 | Mức | Scenario | Qua khi |

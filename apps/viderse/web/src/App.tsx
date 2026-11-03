@@ -5,8 +5,8 @@
 //   · chưa cấp quyền Viderse → màn bị chặn · ép đổi mật khẩu → màn đổi mật khẩu
 //   · còn lại → shell + route. Bảng route → màn nằm ở `screens/RouteScreen.tsx`;
 //   điện thoại dựng nội dung trong pane giữ-alive (`shell/MobileRouteStage.tsx`).
-import { Suspense, useEffect, type ReactNode } from 'react'
-import { Spinner, ToastHost } from '@noverse/ui'
+import { Suspense, useEffect, useLayoutEffect, type ReactNode } from 'react'
+import { Spinner, ToastHost, dismissConfirmations, dismissToasts } from '@noverse/ui'
 import { SessionProvider, useSession } from './api/session'
 import { AppShell } from './shell/AppShell'
 import { startDataEvents } from './data/events'
@@ -33,6 +33,7 @@ function Root() {
   // Chỉ mở shell và dữ liệu sau khi đã lưu mã khôi phục, có quyền vào app
   // và hoàn tất đổi mật khẩu tạm.
   const full = !!user && !setupNeeded && !accessDenied && !mustChangePassword
+  useLayoutEffect(() => () => { dismissConfirmations(); dismissToasts() }, [full, user?.username])
 
   // Hash không hợp lệ đã parse về Bàn dựng — chuẩn hoá luôn thanh địa chỉ
   // (replace, không đẩy entry lịch sử thừa). Không chạm hash khi đang ở một

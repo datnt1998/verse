@@ -7,7 +7,8 @@ import { channelStyles } from './channel.stylex'
 // kiểm định template — chưa có nên chỉ hiện recipe thật (tên + dòng phụ).
 import { useState } from 'react'
 import { useMediaQuery } from '../../lib/useMediaQuery'
-import { ActionMenu, Button, Dialog, Icon, toast } from '@noverse/ui'
+import { Button, Dialog, Icon, toast } from '@noverse/ui'
+import { ResponsiveActionMenu } from '../../components/responsive-overlays'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton } from '../../components'
 import { t } from '../../i18n/channels'
@@ -70,7 +71,7 @@ export function TemplatesTab({ channel }: { channel: Channel }) {
                   onClick={() => void apply({ action: 'move', templateId: template.id, position: index - 1 })}>
                   <Icon name="arrow-up" size={15} />
                 </Button>
-                <ActionMenu
+                <ResponsiveActionMenu
                   label={tt.settings}
                   width={224}
                   alwaysVisible

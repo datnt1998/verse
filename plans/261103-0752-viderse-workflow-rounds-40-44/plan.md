@@ -13,7 +13,7 @@ created: 2026-11-03
 # Viderse · Workflow gọn theo thiết kế đợt40–44
 
 ## Kết quả và ranh giới
-HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory/QA đã có commit `d245db8c` và [PR riêng #1](https://github.com/datnt1998/verse/pull/1), chờ merge gate. **Chưa sửa UI sản phẩm hoặc deploy**. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
+HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory/QA đã merge qua [PR riêng #1](https://github.com/datnt1998/verse/pull/1) ngày 2026-11-03, merge commit `f120a62c8ce664b8e4c42f8edda6a74a24e55d91`; tiếp tục PR1 nền UI. Local gates đã qua; GitHub Actions đang tắt, không có kết quả CI hosted. **Chưa deploy UI mới**. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
 Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 01-ia-flows §0.3/§6.1/§6.2 Đợt44/W3–W13 → 08-dev-prompt V36–V40 → artboard/footer/kit/copy/data/stack. Không sửa artboards; muốn lệch phải ghi `11-hoi-dap.md` và chờ trả lời.
 
 ## Bảng kiểm kê gửi trước sửa code
@@ -22,8 +22,8 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 ## Phases — một bước một PR, không chạy song song
 | Phase | Bước / PR | Owner sản phẩm | Phụ thuộc | Trạng thái |
 |---|---|---|---|---|
-| 1 | [0 · Kiểm kê và baseline](phase-01-inventory.md) | Tài liệu/state manifest/evidence | — | In progress |
-| 2 | [1 · Nền UI dùng chung](phase-02-shared-ui-foundation.md) | Kit tối thiểu + Viderse policy | PR0 merge | Pending |
+| 1 | [0 · Kiểm kê và baseline](phase-01-inventory.md) | Tài liệu/state manifest/evidence | — | Completed · PR #1 merged |
+| 2 | [1 · Nền UI dùng chung](phase-02-shared-ui-foundation.md) | Kit tối thiểu + Viderse policy | PR0 merge | In progress |
 | 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | Pending |
 | 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | Pending |
 | 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Pending |
@@ -39,7 +39,7 @@ Shell/session → adapter responsive trên `@noverse/ui` → cùng dữ liệu/a
 Không merge PR có blocker. Preflight có perDay>20/rotation rỗng/dangling, thiếu API state hoặc timing fallback khác thiết kế: ghi câu hỏi và chờ, không clamp/fake/fallback tuỳ ý. Mỗi phase re-scout trước sửa; future-phase paths là source map, không quyền bỏ qua references.
 
 ## Execution checklist / task hydration
-- [ ] PR0: gửi inventory, hoàn tất state manifest/baseline/preflight rồi merge riêng.
+- [x] PR0: gửi inventory, hoàn tất state manifest/baseline/preflight rồi merge riêng.
 - [ ] PR1: nền UI reuse đúng và qua shared-kit regression trước V36.
 - [ ] PR2: viewer/action/data-key theo V36, đủ evidence trước V37.
 - [ ] PR3: Main/progress/3proposal + backend obsolete theo V37.

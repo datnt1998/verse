@@ -10,7 +10,7 @@ import { useState, type FormEvent } from 'react'
 import { ApiError, changePassword } from '../../api/client'
 import { useSession } from '../../api/session'
 import { t } from '../../i18n/auth'
-import { Banner, Button, FieldError, Icon, toast } from '@noverse/ui'
+import { Banner, Button, FieldError, Icon } from '@noverse/ui'
 import { AuthError, AuthLabel, AuthPassword, AuthShell, AuthUser, HintLine } from './parts'
 import * as stylex from '@stylexjs/stylex'
 import { authStyles as sx } from './auth.stylex'
@@ -20,8 +20,8 @@ import { useMediaQuery } from '../../lib/useMediaQuery'
 const MIN_PASSWORD = 8
 
 /**
- * Form đổi mật khẩu của chính mình. Thành công → toast + endSession (máy chủ
- * đã thu hồi mọi phiên). `forced` chỉ đổi nhãn trường hiện tại + dòng dẫn.
+ * Form đổi mật khẩu của chính mình. Thành công → endSession và banner đăng nhập lại
+ * (máy chủ đã thu hồi mọi phiên). `forced` chỉ đổi nhãn trường hiện tại + dòng dẫn.
  */
 export function ChangePasswordForm({ forced = false, horizontal = false, onNetworkChange }: { forced?: boolean; horizontal?: boolean; onNetworkChange?: (offline: boolean) => void }) {
   const mobile = useMediaQuery('(max-width: 767px)')
@@ -42,7 +42,6 @@ export function ChangePasswordForm({ forced = false, horizontal = false, onNetwo
     try {
       await changePassword(current, next)
       // Phiên đã bị thu hồi phía máy chủ — dọn UI về Đăng nhập, không gọi lại me.
-      toast.ok(t.auth.passwordForm.changed)
       window.location.hash = '/login?pw=1'
       endSession({ reason: 'password_changed' })
     } catch (e) {

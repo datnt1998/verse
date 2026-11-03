@@ -35,9 +35,12 @@ export type SheetProps = {
   subtitle?: ReactNode
   /** Vạch home indicator 134×5 ở đáy (artboard điện thoại). */
   homeIndicator?: boolean
+  /** Called after the closing sheet has unmounted and released focus/scroll locks. */
+  onExited?: () => void
+  'aria-describedby'?: string
 }
 
-export function Sheet({ open, onClose, title, label, children, height = 640, style, xstyle, bodyStyle, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator }: SheetProps) {
+export function Sheet({ open, onClose, onExited, title, label, children, height = 640, style, xstyle, bodyStyle, grab = true, role = 'dialog', size = 'lg', subtitle, homeIndicator, 'aria-describedby': describedBy }: SheetProps) {
   const [mounted, setMounted] = useState(open)
   const [distance, setDistance] = useState(0)
   // Đang kéo tay cầm: tắt transition để sheet bám tay 1:1; thả ra thì lò xo về
@@ -50,6 +53,9 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
   const titleId = useId()
   const closeRef = useRef(onClose)
   closeRef.current = onClose
+  const exitedRef = useRef(onExited)
+  exitedRef.current = onExited
+  const wasMounted = useRef(false)
   const t = getKitLabels()
   useEffect(() => {
     if (open) { setMounted(true); setDistance(0); dragged.current = false; setDragging(false); return }
@@ -63,6 +69,13 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
     const timer = setTimeout(() => setMounted(false), 260)
     return () => clearTimeout(timer)
   }, [open])
+  useEffect(() => {
+    if (grab) return
+    start.current = null
+    dragged.current = false
+    setDragging(false)
+    setDistance(0)
+  }, [grab])
   useEffect(() => { ref.current?.querySelector('.m-sheet-body')?.scrollTo({ top: 0 }) }, [title, mounted])
   // Sheet là một lớp: Esc đóng sheet trên cùng, không đóng hộp thoại bên dưới (17-kit, chốt 25/10).
   useEscapeLayer(mounted, () => closeRef.current())
@@ -88,10 +101,19 @@ export function Sheet({ open, onClose, title, label, children, height = 640, sty
       document.removeEventListener('keydown', key)
     }
   }, [mounted])
+  useEffect(() => {
+    if (mounted) { wasMounted.current = true; return }
+    if (!wasMounted.current) return
+    wasMounted.current = false
+    // The next layer can unmount its own React root; hand off after this commit.
+    let current = true
+    queueMicrotask(() => { if (current) exitedRef.current?.() })
+    return () => { current = false }
+  }, [mounted])
   if (!mounted) return null
-  return createPortal(<div className={`m-overlay${!open ? ' m-out' : ''}`}>
+  return createPortal(<div className={`m-overlay${!open ? ' m-out' : ''}`} inert={!open} onClick={(event) => event.stopPropagation()}>
     <div className="m-scrim" onClick={onClose} />
-    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''}${dragging ? ' m-sheet--dragging' : ''} ${stylex.props(xstyle).className ?? ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} tabIndex={-1}
+    <section ref={ref} className={`m-sheet${size === 'md' ? ' m-sheet--md' : ''}${dragging ? ' m-sheet--dragging' : ''} ${stylex.props(xstyle).className ?? ''}`} role={role} aria-modal="true" aria-labelledby={title ? titleId : undefined} aria-label={title ? undefined : label ?? t.sheet.defaultLabel} aria-describedby={describedBy} tabIndex={-1}
       style={{ ...stylex.props(xstyle).style, height, ...(distance ? { transform: `translateY(${distance}px)` } : {}), ...(open && dragged.current ? { animation: 'none' } : {}), ...style }}>
       {grab && <div className="m-drag" aria-label={t.sheet.grabHandle}
         onPointerDown={(event) => { start.current = event.clientY; dragged.current = true; setDragging(true); event.currentTarget.setPointerCapture(event.pointerId) }}

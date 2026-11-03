@@ -3,7 +3,8 @@
 // "Đừng đề xuất kiểu này".
 import { useId, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { ActionMenu, Icon } from '@noverse/ui'
+import { Icon } from '@noverse/ui'
+import { ResponsiveActionMenu } from '../responsive-overlays'
 import type { Suggestion } from '../../api/suggestions'
 import { t } from '../../i18n/learn'
 import { ActionButton } from '../ActionButton'
@@ -44,7 +45,7 @@ export function SuggestionCard({ suggestion, compact = false, busy = false, offl
         disabledReason={offline ? c.offlineAction : undefined} onClick={onAccept}>{suggestion.primary.label}</ActionButton>
       <ActionButton variant="quiet" size="sm" type="button" disabled={lock} onClick={onDismiss}>{c.dismiss}</ActionButton>
       {!compact && onNever && <span {...stylex.props(s.more)}>
-        <ActionMenu alwaysVisible label={c.more} items={[{ id: 'never', label: c.never, disabled: lock, onSelect: onNever }]} />
+        <ResponsiveActionMenu alwaysVisible label={c.more} items={[{ id: 'never', label: c.never, disabled: lock, onSelect: onNever }]} />
       </span>}
     </div>
   </article>

@@ -254,9 +254,11 @@ describe('cổng phiên', () => {
       container.querySelector('form')!.requestSubmit()
     })
     await settle()
-    // Không gọi lại /api/me giả sau đổi — thẳng về màn đăng nhập + toast.
+    // Không gọi lại /api/me sau đổi — về màn đăng nhập với lý do kết thúc phiên.
     expect(container.querySelector('#lg-user')).toBeTruthy()
-    expect(document.body.textContent).toContain(t.auth.passwordForm.changed)
+    expect(container.querySelector('#pw-current')).toBeNull()
+    expect(container.querySelector('[data-session-ended]')).not.toBeNull()
+    expect(document.querySelector('.ui-toast-wrap')).toBeNull()
   })
 
   it('đăng nhập đúng mật khẩu nhưng chưa cấp quyền (403) → màn bị chặn, không báo lỗi form', async () => {
