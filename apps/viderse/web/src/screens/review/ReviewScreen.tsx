@@ -3,7 +3,7 @@
 // Vẽ lại đi qua §26 (`api/images`), duyệt/bỏ ảnh vẫn dùng thao tác cũ của màn.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Chip, Dialog, Icon, Kbd, Segmented, TextArea, TextField, toast } from '@noverse/ui'
+import { Button, Chip, Dialog, Icon, Kbd, Segmented, TextArea, TextField, confirm, toast } from '@noverse/ui'
 import { imageFailureCopy } from '../../i18n/errorsCopy'
 import { listProviders } from '../../api/ai'
 import { listChannels } from '../../api/channels'
@@ -13,14 +13,15 @@ import {
   cancelImageVersion, redrawImages, tooManyRefs, uploadRefImage, useImageVersion, useJobImages,
   type ImageRef, type PromptPartKind, type RedrawBody,
 } from '../../api/images'
+import { redrawAll } from '../../api/workbench'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import { Orb, SystemLoading, DevelopEffect } from '../../components'
 import { ActionButton } from '../../components/ActionButton'
 import { useOnline } from '../../data/status'
 import { useMediaQuery } from '../../lib/useMediaQuery'
-import { paths } from '../../router'
-import { imageURL, isBlocked as blocked, isDrawing as drawing, reviewLabel as label, useReview } from './useReview'
+import { navigate, paths, type Route } from '../../router'
+import { imageURL, versionURL, isBlocked as blocked, isDrawing as drawing, reviewLabel as label, useReview } from './useReview'
 import { useReviewKeys } from './useReviewKeys'
 import { ScoreBadge, ScoreBanner, ScorePanel } from '../../components/autonomy/ScoreParts'
 import { isLow, summarizeScores } from '../../components/autonomy/scoreSummary'
@@ -31,6 +32,7 @@ import { MReviewScreen } from './mobile/MReviewScreen'
 import { ImageRail, type RefCandidate } from './ImageRail'
 import { toReviewItems, stageWidthVar, providerName, resetAtLabel, type ReviewItemView } from './imageView'
 import { useImageEditing } from './useImageEditing'
+import { ImageViewer } from '../../components/image-viewer/ImageViewer'
 import { sx } from './review.stylex'
 
 const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`
@@ -48,23 +50,25 @@ function toRedrawRefs(refs: ImageRef[]) {
 }
 
 /** ≤767: màn dọc riêng của artboard MReview; >767 giữ nguyên bố cục ba cột. */
-export function ReviewScreen() {
+export function ReviewScreen({ route }: { route: Extract<Route, { name: 'review' }> }) {
   const phone = useMediaQuery('(max-width: 767px)')
-  return phone ? <MReviewScreen /> : <DesktopReviewScreen />
+  return phone ? <MReviewScreen route={route} /> : <DesktopReviewScreen route={route} />
 }
 
-function DesktopReviewScreen() {
+function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review' }> }) {
   const review = useReview()
   const online = useOnline()
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
   const providers = useResource(keys.aiProviders(), ({ signal }) => listProviders(signal))
   const counts = useResource(['review', 'counts'], ({ signal }) => request<{ approvedToday: number | null }>('/api/clone/counts', { signal }))
-  const [jobId, setJobId] = useState<string | null>(() => new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('video'))
-  const [index, setIndex] = useState(0)
+  const address = route
+  const jobId = address?.video
   const [view, setView] = useState<'full' | 'cutout'>('full')
   const [imageFailed, setImageFailed] = useState(false)
   const [feedback, setFeedback] = useState('')
-  const [allOpen, setAllOpen] = useState(false)
+  const [allOpen, setAllOpen] = useState<{ jobId: string; revision: number; count: number } | null>(null)
+  const [allBusy, setAllBusy] = useState(false)
+  const [allError, setAllError] = useState('')
   const [allFeedback, setAllFeedback] = useState('')
   const [viewN, setViewN] = useState<number | null>(null)
   const [cmp, setCmp] = useState(false)
@@ -74,16 +78,36 @@ function DesktopReviewScreen() {
   const [uploading, setUploading] = useState(false)
   const busyRef = useRef(false)
   const seenReady = useRef<Record<string, number>>({})
-  const channelFilter = new URLSearchParams(window.location.hash.split('?')[1] ?? '').get('channel')
+  const channelFilter = address?.channel
   const jobs = useMemo(() => (review.jobs ?? []).filter(j => !channelFilter || channelFilter === 'all' || j.channelId === channelFilter), [review.jobs, channelFilter])
-  const job = jobs.find(j => j.id === jobId) ?? jobs[0]
+  const job = jobId ? jobs.find(j => j.id === jobId) : jobs[0]
+  useEffect(() => {
+    if (!review.jobs || review.error || !jobId || job) return
+    toast.err('Video đã chọn không có trong danh sách chờ duyệt. Đã trở về danh sách hiện tại.')
+    navigate(paths.review({ channel: channelFilter }), true)
+  }, [review.jobs, review.error, jobId, job, channelFilter])
   const images = job ? review.images[job.id] : undefined
+  useEffect(() => { setAllOpen(null); setAllFeedback(''); setAllError('') }, [job?.id])
   const legacyItems = images?.items ?? []
   const live = useJobImages(job?.id ?? null)
   const items = useMemo(() => toReviewItems(legacyItems, live.data?.images, live.progress), [legacyItems, live.data, live.progress])
-  const selected = Math.min(index, Math.max(0, items.length - 1))
-  const item = items[selected]
-  const legacy = legacyItems[selected]
+  const requestedIndex = address?.img ? items.findIndex(candidate => candidate.id === address.img) : 0
+  const selected = Math.max(0, requestedIndex)
+  const item = requestedIndex < 0 ? undefined : items[selected]
+  const legacy = legacyItems.find(candidate => candidate.id === item?.id)
+  const viewedJobRef = useRef(job?.id)
+  const viewedImageRef = useRef(item?.id)
+  viewedJobRef.current = job?.id
+  viewedImageRef.current = item?.id
+  const setIndex = (at: number) => {
+    const target = items[at]
+    if (job && target) navigate(paths.review({ channel: channelFilter, video: job.id, img: target.id }))
+  }
+  useEffect(() => {
+    if (!job || !images || !address?.img || requestedIndex >= 0) return
+    toast.err('Ảnh đã chọn không còn trong bộ ảnh. Đã chuyển về ảnh còn lại.')
+    navigate(paths.review({ channel: channelFilter, video: job.id, img: items[0]?.id }), true)
+  }, [job?.id, images, address?.img, requestedIndex, channelFilter, items])
   const channel = channels.data?.channels.find(c => c.id === job?.channelId)
   const autonomy = channel ? readChannelAutonomy(channel)?.autonomy : undefined
   const scores = autonomy ? summarizeScores(legacyItems.map((candidate, i) => ({ id: candidate.id, label: label(candidate, i), drawing: drawing(candidate), score: candidate.score })), autonomy) : null
@@ -97,13 +121,16 @@ function DesktopReviewScreen() {
   const version = item?.versions.find(candidate => candidate.n === versionN) ?? usedVersion
   const previousVersion = item?.versions.find(candidate => candidate.n === versionN - 1)
   const editing = useImageEditing(item?.id, failedVersion ?? usedVersion)
+  const legacyParts = !!(failedVersion ?? usedVersion)?.partsLegacy || !(failedVersion ?? usedVersion)?.parts.length
   const batch = selection.length > 0
   const isDrawing = !!drawingVersion
   const isFailed = !isDrawing && !!failedVersion
   const readyVersion = item?.versions.reduce((latest, candidate) => candidate.state === 'ready' ? Math.max(latest, candidate.n) : latest, 0) ?? 0
   const justRevealed = !!reveal && reveal.imageId === item?.id && reveal.n === versionN && !cmp
   const shownVersion = cmp && previousVersion ? previousVersion : version
-  const shownImage = shownVersion?.url ?? shownVersion?.previewUrl ?? (cmp ? undefined : usedVersion?.url) ?? item?.legacyUrl ?? (legacy ? imageURL(job!.id, legacy, view) : undefined)
+  const shownImage = view === 'cutout' && job && item
+    ? versionURL(job.id, legacy ?? { id: item.id, versions: [] }, shownVersion?.n ?? versionN, 'cutout')
+    : shownVersion?.url ?? shownVersion?.previewUrl ?? (cmp ? undefined : usedVersion?.url) ?? item?.legacyUrl ?? (legacy ? imageURL(job!.id, legacy, view) : undefined)
   const frameTime = item?.startSec != null && item.endSec != null ? `${clock(item.startSec)}–${clock(item.endSec)}` : item?.kind === 'cover' && usedVersion?.width ? `${usedVersion.width}×${usedVersion.height}` : ''
   const versionTag = isDrawing ? `đang vẽ bản ${drawingVersion!.n}` : cmp && previousVersion ? `bản ${previousVersion.n} (so sánh)` : `bản ${versionN}${versionN === item?.usedVersion ? '' : ' · chưa dùng'}`
   const blockedNow = !!legacy && blocked(legacy)
@@ -148,7 +175,7 @@ function DesktopReviewScreen() {
     return () => window.clearTimeout(timer)
   }, [job?.id, item?.id, isDrawing, readyVersion])
 
-  const selectJob = (id: string) => { setJobId(id); setIndex(0); setView('full'); setFeedback(''); setSelection([]) }
+  const selectJob = (id: string) => { navigate(paths.review({ channel: channelFilter, video: id })); setView('full'); setFeedback(''); setSelection([]) }
   useEffect(() => { if (job && !review.images[job.id] && !review.imageErrors[job.id]) void review.loadImages(job.id) }, [job, review.images, review.imageErrors, review.loadImages])
   useEffect(() => {
     if (!job) return
@@ -169,18 +196,56 @@ function DesktopReviewScreen() {
   }, [job, jobs, review.images])
 
   const refresh = () => { if (job) { void live.reload(); void review.loadImages(job.id, true) } }
+  const closeAll = () => { if (!allBusy && !busyRef.current) setAllOpen(null) }
+  const submitAll = async () => {
+    if (!job || !allOpen || allOpen.jobId !== job.id || busyRef.current || !online) return
+    busyRef.current = true
+    setAllBusy(true)
+    setAllError('')
+    try {
+      await redrawAll(allOpen.jobId, allOpen.revision, allOpen.count, allFeedback)
+      setAllOpen(null)
+      setAllFeedback('')
+      toast.ok(`Đã gửi Hoạ sĩ · vẽ lại ${allOpen.count} ảnh`)
+      void review.loadImages(allOpen.jobId, true)
+      void live.reload()
+    } catch (error) {
+      setAllError(error instanceof Error ? error.message : 'Chưa gửi được yêu cầu vẽ lại. Vui lòng thử lại.')
+    } finally {
+      busyRef.current = false
+      setAllBusy(false)
+    }
+  }
 
   const runRedraw = async (body: Omit<RedrawBody, 'imageIds'> & { imageIds?: string[] }) => {
-    if (!job || !online || busyRef.current) return
+    if (!job || !online || busyRef.current) return false
     busyRef.current = true
     try {
-      await redrawImages(job.id, { imageIds: body.imageIds ?? (item ? [item.id] : []), ...body })
-      setFeedback('')
-      refresh()
+      const imageIds = body.imageIds ?? (item ? [item.id] : [])
+      if (!imageIds.length) return false
+      const accepted = await confirm({
+        title: `Vẽ lại ${imageIds.length} ảnh?`,
+        body: <p>Tốn {imageIds.length} ảnh trong hạn mức hôm nay{live.data?.quota ? ` · ${live.data.quota.providers.map(provider => `${provider.label} còn ${provider.left}/${provider.total}`).join(' · ')}` : ''}. Ảnh cũ được giữ tới khi bản mới xong; bản mới cần bạn duyệt lại.</p>,
+        confirmLabel: 'Vẽ lại',
+        onConfirm: async () => {
+          try {
+            await redrawImages(job.id, { ...body, imageIds })
+          } catch (error) {
+            const limit = tooManyRefs(error)
+            if (limit !== null) throw new Error(`Nhà cung cấp nhận tối đa ${limit} ảnh tham chiếu.`)
+            throw error
+          }
+        },
+      })
+      if (accepted) {
+        setFeedback('')
+        refresh()
+        toast.ok(`Đã gửi Hoạ sĩ · vẽ lại ${imageIds.length} ảnh`)
+      }
+      return accepted
     } catch (error) {
-      const limit = tooManyRefs(error)
-      if (limit !== null) toast.err(`${providerName(usedVersion?.provider ?? 'chatgpt', providers.data)} nhận tối đa ${limit} ảnh tham chiếu.`)
-      else toast.err(error instanceof ApiError ? error.message : 'Chưa vẽ lại được. Vui lòng thử lại.')
+      toast.err(error instanceof Error ? error.message : 'Chưa vẽ lại được. Vui lòng thử lại.')
+      return false
     } finally { busyRef.current = false }
   }
 
@@ -195,15 +260,14 @@ function DesktopReviewScreen() {
     const baseRefs = (failedVersion ?? usedVersion)?.refs ?? []
     const refsChanged = editing.changedCount - Object.keys(editing.changed).length > 0
     if (refsChanged || baseRefs.length !== editing.refs.length) body.refs = toRedrawRefs(editing.refs)
-    void runRedraw(body)
-    editing.reset()
+    void runRedraw(body).then(accepted => { if (accepted) editing.reset() })
   }
 
   /** Thẻ lỗi: vẽ bằng Grok đúng prompt đã sửa (phần + ảnh tham chiếu của bản lỗi). */
   const retryWithGrok = () => {
     if (!item || !failedVersion) return
     const parts: Partial<Record<PromptPartKind, string>> = {}
-    for (const part of failedVersion.parts) if (part.kind !== 'refs') parts[part.kind] = part.text
+    for (const part of failedVersion.parts) if (part.kind !== 'refs' && part.kind !== 'learned') parts[part.kind] = part.text
     void runRedraw({ provider: 'grok', ...(Object.keys(parts).length ? { parts } : {}), ...(failedVersion.refs.length ? { refs: toRedrawRefs(failedVersion.refs) } : {}) })
   }
 
@@ -217,7 +281,7 @@ function DesktopReviewScreen() {
   const useVersion = (n: number) => {
     if (!job || !item) return
     void useImageVersion(job.id, item.id, n)
-      .then(() => { setViewN(n); refresh() })
+      .then(() => { if (viewedJobRef.current === job.id && viewedImageRef.current === item.id) setViewN(n); refresh() })
       .catch((error: unknown) => toast.err(error instanceof Error ? error.message : 'Chưa đổi được bản dùng cho video.'))
   }
 
@@ -244,11 +308,11 @@ function DesktopReviewScreen() {
   const escape = () => {
     if (editing.mode === 'edit') { editing.reset(); return }
     if (selection.length) { setSelection([]); return }
-    if (allOpen) setAllOpen(false)
+    if (allOpen) closeAll()
   }
   useReviewKeys({
     nextJob: () => moveJob(1), previousJob: () => moveJob(-1), nextImage: () => moveImage(1), previousImage: () => moveImage(-1),
-    redraw, approve, editPrompt: () => { if (item && !isDrawing) editing.setMode('edit') }, compare: toggleCompare,
+    redraw, approve, editPrompt: () => { if (item && !isDrawing && !legacyParts) editing.setMode('edit') }, compare: toggleCompare,
     escape, submit: submitEdit,
   }, !allOpen)
 
@@ -262,8 +326,8 @@ function DesktopReviewScreen() {
 
   const redrawBatch = () => {
     if (!selection.length) return
-    void runRedraw({ imageIds: selection, ...(batchFeedback ? { feedback: batchFeedback } : {}) }).then(() => {
-      setSelection([]); setBatchFeedback('')
+    void runRedraw({ imageIds: selection, ...(batchFeedback ? { feedback: batchFeedback } : {}) }).then(accepted => {
+      if (accepted) { setSelection([]); setBatchFeedback('') }
     })
   }
 
@@ -293,13 +357,13 @@ function DesktopReviewScreen() {
       {counts.data?.approvedToday != null && <div {...stylex.props(sx.footer)}><span>Duyệt xong hôm nay</span><span>{counts.data.approvedToday} video</span></div>}
     </aside>
     {!review.jobs ? <main {...stylex.props(sx.empty)}>{review.error ? <div role="alert"><span>Chưa tải được video chờ duyệt. </span><ActionButton size="sm" onClick={() => void review.loadJobs()}>Thử lại</ActionButton></div> : <SystemLoading label="Đang tải video chờ duyệt…" />}</main> : !job ? <main {...stylex.props(sx.empty)}><div role="status" {...stylex.props(sx.emptyInner)}><span aria-hidden="true" {...stylex.props(sx.emptyOrbs)}><Orb of="artist" size={30} /><span {...stylex.props(sx.emptyQa)}><Orb of="qa" size={24} /></span></span><strong {...stylex.props(sx.emptyTitle)}>Đã duyệt hết</strong><span {...stylex.props(sx.emptyText)}>Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.</span><a href={`#${paths.workbench()}`} {...stylex.props(sx.link, sx.emptyLink)} >Xem tiến độ trên Bàn dựng</a></div></main> : <>
-      <main className={`vv-wide vv-wide--grid ${stylex.props(sx.main).className}`}>
+      <ImageViewer inline mode="review" stage={<main className={`vv-wide vv-wide--grid ${stylex.props(sx.main).className}`}>
         <div {...stylex.props(sx.heading)}>
           <h1 title={job.source.title} {...stylex.props(sx.title)}>{job.source.title}</h1>
           {channel && <Chip size="sm" label={channel.name} />}
           <Chip size="sm" label="Đã duyệt" value={`${approved} / ${items.length}`} />
-          <ActionButton size="sm" disabled={!items.length || pipelineBusy || !online} disabledReason="Chờ ảnh đang vẽ xong" onClick={() => setAllOpen(true)}>Vẽ lại cả {items.length} ảnh</ActionButton>
-          <a href={`#${paths.workbench()}?video=${encodeURIComponent(job.id)}`} {...stylex.props(sx.link)}>Mở Bàn dựng</a>
+          <ActionButton size="sm" disabled={!items.length || !images?.manifest || hasDrawing || pipelineBusy || allBusy || !online} disabledReason="Chờ ảnh đang vẽ xong" onClick={() => { if (images?.manifest) { setAllError(''); setAllOpen({ jobId: job.id, revision: images.manifest.revision, count: items.length }) } }}>Vẽ lại cả {items.length} ảnh</ActionButton>
+          <a href={`#${paths.workbench({ video: job.id })}`} {...stylex.props(sx.link)}>Mở Bàn dựng</a>
         </div>
         {!items.length ? <div role="status" {...stylex.props(sx.empty)}>{review.imageErrors[job.id] ? <><span>Chưa tải được ảnh. </span><Button type="button" onClick={() => void review.loadImages(job.id, true)}>Thử lại</Button></> : 'Đang tải ảnh…'}</div> : item ? <>
           <div {...stylex.props(sx.stageWrap)}>
@@ -327,7 +391,7 @@ function DesktopReviewScreen() {
                     <div {...stylex.props(sx.failedActions)}>
                       <Button variant="primary" size="sm" type="button" disabled={!online} onClick={retryWithGrok} >
                         Vẽ bằng {providerName('grok', providers.data)}{live.data?.quota?.fallback ? ` · còn ${live.data.quota.fallback.left} ảnh` : ''}</Button>
-                      <Button size="sm" type="button" onClick={() => editing.setMode('edit')} >Sửa chỉ dẫn</Button>
+                      <Button size="sm" type="button" disabled={legacyParts} onClick={() => editing.setMode('edit')} >Sửa chỉ dẫn</Button>
                     </div>
                   </div>
                 </>
@@ -377,7 +441,7 @@ function DesktopReviewScreen() {
                   {...stylex.props(sx.tile, blockedNow && selected === i && sx.tileBlocked, scores && !imgDrawing && isLow(readImageScore(img.score), scores.min) && scoreStyles.tileLow, selected === i && sx.tileSelected, checked && sx.tileChecked)}
                 >
                   {imgUrl && <img src={imgUrl} alt="" {...stylex.props(sx.tileImage)} />}
-                  <span {...stylex.props(sx.tileLabel)}>{img.index}</span>
+                  <span {...stylex.props(sx.tileLabel)}>{img.kind === 'cover' ? 'Bìa' : img.index}</span>
                   {imgDrawing && <DevelopEffect state="drawing" baseUrl={imgUrl ?? undefined} compact hideCard />}
                   {isNew && <span {...stylex.props(sx.tileNew)}>MỚI</span>}
                   {scores && imgScore && !imgDrawing && !batch && !checked && <ScoreBadge value={imgScore.value} low={isLow(imgScore, scores.min)} corner />}
@@ -410,7 +474,7 @@ function DesktopReviewScreen() {
               <span {...stylex.props(sx.barIcon)}><Icon name="gallery-edit" size={18} /></span>
               <label htmlFor="redraw" {...stylex.props(sx.hiddenLabel)}>Góp ý để vẽ lại ảnh này</label>
               <TextField id="redraw" aria-label="Góp ý để vẽ lại ảnh này" placeholder="Góp ý để vẽ lại, ví dụ: thêm biển “Đóng cửa lúc 22 giờ”, ánh đèn xanh hơn" value={feedback} onChange={setFeedback} xstyle={sx.barInput} />
-              <Button onClick={() => editing.setMode('edit')} tooltip="Sửa thẳng chỉ dẫn đã gửi" disabled={isDrawing || !online} icon={<Icon name="edit" size={15} />}>Sửa chỉ dẫn</Button>
+              <Button onClick={() => editing.setMode('edit')} tooltip={legacyParts ? 'Bản cũ chưa lưu prompt theo phần nên không sửa được; bạn vẫn có thể góp ý để vẽ lại.' : 'Sửa thẳng prompt đã gửi'} disabled={isDrawing || !online || legacyParts} icon={<Icon name="edit" size={15} />}>Sửa chỉ dẫn</Button>
               <Button disabled={isDrawing || pipelineBusy || !online} tooltip={`Hoạ sĩ sửa chỉ dẫn theo góp ý rồi vẽ bản mới · tốn 1 ảnh${quotaLine ? ` · ${quotaLine}` : ''}`} onClick={redraw} icon={<Icon name="refresh" size={15} />} kbd="R">Vẽ lại</Button>
               <Button disabled={item.kind !== 'scene' || pipelineBusy || !online} tooltip="Cảnh này dùng ảnh của cảnh bên cạnh" onClick={() => { if (job && legacy) void review.mutate(job.id, legacy, 'skip') }}>Bỏ ảnh</Button>
               <ActionButton variant="primary" lockedReason={hasDrawing || pipelineBusy || !online ? 'Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ' : undefined} onClick={approve} icon={<Icon name="tick-b" size={15} />} kbd="A">Duyệt cả video &amp; dựng</ActionButton>
@@ -428,8 +492,8 @@ function DesktopReviewScreen() {
             <span title="Duyệt xong, video tự chuyển sang dựng và mở video kế tiếp">Duyệt xong tự sang video kế</span>
           </div>
         </> : <div role="status">Chưa có ảnh để duyệt.</div>}
-      </main>
-      {item && (batch ? (
+      </main>}
+      side={item && (batch ? (
         <aside aria-label="Ảnh đã chọn" {...stylex.props(sx.rail, sx.railWide)}>
           <div {...stylex.props(sx.railHead)}>
             <span {...stylex.props(sx.railTitle)}>{selection.length} ảnh đã chọn</span>
@@ -463,15 +527,16 @@ function DesktopReviewScreen() {
           uploading={uploading}
           score={scores ? <ScorePanel imageId={item.id} rawScore={item.score} min={scores.min} /> : undefined}
         />
-      ))}
+      ))} />
     </>}
-    {allOpen && job && <Dialog title={`Vẽ lại cả ${items.length} ảnh?`} onClose={() => setAllOpen(false)} width={540} padBody={false} footer={<><Button onClick={() => setAllOpen(false)}>Huỷ</Button><Button variant="primary" onClick={() => { setAllOpen(false); if (job && images) void review.mutate(job.id, null, 'regenerateAll', allFeedback) }}>Vẽ lại {items.length} ảnh</Button></>}>
+    {allOpen && job && allOpen.jobId === job.id && <Dialog title={`Vẽ lại cả ${allOpen.count} ảnh?`} onClose={closeAll} width={540} padBody={false} footer={<><Button disabled={allBusy} onClick={closeAll}>Huỷ</Button><Button variant="primary" pending={allBusy} disabled={allBusy || !online} onClick={() => void submitAll()}>Vẽ lại {allOpen.count} ảnh</Button></>}>
       <div {...stylex.props(sx.dialogBody)}>
         <div {...stylex.props(sx.dialogMeta)}><span>{job.source.title}</span><span {...stylex.props(sx.small)}>{channel?.name}</span></div>
         <div {...stylex.props(sx.strip)}>{items.map(img => <span key={img.id} {...stylex.props(sx.tile)}>{(img.legacyUrl ?? img.versions.at(-1)?.url) && <img alt={img.label} src={img.legacyUrl ?? img.versions.at(-1)?.url ?? ''} {...stylex.props(sx.tileImage)} />}</span>)}</div>
-        <p>Dùng {items.length} ảnh trong hạn mức {providerName(usedVersion?.provider ?? 'chatgpt', providers.data)} hôm nay</p>
+        <p>Dùng {allOpen.count} ảnh trong hạn mức {usedVersion?.provider ? providerName(usedVersion.provider, providers.data) : 'AI'} hôm nay{quotaLine ? ` · ${quotaLine}` : ''}</p>
         <p {...stylex.props(sx.small)}>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</p>
-        <TextArea label="Góp ý chung cho cả bộ" rows={3} showCount={false} maxLength={-1} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
+        <TextArea label="Góp ý chung cho cả bộ" rows={3} showCount={false} maxLength={-1} disabled={allBusy} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
+        {allError && <p role="alert">{allError}</p>}
       </div>
     </Dialog>}
   </div>

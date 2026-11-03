@@ -4,15 +4,16 @@
 // Mọi thao tác gọi đúng API duyệt ảnh đang có; không có nhánh giả lập.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, InitialsAvatar, Segmented, Sheet, Spinner, TextArea, toast, useMobileScroll } from '@noverse/ui'
+import { Button, Icon, InitialsAvatar, Segmented, Sheet, Spinner, TextArea, toast, useAsyncAction, useMobileScroll } from '@noverse/ui'
 import { ActionButton } from '../../../components/ActionButton'
 import { listChannels } from '../../../api/channels'
 import { readImageScore } from '../../../api/autonomy'
+import { useImageVersion } from '../../../api/images'
 import { request } from '../../../api/request'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import { useOnline } from '../../../data/status'
-import { paths } from '../../../router'
+import { navigate, paths, type Route } from '../../../router'
 import { DevelopEffect, Orb } from '../../../components'
 import { LearnSlot } from '../../../components/learn/LearnSlot'
 import { ReasonPopover } from '../../../components/reason/ReasonPopover'
@@ -31,15 +32,22 @@ const clock = (iso?: string) => {
   const date = new Date(iso)
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
-const search = () => new URLSearchParams(window.location.hash.split('?')[1] ?? '')
 
-export function MReviewScreen() {
+export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review' }> }) {
   const review = useReview()
   const online = useOnline()
+  const { busy: versionBusy, pending: versionPending, run: applyVersion } = useAsyncAction(async (targetJob: string, targetImage: string, n: number) => {
+    try {
+      await useImageVersion(targetJob, targetImage, n)
+      await review.loadImages(targetJob, true)
+    } catch (error) {
+      toast.err(error instanceof Error ? error.message : 'Chưa đổi được phiên bản. Vui lòng thử lại.')
+    }
+  })
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
   const counts = useResource(['review', 'counts'], ({ signal }) => request<{ approvedToday: number | null }>('/api/clone/counts', { signal }))
-  const [jobId, setJobId] = useState<string | null>(() => search().get('video'))
-  const [index, setIndex] = useState(0)
+  const address = route
+  const jobId = address?.video
   const [versions, setVersions] = useState<Record<string, number>>({})
   const [imageFailed, setImageFailed] = useState(false)
   const [sheet, setSheet] = useState<'feedback' | 'prompt' | 'why' | null>(null)
@@ -56,18 +64,33 @@ export function MReviewScreen() {
   // Cuộn xuống thì thanh tab thu nhỏ đúng như artboard (tabScroll › down).
   useMobileScroll(scrollRef)
 
-  const channelFilter = search().get('channel')
+  const channelFilter = address?.channel
   const jobs = useMemo(() => (review.jobs ?? []).filter(j => !channelFilter || channelFilter === 'all' || j.channelId === channelFilter), [review.jobs, channelFilter])
-  const job = jobs.find(j => j.id === jobId) ?? jobs[0]
+  const job = jobId ? jobs.find(j => j.id === jobId) : jobs[0]
+  useEffect(() => {
+    if (!review.jobs || review.error || !jobId || job) return
+    toast.err('Video đã chọn không có trong danh sách chờ duyệt. Đã trở về danh sách hiện tại.')
+    navigate(paths.review({ channel: channelFilter }), true)
+  }, [review.jobs, review.error, jobId, job, channelFilter])
   const images = job ? review.images[job.id] : undefined
   const items = images?.items ?? []
-  const selected = Math.min(index, Math.max(0, items.length - 1))
-  const item = items[selected]
+  const requestedIndex = address?.img ? items.findIndex(candidate => candidate.id === address.img) : 0
+  const selected = Math.max(0, requestedIndex)
+  const item = requestedIndex < 0 ? undefined : items[selected]
+  const setIndex = (at: number) => {
+    const target = items[at]
+    if (job && target) navigate(paths.review({ channel: channelFilter, video: job.id, img: target.id }))
+  }
+  useEffect(() => {
+    if (!job || !images || !address?.img || requestedIndex >= 0) return
+    toast.err('Ảnh đã chọn không còn trong bộ ảnh. Đã chuyển về ảnh còn lại.')
+    navigate(paths.review({ channel: channelFilter, video: job.id, img: items[0]?.id }), true)
+  }, [job?.id, images, address?.img, requestedIndex, channelFilter, items])
   itemRef.current = item
   const channel = channels.data?.channels.find(c => c.id === job?.channelId)
   const summary = images?.summary ?? null
   const approved = items.filter(i => i.status === 'approved').length
-  const busy = !!job && !!review.pending[job.id]
+  const busy = (!!job && !!review.pending[job.id]) || versionBusy
   const locked = busy || !images || !items.length || items.some(isDrawing)
   const reason = !online ? copy.offline : !images ? copy.loadingImages : !items.length ? copy.noImages : copy.approveReason
   const scenesLeft = items.filter(i => i.kind === 'scene' && i.status !== 'skipped').length
@@ -161,7 +184,7 @@ export function MReviewScreen() {
     return () => clearInterval(timer)
   }, [drawingKey])
 
-  const selectJob = (id: string) => { setJobId(id); setIndex(0); setFeedback(''); setDraft(''); setSheet(null) }
+  const selectJob = (id: string) => { navigate(paths.review({ channel: channelFilter, video: id })); setFeedback(''); setDraft(''); setSheet(null) }
   const moveJob = (delta: number) => {
     if (!job) return
     const at = Math.max(0, Math.min(jobs.length - 1, jobs.findIndex(j => j.id === job.id) + delta))
@@ -188,7 +211,7 @@ export function MReviewScreen() {
   }
   const useVersion = () => {
     if (!job || !item || isDrawing(item) || busy || !online || version === used) return
-    void review.mutate(job.id, item, 'approve', '', version)
+    void applyVersion(job.id, item.id, version)
   }
   const approve = () => {
     if (!job || !images || !items.length || locked || !online) return
@@ -228,7 +251,7 @@ export function MReviewScreen() {
   const drawing = item ? isDrawing(item) : false
   const failed = item?.status === 'failed' && !fallback
   const stageError = imageFailed || failed
-  const nextVersion = item ? latestVersion(item) + 1 : 1
+  const nextVersion = images?.images?.find(candidate => candidate.id === item?.id)?.versions.find(candidate => candidate.state === 'drawing')?.n ?? (item ? latestVersion(item) + 1 : 1)
   const newest = item ? latestVersion(item) : 0
 
   return <div {...stylex.props(ms.root)}>
@@ -319,10 +342,10 @@ export function MReviewScreen() {
       {item && item.versions.length > 1 && <div {...stylex.props(ms.versions)}>
         <div {...stylex.props(ms.verHead)}>
           <span {...stylex.props(ms.verTitle)}>{copy.versionsTitle}</span>
-          <Button variant="ghost" size="sm" xstyle={ms.useVersion} disabled={drawing || version === used || busy || !online} onClick={useVersion}>{copy.useVersion(version)}</Button>
+          <Button variant="ghost" size="sm" xstyle={ms.useVersion} disabled={drawing || version === used || busy || !online} pending={versionPending} onClick={useVersion}>{copy.useVersion(version)}</Button>
         </div>
         <div {...stylex.props(ms.verRow)}>
-          {item.versions.map(candidate => <button key={candidate.version} type="button" aria-pressed={version === candidate.version} aria-label={copy.versionTile(candidate.version)} title={copy.versionCreated(clock(candidate.createdAt))} onClick={() => setVersions(old => ({ ...old, [`${job.id}:${item.id}`]: candidate.version }))} {...stylex.props(ms.verTile, version === candidate.version && ms.verTileOn, candidate.version === used && ms.verTileUsed)}>
+          {item.versions.map(candidate => drawing && candidate.version === nextVersion ? null : <button key={candidate.version} type="button" aria-pressed={version === candidate.version} aria-label={copy.versionTile(candidate.version)} title={copy.versionCreated(clock(candidate.createdAt))} onClick={() => setVersions(old => ({ ...old, [`${job.id}:${item.id}`]: candidate.version }))} {...stylex.props(ms.verTile, version === candidate.version && ms.verTileOn, candidate.version === used && ms.verTileUsed)}>
             {(candidate.originalUrl || versionURL(job.id, item, candidate.version)) && <img src={candidate.originalUrl || versionURL(job.id, item, candidate.version)} alt="" {...stylex.props(ms.verImage)} />}
             <span {...stylex.props(ms.verNum)}>{candidate.version}</span>
             {candidate.version === used && <span {...stylex.props(ms.verUsed)} title={copy.versionUsed} />}
@@ -369,7 +392,7 @@ export function MReviewScreen() {
             <div {...stylex.props(ms.chipsRail)}>
               {copy.feedbackQuick.map(suggestion => <Button key={suggestion} variant="ghost" size="sm" xstyle={ms.chip} onClick={() => setFeedback(old => old.trim() ? `${old.trim()}, ${suggestion.toLowerCase()}` : suggestion)}>{suggestion}</Button>)}
             </div>
-            <p {...stylex.props(ms.editHint)}>Hoạ sĩ sửa phần Cảnh của chỉ dẫn theo góp ý rồi vẽ lại; xem lại thay đổi ở Chỉ dẫn đã gửi.</p>
+            <p {...stylex.props(ms.editHint)}>Hoạ sĩ sửa phần Cảnh của prompt theo góp ý rồi vẽ; xem lại thay đổi ở Prompt đã gửi.</p>
           </> : <>
             <label {...stylex.props(ms.fieldLabel)}>{copy.editLabel}
               <TextArea rows={6} showCount={false} maxLength={-1} value={draft} onChange={event => setDraft(event.currentTarget.value)} />

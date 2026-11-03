@@ -23,7 +23,7 @@ INSERT INTO clone_jobs (
 ) RETURNING *;
 
 -- name: SupersedeCloneJob :exec
-UPDATE clone_jobs SET superseded_at = $2::timestamptz, status = 'cancelled',
+UPDATE clone_jobs SET superseded_at = $2::timestamptz, status = 'cancelled', paused_at = NULL,
     version = version + 1, updated_at = $2::timestamptz
 WHERE id = $1 AND superseded_at IS NULL;
 

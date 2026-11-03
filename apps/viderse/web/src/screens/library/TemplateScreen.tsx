@@ -5,8 +5,8 @@ import { libraryVars } from './libraryTokens.stylex'
 // khoẻ, 4 mục. Mọi thay đổi tự lưu: ô chữ khi rời ô, điều khiển rời rạc khi
 // đổi; một lần lưu đang chạy thì gộp lần sau (useTemplateDraft). Mục Nền & hiệu
 // ứng do mảng Video nền dựng trong BackdropSection.tsx.
-import { useState } from 'react'
-import { ActionMenu, Banner, EmptyState, Spinner, Icon } from '@noverse/ui'
+import { useEffect, useRef, useState } from 'react'
+import { ActionMenu, Banner, EmptyState, Spinner, Icon, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { navigate, paths, type Route, type TemplateSection } from '../../router'
@@ -108,6 +108,18 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
   const coverPrompts = useResource(keys.prompts('cover', ''), ({ signal }) => listPrompts({ kind: 'cover' }, signal))
   const channels = useResource(keys.ownerChannels(), ({ signal }) => listOwnerChannels(signal))
   const overlays = useResource(keys.overlays(), ({ signal }) => listOverlays(signal))
+  const savedPromptIds = useRef([initial.recipe.scenes.scenePromptId, initial.recipe.scenes.coverPromptId])
+  useEffect(() => {
+    if (!draft.justSaved || draft.saving || draft.dirty || draft.error || draft.conflict) return
+    const ids = [recipe.scenes.scenePromptId, recipe.scenes.coverPromptId]
+    const lists = [scenePrompts.data?.items, coverPrompts.data?.items]
+    for (let index = 0; index < ids.length; index++) {
+      if (ids[index] === savedPromptIds.current[index]) continue
+      const prompt = lists[index]?.find(item => item.id === ids[index])
+      if (prompt) toast(`Template dùng prompt “${prompt.name}” · video mới vẽ theo prompt này`, 'ok')
+    }
+    savedPromptIds.current = ids
+  }, [draft.justSaved, draft.saving, draft.dirty, draft.error, draft.conflict, recipe.scenes.scenePromptId, recipe.scenes.coverPromptId, scenePrompts.data, coverPrompts.data])
 
   const [name, setName] = useState(initial.name)
   const [nameFocused, setNameFocused] = useState(false)
@@ -128,18 +140,32 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
     try {
       const copyOf = await duplicateTemplate(detail.id)
       await invalidate(keys.templates())
+      toast(t.library.templates.duplicated, 'ok')
       navigate(paths.template(copyOf.id, section))
+    } catch (err) {
+      toast(err instanceof Error ? err.message : String(err), 'err')
     } finally { setBusy(false) }
+  }
+
+  const exportFile = async () => {
+    try {
+      await downloadTemplate(detail.id)
+      toast(t.library.templates.exported, 'ok')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : t.library.templates.exportFail, 'err')
+    }
   }
 
   const remove = async () => {
     setDeleteError(null)
     try {
       await removeTemplate(detail.id)
+      toast(t.library.templates.deleted, 'ok')
       await invalidate(keys.templates())
       navigate(paths.library('templates'))
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : String(err))
+      throw err
     }
   }
 
@@ -181,12 +207,14 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
                 ? copy.saving
                 : draft.error ? copy.saveFail : draft.justSaved ? copy.savedNow : copy.savedAt(clock(detail.savedAt))}
             </span>
-            <ActionButton xstyle={[sx.vtShellActionButton]} variant="outline" lockedReason={editorLockedReason} onClick={() => navigate(paths.editor(detail.id))}>{copy.openEditor}</ActionButton>
+            <a {...stylex.props(sx.editorLink, sx.vtShellActionButton)} href={editorLockedReason ? undefined : `#${paths.editor(detail.id)}`} role="link" aria-disabled={!!editorLockedReason} title={editorLockedReason} onClick={event => { if (editorLockedReason) { event.preventDefault(); toast(editorLockedReason, 'err') } }}>{copy.openEditor}</a>
             <ActionMenu triggerStyle={sx.touchTarget}
               label={copy.moreAria}
               items={[
-                { id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />, onSelect: () => downloadTemplate(detail.id) },
+                { id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />, onSelect: () => void exportFile() },
                 { id: 'duplicate', label: t.library.duplicate, icon: <Icon name="copy" size={16} />, onSelect: () => void duplicate() },
+                { id: 'library', label: copy.backToLibrary, href: `#${paths.library('templates')}` },
+                { id: 'delete', label: t.library.delete, icon: <Icon name="trash" size={16} />, danger: true, lockedReason: detail.channels.length ? copy.output.deleteLocked : undefined, onSelect: () => void confirm({ title: copy.deleteTitle(detail.name), body: copy.deleteBody, tone: 'danger', confirmLabel: copy.deleteAction, cancelLabel: t.library.cancel, onConfirm: remove }) },
               ]}
               trigger={<Icon name="more" size={16} />}
             />
@@ -240,6 +268,12 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
 const sx = stylex.create({
   shellShellCenter: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0, color: color["--color-fg"], alignItems: "center", justifyContent: "center", paddingTop: "var(--vv-s-24)", paddingRight: "var(--vv-s-24)", paddingBottom: "var(--vv-s-24)", paddingLeft: "var(--vv-s-24)" },
   vtShellActionButton: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
+  editorLink: {
+    display: 'inline-flex', alignItems: 'center', minHeight: 'var(--vv-s-32)', paddingInline: 'var(--vv-s-12)', borderRadius: 'var(--vv-r-8)',
+    borderWidth: 'var(--vv-s-1)', borderStyle: 'solid', borderColor: line['--line-2'], color: color['--color-fg-2'], fontSize: 'var(--vv-s-13)', textDecoration: 'none',
+    ':hover': { backgroundColor: color['--color-surface-5'], color: color['--color-fg'] },
+    ':focus-visible': { outlineWidth: 'var(--vv-s-2)', outlineStyle: 'solid', outlineColor: color['--color-fg'] },
+  },
   shell: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0, color: color["--color-fg"] },
   main: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", flexDirection: "column", minWidth: 0, minHeight: 0, overflowY: "auto" },
   head: { display: "flex", alignItems: { default: "flex-start", "@media (max-width: 767px)": "stretch" }, justifyContent: "space-between", rowGap: { default: "var(--vv-s-16)", "@media (max-width: 767px)": "var(--vv-s-8)" }, columnGap: { default: "var(--vv-s-16)", "@media (max-width: 767px)": "var(--vv-s-8)" }, paddingTop: { default: "var(--vv-s-22)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-12)", "@media (max-width: 767px)": "var(--vv-s-10)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, flexDirection: { default: null, "@media (max-width: 767px)": "column" } },

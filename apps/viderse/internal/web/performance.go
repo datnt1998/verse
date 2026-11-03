@@ -10,7 +10,6 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/performance"
-	"github.com/datnt1998/verse/platform/identity"
 	"github.com/datnt1998/verse/platform/webapp"
 )
 
@@ -21,17 +20,10 @@ type PerformanceService interface {
 	Apply(ctx context.Context, channelID, insightID string) (performance.ApplyResult, error)
 }
 
-// PerformanceKeys là khoá YouTube Data API tuỳ chọn (Cài đặt › Kết nối AI).
-type PerformanceKeys interface {
-	Status(ctx context.Context) (configured bool, hint string, err error)
-	Set(ctx context.Context, key string) (hint string, err error)
-	Clear(ctx context.Context) error
-}
-
 // MountPerformance gắn: POST /api/clone/:id/posted, GET /api/channels/:id/performance,
-// POST /api/channels/:id/insights/:insightId/apply, GET/PUT/DELETE /api/youtube/data-key.
+// POST /api/channels/:id/insights/:insightId/apply.
 // Phải gọi sau MountClone và sau route /api/channels/summary.
-func MountPerformance(g *Gateway, svc PerformanceService, keys PerformanceKeys) {
+func MountPerformance(g *Gateway, svc PerformanceService) {
 	g.clonePostedRoute = func(w http.ResponseWriter, r *http.Request) bool {
 		rest := strings.TrimPrefix(r.URL.Path, "/api/clone/")
 		id, tail, ok := strings.Cut(rest, "/")
@@ -61,53 +53,6 @@ func MountPerformance(g *Gateway, svc PerformanceService, keys PerformanceKeys) 
 	g.HandleChannel(http.MethodPost, "insights/*/apply", func(w http.ResponseWriter, r *http.Request, id string, rest []string) {
 		applyInsight(w, r, svc, id, rest[0])
 	})
-	if keys == nil {
-		return
-	}
-	g.Handle(http.MethodGet, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, user identity.User) {
-		writeDataKey(w, r, keys, isAdmin(user))
-	})
-	g.Handle(http.MethodPut, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		var body struct {
-			Key string `json:"key"`
-		}
-		if !webapp.DecodeJSON(w, r, &body) {
-			return
-		}
-		if _, err := keys.Set(r.Context(), body.Key); err != nil {
-			switch {
-			case errors.Is(err, performance.ErrKeyFormat), errors.Is(err, performance.ErrKeyRejected):
-				webapp.WriteJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error(), "field": "key"})
-			case errors.Is(err, performance.ErrKeyUnchecked):
-				webapp.Error(w, http.StatusBadGateway, err.Error())
-			default:
-				webapp.Error(w, http.StatusInternalServerError, "Chưa lưu được khoá lúc này.")
-			}
-			return
-		}
-		writeDataKey(w, r, keys, true)
-	})
-	g.Handle(http.MethodDelete, "/api/youtube/data-key", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
-		if err := keys.Clear(r.Context()); err != nil {
-			webapp.Error(w, http.StatusInternalServerError, "Chưa xoá được khoá lúc này.")
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
-	})
-}
-
-func writeDataKey(w http.ResponseWriter, r *http.Request, keys PerformanceKeys, showHint bool) {
-	configured, hint, err := keys.Status(r.Context())
-	if err != nil {
-		webapp.Error(w, http.StatusInternalServerError, "Chưa đọc được khoá lúc này.")
-		return
-	}
-	out := map[string]any{"configured": configured}
-	if configured && showHint {
-		out["keyHint"] = hint
-	}
-	w.Header().Set("Cache-Control", "private, no-store")
-	webapp.WriteJSON(w, http.StatusOK, out)
 }
 
 func postVideo(w http.ResponseWriter, r *http.Request, svc PerformanceService, id string) {

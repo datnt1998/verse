@@ -55,9 +55,10 @@ export function useImageEditing(imageId: string | undefined, base: ImageVersion 
     [base, removed, added],
   )
   const toggleRef = useCallback((id: string) => {
+    setModeState('edit')
     setRemoved((old) => (old.includes(id) ? old.filter((entry) => entry !== id) : [...old, id]))
   }, [])
-  const addRef = useCallback((ref: ImageRef) => { setAdded((old) => [...old, ref]) }, [])
+  const addRef = useCallback((ref: ImageRef) => { setModeState('edit'); setAdded((old) => [...old, ref]) }, [])
   const changed = useMemo(() => changedParts(base, edits), [base, edits])
   const reset = useCallback(() => { setEdits({}); setRemoved([]); setAdded([]); setModeState('view') }, [])
   return {

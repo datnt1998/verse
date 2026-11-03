@@ -12,8 +12,8 @@ import { removeTemplateFromChannel } from '../../../api/library'
 import { ActionButton } from '../../../components'
 import { t } from '../../../i18n/library'
 import { initials, num } from '../fmt'
-import { templateExportHref, type Recipe, type TemplateDetail } from '../../../api/library'
-import { navigate, paths } from '../../../router'
+import { downloadTemplate, type Recipe, type TemplateDetail } from '../../../api/library'
+import { paths } from '../../../router'
 
 export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach, hideTitle, editorLockedReason }: {
   detail: TemplateDetail
@@ -30,6 +30,14 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
   const inUse = channels.length > 0
   const compressed = detail.recipe.output.compressExport
   const [removing, setRemoving] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
+  const exportFile = async () => {
+    if (exporting) return
+    setExporting(true)
+    try { await downloadTemplate(detail.id); toast(t.library.templates.exported, 'ok') }
+    catch (error) { toast(error instanceof Error ? error.message : t.library.templates.exportFail, 'err') }
+    finally { setExporting(false) }
+  }
 
   const detach = async (channelId: string) => {
     setRemoving(channelId)
@@ -43,15 +51,14 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
   }
 
   const remove = async () => {
-    const accepted = await confirm({
+    await confirm({
       title: t.library.template.deleteTitle(detail.name),
       body: t.library.template.deleteBody,
       tone: 'danger',
       confirmLabel: t.library.template.deleteAction,
       cancelLabel: t.library.cancel,
-      onConfirm: () => undefined,
+      onConfirm: onDelete,
     })
-    if (accepted) await onDelete()
   }
 
   return (
@@ -115,16 +122,13 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
           {copy.layoutChips.map((chip) => <span key={chip} className={`vt-chip ${stylex.props(sx.chip).className}`}>{chip}</span>)}
         </div>
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.layoutHelp}</p>
-        <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" lockedReason={editorLockedReason} onClick={() => navigate(paths.editor(detail.id))}>{copy.layoutEdit}</ActionButton>
+        <a {...stylex.props(sx.exportLink)} href={editorLockedReason ? undefined : `#${paths.editor(detail.id)}`} role="link" aria-disabled={!!editorLockedReason} title={editorLockedReason} onClick={event => { if (editorLockedReason) { event.preventDefault(); toast(editorLockedReason, 'err') } }}>{copy.layoutEdit}</a>
       </div>
 
       <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fileTitle}</span>
         <div className={`vt-row ${stylex.props(sx.row).className}`}>
-          <a className={`vt-export ${stylex.props(sx.exportLink).className}`} href={templateExportHref(detail.id)} download="">
-            <Icon name="export" size={16} />
-            {copy.exportFile}
-          </a>
+          <ActionButton xstyle={sx.exportLink} pending={exporting} disabled={exporting} onClick={() => void exportFile()} icon={<Icon name="export" size={16} />}>{copy.exportFile}</ActionButton>
           <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" icon={<Icon name="copy" size={16} />} onClick={onDuplicate}>{t.library.duplicate}</ActionButton>
         </div>
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.exportHelp}</p>

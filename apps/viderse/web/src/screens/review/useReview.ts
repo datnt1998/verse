@@ -3,6 +3,7 @@ import { toast } from '@noverse/ui'
 import { cache, getData, invalidate, setData } from '@noverse/ui/data'
 import { ApiError, request } from '../../api/request'
 import { readScoreSummary, type ScoreSummary } from '../../api/autonomy'
+import type { JobImage } from '../../api/images'
 import type { Status } from '../../api/status'
 import { events, subscribeEvents } from '../../data/events'
 import { keys } from '../../data/keys'
@@ -12,7 +13,7 @@ import type { Suggestion } from '../../api/suggestions'
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; source: { title: string; thumbnailUrl: string | null } }
 export interface ReviewVersion { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string; source?: string; width?: number; height?: number; createdAt?: string; prompt?: string; promptVersion?: number; score?: unknown }
 export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; promptVersion?: number; queuePosition?: number; currentVersion: number | null; reviewVersion: number | null; versions: ReviewVersion[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
-export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null; summary?: ReviewSummary | null }
+export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null; summary?: ReviewSummary | null }
 /** Tóm tắt điểm của video + câu server viết (artboard MReview › băng điểm). */
 export type ReviewSummary = NonNullable<ScoreSummary> & { text: string }
 const readReviewSummary = (value: unknown): ReviewSummary | null => {
@@ -24,7 +25,7 @@ const readReviewSummary = (value: unknown): ReviewSummary | null => {
 /** Artboard MReview: trạng thái ảnh đang được Hoạ sĩ vẽ (chưa có bản mới). */
 export const isDrawing = (item: ReviewImage) => item.status === 'running' || item.status === 'pending' || item.status === 'queued'
 /** Ảnh bị bộ lọc chặn hoặc Hoạ sĩ từ chối vẽ — màn hình dùng ảnh cảnh bên cạnh. */
-export const isBlocked = (item: ReviewImage) => item.status === 'failed' || item.status === 'blocked' || item.status === 'skipped' && item.skipReason === 'refused'
+export const isBlocked = (item: ReviewImage) => item.status === 'blocked' || item.status === 'skipped' && item.skipReason === 'refused'
 /** Nhãn ảnh dùng chung cho danh sách, ảnh lớn, phiên bản và sheet prompt. */
 export const reviewLabel = (item: ReviewImage, index: number) => item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${item.sceneId?.match(/\d+/)?.[0] || index + 1}`
 /** Bản mới nhất của ảnh — bản đang xem khi chưa chọn bản khác. */
@@ -37,7 +38,7 @@ export const imageURL = (job: string, image: ReviewImage, variant: 'full' | 'cut
   return variant === 'cutout' ? version?.cutoutUrl || `${base(job)}/${encodeURIComponent(image.id)}?variant=cutout` : version?.originalUrl || ''
 }
 /** URL của một phiên bản cụ thể (artboard MReview › dải Phiên bản). */
-export const versionURL = (job: string, image: ReviewImage, version: number, variant: 'full' | 'cutout' = 'full') => {
+export const versionURL = (job: string, image: Pick<ReviewImage, 'id' | 'versions'>, version: number, variant: 'full' | 'cutout' = 'full') => {
   const found = image.versions.find(v => v.version === version)
   return variant === 'cutout'
     ? found?.cutoutUrl || `${base(job)}/${encodeURIComponent(image.id)}?variant=cutout&version=${version}`

@@ -194,7 +194,9 @@ export const readWorkbenchList = (value: unknown): WorkbenchList => {
 
 export const getWorkbench = async (channel: string, signal?: AbortSignal) => readWorkbenchList(await request<unknown>(`/api/clone?channel=${encodeURIComponent(channel)}`, { signal }))
 export const getWorkbenchJob = async (id: string, signal?: AbortSignal) => readCloneJob(await request<unknown>(`/api/clone/${encodeURIComponent(id)}`, { signal }), 'job')
-export const jobAction = (id: string, action: 'pause' | 'resume' | 'cancel' | 'run' | 'delete') => mutate('POST', `/api/clone/${encodeURIComponent(id)}`, { action })
+export const jobAction = (id: string, action: 'pause' | 'resume' | 'cancel' | 'run') => mutate('POST', `/api/clone/${encodeURIComponent(id)}`, { action })
+/** Xoá video bằng HTTP DELETE — action switch của máy chủ không nhận `delete`. */
+export const deleteJob = (id: string) => mutate<void>('DELETE', `/api/clone/${encodeURIComponent(id)}`)
 
 export type RestartPreview = { template: { id: string; name: string }; imageEstimate: number | null; position: 'front'; etaStart: string | null }
 

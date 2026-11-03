@@ -329,7 +329,7 @@ func (s *CoverTrialStore) InsertPromptSample(ctx context.Context, sample library
 		`INSERT INTO image_prompt_samples (id, prompt_id, prompt_name, prompt_kind, composition,
 			video_id, video_title, scene_id, hook_text, state, media_path, provider, model, width,
 			height, cost_images, error_code, error_message, error_recovery, retry_at, created_at, finished_at)
-		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
+		 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)`,
 		id, sample.PromptID, sample.PromptName, sample.PromptKind, nullText(sample.Composition),
 		video, sample.VideoTitle, sample.SceneID, sample.HookText, sample.State,
 		nullText(sample.MediaPath), sample.Provider, sample.Model, sample.Width, sample.Height,

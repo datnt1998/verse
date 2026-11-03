@@ -218,7 +218,7 @@ export function ImageRail({
 
       <section {...stylex.props(sx.section)}>
         <div {...stylex.props(sx.sectionHead)}>
-          <span {...stylex.props(sx.sectionTitle)}>Chỉ dẫn đã gửi</span>
+          <span {...stylex.props(sx.sectionTitle)}>Prompt đã gửi</span>
           {mode !== 'edit' && (
             <>
               <Button size="sm" type="button" onClick={() => void copy()} aria-label={copied ? 'Đã chép' : 'Chép'} title={copied ? 'Đã chép' : 'Chép'} ><Icon name="copy" size={14} />{copied ? 'Đã chép' : 'Chép'}</Button>
@@ -240,7 +240,7 @@ export function ImageRail({
             <pre {...stylex.props(sx.raw)}>{rawSentText(version)}</pre>
             {rawParams(version) && <span {...stylex.props(sx.verNote)}>{rawParams(version)}</span>}
           </>
-        ) : mode === 'edit' ? (
+        ) : mode === 'edit' && !legacyParts ? (
           <div>
             {editable.map((entry, index) => (
               <div key={entry.kind} {...stylex.props(sx.seg, index === 0 && sx.segFirst, entry.changed && sx.segChanged)}>
@@ -267,7 +267,7 @@ export function ImageRail({
         ) : (
           <div {...stylex.props(sx.promptCard)}>
             {version?.parts.length
-              ? version.parts.map((part, index) => (
+              ? version.parts.filter(part => part.kind !== 'learned').map((part, index) => (
                   <div key={`${part.kind}-${index}`} {...stylex.props(sx.seg, index === 0 && sx.segFirst)}>
                     <span {...stylex.props(sx.segLabel)}>
                       {PART_LABELS[part.kind]}
@@ -289,7 +289,7 @@ export function ImageRail({
         )}
         <div {...stylex.props(sx.metaRow)}>
           <span {...stylex.props(sx.metaText)}>{versionMeta(version, providers)}</span>
-          <Button variant="quiet" size="sm" type="button" aria-pressed={mode === 'raw'} onClick={() => onMode(mode === 'raw' ? 'view' : 'raw')} >{mode === 'raw' ? 'Xem theo phần' : 'Xem nguyên văn gửi máy chủ'}</Button>
+          <Button variant="quiet" size="sm" type="button" aria-pressed={mode === 'raw'} onClick={() => onMode(mode === 'raw' ? (edit.changedCount ? 'edit' : 'view') : 'raw')} >{mode === 'raw' ? 'Xem theo phần' : 'Xem nguyên văn gửi máy chủ'}</Button>
         </div>
         {quota && mode === 'edit' && (
           <span {...stylex.props(sx.verNote)}>

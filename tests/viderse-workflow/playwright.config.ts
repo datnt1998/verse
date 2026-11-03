@@ -8,7 +8,7 @@ if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || url.username 
 
 export default defineConfig({
   testDir: '.',
-  testMatch: ['interaction-audit.pw.ts', 'workflow-parity.pw.ts'],
+  testMatch: ['interaction-audit.pw.ts', 'workflow-parity.pw.ts', 'viewer-audit.pw.ts', 'delete-audit.pw.ts', 'settings-state-audit.pw.ts', 'template-state-audit.pw.ts'],
   workers: 1,
   retries: 0,
   timeout: 90_000,
@@ -27,9 +27,13 @@ export default defineConfig({
     launchOptions: { executablePath: process.env.PW_BROWSER_BINARY, args: ['--force-color-profile=srgb'] },
   },
   projects: [
-    { name: 'desktop', use: { viewport: { width: 1440, height: 900 }, reducedMotion: 'no-preference' } },
-    { name: 'desktop-reduced', use: { viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' } },
-    { name: 'mobile', use: { viewport: { width: 390, height: 844 }, reducedMotion: 'no-preference' } },
-    { name: 'mobile-reduced', use: { viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' } },
+    { name: 'desktop', testIgnore: 'delete-audit.pw.ts', grepInvert: /Editor replacement/, use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 } },
+    { name: 'desktop-reduced', testIgnore: 'delete-audit.pw.ts', grepInvert: /Editor replacement/, use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce' } },
+    { name: 'mobile', testIgnore: 'delete-audit.pw.ts', grepInvert: /Editor replacement/, use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true } },
+    { name: 'mobile-reduced', testIgnore: 'delete-audit.pw.ts', grepInvert: /Editor replacement/, use: { viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true, reducedMotion: 'reduce' } },
+    { name: 'delete-desktop', testMatch: 'delete-audit.pw.ts', dependencies: ['desktop', 'desktop-reduced', 'mobile', 'mobile-reduced'], use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 } },
+    { name: 'delete-desktop-reduced', testMatch: 'delete-audit.pw.ts', dependencies: ['delete-desktop'], use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce' } },
+    { name: 'post-delete-desktop', testMatch: 'viewer-audit.pw.ts', grep: /Editor replacement/, dependencies: ['delete-desktop-reduced'], use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 } },
+    { name: 'post-delete-desktop-reduced', testMatch: 'viewer-audit.pw.ts', grep: /Editor replacement/, dependencies: ['delete-desktop-reduced'], use: { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce' } },
   ],
 })

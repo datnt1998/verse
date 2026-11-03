@@ -41,7 +41,9 @@ type ServiceStore interface {
 	CountBoardGroupsToday(context.Context, time.Time) (map[string]int64, error)
 	ResumeJob(context.Context, string) (*domain.CloneJob, error)
 	SetPaused(context.Context, string, bool) error
-	RequestCancel(context.Context, string) error
+	// CancelJob yêu cầu huỷ, đóng step mở, bỏ tạm dừng và ghi trạng thái
+	// cancelled trong một transaction; Delete dựa vào state đã commit đó.
+	CancelJob(context.Context, string) error
 	DeleteJob(context.Context, string) error
 	ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error)
 	GetArtifact(context.Context, string, string) (*domain.CloneArtifact, error)
@@ -383,10 +385,9 @@ func (s *Service) Cancel(ctx context.Context, id string) (*domain.CloneJob, erro
 	if _, err := s.Store.GetJob(ctx, id); err != nil {
 		return nil, err
 	}
-	if err := s.Store.RequestCancel(ctx, id); err != nil {
-		return nil, err
-	}
-	if err := s.Store.SetJobStatus(ctx, id, domain.CloneCancelled); err != nil {
+	// Huỷ là một bước nguyên tử: request + đóng step + bỏ tạm dừng + trạng thái
+	// cancelled cùng commit, nên Delete gọi ngay sau đó thấy state đã dừng hẳn.
+	if err := s.Store.CancelJob(ctx, id); err != nil {
 		return nil, err
 	}
 	s.event(domain.CloneEventUpdated, id)
@@ -397,7 +398,10 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	if job.Status == domain.CloneRunning || job.Status == domain.ClonePending {
+	// Tạm dừng không phải một CloneStatus (cột paused_at + stage paused), nên
+	// phải chặn riêng: video còn dừng giữ step/lease, xoá lúc đó sẽ cắt ngang
+	// phần đang giữ. UI đã khoá nút và yêu cầu dừng hẳn trước.
+	if job.PausedAt != nil || job.Status == domain.CloneRunning || job.Status == domain.ClonePending {
 		return ErrConflict
 	}
 	artifacts, err := s.Store.ListArtifacts(ctx, id)

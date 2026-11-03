@@ -33,9 +33,9 @@ vi.mock('../../data/useResource', () => {
     },
   }
 })
-vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {} }))
+vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {}, events: { onReconnect: () => () => {} } }))
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
-vi.mock('../../router', () => ({ navigate: vi.fn(), routePath: (route: { name: string }) => `#/${route.name}` }))
+vi.mock('../../router', async (importOriginal) => ({ ...(await importOriginal<typeof import('../../router')>()), navigate: vi.fn() }))
 vi.mock('../../components/performance', async (importOriginal) => ({ ...(await importOriginal<object>()), requestMarkPosted: state.markPosted }))
 vi.mock('../../components', () => ({
   ChannelAvatar: () => null,

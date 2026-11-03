@@ -111,15 +111,20 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
     }
   }
 
-  const remove = async () => {
+  const exportFile = async () => {
     try {
-      await removeTemplate(detail.id)
-      await Promise.all([invalidate(keys.templates()), invalidate(keys.template(detail.id))])
-      toast(t.library.templates.deleted, 'ok')
-      navigate(paths.library('templates'))
+      await downloadTemplate(detail.id)
+      toast(t.library.templates.exported, 'ok')
     } catch (err) {
-      toast(err instanceof Error ? err.message : String(err), 'err')
+      toast(err instanceof Error ? err.message : t.library.templates.exportFail, 'err')
     }
+  }
+
+  const remove = async () => {
+    await removeTemplate(detail.id)
+    await Promise.all([invalidate(keys.templates()), invalidate(keys.template(detail.id))])
+    toast(t.library.templates.deleted, 'ok')
+    navigate(paths.library('templates'))
   }
 
   const compress = recipe.output.compressExport ? t.library.template.output.compressed.title : t.library.template.output.original.title
@@ -133,7 +138,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   const moreItems: MobileSheetAction[] = [
     { key: 'rename', icon: 'edit', label: t.library.templates.rename, onSelect: () => { setRenameName(detail.name); setRenameError(null); setRenaming(true) } },
     { key: 'duplicate', icon: 'copy', label: t.library.duplicate, onSelect: () => duplicate() },
-    { key: 'export', icon: 'export', label: copy.exportFile, onSelect: () => downloadTemplate(detail.id) },
+    { key: 'export', icon: 'export', label: copy.exportFile, onSelect: () => void exportFile() },
     detail.channels.length
       ? { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, disabled: true, description: copy.deleteHintBusy(detail.channels.length), onSelect: () => undefined }
       : { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, description: copy.deleteHintFree, onSelect: () => setDeleting(true) },

@@ -597,7 +597,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				if localItem.Kind == "scene" && strings.HasPrefix(m.Style, "cutout") {
 					cut := strings.TrimSuffix(relative, ".webp") + ".cutout.png"
 					cutfile := filepath.Join(s.StagingDir, filepath.FromSlash(cut))
-					if err = cutout(slotctx, s, png, cutfile); err != nil {
+					if err = cutout(slotctx, s, webp, cutfile); err != nil {
 						return err
 					}
 					hash, err := steps.SHA256File(cutfile)

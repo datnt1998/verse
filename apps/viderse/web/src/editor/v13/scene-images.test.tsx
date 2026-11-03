@@ -6,6 +6,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { cache } from '@noverse/ui/data'
+import { dismissConfirmations } from '@noverse/ui'
+import { applyViderseLabels } from '../../kitLabels'
 import { getCommandExecutor, useCommandHistory } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useKeyframesStore } from '@editor/features/timeline/stores/keyframes-store'
@@ -90,6 +92,7 @@ const useResult = {
 }
 
 beforeEach(() => {
+  applyViderseLabels()
   cache.clear()
   getCommandExecutor().clearHistory()
   vi.stubGlobal('matchMedia', (query: string) => ({
@@ -114,7 +117,10 @@ beforeEach(() => {
   resetSceneVersionTraces()
 })
 
-afterEach(() => { cleanup(); stream.reset(); vi.unstubAllGlobals(); vi.restoreAllMocks() })
+afterEach(async () => {
+  await act(async () => { dismissConfirmations(); cleanup(); await Promise.resolve() })
+  stream.reset(); vi.unstubAllGlobals(); vi.restoreAllMocks()
+})
 
 describe('redrawn scene replaces the clip media in place', () => {
   it('swaps only the picture of that clip and keeps motion, keyframes, timing and every other clip', async () => {
@@ -318,6 +324,18 @@ describe('scene panel', () => {
     expect(screen.getByRole('button', { name: 'Dùng bản 2' })).toBeTruthy()
   })
 
+  it('opens the same historical version in the shared viewer and keeps its version rail aligned', async () => {
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} />)
+    fireEvent.click(screen.getByRole('button', { name: /Bản 2 · Theo góp ý/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Xem lớn Đèn pin soi phòng trống' }))
+    const viewer = await screen.findByRole('dialog')
+    expect(within(viewer).getByRole('img', { name: 'Cảnh 1', exact: true }).getAttribute('src')).toBe('/api/clone/job-1/images/img-1/versions/2')
+    expect(within(viewer).getByRole('button', { name: /Bản 2 · Theo góp ý/ }).getAttribute('aria-pressed')).toBe('true')
+    fireEvent.click(within(viewer).getByRole('button', { name: /Bản 1 · Lần đầu/ }))
+    expect(within(viewer).getByRole('img', { name: 'Cảnh 1', exact: true }).getAttribute('src')).toBe('/api/clone/job-1/images/img-1/versions/1')
+    expect(within(viewer).getByRole('button', { name: /Bản 1 · Lần đầu/ }).getAttribute('aria-pressed')).toBe('true')
+  })
+
   it('keeps the open Editor as the only project writer for redraw', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 3 }] }))
     vi.stubGlobal('fetch', fetchMock)
@@ -325,6 +343,9 @@ describe('scene panel', () => {
     render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} beforeMutation={save} />)
     fireEvent.change(screen.getByLabelText('Góp ý để vẽ lại cảnh 1'), { target: { value: 'Giữ chuyển động, thêm đèn đỏ' } })
     fireEvent.click(screen.getByRole('button', { name: 'Vẽ lại', exact: true }))
+    const confirmation = await screen.findByRole('alertdialog')
+    expect(fetchMock).not.toHaveBeenCalled()
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
     expect(save).toHaveBeenCalledTimes(1)
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({ imageIds: ['img-1'], project: false, feedback: 'Giữ chuyển động, thêm đèn đỏ' })
@@ -355,10 +376,9 @@ describe('scene panel', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1), version(2, { state: 'drawing', url: null, finishedAt: null, durationSec: null })] })} progress={{ jobId: 'job-1', imageId: 'img-1', n: 2, phase: 'drawing', elapsedSec: 21 }} beforeMutation={async () => true} onRedrawn={onRedrawn} />)
-    // Artboard Editor img=drawing: bản đang dùng vẫn "Đã duyệt"; thẻ Chỉ dẫn đã gửi ở lại, chỉ khối góp ý/Vẽ lại/Thay ảnh ẩn.
+    // Đang vẽ bản mới vẫn giữ bản đã duyệt và provenance; ẩn thao tác sửa/xoá ảnh.
     expect(screen.getByText('Đã duyệt')).toBeTruthy()
     expect(screen.queryByText('Đang vẽ bản 2')).toBeNull()
-    expect(screen.getByText('Chỉ dẫn đã gửi')).toBeTruthy()
     expect(screen.queryByLabelText('Góp ý để vẽ lại cảnh 1')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Thay ảnh' })).toBeNull()
     expect(screen.getByText('Hoạ sĩ đang vẽ bản 2')).toBeTruthy()

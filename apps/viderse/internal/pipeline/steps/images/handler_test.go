@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/png"
 	"os"
 	"sync"
 	"sync/atomic"
@@ -170,5 +172,80 @@ func TestImageFailureStopsWaiterBeforeSlotRelease(t *testing.T) {
 	}
 	if got := d.calls.Load(); got != 1 {
 		t.Fatalf("waiting image started after failure: paid calls = %d", got)
+	}
+}
+
+func TestSceneCutoutMatchesNormalizedImageGeometry(t *testing.T) {
+	s, media := fixture(t)
+	manifest := Manifest{
+		Version: 1, Revision: 1, Style: "cutout",
+		Story: &Story{Shots: map[string]string{"scene": "Ada in the room"}},
+		Items: []Item{{ID: "scene", SceneID: "sc-0", Kind: "scene", Status: "pending", Width: 1920, Height: 1080}},
+	}
+	writePNG := func(path string, width, height int) error {
+		output, err := os.Create(path)
+		if err != nil {
+			return err
+		}
+		err = png.Encode(output, image.NewNRGBA(image.Rect(0, 0, width, height)))
+		closeErr := output.Close()
+		if err != nil {
+			return err
+		}
+		return closeErr
+	}
+	p := &provider{}
+	handler := Handler{Deps: Deps{
+		Drawer: directDrawer{p},
+		Encode: func(_ context.Context, _ *pipeline.StepContext, _, output string, width, height int) (Encoded, error) {
+			if err := writePNG(output, width, height); err != nil {
+				return Encoded{}, err
+			}
+			hash, err := steps.SHA256File(output)
+			info, statErr := os.Stat(output)
+			if statErr != nil {
+				return Encoded{}, statErr
+			}
+			return Encoded{Width: width, Height: height, SHA256: hash, Bytes: info.Size()}, err
+		},
+		Cutout: func(_ context.Context, _ *pipeline.StepContext, input, output string) error {
+			file, err := os.Open(input)
+			if err != nil {
+				return err
+			}
+			config, err := png.DecodeConfig(file)
+			file.Close()
+			if err != nil {
+				return err
+			}
+			return writePNG(output, config.Width, config.Height)
+		},
+	}}
+	if err := handler.runQueue(context.Background(), s, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	version := Displayed(manifest.Items[0])
+	if version == nil || version.Cutout == nil {
+		t.Fatal("completed scene has no reviewable cutout")
+	}
+	cutout, err := media.Acquire(context.Background(), version.Cutout.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cutout.Release()
+	file, err := os.Open(cutout.Path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config, err := png.DecodeConfig(file)
+	file.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.Width != version.Width || config.Height != version.Height || config.Width != 1920 || config.Height != 1080 {
+		t.Fatalf("cutout %dx%d does not match normalized scene %dx%d", config.Width, config.Height, version.Width, version.Height)
+	}
+	if p.calls != 1 {
+		t.Fatalf("cutout processing redrew the image: %d calls", p.calls)
 	}
 }

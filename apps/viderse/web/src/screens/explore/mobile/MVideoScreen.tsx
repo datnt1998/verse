@@ -17,6 +17,7 @@ import { getRivalPreview, listRivals, type Video, type VideoPreview } from '../.
 import { listChannels } from '../../../api/channels'
 import { enqueueClone, planClone, type ClonePlan } from '../../../api/clone'
 import { chapterHref, fmtChapterTime, fmtDuration, fmtScore, scoreText, videoMeta } from '../fmt'
+import { copyText } from '../media'
 import { hideBrokenImage } from '../VideoGrid'
 import { stageColor, usageHref, usageSubline } from '../status'
 import { scopeOf } from '../scope'
@@ -116,12 +117,9 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
 
   const copy = useCallback(async () => {
     if (!video) return
-    try {
-      await navigator.clipboard.writeText(video.url)
-      toast.ok(tt.copied)
-    } catch {
-      toast.err(tt.copyFailed)
-    }
+    const ok = await copyText(video.url)
+    if (ok) toast.ok(tt.copied)
+    else toast.err(tt.copyFailed)
   }, [video, tt.copied, tt.copyFailed])
 
   const back = useCallback(() => {

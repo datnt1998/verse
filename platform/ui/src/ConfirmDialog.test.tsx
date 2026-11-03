@@ -2,7 +2,8 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ConfirmDialog, confirm, dismissConfirmations, setConfirmLayout, HOLD_DURATION, matchesConfirmation, scheduleConfirmationHold } from './ConfirmDialog'
+import { ConfirmDialog, HOLD_DURATION, matchesConfirmation, scheduleConfirmationHold } from './ConfirmDialog'
+import { confirm, dismissConfirmations, setConfirmLayout } from './confirm-store'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 const roots: Root[] = []
@@ -214,5 +215,51 @@ describe('confirmation lifecycle', () => {
     expect(props.onClose).not.toHaveBeenCalled()
     await act(async () => confirmButton(container).click())
     expect(action).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('lỗi tải chunk hộp thoại — đóng, không đoán', () => {
+  // Nạp lại store bằng import động là có chủ đích: chỉ cách này mới thay được module
+  // graph để mô phỏng chunk ConfirmDialog hỏng, đúng ranh giới tải động của confirm().
+  const loadBrokenStore = async () => {
+    const toastSpy = vi.fn()
+    vi.resetModules()
+    vi.doMock('react-dom/client', () => ({ createRoot: vi.fn() }))
+    vi.doMock('./Toast', () => ({ toast: toastSpy }))
+    vi.doMock('./ConfirmDialog', () => { throw new Error('Failed to fetch dynamically imported module') })
+    const store = await import('./confirm-store')
+    return { store, toastSpy }
+  }
+
+  afterEach(() => {
+    vi.doUnmock('react-dom/client')
+    vi.doUnmock('./Toast')
+    vi.doUnmock('./ConfirmDialog')
+    vi.resetModules()
+  })
+
+  it('trả false, không chạy onConfirm, không dựng root và báo toast tải lại', async () => {
+    const { store, toastSpy } = await loadBrokenStore()
+    const action = vi.fn()
+    const result = store.confirm({ title: 'Vẽ thử?', body: 'Dùng ảnh mẫu để vẽ thử.', confirmLabel: 'Vẽ thử', onConfirm: action })
+    await expect(result).resolves.toBe(false)
+    expect(action).not.toHaveBeenCalled()
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+    expect(document.body.children).toHaveLength(0)
+    expect(toastSpy).toHaveBeenCalledTimes(1)
+    const [text, tone, retry] = toastSpy.mock.calls[0]
+    expect(tone).toBe('err')
+    expect(String(text)).toContain('tải lại trang')
+    expect(retry).toMatchObject({ label: 'Tải lại' })
+  })
+
+  it('phiên đã kết thúc thì không hiện toast của phiên cũ', async () => {
+    const { store, toastSpy } = await loadBrokenStore()
+    const action = vi.fn()
+    const result = store.confirm({ title: 'Vẽ thử?', body: 'Dùng ảnh mẫu.', confirmLabel: 'Vẽ thử', onConfirm: action })
+    store.dismissConfirmations()
+    await expect(result).resolves.toBe(false)
+    expect(toastSpy).not.toHaveBeenCalled()
+    expect(action).not.toHaveBeenCalled()
   })
 })

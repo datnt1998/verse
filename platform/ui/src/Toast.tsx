@@ -353,6 +353,7 @@ const ax = stylex.create({
     boxShadow: 'var(--vv-toast-shadow, var(--kit-shadow-toast))',
     fontSize: 13, color: color['--color-fg'], whiteSpace: 'nowrap',
   },
+  pillText: { overflow: 'hidden', textOverflow: 'ellipsis' },
   pillTone: (border: string) => ({ borderColor: border }),
   pillCount: { fontVariantNumeric: 'tabular-nums', color: color['--color-fg-3'], fontWeight: 400 },
   closeActivity: { color: 'var(--vv-text-hint, var(--kit-fg-icon))' },
@@ -486,7 +487,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
       <div className={['ui-toast-pill', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
         <div className={['ui-toast-glass', pill.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={pill.style}>
           {ACT_PILL_ICON[item.tone] && <Icon name={ACT_PILL_ICON[item.tone]!} size={16} style={{ color: fg, flexShrink: 0 }} />}
-          <span {...stylex.props(sx.text)}>{item.text}</span>
+          <span {...stylex.props(sx.text, ax.pillText)}>{item.text}</span>
           {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.action!.onClick)}>
             {item.action.label}{item.undo && <span {...stylex.props(ax.pillCount)}> · {Math.ceil(left / 1000)}s</span>}
           </button>}

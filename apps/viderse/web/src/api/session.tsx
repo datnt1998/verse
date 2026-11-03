@@ -17,10 +17,12 @@
 // password-required (403 có mã) — listener ở đây đổi trạng thái cổng cho mọi
 // request, kể cả caller không đọc payload.
 import { createContext, startTransition, useContext, useEffect, useState, type ReactNode } from 'react'
+import { confirm } from '@noverse/ui'
 import { ApiError, accessDeniedUser, getSetup, login as loginApi, logout, me, passwordChangeRequired } from './client'
 import { onAccessDenied, onPasswordChangeRequired, onSessionExpired } from './sessionSignal'
 import type { AppLink, SessionEnded, User } from './types'
 import { readAppLinks, readSessionEnded } from './sso'
+import { t } from '../i18n/vi'
 
 /** Kết quả một lần kiểm phiên qua /api/me. */
 export type SessionRefresh = 'user' | 'denied' | 'password' | 'anon' | 'down'
@@ -51,7 +53,7 @@ export type SessionState = {
   serverReachable: boolean
   /** Đăng nhập qua /api/login của Viderse: 2xx → vào app; 403 no-grant → màn bị chặn. */
   signIn: (username: string, password: string) => Promise<void>
-  /** Revoke phiên trên máy chủ rồi dọn phiên UI (Đăng xuất — thoát cả hai app). */
+  /** Hỏi hệ quả phiên chung, revoke khi xác nhận; Huỷ giữ nguyên phiên UI. */
   signOut: () => Promise<void>
   /** Dọn phiên UI về Đăng nhập khi máy chủ đã thu hồi phiên (đổi mật khẩu, revoke-all, 401). */
   endSession: (ended?: SessionEnded) => void
@@ -211,12 +213,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         throw error
       }
     },
-    // Server revoke trước khi xoá cookie: lỗi revoke thì ném ra để caller hiện
-    // lỗi (không báo giả đã đăng xuất); 401 = phiên đã mất → dọn UI luôn.
+    // Mọi lối đăng xuất đều hỏi cùng hệ quả của phiên chung. Revoke trong
+    // confirmation để pending/lỗi còn ở đúng chỗ; Huỷ không đổi phiên UI.
     signOut: async () => {
-      try { await logout() } catch (error) {
-        if (!(error instanceof ApiError && error.status === 401)) throw error
-      }
+      if (!await confirm({
+        title: t.account.logout, body: t.account.sharedLogoutNote,
+        confirmLabel: t.account.logout, cancelLabel: t.common.cancel,
+        pendingLabel: t.account.loggingOut,
+        onConfirm: async () => {
+          try { await logout() } catch (error) {
+            if (!(error instanceof ApiError && error.status === 401)) throw new Error(t.account.logoutFailed)
+          }
+        },
+      })) return
       localStorage.removeItem('vv.signedInBefore')
       endSession({ reason: 'logout', app: 'viderse' })
       window.location.hash = '/login?bye=1'

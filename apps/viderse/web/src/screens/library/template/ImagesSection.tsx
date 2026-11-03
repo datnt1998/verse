@@ -72,6 +72,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
           </span>
         </div>
         <PromptPicker
+          kind="scene"
           mobileLayout={hideTitle}
           prompts={prompts}
           value={scenes.scenePromptId}

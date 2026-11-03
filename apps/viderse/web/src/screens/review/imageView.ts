@@ -114,13 +114,13 @@ export function toReviewItems(
           legacyUrl: old ? imageURLOf(old) : undefined,
         } satisfies ReviewItemView
       })
-      .sort((a, b) => a.index - b.index)
+      .sort((a, b) => Number(b.kind === 'cover') - Number(a.kind === 'cover') || a.index - b.index)
   }
-  return (legacy ?? []).map((item, index) => ({
+  return (legacy ?? []).map<ReviewItemView>((item, index) => ({
     id: item.id,
     kind: item.kind === 'thumbnail' ? 'cover' : 'scene',
     label: sceneLabel(item, index),
-    index,
+    index: index + 1,
     status: item.status,
     approved: item.status === 'approved',
     narration: item.narration,
@@ -135,7 +135,7 @@ export function toReviewItems(
     versions: legacyVersion(item),
     progress: progress[item.id],
     legacyUrl: imageURLOf(item),
-  }))
+  })).sort((a, b) => Number(b.kind === 'cover') - Number(a.kind === 'cover') || a.index - b.index)
 }
 
 function imageURLOf(item: ReviewImage): string | undefined {
@@ -157,7 +157,7 @@ export const PART_LABELS: Record<PromptPartKind, string> = {
 }
 
 /** Phần người dùng sửa được (Tham chiếu sửa bằng thêm/bỏ ảnh, không bằng chữ). */
-export const EDITABLE_PARTS: PromptPartKind[] = ['scene', 'style', 'learned', 'avoid']
+export const EDITABLE_PARTS: PromptPartKind[] = ['scene', 'style', 'avoid']
 
 export const PROVIDER_NAMES: Record<string, string> = {
   chatgpt: 'ChatGPT',

@@ -89,6 +89,9 @@ function installFetch() {
       return new Promise<Response>((resolve) => { patchers.push(resolve) })
     }
     if (url === '/api/templates') return respond({ items: [summary(), summary({ id: 't2', name: 'Đêm mưa', channels: [] })] })
+    if (url === '/api/templates/t1/export' && method === 'GET') {
+      return Promise.resolve(new Response(new Blob(['zip']), { status: 200, headers: { 'Content-Disposition': 'attachment; filename="truyen-ke-dem.ytf-template.zip"' } }))
+    }
     if (url === '/api/image-prompts/p1' && method === 'DELETE') {
       return respond({ error: 'Prompt đang dùng ở Template A', code: 'in_use', usedBy: ['tpl-a'] }, 409)
     }
@@ -271,27 +274,35 @@ describe('thư viện — liên kết', () => {
 })
 
 describe('thư viện — xuất tệp template', () => {
-  it('nút Xuất trên thẻ tải đúng tệp .zip, không còn khoá giả', async () => {
-    const downloaded: string[] = []
-    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
-      downloaded.push(this.getAttribute('href') ?? '')
+  it('nút Xuất tải tệp thật qua API rồi mới báo thành công', async () => {
+    const downloaded: { href: string; name: string }[] = []
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+      downloaded.push({ href: this.getAttribute('href') ?? '', name: this.download })
     })
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:template-export')
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
     try {
       const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
       const button = page.querySelector(`[aria-label="${t.library.templates.exportAria('Truyện kể đêm')}"]`)!
       expect(button.getAttribute('aria-disabled')).toBeFalsy()
       await click(button)
-      expect(downloaded).toEqual(['/api/templates/t1/export'])
+      await flush()
+      expect(calls.some((call) => call.url === '/api/templates/t1/export' && call.method === 'GET')).toBe(true)
+      expect(downloaded).toEqual([{ href: 'blob:template-export', name: 'truyen-ke-dem.ytf-template.zip' }])
+      expect(createSpy).toHaveBeenCalled()
+      expect(revokeSpy).toHaveBeenCalledWith('blob:template-export')
     } finally {
-      spy.mockRestore()
+      clickSpy.mockRestore(); createSpy.mockRestore(); revokeSpy.mockRestore()
     }
   })
 
   it('mục Xuất tệp trong menu thẻ template cũng tải thật', async () => {
     const downloaded: string[] = []
-    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       downloaded.push(this.getAttribute('href') ?? '')
     })
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:template-export')
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
     try {
       const page = await render(<LibraryScreen route={{ name: 'library', tab: 'templates' }} />)
       await click(page.querySelector(`[aria-label="${t.library.templates.menuAria('Truyện kể đêm')}"]`))
@@ -299,9 +310,11 @@ describe('thư viện — xuất tệp template', () => {
       const item = [...menu.querySelectorAll('button')].find((el) => el.textContent?.includes(t.library.template.output.exportFile))!
       expect(item.getAttribute('aria-disabled')).toBeFalsy()
       await click(item)
-      expect(downloaded).toEqual(['/api/templates/t1/export'])
+      await flush()
+      expect(calls.some((call) => call.url === '/api/templates/t1/export' && call.method === 'GET')).toBe(true)
+      expect(downloaded).toEqual(['blob:template-export'])
     } finally {
-      spy.mockRestore()
+      clickSpy.mockRestore(); createSpy.mockRestore(); revokeSpy.mockRestore()
     }
   })
 })
