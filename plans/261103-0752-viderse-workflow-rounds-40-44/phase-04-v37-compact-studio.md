@@ -46,8 +46,8 @@ Không thêm chatbot, không thêm realtime service. [Kiểm kê](reports/invent
 - Native desktop + reduced-motion: [ZIP/phát–dừng–tua thật](reports/pr-03/runs/012-reviewed-player-and-zip/owned-ready-studio-restoration.json) **2/2**, [Editor/Template/Main/Việc nền/Thông báo](reports/pr-03/runs/013-reviewed-editor-feedback/interaction-results.json) **10/10**, [Main viewer](reports/pr-03/runs/014-canonical-inspector-viewer-regression/interaction-results.json) **2/2**. Replay dùng media đã lưu, không phải hai lượt render/generate mới; job/project gốc và receipt được bảo vệ.
 - Main giữ tab khi nối SSE lại và khi ẩn/hiện bảng; đổi video trở về **Thông tin** theo `Main.dc.html:1341`, không giữ tab trái artboard. Nguồn xuất Editor có thể không có artefact MP4; đọc `output.data` và phát file thật. Nút phím tắt có focus/Tab/Escape/click-toggle thật.
 - Điện thoại + reduced-motion: [phần dùng chung](reports/pr-03/runs/016-settled-phone-interactions/interaction-results.json) **6/6** (Template, thông báo và chi tiết Main).
-- Main matrix [run028](reports/pr-03/runs/028-rewrite-selection-boundaries/owned-main-states-restoration.json) **14/14**: 10 tĩnh +4 đang làm, desktop/reduced-motion, không skip/flaky. Pause/resume, chọn video/phạm vi, metadata, các phần/gợi ý Viết lại (không gửi AI), journal, menu/download, queue pause và offline shield/Thử lại ngay/nối lại đều qua. Ảnh từng phase giữ riêng; [so sánh artboard/code](reports/pr-03/acceptance.md) không scale, không giả điểm/media minh hoạ. Diagnostic Button đã gỡ hoàn toàn: lớp chặn offline là chủ đích, không phải bug tooltip dùng chung.
-- Chưa nghiệm thu toàn bộ state/tweak: QA không có clip nền thật để kiểm trạng thái phủ kín. Không tính round45, Safari/iPhone thật hoặc gate release #83 là đã qua. GitHub Actions bị tắt; không tuyên bố CI xanh.
+- Main matrix cuối [run034](reports/pr-03/runs/034-canonical-coverage-tokens/owned-main-states-restoration.json) **14/14**: 10 tĩnh +4 đang làm, desktop/reduced-motion, không skip/flaky. Pause/resume, metadata, chọn phạm vi/video, Viết lại không gửi AI, journal, download, offline/Thử lại/nối lại và nền thiếu/phủ kín qua. Clip công khai được phép nhập qua API thật, giải mã và dọn sạch; source/project/receipt không đổi. Thanh phủ token/pill chặn100%, source `d615299e2352718ea51ee8c7976f7b4565286c4b`; frontend3703 qua/4 bỏ qua, focused15/15 và build/typecheck qua.
+- Bỏ qua cả ba loại đề xuất qua API thật ở chế độ thường/giảm chuyển động: run040 xác nhận sáu dòng biến mất qua reload, cooldown168giờ; dữ liệu đầu vào được đánh dấu QA, không nhận là bằng chứng producer. Dọn sáu dòng và giữ nguyên dữ liệu gốc. Không tính round45, Safari/iPhone thật hoặc gate release#83 đã qua; Actions bị tắt, không tuyên bố CI xanh.
 
 ## Test matrix / verification
 | Mức | Scenario | Qua khi |
@@ -71,6 +71,6 @@ Rollback code trước PR4; nếu có migration dữ liệu, áp dụng cửa s�
 
 ## Checklist
 - [x] Re-scout consumers, loại bỏ UI và backend obsolete nguyên tử.
-- [ ] Main/two tabs/progress/3proposal rows theo board, mọi action nối thật.
-- [ ] Kiểm mọi state/tweak, motion và các cross-screen viewer contexts.
+- [x] Main/two tabs/progress/3proposal rows theo board, mọi action nối thật.
+- [x] Kiểm các state/tweak và motion trong phạm vi V37, cross-screen viewer; giới hạn bằng chứng ghi rõ trong report.
 - [ ] Gửi report/gap V37; merge PR3 trước channel migration.

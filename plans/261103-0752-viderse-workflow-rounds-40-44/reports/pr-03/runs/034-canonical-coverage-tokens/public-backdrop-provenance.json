@@ -1,0 +1,29 @@
+{
+  "sourceUrl": "https://www.twitch.tv/shroud/clip/InnocentHedonisticDoveFrankerZ-zb0rzgxn_3tUiXOY",
+  "platform": "twitch",
+  "id": "twitch:InnocentHedonisticDoveFrankerZ-zb0rzgxn_3tUiXOY",
+  "title": "in that .....",
+  "sourceDurationSec": 16,
+  "segment": {
+    "fromSec": 3,
+    "toSec": 13
+  },
+  "fileBytes": 1572675,
+  "sha256": "5317e4b16abd6ef74f1a439db4d820c6c41e8f4779315a60501351a21512b6cc",
+  "decodedDurationSec": 10.0,
+  "streams": [
+    {
+      "type": "video",
+      "codec": "h264",
+      "width": 854,
+      "height": 480
+    },
+    {
+      "type": "audio",
+      "codec": "aac",
+      "width": null,
+      "height": null
+    }
+  ],
+  "acquisition": "normal authenticated QA POST /api/backdrop/videos, genuine public Twitch source; file served by normal app media route"
+}

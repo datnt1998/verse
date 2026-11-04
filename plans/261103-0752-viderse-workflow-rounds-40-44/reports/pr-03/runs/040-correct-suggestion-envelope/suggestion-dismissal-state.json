@@ -1,0 +1,38 @@
+[
+  {
+    "id": "32dd4250-f054-4311-bf7e-5ed2e9ea3822",
+    "kind": "cleanup",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  },
+  {
+    "id": "989f0f24-00f3-4980-bb5b-683d32b55252",
+    "kind": "hot_video",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  },
+  {
+    "id": "af991ed1-2984-4b85-b3dd-995c6b78d6fd",
+    "kind": "template_failing",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  },
+  {
+    "id": "b0026681-af6b-4f52-87fb-43dcde1a2393",
+    "kind": "template_failing",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  },
+  {
+    "id": "b10f909e-aec3-474d-b70f-4a54ae95bc71",
+    "kind": "cleanup",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  },
+  {
+    "id": "eaf5e8fc-7c3c-4e48-b36b-1d51a845dfdc",
+    "kind": "hot_video",
+    "state": "dismissed",
+    "cooldownHours": 168.0
+  }
+]

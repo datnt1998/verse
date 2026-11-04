@@ -534,13 +534,36 @@ test('@main-static Main info panel, real journal and backdrop shortage plus the 
     await expect(aside.getByText(`Nền sẽ lặp ${clockLabel(total - covered)}`, { exact: true })).toBeVisible()
   } else {
     await expect(aside.getByText('Phủ kín video', { exact: true })).toBeVisible()
-    info.annotations.push({ type: 'state-gap', description: 'backdropShort.false (no shortage) was reachable only if the owned QA library had real clips covering the whole video; none exist, so no fake clip was added.' })
   }
   await expect(aside.getByText(`${clipCount} clip`, { exact: true })).toBeVisible()
   const addClip = aside.getByRole('button', { name: 'Thêm clip', exact: true })
   if (covered < total) await expect(addClip).toBeEnabled()
   if (fx.expectations.backdropVideos === 0) {
     info.annotations.push({ type: 'state-gap', description: 'The QA library has zero real backdrop clips (controller receipt backdropVideos=0). The shortage card therefore shows the real 0 clip / full loop duration; a covered (non-short) backdrop state cannot be produced without adding synthetic media, which this audit refuses to do.' })
+  }
+  if (process.env.WORKFLOW_QA_REAL_BACKDROP_ID) {
+    const completeId = requireJobs(fx, ['covered']).covered
+    const full = await backdrop(page, completeId)
+    expect(full.coverage.fixedSec + full.coverage.channelSec).toBeGreaterThanOrEqual(full.coverage.videoSec)
+    expect(full.fixedItems).toHaveLength(1)
+    expect(full.fixedItems![0].playbackSec).toBe(10)
+    await open(page, completeId, fx.titles.covered)
+    await expect(panel(page).getByText('Phủ kín video', { exact: true })).toBeVisible()
+    await expect(panel(page).getByText('1 clip', { exact: true })).toBeVisible()
+    await panel(page).getByText('Phủ kín video', { exact: true }).scrollIntoViewIfNeeded()
+    await expect(panel(page).getByText('Phủ kín video', { exact: true })).toBeInViewport()
+    const bar = panel(page).getByRole('progressbar', { name: 'Độ phủ nền video', exact: true })
+    await expect(bar).toHaveAttribute('aria-valuenow', String(full.coverage.videoSec))
+    await expect(bar).toHaveAttribute('aria-valuemax', String(full.coverage.videoSec))
+    const geometry = await bar.evaluate((track) => ({
+      track: track.getBoundingClientRect().width,
+      fill: track.firstElementChild!.getBoundingClientRect().width,
+    }))
+    expect(Math.abs(geometry.track - geometry.fill)).toBeLessThanOrEqual(1)
+    await expect(panel(page).getByRole('button', { name: 'Thêm clip', exact: true })).toHaveCount(0)
+    await capture(page, info, 'main-backdrop-covered')
+    await attach(info, 'covered-backdrop-evidence', full)
+    await open(page, ids.done, fx.titles.done)
   }
 
   const steps = wire.steps ?? []

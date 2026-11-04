@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-04",
+  "environment": "Mac mini production Viderse",
+  "access": "read-only PostgreSQL app role; PGOPTIONS default_transaction_read_only=on; BEGIN READ ONLY; statement_timeout=15000",
+  "productionWritten": false,
+  "design86": "User selected max20 videos/day, desktop/mobile; no clamping",
+  "observed": {
+    "channels": 1,
+    "missingTemplate": [],
+    "perDayOutOfRange": [],
+    "danglingTemplateRefs": 0,
+    "rawStopErrorPolicies": 0,
+    "multiTemplateChannels": 0,
+    "rawFixThenAskPolicies": 0
+  },
+  "limits": [
+    "Counts are point-in-time inspection, not a migration or backup proof.",
+    "Repeat preflight while all writers are quiesced before release cutover.",
+    "Raw onError/belowQuality counts are not resolved missing/custom policy counts; do not infer resolved automation from these counts.",
+    "No AI, provider authentication, generation, template snapshot publication or production mutations were invoked."
+  ]
+}

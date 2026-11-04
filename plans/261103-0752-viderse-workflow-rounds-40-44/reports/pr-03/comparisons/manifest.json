@@ -65,11 +65,26 @@
       "rescaled": false,
       "pixelEqualityClaimed": false,
       "sha256": "60aac7fe1ee736dadb846fd38d90252797f3bbfbbed4e52e615acc72ba433789"
+    },
+    {
+      "comparison": "comparisons/main-backdrop-covered-desktop.png",
+      "left": "comparisons/main-backdrop-covered-reference.png",
+      "right": "runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---425b3-plus-the-real-overflow-menu-desktop/main-backdrop-covered.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53+coverage-pill-worktree",
+      "worktreeCoveragePanelSha256": "fc26795177864f75f4f58aaae66b146c11c32d79b9841291f9411c901f48d5d7",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "2ef368b1b047c82131324710a4648948d1dcb7a639a5f63f9db7bd74edd926aa"
     }
   ],
   "limitations": [
-    "Different real QA story/media/score from canonical demo data; no pixel equality claim.",
-    "Header library/quick-create cutover belongs to later V38/V39 PRs.",
-    "Replay steps with no outputs are pending, not succeeded; original recorded outputs remain unchanged."
+    "Different genuine QA source/media/quality data from canonical illustration; no pixel equality claim.",
+    "Top library/quick-create navigation belongs to V38/V39.",
+    "Covered state uses a genuinely imported public Twitch clip; aliases and media were restored.",
+    "Coverage panel worktree hash binds the final native capture to the subsequent source commit."
   ]
 }

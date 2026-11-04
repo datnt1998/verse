@@ -1,4 +1,4 @@
-> **Parent review · 04/11/2026: bản nghiên cứu, KHÔNG phải authority thực thi.** Các chỉ dẫn bỏ AutoFix/retry ở §1, §3.4, bảng caller và rủi ro đã bị bác bằng nguồn `Workflow.dc.html:980`: “Máy luôn tự thử sửa lỗi1lần”. Giữ cơ chế thử sửa một lần/settlement/idempotency, chỉ bỏ cấu hình công khai. Giới hạn1–20 cũng chờ design #86 vì board tạo desktop/mobile còn1–50. Trước triển khai phải theo phase05/backend-contracts đã cập nhật, không thực hiện các đoạn SQL/retirement bị đánh dấu này.
+> **Nguồn chuẩn đã chốt (04/11/2026).** `Workflow.dc.html:980` và `01-ia-flows.md:489,680`: bỏ **cấu hình** Mức tự chủ nhưng **giữ** cơ chế “máy luôn tự thử sửa lỗi 1 lần”; video chưa đạt 90 vẫn luôn hỏi. `11-hoi-dap.md` #86 đã chốt **A — tối đa 20 video/ngày**, đồng nhất 1–20 trên Kênh và Tạo kênh PC/mobile, **không clamp** dữ liệu cũ. Bản này đã thay các chỉ dẫn cũ trái hai nguồn đó; không còn cảnh báo “chờ #86”.
 
 # V38 · Checklist backend cutover (Kênh / Thư viện / Performance)
 
@@ -12,10 +12,10 @@ Lập ngày 2026-11-04. Phạm vi: `apps/viderse` backend + schema + contract AP
 
 | Hạng mục | Chốt | Nguồn |
 |---|---|---|
-| Trường công khai của kênh | `defaultTemplateId` (bắt buộc), `autoApprove: bool`, `autoFetch: bool`, `perDay 1–20` | `08-dev-prompt.md:1079`, `backend-contracts.md` bảng V38 |
+| Trường công khai của kênh | `defaultTemplateId` (bắt buộc), `autoApprove: bool`, `autoFetch: bool`, `perDay 1–20` (design #86 chọn max 20) | `08-dev-prompt.md:1079`, `11-hoi-dap.md` #86, `backend-contracts.md` bảng V38 |
 | Bỏ | `autonomy` (pick/approve/onError/below/min), `priority` (steady/views), `templateCursor`, `templates[]` luân phiên | `08-dev-prompt.md:1078-1082`, `backend-contracts.md:15` |
 | Ngưỡng tự duyệt | Cố định **85**; `autoApprove=true` chỉ khi **mọi** ảnh (không `skipped`) có điểm **≥85**; thiếu điểm/chưa sẵn sàng/đang vẽ/lỗi/đã bỏ → không tự duyệt | `backend-contracts.md:15`, `08-dev-prompt.md:1079` |
-| `onError` / `belowQuality` | Bị bỏ cùng `autonomy` (không còn cấu hình). Hệ quả: **không còn auto-retry `AutoFix`** và **không còn `fix_then_ask`**; job lỗi về Cần xử lý như trạng thái `ask/stop`. Không hardcode `retry_once` để "giữ hành vi" — đó là auto-enable không có trong thiết kế. Phải ghi release note + đếm số kênh bị ảnh hưởng ở preflight | `08-dev-prompt.md:1079` (liệt kê onError/below trong phần bị thay), `code`: `autonomy/run.go:83-130`, `domain/autonomy.go:88-92` |
+| Tự sửa lỗi sau cutover | Bỏ **cấu hình** `onError`/`belowQuality`; giữ **cơ chế cố định**: mọi kênh/job có lỗi thuộc biên tự sửa được máy thử sửa **đúng một lần**, không phụ thuộc kênh; không còn cột/API/CLI để tắt-bật. Giữ `Service.AutoFix`, `AttemptSettled`, `Store.BeginAutoFix/SettleAutoFix`, `domain.AutoFixCodeOf`, `job.auto_fix`, `clone_auto_actions auto_retry/auto_fix`; chỉ thay policy: bỏ tra `JobAutonomy` và gate `OnError`/`BelowQuality`. Biên lỗi: `AutoFixCodeOf` (source/image/render), loại lỗi cần người và lỗi retryable/waiting; `quality_gate` dưới 90 **luôn hỏi**, không tự sửa. Kênh cũ `onError=stop` nay được thử 1 lần (mở rộng automation), kênh `fix_then_ask` mất thêm một attempt đo lại tự động (thu hẹp); release note + preflight đếm cả hai | `Workflow.dc.html:980`, `01-ia-flows.md:489,680`, `phase-05:32`, `backend-contracts.md` mục Chuyển dữ liệu V38; code `autonomy/run.go:83-130`, `postgres/autonomy.go:223-277`, `pipeline/runner.go:57-59,209-213,444` |
 | `autoApprove` từ `approve=all` | Thành `true`, nhưng mất quyền "duyệt không xét điểm": sau cutover vẫn phải ≥85. Đây là thu hẹp automation (an toàn), không phải mở rộng | `08-dev-prompt.md:1082` + 1079 |
 | Template mặc định | Chuyển giao từ **rotation đầu tiên theo `position`, tiebreak `template_id`**; không cursor, không weight, không tên fixture | `backend-contracts.md:26` |
 | Default chia sẻ | Nhiều kênh được cùng một template làm mặc định; **không** cấm RenameTemplate dùng chung. Guard `NameChannelStandardTemplates` chỉ để không tự đổi tên template người dùng/đa kênh | `backend-contracts.md:29`, `library.sql:58-69` |
@@ -141,7 +141,7 @@ DROP TABLE performance_insights_applied;
 
 Ghi chú:
 - `clone_post_facts` **giữ** làm owner metadata mark-posted (link YouTube + title/duration lịch sử). Không drop cột trong V38; cột `read_attempts/next_read_at/published_at` thành legacy read-only, cắt ở migration retention riêng nếu chủ dữ liệu duyệt.
-- `clone_jobs.auto_fix` và `clone_auto_actions` kinds `auto_retry/auto_fix` **giữ** để đọc lịch sử; ngừng ghi mới. Không đổi CHECK constraint (sẽ mất lịch sử).
+- `clone_jobs.auto_fix` và `clone_auto_actions` kinds `auto_retry/auto_fix` **tiếp tục được ghi** theo policy cố định; lịch sử cũ giữ nguyên. Không đổi CHECK constraint.
 - Không sửa `internal/persistence/postgres/gen/models.go` bằng tay: regenerate `sqlc generate -f apps/viderse/sqlc.yaml` sau khi sửa `postgres/queries/*`; giữ nguyên mọi thay đổi working-tree của người dùng trong file generated.
 - Down: chỉ là throwaway cho DB rỗng/dev — drop FK/index/cột mới, không thể tái tạo rotation/weight/stats/applied đã mất. **Không claim Down lossless**; production rollback = restore backup đã kiểm khi mọi writer còn quiesced (`backend-contracts.md` mục Xác minh và rollback).
 
@@ -157,7 +157,7 @@ Ghi chú:
 | Default đọc được | `SummaryStats`/`templateIssue` hiện có + đọc media refs của template default (không chạy `SnapshotTemplate` trên production) | lỗi media/recipe ở default → báo kênh + template; nếu không sửa được trước cutover (kênh sẽ không tạo được job) → **STOP**; không fake media |
 | `auto_approve` dự kiến | predicate §3.3, nhóm `score/all` | báo số kênh; đặc biệt `mode=all` (mất duyệt-không-điểm) và `min≠85` (ngưỡng đổi) |
 | `auto_fetch` hiệu lực | `auto_pick AND (NOT valid OR pick<>'suggest')` | báo số kênh bị chuyển true→false (pick=suggest) |
-| AutoFix/belowQuality | `valid AND onError='retry_once'` / `belowQuality='fix_then_ask'` | báo số kênh; release note hành vi bị bỏ (§1) |
+| Tự sửa sau cutover | `valid AND onError='stop'` (nay được tự thử 1 lần) và `valid AND belowQuality='fix_then_ask'` (mất thêm attempt đo lại); kèm `valid AND onError='retry_once'` làm mốc | báo số kênh + release note; **không STOP**. Ghi rõ “1 lần/job-generation”, không phải mỗi step |
 | Queue/job đang sống | `clone_queue state='queued'`, `clone_jobs status IN ('pending','running')`, `clone_queue.template_id IS NOT NULL` | **không stop**; chỉ chứng minh explicit IDs giữ nguyên, snapshot `clone_jobs.template_snapshot` không bị ghi đè |
 | Pending review | `pg_stat`-free read qua đúng SQL `pendingReviewsSQL` hiện tại | báo số job sẽ được xét lại sau cutover; không requeue |
 | Notification prefs | không thuộc V38; không đụng | — |
@@ -221,17 +221,43 @@ WITH resolved AS (
 
 Giới hạn ngữ nghĩa: JSONB đã chuẩn hoá số nên không phân biệt được `85` với `8.5e1`; Go decoder từ chối `8.5e1` khi ghi qua API/CLI, nên dữ liệu hợp lệ chỉ có literal nguyên. Bắt buộc preflight đối chiếu: đọc toàn bộ `autonomy` của snapshot legacy, chạy `domain.ParseAutonomy` (read-only) và so **từng hàng** với kết quả predicate SQL; lệch 1 hàng → **STOP** (không chọn một bên). Nếu có hàng do ghi thẳng DB với literal lạ, xử lý theo mục hỏi-đáp của plan, không tự map sang true.
 
-### 3.4 Bảng xử lý `onError`/`belowQuality` (không còn cột)
+### 3.4 Policy tự sửa lỗi cố định (không còn cột cấu hình)
 
-| Giá trị cũ | Sau cutover |
+`onError`/`belowQuality` biến mất khỏi domain/API/DB, nhưng **không** biến mất hành vi. `Workflow.dc.html:980` chốt “Máy luôn tự thử sửa lỗi 1 lần”; `01-ia-flows.md:680` chốt video chưa đạt 90 **luôn hỏi**. Policy sau cutover:
+
+1. Chỉ áp cho lỗi bước **hỏng hẳn** đã phân loại bởi `domain.AutoFixCodeOf` (`source_download_failed`, `image_failed`, `render_failed`), và chỉ khi runner đã loại `domain.CloneErrRetryable(cerr.Code)` (`runner.go:444`). Lỗi cần người (`tool_missing`, `template_changed`, `invalid_request`, `stale`, `cancelled`) không tự sửa.
+2. Đúng **một lần cho mỗi job-generation**, không phải mỗi step: lần lỗi đầu reset step `running → pending`, ghi `job.auto_fix={result:retrying,…}` + action `auto_retry`; lần lỗi kế tiếp ở bất kỳ step nào trong cùng generation ghi `result=failed` và để job về Cần xử lý.
+3. `quality_gate` không thuộc policy: dưới 90 luôn hỏi. Giữ `AutoFixQuality` để đọc lịch sử/classification nhưng loại tường minh khỏi nhánh tự sửa. Seam duy nhất là một policy function trong `autonomy/run.go` gọi `domain.AutoFixCodeOf`, trả `("", false)` khi `code == "" || code == domain.AutoFixQuality`; `Service.AutoFix` dùng code đó và **không** đọc `domain.Autonomy`/`JobAutonomy`. Không “no-op” bằng cách bỏ call-site.
+4. Giữ nguyên transaction `BeginAutoFix` (`FOR UPDATE clone_jobs`, fence `generation`, step phải đang `running`, ghi `auto_fix` + action + `refreshDerived`) và `SettleAutoFix` (chỉ `retrying` + đúng step → `recovered`). Không thêm retry mới, không nới `MaxReviewTries`.
+5. Restart/worker restart: record `auto_fix` nằm trong DB nên **không** reset khi tiến trình/worker khởi động lại. Crash trước khi `BeginAutoFix` commit → transaction rollback, lượt sửa còn; crash sau commit → lượt đã tiêu, lần lỗi kế tiếp dừng. Step không còn `running` → `UPDATE` 0 dòng, không consume thêm. Người dùng bấm Làm lại tạo **job mới** (`generation+1`, `restart_of`), `auto_fix` NULL → có đúng một lượt mới; job cũ giữ nguyên record.
+6. **Điểm chưa được engine giải quyết (phải ghi nhận, không được claim quá):** `BeginAutoFix` hiện chỉ fence bằng `step.status='running'` + `job.generation`, **không** nhận `fence/attempt`; một attempt cũ lỗi trong lúc attempt mới đang `running` có thể reset step và tiêu lượt. V38 giữ nguyên chữ ký/nhánh này (không mở rộng); test chỉ được khẳng định trường hợp step đã rời `running`. Nếu cần chống consume bởi attempt cũ, đó là quyết định riêng (thêm fence/attempt vào transaction), không được giả vờ đã có.
+
+Đối chiếu source tại `93545e71`: Viderse **không có** `internal/autonomy/effective.go` hay `planrunner/functions.go`; implementation thật của policy/settlement là `autonomy/run.go:83-130`, `postgres/autonomy.go:223-277`, `pipeline/runner.go:57-59,206-214,444`, `domain/autonomy.go:202-250`.
+
+**Caller/consumer phải giữ nguyên hành vi:**
+
+| Caller / consumer | Hành vi phải giữ |
 |---|---|
-| `onError=stop` | không auto-retry (giữ nguyên hành vi) |
-| `onError=retry_once` | **mất auto-retry**; step lỗi về Cần xử lý. Báo số kênh ở preflight + release note |
-| `belowQuality=ask` | giữ |
-| `belowQuality=fix_then_ask` | **mất tự đo lại một lần**; video dưới cổng về chờ chủ. Báo số kênh + release note |
-| `job.auto_fix`, `clone_auto_actions` auto_retry/auto_fix | chỉ đọc lịch sử; bỏ `domain.AutoFix`, `AutoFixCodeOf`, `AutoFixer` khỏi runner, `Runner.AutoFix`, `newAutonomyService` wiring tương ứng |
+| `pipeline/runner.go:444` | gọi `AutoFix` chỉ sau khi loại `domain.CloneErrRetryable`; `true` = step đã reset, không gọi `ReportStepFailure` cho lần lỗi đó |
+| `pipeline/runner.go:209-213` | gọi `AttemptSettled` sau mỗi attempt; chỉ `CloneSucceeded` mới settle `recovered` |
+| `autonomy/run.go:83-130` | `Service.AutoFix`: policy function cố định + `RetryDelay` + `BeginAutoFix`; không đọc `domain.Autonomy`/`JobAutonomy` |
+| `autonomy/run.go:123-130` | `AttemptSettled` → `SettleAutoFix`; lỗi settle chỉ log, không đổi trạng thái job |
+| `postgres/autonomy.go:223-277` | tx reset step + action + `auto_fix=retrying`; lần hai `failed`; settle có điều kiện `retrying` + đúng step |
+| `cmd/viderse/clone_wiring.go:457-458` | runner giữ `AutoFix: autonomySvc`; không thay bằng nil/no-op |
+| API `GET /api/clone/:id` + Activity | `CloneJob.AutoFix` (JSON `autoFix`) và subline “Đã tự thử lại lúc …” sau `failed`; action `auto_retry/auto_fix` hiện trong Hành động tự làm |
 
-Lý do không chọn "retry cố định": với kênh trước đây `stop`, hardcode retry là tự bật quyền tốn tiền/thời gian không có trong thiết kế. Nếu chủ sản phẩm muốn giữ retry, phải mở decision mới (không nằm trong V38).
+**Giá trị cũ → hành vi sau cutover:**
+
+| Giá trị cũ | Hành vi sau cutover |
+|---|---|
+| `onError=stop` | nay được tự thử **1 lần** (mở rộng automation có chủ đích); release note + đếm preflight |
+| `onError=retry_once` | giữ đúng một lần; cấu hình bị bỏ |
+| `onError` invalid/missing | trước `ParseAutonomy` rơi về Cân bằng (`retry_once`); nay vẫn một lần |
+| `belowQuality=ask` | dưới 90 luôn hỏi; không đổi |
+| `belowQuality=fix_then_ask` | mất **thêm một attempt** đo lại ngoài vòng đo tối đa 2 lượt sẵn có của `score` handler; dưới 90 luôn hỏi (thu hẹp); release note |
+| `job.auto_fix`, `clone_auto_actions auto_retry/auto_fix` | **vẫn ghi mới**; đọc được cả lịch sử lẫn trạng thái mới; giữ `domain.AutoFix`, `AutoFixCodeOf`, `AutoFixQuality`, `AutoFixer`, `Runner.AutoFix`, `newAutonomyService` wiring |
+
+**Biên còn phải chốt tường minh khi thi công (không được silent no-op):** nếu chủ dữ liệu muốn kênh cũ `fix_then_ask` giữ thêm attempt đo lại tự động, đó là quyết định sản phẩm mới: bỏ đúng điều kiện `code == domain.AutoFixQuality` trong policy function và thêm regression; **không** thêm lại `autonomy`, **không** hồi sinh `belowQuality`. Mặc định theo nguồn hiện tại là “dưới 90 luôn hỏi”.
 
 ---
 
@@ -269,14 +295,14 @@ Lý do không chọn "retry cố định": với kênh trước đây `stop`, ha
 | File | Việc |
 |---|---|
 | `domain/channels.go` | `Channel`: bỏ `Autonomy`, `Priority`, `TemplateCursor`; thêm `DefaultTemplateID string`, `AutoFetch bool`, `AutoApprove bool`, `PerDay int`; bỏ `ChannelTemplate.Position` (còn `ID,Name`). `domain/library.go`: bỏ `ChannelRef.Position` (refs = default refs). `ChannelSource`/identity giữ. |
-| `domain/autonomy.go` | Bỏ toàn bộ preset/pick/approve/onError/below/Autonomy/Validate/Normalize/ParseAutonomy/AutoPicks/RaisesTrust/AutoFix; giữ `ImageScore*` + `ScoreReason`; thêm `AutoApproveMin = 85`. |
+| `domain/autonomy.go` | Bỏ cấu hình `Autonomy`/preset/pick/approve/onError/belowQuality/`Validate`/`Normalize`/`ParseAutonomy`/`AutoPicks`/`RaisesTrust`. **Giữ** `AutoFix`, `AutoFixCodeOf`, các mã `AutoFix*` (kể cả `AutoFixQuality` để đọc lịch sử/classification), `ImageScore*` + `ScoreReason`; thêm `AutoApproveMin = 85`. Sửa comment `AutoFix` (`domain/autonomy.go:201`, `domain/clone.go:308`) từ “theo Mức tự chủ của kênh” → “policy cố định một lần”. |
 | `channels/channels.go` | `Patch/CreateInput/UpdateRequest/CreateRequest`: bỏ autonomy/priority/confirmed; thêm `DefaultTemplateID *string`, `AutoFetch *bool`, `AutoApprove *bool`, `PerDay *int`. Bỏ `UpdateTemplates` khỏi `Store` và toàn bộ `Templates()`/`TemplateAction`/`channelNameForTemplate`; thay bằng validate default tồn tại + patch. `ChannelView.Templates` → `DefaultTemplate *domain.ChannelTemplate` (hoặc ID+Name). `PaceMin/Max/Default` → `PerDayMin=1/Max=20/Default=5`. **Giữ** `nameStandardTemplates` (chỉ đổi query refs) cho rename kênh. Bỏ import/domain liên quan autonomy. |
 | `channels/autonomy.go` | **Xoá file** (`ResolveAutonomy`, `autonomyInvalid`, `errConfirmRequired`, `validPriority`); xoá `CodeConfirmRequired`. |
 | `postgres/channels.go` | Mapping owner row mới; create/patch params mới; `UpdateTemplates` xoá; link/unlink `SetAutoFetch`; default validation race map FK → 409; `UnlinkSource` trả `autoFetchPaused`. |
 | `postgres/queue_rotation.go` | Xoá `RotationTemplates`, `RivalVideoScores`; thay bằng `DefaultTemplate(ctx, channelID)`/name helpers. |
-| `postgres/autonomy.go` | `pendingReviewsSQL`: thay điều kiện autonomy bằng `c.auto_approve`; `PendingReview` bỏ `Autonomy`, thêm `AutoApprove bool`; `RecordReview` luôn ghi `min:85` vào `auto_review` (audit), `approveReason` chỉ còn nhánh theo điểm 85 và copy “theo thiết lập Tự duyệt của kênh”, xoá nhánh `ApproveAll`/text “Tự duyệt hết”; xoá `ChannelAutonomy/SetChannelAutonomy/JobAutonomy/BeginAutoFix/SettleAutoFix/RaiseCandidates` + `autoFixLabels`; thêm `ChannelAutoApprove(ctx, channelID)` để re-check toggle trước khi duyệt. |
-| `autonomy/run.go` | `DispatchReviews`: `mode` → `p.AutoApprove`; `Evaluate(domain.AutoApproveMin, state.Items)`; trước `ApproveAll` đọc lại `ChannelAutoApprove`, false → bỏ qua; `ReviewOutcome` bỏ Autonomy, thêm AutoApprove để reason/notification. Xoá `AutoFix`/`AttemptSettled`. `autonomy/autonomy.go` trim Store interface tương ứng; vẫn giữ `Evaluate`, `Verdict`, `Summary`, `MaxReviewTries`, `Reviewer`. |
-| `pipeline/runner.go` | Bỏ interface `AutoFixer`, field `AutoFix`, hai call-site `AttemptSettled/AutoFix` (dòng 55-58,93-98,206-214,444); giữ `CloneErrRetryable` (retry queue-level không phải autonomy). |
+| `postgres/autonomy.go` | `pendingReviewsSQL`: thay điều kiện autonomy bằng `c.auto_approve`; `PendingReview` bỏ `Autonomy`, thêm `AutoApprove bool`; `RecordReview` luôn ghi `min:85` vào `auto_review` (audit), `approveReason` chỉ còn nhánh theo điểm 85 và copy “theo thiết lập Tự duyệt của kênh”, xoá nhánh `ApproveAll`/text “Tự duyệt hết”; xoá `ChannelAutonomy/SetChannelAutonomy/JobAutonomy/RaiseCandidates`; **giữ nguyên** `BeginAutoFix`, `SettleAutoFix`, `autoFixLabels` để policy cố định vẫn ghi action; thêm `ChannelAutoApprove(ctx, channelID)` để re-check toggle trước khi duyệt. |
+| `autonomy/run.go` | `DispatchReviews`: `mode` → `p.AutoApprove`; `Evaluate(domain.AutoApproveMin, state.Items)`; trước `ApproveAll` đọc lại `ChannelAutoApprove`, false → bỏ qua; `ReviewOutcome` bỏ Autonomy, thêm AutoApprove để reason/notification. **Giữ** `AutoFix`/`AttemptSettled`; trong `AutoFix` thay phần đọc `Store.JobAutonomy` + gate `OnError/BelowQuality` bằng policy function cố định (§3.4), vẫn trả `true` khi `BeginAutoFix` đã reset step. `autonomy/autonomy.go`: trim Store interface bỏ `ChannelAutonomy/SetChannelAutonomy/JobAutonomy/RaiseCandidates`, **giữ** `BeginAutoFix/SettleAutoFix`; bỏ service methods của Mức tự chủ; vẫn giữ `Evaluate`, `Verdict`, `Summary`, `MaxReviewTries`, `Reviewer`. |
+| `pipeline/runner.go` | **Giữ** interface `AutoFixer`, field `AutoFix`, call-site `AttemptSettled` sau mỗi attempt (206-214) và `AutoFix` khi hỏng hẳn (444); chỉ sửa comment “Mức tự chủ” → policy cố định. **Giữ** guard `!domain.CloneErrRetryable` để không ăn lượt tự sửa cho waiting/backoff. |
 | `pipeline/queue/autopick.go` | Enabled = `o.AutoFetch`; bỏ `Templates`/empty-template message; bỏ nhánh `PickScore2`/`outliersOnly`; bỏ priority-views `OrderByScore`; bỏ import `internal/performance`. |
 | `pipeline/queue/plan.go` | Template: explicit → validate `TemplateExists` (toàn Thư viện, không chỉ rotation); vắng → default của kênh; bỏ cursor/`FromRotation`, đổi `Template.FromRotation` → `FromDefault`; vẫn giữ `Priority` request (V39 mới bỏ). |
 | `pipeline/queue/restart.go` | Preview + enqueue dùng **template của job cũ** (`job.TemplateID`; job legacy NULL thì lấy default hiện tại và ghi rõ nguồn) — explicit override, không cursor/rotation. `RestartPlan`/`EnqueueRestart` set `TemplateID` đó, `TemplateRecipe` đọc revision hiện tại; không snapshot recipe lúc enqueue (V39 mới bàn). Giữ `Priority=pick`, vị trí đầu, conflict checks. Job cũ template đã mất là bất khả thi (FK RESTRICT); nếu gặp → lỗi rõ, không fallback im lặng. |
@@ -293,7 +319,7 @@ Lý do không chọn "retry cố định": với kênh trước đây `stop`, ha
 | `web/library.go` | `channelRefWire` bỏ `Position`; `Channels` nghĩa "kênh dùng làm mặc định". |
 | `web/gateway.go` + `web/performance.go` | Giữ hook `clonePostedRoute`; thay `performance.go` bằng `web/posted.go`: `MountPosted` chỉ gán `g.clonePostedRoute` = POST posted (không route performance/insights, không goroutine). |
 | `cmd/viderse/channel.go` | CLI: `--pace` → `--per-day`, `--auto-pick`/`--no-auto-pick` → `--auto-fetch`/`--no-auto-fetch`, thêm `--auto-approve`, `--default-template`; xoá subcommand `channel template add|remove|move|standard`; create/update map field mới; JSON output qua wire mới. |
-| `cmd/viderse/clone_wiring.go` | Resolver mới (ID→snapshot), không RotationTemplates/cursor; bỏ `mountPerformance`/`stopPerformance`; mount posted (không goroutine); runner bỏ `AutoFix`. |
+| `cmd/viderse/clone_wiring.go` | Resolver mới (ID→snapshot), không RotationTemplates/cursor; bỏ `mountPerformance`/`stopPerformance`; mount posted (không goroutine); runner **giữ** `AutoFix: autonomySvc`; `newAutonomyService` giữ cho review + auto-fix, chỉ bỏ handler cấu hình autonomy. |
 | `internal/performance/**` | **Xoá toàn bộ package** (service/reader/datakey/types/insight/rotation) sau khi chuyển `Post` sang `internal/clone/posted`. |
 | `internal/clone/posted` (mới, nhỏ) | `Service{Store, Jobs, Marker, Title, Publish}` + `Post` (logic `performance/service.go:109-166`), `ParseVideoURL`, `ErrBadURL/NotFound/NotReady`. Không Reader/Run/compute/insights. Wiring `cmd/viderse/posted_wiring.go` (không goroutine). |
 | `cmd/viderse/performance_wiring.go` | **Xoá**; chuyển `sharedYouTubePacer = youtube.NewPacer()` sang `scan_wiring.go` (nơi duy nhất còn dùng: `scanServiceDeps`, `scan_wiring.go:66`; CLI scan dùng chung). |
@@ -391,7 +417,7 @@ Không hạ ngưỡng theo `min` cũ, không duyệt khi thiếu điểm, không
 
 ## 8. perDay / validation / không clamp
 
-- Hằng số: `PerDayMin=1`, `PerDayMax=20`, `PerDayDefault=5`. Validate ở cả Create và Update; lỗi 400 message "Nhịp mỗi ngày phải trong khoảng 1–20." (giữ style hiện tại).
+- Theo design #86 (người dùng chọn A, 04/11/2026): hằng số `PerDayMin=1`, `PerDayMax=20`, `PerDayDefault=5`, đồng nhất Kênh và Tạo kênh PC/mobile. Validate ở cả Create và Update; lỗi 400 message "Nhịp mỗi ngày phải trong khoảng 1–20." (giữ style hiện tại).
 - DB CHECK `per_day BETWEEN 1 AND 20`; migration STOP nếu dữ liệu cũ ngoài khoảng. Không UPDATE hạ 21→20, không auto-disable kênh.
 - Bỏ clamp runtime `if l.Pace < 1 { l.Pace = DefaultPace }` (`queue/service.go:265-267`) vì bất biến DB đã bảo đảm; test 0/1/20/21.
 - `today.cap` (summary) và `PaceLeftToday`/`OverflowDays` đọc `PerDay`.
@@ -424,6 +450,7 @@ Không hạ ngưỡng theo `min` cũ, không duyệt khi thiếu điểm, không
 | Template snapshot của job + group `posted` | clone pipeline |
 | `sharedYouTubePacer` cho luồng nguồn (scan đối thủ, kiểm tra link) | chuyển sang `scan_wiring.go`; `clone_wiring.go:397` probe giữ nguyên client riêng (không thuộc V38) |
 | Kiểm định ảnh + notification tự duyệt | `autonomy`, `clone/images` |
+| Tự sửa lỗi một lần + settlement/idempotency + action `auto_retry` | `autonomy/run.go`, `postgres/autonomy.go`, `pipeline/runner.go` (policy cố định, không còn cấu hình) |
 
 ### 9.3 Bảng dữ liệu
 
@@ -442,6 +469,8 @@ Không hạ ngưỡng theo `min` cũ, không duyệt khi thiếu điểm, không
 | Critical | Default đổi đúng lúc admission; AutoFetch=false; pick/override | A build, B commit trước admission → job B; override T → T; job cũ A bất biến; không tăng cursor; không deadlock (stress 2 writer) |
 | Critical | Template sửa giữa lúc build snapshot và admission | `ErrTemplateSnapshotStale` → build lại; job cuối chỉ mang một revision; không job kẹt/không mất queue item |
 | Critical | AutoApprove false/true; 84/85/missing/mixed/skipped/0 ảnh; toggle tắt giữa poll | Chỉ toàn bộ ≥85 + toggle bật mới duyệt; không duyệt khi thiếu điểm; revision đổi không duyệt; lỗi cổng không duyệt |
+| Critical | Tự sửa một lần, không còn cấu hình: kênh legacy `stop`/`retry_once`/invalid; lỗi source/image/render; lỗi người; `quality_gate` score; hai lần lỗi cùng job; thành công sau sửa | Lần lỗi đầu reset step + `auto_fix.result=retrying` + đúng 1 action `auto_retry`, **không** `needs_attention`; lần lỗi kế tiếp cùng generation → `failed` + Cần xử lý; lỗi người và `quality_gate` **không** consume auto-fix (dưới 90 hỏi); retry thành công → `recovered`; subline “Đã tự thử lại lúc …” chỉ sau `failed` |
+| Critical | Ranh giới lặp/restart của tự sửa: worker restart trước/sau commit `BeginAutoFix`; step đã rời `running`; `SettleAutoFix` gọi lặp; người dùng Làm lại | Trước commit: tx rollback, lượt sửa còn; sau commit: không reset, lần lỗi kế tiếp dừng; step không còn `running` → 0 dòng, không consume; settle lặp là no-op; Làm lại tạo job `generation+1` có đúng một lượt mới, `auto_fix` job cũ bất biến. **Không** claim chống được stale attempt khi step vẫn `running` (engine không nhận fence — §3.4.6) |
 | High | `perDay` 0/1/20/21; dữ liệu cũ 21 | 1/20 ghi được; 0/21 → 400; migration STOP với 21; không clamp runtime |
 | High | `autoFetch`/`autoApprove`/`defaultTemplateId` round-trip qua create/patch; default không tồn tại; null/"" | 404/400 đúng; không fallback; kênh update default không đổi default kênh khác; shared default OK |
 | High | Shared default: 2 kênh cùng template; rename template; xoá default đang dùng | Rename không bị auto-naming đổi tên; delete trả 409 nêu tên kênh; FK chặn đường vòng; tạo kênh mới dùng template có sẵn không tạo Mẫu chuẩn |
@@ -451,7 +480,9 @@ Không hạ ngưỡng theo `min` cũ, không duyệt khi thiếu điểm, không
 | Medium | CLI | `channel create/update --per-day/--auto-fetch/--auto-approve/--default-template`; `channel template` báo lỗi dùng mới; JSON wire mới |
 | Medium | API errors | Không còn `autonomy_confirm_required`; 400 field cũ không xuất hiện; FK race 409 không 500 |
 
-Test cụ thể (chưa chạy): unit Go cho predicate §3.3 (raw JSON fixtures: missing, `{}`, null, 85.0, "85", 85.5, score2/suggest/all, invalid onError, approve array, extra keys); `channels` create/update/perDay/default; `postgres` admission barrier (2 connection, lock timing) + shared default FK; `autonomy` Evaluate boundary + dispatch re-check; `queue` plan/discover/restart/view; library delete/name guard; wiring test chứng minh không mount performance. SQLC regenerate; `go test ./apps/viderse/internal/{channels,autonomy,pipeline/queue,persistence/postgres,library,clone/...}`; migration CLI thật từ rỗng + snapshot legacy trên DB QA riêng theo `verification.md`. Không chạy build/test trong phiên chuẩn bị này.
+Test cụ thể (chưa chạy): unit Go cho predicate §3.3 (raw JSON fixtures: missing, `{}`, null, 85.0, "85", 85.5, score2/suggest/all, invalid onError, approve array, extra keys); `channels` create/update/perDay/default; `postgres` admission barrier (2 connection, lock timing) + shared default FK; `autonomy` Evaluate boundary + dispatch re-check + fixed AutoFix (source/image/render, quality gate, human errors, second failure, `SettleAutoFix`, new service instance, restart generation); `queue` plan/discover/restart/view; library delete/name guard; wiring test chứng minh không mount performance. SQLC regenerate; `go test ./apps/viderse/internal/{channels,autonomy,pipeline/queue,persistence/postgres,library,clone/...}`; migration CLI thật từ rỗng + snapshot legacy trên DB QA riêng theo `verification.md`. Không chạy build/test trong phiên chuẩn bị này.
+
+Test tự sửa cụ thể trong `internal/persistence/postgres/autonomy_pg_test.go`: giữ/đổi `TestAutonomyRetriesSourceDownloadOnceThenNeedsAttention` thành fixture không có autonomy; thay `TestAutonomyCarefulDoesNotRetry` bằng test chứng minh cấu hình cũ (kể cả `stop`) không thể tắt; thêm `TestAutoFixQualityGateNeedsAttention`, `TestAutoFixWorkerRestartKeepsBudget`, `TestAutoFixRestartGenerationGetsOneAttempt`, `TestAutoFixSettleIsIdempotent`. Consumer-visible: assert `clone_auto_actions` đúng 1 dòng `auto_retry`, không `needs_attention` sau lần đầu, subline/`autoFix` sau lần hai, và JSON job giữ `autoFix` qua restart.
 
 ---
 
@@ -460,5 +491,6 @@ Test cụ thể (chưa chạy): unit Go cho predicate §3.3 (raw JSON fixtures: 
 - DB/FE/BE cùng revision; nếu V37 chưa merge, V38 ở trạng thái **blocked release**, không thu nhỏ acceptance.
 - Backup chỉ hợp lệ khi mọi writer quiesced liên tục từ trước backup tới hết acceptance; sau khi mở write, cấm restore snapshot cũ (mất job/paid receipt). Forward-fix/reconcile riêng.
 - Không giả Down lossless; không giữ alias `autonomy/priority/rotation/performance` để né cutover.
-- `onError/belowQuality` mất hành vi: bắt buộc release note + số kênh preflight; nếu chủ dữ liệu muốn giữ, mở decision mới (không tự chọn).
+- Bỏ cấu hình `onError/belowQuality` **không** phải bỏ tự sửa: policy cố định một lần/job-generation; kênh `stop` được thử (mở rộng automation), kênh `fix_then_ask` mất thêm attempt đo lại (thu hẹp). Bắt buộc release note + số preflight; cấm biến AutoFix thành no-op hoặc xoá settlement/idempotency để dễ cutover.
+- “Một lần” là theo job-generation: worker restart giữ record trong DB; Làm lại tạo generation mới có lượt mới; job cũ bất biến. Phải kiểm cả ba; nếu sản phẩm muốn “một lần/video suốt đời” thì là quyết định mới, không tự đổi schema/record.
 - Không sửa `artboards/`, không đụng git index, không regenerate `gen/models.go` bằng tay ngoài `sqlc generate`.

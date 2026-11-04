@@ -12,7 +12,7 @@ dependencies: [4]
 Channel chỉ3phần Nguồn & tự động / Template mặc định / Hồ sơ, default sources theo footer. Thư viện ở top-nav, mỗi channel một default template. Automation còn autoFetch, autoApprove ≥85, perDay1–20; bỏ autonomy/priority/learned/performance/rotation. Nguồn V38, Channel/Library/Template/CreateChannel/Onboard; mobile contract tương ứng MChannel/MLibrary/MTemplate/MCreate phải vẫn hoạt động sau PR.
 [Backend contract/migration chi tiết](backend-contracts.md), [inventory](reports/inventory.md), [gate](verification.md).
 
-**Gate thiết kế #86 (04/11/2026):** giới hạn1–20 trong phase này là dự kiến theo V38/Channel, chưa phải quyền đổi màn tạo đang cho1–50 (`CreateChannel.dc.html:1271`, `MCreate.dc.html:1081`). Chờ chốt tại `11-hoi-dap.md` #86 trước triển khai giới hạn; không clamp dữ liệu.
+**Thiết kế #86 đã chốt A (người dùng, 04/11/2026):** đồng nhất1–20 Video mỗi ngày trên Kênh và Tạo kênh PC/mobile, theo V38/Channel. Design cập nhật board tạo đang cho1–50 riêng; task triển khai không sửa artboard. Ngoài1–20 dừng preflight, không clamp dữ liệu.
 
 ## File inventory
 | Hành động | File tuyệt đối / phạm vi | Test impact |
