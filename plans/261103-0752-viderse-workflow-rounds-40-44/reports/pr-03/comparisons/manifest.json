@@ -1,0 +1,75 @@
+{
+  "layout": "canonical-left-native-right",
+  "captures": [
+    {
+      "comparison": "comparisons/main-review-desktop.png",
+      "left": "runs/005-canonical-main-editor-template/reference/Main.stage.review.png",
+      "right": "runs/027-canonical-offline-and-pending-stages/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/main-stage-review.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "21cbb176812e4311a6997fa0cb931e4c38a620d2cad120653fd0fb8b147c8913"
+    },
+    {
+      "comparison": "comparisons/main-issue-desktop.png",
+      "left": "runs/005-canonical-main-editor-template/reference/Main.stage.issue.png",
+      "right": "runs/027-canonical-offline-and-pending-stages/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/main-stage-issue.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "488e236160b8bc21b02105abda40ff2d6a13c5fbafc7f0fef2811165cd213e8e"
+    },
+    {
+      "comparison": "comparisons/main-quality-desktop.png",
+      "left": "runs/005-canonical-main-editor-template/reference/Main.stage.quality.png",
+      "right": "runs/027-canonical-offline-and-pending-stages/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/main-stage-quality.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "37930ff3529f1d2eb5d541c7f713d4b5a9e423345a785e6346066ff0fbf2d283"
+    },
+    {
+      "comparison": "comparisons/main-paused-desktop.png",
+      "left": "runs/005-canonical-main-editor-template/reference/Main.stage.paused.png",
+      "right": "runs/027-canonical-offline-and-pending-stages/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/main-stage-paused.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "899ea123d3d6a96cbbbe2051c578916cbd427f55856319dc8d7db1d6fbbab441"
+    },
+    {
+      "comparison": "comparisons/main-done-desktop.png",
+      "left": "runs/005-canonical-main-editor-template/reference/Main.stage.done.png",
+      "right": "runs/027-canonical-offline-and-pending-stages/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/main-stage-done.png",
+      "sourceRevision": "93545e71cb6d3357a3147385c25db0e862995d53",
+      "viewport": [
+        1440,
+        900
+      ],
+      "rescaled": false,
+      "pixelEqualityClaimed": false,
+      "sha256": "60aac7fe1ee736dadb846fd38d90252797f3bbfbbed4e52e615acc72ba433789"
+    }
+  ],
+  "limitations": [
+    "Different real QA story/media/score from canonical demo data; no pixel equality claim.",
+    "Header library/quick-create cutover belongs to later V38/V39 PRs.",
+    "Replay steps with no outputs are pending, not succeeded; original recorded outputs remain unchanged."
+  ]
+}

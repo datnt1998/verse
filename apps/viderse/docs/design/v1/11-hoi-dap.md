@@ -624,3 +624,9 @@ Mẫu:
 - **Cần chốt một phương án:** (A) giữ radio-card đầy đủ và Design vá CSS artboard để phản ánh đúng; (B) theo thanh chọn gọn, Design xác định phần tên/gói/hạn mức nào giữ trên ô và phần nào chuyển ra dòng phụ, không triển khai bằng cách cố ý cắt chữ.
 - **Quyết định:** giữ radio-card đầy đủ tên nhà cung cấp, model, gói, hạn mức và giờ đặt lại. Không ép cao30px hoặc cắt nội dung để khớp lỗi render của artboard. Design cập nhật chiều cao artboard riêng; task triển khai không sửa file artboard.
 - **Ranh giới:** đây là câu hỏi bố cục nguồn vẽ, không đổi model, quota, suy luận, lưu tức thì hay nguồn dự phòng. Ô chọn model thiếu ngữ cảnh nhà cung cấp là lỗi riêng có thể sửa theo markup đã rõ, không chờ câu trả lời này.
+
+### #86 · V38: giới hạn Video mỗi ngày lệch giữa các artboard — Chờ chốt
+- **Ngày phát hiện:** 04/11/2026. Chưa đổi code hoặc dữ liệu theo một giới hạn mới.
+- **Bằng chứng:** `Channel.dc.html:1420` giới hạn 1–20 (cùng `08-dev-prompt.md` V38); `CreateChannel.dc.html:1271` và `MCreate.dc.html:1081` vẫn cho 1–50. Đây là handler của cùng trường Video mỗi ngày ở màn tạo và màn chỉnh kênh, không phải khác dữ liệu minh hoạ.
+- **Hệ quả:** không thể giữ cả hai giới hạn mà vẫn có cùng tuỳ chọn/hành vi. Kế hoạch hiện ghi 1–20; chưa được coi đây là quyền sửa ngầm board tạo kênh hoặc clamp dữ liệu cũ.
+- **Cần chọn:** **A — đồng nhất 1–20**, theo màn Kênh mới và V38; Design cập nhật màn tạo riêng. **B — đồng nhất 1–50**, theo màn tạo desktop/mobile; cập nhật contract/kế hoạch và màn Kênh tương ứng. Cả hai giữ nguyên dữ liệu cũ hợp lệ; dữ liệu ngoài giới hạn được chọn phải dừng preflight, không tự hạ số.

@@ -12,6 +12,8 @@ dependencies: [4]
 Channel chỉ3phần Nguồn & tự động / Template mặc định / Hồ sơ, default sources theo footer. Thư viện ở top-nav, mỗi channel một default template. Automation còn autoFetch, autoApprove ≥85, perDay1–20; bỏ autonomy/priority/learned/performance/rotation. Nguồn V38, Channel/Library/Template/CreateChannel/Onboard; mobile contract tương ứng MChannel/MLibrary/MTemplate/MCreate phải vẫn hoạt động sau PR.
 [Backend contract/migration chi tiết](backend-contracts.md), [inventory](reports/inventory.md), [gate](verification.md).
 
+**Gate thiết kế #86 (04/11/2026):** giới hạn1–20 trong phase này là dự kiến theo V38/Channel, chưa phải quyền đổi màn tạo đang cho1–50 (`CreateChannel.dc.html:1271`, `MCreate.dc.html:1081`). Chờ chốt tại `11-hoi-dap.md` #86 trước triển khai giới hạn; không clamp dữ liệu.
+
 ## File inventory
 | Hành động | File tuyệt đối / phạm vi | Test impact |
 |---|---|---|
@@ -27,6 +29,7 @@ Channel chỉ3phần Nguồn & tự động / Template mặc định / Hồ sơ,
 1. Preflight và backup/restore proof theo backend-contracts.md. Rotation đầu → default; không lấy cursor. Dữ liệu >20, empty/dangling template: dừng và hỏi bằng số trong 11-hoi-dap, không clamp/fake default. Không sửa data production chỉ để giống fixture.
 2. Thêm FK default, chuyển effective autonomy→bool bằng truth table, giữ auto-fetch đã có hiệu lực; perDay/validation1–20. Migrate query refs/default counts/delete restrictions/autonaming guards và scheduler/template resolver. Bỏ cursor/weight/rotation/public autonomy/priority khi hết consumer.
 3. Mọi ảnh trong video phải scored ≥85 mới auto-approve khi switch bật; ảnh đang vẽ/chưa score/bỏ/lỗi không tự approved. 84/85 boundary và nhiều ảnh trái nhau phải có regression.
+   - Bỏ cấu hình mức tự chủ **không bỏ tự sửa lỗi**: `Workflow.dc.html:980` chốt “Máy luôn tự thử sửa lỗi1lần”. Giữ đường tự sửa/thử lại một lần và chống lặp qua worker restart; bỏ cấu hình `onError/belowQuality` công khai, không xoá luôn AutoFix khỏi runner vì suy luận từ việc bỏ enum.
 4. Nguồn & tự động: source list, liên kết, autoFetch/autoApprove/perDay; không cột Đang áp dụng hoặc lịch đăng. Bỏ liên kết phải confirm theo số video/ảnh hưởng thật, Huỷ không request ghi; undo chỉ khi có thao tác nghịch khả dụng.
 5. Tab Template một default, Đổi list nổi + Sửa template. Job snapshot đã persist giữ; queued explicit IDs giữ, không override thì default/recipe được snapshot trong admission transaction theo backend-contracts.md, default update cùng lock. Profile giữ naming/language/tag/identity/delete. Retire runtime collector và performance read/apply routes cùng final FE consumer, không chỉ xoá key card; giữ posted/export metadata.
 6. Library top-nav, bỏ side rail. Menu “Đặt làm mặc định cho kênh…”, “Mặc định của…” lấy refs mới, có thể shared2channel. Guard auto-naming không tự đổi tên template shared/đã người dùng đổi. Delete default đang dùng phải giải thích channel nào, không mất FK.

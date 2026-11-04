@@ -1,0 +1,20 @@
+{
+  "sourceJob": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "readyReplayIds": [
+    "b4ca324b-a91c-4038-a700-9b8c13c43551",
+    "122032da-af4a-4b51-b511-e523a4c674bd"
+  ],
+  "fixturePolicy": "Two readonly aliases of the same genuine committed source export; real normal-media publication and real ZIP download, not two newly rendered videos",
+  "sourceExportBytes": 630653,
+  "childExitCode": 0,
+  "projectsPassed": 2,
+  "skipped": 0,
+  "allCloneRecordsRestored": true,
+  "originalSourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "imageReceiptsUnchanged": true,
+  "normalMediaUnbindUsed": true,
+  "baselinePath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-ready-studio-w6qspwdh/baseline.json",
+  "sourceSHA256": "f50bcbdaed4870c5a98020c30caa12a9891eb7403e930f3cddda97082e57323f",
+  "errors": []
+}
