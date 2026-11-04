@@ -101,7 +101,6 @@ type PromptInput struct {
 	Template       string
 	TemplateSource PromptPartSource
 	SceneSource    PromptPartSource
-	Notes          []string
 	Refs           []ImageRef
 	RefsSource     PromptPartSource
 	// AttachedRefs là số ảnh thật sự gửi kèm nhà cung cấp (0 khi nguồn vẽ
@@ -121,7 +120,7 @@ var refInstruction = map[RefRole]string{
 }
 
 // BuildPrompt ghép một prompt đã gửi: các phần sửa được theo 07 §26 (Cảnh ·
-// Phong cách · Tham chiếu · Ghi chú đã học · Tránh) và phần không sửa được
+// Phong cách · Tham chiếu · Tránh) và phần không sửa được
 // (hàng rào an toàn, rồi chỉ dẫn công cụ của đúng nguồn vẽ). Nguyên văn gửi nhà
 // cung cấp là JoinPrompt(wrapper, parts).
 func BuildPrompt(in PromptInput) (PromptParts, PromptWrapper, error) {
@@ -188,14 +187,6 @@ func BuildPrompt(in PromptInput) (PromptParts, PromptWrapper, error) {
 	}
 	if text := refsPart(in.Refs, in.AttachedRefs); text != "" {
 		parts = append(parts, PromptPart{Kind: PartRefs, Text: text, Source: sourceOr(in.RefsSource, PromptPartSource{Type: "template", Label: "Ảnh tham chiếu của video"})})
-	}
-	if len(in.Notes) > 0 {
-		lines := make([]string, 0, len(in.Notes)+1)
-		lines = append(lines, "Ghi chú đã học:")
-		for _, note := range in.Notes {
-			lines = append(lines, "- "+note)
-		}
-		parts = append(parts, PromptPart{Kind: PartLearned, Text: strings.Join(lines, "\n"), Source: PromptPartSource{Type: "template", Label: "Ghi chú đã học của kênh"}})
 	}
 	parts = append(parts, PromptPart{Kind: PartAvoid, Text: strings.Join(avoid, "\n"), Source: PromptPartSource{Type: "template", Label: "Luật tránh của Viderse"}})
 

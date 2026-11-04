@@ -1,7 +1,7 @@
 ---
 phase: 4
 title: "Bước 3 · V37 Bàn dựng gọn"
-status: pending
+status: in-progress
 priority: P1
 dependencies: [3]
 ---
@@ -35,17 +35,31 @@ Không thêm chatbot, không thêm realtime service. [Kiểm kê](reports/invent
 10. Việc nền popover và mọi nút bên trong, NotificationSettings switches phải hoạt động. Xoá flag Bản tin; Đề xuất của trợ lý một flag cho3loại. Dialog shortcuts bỏ / Nhắn trợ lý/Gửi tin nhắn, N Làm video nối ở PR5. Loading/disconnected/retry details/empty shell theo Main mới; chưa có video hiện Bốn trợ lý, Template mặc định và ẩn badge Duyệt khi0.
 11. Notification contract cùng PR: xoá recapOnReturn, thay per-kind/per-channel off[] bằng một bool và migrate state/gating. Live3kinds đồng nhất bật hoặc tắt thì giữ trạng thái đó; mixed/per-channel không thể bảo toàn → preflight dừng, ghi hỏi11-hoi-dap trước khi chọn policy. Không prune enum rồi để stored off[] khiến save validate lỗi, không tự bật lại prefs người dùng.
 
+### Preflight trước triển khai
+- 04/11/2026: team đã map các owner FE/backend và consumer mobile tối thiểu; chưa sửa source V37, chưa mở PR3.
+- [Preflight production chỉ đọc](reports/v37-notification-preflight.json) bằng role `viderse_app`, `default_transaction_read_only=on` và `BEGIN READ ONLY`: không có `notifications.preferences`, bảng suggestions không có dòng. Trạng thái hiện quan sát được là mặc định bật, không có mixed/per-channel cần chọn policy. Migration vẫn phải kiểm lại trong transaction và dừng nếu dữ liệu thay đổi; không dùng receipt này để ghi đè lựa chọn phát sinh sau đó.
+- Footer giữ contract attach hiện tại tới PR4 như bước9; không tự đặt template mặc định khi channel còn dữ liệu nhiều template. Bảng/quy tắc cũ đã bỏ UI có thể giữ lịch sử lạnh nếu không còn consumer/route; không thêm API deprecated hoặc `learned` vào prompt mới.
+
+### Thực thi và bằng chứng hiện tại · 04/11/2026
+- Source: `5d316eabc0875a71ad380a55a7e582ab17d14cd6`, sửa migration `b493792d689095a20e01992c40c76462348e0882`, giữ video khi đổi phạm vi `93545e71cb6d3357a3147385c25db0e862995d53`. Đã mở [PR #4 dạng nháp](https://github.com/datnt1998/verse/pull/4), chưa merge/deploy. Normal git index của người dùng không đổi; không gồm `gen/models.go` hoặc artboard.
+- Full frontend **3703 qua / 4 bỏ qua**, full Go và `go vet` qua. Sáu ca PostgreSQL thật qua, gồm nâng từ schema37 bằng migration-role, giữ preference/history và chặn mở lại loại đề xuất đã bỏ.
+- Native desktop + reduced-motion: [ZIP/phát–dừng–tua thật](reports/pr-03/runs/012-reviewed-player-and-zip/owned-ready-studio-restoration.json) **2/2**, [Editor/Template/Main/Việc nền/Thông báo](reports/pr-03/runs/013-reviewed-editor-feedback/interaction-results.json) **10/10**, [Main viewer](reports/pr-03/runs/014-canonical-inspector-viewer-regression/interaction-results.json) **2/2**. Replay dùng media đã lưu, không phải hai lượt render/generate mới; job/project gốc và receipt được bảo vệ.
+- Main giữ tab khi nối SSE lại và khi ẩn/hiện bảng; đổi video trở về **Thông tin** theo `Main.dc.html:1341`, không giữ tab trái artboard. Nguồn xuất Editor có thể không có artefact MP4; đọc `output.data` và phát file thật. Nút phím tắt có focus/Tab/Escape/click-toggle thật.
+- Điện thoại + reduced-motion: [phần dùng chung](reports/pr-03/runs/016-settled-phone-interactions/interaction-results.json) **6/6** (Template, thông báo và chi tiết Main).
+- Main matrix cuối [run034](reports/pr-03/runs/034-canonical-coverage-tokens/owned-main-states-restoration.json) **14/14**: 10 tĩnh +4 đang làm, desktop/reduced-motion, không skip/flaky. Pause/resume, metadata, chọn phạm vi/video, Viết lại không gửi AI, journal, download, offline/Thử lại/nối lại và nền thiếu/phủ kín qua. Clip công khai được phép nhập qua API thật, giải mã và dọn sạch; source/project/receipt không đổi. Thanh phủ token/pill chặn100%, source `d615299e2352718ea51ee8c7976f7b4565286c4b`; frontend3703 qua/4 bỏ qua, focused15/15 và build/typecheck qua.
+- Bỏ qua cả ba loại đề xuất qua API thật ở chế độ thường/giảm chuyển động: run040 xác nhận sáu dòng biến mất qua reload, cooldown168giờ; dữ liệu đầu vào được đánh dấu QA, không nhận là bằng chứng producer. Dọn sáu dòng và giữ nguyên dữ liệu gốc. Không tính round45, Safari/iPhone thật hoặc gate release#83 đã qua; Actions bị tắt, không tuyên bố CI xanh.
+
 ## Test matrix / verification
 | Mức | Scenario | Qua khi |
 |---|---|---|
 | Critical | Job running→review→ready/attention và reconnect | Cùng job, không toast/progress xong giả, event không duplicate, controls đúng state |
-| Critical | 3suggestion kinds accept/dismiss/undo/error | Thay đổi thật đúng target, không mở old plan/composer |
+| Critical | 3suggestion kinds accept/dismiss/error; undo ở thao tác có thể hoàn tác | Thay đổi thật đúng target, không mở old plan/composer hoặc hứa hoàn tác việc không gỡ được |
 | High | Main mọi state + info/content, data refresh/route change | Đúng default và tab, layout3cột, không reset lựa chọn do polling |
 | High | Scene replace/undo + template/sample viewer | Asset/history/transform/keyframe giữ đúng, không copy viewer/prompt logic |
 | High | Chọn2video sẵn sàng→tải gói; đổi dòng video | ZIP đúng tệp hai video, hai panel đồng bộ theo ID, không tải cả kho |
 | High | Editor15controls và Template sliders/selects/reset/attach | Data/undo/playback/readback thật, popup không đẩy nội dung, sidebar dọc |
 | High | Notification switches, background popover, disconnected/empty | Flag mới lưu qua reload, retry có trạng thái, không old recap/plan/0badge |
-| High | Legacy notification prefs all-on/all-off/removed-kind/mixed | Contract decoder/save/readback đúng; unrelated prefs giữ; mixed stop có câu hỏi, không tự reset |
+| High | Legacy notification prefs all-on/all-off/removed-kind/mixed | Decoder/save/readback giữ preference khác; mixed/theo kênh dừng theo backend-contracts.md, không tự bật lại hoặc chọn thay chủ dữ liệu |
 | Medium | Live paint + finite transitions + reduced motion | Agent feedback/nhật ký Việt, không shimmer/orb mắc kẹt |
 
 Focused `npm test -w apps/viderse/web -- screens/workbench screens/review components/assistant`; `go test ./apps/viderse/internal/assistant ./apps/viderse/internal/suggest ./apps/viderse/internal/web` nếu còn package sau prune; bỏ tên package đã xoá thay vì giữ file rỗng để test. Typecheck/build và browser tất cả tweaks theo verification.md. Source/API/CLI imports phải compile sau cutover.
@@ -56,7 +70,7 @@ Xoá enum/type cũ có thể để history không đọc được: migrate open 
 Rollback code trước PR4; nếu có migration dữ liệu, áp dụng cửa sổ quiesced và giới hạn restore trong backend-contracts.md. Sau resume writes chỉ forward-fix/recovery được duyệt, không restore backup cũ làm mất receipt/job.
 
 ## Checklist
-- [ ] Re-scout consumers, loại bỏ UI và backend obsolete nguyên tử.
-- [ ] Main/two tabs/progress/3proposal rows theo board, mọi action nối thật.
-- [ ] Kiểm mọi state/tweak, motion và các cross-screen viewer contexts.
+- [x] Re-scout consumers, loại bỏ UI và backend obsolete nguyên tử.
+- [x] Main/two tabs/progress/3proposal rows theo board, mọi action nối thật.
+- [x] Kiểm các state/tweak và motion trong phạm vi V37, cross-screen viewer; giới hạn bằng chứng ghi rõ trong report.
 - [ ] Gửi report/gap V37; merge PR3 trước channel migration.

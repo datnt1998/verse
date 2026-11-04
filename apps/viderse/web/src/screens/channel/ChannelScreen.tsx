@@ -18,8 +18,6 @@ import { listRivals } from '../../api/rivals'
 import { listTemplates, listPrompts, listOverlays } from '../../api/library'
 import { listBackdropChannels, listBackdropVideos } from '../../api/backdrop'
 import { getChannelJobs } from '../../api/channelVideos'
-import { AssistantComposer } from '../../components/assistant/AssistantComposer'
-import { assistantCopy } from '../../i18n/assistant'
 import { rememberChannel } from '../../lib/lastChannel'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { ChannelSideRail } from './ChannelSideRail'
@@ -135,9 +133,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
         {tab === 'templates' && <TemplatesTab channel={data} />}
         {tab === 'settings' && <SettingsTab channel={data} />}
         </div>
-        <div ref={setDockSlot} {...stylex.props(narrow ? mch.composerHidden : videoStyles.dock)}>
-          {!selecting && <AssistantComposer scope={{ channelId: data.id }} label={assistantCopy.composer.channel} placeholder={assistantCopy.composer.channelPlaceholder} recipient="scout" />}
-        </div>
+        {selecting && <div ref={setDockSlot} {...stylex.props(narrow ? mch.composerHidden : videoStyles.dock)} />}
       </main>
       <ChannelAside channel={data} />
     </div>

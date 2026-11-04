@@ -17,7 +17,6 @@ import (
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
-	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/library"
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
@@ -115,7 +114,7 @@ func (g cloneText) Generate(ctx context.Context, m []llm.Message, t []llm.ToolSp
 	return nil, last
 }
 
-func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string, seams *assistantSeams) (func() error, error) {
+func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string, suggestions *suggestRuntime) (func() error, error) {
 	store := postgres.NewCloneStore(pool)
 	queueStore := postgres.NewQueueStore(pool)
 	rules := cloneSettings{settings}
@@ -273,7 +272,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 		if err != nil {
 			return pipeline.StepResult{}, err
 		}
-		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, LearnedRules: seams.Learn.MetadataRules, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
+		return (metadata.Handler{Deps: metadata.Deps{Model: model, Selected: parts, Direction: direction, OwnerChannel: func(ctx context.Context, job domain.CloneJob) (*metadata.ChannelView, error) {
 			owner, err := queueStore.Owner(ctx, job.ChannelID)
 			if err != nil || owner == nil {
 				return nil, err
@@ -349,7 +348,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 				}
 				return imagegen.RefLimit(provider)
 			}
-			return (images.Handler{Deps: images.Deps{Notes: seams.Learn.ImageNotes, Drawer: drawerFor(ctx, chain), Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Cancels: cancels,
+			return (images.Handler{Deps: images.Deps{Drawer: drawerFor(ctx, chain), Model: model, Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, ReadManifest: cloneReadImageManifest(edits), Cancels: cancels,
 				RefLimit: providerLimit, PromptSource: imagePromptSource, Built: imageBuilt, Rebind: imageRebind,
 				// Prompt viết cho nguồn sẽ vẽ: nguồn riêng của ảnh, không có thì
 				// đầu chuỗi — chỉ Codex có chỉ dẫn công cụ đi kèm.
@@ -437,6 +436,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			}
 			return quotas, nil
 		}, Notify: func(name string) { publish(name, map[string]any{}) }, Diag: func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) }})
+	suggestions.Queue = q
 	closeCoverTrials := mountCoverTrials(coverTrialDeps{
 		Pool: pool, Library: librarySvc, Jobs: service, Media: files, Tasks: activityService,
 		Preview: previewSvc, AI: ai, Slot: q.WithImageSlot(slots),
@@ -468,37 +468,11 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	service.Worker = worker
 	statusSvc.RegisterSource(cloneStatusSource{queue: q})
 	web.MountQueueDiag(g, q, func(err error) { fmt.Fprintln(os.Stderr, "Hàng chờ:", err) })
-	web.MountRecap(g, &insight.Service{Store: postgres.NewActivityStore(pool), Narrate: recapNarrator(ai), Forecast: func(ctx context.Context, now time.Time) (int, *time.Time, error) {
-		view, err := q.List(ctx)
-		if err != nil {
-			return 0, nil, err
-		}
-		end := queue.LocalMidnight(now).AddDate(0, 0, 1)
-		count := 0
-		var last *time.Time
-		for _, item := range view.Items {
-			if item.ETADone == nil || !item.ETADone.Before(end) {
-				continue
-			}
-			count++
-			if last == nil || item.ETADone.After(*last) {
-				at := *item.ETADone
-				last = &at
-			}
-		}
-		return count, last, nil
-	}})
 	web.MountClone(g, service, q, service.Media)
-	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner, Learner: metadataLearner{rt: seams.Learn}}
-	seams.Jobs, seams.Queue, seams.Autonomy = service, q, autonomySvc
-	seams.Quality = qualityGate{svc: renderRuntime}
-	seams.Learn.Queue = q
-	seams.Learn.BindAutonomy(autonomySvc)
-	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, seams, binder, cancels)
+	metadataService := &clonemetadata.Service{Edits: edits, Generate: metadataRewrite(edits, metadataRun), Channel: queueStore.Owner}
+	worker.OnPoll = mountCloneOwnerOperations(g, pool, edits, service, ai, librarySvc, backdropSvc, toolKit, toolDeps, editorService, renderRuntime.ChannelName, metadataService, autonomySvc, binder, cancels)
 	workerCtx, stop := context.WithCancel(ctx)
-	performanceSvc, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
-	seams.Posted = performanceSvc
-	seams.Learn.BindPerformance(performanceSvc)
+	_, stopPerformance := mountPerformance(workerCtx, g, pool, settings, cfgDir, service, store, metadataService, publish)
 	done := make(chan error, 1)
 	go func() { done <- worker.Run(workerCtx) }()
 	var once sync.Once

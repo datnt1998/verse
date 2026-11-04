@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	clonemetadata "github.com/datnt1998/verse/apps/viderse/internal/clone/metadata"
-	"github.com/datnt1998/verse/apps/viderse/internal/learn"
 	"github.com/datnt1998/verse/apps/viderse/internal/performance"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
@@ -18,13 +17,6 @@ import (
 // sharedYouTubePacer là bộ điều tốc YouTube của cả tiến trình: quét đối thủ,
 // kiểm tra link và đọc số liệu sau đăng cùng xếp hàng qua nó.
 var sharedYouTubePacer = youtube.NewPacer()
-
-// learnRules đưa quy tắc từ số liệu vào kho Quy tắc đã học.
-type learnRules struct{ svc *learn.Service }
-
-func (l learnRules) AddRule(ctx context.Context, in performance.RuleInput) (string, error) {
-	return l.svc.AddRule(ctx, learn.RuleInput{ChannelID: in.ChannelID, Field: in.Field, Text: in.Text, Source: in.Source})
-}
 
 // performanceMarker đánh dấu đã đăng qua kho clone (cùng đường với thao tác hàng loạt).
 type performanceMarker struct{ store *postgres.CloneStore }
@@ -52,7 +44,6 @@ func mountPerformance(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, s
 			}
 			return view.Metadata.Title, nil
 		},
-		Rules:      learnRules{svc: &learn.Service{Store: postgres.NewLearnStore(pool)}},
 		Configured: reader.Configured,
 		Publish:    publish,
 	}

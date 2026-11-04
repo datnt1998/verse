@@ -94,7 +94,7 @@ type Group struct {
 
 // Apply là việc nút của nhận xét sẽ làm; nhận xét không có việc tự động thì bỏ trống.
 type Apply struct {
-	Op     string         `json:"op"` // add_rule | template.rotation
+	Op     string         `json:"op"` // template.rotation
 	Params map[string]any `json:"params"`
 }
 
@@ -125,20 +125,8 @@ type View struct {
 
 // ApplyResult là kết quả áp dụng một nhận xét.
 type ApplyResult struct {
-	Kind           string `json:"kind"` // rule | rotation
-	RuleID         string `json:"ruleId,omitempty"`
+	Kind           string `json:"kind"` // rotation
 	AlreadyApplied bool   `json:"-"`
-}
-
-// InsightSignal là tín hiệu perf_insight cho bộ sinh đề xuất.
-type InsightSignal struct {
-	ChannelID   string
-	InsightID   string
-	Dimension   string
-	Text        string
-	Preliminary bool
-	Videos      int
-	ApplyOp     string
 }
 
 // Ngưỡng theo ia-flows §9.5.
@@ -153,8 +141,6 @@ const (
 var (
 	// ErrInsightGone: nhận xét không còn (số liệu đổi nên tính lại ra khác).
 	ErrInsightGone = errors.New("Nhận xét này không còn nữa")
-	// ErrNoRuleAdder: chưa có nơi nhận quy tắc đã học.
-	ErrNoRuleAdder = errors.New("Chưa lưu được quy tắc lúc này")
 	// ErrNotPosted: video chưa ở trạng thái có thể đánh dấu đã đăng.
 	ErrNotReady = errors.New("Chỉ đánh dấu đã đăng cho video đã xuất xong")
 	// ErrNotFound: không có video.

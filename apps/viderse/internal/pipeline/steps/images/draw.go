@@ -113,8 +113,8 @@ func (r *CancelRegistry) Clear(key string) {
 }
 
 // plan dựng prompt và ảnh tham chiếu cho lần vẽ kế tiếp của một ảnh: phần
-// prompt của bản đang dùng (nếu có) + phần chủ kênh sửa tay + ghi chú đã học.
-func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest, notes LearnedNotes, item Item) (DrawPlan, error) {
+// prompt của bản đang dùng (nếu có) + phần chủ kênh sửa tay.
+func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest, item Item) (DrawPlan, error) {
 	if m.Story == nil {
 		return DrawPlan{}, fmt.Errorf("image story analysis is missing")
 	}
@@ -158,7 +158,7 @@ func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest,
 	template := ItemPrompt(*m, item)
 	templateSource := h.promptSource(ctx, s.Job, m.Overrides, item.Kind)
 
-	parts, wrapper, err := BuildPrompt(PromptInput{Story: story, Item: item, Style: m.Style, Thumbnail: m.Thumbnail, Template: template, TemplateSource: templateSource, SceneSource: source, Notes: notesFor(notes, item.Kind), Refs: plan.Refs, RefsSource: refsSource(item), AttachedRefs: len(plan.RefFiles), Provider: plan.Provider})
+	parts, wrapper, err := BuildPrompt(PromptInput{Story: story, Item: item, Style: m.Style, Thumbnail: m.Thumbnail, Template: template, TemplateSource: templateSource, SceneSource: source, Refs: plan.Refs, RefsSource: refsSource(item), AttachedRefs: len(plan.RefFiles), Provider: plan.Provider})
 	if err != nil {
 		return DrawPlan{}, err
 	}
@@ -227,13 +227,6 @@ func (h Handler) promptProvider(ctx context.Context, job domain.CloneJob, provid
 	return provider
 }
 
-func notesFor(notes LearnedNotes, kind string) []string {
-	if kind == "thumbnail" {
-		return notes.Cover
-	}
-	return notes.Scene
-}
-
 func refsSource(item Item) PromptPartSource {
 	if item.Draft != nil && item.Draft.Refs != nil {
 		return PromptPartSource{Type: "user", Label: "Bạn thêm ảnh tham chiếu"}
@@ -242,7 +235,7 @@ func refsSource(item Item) PromptPartSource {
 }
 
 // overlayUserParts giữ các phần chủ kênh sửa tay ở bản đang dùng cho lần vẽ
-// sau của đúng ảnh đó (07 §26). Ghi chú đã học chỉ đọc, không chép từ bản cũ.
+// sau của đúng ảnh đó (07 §26). Phần learned của bản cũ chỉ đọc, không chép.
 func overlayUserParts(parts, used PromptParts) PromptParts {
 	out := append(PromptParts(nil), parts...)
 	for _, part := range used {

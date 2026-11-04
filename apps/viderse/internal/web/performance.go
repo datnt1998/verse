@@ -103,15 +103,9 @@ func applyInsight(w http.ResponseWriter, r *http.Request, svc PerformanceService
 	case err == nil && result.AlreadyApplied:
 		webapp.Error(w, http.StatusConflict, "Nhận xét này đã được áp dụng.")
 	case err == nil:
-		out := map[string]any{"kind": result.Kind}
-		if result.RuleID != "" {
-			out["ruleId"] = result.RuleID
-		}
-		webapp.WriteJSON(w, http.StatusOK, out)
+		webapp.WriteJSON(w, http.StatusOK, map[string]any{"kind": result.Kind})
 	case errors.Is(err, performance.ErrInsightGone):
 		webapp.Error(w, http.StatusNotFound, err.Error())
-	case errors.Is(err, performance.ErrNoRuleAdder):
-		webapp.Error(w, http.StatusServiceUnavailable, err.Error())
 	default:
 		webapp.Error(w, http.StatusInternalServerError, "Chưa áp dụng được nhận xét lúc này.")
 	}

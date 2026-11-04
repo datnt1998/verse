@@ -612,7 +612,7 @@ func TestSelectedSourceDropsLegacyDirectionWithoutChangingHistory(t *testing.T) 
 	legacy := "SELECTED SCENE TWO\nOwner visual direction (does not override tool/read restrictions): \"old direction\""
 	item.Versions[1].Parts[0].Text = legacy
 	item.Draft = &PromptDraft{SourceVersion: &two, Feedback: "new direction"}
-	plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, LearnedNotes{}, *item)
+	plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, *item)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -630,7 +630,7 @@ func TestRedrawWithoutExplicitSourceRemovesObsoleteReferenceInstructions(t *test
 	item.Versions[0].Parts[2].Source.Type = "user"
 	empty := []ImageRef{}
 	item.Draft = &PromptDraft{Refs: &empty}
-	plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, LearnedNotes{}, *item)
+	plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, *item)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -675,7 +675,7 @@ func TestPlanKeepsSelectedVersionPromptAndRefs(t *testing.T) {
 	for _, used := range []int{1, 2} {
 		n := used
 		loaded.Items[0].CurrentVersion = &n
-		plan, err := h.plan(context.Background(), s, &loaded, LearnedNotes{}, loaded.Items[0])
+		plan, err := h.plan(context.Background(), s, &loaded, loaded.Items[0])
 		if err != nil {
 			t.Fatalf("used=%d: %v", used, err)
 		}
@@ -721,7 +721,7 @@ func TestSelectedSourceKeepsEditedRefInstructionsWhenAttachmentsUnchanged(t *tes
 				refs := append([]ImageRef(nil), item.Versions[1].Refs...)
 				item.Draft.Refs = &refs
 			}
-			plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, LearnedNotes{}, *item)
+			plan, err := selectionPlanHandler().plan(context.Background(), s, &manifest, *item)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -742,7 +742,7 @@ func TestSelectedSourceDoesNotSilentlyDropRefsAfterProviderLimitChanges(t *testi
 	h := handler(&recorderDrawer{}, func(d *Deps) {
 		d.RefLimit = func(context.Context, domain.CloneJob, string) int { return 1 }
 	})
-	_, err := h.plan(context.Background(), s, &manifest, LearnedNotes{}, manifest.Items[0])
+	_, err := h.plan(context.Background(), s, &manifest, manifest.Items[0])
 	var invalid *domain.CloneError
 	if !errors.As(err, &invalid) || invalid.Code != domain.CloneErrInvalidRequest {
 		t.Fatalf("selected refs were silently truncated: %v", err)
@@ -757,7 +757,7 @@ func TestPlanSelectedVersionExplicitEmptyRefsStaysEmpty(t *testing.T) {
 	empty := []ImageRef{}
 	manifest.Items[0].Draft = &PromptDraft{SourceVersion: &two, Refs: &empty}
 	h := selectionPlanHandler()
-	plan, err := h.plan(context.Background(), s, &manifest, LearnedNotes{}, manifest.Items[0])
+	plan, err := h.plan(context.Background(), s, &manifest, manifest.Items[0])
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -778,7 +778,7 @@ func TestPlanWithoutSelectedSourceKeepsUsedFlow(t *testing.T) {
 	s, _, manifest := selectedSourceFixture(t)
 	manifest.Items[0].Draft = &PromptDraft{Parts: PartOverrides{PartScene: "EDITED USED FLOW"}}
 	h := selectionPlanHandler()
-	plan, err := h.plan(context.Background(), s, &manifest, LearnedNotes{}, manifest.Items[0])
+	plan, err := h.plan(context.Background(), s, &manifest, manifest.Items[0])
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -813,7 +813,7 @@ func TestPlanRejectsUnusableSelectedSource(t *testing.T) {
 			two := 2
 			manifest.Items[0].Draft = &PromptDraft{SourceVersion: &two}
 			test.mutate(&manifest.Items[0])
-			_, err := selectionPlanHandler().plan(context.Background(), s, &manifest, LearnedNotes{}, manifest.Items[0])
+			_, err := selectionPlanHandler().plan(context.Background(), s, &manifest, manifest.Items[0])
 			var cloneErr *domain.CloneError
 			if !errors.As(err, &cloneErr) || cloneErr.Code != test.code {
 				t.Fatalf("err=%v want code %s", err, test.code)

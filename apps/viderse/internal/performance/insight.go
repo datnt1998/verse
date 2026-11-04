@@ -153,14 +153,11 @@ func classify(dim Dimension, v Video, loc *time.Location) *bucket {
 		}
 		switch titlePattern(v.Title) {
 		case "question":
-			return &bucket{key: "question", label: "dạng câu hỏi", name: "Câu hỏi",
-				apply: ruleApply("Ưu tiên đặt tiêu đề dạng câu hỏi")}
+			return &bucket{key: "question", label: "dạng câu hỏi", name: "Câu hỏi"}
 		case "number":
-			return &bucket{key: "number", label: "có con số", name: "Có con số",
-				apply: ruleApply("Ưu tiên tiêu đề có con số cụ thể")}
+			return &bucket{key: "number", label: "có con số", name: "Có con số"}
 		default:
-			return &bucket{key: "statement", label: "dạng câu khẳng định", name: "Câu khẳng định",
-				apply: ruleApply("Đặt tiêu đề dạng câu khẳng định, tránh câu hỏi")}
+			return &bucket{key: "statement", label: "dạng câu khẳng định", name: "Câu khẳng định"}
 		}
 	case DimLength:
 		switch {
@@ -188,10 +185,6 @@ func classify(dim Dimension, v Video, loc *time.Location) *bucket {
 			return &bucket{key: "night", label: "khuya", name: "Khuya (23–5 giờ)"}
 		}
 	}
-}
-
-func ruleApply(text string) *Apply {
-	return &Apply{Op: "add_rule", Params: map[string]any{"field": "title", "text": text}}
 }
 
 var questionMarks = []string{"?", "tại sao", "vì sao", "làm sao", "như thế nào", "thế nào", "là gì", "có phải", "bao giờ", "ở đâu"}

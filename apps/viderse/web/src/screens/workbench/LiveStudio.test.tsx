@@ -67,7 +67,7 @@ async function clickAndWaitForRoute(button: HTMLElement) {
 
 it.each(['running', 'pending', 'queued'])('shows the real %s redraw over the retained version instead of a finished tile', async status => {
   state.images!.items![0].status = status
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   expect(host.querySelector('[role="status"]')?.textContent).toContain(status === 'running' ? 'Hoạ sĩ đang vẽ…' : 'Chờ lượt vẽ')
   expect(host.querySelector('img')?.getAttribute('src')).toBe('/one.webp')
   expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('50')
@@ -77,7 +77,7 @@ it.each(['running', 'pending', 'queued'])('shows the real %s redraw over the ret
 it('opens the shared viewer from a tile and sends feedback for exactly that image', async () => {
   const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 2 }] }))
   vi.stubGlobal('fetch', fetcher)
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   expect(dialog.textContent).toContain('Cảnh 1')
@@ -106,7 +106,7 @@ it('opens the shared viewer from a tile and sends feedback for exactly that imag
 it('uses the version explicitly selected in the viewer as the feedback source', async () => {
   const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 3 }] }))
   vi.stubGlobal('fetch', fetcher)
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   await act(async () => dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click())
@@ -131,16 +131,16 @@ it('skips a cancelled draw in history and redraws from the version still in use'
   vi.stubGlobal('fetch', fetcher)
   const drawingVersion: ImageVersion = { ...version(2, '/one-2.webp'), state: 'drawing', url: null, finishedAt: null, durationSec: null }
   setLiveVersions([version(1, '/one-1.webp')])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   setLiveVersions([version(1, '/one-1.webp'), drawingVersion])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   // Chốt lựa chọn đang vẽ, rồi lần vẽ đó bị huỷ: lịch sử còn nhưng không phải nguồn.
   await act(async () => dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 ·"]')!.click())
   const cancelledVersion: ImageVersion = { ...version(2, '/one-2.webp'), state: 'cancelled', url: null }
   setLiveVersions([version(1, '/one-1.webp'), cancelledVersion])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   const cancelled = dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 · đã huỷ"]')!
   expect(cancelled.disabled).toBe(true)
   expect(dialog.querySelector('[aria-label^="Bản 1 ·"]')?.getAttribute('aria-pressed')).toBe('true')
@@ -168,7 +168,7 @@ it('does not use a cancelled-only history as the redraw base', async () => {
   vi.stubGlobal('fetch', fetcher)
   const cancelledVersion: ImageVersion = { ...version(1, '/one-1.webp'), state: 'cancelled', url: null }
   setLiveVersions([cancelledVersion])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   expect(dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 · đã huỷ"]')!.disabled).toBe(true)
@@ -197,7 +197,7 @@ it('reports the displayed failed version and redraws from it instead of an older
     error: { reason: 'provider', message: 'Chưa vẽ được' },
   }
   setLiveVersions([version(1, '/one-1.webp'), failedVersion, version(3, '/one-3.webp')])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   expect(dialog.querySelector('[aria-label^="Bản 3 ·"]')?.getAttribute('aria-pressed')).toBe('true')
@@ -222,13 +222,13 @@ it('reports the displayed failed version and redraws from it instead of an older
 })
 
 it('closes the viewer and keeps a valid selection when the viewed image disappears', async () => {
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLButtonElement>('[aria-label="Vẽ lại cảnh 2"]')!)
   expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   expect(document.querySelector('[role="dialog"] textarea')).not.toBeNull()
   state.images = { manifest, items: [tile('scene-one', '/one.webp', 'Cảnh một')] }
   setLive(['scene-one'])
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await act(async () => {})
   expect(document.querySelector('[role="dialog"]')).toBeNull()
   expect(toastSpies.err).toHaveBeenCalledWith('Ảnh đã chọn không còn trong bộ ảnh. Đã chọn ảnh còn lại.')
@@ -237,7 +237,7 @@ it('closes the viewer and keeps a valid selection when the viewed image disappea
 
 it('opens Duyệt at the exact image id for a review-stage tile', async () => {
   const reviewJob = { ...job, stageGroup: 'review' } as unknown as CloneJobView
-  await act(async () => root.render(<LiveStudio job={reviewJob} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={reviewJob} onRefresh={() => {}} />))
   await act(async () => { host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 2"]')!.click() })
   const params = new URLSearchParams(location.hash.split('?')[1] ?? '')
   expect(params.get('video')).toBe('job')
@@ -245,7 +245,7 @@ it('opens Duyệt at the exact image id for a review-stage tile', async () => {
 })
 
 it('giữ lựa chọn nền khi trình xem đang mở', async () => {
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await act(async () => root.render(<LiveStudio job={job} onRefresh={() => {}} />))
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   expect(document.querySelector('[role="dialog"]')).not.toBeNull()
   await act(async () => {
@@ -257,16 +257,31 @@ it('giữ lựa chọn nền khi trình xem đang mở', async () => {
   expect(host.querySelector('[role="option"][aria-label="Cảnh 1"]')?.getAttribute('aria-selected')).toBe('true')
 })
 
-it('locks redraw-all while pending and sends the current revision and count once', async () => {
-  const fetcher = vi.fn(async () => Response.json({ revision: 8 }))
-  vi.stubGlobal('fetch', fetcher)
-  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} redrawAllOpen onRedrawAllChange={() => {}} />))
-  const dialog = document.querySelector('[role="dialog"]')!
-  expect(dialog.textContent).toContain('Vẽ lại cả 2 ảnh?')
-  const submit = [...dialog.querySelectorAll('button')].find(button => button.textContent === 'Vẽ lại 2 ảnh')!
-  await act(async () => { submit.click(); submit.click() })
-  expect(fetcher).toHaveBeenCalledOnce()
-  const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit]
-  expect(url).toBe('/api/clone/job/images')
-  expect(JSON.parse(String(init.body))).toEqual({ op: 'regenerateAll', expectedRevision: 7, confirmCount: 2, feedback: '' })
+it('phát bản xuất thật của editor khi job đã xong mà không có artifact video', async () => {
+  const doneJob = {
+    ...job, stageGroup: 'ready', status: 'succeeded', exportBytes: 630653,
+    source: { ...job.source, durationSec: 6 },
+    steps: [{
+      step: 'export', status: 'succeeded',
+      output: { artifacts: [], data: { projectId: 'clone-3225b629-g1', exportId: 'b6e47266', fileName: 'video.mp4', size: 630653, durationMs: 28031, accepted: true } },
+    }],
+  } as unknown as CloneJobView
+  await act(async () => root.render(<LiveStudio job={doneJob} onRefresh={() => {}} />))
+  expect(host.querySelector('video')?.getAttribute('src')).toBe('/api/editor/projects/clone-3225b629-g1/exports/b6e47266')
+  expect(host.textContent).toContain('MP4 0:28')
+  expect(host.textContent).not.toContain('File video không còn trên máy.')
 })
+
+it('không phát lại bản xuất đã xoá dù bước xuất còn dữ liệu file', async () => {
+  const removedJob = {
+    ...job, stageGroup: 'posted', status: 'succeeded', exportBytes: null,
+    steps: [{
+      step: 'export', status: 'succeeded',
+      output: { artifacts: [], data: { projectId: 'p', exportId: 'e', removedAt: '2026-11-01T00:00:00Z', accepted: true } },
+    }],
+  } as unknown as CloneJobView
+  await act(async () => root.render(<LiveStudio job={removedJob} onRefresh={() => {}} />))
+  expect(host.querySelector('video')).toBeNull()
+  expect(host.textContent).toContain('File video không còn trên máy.')
+})
+

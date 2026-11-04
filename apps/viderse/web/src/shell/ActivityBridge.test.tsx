@@ -6,7 +6,7 @@ import { toast } from '@noverse/ui'
 import { ActivityBridge } from './ActivityBridge'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
-const fixture = vi.hoisted(() => ({ activity: { running: [] as unknown[], videoJobs: 0, queued: 0, unread: [] as AppNotification[], badge: 0 }, settings: { kinds: {} as Record<string, { inApp: boolean; system: boolean }>, doNotDisturb: { enabled: false, start: '23:00', end: '07:00' }, badge: false, merge: true, recapOnReturn: true }, toast: vi.fn(), refresh: vi.fn() }))
+const fixture = vi.hoisted(() => ({ activity: { running: [] as unknown[], videoJobs: 0, queued: 0, unread: [] as AppNotification[], badge: 0 }, settings: { kinds: {} as Record<string, { inApp: boolean; system: boolean }>, doNotDisturb: { enabled: false, start: '23:00', end: '07:00' }, badge: false, merge: true, suggestions: true }, toast: vi.fn(), refresh: vi.fn() }))
 vi.mock('../data/useResource', () => ({ useResource: (key: string[]) => ({ data: key.length === 1 ? fixture.activity : fixture.settings, refresh: fixture.refresh }) }))
 vi.mock('@noverse/ui', () => ({ toast: Object.assign(fixture.toast, { card: vi.fn() }) }))
 let root: Root | undefined

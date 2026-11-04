@@ -46,9 +46,6 @@ type Deps struct {
 	ReadManifest    func(context.Context, domain.CloneJob) (*Manifest, error)
 	// Scorer chấm điểm từng ảnh sau khi vẽ; nil → chấm bằng Model (thị giác).
 	Scorer autonomy.Scorer
-	// Notes trả "Ghi chú đã học" của prompt cảnh và prompt bìa đang dùng cho
-	// video này; nối vào cuối prompt lúc chốt mỗi lần vẽ. Nil → không có ghi chú.
-	Notes func(context.Context, domain.CloneJob, *Overrides) (LearnedNotes, error)
 	// RefLimit trả số ảnh tham chiếu nguồn vẽ nhận cho một ảnh (07 §26).
 	RefLimit func(context.Context, domain.CloneJob, string) int
 	// PromptProvider trả nguồn vẽ mà prompt được viết cho (nguồn riêng của
@@ -308,13 +305,6 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 	if err := ctx.Err(); err != nil {
 		return err
 	}
-	var notes LearnedNotes
-	if h.Deps.Notes != nil {
-		var err error
-		if notes, err = h.Deps.Notes(ctx, s.Job, m.Overrides); err != nil {
-			return err
-		}
-	}
 	now := time.Now
 	if h.Deps.Now != nil {
 		now = h.Deps.Now
@@ -392,7 +382,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 				started := now()
 				var refArtifacts []media.Artifact
 				if item.InFlight == nil {
-					plan, err := h.plan(ctx, s, m, notes, *item)
+					plan, err := h.plan(ctx, s, m, *item)
 					if err != nil {
 						mu.Unlock()
 						return err
@@ -507,7 +497,7 @@ func (h Handler) runQueue(ctx context.Context, s *pipeline.StepContext, m *Manif
 					}
 					draft.Refs = &flight.Refs
 					localItem.Draft = &draft
-					plan, planErr := h.plan(ctx, s, m, notes, localItem)
+					plan, planErr := h.plan(ctx, s, m, localItem)
 					if planErr != nil {
 						mu.Unlock()
 						releaseDraw()

@@ -347,13 +347,6 @@ func (f *fakeStore) SetTemplateWeight(_ context.Context, _ string, tpl string, w
 	return nil
 }
 
-type fakeRules struct{ got []RuleInput }
-
-func (f *fakeRules) AddRule(_ context.Context, in RuleInput) (string, error) {
-	f.got = append(f.got, in)
-	return "rule-1", nil
-}
-
 func storeFor(videos []Video) *fakeStore {
 	st := &fakeStore{}
 	for _, v := range videos {
@@ -405,54 +398,6 @@ func TestBlankStatsStayBlank(t *testing.T) {
 	view, err := svc.Performance(context.Background(), "ch1")
 	if err != nil || len(view.Posted) != 3 || view.Posted[0].At7d != nil || view.Posted[0].VsMedian7d != nil || view.NeedMore != MinVideos {
 		t.Fatalf("view=%+v err=%v", view, err)
-	}
-}
-
-func TestApplyTitleInsightCreatesRuleWithNumericSource(t *testing.T) {
-	st := storeFor(nineVideos())
-	rules := &fakeRules{}
-	svc := &Service{Store: st, Rules: rules, Loc: time.FixedZone("ICT", 7*3600)}
-	var titleInsight string
-	view, _ := svc.Performance(context.Background(), "ch1")
-	all, _ := Analyze("ch1", nineVideos(), svc.Loc)
-	for _, in := range all {
-		if in.Dimension == DimTitlePattern {
-			titleInsight = in.ID
-		}
-	}
-	if titleInsight == "" {
-		t.Fatalf("no title insight among %d", len(all))
-	}
-	res, err := svc.Apply(context.Background(), "ch1", titleInsight)
-	if err != nil || res.Kind != "rule" || res.RuleID != "rule-1" || res.AlreadyApplied {
-		t.Fatalf("apply = %+v %v", res, err)
-	}
-	if len(rules.got) != 1 || rules.got[0].Source != "Từ số liệu 9 video" || rules.got[0].Field != "title" || rules.got[0].ChannelID != "ch1" || rules.got[0].Text == "" {
-		t.Fatalf("rule input = %+v", rules.got)
-	}
-	// áp lần hai: không thêm quy tắc, báo đã áp dụng
-	again, err := svc.Apply(context.Background(), "ch1", titleInsight)
-	if err != nil || !again.AlreadyApplied || len(rules.got) != 1 {
-		t.Fatalf("second apply = %+v %v rules=%d", again, err, len(rules.got))
-	}
-	// nhận xét đã áp dụng biến khỏi danh sách và khỏi tín hiệu perf_insight
-	view, _ = svc.Performance(context.Background(), "ch1")
-	for _, in := range view.Insights {
-		if in.ID == titleInsight {
-			t.Fatal("applied insight still listed")
-		}
-	}
-	signals, err := svc.OpenInsights(context.Background())
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, s := range signals {
-		if s.InsightID == titleInsight || s.Videos != 9 || s.ChannelID != "ch1" || !s.Preliminary {
-			t.Fatalf("bad signal %+v", s)
-		}
-	}
-	if _, err = svc.Apply(context.Background(), "ch1", "title_pattern:nope"); !errors.Is(err, ErrInsightGone) {
-		t.Fatalf("unknown insight = %v", err)
 	}
 }
 

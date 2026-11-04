@@ -8,7 +8,7 @@
 // dùng ở đây).
 import { bool, list, maybe, num, oneOf, record, str } from './guard'
 import { mutate, request } from './request'
-import { readReason, readSuggestion, type Suggestion, type SuggestionReason } from './suggestions'
+import { readReason, type SuggestionReason } from './suggestions'
 
 const AGENTS = ['scout', 'director', 'artist', 'qa'] as const
 
@@ -67,7 +67,6 @@ export type MetaResponse = {
   revision: number
   descriptionFooter?: string | null
   alwaysTags?: string[] | null
-  learn: Suggestion | null
 }
 
 const readMeta = (value: unknown): MetaResponse => {
@@ -79,7 +78,6 @@ const readMeta = (value: unknown): MetaResponse => {
     revision: num(o.revision, 'metadata.revision'),
     ...(footer === undefined ? {} : { descriptionFooter: footer }),
     ...(o.alwaysTags == null ? {} : { alwaysTags: list(o.alwaysTags, str, 'metadata.alwaysTags') }),
-    learn: o.learn == null ? null : readSuggestion(o.learn, 'metadata.learn'),
   }
 }
 

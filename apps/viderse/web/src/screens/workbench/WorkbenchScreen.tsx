@@ -1,6 +1,6 @@
 // Cổng vào Bàn dựng: chỉ chọn bố cục theo bề rộng. Màn máy tính và màn điện
-// thoại là hai chunk riêng, nên điện thoại không tải WorkbenchPanels /
-// AssistantComposer (C8) và máy tính không tải màn điện thoại.
+// thoại là hai chunk riêng, nên điện thoại không tải WorkbenchPanels và máy
+// tính không tải màn điện thoại.
 import { Suspense, lazy } from 'react'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import type { Route } from '../../router'

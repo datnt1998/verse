@@ -8,7 +8,7 @@ if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || url.username 
 
 export default defineConfig({
   testDir: '.',
-  testMatch: ['interaction-audit.pw.ts', 'workflow-parity.pw.ts', 'viewer-audit.pw.ts', 'delete-audit.pw.ts', 'settings-state-audit.pw.ts', 'template-state-audit.pw.ts', 'provider-catalog-audit.pw.ts'],
+  testMatch: ['interaction-audit.pw.ts', 'workflow-parity.pw.ts', 'viewer-audit.pw.ts', 'delete-audit.pw.ts', 'settings-state-audit.pw.ts', 'template-state-audit.pw.ts', 'provider-catalog-audit.pw.ts', 'review-control-ledger-audit.pw.ts', 'settings-control-ledger-audit.pw.ts', 'studio-audit.pw.ts', 'editor-template-audit.pw.ts', 'studio-feedback-audit.pw.ts', 'studio-state-audit.pw.ts'],
   workers: 1,
   retries: 0,
   timeout: 90_000,

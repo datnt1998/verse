@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { followAdmitted, groupJobs, imageTime, issueReason, jobStage, readScope, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, finishedVideo, groupJobs, imageTime, issueReason, jobStage, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
   it('đi theo job mới khi mục hàng chờ đang chọn được nhận', () => {
@@ -63,6 +63,47 @@ describe('Bàn dựng', () => {
       stageGroup: 'attention', activeStep: null,
       steps: [{ step: 'export', status: 'failed', error: { code: 'export_failed', message: 'Bộ mã video bị gián đoạn' } }],
     })).toBe('issue')
+  })
+})
+
+describe('file cuối của video đã xuất', () => {
+  it('phát bản xuất tự đạt cổng chất lượng mà không cần chủ chọn Vẫn xuất hoặc có artifact video', () => {
+    expect(finishedVideo({
+      id: 'job-1',
+      steps: [{
+        step: 'export', status: 'succeeded',
+        output: { artifacts: [], data: { projectId: 'clone-3225b629-g1', exportId: 'b6e47266', fileName: 'video.mp4', size: 630653, durationMs: 28031, accepted: false } },
+      }],
+    })).toEqual({ url: '/api/editor/projects/clone-3225b629-g1/exports/b6e47266', durationSec: 28.031, bytes: 630653 })
+  })
+
+  it('không hiện bản xuất đã xoá hoặc bước chưa xuất xong', () => {
+    expect(finishedVideo({
+      id: 'j',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'p', exportId: 'e', removedAt: '2026-11-01T00:00:00Z' } } }],
+    })).toBeNull()
+    expect(finishedVideo({
+      id: 'j',
+      steps: [{ step: 'export', status: 'waiting', output: { artifacts: [], data: { projectId: 'p', exportId: 'e' } } }],
+    })).toBeNull()
+    expect(finishedVideo({
+      id: 'j',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'p' } } }],
+    })).toBeNull()
+  })
+
+  it('giữ artifact cũ và lấy project của bước dựng khi bước xuất thiếu', () => {
+    expect(finishedVideo({
+      id: 'j',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [{ id: 'art', path: 'export/video.mp4', contentType: 'video/mp4' }], data: {} } }],
+    })).toEqual({ url: '/api/clone/j/artifacts/art', durationSec: null, bytes: null })
+    expect(finishedVideo({
+      id: 'j',
+      steps: [
+        { step: 'build', status: 'succeeded', output: { artifacts: null, data: { projectId: 'built' } } },
+        { step: 'export', status: 'succeeded', output: { artifacts: [], data: { exportId: 'exp' } } },
+      ],
+    })?.url).toBe('/api/editor/projects/built/exports/exp')
   })
 })
 

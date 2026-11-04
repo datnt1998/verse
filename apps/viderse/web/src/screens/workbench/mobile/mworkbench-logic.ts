@@ -122,15 +122,6 @@ export function imageLabel(image: JobImage, index: number): string {
   return `Cảnh ${index + 1}`
 }
 
-/** Khoảng thời gian Bản tin: "từ 21:00 tới 06:00" theo giờ máy. */
-export function recapWindow(from: string, to: string): string {
-  const time = (value: string) => {
-    const date = new Date(value)
-    return Number.isFinite(date.getTime()) ? date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '—'
-  }
-  return `từ ${time(from)} tới ${time(to)}`
-}
-
 /** mm:ss cho thời lượng nguồn. */
 export function durationLabel(seconds: number | null | undefined): string {
   if (seconds == null || !Number.isFinite(seconds) || seconds <= 0) return ''

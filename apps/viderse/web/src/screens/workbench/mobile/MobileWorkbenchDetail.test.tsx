@@ -53,7 +53,7 @@ const render = async (job: CloneJobView) => {
   }
   await act(async () => root!.render(<MobileWorkbenchDetail
     job={job} images={undefined} imagesLoading={false} imagesError={null} onBack={() => {}}
-    onRefresh={state.refresh} onPlan={() => {}} onNotice={() => {}} planOpen={false} />))
+    onRefresh={state.refresh} onNotice={() => {}} />))
   return host
 }
 const button = (text: string) => [...host.querySelectorAll('button')].find((entry) => entry.textContent?.includes(text))
@@ -136,7 +136,28 @@ describe('xoá riêng file MP4 của video đã đăng', () => {
     expect(button('Xoá MP4')).toBeUndefined()
     await act(async () => root!.render(<MobileWorkbenchDetail
       job={base({ stageGroup: 'ready', status: 'done', exportBytes: 1048576 })} images={undefined} imagesLoading={false} imagesError={null}
-      onBack={() => {}} onRefresh={state.refresh} onPlan={() => {}} onNotice={() => {}} planOpen={false} />))
+      onBack={() => {}} onRefresh={state.refresh} onNotice={() => {}} />))
     expect(button('Xoá MP4')).toBeUndefined()
   })
 })
+
+describe('bản xuất thật của video đã xong', () => {
+  it('phát bản xuất editor khi job không còn artifact video, không báo mất file', async () => {
+    await render(base({
+      stageGroup: 'ready', status: 'succeeded', exportBytes: 630653,
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'clone-3225b629-g1', exportId: 'b6e47266', fileName: 'video.mp4', size: 630653, durationMs: 28031, accepted: true } } }],
+    } as unknown as Partial<CloneJobView>))
+    expect(host.querySelector('video')?.getAttribute('src')).toBe('/api/editor/projects/clone-3225b629-g1/exports/b6e47266')
+    expect(host.textContent).not.toContain('File video không còn trên máy.')
+  })
+
+  it('không phát lại bản xuất đã xoá dù bước xuất còn dữ liệu file', async () => {
+    await render(base({
+      stageGroup: 'posted', status: 'succeeded', exportBytes: null,
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'p', exportId: 'e', removedAt: '2026-11-01T00:00:00Z', accepted: true } } }],
+    } as unknown as Partial<CloneJobView>))
+    expect(host.querySelector('video')).toBeNull()
+    expect(host.textContent).toContain('File video không còn trên máy.')
+  })
+})
+

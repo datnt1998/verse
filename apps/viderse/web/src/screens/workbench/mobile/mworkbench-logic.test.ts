@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ChannelSummary } from '../../../api/workbenchChannels'
 import type { JobImage } from '../../../api/workbench'
-import { dayProgress, imageLabel, imagePrompt, imageUrl, imageVersion, recapWindow, scopeName, stageToneOf } from './mworkbench-logic'
+import { dayProgress, imageLabel, imagePrompt, imageUrl, imageVersion, scopeName, stageToneOf } from './mworkbench-logic'
 
 const channel = (over: Partial<ChannelSummary> & Pick<ChannelSummary, 'channelId'>): ChannelSummary => ({
   name: over.channelId, initials: over.channelId.slice(0, 2), color: 'var(--color-fg)', today: { done: 0, cap: 0 },
@@ -59,11 +59,9 @@ describe('Bàn dựng điện thoại', () => {
     expect(imagePrompt({ ...image, prompt: undefined }, 3)).toBeUndefined()
   })
 
-  it('nhãn trạng thái và khoảng Bản tin', () => {
+  it('nhãn trạng thái theo nhóm video', () => {
     expect(stageToneOf('attention')).toBe('review')
     expect(stageToneOf('working')).toBe('working')
     expect(stageToneOf('ready')).toBe('ready')
-    expect(recapWindow('2026-11-01T21:00:00', '2026-11-02T06:00:00')).toMatch(/^từ .+ tới .+$/)
-    expect(recapWindow('bad', 'bad')).toBe('từ — tới —')
   })
 })

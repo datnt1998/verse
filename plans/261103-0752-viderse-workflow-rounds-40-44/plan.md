@@ -24,9 +24,9 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 |---|---|---|---|---|
 | 1 | [0 · Kiểm kê và baseline](phase-01-inventory.md) | Tài liệu/state manifest/evidence | — | Completed · PR #1 merged |
 | 2 | [1 · Nền UI dùng chung](phase-02-shared-ui-foundation.md) | Kit tối thiểu + Viderse policy | PR0 merge | Completed · PR #2 merged |
-| 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | In progress |
-| 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | Pending |
-| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Pending |
+| 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | Completed · PR #3 merged `3e238b08` |
+| 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | In progress · [PR #4 nháp](https://github.com/datnt1998/verse/pull/4), [nghiệm thu](reports/pr-03/acceptance.md) |
+| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Chờ merge V37; design #86 đã chốt1–20 |
 | 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | Pending |
 | 7 | [6 · V40 Mobile và full-flow gate](phase-07-v40-mobile-parity.md) | §6.2 Đợt44 + desktop regression | PR5 merge | Pending |
 
@@ -34,7 +34,7 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 Shell/session → adapter responsive trên `@noverse/ui` → cùng dữ liệu/action desktop-mobile. Một desktop image viewer reuse review/provenance/mutations; không viewer/service riêng cho từng màn. Existing HTTP→service→transactional postgres queue được giữ.
 [Backend scope và chuyển dữ liệu](backend-contracts.md): POST `/api/jobs` theo brief, migrate caller rồi bỏ creation routes cũ; default FK/autoApprove85/autoFetch/perDay; manual mới prepend, auto append; only workers editable. Không đổi job snapshots đang chạy hoặc hạ kiểm provenance để tránh lỗi.
 - Ngoại lệ backend đã được người dùng duyệt tại design #82: sửa nguồn ảnh tách nền sang ảnh đã chuẩn hoá và xử lý derivative cũ từ ảnh hiện có; không thêm lượt AI/không giảm validation.
-- Ngoại lệ backend #84A đã được người dùng duyệt và triển khai tại `52d3871225e4a6c8dd0799c0e5d151692463d600`: Sửa dùng đúng phiên bản đang xem qua `baseVersion` tùy chọn, giữ prompt/tham chiếu/provenance chưa đổi; không tự đổi bản đang dùng. [Bằng chứng tích hợp](reports/pr-02/selected-source-integration.json) và [trạng thái nghiệm thu V36](reports/pr-02/viewer-and-actions.md). PR [#3](https://github.com/datnt1998/verse/pull/3) còn nháp; full-state/control ledger chưa đóng, không đọc kiểm thử xanh thành nghiệm thu toàn gói.
+- Ngoại lệ backend #84A đã được người dùng duyệt và triển khai tại `52d3871225e4a6c8dd0799c0e5d151692463d600`: Sửa dùng đúng phiên bản đang xem qua `baseVersion` tùy chọn, giữ prompt/tham chiếu/provenance chưa đổi; không tự đổi bản đang dùng. [Bằng chứng tích hợp](reports/pr-02/selected-source-integration.json) và [trạng thái nghiệm thu V36](reports/pr-02/viewer-and-actions.md). PR #3 đã merge tại `3e238b08`; không suy ra V37–V40 hoặc gate deploy đã qua.
 
 ## Nghiệm thu mỗi PR và các điểm dừng
 [Giao thức đầy đủ](verification.md): mọi giá trị tweak hợp lệ; reference/code/comparison1440×900 và390×844; control ledger Playwright0dead; overlays trong viewport; slider≤2px sau font; motion normal/reduced; touch≥44px; report/gap với commit thật. Fixture defaults đúng brief, chỉ QA, không ghi đè dữ liệu production.
@@ -43,7 +43,7 @@ Không merge PR có blocker chức năng/UI. Ngoại lệ thực thi được ng
 ## Execution checklist / task hydration
 - [x] PR0: gửi inventory, hoàn tất state manifest/baseline/preflight rồi merge riêng.
 - [x] PR1: nền UI reuse đúng, shared-kit regression và [bằng chứng](reports/pr-01/foundation.md); PR #2 merged.
-- [ ] PR2: viewer/action/data-key theo V36, đủ evidence trước V37.
+- [x] PR2: viewer/action/data-key theo V36, PR #3 merged; giới hạn thiết bị và gate#83 vẫn giữ ở nghiệm thu cuối.
 - [ ] PR3: Main/progress/3proposal + backend obsolete theo V37.
 - [ ] PR4: default template/automation/library/create cùng schema, cả mobile contract.
 - [ ] PR5: Nhập nhanh/jobs API/dedup/front ordering/compact queue rules.

@@ -3,7 +3,8 @@
 // dẫn Cài đặt và có chấm đỏ khi có mục attention; ở màn Cài đặt bánh răng đang mở
 // (nền --color-surface-6) và chỗ bộ đổi kênh là nhãn “Cài đặt · máy này”.
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-header/.vv-gear).
-import { Suspense, lazy, useRef, useState, type MouseEvent } from 'react'
+// V37: N = Làm video (mở route tạo video hiện có; hộp thoại nhanh thuộc PR5).
+import { Suspense, lazy, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -104,6 +105,19 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const attention = status?.attention ?? []
   const showSwitcher = navSection(route) === 'workbench' || route.name === 'channel'
+  // N mở thẳng Làm video khi đang không gõ chữ và không có hộp thoại/menu mở.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== 'n' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test((event.target as HTMLElement | null)?.tagName ?? '') || (event.target as HTMLElement | null)?.isContentEditable) return
+      if (document.querySelector('[role="dialog"], [aria-modal="true"]')) return
+      if (route.name === 'new') return
+      event.preventDefault()
+      navigate(paths.new(route.name === 'workbench' ? route.channel : undefined))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [route])
 
   const home = (e: MouseEvent) => { e.preventDefault(); navigate(paths.workbench()) }
   const pickChannel = (id: string | undefined) => navigate(routePath(pickChannelRoute(route, id)))

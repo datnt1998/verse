@@ -85,7 +85,6 @@ vi.mock('../../components', () => ({
     <div data-develop={effectState}>{children}{title}{detail}{onCancel && <button type="button" onClick={onCancel}>Huỷ lần vẽ</button>}</div>
   ),
 }))
-vi.mock('../../components/learn/LearnSlot', () => ({ LearnSlot: () => null }))
 vi.mock('../../components/autonomy/ScoreParts', () => ({ ScoreBadge: () => null, ScoreBanner: () => null, ScorePanel: () => null }))
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) : ({ data: undefined }) }))

@@ -27,7 +27,6 @@ import { ScoreBadge, ScoreBanner, ScorePanel } from '../../components/autonomy/S
 import { isLow, summarizeScores } from '../../components/autonomy/scoreSummary'
 import { scoreStyles } from '../../components/autonomy/score.stylex'
 import { readChannelAutonomy, readImageScore } from '../../api/autonomy'
-import { LearnSlot } from '../../components/learn/LearnSlot'
 import { MReviewScreen } from './mobile/MReviewScreen'
 import { ImageRail, type RefCandidate } from './ImageRail'
 import { toReviewItems, defaultVersion, stageWidthVar, providerName, resetAtLabel, type ReviewItemView } from './imageView'
@@ -517,7 +516,6 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
               <ActionButton variant="primary" lockedReason={hasDrawing || pipelineBusy || !online ? 'Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ' : undefined} onClick={approve} icon={<Icon name="tick-b" size={15} />} kbd="A">Duyệt cả video &amp; dựng</ActionButton>
             </div>
           )}
-          <LearnSlot ownerKey={`${job.channelId}:${job.id}:${item.id}`} learn={images?.learn} />
           <div {...stylex.props(sx.hints)}>
             <span {...stylex.props(sx.keyHint)}><Kbd>← →</Kbd>ảnh</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>J K</Kbd>video trước / sau</span>

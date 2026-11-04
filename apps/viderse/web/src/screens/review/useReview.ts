@@ -9,13 +9,12 @@ import { events, subscribeEvents } from '../../data/events'
 import { keys } from '../../data/keys'
 import { useResource } from '../../data/useResource'
 
-import type { Suggestion } from '../../api/suggestions'
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; activeStep?: string | null; source: { title: string; thumbnailUrl: string | null } }
 export interface ReviewVersion { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string; source?: string; width?: number; height?: number; createdAt?: string; prompt?: string; promptVersion?: number; score?: unknown }
 export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; promptVersion?: number; queuePosition?: number; currentVersion: number | null; reviewVersion: number | null; versions: ReviewVersion[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
 /** Chỉ dẫn hiệu lực của bộ ảnh — cùng `manifest` endpoint trả về (tên thật, không phải câu mẫu). */
 export interface ReviewManifest { revision: number; scenePrompt?: { name: string } | null; coverPrompt?: { name: string } | null }
-export interface ReviewImages { manifest: ReviewManifest | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null; summary?: ReviewSummary | null }
+export interface ReviewImages { manifest: ReviewManifest | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; summary?: ReviewSummary | null }
 /** Tóm tắt điểm của video + câu server viết (artboard MReview › băng điểm). */
 export type ReviewSummary = NonNullable<ScoreSummary> & { text: string }
 const readReviewSummary = (value: unknown): ReviewSummary | null => {
@@ -215,10 +214,9 @@ export function useReview(): ReviewState {
       setImages(old => ({ ...old, [job]: { ...view, items: view.items.map(i => (item ? i.id === item.id : true) ? { ...i, status: op === 'skip' ? 'skipped' : 'running' } : i) } }))
     }
     try {
-      const result = await request<{ manifest?: { revision: number }; revision?: number; learn?: Suggestion | null; generation?: { learn?: Suggestion | null } | null }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(version !== undefined ? { version } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
+      const result = await request<{ manifest?: { revision: number }; revision?: number }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(version !== undefined ? { version } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
       const nextRevision = result.manifest?.revision ?? result.revision
-      const learn = result.generation?.learn ?? result.learn
-      if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { ...(v.manifest ?? {}), revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
+      if (nextRevision) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, manifest: { ...(v.manifest ?? {}), revision: nextRevision } } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
       else void loadImages(job, true)
       return true

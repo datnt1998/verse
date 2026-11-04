@@ -1,0 +1,1001 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "studio-state-audit.pw.ts",
+      "--grep",
+      "@main-static",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--reporter=json",
+      "--output",
+      "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "studio-state-audit.pw.ts",
+      "file": "studio-state-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "@main-static Main stages review, issue, quality, pause and done use the real saved data",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "Stage rows are saved-state replays of one genuine committed job; review/issue/quality/paused use real steps, artifacts and published bytes. The issue fault code is replayed and labelled, not a provider incident."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:13.233Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "Stage rows are saved-state replays of one genuine committed job; review/issue/quality/paused use real steps, artifacts and published bytes. The issue fault code is replayed and labelled, not a provider incident."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-stage-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAic3RhZ2VzIjogewogICAgInJldmlldyI6IHsKICAgICAgInN0YWdlIjogInJldmlldyIsCiAgICAgICJpbWFnZXMiOiA3CiAgICB9LAogICAgImlzc3VlIjogewogICAgICAic3RhZ2UiOiAiYXR0ZW50aW9uIiwKICAgICAgInN0ZXBFcnJvciI6IHsKICAgICAgICAiY29kZSI6ICJpbnRlcnJ1cHRlZCIsCiAgICAgICAgIm1lc3NhZ2UiOiAiQsaw4bubYyBi4buLIGdpw6FuIMSRb+G6oW4uIENo4bqheSB0aeG6v3AgdmlkZW8gxJHhu4MgbMOgbSBs4bqhaS4iLAogICAgICAgICJyZWNvdmVyeSI6IG51bGwsCiAgICAgICAgInJldHJ5QXQiOiBudWxsCiAgICAgIH0KICAgIH0sCiAgICAicXVhbGl0eSI6IHsKICAgICAgInN0YWdlIjogImF0dGVudGlvbiIsCiAgICAgICJzY29yZSI6IHsKICAgICAgICAidmVyc2lvbiI6IDEsCiAgICAgICAgInRvdGFsIjogNzUsCiAgICAgICAgInBhc3NlZCI6IGZhbHNlLAogICAgICAgICJpdGVtcyI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImR1cmF0aW9uIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDE1LAogICAgICAgICAgICAid2VpZ2h0IjogMTUsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAib3V0cHV0U2VjIjogNiwKICAgICAgICAgICAgICAicmF0aW8iOiAxLAogICAgICAgICAgICAgICJzb3VyY2VTZWMiOiA2CiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICLCsTEwJSBzbyB24bubaSBuZ3Xhu5NuIiwKICAgICAgICAgICAgImV2aWRlbmNlIjogIjYuMDBzIC8gNi4wMHMiCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAic2NlbmVDb3VudCIsCiAgICAgICAgICAgICJzdGF0dXMiOiAicGFzcyIsCiAgICAgICAgICAgICJwb2ludHMiOiAxMCwKICAgICAgICAgICAgIndlaWdodCI6IDEwLAogICAgICAgICAgICAibWVhc3VyZWQiOiB7CiAgICAgICAgICAgICAgIml0ZW1zIjogNiwKICAgICAgICAgICAgICAic2NlbmVzIjogNgogICAgICAgICAgICB9LAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAiNiBj4bqjbmgiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiNiBjbGlwIOG6o25oIHRyw6puIGTDsm5nIHRo4budaSBnaWFuIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImN1dFJoeXRobSIsCiAgICAgICAgICAgICJzdGF0dXMiOiAicGFzcyIsCiAgICAgICAgICAgICJwb2ludHMiOiAxNSwKICAgICAgICAgICAgIndlaWdodCI6IDE1LAogICAgICAgICAgICAibWVhc3VyZWQiOiB7CiAgICAgICAgICAgICAgIm1pc21hdGNoZXMiOiBbXQogICAgICAgICAgICB9LAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAibcOpcCBjbGlwIGto4bubcCBib3VuZGFyeSDiiaQgM2YiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiNiBib3VuZGFyeSBraOG7m3AiLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJpdGVtSWQiOiAiY2xvbmUtMzIyNWI2MjktNTFjOC00ZjgxLTg0NTYtOWVjYWNkZTY2NGFjLWcxLXNjZW5lLXNjLTAxIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiYmFja2dyb3VuZCIsCiAgICAgICAgICAgICJzdGF0dXMiOiAicGFzcyIsCiAgICAgICAgICAgICJwb2ludHMiOiAwLAogICAgICAgICAgICAid2VpZ2h0IjogMCwKICAgICAgICAgICAgImV2aWRlbmNlIjogIlRlbXBsYXRlIGtow7RuZyBjw7MgdmFpIHRyw7IgTuG7gW4gdmlkZW8g4oCUIGtow7RuZyB5w6p1IGPhuqd1IG7hu4FuIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImltYWdlcyIsCiAgICAgICAgICAgICJzdGF0dXMiOiAiZmFpbCIsCiAgICAgICAgICAgICJwb2ludHMiOiAwLAogICAgICAgICAgICAid2VpZ2h0IjogMjAsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAidG90YWwiOiA2LAogICAgICAgICAgICAgICJ2ZXJpZmllZCI6IDAKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImV4cGVjdGVkIjogIjYg4bqjbmggUE5HIHTDoWNoIG7hu4FuIMSRw6MgZHV54buHdCwgxJHDum5nIGvDrWNoIHRoxrDhu5tjLCB0csOqbiBkw7JuZyB0aOG7nWkgZ2lhbiIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICLhuqNuaCBzYy0wMSB0aGnhur91IGZpbGU7IOG6o25oIHNjLTAyIHRoaeG6v3UgZmlsZTsg4bqjbmggc2MtMDMgdGhp4bq/dSBmaWxlIiwKICAgICAgICAgICAgImZpeCI6IHsKICAgICAgICAgICAgICAiaXRlbUlkIjogImNsb25lLTMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYy1nMS1zY2VuZS1zYy0wMSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImNhcHRpb25zIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDIwLAogICAgICAgICAgICAid2VpZ2h0IjogMjAsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICJLaMO0bmcgbmjhuq1uIGRp4buHbiDEkcaw4bujYyBnaeG7jW5nIG7Ds2kg4oCUIGtow7RuZyBj4bqnbiBwaOG7pSDEkeG7gSIKICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJjYXB0aW9uQWxpZ25tZW50IiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDAsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAwLAogICAgICAgICAgICAibWVhc3VyZWQiOiBudWxsLAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAiS2jhu5twIOKJpTYwJSDCtyBtZWRpYW4g4omkMTIwIG1zIMK3IHA5NSDiiaQyNTAgbXMiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiQ+G6o25oIGLDoW86IHRoaeG6v3UgbeG7kWMgQVNSIMSR4buZYyBs4bqtcCDigJQgY2jGsGEgxJFvIMSRxrDhu6NjIMSR4buZIGto4bubcCB0aeG6v25nIiwKICAgICAgICAgICAgImZpeCI6IHsKICAgICAgICAgICAgICAiaHJlZiI6ICIvY2xvbmUvMzIyNWI2MjktNTFjOC00ZjgxLTg0NTYtOWVjYWNkZTY2NGFjI2NhcHRpb25zIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiY2FwdGlvbkthcmFva2UiLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogMCwKICAgICAgICAgICAgIndlaWdodCI6IDAsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAia2FyYW9rZVJhdGlvIjogMQogICAgICAgICAgICB9LAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAiVGjDtG5nIHRpbjog4omlOTAlIHRyYW5nIGPDsyBt4buRYyB0aOG6rXQiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiMTAwJSB0cmFuZyBrYXJhb2tlIMK3IGtow7RuZyBjaOG6t24geHXhuqV0IgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImxvdWRuZXNzIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDEwLAogICAgICAgICAgICAid2VpZ2h0IjogMTAsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAibHVmcyI6IC0xNCwKICAgICAgICAgICAgICAic291cmNlTHVmcyI6IC0xOC44LAogICAgICAgICAgICAgICJ0YXJnZXRMdWZzIjogLTE0CiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICItMTQuMMKxMSBMVUZTICht4bulYyB0acOqdSB0ZW1wbGF0ZSkiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiLTE0LjAgTFVGUyBzbyB24bubaSAtMTQuMCBMVUZTIG3hu6VjIHRpw6p1IChsYXlvdXQgZW5naW5lKSIKICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJyZXNvbHV0aW9uMTA4MHAiLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogNSwKICAgICAgICAgICAgIndlaWdodCI6IDUsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAiZnBzIjogMzAsCiAgICAgICAgICAgICAgImhlaWdodCI6IDEwODAsCiAgICAgICAgICAgICAgInByb2dyZXNzaXZlIjogdHJ1ZSwKICAgICAgICAgICAgICAid2lkdGgiOiAxOTIwCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICIxOTIww5cxMDgwIMK3IDMwIGZwcyDCtyBwcm9ncmVzc2l2ZSIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICIxOTIww5cxMDgwIMK3IDMwIGZwcyIKICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJ0aHVtYm5haWwiLAogICAgICAgICAgICAic3RhdHVzIjogImZhaWwiLAogICAgICAgICAgICAicG9pbnRzIjogMCwKICAgICAgICAgICAgIndlaWdodCI6IDUsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAiaGVpZ2h0IjogNzIwLAogICAgICAgICAgICAgICJzaGEyNTYiOiAiN2FkN2JiNjBjYjhlMDRmNDcwZjA2OTBkM2Q5N2FjMzAzMDRjZjVjYjdmOWU1YWYzMWZiMjQ2ODY1MzI2Y2ZlNSIsCiAgICAgICAgICAgICAgIndpZHRoIjogMTI4MAogICAgICAgICAgICB9LAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAiV2ViUCDEkcOjIGR1eeG7h3QgMTI4MMOXNzIwIiwKICAgICAgICAgICAgImV2aWRlbmNlIjogIlRodW1ibmFpbCBzYWkga8OtY2ggdGjGsOG7m2MvaGFzaCIsCiAgICAgICAgICAgICJmaXgiOiB7CiAgICAgICAgICAgICAgImhyZWYiOiAiL2Nsb25lIgogICAgICAgICAgICB9CiAgICAgICAgICB9CiAgICAgICAgXSwKICAgICAgICAiYmxvY2tlcnMiOiBbCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJpbWFnZXMiLAogICAgICAgICAgICAibWVzc2FnZSI6ICLhuqJuaCBj4bqjbmggY2jGsGEgxJHhu6c6IOG6o25oIHNjLTAxIHRoaeG6v3UgZmlsZSIsCiAgICAgICAgICAgICJmaXgiOiB7CiAgICAgICAgICAgICAgIml0ZW1JZCI6ICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDEiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJ0aHVtYm5haWwiLAogICAgICAgICAgICAibWVzc2FnZSI6ICJUaHVtYm5haWwgY2jGsGEgxJHGsOG7o2MgZHV54buHdCDEkcO6bmcgV2ViUCAxMjgww5c3MjAiLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJocmVmIjogIi9jbG9uZSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImF1ZGlvIiwKICAgICAgICAgICAgIm1lc3NhZ2UiOiAiw4JtIHRoYW5oIGfhu5FjIHBo4bqjaSBoaeG7h24gaOG7r3UgdsOgIHBow6F0IMSRxrDhu6NjIHRyw6puIGTDsm5nIHRo4budaSBnaWFuIOKAlCBraeG7g20gdHJhIGzhu5twIMOibSB0aGFuaCB2w6AgY2xpcCBjw7MgYuG7iyB04bqvdCB0aeG6v25nIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogIndhdmVmb3JtIiwKICAgICAgICAgICAgIm1lc3NhZ2UiOiAiU8OzbmcgZ2nhu41uZyB0cm9uZyB0ZW1wbGF0ZSBwaOG6o2kgaGnhu4NuIHRo4buLIHbDoCBkw7luZyDDom0gdGhhbmggZ+G7kWMiLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJpdGVtSWQiOiAic3RhbmRhcmQtd2F2ZSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogInN1YnNjcmliZSIsCiAgICAgICAgICAgICJtZXNzYWdlIjogIkPDoWMgbOG7m3AgxJDEg25nIGvDvSB0cm9uZyB0ZW1wbGF0ZSBwaOG6o2kgaGnhu4duIGjhu691IHRyw6puIGTDsm5nIHRo4budaSBnaWFuIiwKICAgICAgICAgICAgImZpeCI6IHsKICAgICAgICAgICAgICAiaXRlbUlkIjogInN0YW5kYXJkLWVuZC1zdWJzY3JpYmUtYmFja2Ryb3AiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJiaW5kaW5nIjogewogICAgICAgICAgInByb2plY3RSZXZpc2lvbiI6ICJzaGEyNTY6MTJmM2YxOTgwNjU3NjFkODczZTg3ZTMzNWNhMTJhY2M2MjE1NjhmY2ZiNTEwYWVjNmViZWRhZWEwZjAyYzM0MiIsCiAgICAgICAgICAic2V0dGluZ3NIYXNoIjogInNoYTI1NjphZGNlYmI3ZjFhZDYwZmMzMDlkN2FjZDdlNTc3NzU4ODE0ZTk2OWU3ODQ5YzE2ZDFjMDlmMDFjY2UxNGVlNjliIiwKICAgICAgICAgICJhcnRpZmFjdEhhc2giOiAic2hhMjU2OjJmMjVlZTg3ZDMyOGNiMDU3NzllODhlZWU3ZjQxMzEyOTI1MjU5NDc2NGNjZTM5ZGE3ZGMxZjJlZWI0OWZhN2MiCiAgICAgICAgfSwKICAgICAgICAibWVhc3VyZW1lbnRJZCI6ICJjYWI4MGZiOC1iYzU5LTQ3MzEtYWJlNi02ODk3ZDBmZTEzZDUiLAogICAgICAgICJtZWFzdXJlZEF0IjogIjIwMjYtMTEtMDNUMjA6MTE6MzEuMzA3NjI1WiIsCiAgICAgICAgImdlbmVyYXRpb24iOiAxCiAgICAgIH0KICAgIH0sCiAgICAicGF1c2VkIjogewogICAgICAic3RhZ2UiOiAicGF1c2VkIiwKICAgICAgInBhdXNlZEF0IjogIjIwMjYtMTEtMDRUMjI6MDQ6MTEuNDYzMjE3KzA3OjAwIgogICAgfSwKICAgICJkb25lIjogewogICAgICAic3RhZ2UiOiAicmVhZHkiLAogICAgICAic2NvcmUiOiA3NSwKICAgICAgImV4cG9ydEJ5dGVzIjogNjMwNjUzCiAgICB9CiAgfQp9"
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-8e4baf1301c7f0ba1b58",
+          "file": "studio-state-audit.pw.ts",
+          "line": 275,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main metadata states ai, pending, writing, failed, edited and history persist for real",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "pending/writing/failed are saved metadata sub-states replayed on owned copies with no invented failure text or provider output; edited/history come from two real panel PATCH saves and authoritative readback."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9111,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:16.417Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "pending/writing/failed are saved metadata sub-states replayed on owned copies with no invented failure text or provider output; edited/history come from two real panel PATCH saves and authoritative readback."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-metadata-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAibWV0YWRhdGEiOiB7CiAgICAiYWlTdGF0dXMiOiAiYWkiLAogICAgImFpVGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkiLAogICAgIm9yaWdpbmFsSGlzdG9yeSI6IDAsCiAgICAicGVuZGluZ1N0YXR1cyI6ICJwZW5kaW5nIiwKICAgICJ3cml0aW5nU3RhdHVzIjogIndyaXRpbmciLAogICAgImZhaWxlZFN0YXR1cyI6ICJmYWlsZWQiLAogICAgImVkaXRlZCI6IHsKICAgICAgInRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IMK3IFFBIHPhu61hIiwKICAgICAgImRlc2NyaXB0aW9uTGVuZ3RoIjogOTYsCiAgICAgICJlZGl0ZWRCeSI6ICJvd25lciIsCiAgICAgICJyZXZpc2lvbiI6IDIsCiAgICAgICJoaXN0b3J5IjogWwogICAgICAgIHsKICAgICAgICAgICJhdCI6ICIyMDI2LTExLTA0VDE1OjA0OjI0Ljk3NjUwNFoiLAogICAgICAgICAgImJ5IjogIm93bmVyIiwKICAgICAgICAgICJ0aXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSDCtyBRQSBz4butYSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJhdCI6ICIyMDI2LTExLTA0VDE1OjA0OjIzLjc5MTg3M1oiLAogICAgICAgICAgImJ5IjogImRpcmVjdG9yIiwKICAgICAgICAgICJ0aXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgICAgICB9CiAgICAgIF0KICAgIH0KICB9Cn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQQVRDSCAvYXBpL2Nsb25lL2U4NDRiYTdlLTk2NDEtNDE1Yy04ODliLTM4OTk4NDE0NzYzMi9tZXRhZGF0YSIsCiAgICAiUEFUQ0ggL2FwaS9jbG9uZS9lODQ0YmE3ZS05NjQxLTQxNWMtODg5Yi0zODk5ODQxNDc2MzIvbWV0YWRhdGEiCiAgXSwKICAiZXh0ZXJuYWxDb3VudCI6IDAsCiAgImV4dGVybmFsU2FtcGxlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---e5a58-nd-history-persist-for-real-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-17cb29ddb24a80b1b905",
+          "file": "studio-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main info panel, real journal and backdrop shortage plus the real overflow menu",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2654,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:25.535Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "covered-backdrop-evidence.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXZpc2lvbiI6ICI5MzFlMzAxNTEzNWQ4MjY4IiwKICAid2FudGVkQ291bnQiOiAwLAogICJyZWFkeUNvdW50IjogMCwKICAiZmFsbGJhY2siOiAibm9uZSIsCiAgIndhcm5pbmdzIjogW10sCiAgInJhbmRvbVBpY2tzIjogZmFsc2UsCiAgImJ1c3kiOiBmYWxzZSwKICAiY292ZXJhZ2UiOiB7CiAgICAibW9kZSI6ICJjb3VudCIsCiAgICAidmlkZW9TZWMiOiA2LAogICAgImZpeGVkU2VjIjogMTAsCiAgICAiY2hhbm5lbFNlYyI6IDAKICB9LAogICJpdGVtcyI6IFtdLAogICJmaXhlZEl0ZW1zIjogWwogICAgewogICAgICAiaWQiOiAiZml4ZWQ6dHdpdGNoOklubm9jZW50SGVkb25pc3RpY0RvdmVGcmFua2VyWi16YjByemd4bl8zdFVpWE9ZIiwKICAgICAgInZpZGVvSWQiOiAidHdpdGNoOklubm9jZW50SGVkb25pc3RpY0RvdmVGcmFua2VyWi16YjByemd4bl8zdFVpWE9ZIiwKICAgICAgImtpbmQiOiAidmlkZW8iLAogICAgICAic291cmNlIjogImZpeGVkIiwKICAgICAgInRpdGxlIjogImluIHRoYXQgLi4uLi4iLAogICAgICAidXJsIjogImh0dHBzOi8vd3d3LnR3aXRjaC50di9zaHJvdWQvY2xpcC9Jbm5vY2VudEhlZG9uaXN0aWNEb3ZlRnJhbmtlclotemIwcnpneG5fM3RVaVhPWSIsCiAgICAgICJzdGFydFNlYyI6IDMsCiAgICAgICJlbmRTZWMiOiAxMywKICAgICAgInBsYXliYWNrU2VjIjogMTAKICAgIH0KICBdLAogICJwbGF5YmFja1NwZWVkIjogMSwKICAic291cmNlcyI6IFtdLAogICJyZWJ1aWxkaW5nIjogZmFsc2UsCiAgInByb2plY3RSZXZpc2lvbiI6ICJzaGEyNTY6YTMwMzNiZjg3OTc3MmY4ZTI2NzY3ZDk1MDlhYTJlNThhYTM4ZDIyN2RkOTM3YWYyODYyYjhkYmZjOWY2MTE0NSIKfQ=="
+                    },
+                    {
+                      "name": "main-info-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiYWdlbnRzIjogWwogICAgewogICAgICAiaWQiOiAic2NvdXQiLAogICAgICAic3RhdGUiOiAiZG9uZSIsCiAgICAgICJub3ciOiBudWxsLAogICAgICAibWV0cmljIjogbnVsbAogICAgfSwKICAgIHsKICAgICAgImlkIjogImRpcmVjdG9yIiwKICAgICAgInN0YXRlIjogImRvbmUiLAogICAgICAibm93IjogbnVsbCwKICAgICAgIm1ldHJpYyI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJpZCI6ICJhcnRpc3QiLAogICAgICAic3RhdGUiOiAiZG9uZSIsCiAgICAgICJub3ciOiBudWxsLAogICAgICAibWV0cmljIjogbnVsbAogICAgfSwKICAgIHsKICAgICAgImlkIjogInFhIiwKICAgICAgInN0YXRlIjogImRvbmUiLAogICAgICAibm93IjogbnVsbCwKICAgICAgIm1ldHJpYyI6IG51bGwKICAgIH0KICBdLAogICJiYWNrZHJvcCI6IHsKICAgICJjb3ZlcmVkIjogMCwKICAgICJ0b3RhbCI6IDYsCiAgICAiY2xpcENvdW50IjogMCwKICAgICJidXN5IjogZmFsc2UsCiAgICAicmVidWlsZGluZyI6IGZhbHNlLAogICAgInJldmlzaW9uIjogIjkzMWUzMDE1MTM1ZDgyNjgiCiAgfSwKICAiam91cm5hbCI6IHsKICAgICJzdGVwcyI6IDksCiAgICAiY2xvc2VkIjogMgogIH0sCiAgIm1lbnUiOiB7CiAgICAiYnVuZGxlIjogIi9hcGkvY2xvbmUvZG93bmxvYWQ/aWRzPWJhN2ZlZDA5LTljZTEtNDQ2ZS05ODA1LTM2MTljODE5ZmYxNiIsCiAgICAiY2hhbm5lbCI6ICIjL2NoYW5uZWxzLzc4Nzk5ZWQwLTU3ZmEtNGNmZi1hYjAwLTUwOWJkYzY1ZTVkYSIKICB9Cn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---425b3-plus-the-real-overflow-menu-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-59fca991ce8527f4dd74",
+          "file": "studio-state-audit.pw.ts",
+          "line": 504,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main scope, bundle selection and six real video rows follow both panels",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3252,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:28.196Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-scope-selection-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAicm93cyI6IDEzLAogICJzY29wZSI6IHsKICAgICJjaGFubmVsIjogIjc4Nzk5ZWQwLTU3ZmEtNGNmZi1hYjAwLTUwOWJkYzY1ZTVkYSIsCiAgICAic2NvcGVkSm9icyI6IDEzLAogICAgInZpZGVvUHJlc2VydmVkIjogImJhN2ZlZDA5LTljZTEtNDQ2ZS05ODA1LTM2MTljODE5ZmYxNiIKICB9LAogICJ2aWRlb3MiOiBbCiAgICB7CiAgICAgICJrZXkiOiAiZG9uZSIsCiAgICAgICJpZCI6ICJiYTdmZWQwOS05Y2UxLTQ0NmUtOTgwNS0zNjE5YzgxOWZmMTYiLAogICAgICAidGl0bGUiOiAiUUEgTWFpbiDCtyBUaMOgbmggcGjhuqltIiwKICAgICAgIm1ldGFUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIH0sCiAgICB7CiAgICAgICJrZXkiOiAicmV2aWV3IiwKICAgICAgImlkIjogIjZhMWU3YmI0LTdjNmItNGEwMC1hNjlkLTk2ZTY3Y2QzNTdlYiIsCiAgICAgICJ0aXRsZSI6ICJRQSBNYWluIMK3IFBow7JuZyBkdXnhu4d0IiwKICAgICAgIm1ldGFUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIH0sCiAgICB7CiAgICAgICJrZXkiOiAiaXNzdWUiLAogICAgICAiaWQiOiAiOTQwNjMxZjEtMGVkOS00YmIwLWJjOWYtNDEyZDQxOTZhMDAxIiwKICAgICAgInRpdGxlIjogIlFBIE1haW4gwrcgQ+G6p24geOG7rSBsw70iLAogICAgICAibWV0YVRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJxdWFsaXR5IiwKICAgICAgImlkIjogImMyMjU5Y2ViLTViOTgtNDZlYy04YjhjLWZlMmZkM2FjNzIwYSIsCiAgICAgICJ0aXRsZSI6ICJRQSBNYWluIMK3IEtp4buDbSDEkeG7i25oIiwKICAgICAgIm1ldGFUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIH0sCiAgICB7CiAgICAgICJrZXkiOiAicGF1c2VkIiwKICAgICAgImlkIjogImE3ZTY2MjQ1LTY5Y2YtNDM3ZS1iZDZhLTc2ZjhmYjQ3NTEyNiIsCiAgICAgICJ0aXRsZSI6ICJRQSBNYWluIMK3IFThuqFtIGThu6tuZyIsCiAgICAgICJtZXRhVGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkiCiAgICB9LAogICAgewogICAgICAia2V5IjogIm1ldGFFZGl0ZWQiLAogICAgICAiaWQiOiAiZTg0NGJhN2UtOTY0MS00MTVjLTg4OWItMzg5OTg0MTQ3NjMyIiwKICAgICAgInRpdGxlIjogIlFBIE1haW4gwrcgxJDDoyBz4butYSIsCiAgICAgICJtZXRhVGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkgwrcgUUEgc+G7rWEiCiAgICB9CiAgXQp9"
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---552cf-deo-rows-follow-both-panels-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-1d9b2ac4be0de0a280e3",
+          "file": "studio-state-audit.pw.ts",
+          "line": 607,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main jobs pill shows the real idle state and a real queue pause that is restored",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "Main jobs.paused uses the same normal PATCH /api/queue the Queue screen calls; the flag is restored in finally and its pausedAt/9-shape comes from the server. No queue items or provider work exist."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:31.454Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "Main jobs.paused uses the same normal PATCH /api/queue the Queue screen calls; the flag is restored in finally and its pausedAt/9-shape comes from the server. No queue items or provider work exist."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-jobs-paused-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiaW5pdGlhbCI6IHsKICAgICJydW5uaW5nIjogMCwKICAgICJxdWV1ZWQiOiAwLAogICAgInBhdXNlZCI6IGZhbHNlLAogICAgInJldmlld0NvdW50IjogMywKICAgICJhdHRlbnRpb24iOiBbCiAgICAgIHsKICAgICAgICAia2luZCI6ICJxdW90YV9sb3ciLAogICAgICAgICJ0ZXh0IjogIkNoYXRHUFQgxJHDoyBkw7luZyBo4bq/dCAyIOG6o25oIHRy4bqjIHBow60gaMO0bSBuYXkiLAogICAgICAgICJocmVmIjogIiMvc2V0dGluZ3M/c2VjdGlvbj1jb25uZWN0IgogICAgICB9LAogICAgICB7CiAgICAgICAgImtpbmQiOiAibG9naW5fZXhwaXJlZCIsCiAgICAgICAgInRleHQiOiAiQ2jGsGEgxJHEg25nIG5o4bqtcCBHcm9rIiwKICAgICAgICAiaHJlZiI6ICIjL3NldHRpbmdzP3NlY3Rpb249Y29ubmVjdCIKICAgICAgfSwKICAgICAgewogICAgICAgICJraW5kIjogInRvb2xfdXBkYXRlIiwKICAgICAgICAidGV4dCI6ICJDw7MgYuG6o24gbeG7m2kgY2hvIFThuqNpIHZpZGVvIHbDoCBwaOG7pSDEkeG7gSIsCiAgICAgICAgImhyZWYiOiAiIy9zZXR0aW5ncz9zZWN0aW9uPXRvb2xzIgogICAgICB9CiAgICBdCiAgfSwKICAicGF1c2VkQnlUZXN0IjogdHJ1ZSwKICAicXVldWVQYXRoIjogIi9hcGkvcXVldWUiCn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---bb0ac-ueue-pause-that-is-restored-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-fe36dcda7eec3ef2fc21",
+          "file": "studio-state-audit.pw.ts",
+          "line": 675,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main stages review, issue, quality, pause and done use the real saved data",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "Stage rows are saved-state replays of one genuine committed job; review/issue/quality/paused use real steps, artifacts and published bytes. The issue fault code is replayed and labelled, not a provider incident."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:37.862Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "Stage rows are saved-state replays of one genuine committed job; review/issue/quality/paused use real steps, artifacts and published bytes. The issue fault code is replayed and labelled, not a provider incident."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-stage-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJzdGFnZXMiOiB7CiAgICAicmV2aWV3IjogewogICAgICAic3RhZ2UiOiAicmV2aWV3IiwKICAgICAgImltYWdlcyI6IDcKICAgIH0sCiAgICAiaXNzdWUiOiB7CiAgICAgICJzdGFnZSI6ICJhdHRlbnRpb24iLAogICAgICAic3RlcEVycm9yIjogewogICAgICAgICJjb2RlIjogImludGVycnVwdGVkIiwKICAgICAgICAibWVzc2FnZSI6ICJCxrDhu5tjIGLhu4sgZ2nDoW4gxJFv4bqhbi4gQ2jhuqF5IHRp4bq/cCB2aWRlbyDEkeG7gyBsw6BtIGzhuqFpLiIsCiAgICAgICAgInJlY292ZXJ5IjogbnVsbCwKICAgICAgICAicmV0cnlBdCI6IG51bGwKICAgICAgfQogICAgfSwKICAgICJxdWFsaXR5IjogewogICAgICAic3RhZ2UiOiAiYXR0ZW50aW9uIiwKICAgICAgInNjb3JlIjogewogICAgICAgICJ2ZXJzaW9uIjogMSwKICAgICAgICAidG90YWwiOiA3NSwKICAgICAgICAicGFzc2VkIjogZmFsc2UsCiAgICAgICAgIml0ZW1zIjogWwogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiZHVyYXRpb24iLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogMTUsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAxNSwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJvdXRwdXRTZWMiOiA2LAogICAgICAgICAgICAgICJyYXRpbyI6IDEsCiAgICAgICAgICAgICAgInNvdXJjZVNlYyI6IDYKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImV4cGVjdGVkIjogIsKxMTAlIHNvIHbhu5tpIG5ndeG7k24iLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiNi4wMHMgLyA2LjAwcyIKICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJzY2VuZUNvdW50IiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDEwLAogICAgICAgICAgICAid2VpZ2h0IjogMTAsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAiaXRlbXMiOiA2LAogICAgICAgICAgICAgICJzY2VuZXMiOiA2CiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICI2IGPhuqNuaCIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICI2IGNsaXAg4bqjbmggdHLDqm4gZMOybmcgdGjhu51pIGdpYW4iCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiY3V0Umh5dGhtIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDE1LAogICAgICAgICAgICAid2VpZ2h0IjogMTUsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IHsKICAgICAgICAgICAgICAibWlzbWF0Y2hlcyI6IFtdCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICJtw6lwIGNsaXAga2jhu5twIGJvdW5kYXJ5IOKJpCAzZiIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICI2IGJvdW5kYXJ5IGto4bubcCIsCiAgICAgICAgICAgICJmaXgiOiB7CiAgICAgICAgICAgICAgIml0ZW1JZCI6ICJjbG9uZS0zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMtZzEtc2NlbmUtc2MtMDEiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJiYWNrZ3JvdW5kIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJwYXNzIiwKICAgICAgICAgICAgInBvaW50cyI6IDAsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAwLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiVGVtcGxhdGUga2jDtG5nIGPDsyB2YWkgdHLDsiBO4buBbiB2aWRlbyDigJQga2jDtG5nIHnDqnUgY+G6p3UgbuG7gW4iCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiaW1hZ2VzIiwKICAgICAgICAgICAgInN0YXR1cyI6ICJmYWlsIiwKICAgICAgICAgICAgInBvaW50cyI6IDAsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAyMCwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJ0b3RhbCI6IDYsCiAgICAgICAgICAgICAgInZlcmlmaWVkIjogMAogICAgICAgICAgICB9LAogICAgICAgICAgICAiZXhwZWN0ZWQiOiAiNiDhuqNuaCBQTkcgdMOhY2ggbuG7gW4gxJHDoyBkdXnhu4d0LCDEkcO6bmcga8OtY2ggdGjGsOG7m2MsIHRyw6puIGTDsm5nIHRo4budaSBnaWFuIiwKICAgICAgICAgICAgImV2aWRlbmNlIjogIuG6o25oIHNjLTAxIHRoaeG6v3UgZmlsZTsg4bqjbmggc2MtMDIgdGhp4bq/dSBmaWxlOyDhuqNuaCBzYy0wMyB0aGnhur91IGZpbGUiLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJpdGVtSWQiOiAiY2xvbmUtMzIyNWI2MjktNTFjOC00ZjgxLTg0NTYtOWVjYWNkZTY2NGFjLWcxLXNjZW5lLXNjLTAxIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiY2FwdGlvbnMiLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogMjAsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAyMCwKICAgICAgICAgICAgImV2aWRlbmNlIjogIktow7RuZyBuaOG6rW4gZGnhu4duIMSRxrDhu6NjIGdp4buNbmcgbsOzaSDigJQga2jDtG5nIGPhuqduIHBo4bulIMSR4buBIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImNhcHRpb25BbGlnbm1lbnQiLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogMCwKICAgICAgICAgICAgIndlaWdodCI6IDAsCiAgICAgICAgICAgICJtZWFzdXJlZCI6IG51bGwsCiAgICAgICAgICAgICJleHBlY3RlZCI6ICJLaOG7m3Ag4omlNjAlIMK3IG1lZGlhbiDiiaQxMjAgbXMgwrcgcDk1IOKJpDI1MCBtcyIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICJD4bqjbmggYsOhbzogdGhp4bq/dSBt4buRYyBBU1IgxJHhu5ljIGzhuq1wIOKAlCBjaMawYSDEkW8gxJHGsOG7o2MgxJHhu5kga2jhu5twIHRp4bq/bmciLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJocmVmIjogIi9jbG9uZS8zMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMjY2FwdGlvbnMiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0sCiAgICAgICAgICB7CiAgICAgICAgICAgICJpZCI6ICJjYXB0aW9uS2FyYW9rZSIsCiAgICAgICAgICAgICJzdGF0dXMiOiAicGFzcyIsCiAgICAgICAgICAgICJwb2ludHMiOiAwLAogICAgICAgICAgICAid2VpZ2h0IjogMCwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJrYXJhb2tlUmF0aW8iOiAxCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICJUaMO0bmcgdGluOiDiiaU5MCUgdHJhbmcgY8OzIG3hu5FjIHRo4bqtdCIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICIxMDAlIHRyYW5nIGthcmFva2Ugwrcga2jDtG5nIGNo4bq3biB4deG6pXQiCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAibG91ZG5lc3MiLAogICAgICAgICAgICAic3RhdHVzIjogInBhc3MiLAogICAgICAgICAgICAicG9pbnRzIjogMTAsCiAgICAgICAgICAgICJ3ZWlnaHQiOiAxMCwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJsdWZzIjogLTE0LAogICAgICAgICAgICAgICJzb3VyY2VMdWZzIjogLTE4LjgsCiAgICAgICAgICAgICAgInRhcmdldEx1ZnMiOiAtMTQKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImV4cGVjdGVkIjogIi0xNC4wwrExIExVRlMgKG3hu6VjIHRpw6p1IHRlbXBsYXRlKSIsCiAgICAgICAgICAgICJldmlkZW5jZSI6ICItMTQuMCBMVUZTIHNvIHbhu5tpIC0xNC4wIExVRlMgbeG7pWMgdGnDqnUgKGxheW91dCBlbmdpbmUpIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogInJlc29sdXRpb24xMDgwcCIsCiAgICAgICAgICAgICJzdGF0dXMiOiAicGFzcyIsCiAgICAgICAgICAgICJwb2ludHMiOiA1LAogICAgICAgICAgICAid2VpZ2h0IjogNSwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJmcHMiOiAzMCwKICAgICAgICAgICAgICAiaGVpZ2h0IjogMTA4MCwKICAgICAgICAgICAgICAicHJvZ3Jlc3NpdmUiOiB0cnVlLAogICAgICAgICAgICAgICJ3aWR0aCI6IDE5MjAKICAgICAgICAgICAgfSwKICAgICAgICAgICAgImV4cGVjdGVkIjogIjE5MjDDlzEwODAgwrcgMzAgZnBzIMK3IHByb2dyZXNzaXZlIiwKICAgICAgICAgICAgImV2aWRlbmNlIjogIjE5MjDDlzEwODAgwrcgMzAgZnBzIgogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogInRodW1ibmFpbCIsCiAgICAgICAgICAgICJzdGF0dXMiOiAiZmFpbCIsCiAgICAgICAgICAgICJwb2ludHMiOiAwLAogICAgICAgICAgICAid2VpZ2h0IjogNSwKICAgICAgICAgICAgIm1lYXN1cmVkIjogewogICAgICAgICAgICAgICJoZWlnaHQiOiA3MjAsCiAgICAgICAgICAgICAgInNoYTI1NiI6ICI3YWQ3YmI2MGNiOGUwNGY0NzBmMDY5MGQzZDk3YWMzMDMwNGNmNWNiN2Y5ZTVhZjMxZmIyNDY4NjUzMjZjZmU1IiwKICAgICAgICAgICAgICAid2lkdGgiOiAxMjgwCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgICJleHBlY3RlZCI6ICJXZWJQIMSRw6MgZHV54buHdCAxMjgww5c3MjAiLAogICAgICAgICAgICAiZXZpZGVuY2UiOiAiVGh1bWJuYWlsIHNhaSBrw61jaCB0aMaw4bubYy9oYXNoIiwKICAgICAgICAgICAgImZpeCI6IHsKICAgICAgICAgICAgICAiaHJlZiI6ICIvY2xvbmUiCiAgICAgICAgICAgIH0KICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJibG9ja2VycyI6IFsKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogImltYWdlcyIsCiAgICAgICAgICAgICJtZXNzYWdlIjogIuG6om5oIGPhuqNuaCBjaMawYSDEkeG7pzog4bqjbmggc2MtMDEgdGhp4bq/dSBmaWxlIiwKICAgICAgICAgICAgImZpeCI6IHsKICAgICAgICAgICAgICAiaXRlbUlkIjogImNsb25lLTMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYy1nMS1zY2VuZS1zYy0wMSIKICAgICAgICAgICAgfQogICAgICAgICAgfSwKICAgICAgICAgIHsKICAgICAgICAgICAgImlkIjogInRodW1ibmFpbCIsCiAgICAgICAgICAgICJtZXNzYWdlIjogIlRodW1ibmFpbCBjaMawYSDEkcaw4bujYyBkdXnhu4d0IMSRw7puZyBXZWJQIDEyODDDlzcyMCIsCiAgICAgICAgICAgICJmaXgiOiB7CiAgICAgICAgICAgICAgImhyZWYiOiAiL2Nsb25lIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAiYXVkaW8iLAogICAgICAgICAgICAibWVzc2FnZSI6ICLDgm0gdGhhbmggZ+G7kWMgcGjhuqNpIGhp4buHbiBo4buvdSB2w6AgcGjDoXQgxJHGsOG7o2MgdHLDqm4gZMOybmcgdGjhu51pIGdpYW4g4oCUIGtp4buDbSB0cmEgbOG7m3Agw6JtIHRoYW5oIHbDoCBjbGlwIGPDsyBi4buLIHThuq90IHRp4bq/bmciCiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAid2F2ZWZvcm0iLAogICAgICAgICAgICAibWVzc2FnZSI6ICJTw7NuZyBnaeG7jW5nIHRyb25nIHRlbXBsYXRlIHBo4bqjaSBoaeG7g24gdGjhu4sgdsOgIGTDuW5nIMOibSB0aGFuaCBn4buRYyIsCiAgICAgICAgICAgICJmaXgiOiB7CiAgICAgICAgICAgICAgIml0ZW1JZCI6ICJzdGFuZGFyZC13YXZlIgogICAgICAgICAgICB9CiAgICAgICAgICB9LAogICAgICAgICAgewogICAgICAgICAgICAiaWQiOiAic3Vic2NyaWJlIiwKICAgICAgICAgICAgIm1lc3NhZ2UiOiAiQ8OhYyBs4bubcCDEkMSDbmcga8O9IHRyb25nIHRlbXBsYXRlIHBo4bqjaSBoaeG7h24gaOG7r3UgdHLDqm4gZMOybmcgdGjhu51pIGdpYW4iLAogICAgICAgICAgICAiZml4IjogewogICAgICAgICAgICAgICJpdGVtSWQiOiAic3RhbmRhcmQtZW5kLXN1YnNjcmliZS1iYWNrZHJvcCIKICAgICAgICAgICAgfQogICAgICAgICAgfQogICAgICAgIF0sCiAgICAgICAgImJpbmRpbmciOiB7CiAgICAgICAgICAicHJvamVjdFJldmlzaW9uIjogInNoYTI1NjoxMmYzZjE5ODA2NTc2MWQ4NzNlODdlMzM1Y2ExMmFjYzYyMTU2OGZjZmI1MTBhZWM2ZWJlZGFlYTBmMDJjMzQyIiwKICAgICAgICAgICJzZXR0aW5nc0hhc2giOiAic2hhMjU2OmFkY2ViYjdmMWFkNjBmYzMwOWQ3YWNkN2U1Nzc3NTg4MTRlOTY5ZTc4NDljMTZkMWMwOWYwMWNjZTE0ZWU2OWIiLAogICAgICAgICAgImFydGlmYWN0SGFzaCI6ICJzaGEyNTY6MmYyNWVlODdkMzI4Y2IwNTc3OWU4OGVlZTdmNDEzMTI5MjUyNTk0NzY0Y2NlMzlkYTdkYzFmMmVlYjQ5ZmE3YyIKICAgICAgICB9LAogICAgICAgICJtZWFzdXJlbWVudElkIjogImNhYjgwZmI4LWJjNTktNDczMS1hYmU2LTY4OTdkMGZlMTNkNSIsCiAgICAgICAgIm1lYXN1cmVkQXQiOiAiMjAyNi0xMS0wM1QyMDoxMTozMS4zMDc2MjVaIiwKICAgICAgICAiZ2VuZXJhdGlvbiI6IDEKICAgICAgfQogICAgfSwKICAgICJwYXVzZWQiOiB7CiAgICAgICJzdGFnZSI6ICJwYXVzZWQiLAogICAgICAicGF1c2VkQXQiOiAiMjAyNi0xMS0wNFQyMjowNDoxMS40NjMyMTcrMDc6MDAiCiAgICB9LAogICAgImRvbmUiOiB7CiAgICAgICJzdGFnZSI6ICJyZWFkeSIsCiAgICAgICJzY29yZSI6IDc1LAogICAgICAiZXhwb3J0Qnl0ZXMiOiA2MzA2NTMKICAgIH0KICB9Cn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---cb1b1-one-use-the-real-saved-data-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-8c7d362939639f2a80ae",
+          "file": "studio-state-audit.pw.ts",
+          "line": 275,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main metadata states ai, pending, writing, failed, edited and history persist for real",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "pending/writing/failed are saved metadata sub-states replayed on owned copies with no invented failure text or provider output; edited/history come from two real panel PATCH saves and authoritative readback."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4273,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:40.882Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "pending/writing/failed are saved metadata sub-states replayed on owned copies with no invented failure text or provider output; edited/history come from two real panel PATCH saves and authoritative readback."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-metadata-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJtZXRhZGF0YSI6IHsKICAgICJhaVN0YXR1cyI6ICJhaSIsCiAgICAiYWlUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIsCiAgICAib3JpZ2luYWxIaXN0b3J5IjogMCwKICAgICJwZW5kaW5nU3RhdHVzIjogInBlbmRpbmciLAogICAgIndyaXRpbmdTdGF0dXMiOiAid3JpdGluZyIsCiAgICAiZmFpbGVkU3RhdHVzIjogImZhaWxlZCIsCiAgICAiZWRpdGVkIjogewogICAgICAidGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkgwrcgUUEgc+G7rWEgwrcgUUEgc+G7rWEiLAogICAgICAiZGVzY3JpcHRpb25MZW5ndGgiOiAxMDUsCiAgICAgICJlZGl0ZWRCeSI6ICJvd25lciIsCiAgICAgICJyZXZpc2lvbiI6IDMsCiAgICAgICJoaXN0b3J5IjogWwogICAgICAgIHsKICAgICAgICAgICJhdCI6ICIyMDI2LTExLTA0VDE1OjA0OjQ0Ljc3NjQ2M1oiLAogICAgICAgICAgImJ5IjogIm93bmVyIiwKICAgICAgICAgICJ0aXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSDCtyBRQSBz4butYSDCtyBRQSBz4butYSIKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgICJhdCI6ICIyMDI2LTExLTA0VDE1OjA0OjQzLjcyNzQ3WiIsCiAgICAgICAgICAiYnkiOiAib3duZXIiLAogICAgICAgICAgInRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IMK3IFFBIHPhu61hIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImF0IjogIjIwMjYtMTEtMDRUMTU6MDQ6MjQuOTc2NTA0WiIsCiAgICAgICAgICAiYnkiOiAib3duZXIiLAogICAgICAgICAgInRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IMK3IFFBIHPhu61hIgogICAgICAgIH0sCiAgICAgICAgewogICAgICAgICAgImF0IjogIjIwMjYtMTEtMDRUMTU6MDQ6MjMuNzkxODczWiIsCiAgICAgICAgICAiYnkiOiAiZGlyZWN0b3IiLAogICAgICAgICAgInRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IgogICAgICAgIH0KICAgICAgXQogICAgfQogIH0KfQ=="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQQVRDSCAvYXBpL2Nsb25lL2U4NDRiYTdlLTk2NDEtNDE1Yy04ODliLTM4OTk4NDE0NzYzMi9tZXRhZGF0YSIsCiAgICAiUEFUQ0ggL2FwaS9jbG9uZS9lODQ0YmE3ZS05NjQxLTQxNWMtODg5Yi0zODk5ODQxNDc2MzIvbWV0YWRhdGEiCiAgXSwKICAiZXh0ZXJuYWxDb3VudCI6IDAsCiAgImV4dGVybmFsU2FtcGxlIjogW10KfQ=="
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---e5a58-nd-history-persist-for-real-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-309486fa62c81a7ea015",
+          "file": "studio-state-audit.pw.ts",
+          "line": 371,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main info panel, real journal and backdrop shortage plus the real overflow menu",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2321,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:45.161Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "covered-backdrop-evidence.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXZpc2lvbiI6ICI5MzFlMzAxNTEzNWQ4MjY4IiwKICAid2FudGVkQ291bnQiOiAwLAogICJyZWFkeUNvdW50IjogMCwKICAiZmFsbGJhY2siOiAibm9uZSIsCiAgIndhcm5pbmdzIjogW10sCiAgInJhbmRvbVBpY2tzIjogZmFsc2UsCiAgImJ1c3kiOiBmYWxzZSwKICAiY292ZXJhZ2UiOiB7CiAgICAibW9kZSI6ICJjb3VudCIsCiAgICAidmlkZW9TZWMiOiA2LAogICAgImZpeGVkU2VjIjogMTAsCiAgICAiY2hhbm5lbFNlYyI6IDAKICB9LAogICJpdGVtcyI6IFtdLAogICJmaXhlZEl0ZW1zIjogWwogICAgewogICAgICAiaWQiOiAiZml4ZWQ6dHdpdGNoOklubm9jZW50SGVkb25pc3RpY0RvdmVGcmFua2VyWi16YjByemd4bl8zdFVpWE9ZIiwKICAgICAgInZpZGVvSWQiOiAidHdpdGNoOklubm9jZW50SGVkb25pc3RpY0RvdmVGcmFua2VyWi16YjByemd4bl8zdFVpWE9ZIiwKICAgICAgImtpbmQiOiAidmlkZW8iLAogICAgICAic291cmNlIjogImZpeGVkIiwKICAgICAgInRpdGxlIjogImluIHRoYXQgLi4uLi4iLAogICAgICAidXJsIjogImh0dHBzOi8vd3d3LnR3aXRjaC50di9zaHJvdWQvY2xpcC9Jbm5vY2VudEhlZG9uaXN0aWNEb3ZlRnJhbmtlclotemIwcnpneG5fM3RVaVhPWSIsCiAgICAgICJzdGFydFNlYyI6IDMsCiAgICAgICJlbmRTZWMiOiAxMywKICAgICAgInBsYXliYWNrU2VjIjogMTAKICAgIH0KICBdLAogICJwbGF5YmFja1NwZWVkIjogMSwKICAic291cmNlcyI6IFtdLAogICJyZWJ1aWxkaW5nIjogZmFsc2UsCiAgInByb2plY3RSZXZpc2lvbiI6ICJzaGEyNTY6YTMwMzNiZjg3OTc3MmY4ZTI2NzY3ZDk1MDlhYTJlNThhYTM4ZDIyN2RkOTM3YWYyODYyYjhkYmZjOWY2MTE0NSIKfQ=="
+                    },
+                    {
+                      "name": "main-info-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJhZ2VudHMiOiBbCiAgICB7CiAgICAgICJpZCI6ICJzY291dCIsCiAgICAgICJzdGF0ZSI6ICJkb25lIiwKICAgICAgIm5vdyI6IG51bGwsCiAgICAgICJtZXRyaWMiOiBudWxsCiAgICB9LAogICAgewogICAgICAiaWQiOiAiZGlyZWN0b3IiLAogICAgICAic3RhdGUiOiAiZG9uZSIsCiAgICAgICJub3ciOiBudWxsLAogICAgICAibWV0cmljIjogbnVsbAogICAgfSwKICAgIHsKICAgICAgImlkIjogImFydGlzdCIsCiAgICAgICJzdGF0ZSI6ICJkb25lIiwKICAgICAgIm5vdyI6IG51bGwsCiAgICAgICJtZXRyaWMiOiBudWxsCiAgICB9LAogICAgewogICAgICAiaWQiOiAicWEiLAogICAgICAic3RhdGUiOiAiZG9uZSIsCiAgICAgICJub3ciOiBudWxsLAogICAgICAibWV0cmljIjogbnVsbAogICAgfQogIF0sCiAgImJhY2tkcm9wIjogewogICAgImNvdmVyZWQiOiAwLAogICAgInRvdGFsIjogNiwKICAgICJjbGlwQ291bnQiOiAwLAogICAgImJ1c3kiOiBmYWxzZSwKICAgICJyZWJ1aWxkaW5nIjogZmFsc2UsCiAgICAicmV2aXNpb24iOiAiOTMxZTMwMTUxMzVkODI2OCIKICB9LAogICJqb3VybmFsIjogewogICAgInN0ZXBzIjogOSwKICAgICJjbG9zZWQiOiAyCiAgfSwKICAibWVudSI6IHsKICAgICJidW5kbGUiOiAiL2FwaS9jbG9uZS9kb3dubG9hZD9pZHM9YmE3ZmVkMDktOWNlMS00NDZlLTk4MDUtMzYxOWM4MTlmZjE2IiwKICAgICJjaGFubmVsIjogIiMvY2hhbm5lbHMvNzg3OTllZDAtNTdmYS00Y2ZmLWFiMDAtNTA5YmRjNjVlNWRhIgogIH0KfQ=="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---425b3-plus-the-real-overflow-menu-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-445ec7b72fd2e0c518a6",
+          "file": "studio-state-audit.pw.ts",
+          "line": 504,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main scope, bundle selection and six real video rows follow both panels",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2862,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:47.489Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-scope-selection-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJyb3dzIjogMTMsCiAgInNjb3BlIjogewogICAgImNoYW5uZWwiOiAiNzg3OTllZDAtNTdmYS00Y2ZmLWFiMDAtNTA5YmRjNjVlNWRhIiwKICAgICJzY29wZWRKb2JzIjogMTMsCiAgICAidmlkZW9QcmVzZXJ2ZWQiOiAiYmE3ZmVkMDktOWNlMS00NDZlLTk4MDUtMzYxOWM4MTlmZjE2IgogIH0sCiAgInZpZGVvcyI6IFsKICAgIHsKICAgICAgImtleSI6ICJkb25lIiwKICAgICAgImlkIjogImJhN2ZlZDA5LTljZTEtNDQ2ZS05ODA1LTM2MTljODE5ZmYxNiIsCiAgICAgICJ0aXRsZSI6ICJRQSBNYWluIMK3IFRow6BuaCBwaOG6qW0iLAogICAgICAibWV0YVRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJyZXZpZXciLAogICAgICAiaWQiOiAiNmExZTdiYjQtN2M2Yi00YTAwLWE2OWQtOTZlNjdjZDM1N2ViIiwKICAgICAgInRpdGxlIjogIlFBIE1haW4gwrcgUGjDsm5nIGR1eeG7h3QiLAogICAgICAibWV0YVRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJpc3N1ZSIsCiAgICAgICJpZCI6ICI5NDA2MzFmMS0wZWQ5LTRiYjAtYmM5Zi00MTJkNDE5NmEwMDEiLAogICAgICAidGl0bGUiOiAiUUEgTWFpbiDCtyBD4bqnbiB44butIGzDvSIsCiAgICAgICJtZXRhVGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkiCiAgICB9LAogICAgewogICAgICAia2V5IjogInF1YWxpdHkiLAogICAgICAiaWQiOiAiYzIyNTljZWItNWI5OC00NmVjLThiOGMtZmUyZmQzYWM3MjBhIiwKICAgICAgInRpdGxlIjogIlFBIE1haW4gwrcgS2nhu4NtIMSR4buLbmgiLAogICAgICAibWV0YVRpdGxlIjogIktp4buDbSB0aOG7rSBRQSDCtyBNaWRuaWdodCBUYWxlcyDCtyBzw6F1IGdpw6J5IgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJwYXVzZWQiLAogICAgICAiaWQiOiAiYTdlNjYyNDUtNjljZi00MzdlLWJkNmEtNzZmOGZiNDc1MTI2IiwKICAgICAgInRpdGxlIjogIlFBIE1haW4gwrcgVOG6oW0gZOG7q25nIiwKICAgICAgIm1ldGFUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIH0sCiAgICB7CiAgICAgICJrZXkiOiAibWV0YUVkaXRlZCIsCiAgICAgICJpZCI6ICJlODQ0YmE3ZS05NjQxLTQxNWMtODg5Yi0zODk5ODQxNDc2MzIiLAogICAgICAidGl0bGUiOiAiUUEgTWFpbiDCtyDEkMOjIHPhu61hIiwKICAgICAgIm1ldGFUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSDCtyBRQSBz4butYSDCtyBRQSBz4butYSIKICAgIH0KICBdCn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---552cf-deo-rows-follow-both-panels-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-cbe1aa513d2b67b3e528",
+          "file": "studio-state-audit.pw.ts",
+          "line": 607,
+          "column": 5
+        },
+        {
+          "title": "@main-static Main jobs pill shows the real idle state and a real queue pause that is restored",
+          "ok": true,
+          "tags": [
+            "main-static"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "fixture-policy",
+                  "description": "Main jobs.paused uses the same normal PATCH /api/queue the Queue screen calls; the flag is restored in finally and its pausedAt/9-shape comes from the server. No queue items or provider work exist."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1318,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T15:04:50.356Z",
+                  "annotations": [
+                    {
+                      "type": "fixture-policy",
+                      "description": "Main jobs.paused uses the same normal PATCH /api/queue the Queue screen calls; the flag is restored in finally and its pausedAt/9-shape comes from the server. No queue items or provider work exist."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "main-jobs-paused-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJpbml0aWFsIjogewogICAgInJ1bm5pbmciOiAwLAogICAgInF1ZXVlZCI6IDAsCiAgICAicGF1c2VkIjogZmFsc2UsCiAgICAicmV2aWV3Q291bnQiOiAzLAogICAgImF0dGVudGlvbiI6IFsKICAgICAgewogICAgICAgICJraW5kIjogInF1b3RhX2xvdyIsCiAgICAgICAgInRleHQiOiAiQ2hhdEdQVCDEkcOjIGTDuW5nIGjhur90IDIg4bqjbmggdHLhuqMgcGjDrSBow7RtIG5heSIsCiAgICAgICAgImhyZWYiOiAiIy9zZXR0aW5ncz9zZWN0aW9uPWNvbm5lY3QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAia2luZCI6ICJsb2dpbl9leHBpcmVkIiwKICAgICAgICAidGV4dCI6ICJDaMawYSDEkcSDbmcgbmjhuq1wIEdyb2siLAogICAgICAgICJocmVmIjogIiMvc2V0dGluZ3M/c2VjdGlvbj1jb25uZWN0IgogICAgICB9LAogICAgICB7CiAgICAgICAgImtpbmQiOiAidG9vbF91cGRhdGUiLAogICAgICAgICJ0ZXh0IjogIkPDsyBi4bqjbiBt4bubaSBjaG8gVOG6o2kgdmlkZW8gdsOgIHBo4bulIMSR4buBIiwKICAgICAgICAiaHJlZiI6ICIjL3NldHRpbmdzP3NlY3Rpb249dG9vbHMiCiAgICAgIH0KICAgIF0KICB9LAogICJwYXVzZWRCeVRlc3QiOiB0cnVlLAogICJxdWV1ZVBhdGgiOiAiL2FwaS9xdWV1ZSIKfQ=="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/034-canonical-coverage-tokens/browser-static/studio-state-audit.pw.ts---bb0ac-ueue-pause-that-is-restored-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-7ba05333157a30c857cd",
+          "file": "studio-state-audit.pw.ts",
+          "line": 675,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T15:04:12.849Z",
+    "duration": 39888.388000000006,
+    "expected": 10,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

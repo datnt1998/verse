@@ -18,6 +18,9 @@ const state = vi.hoisted(() => ({
   refresh: vi.fn(),
   confirm: vi.fn(),
   markPosted: vi.fn(),
+  suggestions: [] as import('../../api/suggestions').Suggestion[],
+  acceptSuggestion: vi.fn(),
+  dismissSuggestion: vi.fn(),
 }))
 vi.mock('@noverse/ui', async (importOriginal) => ({ ...(await importOriginal<object>()), confirm: state.confirm }))
 
@@ -48,12 +51,11 @@ vi.mock('../../components', () => ({
   ASSISTANT_INK: { scout: 'ink', director: 'ink', artist: 'ink', qa: 'ink' },
   assistantName: (agent: string) => agent,
 }))
-vi.mock('../../components/suggestions/SuggestionPanels', () => ({ SuggestionToggles: () => null, SuggestionDock: () => null }))
-vi.mock('../../components/suggestions/useSuggestions', () => ({ useSuggestionList: () => ({ data: { total: 0 } }) }))
-vi.mock('../../components/assistant/AssistantComposer', () => ({ AssistantComposer: () => null }))
+vi.mock('../../components/suggestions/useSuggestions', () => ({ useSuggestions: () => ({
+  list: { data: { suggestions: state.suggestions, total: state.suggestions.length }, initialLoading: false, error: null },
+  accept: state.acceptSuggestion, dismiss: state.dismissSuggestion, busy: null, notice: null, online: true,
+}) }))
 vi.mock('./OverflowMenu', () => ({ OverflowMenu: () => null }))
-vi.mock('./PromptMenu', () => ({ PromptMenu: () => null }))
-vi.mock('./recap/Recap', () => ({ Recap: () => null }))
 vi.mock('./panels/WorkbenchPanels', () => ({ WorkbenchPanels: () => null }))
 
 const jobView = (id: string, stageGroup: string, extra: Partial<CloneJobView> = {}): CloneJobView => ({
@@ -83,6 +85,12 @@ const imageVersion = (n: number, state: ImageVersion['state'], scene: string): I
   durationSec: 44, costImages: 1, error: null,
 })
 
+const suggestion = (id: string, title: string): import('../../api/suggestions').Suggestion => ({
+  id, kind: 'hot_video', agent: 'scout', channelId: 'c1', channelName: 'Kênh', title, evidence: '×3,2 · 18 giờ trước',
+  reason: { agent: 'scout', text: 'Video nguồn đang lên', facts: [] },
+  primary: { label: 'Xếp lịch', op: 'clone.enqueue', params: {} }, createdAt: '2026-11-02T10:00:00Z', expiresAt: '2026-11-03T10:00:00Z', state: 'open',
+})
+
 let root: Root | undefined
 let host: HTMLDivElement
 const render = async (route: Extract<Route, { name: 'workbench' }>) => {
@@ -104,6 +112,9 @@ const lastPost = () => {
 beforeEach(() => {
   vi.stubGlobal('matchMedia', (query: string) => ({ matches: false, media: query, addEventListener: () => {}, removeEventListener: () => {} }))
   state.jobs = [jobView('a', 'review'), jobView('b', 'review')]
+  state.suggestions = []
+  state.acceptSuggestion.mockReset()
+  state.dismissSuggestion.mockReset()
   state.images = {
     manifest: { revision: 7, scenePrompt: { id: 's', name: 'Cảnh', overridden: false }, coverPrompt: { id: 'c', name: 'Bìa', overridden: false } },
     items: [tile('scene-one'), tile('scene-two')],
@@ -197,5 +208,45 @@ describe('vẽ tiếp bằng Grok từ bản lỗi', () => {
       url: '/api/clone/a/images/redraw',
       body: { imageIds: ['scene-one'], provider: 'grok', baseVersion: 3 },
     })
+  })
+})
+
+describe('chọn nhiều video để tải gói', () => {
+  it('chỉ video Sẵn sàng đăng vào ZIP; bấm Chọn rồi chọn hai video thật', async () => {
+    state.jobs = [jobView('r1', 'ready'), jobView('r2', 'ready'), jobView('w1', 'working')]
+    await render({ name: 'workbench', video: 'r1' })
+    await act(async () => button('Chọn')!.click())
+    await act(async () => button('Video r1')!.click())
+    await act(async () => button('Video r2')!.click())
+    const download = [...host.querySelectorAll('a')].find((entry) => entry.textContent?.includes('Tải gói'))
+    expect(download?.getAttribute('href')).toBe('/api/clone/download?ids=r1,r2')
+    expect(download?.textContent).toContain('Tải gói 2 video')
+  })
+
+  it('giữ nguyên lựa chọn quá giới hạn ZIP và cho tải sau khi bỏ chọn xuống 50 video', async () => {
+    state.jobs = Array.from({ length: 51 }, (_, index) => jobView(`ready-${index}`, 'ready'))
+    await render({ name: 'workbench', video: 'ready-0' })
+    await act(async () => button('Chọn')!.click())
+    for (let index = 0; index < 51; index++) {
+      await act(async () => host.querySelector<HTMLButtonElement>(`[role="checkbox"][title="Video ready-${index}"]`)!.click())
+    }
+    const selection = host.querySelector('[role="region"][aria-label="Video đã chọn"]')!
+    expect(selection.querySelector('a')).toBeNull()
+    expect(selection.querySelector<HTMLButtonElement>('button')!.disabled).toBe(true)
+    expect(host.querySelectorAll('[role="checkbox"][aria-checked="true"]')).toHaveLength(51)
+    await act(async () => host.querySelector<HTMLButtonElement>('[role="checkbox"][title="Video ready-50"]')!.click())
+    const download = selection.querySelector('a')!
+    const ids = new URL(download.getAttribute('href')!, 'http://localhost').searchParams.get('ids')!.split(',')
+    expect(ids).toHaveLength(50)
+    expect(ids).not.toContain('ready-50')
+    expect(host.querySelectorAll('[role="checkbox"][aria-checked="true"]')).toHaveLength(50)
+  })
+
+  it('đề xuất nằm ngay trong nhóm Chờ bạn và bỏ qua được không mở thẻ riêng', async () => {
+    state.suggestions = [suggestion('s1', 'Video nguồn đang lên')]
+    await render({ name: 'workbench', video: 'a' })
+    expect(host.querySelector('[role="list"][aria-label="Đề xuất của trợ lý"]')?.textContent).toContain('Video nguồn đang lên')
+    await act(async () => (host.querySelector('button[aria-label="Bỏ qua"]') as HTMLButtonElement).click())
+    expect(state.dismissSuggestion).toHaveBeenCalledOnce()
   })
 })

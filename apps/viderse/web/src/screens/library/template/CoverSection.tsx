@@ -11,6 +11,7 @@ import { sx as viewerStyles } from '../../../components/image-viewer/image-viewe
 import { useMediaQuery } from '../../../lib/useMediaQuery'
 import { RadioCard, Icon, confirm, useEscapeLayer } from '@noverse/ui'
 import { ActionButton } from '../../../components'
+import { ResponsiveSelect } from '../../../components/responsive-overlays'
 import { t } from '../../../i18n/library'
 import type { ImagePrompt, Recipe, ThumbnailStyle } from '../../../api/library'
 import { uploadRefImage } from '../../../api/images'
@@ -191,20 +192,18 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
         <div className={`vt-row ${stylex.props(sx.row).className}`}>
           <label className={`vt-hint ${stylex.props(sx.hint).className}`} htmlFor="vt-cover-trial-source">{copy.trialSource}</label>
           {sources.length > 0 ? (
-            <select
+            <ResponsiveSelect
               id="vt-cover-trial-source"
-              className={`vt-select ${stylex.props(sx.select).className}`}
               aria-label={copy.trialSourceAria}
               value={jobId}
               disabled={trial.running}
-              onChange={(event) => setPickedJob(event.currentTarget.value)}
-            >
-              {sources.map((item) => (
-                <option key={item.jobId} value={item.jobId}>
-                  {copy.trialSourceOption(item.title, Math.max(1, Math.round(item.durationSec / 60)))}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setPickedJob(value)}
+              xstyle={sx.trialSourceField}
+              options={sources.map((item) => ({
+                value: item.jobId,
+                label: copy.trialSourceOption(item.title, Math.max(1, Math.round(item.durationSec / 60))),
+              }))}
+            />
           ) : (
             <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{trial.loading ? copy.trialRunning : copy.trialLocked}</span>
           )}
@@ -383,7 +382,7 @@ const sx = stylex.create({
   vtSourcesRadioCard: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
   row: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  select: { minHeight: "var(--vv-s-34)", maxWidth: "100%", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-1"], borderRightColor: line["--line-1"], borderBottomColor: line["--line-1"], borderLeftColor: line["--line-1"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: color["--color-bg"], color: color["--color-fg"], paddingLeft: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", fontSize: "var(--vv-s-13)" },
+  trialSourceField: { flexGrow: 1, flexShrink: 1, flexBasis: "auto", minWidth: 0 },
   progress: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-2"] },
   trials: { listStyle: "none", marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   trial: { minWidth: 0, borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-2"], borderRightColor: line["--line-2"], borderBottomColor: line["--line-2"], borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", overflow: "hidden", backgroundColor: "var(--vv-tile-idle)" },

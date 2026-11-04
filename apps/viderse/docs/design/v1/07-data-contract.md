@@ -178,10 +178,12 @@ Array<{
 
 - Bộ đổi kênh dùng chung endpoint này (nhịp hôm nay, chấm Chờ bạn). Dòng “Mọi kênh” cộng tổng `today` và `waitingYou`.
 - Video mặc định: hàm thuần `pickDefaultJob(jobs)` theo [ia-flows W5](01-ia-flows.md#w5--theo-dõi-video-đang-làm-bàn-dựng).
-- Tab **Nền**: `ytf clone backdrop` có sẵn (items, độ phủ, cảnh báo); hành động `backdrop-reroll | swap | add | remove` có sẵn.
-- Tab **Nội dung**: metadata và scene manifest có sẵn.
+- Bảng phải có đúng **Nội dung đăng** và **Thông tin** (mặc định). Thông tin đọc bốn trợ lý, nguồn, template và nền; Nội dung đăng dùng metadata và lịch sử thật (§16).
+- Cột trái dùng job thật; chế độ Chọn chỉ đưa video `ready` vào gói ZIP `GET /api/clone/download?ids=...`. Chọn thêm video chưa xong không làm mất lựa chọn; thanh dưới nêu rõ số đã chọn/số đủ điều kiện.
 - Ô ảnh **bị chặn**: dùng trạng thái `skipped` của image item có sẵn.
 - **Sẵn sàng:** cần `exportBytes` của MP4 để gợi ý xoá sau khi đăng. Có trong `delete-export` (freedBytes); cần đọc trước khi xoá.
+- Bản xuất Editor đã công bố có thể nằm trong `steps[export].output.data` (`projectId`, `exportId`, `durationMs`, `size`) mà không có phần tử trong `output.artifacts`. Trình xem thành phẩm đọc bước xuất `succeeded`, không có `removedAt`, và dùng thời lượng của bản xuất thay vì thời lượng nguồn; danh sách artefact rỗng không có nghĩa tệp đã bị xoá. Trường `accepted` chỉ ghi lựa chọn **Vẫn xuất** của chủ, không phải điều kiện tồn tại của tệp; bản tự đạt cổng xuất vẫn phát khi `accepted: false`.
+- Lỗi tải/giải mã MP4 không được thông báo thành “tệp đã xoá” nếu đầu ra vẫn còn; hai trạng thái này tách biệt ở cả máy tính lẫn điện thoại.
 
 ## §7 · Chọn nhiều trong Kênh
 
@@ -197,29 +199,11 @@ Dùng `POST /api/clone/bulk` có sẵn. UI cần đếm trước số job hợp 
 - Cùng request đặt luôn “Cách kênh chạy” (template rotation = Mẫu chuẩn, nhịp, `autonomy` — data-contract §20) bằng các API đã có, và `language` = ngôn ngữ đoán từ đối thủ tham chiếu.
 - Nhận diện tham chiếu **đối thủ liên kết đầu tiên** (thứ tự `owner_channel_sources.linked_at`). Chi tiết §16.
 
-## §9 · Nhắn trợ lý (mới, Gói V11)
+## §9 · Các API trợ lý đã ngừng (Gói V37)
 
-```
-POST /api/assistant/parse { scope: { jobId } | { channelId }, text }
-→ {
-    ok: true,
-    intent: IntentId,
-    params: object,
-    confirm: {
-      title: string,         // “Vẽ lại cảnh 5”
-      detail: string,        // “Hoạ sĩ vẽ lại theo góp ý: ‘cho y tá cầm đèn pin’”
-      cost: { images?: number },
-      reruns: AgentId[]
-    }
-  }
-  | { ok: false, suggestions: string[] }
+Không còn ô Nhắn trợ lý, thẻ Kế hoạch hoặc bộ phân loại câu thành intent. Nhóm `/api/assistant/*`, `/api/recap*`, `/api/explain/*`, `/api/learned-rules*` và `/api/undo` không đăng ký route, không có alias hoặc fallback.
 
-POST /api/assistant/run { intent, params } → kết quả của service tương ứng
-```
-
-Danh sách `IntentId` v1 ở [Gói V11](08-dev-prompt.md#goi-v11).
-
-**Cách chuyển câu thành intent:** dùng ChatGPT qua đường Codex hiện có, chỉ phân loại chữ, không vẽ ảnh. Câu người dùng là dữ liệu, không phải chỉ dẫn hệ thống. Chỉ cho phép đúng các intent trong danh sách.
+Người dùng thao tác trực tiếp trên video, template và ba loại đề xuất ở §18. Ghi chú người dùng trong hồ sơ kênh không phải kế hoạch trợ lý; dữ liệu lịch sử cũ không được tự biến thành tác vụ mới.
 
 ## §10 · Truy cập từ điện thoại (đã chốt D1: cách a) <!-- r32 -->
 
@@ -445,43 +429,40 @@ interface Reason {
   fix?: { label: string; href: string };                         // “Sửa quy tắc viết”
 }
 ```
-- Gắn vào: `competitorVideo.scoreReason`, `metadata.reason` (theo phần title/description/tags), `image.scoreReason`, `autoPick.decision.reason`, `suggestion.reason`.
-- Sinh bằng code từ số đã có (không gọi model) trừ `metadata.reason`: Đạo diễn trả kèm trong JSON của step `metadata` (`basedOn: { sourceTitle, rules: ruleId[] }`), app dựng câu.
+- Lý do số liệu còn dùng cho điểm video/ảnh, quyết định lấy nguồn và ba loại đề xuất sống. Sinh bằng code từ dữ liệu đã có, không gọi endpoint giải thích hoặc model chỉ để dựng câu.
+- Không còn thêm quy tắc đã học vào prompt metadata/ảnh. Dấu vết đã gửi của bản cũ là provenance lịch sử, không phải chỉ dẫn cho lượt kế tiếp.
 
-## §18 · Đề xuất (mới, Gói V19) <a id="suggestions"></a>
+## §18 · Ba loại đề xuất dùng chung (Gói V37) <a id="suggestions"></a>
 
 ```ts
-type SuggestionKind = "hot_video" | "template_failing" | "learn_rule" | "raise_autonomy" | "pace" | "perf_insight" | "cleanup";
+type SuggestionKind = "hot_video" | "template_failing" | "cleanup";
 interface Suggestion {
-  id: string; kind: SuggestionKind; agent: AgentId; channelId: string | null;
-  title: string;                      // ≤ 2 dòng
+  id: string; kind: SuggestionKind; agent: AgentId;
+  channelId: string | null; channelName: string | null;
+  title: string; evidence: string;
   reason: Reason;
-  primary: { label: string; op: string; params: object; cost?: { images?: number } };
+  primary: {
+    label: string; op: string; params: object;
+    cost?: { images?: number }; href?: string;
+  };
   createdAt: string; expiresAt: string;
   state: "open" | "accepted" | "dismissed" | "expired";
 }
-GET  /api/suggestions?channelId=        → Suggestion[]  (tối đa 5 open, xếp theo giá trị)
-POST /api/suggestions/:id/accept        → kết quả của op
-POST /api/suggestions/:id/dismiss { forever?: boolean }   // forever = tắt loại cho kênh
+GET  /api/suggestions?channelId=        → Suggestion[] // tối đa5open, xếp theo giá trị
+POST /api/suggestions/:id/accept { confirm?: boolean }
+POST /api/suggestions/:id/dismiss {}
 ```
-- Bộ sinh chạy cùng chu kỳ quét đối thủ và sau mỗi sự kiện liên quan (duyệt, sửa metadata, video chưa đạt). Khoá trùng: `kind + channelId + đối tượng`; bỏ qua → `cooldownUntil = +7 ngày`.
-- `op` chỉ là thao tác có sẵn (enqueue `pick`, `set_pace`, `set_autonomy`, `add_rule`, `template.rotation`, `cleanup`).
 
-## §19 · Quy tắc đã học (mới, Gói V19) <a id="learned-rules"></a>
+- Hiện thành dòng trong **Chờ bạn**, không phải dock/thẻ độc lập. `primary.href` chỉ điều hướng; không gọi accept cho thao tác này.
+- Khi cần xác nhận: `409 { code: "confirm_required", cost: { images } }`. Xác nhận một lần, gửi lại `{ confirm: true }`; dọn MP4 nêu rõ số video/dung lượng và không đụng dự án, nguồn hoặc video chưa đăng.
+- Khoá trùng `kind + channelId + đối tượng`; bỏ qua nghỉ7ngày. Không còn `forever` hoặc tắt theo từng loại/kênh; bộ sinh và truy vấn chỉ nhận ba loại sống.
+- `GET/PUT /api/notifications/settings`: trường `suggestions` là **boolean**, mặc định `true`; `false` ngừng sinh và không trả đề xuất. Các thiết lập thông báo khác giữ nguyên. Bỏ `recapOnReturn`.
+- Migration [`00038_global_suggestions.sql`](../../../internal/persistence/migrations/00038_global_suggestions.sql) đổi dữ liệu cũ trong cùng transaction: cả ba loại sống đều bị tắt toàn cục → `false`; chưa tắt loại sống nào → `true`. Tắt một phần hoặc theo kênh không biểu diễn được bằng một công tắc nên **dừng để chủ dữ liệu chốt**, không tự bật lại. Dữ liệu sai kiểu/loại lạ cũng dừng để quản trị kiểm tra. Đóng đề xuất mở đã bỏ, giữ lịch sử đã giải quyết; gỡ con trỏ học/bản tin và tác vụ kế hoạch cũ.
+- Ràng buộc cơ sở dữ liệu chỉ cho ba loại sống có trạng thái `open`; loại đã bỏ được giữ để đọc lịch sử nhưng không được tạo mới hoặc mở lại.
 
-```ts
-interface LearnedRule {
-  id: string; scope: { channelId: string } | { imagePromptId: string };
-  agent: "director" | "artist";
-  text: string;                       // “Không thêm phần trong ngoặc ở cuối tiêu đề”
-  learnedFrom: { count: number; from: string; to: string; examples: { before: string; after: string; jobId: string }[] };
-  enabled: boolean; createdAt: string;
-}
-GET/POST/PATCH/DELETE /api/learned-rules
-```
-- Phát hiện: so `metadata-history` bản `director` với bản `owner` cùng video; phân loại kiểu sửa bằng code trước (phần trong ngoặc, emoji, độ dài, năm, tag), phần còn lại hỏi model một lần mỗi ngày theo kênh.
-- Hoạ sĩ: góp ý vẽ lại (`regenerate --prompt`) gom theo `imagePromptId`, chuẩn hoá bằng model; trùng ≥ 2 lần → đề xuất.
-- Step `metadata` nhận thêm `learnedRules[]` (enabled) sau quy tắc viết; prompt ảnh nối `Ghi chú đã học` vào cuối nội dung lúc chốt (L14).
+## §19 · Quy tắc đã học đã ngừng (Gói V37) <a id="learned-rules"></a>
+
+Không phát hiện, lưu hay tiêm quy tắc học từ sửa metadata/góp ý ảnh. Không còn endpoint, trường phản hồi `learn`, nút Lưu thành quy tắc hoặc công việc học ngầm. Lịch sử metadata, góp ý và dấu vết prompt đã gửi vẫn là dữ liệu thật của video; không xoá để giả lập prompt mới và không dùng làm chỉ dẫn cho lượt mới.
 
 ## §20 · Mức tự chủ và điểm ảnh (mới, Gói V20) <a id="autonomy"></a>
 
@@ -512,34 +493,16 @@ interface Insight {
   text: string;                     // “Tiêu đề dạng câu hỏi: lượt xem 7 ngày gấp 1,8 lần”
   groups: { label: string; n: number; median7d: number }[];
   preliminary: boolean;             // < 20 video
-  apply?: { op: "add_rule" | "template.rotation"; params: object };
+  apply?: { op: "template.rotation"; params: object };
 }
 POST /api/clone/:id/posted { youtubeUrl? }     // đã có “Đánh dấu đã đăng”, thêm link
 GET  /api/channels/:id/performance → { posted: PostedStats[]; insights: Insight[]; needMore: number }
 ```
 - Nguồn số: theo quyết định D5. Đọc ở mốc 24 giờ, 7 ngày, 28 ngày; lỗi đọc không chặn gì, chỉ để trống.
 
-## §22 · Bản tin và kế hoạch (mới, Gói V18 + V11) <a id="recap"></a>
+## §22 · Tiến độ thay cho Bản tin và Kế hoạch (Gói V37) <a id="recap"></a>
 
-```ts
-interface Recap {
-  from: string; to: string;          // lần dùng cuối → bây giờ
-  summary: string;                   // một câu
-  needsYou: { jobId: string; label: string; state: string }[];
-  auto: { kind: "auto_pick" | "auto_fix" | "auto_approve" | "auto_retry"; text: string; count: number; href: string; undo?: { op: string; params: object } }[];
-  suggestions: Suggestion[];         // tối đa 3
-  today: { queued: number; expectedDone: number; byTime: string; imagesLeft: number; imagesTotal: number; paidLeft?: number };
-  channels: { channelId: string; done: number; cap: number; waiting: number; ready: number }[];
-}
-GET  /api/recap?since=               // since mặc định = lastSeenAt của máy
-POST /api/recap/seen
-
-POST /api/assistant/plan { scope: { jobId } | { channelId } | "all", text }
-→ { ok: true, steps: { id: string; intent: IntentId; params: object; title: string; agent: AgentId; cost?: { images?: number } }[]; total: { images: number } }
-  | { ok: false, ask: { question: string; options: string[] } }
-  | { ok: false, suggestions: string[] }
-POST /api/assistant/run-plan { steps: StepId[] } → { runId }; tiến độ qua GET /api/activity
-```
+Tiến độ Bàn dựng đọc trạng thái/bước/nhật ký của job hiện tại và `GET /api/activity`; nhóm công việc không liên quan không được giả làm tiến độ video. Hiện hai dòng nhật ký mới nhất và nút Nhật ký N bước theo dữ liệu thật. Bản tin kể lại hoạt động, parse/plan/run và hoàn tác kế hoạch không còn API; danh sách nhóm endpoint đã ngừng ở §9.
 
 ## §23 · Thư mục lưu dự án (mới, Gói V22) <a id="storage"></a> <!-- r17-storage -->
 
