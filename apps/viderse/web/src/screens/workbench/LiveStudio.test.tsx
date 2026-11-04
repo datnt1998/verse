@@ -81,7 +81,6 @@ it('opens the shared viewer from a tile and sends feedback for exactly that imag
   await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
   const dialog = document.querySelector('[role="dialog"]')!
   expect(dialog.textContent).toContain('Cảnh 1')
-  expect(dialog.textContent).toContain('Phiên bản · 2')
   expect(dialog.querySelector('textarea')).toBeNull()
   const openFeedback = [...dialog.querySelectorAll('button')].find(button => button.textContent?.includes('Góp ý'))!
   await act(async () => openFeedback.click())

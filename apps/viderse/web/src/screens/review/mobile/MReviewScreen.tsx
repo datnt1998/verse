@@ -85,10 +85,10 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const job = jobId ? jobs.find(j => j.id === jobId) : jobs[0]
   redrawOwner.current.jobId = job?.id
   useEffect(() => {
-    if (!review.jobs || review.error || !jobId || job) return
+    if (!review.jobs || review.error || !jobId || job || review.pending[jobId]) return
     toast.err('Video đã chọn không có trong danh sách chờ duyệt. Đã trở về danh sách hiện tại.')
     navigate(paths.review({ channel: channelFilter }), true)
-  }, [review.jobs, review.error, jobId, job, channelFilter])
+  }, [review.jobs, review.error, review.pending, jobId, job, channelFilter])
   const images = job ? review.images[job.id] : undefined
   const items = images?.items ?? []
   const requestedIndex = address?.img ? items.findIndex(candidate => candidate.id === address.img) : 0

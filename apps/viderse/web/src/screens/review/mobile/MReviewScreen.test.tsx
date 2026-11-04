@@ -6,7 +6,7 @@ import type * as ReviewModule from '../useReview'
 import { dismissToasts, ToastHost } from '@noverse/ui'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-const state = vi.hoisted(() => ({ jobId: 'j', mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready', cancelledVersions: [] as number[] }))
+const state = vi.hoisted(() => ({ jobId: 'j', mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready', cancelledVersions: [] as number[], pending: {} as Record<string, boolean> }))
 const image = {
   id: 'b', kind: 'scene', status: 'review', prompt: 'Đêm mưa, quán nhỏ ven đường', sceneId: '2',
   currentVersion: null, reviewVersion: null, startSec: 3, endSec: 9, narration: 'Lời kể trong cảnh',
@@ -29,7 +29,7 @@ vi.mock('../useReview', async importOriginal => {
           ...(state.nextVersion === 'none' ? [] : [{ n: 3, state: state.nextVersion, parts: [{ kind: 'scene', text: 'Bản mới', source: { type: 'artist', label: 'Hoạ sĩ' } }] }]),
         ].map(version => state.cancelledVersions.includes(version.n) ? { ...version, state: 'cancelled' } : version),
       }], items: [{ ...image, status: state.status, versions: [...image.versions, ...(state.nextVersion === 'none' ? [] : [{ version: 3, cutout: null, originalUrl: state.nextVersion === 'ready' ? '/v3.jpg' : '', prompt: 'Bản mới' }])].map(version => state.cancelledVersions.includes(version.version) ? { ...version, originalUrl: '' } : version) }], approved: false, approvedToday: null, learn: null, summary: null } },
-      imageErrors: {}, pending: {}, loadImages: state.loadImages, loadJobs: vi.fn(), mutate: state.mutate,
+      imageErrors: {}, pending: state.pending, loadImages: state.loadImages, loadJobs: vi.fn(), mutate: state.mutate,
     }),
   }
 })
@@ -50,6 +50,8 @@ afterEach(async () => {
   state.status = 'review'
   state.nextVersion = 'none'
   state.cancelledVersions = []
+  state.pending = {}
+  history.replaceState(null, '', '/')
   vi.useRealTimers()
   vi.clearAllMocks()
   vi.unstubAllGlobals()
@@ -62,6 +64,17 @@ const render = async () => {
   return node
 }
 const button = (text: string) => [...document.querySelectorAll('button')].find(b => b.textContent?.trim() === text)
+
+it('keeps next-video navigation while approval hides the previous video before route propagation', async () => {
+  history.replaceState(null, '', '/#/review?video=k')
+  state.jobId = 'k'
+  state.pending = { j: true }
+  container = document.createElement('div')
+  document.body.append(container)
+  root = createRoot(container)
+  await act(async () => { root!.render(<MReviewScreen route={{ name: 'review', video: 'j' }} />) })
+  expect(location.hash).toBe('#/review?video=k')
+})
 
 describe('MReview — duyệt ảnh trên điện thoại', () => {
   it('keeps the preview and review open after a failed version change and prevents duplicate submissions', async () => {

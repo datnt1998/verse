@@ -545,7 +545,8 @@ function ViewerSide({
 
     <section {...stylex.props(styles.viewerSection)}>
       <div {...stylex.props(styles.viewerSectionHead)}>
-        <span {...stylex.props(styles.viewerSectionTitle)}>Phiên bản · {image.versions.length}</span>
+        <span {...stylex.props(styles.viewerSectionTitle)}>Phiên bản</span>
+        <span {...stylex.props(styles.viewerMeta, styles.num)}>{image.versions.length}</span>
       </div>
       <div role="group" aria-label="Phiên bản của ảnh" {...stylex.props(styles.viewerVersions)}>
         {image.versions.map(entry => {
@@ -591,13 +592,7 @@ function ViewerSide({
 
     <section {...stylex.props(styles.viewerSection)}>
       <div {...stylex.props(styles.viewerSectionHead)}>
-        <span {...stylex.props(styles.viewerSectionTitle)}>Chỉ dẫn đã gửi</span>
-        <Button size="sm" disabled={!version?.sentText} onClick={() => void copyPromptText()}>
-          <Icon name="copy" size={14} />{copied === 'done' ? 'Đã chép' : copied === 'failed' ? 'Không chép được' : 'Chép'}
-        </Button>
-        <Button variant="quiet" size="sm" aria-pressed={raw} disabled={!version} onClick={() => setRaw(value => !value)}>
-          {raw ? 'Xem theo phần' : 'Xem nguyên văn'}
-        </Button>
+        <span {...stylex.props(styles.viewerSectionTitle)}>Prompt đã gửi</span>
       </div>
       {!version
         ? <span {...stylex.props(styles.viewerVerNote)}>{versionsLoading ? 'Đang tải chỉ dẫn đã gửi…' : versionsError ? 'Chưa tải được chỉ dẫn đã gửi.' : 'Chưa có chỉ dẫn đã gửi.'}</span>
@@ -616,6 +611,14 @@ function ViewerSide({
                 ))}
               </div>
             : <pre {...stylex.props(styles.viewerRaw)}>{version.sentText}</pre>}
+      <div {...stylex.props(styles.viewerSectionHead)}>
+        <Button size="sm" disabled={!version?.sentText} onClick={() => void copyPromptText()}>
+          <Icon name="copy" size={14} />{copied === 'done' ? 'Đã chép' : copied === 'failed' ? 'Không chép được' : 'Chép'}
+        </Button>
+        <Button variant="quiet" size="sm" aria-pressed={raw} disabled={!version} onClick={() => setRaw(value => !value)}>
+          {raw ? 'Xem theo phần' : 'Xem nguyên văn'}
+        </Button>
+      </div>
       {version && versionMeta(version) && <span {...stylex.props(styles.viewerMeta)}>{versionMeta(version)}</span>}
     </section>
 

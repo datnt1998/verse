@@ -133,6 +133,17 @@ async function answerRedraw(accept = true) {
     await removed
   })
 }
+
+it('keeps next-video navigation while approval hides the previous video before route propagation', async () => {
+  history.replaceState(null, '', '/#/review?video=k')
+  state.jobs = ['k']
+  state.pending = { j: true }
+  const node = document.createElement('div')
+  document.body.append(node)
+  root = createRoot(node)
+  await act(async () => { root!.render(<ReviewScreen route={{ name: 'review', video: 'j' }} />) })
+  expect(location.hash, 'Pending approval is not a stale addressed video; do not overwrite the already chosen next route').toBe('#/review?video=k')
+})
 const key = async (init: KeyboardEventInit) => { await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init })) }) }
 
 it('keeps the addressed image selected across reordered polling data and browser navigation', async () => {
@@ -210,6 +221,7 @@ describe('duyệt từng ảnh trên dải ảnh', () => {
     expect(labels).not.toContain('Cảnh 03')
     expect(node.querySelector('[role="option"][aria-label="Cảnh 3"]')).not.toBeNull()
   })
+
 })
 
 describe('chỉ dẫn đã gửi', () => {
@@ -233,11 +245,11 @@ describe('sửa chỉ dẫn', () => {
   it('chỉ gửi phần đã đổi và ảnh tham chiếu khi ảnh tham chiếu đổi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
     await type(scene, 'A guard on the roof at dawn.')
     await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 1"]')!.click() })
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], baseVersion: 2, parts: { scene: 'A guard on the roof at dawn.' }, refs: [] })
   })
@@ -253,17 +265,17 @@ describe('sửa chỉ dẫn', () => {
     state.images.current = { images: [image('a', 3, [version(1, { refs: [] }), selected], 1)], quota: undefined }
     const node = await render()
     expect(node.textContent).toContain('bản 2 · chưa dùng')
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
     expect(scene.value).toBe('Cảnh 2 chọn: guard on the roof at dawn.')
     expect(node.textContent).toContain('Cảnh 1 · từ cảnh đầu')
     await type(scene, 'Cảnh 2 chọn: guard on the roof with a red umbrella.')
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await answerRedraw(false)
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2 chọn: guard on the roof with a red umbrella.')
     expect(node.querySelector('[aria-label="Bỏ ảnh tham chiếu 1"]')).not.toBeNull()
     expect(state.redraw).not.toHaveBeenCalled()
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', {
       imageIds: ['a'],
@@ -276,9 +288,9 @@ describe('sửa chỉ dẫn', () => {
   it('keeps the base captured for a pending confirmation when the viewed version changes', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)], 1)], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: selected before the dialog.')
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await vi.waitFor(async () => {
       await act(async () => { await vi.dynamicImportSettled() })
       expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
@@ -302,7 +314,7 @@ describe('sửa chỉ dẫn', () => {
   it('keeps the draft and its base when new versions arrive while editing', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)], 1)], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: draft before the new version.')
     state.images.current = { images: [image('a', 3, [version(1), version(2), version(3)], 1)], quota: undefined }
     await act(async () => root!.render(<ReviewRouteHost />))
@@ -310,7 +322,7 @@ describe('sửa chỉ dẫn', () => {
     await act(async () => root!.render(<ReviewRouteHost />))
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2: draft before the new version.')
     expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v2.jpg')
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', {
       imageIds: ['a'],
@@ -327,7 +339,7 @@ describe('sửa chỉ dẫn', () => {
     ], 3)], quota: undefined }
     const node = await render()
     expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v3.jpg')
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 3: a guard on a stopped escalator.')
     expect(state.redraw).not.toHaveBeenCalled()
   })
@@ -337,7 +349,7 @@ describe('sửa chỉ dẫn', () => {
     history.replaceState(null, '', '/#/review?video=j&img=a')
     state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Old video draft: never send this to another video.')
     state.images.current = { images: [image('a', 3, [version(1, { parts: [part('scene', 'Scene belonging to the other video.', 'Hoạ sĩ')] })])], quota: undefined }
     await act(async () => {
@@ -345,7 +357,7 @@ describe('sửa chỉ dẫn', () => {
       dispatchEvent(new HashChangeEvent('hashchange'))
     })
     expect(node.querySelector('#prompt-scene')).toBeNull()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Scene belonging to the other video.')
     expect(state.redraw).not.toHaveBeenCalled()
   })
@@ -353,10 +365,10 @@ describe('sửa chỉ dẫn', () => {
   it('keeps edited instructions and removed references when the quota confirmation is cancelled', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => button(node, 'Sửa chỉ dẫn')!.click())
+    await act(async () => button(node, 'Sửa prompt')!.click())
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'A guard on the roof at dawn.')
     await act(async () => node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 1"]')!.click())
-    await act(async () => button(node, 'Vẽ lại với chỉ dẫn này')!.click())
+    await act(async () => button(node, 'Vẽ lại với prompt này')!.click())
     await answerRedraw(false)
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('A guard on the roof at dawn.')
     expect(node.querySelector('[aria-label="Bỏ ảnh tham chiếu 1"]')).toBeNull()
@@ -366,15 +378,15 @@ describe('sửa chỉ dẫn', () => {
   it('sửa rồi gõ lại đúng nguyên văn thì không còn gì để gửi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
     const original = scene.value
     await type(scene, 'A guard on the roof at dawn.')
-    expect(node.textContent).toContain('Đã sửa 1 chỗ trong chỉ dẫn cảnh 3')
+    expect(node.textContent).toContain('Đã sửa 1 chỗ trong prompt cảnh 3')
     await type(scene, original)
-    expect(node.textContent).toContain('Sửa chỉ dẫn cảnh 3')
-    expect(button(node, 'Vẽ lại với chỉ dẫn này')!.getAttribute('aria-disabled')).toBe('true')
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    expect(node.textContent).toContain('Sửa prompt cảnh 3')
+    expect(button(node, 'Vẽ lại với prompt này')!.getAttribute('aria-disabled')).toBe('true')
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     expect(state.redraw).not.toHaveBeenCalled()
   })
 
@@ -387,9 +399,9 @@ describe('sửa chỉ dẫn', () => {
     })
     state.images.current = { images: [image('a', 3, [version(1, { refs: [] }), selected])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 2"]')!.click() })
-    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với prompt này')!.click() })
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', {
       imageIds: ['a'],
@@ -402,7 +414,7 @@ describe('sửa chỉ dẫn', () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
     await type(node.querySelector<HTMLInputElement>('#redraw')!, 'góp ý cũ trong ô vẽ lại')
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: bản nháp gửi bằng phím R.')
     await key({ key: 'r' })
     await answerRedraw()
@@ -416,13 +428,13 @@ describe('sửa chỉ dẫn', () => {
   it('không gửi vẽ lại lần hai khi bản vẽ mới về sau bản nháp', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)], 2)], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: bản nháp chờ bản mới về.')
     state.images.current = { images: [image('a', 3, [version(1), version(2), version(3, { state: 'drawing', url: null, previewUrl: null })], 2)], quota: undefined }
     state.pending = { j: true }
     await act(async () => { root!.render(<ReviewRouteHost />) })
     expect(node.querySelector('[data-develop="drawing"]')).not.toBeNull()
-    expect(button(node, 'Vẽ lại với chỉ dẫn này')?.getAttribute('aria-disabled')).toBe('true')
+    expect(button(node, 'Vẽ lại với prompt này')?.getAttribute('aria-disabled')).toBe('true')
     await key({ key: 'Enter', metaKey: true })
     await key({ key: 'r' })
     expect(state.redraw).not.toHaveBeenCalled()
@@ -437,7 +449,7 @@ describe('sửa chỉ dẫn', () => {
     const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
     await act(async () => button(picker, 'Cảnh 4')!.click())
     await act(async () => button(picker, 'Thêm 1 ảnh')!.click())
-    await act(async () => button(node, 'Vẽ lại với chỉ dẫn này')!.click())
+    await act(async () => button(node, 'Vẽ lại với prompt này')!.click())
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], refs: [{ videoImageId: 'b', role: 'character' }] })
   })
@@ -446,13 +458,13 @@ describe('sửa chỉ dẫn', () => {
     const selected = version(2, { parts: [part('scene', 'Cảnh bản 2', 'Hoạ sĩ'), part('style', 'Phong cách riêng bản 2', 'Template')] })
     state.images.current = { images: [image('a', 3, [version(1), selected], 1)], quota: undefined }
     const node = await render()
-    await act(async () => button(node, 'Sửa chỉ dẫn')!.click())
+    await act(async () => button(node, 'Sửa prompt')!.click())
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Giữ bản nháp của bản 2')
     state.images.current = { images: [image('a', 3, [version(1), { ...selected, state: 'cancelled', url: null }], 1)], quota: undefined }
     await act(async () => root!.render(<ReviewRouteHost />))
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Giữ bản nháp của bản 2')
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-style')?.value).toBe('Phong cách riêng bản 2')
-    expect(button(node, 'Vẽ lại với chỉ dẫn này')?.getAttribute('aria-disabled')).toBe('true')
+    expect(button(node, 'Vẽ lại với prompt này')?.getAttribute('aria-disabled')).toBe('true')
     const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
     expect(button(rail, 'Thêm')?.disabled).toBe(true)
     await key({ key: 'r' })
@@ -476,20 +488,20 @@ describe('sửa chỉ dẫn', () => {
     await act(async () => node.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click())
     await act(async () => { resolveUpload('uploaded-media'); await Promise.resolve() })
     expect(node.querySelector('#prompt-scene')).toBeNull()
-    expect(button(node, 'Vẽ lại với chỉ dẫn này')).toBeUndefined()
+    expect(button(node, 'Vẽ lại với prompt này')).toBeUndefined()
     expect(state.redraw).not.toHaveBeenCalled()
   })
 
   it('Esc huỷ sửa, ⌘↵ gửi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     expect(node.querySelector('#prompt-scene')).not.toBeNull()
     await key({ key: 'Escape' })
     expect(node.querySelector('#prompt-scene')).toBeNull()
-    expect(node.textContent).toContain('Sửa chỉ dẫn')
+    expect(node.textContent).toContain('Sửa prompt')
 
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-style')!, 'Grainy 35mm, cold teal.')
     await key({ key: 'Enter', metaKey: true })
     await answerRedraw()
@@ -597,7 +609,7 @@ describe('bản đã huỷ', () => {
     expect(tile?.getAttribute('aria-pressed')).toBe('false')
     await act(async () => { tile!.click() })
     expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v2.jpg')
-    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { button(node, 'Sửa prompt')!.click() })
     expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2: a guard on a stopped escalator.')
   })
 
@@ -616,7 +628,7 @@ describe('bản đã huỷ', () => {
   it('vẫn vẽ mới theo chính sách thường khi ảnh chỉ còn bản đã huỷ', async () => {
     state.images.current = { images: [image('a', 3, [version(1, { state: 'cancelled', url: null, previewUrl: null })], 1)], quota: undefined }
     const node = await render()
-    expect(button(node, 'Sửa chỉ dẫn')?.disabled).toBe(true)
+    expect(button(node, 'Sửa prompt')?.disabled).toBe(true)
     await type(node.querySelector<HTMLInputElement>('#redraw')!, 'vẽ mới từ lời kể')
     await act(async () => { [...node.querySelectorAll<HTMLButtonElement>('button')].find(entry => entry.textContent?.trim().startsWith('Vẽ lại') && !entry.textContent.includes('cả'))!.click() })
     await answerRedraw()
@@ -627,7 +639,7 @@ describe('bản đã huỷ', () => {
 it('keeps legacy prompt parts read-only through the bottom action and edit shortcut', async () => {
   state.images.current = { images: [image('a', 3, [version(1, { partsLegacy: true })])], quota: undefined }
   const node = await render()
-  expect(button(node, 'Sửa chỉ dẫn')?.disabled).toBe(true)
+  expect(button(node, 'Sửa prompt')?.disabled).toBe(true)
   await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e', bubbles: true })))
   expect(node.querySelector('#prompt-scene')).toBeNull()
 })
@@ -635,7 +647,7 @@ it('keeps legacy prompt parts read-only through the bottom action and edit short
 it('preserves a draft when inspecting raw prompt and returning to editable parts', async () => {
   state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
   const node = await render()
-  await act(async () => button(node, 'Sửa chỉ dẫn')!.click())
+  await act(async () => button(node, 'Sửa prompt')!.click())
   await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Keep the same character with a red umbrella')
   await act(async () => button(node, 'Xem nguyên văn gửi máy chủ')!.click())
   await act(async () => button(node, 'Xem theo phần')!.click())
@@ -684,9 +696,9 @@ it('cancels a reference that was just added and leaves a zero-change draft', asy
   expect(rail.textContent).toContain('Ảnh tham chiếu · 1/4')
   expect(rail.querySelector('[aria-label="Bỏ ảnh tham chiếu 2"]')).toBeNull()
   expect(rail.querySelector('[aria-label="Bỏ ảnh tham chiếu 1"]')).not.toBeNull()
-  expect(node.textContent).toContain('Sửa chỉ dẫn cảnh 3')
+  expect(node.textContent).toContain('Sửa prompt cảnh 3')
   expect(node.textContent).not.toContain('Đã sửa 2 chỗ')
-  const submit = button(node, 'Vẽ lại với chỉ dẫn này')!
+  const submit = button(node, 'Vẽ lại với prompt này')!
   expect(submit.getAttribute('aria-disabled')).toBe('true')
   await act(async () => submit.click())
   expect(state.redraw).not.toHaveBeenCalled()
@@ -707,7 +719,7 @@ it('keeps one entry when the same candidate reference is added twice', async () 
   await addCandidate()
   expect(rail.textContent).toContain('Ảnh tham chiếu · 2/4')
   expect(rail.querySelectorAll('[aria-label^="Bỏ ảnh tham chiếu"]').length).toBe(2)
-  expect(node.textContent).toContain('Đã sửa 1 chỗ trong chỉ dẫn cảnh 3')
+  expect(node.textContent).toContain('Đã sửa 1 chỗ trong prompt cảnh 3')
 })
 
 it('moves reference-role selection from the focused radio, even when a different role is checked', async () => {

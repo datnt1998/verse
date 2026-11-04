@@ -82,10 +82,10 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   const jobs = useMemo(() => (review.jobs ?? []).filter(j => !channelFilter || channelFilter === 'all' || j.channelId === channelFilter), [review.jobs, channelFilter])
   const job = jobId ? jobs.find(j => j.id === jobId) : jobs[0]
   useEffect(() => {
-    if (!review.jobs || review.error || !jobId || job) return
+    if (!review.jobs || review.error || !jobId || job || review.pending[jobId]) return
     toast.err('Video đã chọn không có trong danh sách chờ duyệt. Đã trở về danh sách hiện tại.')
     navigate(paths.review({ channel: channelFilter }), true)
-  }, [review.jobs, review.error, jobId, job, channelFilter])
+  }, [review.jobs, review.error, review.pending, jobId, job, channelFilter])
   const images = job ? review.images[job.id] : undefined
   useEffect(() => { setAllOpen(null); setAllFeedback(''); setAllError('') }, [job?.id])
   const legacyItems = images?.items ?? []
@@ -371,10 +371,10 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   const approved = legacyItems.filter(i => i.status === 'approved').length
   const usedImage = usedVersion?.url ?? (legacy && job ? imageURL(job.id, legacy, view) : undefined)
   const editTitle = editing.changedCount
-    ? `Đã sửa ${editing.changedCount} chỗ trong chỉ dẫn ${item?.label.toLocaleLowerCase('vi') ?? ''}`
-    : `Sửa chỉ dẫn ${item?.label.toLocaleLowerCase('vi') ?? ''}`
+    ? `Đã sửa ${editing.changedCount} chỗ trong prompt ${item?.label.toLocaleLowerCase('vi') ?? ''}`
+    : `Sửa prompt ${item?.label.toLocaleLowerCase('vi') ?? ''}`
   const quotaLine = live.data?.quota
-    ? `${live.data.quota.providers.map(entry => `${entry.label} còn ${entry.left}/${entry.total} hôm nay`).join(' · ')}`
+    ? `${live.data.quota.providers.map(entry => `${entry.label} còn ${entry.left}/${entry.total}`).join(' · ')}`
     : ''
   const detail = drawingVersion
     ? item?.progress
@@ -428,7 +428,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                     <div {...stylex.props(sx.failedActions)}>
                       <Button variant="primary" size="sm" type="button" disabled={editBlocked} onClick={retryWithGrok} >
                         Vẽ bằng {providerName('grok', providers.data)}{live.data?.quota?.fallback ? ` · còn ${live.data.quota.fallback.left} ảnh` : ''}</Button>
-                      <Button size="sm" type="button" disabled={editBlocked || legacyParts} onClick={() => editing.setMode('edit')} >Sửa chỉ dẫn</Button>
+                      <Button size="sm" type="button" disabled={editBlocked || legacyParts} onClick={() => editing.setMode('edit')} >Sửa prompt</Button>
                     </div>
                   </div>
                 </>
@@ -438,7 +438,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                 !blockedNow && shownImage && !imageFailed && <img alt={cmp && previousVersion ? `${item.label} bản ${previousVersion.n}` : item.label} src={shownImage} onError={() => setImageFailed(true)} {...stylex.props(sx.stageImage, view === 'cutout' && sx.heroCutout)} />
               )}
               {blockedNow && legacy && neighbour && <img alt="" src={imageURL(job.id, neighbour, view)} {...stylex.props(sx.stageImage, sx.dimmed)} />}
-              {blockedNow && <div role="status" {...stylex.props(sx.blockedCard)}><strong {...stylex.props(sx.blockedTitle)}>Bị chặn{neighbour ? ` · dùng ảnh ${label(neighbour, legacyItems.indexOf(neighbour)).toLocaleLowerCase('vi')}` : ''}</strong><span {...stylex.props(sx.blockedText)}>Bộ lọc nội dung đã chặn ảnh này. Video dùng ảnh cảnh bên cạnh để tiếp tục.</span></div>}
+              {blockedNow && <div role="status" {...stylex.props(sx.blockedCard)}><strong {...stylex.props(sx.blockedTitle)}><Icon name="danger" size={16} />Bị chặn{neighbour ? ` · dùng ảnh ${label(neighbour, legacyItems.indexOf(neighbour)).toLocaleLowerCase('vi')}` : ''}</strong><span {...stylex.props(sx.blockedText)}>Bộ lọc nội dung đã chặn ảnh này. Video dùng ảnh cảnh bên cạnh để tiếp tục.</span></div>}
               {imageFailed && !isDrawing && <div role="status" {...stylex.props(sx.empty)}>{view === 'cutout' ? 'Chưa có bản tách nền cho ảnh này.' : 'Chưa tải được ảnh.'}</div>}
               <span {...stylex.props(sx.badge)}>
                 <span {...stylex.props(sx.badgeKey)}>{item.index}</span>{item.label}
@@ -478,7 +478,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                   {...stylex.props(sx.tile, blockedNow && selected === i && sx.tileBlocked, scores && !imgDrawing && isLow(readImageScore(img.score), scores.min) && scoreStyles.tileLow, selected === i && sx.tileSelected, checked && sx.tileChecked)}
                 >
                   {imgUrl && <img src={imgUrl} alt="" {...stylex.props(sx.tileImage)} />}
-                  <span {...stylex.props(sx.tileLabel)}>{img.kind === 'cover' ? 'Bìa' : img.index}</span>
+                  <span {...stylex.props(sx.tileLabel)}>{img.kind === 'cover' ? 0 : img.index}</span>
                   {imgDrawing && <DevelopEffect state="drawing" baseUrl={imgUrl ?? undefined} compact hideCard />}
                   {isNew && <span {...stylex.props(sx.tileNew)}>MỚI</span>}
                   {scores && imgScore && !imgDrawing && !batch && !checked && <ScoreBadge value={imgScore.value} low={isLow(imgScore, scores.min)} corner />}
@@ -492,28 +492,28 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
             <div {...stylex.props(sx.bar)}>
               <span {...stylex.props(sx.countChip)}>{selection.length} ảnh đã chọn</span>
               <label htmlFor="redraw-batch" {...stylex.props(sx.hiddenLabel)}>Góp ý chung cho các ảnh đã chọn</label>
-              <TextField id="redraw-batch" aria-label="Góp ý chung cho các ảnh đã chọn" placeholder="Góp ý chung, ví dụ: không có chữ trong ảnh, tông lạnh hơn" value={batchFeedback} onChange={setBatchFeedback} xstyle={sx.barInput} />
+              <TextField id="redraw-batch" aria-label="Góp ý chung cho các ảnh đã chọn" placeholder="Góp ý chung, ví dụ: không có chữ trong ảnh, tông lạnh hơn" value={batchFeedback} onChange={setBatchFeedback} xstyle={sx.barInput} frameStyle={sx.barInputFrame} inputStyle={sx.barInputText} />
               <Button type="button" onClick={() => { setSelection([]); setBatchFeedback('') }} >Bỏ chọn</Button>
               <Button variant="primary" type="button" disabled={!online || pipelineBusy} onClick={redrawBatch} ><Icon name="refresh" size={15} />Vẽ lại {selection.length} ảnh · tốn {selection.length} ảnh</Button>
             </div>
           ) : editing.mode === 'edit' ? (
             <div {...stylex.props(sx.bar, sx.barEdit)}>
-              <span {...stylex.props(sx.barIcon)}><Icon name="edit" size={16} /></span>
+              <span {...stylex.props(sx.barIcon, sx.barEditIcon)}><Icon name="edit" size={16} /></span>
               <span {...stylex.props(sx.barText)}>
                 <span {...stylex.props(sx.barTitle)}>{editTitle}</span>
-                <span {...stylex.props(sx.barSub)}>Chỉ áp cho ảnh này · tốn 1 ảnh{quotaLine ? `, ${quotaLine}` : ''}</span>
+                <span title={`Chỉ áp cho ảnh này · tốn 1 ảnh${quotaLine ? `, ${quotaLine} hôm nay` : ''}`} {...stylex.props(sx.barSub)}>Chỉ áp cho ảnh này · tốn 1 ảnh{quotaLine ? `, ${quotaLine} hôm nay` : ''}</span>
               </span>
               <Button onClick={editing.reset} kbd="Esc">Huỷ sửa</Button>
-              <Button variant="primary" onClick={submitEdit} aria-disabled={editing.changedCount === 0 || editBlocked} tooltip={editSourceStale ? 'Bản nguồn đã thay đổi; huỷ sửa để chọn lại. Bản nháp vẫn được giữ.' : undefined} icon={<Icon name="magicpen" size={15} />} kbd="⌘↵">Vẽ lại với chỉ dẫn này</Button>
+              <Button variant="primary" onClick={submitEdit} aria-disabled={editing.changedCount === 0 || editBlocked} tooltip={editSourceStale ? 'Bản nguồn đã thay đổi; huỷ sửa để chọn lại. Bản nháp vẫn được giữ.' : undefined} icon={<Icon name="magicpen" size={15} />} kbd="⌘↵">Vẽ lại với prompt này</Button>
             </div>
           ) : (
             <div {...stylex.props(sx.bar)}>
               <span {...stylex.props(sx.barIcon)}><Icon name="gallery-edit" size={18} /></span>
               <label htmlFor="redraw" {...stylex.props(sx.hiddenLabel)}>Góp ý để vẽ lại ảnh này</label>
-              <TextField id="redraw" aria-label="Góp ý để vẽ lại ảnh này" placeholder="Góp ý để vẽ lại, ví dụ: thêm biển “Đóng cửa lúc 22 giờ”, ánh đèn xanh hơn" value={feedback} onChange={setFeedback} xstyle={sx.barInput} />
-              <Button onClick={() => editing.setMode('edit')} tooltip={legacyParts ? 'Bản cũ chưa lưu prompt theo phần nên không sửa được; bạn vẫn có thể góp ý để vẽ lại.' : 'Sửa thẳng prompt đã gửi'} disabled={isDrawing || !online || legacyParts} icon={<Icon name="edit" size={15} />}>Sửa chỉ dẫn</Button>
-              <Button disabled={isDrawing || pipelineBusy || !online} tooltip={`Hoạ sĩ sửa chỉ dẫn theo góp ý rồi vẽ bản mới · tốn 1 ảnh${quotaLine ? ` · ${quotaLine}` : ''}`} onClick={redraw} icon={<Icon name="refresh" size={15} />} kbd="R">Vẽ lại</Button>
-              <Button disabled={item.kind !== 'scene' || pipelineBusy || !online} tooltip="Cảnh này dùng ảnh của cảnh bên cạnh" onClick={() => { if (job && legacy) void review.mutate(job.id, legacy, 'skip') }}>Bỏ ảnh</Button>
+              <TextField id="redraw" aria-label="Góp ý để vẽ lại ảnh này" placeholder="Góp ý để vẽ lại, ví dụ: thêm biển “Đóng cửa lúc 22 giờ”, ánh đèn xanh hơn" value={feedback} onChange={setFeedback} xstyle={sx.barInput} frameStyle={sx.barInputFrame} inputStyle={sx.barInputText} />
+              <Button variant="quiet" onClick={() => editing.setMode('edit')} tooltip={legacyParts ? 'Bản cũ chưa lưu prompt theo phần nên không sửa được; bạn vẫn có thể góp ý để vẽ lại.' : 'Sửa thẳng prompt đã gửi'} disabled={isDrawing || !online || legacyParts} icon={<Icon name="edit" size={15} />}>Sửa prompt</Button>
+              <Button disabled={isDrawing || pipelineBusy || !online} tooltip={`Hoạ sĩ sửa prompt theo góp ý rồi vẽ bản mới · tốn 1 ảnh${quotaLine ? ` · ${quotaLine} hôm nay` : ''}`} onClick={redraw} icon={<Icon name="refresh" size={15} />} kbd="R">Vẽ lại</Button>
+              <Button variant="quiet" disabled={item.kind !== 'scene' || pipelineBusy || !online} tooltip="Cảnh này dùng ảnh của cảnh bên cạnh" onClick={() => { if (job && legacy) void review.mutate(job.id, legacy, 'skip') }}>Bỏ ảnh</Button>
               <ActionButton variant="primary" lockedReason={hasDrawing || pipelineBusy || !online ? 'Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ' : undefined} onClick={approve} icon={<Icon name="tick-b" size={15} />} kbd="A">Duyệt cả video &amp; dựng</ActionButton>
             </div>
           )}
@@ -522,7 +522,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
             <span {...stylex.props(sx.keyHint)}><Kbd>← →</Kbd>ảnh</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>J K</Kbd>video trước / sau</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>R</Kbd>vẽ lại</span>
-            <span {...stylex.props(sx.keyHint)}><Kbd>E</Kbd>sửa chỉ dẫn</span>
+            <span {...stylex.props(sx.keyHint)}><Kbd>E</Kbd>sửa prompt</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>V</Kbd>so sánh</span>
             <span {...stylex.props(sx.keyHint)}><Kbd>A</Kbd>duyệt cả video</span>
             <span {...stylex.props(sx.hintSpacer)} />
@@ -568,33 +568,36 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
       ))} />
     </>}
     {allOpen && job && allOpen.jobId === job.id && <Dialog
-      title={`Vẽ lại cả ${allOpen.count} ảnh?`}
-      icon={<span {...stylex.props(sx.dialogIcon)}><Icon name="gallery-edit" size={20} /></span>}
+      label={`Vẽ lại cả ${allOpen.count} ảnh?`}
       onClose={closeAll}
       width={540}
       padBody={false}
       footer={<><span {...stylex.props(sx.dialogEsc)}><Kbd>Esc</Kbd> đóng</span><Button disabled={allBusy} onClick={closeAll}>Huỷ</Button><Button variant="primary" pending={allBusy} disabled={allBusy || !online} onClick={() => void submitAll()}><Icon name="gallery-edit" size={15} />Vẽ lại {allOpen.count} ảnh</Button></>}
     >
       <div {...stylex.props(sx.dialogBody)}>
-        <span {...stylex.props(sx.dialogSub)}>{job.source.title}{channel?.name ? ` · ${channel.name}` : ''}</span>
+        <div {...stylex.props(sx.dialogHead)}>
+          <span {...stylex.props(sx.dialogIcon)}><Icon name="gallery-edit" size={20} /></span>
+          <div {...stylex.props(sx.dialogHeadText)}>
+            <h2 {...stylex.props(sx.dialogTitle)}>Vẽ lại cả {allOpen.count} ảnh?</h2>
+            <span {...stylex.props(sx.dialogSub)}>{job.source.title}{channel?.name ? ` · ${channel.name}` : ''}</span>
+          </div>
+          <Button variant="icon" size="sm" aria-label="Đóng (Esc)" onClick={closeAll} xstyle={sx.dialogClose}><Icon name="close" size={16} /></Button>
+        </div>
         <div {...stylex.props(sx.dialogThumbs)}>{items.map(img => <span key={img.id} {...stylex.props(sx.dialogThumb)}>{(img.legacyUrl ?? img.versions.at(-1)?.url) && <img alt={img.label} src={img.legacyUrl ?? img.versions.at(-1)?.url ?? ''} {...stylex.props(sx.dialogThumbImage)} />}</span>)}</div>
-        <ul {...stylex.props(sx.dialogFacts)}>
-          <li {...stylex.props(sx.dialogFact)}>
-            <Icon name="gallery" size={15} {...stylex.props(sx.dialogFactIcon, sx.dialogFactQuotaIcon)} />
-            <span>Dùng <b {...stylex.props(sx.dialogFactStrong)}>{allOpen.count} ảnh</b> trong hạn mức {usedVersion?.provider ? providerName(usedVersion.provider, providers.data) : 'AI'} hôm nay{quotaLine ? ` · ${quotaLine}` : ''}</span>
-          </li>
-          {images?.manifest?.scenePrompt?.name && images.manifest.coverPrompt?.name && (
-            <li {...stylex.props(sx.dialogFact)}>
-              <Icon name="layer" size={15} {...stylex.props(sx.dialogFactIcon)} />
-              <span>Ảnh cảnh vẽ theo <b {...stylex.props(sx.dialogFactStrong)}>{images.manifest.scenePrompt.name}</b>, ảnh bìa theo <b {...stylex.props(sx.dialogFactStrong)}>{images.manifest.coverPrompt.name}</b>, theo prompt của video này. <a href={`#${paths.workbench({ video: job.id })}`} {...stylex.props(sx.dialogLink)}>Đổi ở Bàn dựng</a></span>
-            </li>
-          )}
-          <li {...stylex.props(sx.dialogFact)}>
-            <Icon name="info" size={15} {...stylex.props(sx.dialogFactIcon)} />
-            <span>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</span>
-          </li>
-        </ul>
-        <TextArea label={<>Góp ý chung cho cả bộ <span {...stylex.props(sx.dialogOptional)}>(tuỳ chọn)</span></>} placeholder="Ví dụ: tông lạnh hơn, ít người hơn" rows={3} showCount={false} maxLength={-1} disabled={allBusy} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
+        <div {...stylex.props(sx.dialogQuota)}>
+          <Icon name="gallery" size={16} />
+          <span>Dùng <b {...stylex.props(sx.dialogStrong)}>{allOpen.count} ảnh</b> trong hạn mức {usedVersion?.provider ? providerName(usedVersion.provider, providers.data) : 'AI'} hôm nay{quotaLine ? ` · ${quotaLine}` : ''}</span>
+        </div>
+        {images?.manifest?.scenePrompt?.name && images.manifest.coverPrompt?.name && (
+          <div {...stylex.props(sx.dialogStyle)}>
+            <Icon name="magicpen" size={16} {...stylex.props(sx.dialogStyleIcon)} />
+            <span {...stylex.props(sx.dialogStyleText)}>Ảnh cảnh vẽ theo <b {...stylex.props(sx.dialogStrong)}>{images.manifest.scenePrompt.name}</b>, ảnh bìa theo <b {...stylex.props(sx.dialogStrong)}>{images.manifest.coverPrompt.name}</b>, theo prompt của video này.</span>
+            <a href={`#${paths.workbench({ video: job.id })}`} {...stylex.props(sx.dialogLink)}>Đổi ở Bàn dựng</a>
+          </div>
+        )}
+        <p {...stylex.props(sx.dialogInfo)}>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</p>
+        <label htmlFor="redraw-all-feedback" {...stylex.props(sx.dialogFieldLabel)}>Góp ý chung cho cả bộ <span {...stylex.props(sx.dialogOptional)}>(tuỳ chọn)</span></label>
+        <TextArea id="redraw-all-feedback" placeholder="Ví dụ: tông lạnh hơn, ít người hơn" rows={2} showCount={false} maxLength={-1} disabled={allBusy} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
         {allError && <p role="alert">{allError}</p>}
       </div>
     </Dialog>}

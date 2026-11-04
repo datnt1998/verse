@@ -295,6 +295,7 @@
   --vv-ok-7: rgba(166, 237, 193, .07);
   --vv-ok-10: rgba(166, 237, 193, .1);
   --vv-ok-20: rgba(166, 237, 193, .2);
+  --vv-ok-45: rgba(166, 237, 193, .45);
   --vv-shadow-strip: 0 12px 32px rgba(0, 0, 0, .5);
   --vv-check-tick: #0B0B0D;
   /* Trạng thái bật/tôn của dòng phụ thẻ (xanh/xanh nhạt/cam/nâu). */

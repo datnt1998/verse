@@ -233,12 +233,12 @@ export function ImageRail({
           <div role="dialog" aria-label="Thêm ảnh tham chiếu" {...stylex.props(sx.pop)}>
             <div {...stylex.props(sx.popHead)}>
               <b {...stylex.props(sx.popTitle)}>Thêm ảnh tham chiếu</b>
-              <Button variant="icon" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
+              <Button variant="icon" size="sm" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
             </div>
             {/* Artboard refs:add: `vv-seg vv-seg--sm vv-seg--fill` — chữ 12, mục chia
                 đều nhưng nhãn giữ đủ chữ. Cột 360 để lại 302 px nội dung, nên mục
                 dùng đệm 8 px để “Khung video gốc” và “Tải lên” không bị cắt. */}
-            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} size="sm" fit="fill" options={SOURCE_TABS} />
+            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} size="sm" buttonStyle={sx.popSegButton} fit="fill" options={SOURCE_TABS} />
             {tab === 'upload' ? (
               <>
                 <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={!canMutate || uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (canMutate && files[0]) onUpload(files[0]) }} />
@@ -322,7 +322,7 @@ export function ImageRail({
         ) : mode === 'edit' && !legacyParts ? (
           <div>
             {editable.map((entry, index) => (
-              <div key={entry.kind} {...stylex.props(sx.seg, index === 0 && sx.segFirst, entry.changed && sx.segChanged)}>
+              <div key={entry.kind} {...stylex.props(sx.seg, index === 0 && sx.segFirst)}>
                 <span {...stylex.props(sx.segLabel)}>
                   {PART_LABELS[entry.kind]}
                   {entry.part && <span {...stylex.props(sx.segSource)}>· {entry.part.source.label}</span>}
