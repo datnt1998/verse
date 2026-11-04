@@ -1,10 +1,13 @@
-import { test, expect, type Page, type TestInfo } from '@playwright/test'
+import { test, expect, type Locator, type Page, type TestInfo } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import type { AiProvider } from '../../apps/viderse/web/src/api/ai'
 
 // Real installed Ollama, isolated HOME/models directory, no models/downloads or
 // inference. A refused local port exercises the actual unreachable-provider path.
-// No mocked application API, provider catalog, paid receipt or CSS state.
+// A full document reload proves the owned record/status/catalog persisted via GET
+// and UI; the inline address edit must prefill the saved URL and never PATCH
+// before submit. No mocked application API, provider catalog, paid receipt or
+// CSS state.
 const cookieFile = process.env.WORKFLOW_QA_COOKIE_FILE
 const fixtureFile = process.env.WORKFLOW_QA_FIXTURE
 if (!cookieFile || !fixtureFile) throw new Error('Isolated workflow QA cookies and fixture required')
@@ -13,6 +16,33 @@ const readyURL = process.env.WORKFLOW_QA_OLLAMA_URL
 const refusedURL = process.env.WORKFLOW_QA_REFUSED_PROVIDER_URL
 const events = new WeakMap<Page, { method: string; path: string; boot: boolean; allowed: boolean }[]>()
 const booting = new WeakMap<Page, boolean>()
+
+/** Wire record without credential material: never attach key hints or values
+ * to evidence, and compare only persisted provider configuration. */
+function providerRecord(provider: AiProvider) {
+  return {
+    id: provider.id,
+    kind: provider.kind,
+    auth: provider.auth,
+    label: provider.label,
+    baseUrl: provider.baseUrl ?? null,
+    status: provider.status,
+    plan: provider.plan ?? null,
+    quota: provider.quota ?? null,
+    catalogAt: provider.catalogAt ?? null,
+    catalogCount: provider.catalogCount,
+    selected: provider.selected,
+    dailyPaidImageLimit: provider.dailyPaidImageLimit,
+  }
+}
+async function addressEdit(card: Locator, savedURL: string) {
+  const edit = card.locator('.conn-edit')
+  await expect(edit).toBeVisible()
+  const field = edit.getByLabel('Địa chỉ', { exact: true })
+  await expect(field).toHaveValue(savedURL)
+  await expect(edit.getByRole('button', { name: 'Lưu', exact: true })).toBeEnabled()
+  return { edit, field }
+}
 
 async function providers(page: Page): Promise<AiProvider[]> {
   const response = await page.request.get('/api/ai/providers')
@@ -33,9 +63,10 @@ async function capture(page: Page, info: TestInfo, name: string) {
   expect(dimensions.content).toBeLessThanOrEqual(dimensions.viewport)
   await page.screenshot({ path: info.outputPath(`${name}.png`) })
 }
-async function boot(page: Page) {
+async function boot(page: Page, reload = false) {
   booting.set(page, true)
-  await page.goto('/#/settings?section=connect')
+  if (reload) await page.reload({ waitUntil: 'domcontentloaded' })
+  else await page.goto('/#/settings?section=connect')
   await page.waitForFunction(() => location.hash === '#/setup' || Boolean(document.querySelector('.vv-set__title,.vv-mset__title')))
   if (new URL(page.url()).hash === '#/setup') {
     await page.getByRole('link', { name: 'Cài đặt nâng cao', exact: true }).click()
@@ -77,6 +108,7 @@ for (const scenario of ['ready', 'unreachable'] as const) {
     expect(beforeProviders.some(provider => provider.kind === 'ollama' && [readyURL, refusedURL].includes(provider.baseUrl))).toBe(false)
     const before = await snapshot(page)
     const beforeIDs = new Set(beforeProviders.map(provider => provider.id))
+    const beforeRecords = beforeProviders.map(providerRecord).sort((a, b) => a.id.localeCompare(b.id))
     let owned: AiProvider | undefined
     let passed = false
     try {
@@ -123,14 +155,14 @@ for (const scenario of ['ready', 'unreachable'] as const) {
         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()
         await expect(form).toHaveCount(0)
       }
-      const card = page.getByRole('region', { name: 'Ollama', exact: true })
-      await expect(card).toBeVisible()
+      const addedCard = page.getByRole('region', { name: 'Ollama', exact: true })
+      await expect(addedCard).toBeVisible()
       if (scenario === 'ready') {
-        await expect(card).toContainText('Đã kết nối Ollama và lấy được 0 model.')
+        await expect(addedCard).toContainText('Đã kết nối Ollama và lấy được 0 model.')
         expect(owned!.catalogCount).toBe(0)
         await capture(page, info, 'real-local-provider-added-empty-catalog')
         if (mobile) {
-          await card.getByRole('button', { name: 'Chọn model', exact: true }).click()
+          await addedCard.getByRole('button', { name: 'Chọn model', exact: true }).click()
           const sheet = page.getByRole('dialog', { name: 'Model của Ollama', exact: true })
           await expect(sheet).toBeVisible()
           await expect(sheet).toContainText('Không có model nào khớp.')
@@ -138,19 +170,87 @@ for (const scenario of ['ready', 'unreachable'] as const) {
           await page.keyboard.press('Escape')
           await expect(sheet).toHaveCount(0)
         } else {
-          await expect(card.getByRole('list', { name: 'Ollama', exact: true })).toBeVisible()
-          await expect(card).toContainText('Không có model nào khớp.')
+          await expect(addedCard.getByRole('list', { name: 'Ollama', exact: true })).toBeVisible()
+          await expect(addedCard).toContainText('Không có model nào khớp.')
         }
       } else {
-        const error = card.getByRole('alert')
+        const error = addedCard.getByRole('alert')
         await expect(error).toContainText('Không lấy được danh sách model.')
         await expect(error).toContainText(baseURL)
         await expect(error.getByRole('button', { name: 'Đổi khoá', exact: true })).toHaveCount(0)
         await capture(page, info, 'real-unreachable-provider-card')
-        await error.getByRole('button', { name: 'Đổi địa chỉ', exact: true }).click()
       }
-      if (scenario === 'ready') await card.getByRole('button', { name: 'Đổi địa chỉ', exact: true }).first().click()
-      await card.getByRole('button', { name: 'Gỡ', exact: true }).click()
+
+      // Full document reload: the locally-added card state is gone and the
+      // owned record must still come back from GET with the same id, status,
+      // address and catalog count, rendered by the same real card.
+      await boot(page, true)
+      const reloaded = (await providers(page)).find(provider => provider.id === owned!.id)
+      expect(reloaded).toBeDefined()
+      expect(reloaded).toMatchObject({
+        id: owned!.id,
+        kind: 'ollama',
+        auth: 'local',
+        status: scenario,
+        baseUrl: baseURL,
+        catalogCount: owned!.catalogCount,
+      })
+      const card = page.getByRole('region', { name: 'Ollama', exact: true })
+      await expect(card).toBeVisible()
+      if (scenario === 'ready') {
+        await expect(card.locator('.conn-id .conn-sub')).toContainText(new URL(baseURL).host)
+        await expect(card.getByRole('button', { name: 'Chọn model', exact: true })).toBeVisible()
+        await capture(page, info, 'real-local-provider-reloaded-persisted')
+        const catalogResponse = await page.request.get(`/api/ai/providers/${owned!.id}/models?limit=200`)
+        expect(catalogResponse.status()).toBe(200)
+        const catalogPage = await catalogResponse.json() as { models: { id: string }[]; total: number }
+        expect(catalogPage.models).toEqual([])
+        expect(catalogPage.total).toBe(0)
+        if (mobile) {
+          await card.getByRole('button', { name: 'Chọn model', exact: true }).click()
+          const sheet = page.getByRole('dialog', { name: 'Model của Ollama', exact: true })
+          await expect(sheet).toBeVisible()
+          await expect(sheet).toContainText('Không có model nào khớp.')
+          await capture(page, info, 'real-local-provider-reloaded-empty-catalog-phone-sheet')
+          await page.keyboard.press('Escape')
+          await expect(sheet).toHaveCount(0)
+          await expect(page.locator('.m-overlay')).toHaveCount(0)
+        } else {
+          await card.getByRole('button', { name: 'Chọn model', exact: true }).click()
+          await expect(card.getByRole('list', { name: 'Ollama', exact: true })).toBeVisible()
+          await expect(card).toContainText('Không có model nào khớp.')
+          await capture(page, info, 'real-local-provider-reloaded-empty-catalog')
+        }
+      } else {
+        await expect(card.locator('.conn-id .conn-sub')).toContainText(`Không kết nối được ${new URL(baseURL).host}`)
+        await expect(card.getByRole('alert')).toContainText('Không lấy được danh sách model.')
+        await expect(card.getByRole('alert')).toContainText(baseURL)
+        await capture(page, info, 'real-unreachable-provider-reloaded-persisted')
+      }
+
+      // Failed (and ready) local records use the same inline address edit. Its
+      // field starts at the saved base URL; an unsaved value changes neither
+      // the form prefill requirement nor the server record until submitted.
+      const changeAddress = scenario === 'unreachable'
+        ? card.getByRole('alert').getByRole('button', { name: 'Đổi địa chỉ', exact: true })
+        : card.getByRole('button', { name: 'Đổi địa chỉ', exact: true }).first()
+      await changeAddress.click()
+      const { edit, field } = await addressEdit(card, baseURL)
+      await capture(page, info, `real-${scenario}-address-edit-prefilled`)
+      const draftURL = `${baseURL.replace(/\/+$/, '')}/qa-unsaved`
+      await field.fill(draftURL)
+      await expect(field).toHaveValue(draftURL)
+      const uncommitted = (await providers(page)).find(provider => provider.id === owned!.id)
+      expect(uncommitted).toBeDefined()
+      expect(uncommitted).toMatchObject({
+        id: owned!.id,
+        status: scenario,
+        baseUrl: baseURL,
+        catalogCount: owned!.catalogCount,
+      })
+      expect(events.get(page)!.filter(event => event.method === 'PATCH')).toEqual([])
+      // Keep the native edit row for the owned DELETE: no save is pressed.
+      await edit.getByRole('button', { name: 'Gỡ', exact: true }).click()
       const confirmation = page.getByRole('alertdialog')
       await expect(confirmation).toContainText('địa chỉ đã lưu')
       const removal = page.waitForResponse(response => response.request().method() === 'DELETE' && new URL(response.url()).pathname === `/api/ai/providers/${owned!.id}`)
@@ -158,17 +258,34 @@ for (const scenario of ['ready', 'unreachable'] as const) {
       expect((await removal).ok()).toBe(true)
       await expect(card).toHaveCount(0)
       expect((await providers(page)).some(provider => provider.id === owned!.id)).toBe(false)
+      await capture(page, info, 'real-owned-provider-removed')
       expect(events.get(page)!.filter(event => !event.allowed && !(event.boot && event.path === '/api/setup/start'))).toEqual([])
       passed = true
     } finally {
-      const cleanup = (await providers(page)).filter(provider => !beforeIDs.has(provider.id) && provider.kind === 'ollama' && provider.baseUrl === baseURL)
+      const cleanup = (await providers(page)).filter(provider => !beforeIDs.has(provider.id) && provider.kind === 'ollama' && (provider.id === owned?.id || provider.baseUrl === baseURL))
       for (const provider of cleanup) {
         const response = await page.request.delete(`/api/ai/providers/${provider.id}`)
         expect(response.ok()).toBe(true)
       }
-      expect((await providers(page)).map(provider => provider.id).sort()).toEqual(beforeProviders.map(provider => provider.id).sort())
+      const finalProviders = await providers(page)
+      expect(finalProviders.map(providerRecord).sort((a, b) => a.id.localeCompare(b.id))).toEqual(beforeRecords)
       expect(await snapshot(page)).toEqual(before)
-      await info.attach('real-local-provider-catalog-receipt.json', { body: JSON.stringify({ scenario, baseURL, ownedID: owned?.id, passed, realInstalledOllama: scenario === 'ready', modelsDownloaded: 0, inferenceRequests: 0, sourceAndAgentConfigurationUnchanged: true, providerRecordsRestored: true, browserMutations: events.get(page) }), contentType: 'application/json' })
+      await info.attach('real-local-provider-catalog-receipt.json', { body: JSON.stringify({
+        scenario,
+        baseURL,
+        sourceRevision: process.env.WORKFLOW_SOURCE_REVISION ?? null,
+        appBaseURL: info.project.use.baseURL ?? null,
+        ownedRecord: owned ? providerRecord(owned) : null,
+        originalProviderRecords: beforeRecords,
+        finalProviderRecords: finalProviders.map(providerRecord).sort((a, b) => a.id.localeCompare(b.id)),
+        passed,
+        realInstalledOllama: scenario === 'ready',
+        modelsDownloaded: 0,
+        inferenceRequests: 0,
+        sourceAndAgentConfigurationUnchanged: true,
+        providerRecordsRestored: true,
+        browserMutations: events.get(page),
+      }), contentType: 'application/json' })
     }
   })
 }

@@ -20,12 +20,6 @@ async function capture(page: Page, info: TestInfo, name: string) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(page.viewportSize()!.width)
   await page.screenshot({ path: info.outputPath(`${name}.png`) })
 }
-async function openWorkbench(page: Page, path: string) {
-  await page.goto(path, { waitUntil: 'domcontentloaded' })
-  await expect.poll(async () => new URL(page.url()).hash.startsWith('#/setup') || await page.getByRole('dialog').count() > 0).toBe(true)
-  if (new URL(page.url()).hash.startsWith('#/setup')) await page.goBack()
-  await expect(page.getByRole('dialog')).toBeVisible()
-}
 
 test.beforeEach(async ({ context, page }) => {
   const faults: string[] = []
@@ -112,51 +106,324 @@ test('workbench viewer uses stable addresses, contains the natural image and res
     return
   }
   const job = fixture.jobs[1].id
-  const path = `/#/?video=${job}&img=sc-03`
-  await page.goto(`/#/review?video=${fixture.jobs[0].id}&img=sc-01`)
-  await expect(page.getByRole('option', { name: 'Cảnh 1', exact: true })).toHaveAttribute('aria-selected', 'true')
-  await openWorkbench(page, path)
+  const imageBase = `/api/clone/${encodeURIComponent(job)}/images`
+  type SnapshotVersion = { n: number; state: string; url: string | null; previewUrl: string | null; width: number; height: number }
+  type SnapshotImage = { id: string; kind: 'scene' | 'cover'; label: string; usedVersion: number; versions: SnapshotVersion[] }
+  type Snapshot = { images?: SnapshotImage[]; quota?: { left: number } | null }
+  const readSnapshot = async () => {
+    const response = await page.request.get(imageBase)
+    expect(response.status(), 'the live §26 image snapshot must be readable').toBe(200)
+    return await response.json() as Snapshot
+  }
+  // Địa chỉ ảnh nằm trong hash (`#/?video=…&img=…`), không phải query của URL.
+  const hashParams = () => {
+    const hash = new URL(page.url()).hash
+    return new URLSearchParams(hash.slice(hash.indexOf('?') + 1))
+  }
+  const redrawMutations: string[] = []
+  const imageMutations: string[] = []
+  page.on('request', request => {
+    if (request.method() === 'GET') return
+    const path = new URL(request.url()).pathname
+    if (path === `${imageBase}/redraw`) redrawMutations.push(`${request.method()} ${path}`)
+    else if (path.startsWith(`${imageBase}/`)) imageMutations.push(`${request.method()} ${path}`)
+  })
+
+  // Bàn dựng thật, không địa chỉ ảnh: chưa có viewer nào được mở.
+  await page.goto(`/#/?video=${job}`, { waitUntil: 'domcontentloaded' })
+  await expect.poll(async () => new URL(page.url()).hash.startsWith('#/setup') || await page.getByRole('listbox', { name: 'Ảnh của video', exact: true }).isVisible()).toBe(true)
+  if (new URL(page.url()).hash.startsWith('#/setup')) {
+    await page.getByRole('link', { name: 'Cài đặt nâng cao', exact: true }).click()
+    await page.goto(`/#/?video=${job}`, { waitUntil: 'domcontentloaded' })
+  }
+  expect(new URL(page.url()).hash).toBe(`#/?video=${job}`)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  const grid = page.getByRole('listbox', { name: 'Ảnh của video', exact: true })
+  await expect(grid).toBeVisible()
+  await expect(page.getByRole('listbox', { name: 'Ảnh của video', exact: true })).toHaveCount(1)
+  await expect(page.getByRole('region', { name: /^(Phòng vẽ|Bộ ảnh chờ duyệt)/ })).toBeVisible()
+  // Viewer modal đợt 40 chỉ mở ngoài trạng thái chờ duyệt; job chờ duyệt đi thẳng
+  // sang màn Duyệt nên không thể thay thế các trạng thái của viewer này.
+  expect(await page.getByRole('region', { name: 'Bộ ảnh chờ duyệt', exact: true }).count(), `Main modal-viewer prerequisite: job ${job} must be non-review (stageGroup working/attention/paused) with ready images; a review-stage Main routes every tile to #/review and never opens the round-40 viewer`).toBe(0)
+
+  const snapshot = await readSnapshot()
+  const images = snapshot.images ?? []
+  expect(images.length, 'the live snapshot must list the studio images').toBeGreaterThan(2)
+  const gridLabels = await grid.getByRole('option').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-label') ?? ''))
+  const scenePairs = gridLabels
+    .map((label, index) => ({ label, next: gridLabels[index + 1] ?? '' }))
+    .filter(entry => entry.label.startsWith('Cảnh ') && entry.next.startsWith('Cảnh '))
+  const chosen = scenePairs.find(entry => entry.label === 'Cảnh 3') ?? scenePairs[0]
+  expect(chosen, 'a real scene image with a following scene must be reachable from the studio grid').toBeTruthy()
+  const sceneLabel = chosen!.label
+  const tile = grid.getByRole('option', { name: sceneLabel, exact: true })
+  await expect(tile).toBeVisible()
+  await expect(tile).toHaveAttribute('tabindex', '0')
+  await expect(tile.getByRole('button', { name: `Vẽ lại ${sceneLabel.toLocaleLowerCase('vi')}`, exact: true })).toBeEnabled()
+  await capture(page, info, 'workbench-none')
+
+  const historyBefore = await page.evaluate(() => history.length)
+  await tile.click()
   const dialog = page.getByRole('dialog')
-  await expect(dialog).toHaveAttribute('aria-label', 'Xem ảnh Cảnh 3')
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  const openedHash = new URL(page.url()).hash
+  const openedId = hashParams().get('img')
+  expect(openedId, 'the opened address must carry the image id').toBeTruthy()
+  expect(openedHash).toBe(`#/?video=${job}&img=${openedId}`)
+  const snapImage = images.find(image => image.id === openedId)
+  expect(snapImage, 'the opened address must name an image from the live snapshot').toBeDefined()
+  expect(snapImage!.label).toBe(sceneLabel)
+  expect(await page.evaluate(() => history.length), 'opening pushes exactly one history entry').toBe(historyBefore + 1)
+  await expect.poll(() => page.evaluate(() => !!document.activeElement?.closest('[role="dialog"]')), 'opening from the studio must move focus into the viewer').toBe(true)
+
+  const stage = dialog.getByRole('img', { name: sceneLabel, exact: true })
+  await expect(stage).toBeVisible()
+  await expect.poll(() => stage.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
   await settle(page)
   const geometry = await dialog.evaluate(node => {
-    const img = node.querySelector('img')!
+    const img = node.querySelector('img') as HTMLImageElement
+    const stageBox = img.parentElement as HTMLElement
     const box = node.getBoundingClientRect()
-    return { x: box.x, y: box.y, width: box.width, height: box.height, natural: [img.naturalWidth, img.naturalHeight], rendered: [img.clientWidth, img.clientHeight] }
+    const imageBox = img.getBoundingClientRect()
+    const frame = stageBox.getBoundingClientRect()
+    return {
+      x: box.x, y: box.y, width: box.width, height: box.height,
+      natural: [img.naturalWidth, img.naturalHeight] as [number, number],
+      rendered: [img.clientWidth, img.clientHeight] as [number, number],
+      stage: { width: frame.width, height: frame.height },
+      image: { x: imageBox.x, y: imageBox.y, width: imageBox.width, height: imageBox.height },
+      src: img.getAttribute('src'),
+    }
   })
   expect(geometry.width).toBeCloseTo(1240, 0)
   expect(geometry.height).toBeCloseTo(800, 0)
   expect(geometry.rendered[0]).toBeLessThanOrEqual(geometry.natural[0])
   expect(geometry.rendered[1]).toBeLessThanOrEqual(geometry.natural[1])
+  expect(geometry.natural[0]).toBeGreaterThan(geometry.natural[1])
+  expect(geometry.image.width).toBeLessThanOrEqual(geometry.stage.width + 1)
+  expect(geometry.image.height).toBeLessThanOrEqual(geometry.stage.height + 1)
+  expect(Math.abs(geometry.image.width / geometry.image.height - geometry.natural[0] / geometry.natural[1])).toBeLessThan(0.01)
+
+  // So đúng ảnh/phiên bản với asset URL được snapshot máy chủ công bố, không giả định hình dạng route.
+  let pressedN: number | null = null
+  const pressedVersion = dialog.getByRole('group', { name: 'Phiên bản của ảnh', exact: true }).getByRole('button', { pressed: true })
+  if (await pressedVersion.count()) {
+    pressedN = Number((await pressedVersion.textContent())?.trim())
+    expect(pressedN).toBeGreaterThan(0)
+    const shownVersion = snapImage!.versions.find(version => version.n === pressedN)
+    expect(shownVersion, `version ${pressedN} must exist in the live snapshot`).toBeDefined()
+    expect(geometry.natural).toEqual([shownVersion!.width, shownVersion!.height])
+  }
+  const shownVersion = snapImage!.versions.find(version => version.n === (pressedN ?? snapImage!.usedVersion))
+  expect(shownVersion, 'the displayed version must exist in the live snapshot').toBeDefined()
+  expect(geometry.natural).toEqual([shownVersion!.width, shownVersion!.height])
+  const shownVersionURL = shownVersion!.url ?? shownVersion!.previewUrl
+  expect(shownVersionURL, 'the displayed version must have a published image asset').toBeTruthy()
+  const stageURL = new URL(geometry.src!, page.url())
+  expect(stageURL.href).toBe(new URL(shownVersionURL!, page.url()).href)
+
+  const environment = await page.evaluate(() => ({ reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, fonts: document.fonts.status }))
+  expect(environment.fonts).toBe('loaded')
+  expect(environment.reduced).toBe(info.project.use.reducedMotion === 'reduce')
+  const motion = await dialog.evaluate(node => {
+    const read = (element: Element | null) => {
+      if (!element) return null
+      const style = getComputedStyle(element)
+      return { animationName: style.animationName, animationDuration: style.animationDuration, transitionDuration: style.transitionDuration, running: element.getAnimations().some(animation => animation.playState === 'running') }
+    }
+    return {
+      dialog: read(node),
+      scrim: read(document.querySelector('.kit-dlg-scrim')),
+      selectedThumb: read(node.querySelector('[role="listbox"] [aria-selected="true"]')),
+    }
+  })
+  if (environment.reduced) {
+    expect(motion.dialog?.animationName).toBe('none')
+    expect(motion.scrim?.animationName).toBe('none')
+    expect(motion.selectedThumb?.running, 'reduced motion must not leave an animated thumbnail transition running').toBe(false)
+  } else {
+    expect(motion.dialog?.animationName).not.toBe('none')
+    expect(motion.scrim?.animationName).not.toBe('none')
+    expect(motion.selectedThumb?.transitionDuration).not.toBe('0s')
+  }
   await capture(page, info, 'workbench-viewer')
+
   const panels = await page.locator('aside').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().width))
   for (const key of ['[', ']', '.']) await page.keyboard.press(key)
   await settle(page)
   expect(await page.locator('aside').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().width))).toEqual(panels)
+
+  const strip = dialog.getByRole('listbox', { name: 'Ảnh của video', exact: true })
+  await expect.poll(() => strip.getByRole('option').evaluateAll(nodes => nodes.every(node => {
+    const image = node.querySelector('img') as HTMLImageElement | null
+    return !image || image.naturalWidth > 0
+  }))).toBe(true)
+  const stripEntries = await strip.getByRole('option').evaluateAll(nodes => nodes.map(node => ({
+    label: (node.getAttribute('aria-label') ?? '').replace(/ · chưa mở được$/, ''),
+    selected: node.getAttribute('aria-selected') === 'true',
+    disabled: node.getAttribute('aria-disabled') === 'true',
+  })))
+  const currentIndex = stripEntries.findIndex(entry => entry.selected)
+  expect(currentIndex, 'the opened image must be selected in the strip').toBeGreaterThanOrEqual(0)
+  const viewableIndexes = stripEntries.flatMap((entry, index) => entry.disabled ? [] : [index])
+  expect(viewableIndexes.length, 'arrow navigation needs at least two viewable images').toBeGreaterThan(1)
+  const nextIndex = viewableIndexes[(viewableIndexes.indexOf(currentIndex) + 1) % viewableIndexes.length]
+  const nextLabel = stripEntries[nextIndex].label
+
+  const historyOpen = await page.evaluate(() => history.length)
+  await page.keyboard.press('ArrowRight')
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${nextLabel}`)
+  const nextId = hashParams().get('img')
+  expect(nextId).not.toBe(openedId)
+  expect(new URL(page.url()).hash).toBe(`#/?video=${job}&img=${nextId}`)
+  expect(images.find(image => image.id === nextId)?.label).toBe(nextLabel)
+  const afterNext = new URL(page.url()).hash
+  const historyAfterNext = await page.evaluate(() => history.length)
+  expect(historyAfterNext, 'arrow navigation replaces, never pushes').toBe(historyOpen)
+  await page.keyboard.press('ArrowLeft')
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+  expect(await page.evaluate(() => history.length)).toBe(historyOpen)
   await dialog.getByRole('button', { name: 'Ảnh sau (→)', exact: true }).click()
-  await expect(page).toHaveURL(new RegExp('img=sc-04'))
-  await page.goBack()
-  await expect(dialog).toHaveCount(0)
-  await page.goForward()
-  await expect(dialog).toHaveAttribute('aria-label', 'Xem ảnh Cảnh 4')
-  await page.reload()
-  await expect(dialog).toHaveAttribute('aria-label', 'Xem ảnh Cảnh 4')
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${nextLabel}`)
+  expect(new URL(page.url()).hash).toBe(afterNext)
+  await dialog.getByRole('button', { name: 'Ảnh trước (←)', exact: true }).click()
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+
+  // Portrait chỉ đo khi job có ảnh dọc thật; fixture hiện tại toàn 16:9.
+  const thumbSizes = await strip.getByRole('option').evaluateAll(nodes => nodes.map(node => {
+    const image = node.querySelector('img') as HTMLImageElement | null
+    return {
+      label: (node.getAttribute('aria-label') ?? '').replace(/ · chưa mở được$/, ''),
+      disabled: node.getAttribute('aria-disabled') === 'true',
+      natural: image ? [image.naturalWidth, image.naturalHeight] as [number, number] : null,
+    }
+  }))
+  const portraitThumb = thumbSizes.find(entry => !entry.disabled && entry.natural && entry.natural[1] > entry.natural[0])
+  if (process.env.WORKFLOW_QA_REQUIRE_PORTRAIT === '1') expect(portraitThumb, 'the portrait acceptance run must actually expose its imported portrait image').toBeDefined()
+  let portraitProbe: Record<string, unknown>
+  if (portraitThumb) {
+    await strip.getByRole('option', { name: portraitThumb.label, exact: true }).click()
+    await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${portraitThumb.label}`)
+    const portraitStage = dialog.getByRole('img', { name: portraitThumb.label, exact: true })
+    await expect.poll(() => portraitStage.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    const portraitGeometry = await portraitStage.evaluate(image => {
+      const img = image as HTMLImageElement
+      const box = img.getBoundingClientRect()
+      const frame = (img.parentElement as HTMLElement).getBoundingClientRect()
+      return {
+        natural: [img.naturalWidth, img.naturalHeight] as [number, number],
+        rendered: [img.clientWidth, img.clientHeight] as [number, number],
+        stage: { width: frame.width, height: frame.height },
+        image: { width: box.width, height: box.height },
+      }
+    })
+    expect(portraitGeometry.natural[1]).toBeGreaterThan(portraitGeometry.natural[0])
+    expect(portraitGeometry.rendered[0]).toBeLessThanOrEqual(portraitGeometry.natural[0])
+    expect(portraitGeometry.rendered[1]).toBeLessThanOrEqual(portraitGeometry.natural[1])
+    expect(portraitGeometry.image.width).toBeLessThanOrEqual(portraitGeometry.stage.width + 1)
+    expect(portraitGeometry.image.height).toBeLessThanOrEqual(portraitGeometry.stage.height + 1)
+    portraitProbe = { available: true, label: portraitThumb.label, geometry: portraitGeometry }
+    await strip.getByRole('option', { name: sceneLabel, exact: true }).click()
+    await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  } else {
+    portraitProbe = {
+      available: false,
+      prerequisite: `a real portrait image (naturalHeight > naturalWidth) on job ${job}; the live strip only exposes landscape sources (${thumbSizes.filter(entry => entry.natural).map(entry => `${entry.label}:${entry.natural![0]}x${entry.natural![1]}`).join(', ')})`,
+    }
+  }
+
   await dialog.getByRole('button', { name: /^Góp ý/ }).click()
   const feedback = dialog.getByRole('textbox', { name: 'Góp ý cho Hoạ sĩ' })
+  await expect(feedback).toBeFocused()
   await feedback.fill('Không đổi nhân vật')
+  const addressWithFeedback = new URL(page.url()).hash
   await feedback.press('ArrowRight')
-  await expect(page).toHaveURL(new RegExp('img=sc-04'))
+  await feedback.press('ArrowLeft')
+  expect(new URL(page.url()).hash, 'arrow keys inside the feedback textarea must not change the image').toBe(addressWithFeedback)
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  await expect(feedback).toHaveValue('Không đổi nhân vật')
+
+  const live = await readSnapshot()
+  const quotaLeft = live.quota?.left
+  const cost = dialog.getByRole('button', { name: /^Vẽ lại · tốn 1 ảnh/ })
+  await expect(cost).toBeVisible()
+  if (quotaLeft == null) {
+    await expect(dialog.getByText('Chưa tải được hạn mức ảnh nên chưa gửi được.', { exact: true })).toBeVisible()
+    await expect(cost).toBeDisabled()
+  } else if (quotaLeft > 0) {
+    await expect(cost).toContainText(`(còn ${quotaLeft})`)
+    await expect(cost).toBeEnabled()
+    await expect(dialog.getByText(`Còn ${quotaLeft} ảnh trong hạn mức hôm nay.`, { exact: true })).toBeVisible()
+  } else {
+    await expect(cost).toContainText('(còn 0)')
+    await expect(cost).toBeDisabled()
+    await expect(dialog.getByText('Hết hạn mức ảnh hôm nay.', { exact: true })).toBeVisible()
+  }
+  const costLabel = (await cost.textContent())?.trim() ?? ''
   await capture(page, info, 'workbench-feedback')
+
   await dialog.getByRole('button', { name: 'Huỷ', exact: true }).click()
   await expect(feedback).toHaveCount(0)
+  expect(new URL(page.url()).hash).toBe(addressWithFeedback)
+  expect(redrawMutations, 'cancelling feedback must not send a redraw').toEqual([])
+  expect(imageMutations, 'opening, browsing and cancelling must not mutate images').toEqual([])
+
   await page.keyboard.press('Escape')
-  await expect(dialog).toHaveCount(0)
-  expect(new URL(page.url()).hash).not.toContain('img=')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  const closedHash = new URL(page.url()).hash
+  expect(closedHash).toBe(`#/?video=${job}`)
   expect(await page.evaluate(() => document.body.style.overflow)).toBe('')
+  await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe(sceneLabel)
+  await expect.poll(() => page.evaluate(() => document.activeElement?.getAttribute('role'))).toBe('option')
+  const historyAfterClose = await page.evaluate(() => history.length)
+  expect(historyAfterClose, 'closing replaces the viewer address in place').toBe(historyOpen)
+
+  // Mở lại từ đúng ô ảnh: địa chỉ, reload và back/forward giữ nguyên một entry viewer.
+  await tile.click()
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+  const historyReopen = await page.evaluate(() => history.length)
+  expect(historyReopen).toBe(historyAfterClose + 1)
+  await page.reload()
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+  const historyAfterReload = await page.evaluate(() => history.length)
+  expect(historyAfterReload).toBe(historyReopen)
   await page.goBack()
-  await expect(dialog).toHaveCount(0)
-  await expect(page).toHaveURL(/#\/review/)
-  await info.attach('viewer-geometry.json', { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' })
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  expect(new URL(page.url()).hash).toBe(`#/?video=${job}`)
+  await page.goForward()
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  await dialog.getByRole('button', { name: /^Đóng(?:\s|$)/ }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  expect(new URL(page.url()).hash).toBe(`#/?video=${job}`)
+  expect(await page.evaluate(() => history.length)).toBe(historyReopen)
+
+  await info.attach('viewer-geometry.json', {
+    body: JSON.stringify({
+      job,
+      viewport: page.viewportSize(),
+      baseURL: info.project.use.baseURL ?? process.env.WORKFLOW_APP_URL ?? null,
+      sourceRevision: process.env.WORKFLOW_SOURCE_REVISION ?? null,
+      fonts: environment.fonts,
+      reducedMotion: environment.reduced,
+      states: { none: 'workbench-none.png', view: 'workbench-viewer.png', redraw: 'workbench-feedback.png' },
+      address: { boot: `#/?video=${job}`, opened: openedHash, afterArrowRight: afterNext, afterArrowLeft: openedHash, afterClose: closedHash },
+      history: { before: historyBefore, opened: historyOpen, afterArrowRight: historyAfterNext, afterReload: historyAfterReload, afterClose: historyAfterClose },
+      geometry,
+      motion,
+      orientation: { landscape: { label: sceneLabel, natural: geometry.natural, rendered: geometry.rendered, stage: geometry.stage }, portrait: portraitProbe },
+      quota: { snapshotLeft: quotaLeft ?? null, costLabel },
+      sourceGuard: { stagePath: stageURL.pathname, snapshotImageId: snapImage!.id, shownVersion: pressedN },
+      redrawMutations,
+      imageMutations,
+    }, null, 2),
+    contentType: 'application/json',
+  })
+  expect(redrawMutations).toEqual([])
+  expect(imageMutations).toEqual([])
 })
 
 test('template sample eye does not change selection until its explicit action; retired key card is absent', async ({ page }, info) => {

@@ -33,8 +33,9 @@ export const sx = stylex.create({
     position: 'relative', flex: '1 1 auto', minHeight: 0, display: 'grid', placeItems: 'center',
     overflow: 'hidden', borderRadius: r['--vv-r-12'], backgroundColor: layout.stageBackground,
   },
-  // Ảnh tự nhiên: `auto` + trần 100% ⇒ chỉ thu nhỏ, không phóng quá cỡ gốc.
-  image: { display: 'block', width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' },
+  // Neo vào khung đã tính xong để trần 100% không phụ thuộc kích thước nội tại của ảnh.
+  // `auto` giữ tỉ lệ và cỡ gốc; ảnh dọc/ngang chỉ thu nhỏ khi chạm mép khung.
+  image: { position: 'absolute', inset: 0, margin: 'auto', display: 'block', width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' },
   stageNotice: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s['--vv-s-8'], padding: s['--vv-s-16'], color: color['--color-fg-3'], fontSize: type['--vv-fs-ui'], textAlign: 'center' },
   nav: {
     position: 'absolute', top: '50%', transform: 'translateY(-50%)', width: s['--vv-s-38'], height: s['--vv-s-38'], borderRadius: '50%',
