@@ -1,0 +1,1 @@
+import{j as o}from"./index-BcbtDGXj.js";import{H as t}from"./headless-page-DBBGKGJ7.js";/* empty css                   */import"./schemas-_m0uhI6l.js";import"./client-render-engine-Bplze0GD.js";import"./canvas-audio-B3zB2_qP.js";import"./canvas-render-orchestrator-B2zq41eC.js";function d(r){return o.jsx(t,{...r,kind:"render"})}export{d as RenderPage};

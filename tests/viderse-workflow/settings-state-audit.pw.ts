@@ -6,7 +6,8 @@ import { resolve, sep } from 'node:path'
 // isolated workflow.qa fixture and exercises only states that the real isolated
 // backend currently exposes:
 //   • frame sections connect/agents/tools/accounts at desktop + mobile,
-//   • the genuine provider list (including truthful logged-out subscriptions),
+//   • the genuine provider list (including truthful logged-out subscriptions)
+//     and explicit absence of the retired YouTube Data API card,
 //   • every safe add-provider radio, field and disabled-submit state,
 //   • mobile sheet scrim/Esc and focus/scroll restoration,
 //   • model catalog filters/search/manual-cancel and models sheet when (and only
@@ -177,6 +178,17 @@ test.beforeEach(async ({ context, page }) => {
 })
 
 test.afterEach(async ({ page }, testInfo) => {
+  // Truthful evidence provenance only: no cookies, credentials or request
+  // headers. Missing env values stay null instead of being inferred.
+  await testInfo.attach('settings-evidence-metadata.json', {
+    body: JSON.stringify({
+      project: testInfo.project.name,
+      viewport: page.viewportSize(),
+      baseURL: testInfo.project.use.baseURL ?? process.env.WORKFLOW_APP_URL ?? null,
+      sourceRevision: process.env.WORKFLOW_SOURCE_REVISION ?? null,
+    }, null, 2),
+    contentType: 'application/json',
+  })
   await testInfo.attach('settings-controls.json', { body: JSON.stringify(observations.get(page) ?? [], null, 2), contentType: 'application/json' })
   await testInfo.attach('settings-mutations.json', { body: JSON.stringify(mutations.get(page) ?? [], null, 2), contentType: 'application/json' })
   const faults = runtimeFaults.get(page) ?? []
@@ -192,9 +204,18 @@ test('settings frame: genuine section values, desktop/mobile navigation and read
     getJson<{ artist: { draw: { provider: string; model: string } } }>(page, '/api/ai/agents'),
     getJson<ToolsStatus>(page, '/api/tools'),
   ])
+  const expectSectionContent = async (section: string) => {
+    if (section === 'connect') await expect(page.locator('.conn-card')).toHaveCount(providers.length)
+    if (section === 'tools') await expect(page.locator('.vv-tools__row')).toHaveCount(tools.tools.length)
+    if (section === 'agents') await expect(page.getByText('Đạo diễn', { exact: true }).first()).toBeVisible()
+    if (section === 'accounts') for (const platform of platforms) await expect(page.getByRole('region', { name: platform.label })).toBeVisible()
+    if (section === 'storage') await expect(page.locator('.vv-sto__card').first()).toBeVisible()
+    if (section === 'logs') await expect(page.locator('.vv-logs__export')).toBeVisible()
+  }
 
   await boot(page, '/#/settings?section=tools')
   await expectTitle(page, mobile, 'Công cụ trên máy')
+  await expectSectionContent('tools')
   await capture(page, testInfo, 'settings-frame-tools-entry')
   record(page, testInfo, 'frame.tools', 'Native tools section opens with its desktop/mobile title', (await page.locator(mobile ? '.vv-mset__title' : '.vv-set__title').textContent()) ?? '')
 
@@ -233,7 +254,7 @@ test('settings frame: genuine section values, desktop/mobile navigation and read
       await row.click()
       await expect(page).toHaveURL(new RegExp(`section=${section}`))
       await expectTitle(page, true, SECTION_TITLE[section])
-      if (section === 'storage') await expect(page.locator('.vv-sto__card').first()).toBeVisible()
+      await expectSectionContent(section)
       await capture(page, testInfo, `settings-frame-${section}`)
       record(page, testInfo, `frame.${section}`, `Mobile list row opens ${SECTION_TITLE[section]}`, (await page.locator('.vv-mset__title').textContent()) ?? '')
     }
@@ -247,16 +268,44 @@ test('settings frame: genuine section values, desktop/mobile navigation and read
   } else {
     const nav = page.locator('aside.vv-set__side')
     await expect(nav).toBeVisible()
+    const navigation = await nav.locator('button').evaluateAll(buttons => buttons.map(button => {
+      const row = button.getBoundingClientRect()
+      const icon = button.querySelector('.vv-ic')!.getBoundingClientRect()
+      const label = button.querySelector('.vv-set__nav-label')!.getBoundingClientRect()
+      const count = button.querySelector('.vv-set__nav-num')!.getBoundingClientRect()
+      return { name: button.textContent?.trim(), height: row.height, iconX: icon.x, labelX: label.x, countRight: count.right }
+    }))
+    for (const edge of ['iconX', 'labelX', 'countRight'] as const) {
+      const positions = navigation.map(row => row[edge])
+      expect(Math.max(...positions) - Math.min(...positions), `${edge} must form one sidebar column`).toBeLessThanOrEqual(2)
+    }
+    for (const row of navigation) expect(Math.abs(row.height - 34), `${row.name} navigation row height`).toBeLessThanOrEqual(1)
+    const queueLink = nav.getByRole('link', { name: 'Luồng chạy · hàng chờ', exact: true })
+    await expect(queueLink).toHaveAttribute('href', '#/queue')
+    const queueGeometry = await queueLink.evaluate(link => {
+      const box = link.getBoundingClientRect()
+      const icon = link.firstElementChild!.getBoundingClientRect()
+      const label = link.children[1]?.getBoundingClientRect()
+      return { height: box.height, display: getComputedStyle(link).display, iconX: icon.x, labelX: label?.x }
+    })
+    expect(queueGeometry.display).toBe('flex')
+    expect(Math.abs(queueGeometry.height - 34)).toBeLessThanOrEqual(1)
+    expect(Math.abs(queueGeometry.iconX - navigation[0].iconX)).toBeLessThanOrEqual(2)
+    expect(Math.abs(queueGeometry.labelX! - navigation[0].labelX)).toBeLessThanOrEqual(2)
+    await testInfo.attach('settings-sidebar-geometry.json', { body: JSON.stringify({ navigation, queue: queueGeometry }), contentType: 'application/json' })
     for (const section of ['connect', 'agents', 'accounts', 'tools', 'storage', 'logs'] as const) {
       const label = SECTION_TITLE[section]
       await nav.getByRole('button', { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).click()
       await expect(page).toHaveURL(new RegExp(`section=${section}`))
       await expectTitle(page, false, label)
-      if (section === 'storage') await expect(page.locator('.vv-sto__card').first()).toBeVisible()
-      if (section === 'logs') await expect(page.locator('.vv-logs__export')).toBeVisible()
+      await expectSectionContent(section)
       await capture(page, testInfo, `settings-frame-${section}`)
       record(page, testInfo, `frame.${section}`, `Desktop nav opens ${label}`, (await page.locator('.vv-set__title').textContent()) ?? '')
     }
+    await queueLink.click()
+    await expect(page).toHaveURL(/#\/queue$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/section=logs/)
   }
 
   // Agents is read-only for this smoke: assert the live director/artist labels
@@ -330,6 +379,14 @@ test('connect: truthful provider cards, all safe add radios, scrim/Esc and condi
     await expect(page.locator('.conn-card')).toHaveCount(providers.length)
   }
   record(page, testInfo, 'connect.list', 'Provider list matches GET /api/ai/providers', `${providers.length} genuine providers`)
+
+  // Round 44 retired the YouTube Data API credential card and its group on
+  // both Settings surfaces. Assert absence after the real provider list has
+  // rendered, rather than before the section has any content to inspect.
+  await expect(page.getByText('YouTube Data API', { exact: false })).toHaveCount(0)
+  await expect(page.getByText('Số liệu YouTube', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('region', { name: /YouTube Data API/ })).toHaveCount(0)
+  record(page, testInfo, 'connect.retired.yt-data-key', 'Retired YouTube Data API card and group are absent from the real Settings DOM', 'no YouTube Data API/Số liệu YouTube text and no matching region')
 
   for (const provider of providers) {
     const card = page.getByRole('region', { name: provider.label })
@@ -638,11 +695,19 @@ test('connect: truthful provider cards, all safe add radios, scrim/Esc and condi
   await manualOpen.click()
   const manual = catalog.locator('.conn-manual')
   await expect(manual).toBeVisible()
-  await manual.getByLabel('Tên model').fill('qa-manual-never-submitted')
-  await manual.getByRole('button', { name: 'Đóng' }).click()
+  const manualName = manual.getByLabel('Tên model', { exact: true })
+  const manualCheck = manual.getByRole('button', { name: 'Kiểm tra & thêm', exact: true })
+  await expect(manualName).toHaveValue('')
+  await expect(manualCheck).toBeDisabled()
+  await manualName.fill('qa-manual-never-submitted')
+  await expect(manualName).toHaveValue('qa-manual-never-submitted')
+  await expect(manualCheck).toBeEnabled()
+  await capture(page, testInfo, 'settings-connect-models-manual')
+  record(page, testInfo, 'connect.models.manual.input', 'Manual name field starts empty; the real check button enables only after non-empty input', 'empty → disabled; non-empty → enabled; never submitted')
+  await manual.getByRole('button', { name: 'Đóng', exact: true }).click()
   await expect(manual).toHaveCount(0)
   expect(appMutations(page).filter((mutation) => mutation.path.endsWith('/models/check'))).toEqual([])
-  record(page, testInfo, 'connect.models.manual', 'Manual panel opens, accepts a name, cancels without POST models/check', firstPage ? 'closed with no mutation' : 'closed with no mutation despite catalog API failure')
+  record(page, testInfo, 'connect.models.manual', 'Manual panel opens, validates input and cancels without POST models/check', firstPage ? 'closed with no mutation' : 'closed with no mutation despite catalog API failure')
   assertNoMutations(page)
 
   await attachGaps(page, testInfo, gaps)
