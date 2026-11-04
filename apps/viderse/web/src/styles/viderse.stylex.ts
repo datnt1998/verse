@@ -26,14 +26,23 @@ export const corners = stylex.defineVars({
 /** Semantic values already defined by design/v1/tokens.css and kit.css. */
 export const typography = stylex.defineVars({
   '--vv-fs-ui': '13px',
+  '--vv-fs-body': '14px',
   '--vv-fs-meta': '12px',
   '--vv-fs-small': '11.5px',
   '--vv-fs-group': '11px',
+  '--vv-fs-title-small': '13.5px',
+  '--vv-fs-detail': '12.5px',
+  '--vv-fs-badge': '10.5px',
 })
 
 export const controlMotion = stylex.defineVars({
   // kit.css: .vv-select__chev and chip arrows.
   selectChevron: '180ms',
+})
+
+/** Shared viewer measurements from the round40 Main/Template artboards. */
+export const imageViewer = stylex.defineVars({
+  width: '1240px', height: '800px', header: '52px', footer: '60px', side: '340px', stageBackground: '#050506',
 })
 
 /** Exact clone-pipeline artboard measurements outside the shared token scale. */

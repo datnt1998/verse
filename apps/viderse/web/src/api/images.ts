@@ -171,6 +171,12 @@ export interface RedrawBody {
   parts?: Partial<Record<PromptPartKind, string>>
   refs?: RedrawRef[]
   provider?: string
+  /**
+   * Bản đang xem làm nguồn prompt/ảnh tham chiếu, kể cả khi bản đang dùng của
+   * video khác bản đó. Chỉ dùng cho một ảnh; vắng mặt thì vẽ tiếp bản đang dùng
+   * như chính sách cũ (không phải bí danh tương thích).
+   */
+  baseVersion?: number
 }
 
 const base = (jobId: string) => `/api/clone/${encodeURIComponent(jobId)}/images`

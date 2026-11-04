@@ -6,6 +6,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CloneJobView, JobImageList, JobStep } from '../../api/workbench'
+import type { ImageVersion } from '../../api/images'
 import type { Route } from '../../router'
 import { WorkbenchDesktop } from './WorkbenchDesktop'
 
@@ -33,9 +34,9 @@ vi.mock('../../data/useResource', () => {
     },
   }
 })
-vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {} }))
+vi.mock('../../data/events', () => ({ subscribeEvents: () => () => {}, events: { onReconnect: () => () => {} } }))
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
-vi.mock('../../router', () => ({ navigate: vi.fn(), routePath: (route: { name: string }) => `#/${route.name}` }))
+vi.mock('../../router', async (importOriginal) => ({ ...(await importOriginal<typeof import('../../router')>()), navigate: vi.fn() }))
 vi.mock('../../components/performance', async (importOriginal) => ({ ...(await importOriginal<object>()), requestMarkPosted: state.markPosted }))
 vi.mock('../../components', () => ({
   ChannelAvatar: () => null,
@@ -74,6 +75,13 @@ const jobView = (id: string, stageGroup: string, extra: Partial<CloneJobView> = 
   ...extra,
 })
 const tile = (id: string) => ({ id, kind: 'scene', status: 'review', currentVersion: 1, reviewVersion: 1, versions: [{ version: 1, originalUrl: `/${id}.webp` }], narration: id })
+const imageVersion = (n: number, state: ImageVersion['state'], scene: string): ImageVersion => ({
+  n, state, url: `/api/clone/a/images/scene-one/versions/${n}`, previewUrl: null, width: 1280, height: 720,
+  parts: [{ kind: 'scene', text: scene, source: { type: 'artist', label: 'Hoạ sĩ' } }],
+  sentText: scene, refs: [], provider: 'chatgpt', model: 'gpt-image-2', params: { size: '1280x720' },
+  feedback: null, diffFromPrev: null, startedAt: '2026-11-02T10:00:00Z', finishedAt: '2026-11-02T10:01:00Z',
+  durationSec: 44, costImages: 1, error: null,
+})
 
 let root: Root | undefined
 let host: HTMLDivElement
@@ -161,5 +169,33 @@ describe('băng Cần xử lý nói đúng lý do của video đang chọn', () 
     expect(banner()).toContain('khoá')
     expect(banner()).not.toContain('hết hạn')
     expect(banner()).not.toContain('invalid api key')
+  })
+})
+
+describe('vẽ tiếp bằng Grok từ bản lỗi', () => {
+  it('retries the latest failed version rather than an older failed prompt', async () => {
+    const stoppedImages: JobStep = {
+      step: 'images', status: 'failed', progress: { unitsDone: 0, unitsTotal: null, phase: '' }, output: null,
+      error: { code: 'provider', message: 'ChatGPT lỗi' }, startedAt: null, finishedAt: null,
+    }
+    state.jobs = [jobView('a', 'attention', { status: 'failed', steps: [stoppedImages] })]
+    state.images = {
+      manifest: { revision: 7, scenePrompt: { id: 's', name: 'Cảnh', overridden: false }, coverPrompt: { id: 'c', name: 'Bìa', overridden: false } },
+      items: [{ ...tile('scene-one'), status: 'failed' }],
+    }
+    fetcher.mockImplementation(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith('/redraw')) return Response.json({ versions: [{ imageId: 'scene-one', n: 4 }] })
+      return Response.json({ images: [{
+        id: 'scene-one', kind: 'scene', index: 0, label: 'Cảnh 1', usedVersion: 1, refLimit: 4,
+        versions: [imageVersion(1, 'ready', 'Cảnh 1 gốc'), imageVersion(2, 'failed', 'Cảnh 1 lỗi cũ'), imageVersion(3, 'failed', 'Cảnh 1 lỗi mới')],
+      }] })
+    })
+    await render({ name: 'workbench', video: 'a' })
+    await act(async () => button('Vẽ tiếp bằng Grok')!.click())
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2))
+    expect(lastPost()).toEqual({
+      url: '/api/clone/a/images/redraw',
+      body: { imageIds: ['scene-one'], provider: 'grok', baseVersion: 3 },
+    })
   })
 })

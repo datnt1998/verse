@@ -12,14 +12,12 @@ import { useAsyncAction } from './useAsyncAction'
 import { getKitLabels } from './labels'
 import { Sheet } from './Sheet'
 import { getPhoneMax, phoneQuery } from './mobile/safeArea'
+import { confirmLayout, confirmationRememberKey as rememberKey } from './confirm-store'
 import './kit.css'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
 const MOBILE = '@media (max-width: 760px)'
 
-let confirmLayout: 'dialog' | 'responsive' = 'dialog'
-/** Configure once before mounting the app; other applications keep the centered dialog. */
-export const setConfirmLayout = (layout: 'dialog' | 'responsive') => { confirmLayout = layout }
 
 function useSheetConfirmation(inline: boolean | undefined) {
   const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(phoneQuery(getPhoneMax())).matches)
@@ -190,13 +188,9 @@ const CHIP: Record<ConfirmTone, { bg: string; fg: string; icon: string }> = {
   dsoft: { bg: 'var(--kit-err-10)', fg: 'var(--kit-err-bright)', icon: 'danger' },
   danger: { bg: 'var(--kit-err-14)', fg: 'var(--kit-err-strong)', icon: 'danger' },
 }
-const rememberKey = (user: string, kind: string) => `ainovel.confirm.${encodeURIComponent(user)}.${encodeURIComponent(kind)}`
 export function scheduleConfirmationHold(onComplete: () => void) {
   const timer = globalThis.setTimeout(onComplete, HOLD_DURATION)
   return () => globalThis.clearTimeout(timer)
-}
-export function isConfirmationRemembered(user: string, kind: string) {
-  try { return localStorage.getItem(rememberKey(user, kind)) === '1' } catch { return false }
 }
 
 export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, disabledReason, remember, secondary, onConfirm, onClose, successMessage, undo, inline, size = 'md' }: ConfirmDialogProps) {
@@ -336,37 +330,3 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   return inline ? <div className={scrim.className} style={scrim.style}>{content}</div> : createPortal(<div className={scrim.className} style={scrim.style} onClick={(event) => { if (event.target === event.currentTarget) close() }}>{content}</div>, document.body)
 }
 
-export type ConfirmOptions = Omit<ConfirmDialogProps, 'onClose'>
-let confirmationGeneration = 0
-const activeConfirmations = new Set<() => void>()
-/** A session boundary discards UI, never retries or pretends to cancel a submitted mutation. */
-export function dismissConfirmations() {
-  confirmationGeneration++
-  for (const dismiss of [...activeConfirmations]) dismiss()
-}
-
-export function confirm(options: ConfirmOptions): Promise<boolean> {
-  const generation = confirmationGeneration
-  if (options.remember && isConfirmationRemembered(options.remember.user, options.remember.kind)) return Promise.resolve().then(async () => {
-    if (generation !== confirmationGeneration) return false
-    await options.onConfirm(options.defaultChoice ?? options.choices?.[0]?.value ?? '')
-    return generation === confirmationGeneration
-  })
-  return import('react-dom/client').then(({ createRoot }) => {
-    if (generation !== confirmationGeneration) return false
-    return new Promise<boolean>((resolve) => {
-      const container = document.createElement('div'); document.body.append(container)
-      const root = createRoot(container)
-      let finished = false
-      const finish = (accepted = false) => {
-        if (finished) return
-        finished = true
-        activeConfirmations.delete(dismiss)
-        queueMicrotask(() => { root.unmount(); container.remove(); resolve(accepted) })
-      }
-      const dismiss = () => finish(false)
-      activeConfirmations.add(dismiss)
-      root.render(<ConfirmDialog {...options} onClose={finish} />)
-    })
-  })
-}

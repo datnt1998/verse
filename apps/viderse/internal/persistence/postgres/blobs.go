@@ -212,9 +212,11 @@ func (s *BlobRepository) Bind(ctx context.Context, r media.Ref) error {
 
 // Unbind gỡ hàng blob_refs của (store, path) trong publication transaction.
 // Khoá advisory per-key khớp Collect/Bind nên unbind không đua với GC đang
-// kiểm tra cùng object; path vắng mặt là no-op. Content chỉ mất ref khi hàng
-// domain trỏ tới nó (clone_artifacts, storage_live_refs) cũng đã gỡ trong
-// cùng tx.
+// kiểm tra cùng object; path vắng mặt là no-op. Một path còn chủ sống thì giữ
+// nguyên binding: storage_live_refs là cùng nguồn quyền mà editor
+// releaseBinding dùng, nên head editor của project khác, artifact/cutout của
+// job khác hay thư viện đang trỏ vào path không bị xoá bytes dưới chân. Binding
+// đó được nhả bởi lần xoá canonical của chủ cuối, không phải bởi Unbind.
 func (s *BlobRepository) Unbind(ctx context.Context, storeID, path string) error {
 	db := mediaDB(ctx, s.pool)
 	if _, ok := ctx.Value(mediaTxKey{}).(pgx.Tx); !ok {
@@ -237,6 +239,13 @@ func (s *BlobRepository) Unbind(ctx context.Context, storeID, path string) error
 	}
 	if _, err = db.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,253025))", storeID+"/path/"+path); err != nil {
 		return err
+	}
+	var live bool
+	if err = db.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM storage_live_refs WHERE logical_path=$1)", path).Scan(&live); err != nil {
+		return err
+	}
+	if live {
+		return nil
 	}
 	if _, err = db.Exec(ctx, "DELETE FROM blob_refs WHERE logical_path=$1", path); err != nil {
 		return err

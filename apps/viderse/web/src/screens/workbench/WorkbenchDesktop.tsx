@@ -3,7 +3,7 @@ import * as stylex from '@stylexjs/stylex'
 import { Button, Icon, type IconName } from '@noverse/ui'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { acceptExport, getWorkbench, getWorkbenchJob, getJobImages, getScoreArtifact, jobAction, getRecap, markRecapSeen, type CloneJobView } from '../../api/workbench'
-import { getJobImages as getFullJobImages, redrawImages, type ImageRef, type PromptPartKind, type RedrawRef } from '../../api/images'
+import { getJobImages as getFullJobImages, redrawImages } from '../../api/images'
 import { getNotificationSettings } from '../../api/activity'
 import { getChannelSummaries } from '../../api/workbenchChannels'
 import { getChannel } from '../../api/channels'
@@ -157,24 +157,20 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
   const allDrawn = items.length > 0 && !drawing && !items.some(item => item.status === 'failed')
   const failedStep = job?.steps?.find(step => step.status === 'failed')
   const failedItem = items.find(item => item.status === 'failed')
-  // Nút Grok chỉ đọc đúng bản lỗi rồi gửi lại phần prompt + tham chiếu đã lưu,
-  // y như ReviewScreen.retryWithGrok. Không đoán parts/refs từ DTO danh sách.
+  // Giữ prompt/refs của lần lỗi mới nhất qua bản nguồn, không gửi lại chúng
+  // thành phần sửa tay hoặc dựng lại định danh ảnh tải lên.
   const retryWithGrok = async () => {
     if (!job || !failedItem || grokBusy) return
     setGrokBusy(true); setGrokError('')
     try {
       const view = await getFullJobImages(job.id)
       const image = view.images.find(candidate => candidate.id === failedItem.id)
-      const failedVersion = image?.versions.find(version => version.state === 'failed')
+      const failedVersion = image?.versions.findLast(version => version.state === 'failed')
       if (!image || !failedVersion) { setGrokError('Không đọc được bản lỗi của ảnh này.'); return }
-      const parts: Partial<Record<PromptPartKind, string>> = {}
-      for (const part of failedVersion.parts) if (part.kind !== 'refs') parts[part.kind] = part.text
-      const refs = toRedrawRefs(failedVersion.refs)
       await redrawImages(job.id, {
         imageIds: [image.id],
         provider: 'grok',
-        ...(Object.keys(parts).length ? { parts } : {}),
-        ...(refs.length ? { refs } : {}),
+        baseVersion: failedVersion.n,
       })
       refresh(); void images.refresh()
     } catch (err) {
@@ -312,18 +308,6 @@ function statusLine(stage: JobStage, job: CloneJobView, drawingIndex: number): {
     case 'queued': return { text: 'Chờ lượt', tone: 'muted', icon: 'clock', spin: false }
     default: return { text: drawingIndex >= 0 ? `Đang vẽ cảnh ${drawingIndex + 1}` : 'Đang làm', tone: 'active', icon: 'gallery', spin: true }
   }
-}
-
-/** Y hệt ReviewScreen.toRedrawRefs: ảnh đã lưu gửi lại bằng id, ảnh mới gửi nguồn. */
-function toRedrawRefs(refs: ImageRef[]): RedrawRef[] {
-  return refs.map(ref => {
-    if (ref.source.type === 'upload') return { upload: ref.id, role: ref.role }
-    if (ref.source.type === 'rival_frame' && ref.source.videoId != null && ref.source.atSec != null) {
-      return { rivalFrame: { videoId: ref.source.videoId, atSec: ref.source.atSec }, role: ref.role }
-    }
-    if (ref.source.type === 'video_image' && ref.source.imageId) return { videoImageId: ref.source.imageId, role: ref.role }
-    return { id: ref.id, role: ref.role }
-  })
 }
 
 const styles = stylex.create({

@@ -2,9 +2,6 @@
 //   POST   /api/clone/:id/posted {youtubeUrl?}            → {youtubeId: string|null}
 //   GET    /api/channels/:id/performance                  → Performance
 //   POST   /api/channels/:id/insights/:insightId/apply    → {kind: 'rule'|'rotation', ruleId?}
-//   GET    /api/youtube/data-key                          → {configured, keyHint?}
-//   PUT    /api/youtube/data-key {key}                    → cùng hình
-//   DELETE /api/youtube/data-key                          → 204
 // Lỗi: ApiError.payload giữ {error, field?} (400 posted: field = "youtubeUrl").
 //
 // Đọc bằng guard tay (./guard) chứ không bằng zod: thẻ hiệu quả nằm trong chunk
@@ -118,17 +115,6 @@ export const applyInsight = async (channelId: string, insightId: string) => {
     ruleId: nullish(o.ruleId, str, 'apply.ruleId'),
   }
 }
-
-export type DataKeyState = { configured: boolean; keyHint?: string | null }
-
-const readDataKey = (value: unknown): DataKeyState => {
-  const o = record(value, 'dataKey')
-  return { configured: bool(o.configured, 'dataKey.configured'), ...(o.keyHint === undefined ? {} : { keyHint: nullish(o.keyHint, str, 'dataKey.keyHint') }) }
-}
-
-export const getDataKey = async (signal?: AbortSignal) => readDataKey(await request<unknown>('/api/youtube/data-key', { signal }))
-export const saveDataKey = async (key: string) => readDataKey(await mutate<unknown>('PUT', '/api/youtube/data-key', { key: key.trim() }))
-export const removeDataKey = () => mutate<void>('DELETE', '/api/youtube/data-key')
 
 /** Trường `field` trong payload lỗi 400 (vd "youtubeUrl"). */
 export function errorField(error: unknown): string | undefined {

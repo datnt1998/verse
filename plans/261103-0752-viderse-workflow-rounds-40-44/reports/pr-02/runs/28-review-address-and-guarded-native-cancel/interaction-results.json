@@ -1,0 +1,1731 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "tests/viderse-workflow/playwright.config.ts",
+      "tests/viderse-workflow/viewer-audit.pw.ts",
+      "--grep",
+      "mobile review tab returns|mobile workbench opens the requested|stale review video|sample confirmation cancellation|mobile real cover preview Escape",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced",
+      "--workers=1",
+      "--no-deps"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "mobile review tab returns to the addressed image in its kept pane",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Requires isolated recorded-source replay jobs on phone",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 435,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 1541,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:01:42.002Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Requires isolated recorded-source replay jobs on phone",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 435,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--001d6-ssed-image-in-its-kept-pane-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-bc439e4c0d9b74146390",
+          "file": "viewer-audit.pw.ts",
+          "line": 434,
+          "column": 5
+        },
+        {
+          "title": "mobile workbench opens the requested review job after the review pane was hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Requires isolated recorded-source replay jobs on phone",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 448,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:01:45.712Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Requires isolated recorded-source replay jobs on phone",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 448,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--d4dba--the-review-pane-was-hidden-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-b63879b58aeb30dd5f0d",
+          "file": "viewer-audit.pw.ts",
+          "line": 447,
+          "column": 5
+        },
+        {
+          "title": "stale review video address returns to a valid review job with explicit feedback and no writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7977,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:01:46.523Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "stale-target-receipt.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtaXNzaW5nUmV2aWV3VGFyZ2V0IjogIjMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYyIsCiAgImFsbG93ZWRGYWxsYmFja1RhcmdldHMiOiBbCiAgICAiYjgxNmM4YmEtZTgwZi00Nzc2LTkyYWItNWM4NDg0MjVkMjMzIiwKICAgICJkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIiCiAgXSwKICAiY2Fub25pY2FsQWRkcmVzcyI6ICIjL3JldmlldyIsCiAgIndyaXRlcyI6IFtdCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-stale-r-b9693-icit-feedback-and-no-writes-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-051455e6461b1d873731",
+          "file": "viewer-audit.pw.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "prompt sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6485,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:01:54.522Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "no-paid-request.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdXJmYWNlIjogInByb21wdCIsCiAgIm1vZGVzIjogWwogICAgImJ1dHRvbiIsCiAgICAiZXNjYXBlIiwKICAgICJzY3JpbSIKICBdLAogICJhdHRlbXB0ZWRXcml0ZXMiOiBbXSwKICAiYnJvd3NlckJsb2Nrc0FsbEFwaU11dGF0aW9ucyI6IHRydWUsCiAgInByb3ZpZGVySW1hZ2VDYWxscyI6IDAKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-prompt--8b4bf-for-button-Escape-and-scrim-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-e1d11a36c5f774de9657",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "cover sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:01.020Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "no-paid-request.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdXJmYWNlIjogImNvdmVyIiwKICAibW9kZXMiOiBbCiAgICAiYnV0dG9uIiwKICAgICJlc2NhcGUiLAogICAgInNjcmltIgogIF0sCiAgImF0dGVtcHRlZFdyaXRlcyI6IFtdLAogICJicm93c2VyQmxvY2tzQWxsQXBpTXV0YXRpb25zIjogdHJ1ZSwKICAicHJvdmlkZXJJbWFnZUNhbGxzIjogMAp9"
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-cover-s-bd321-for-button-Escape-and-scrim-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-70c813b01c37e849ac25",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "mobile real cover preview Escape returns to its settings and trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Existing real cover history on phone required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 529,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 448,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:08.404Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Existing real cover history on phone required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 529,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--c52fc-to-its-settings-and-trigger-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-ecfab6d052fcc450377f",
+          "file": "viewer-audit.pw.ts",
+          "line": 528,
+          "column": 5
+        },
+        {
+          "title": "mobile review tab returns to the addressed image in its kept pane",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Requires isolated recorded-source replay jobs on phone",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 435,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 560,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:09.838Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Requires isolated recorded-source replay jobs on phone",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 435,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--001d6-ssed-image-in-its-kept-pane-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-e2afdeab6e3826577fcc",
+          "file": "viewer-audit.pw.ts",
+          "line": 434,
+          "column": 5
+        },
+        {
+          "title": "mobile workbench opens the requested review job after the review pane was hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Requires isolated recorded-source replay jobs on phone",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 448,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 449,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:11.047Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Requires isolated recorded-source replay jobs on phone",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 448,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--d4dba--the-review-pane-was-hidden-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-e6d3944d4f62bf0ca420",
+          "file": "viewer-audit.pw.ts",
+          "line": 447,
+          "column": 5
+        },
+        {
+          "title": "stale review video address returns to a valid review job with explicit feedback and no writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2266,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:11.510Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "stale-target-receipt.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtaXNzaW5nUmV2aWV3VGFyZ2V0IjogIjMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYyIsCiAgImFsbG93ZWRGYWxsYmFja1RhcmdldHMiOiBbCiAgICAiYjgxNmM4YmEtZTgwZi00Nzc2LTkyYWItNWM4NDg0MjVkMjMzIiwKICAgICJkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIiCiAgXSwKICAiY2Fub25pY2FsQWRkcmVzcyI6ICIjL3JldmlldyIsCiAgIndyaXRlcyI6IFtdCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-stale-r-b9693-icit-feedback-and-no-writes-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-2c915965c504d518af30",
+          "file": "viewer-audit.pw.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "prompt sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4866,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:13.788Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "no-paid-request.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdXJmYWNlIjogInByb21wdCIsCiAgIm1vZGVzIjogWwogICAgImJ1dHRvbiIsCiAgICAiZXNjYXBlIiwKICAgICJzY3JpbSIKICBdLAogICJhdHRlbXB0ZWRXcml0ZXMiOiBbXSwKICAiYnJvd3NlckJsb2Nrc0FsbEFwaU11dGF0aW9ucyI6IHRydWUsCiAgInByb3ZpZGVySW1hZ2VDYWxscyI6IDAKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-prompt--8b4bf-for-button-Escape-and-scrim-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-654344b8bab027b4eeab",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "cover sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4169,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:18.665Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "no-paid-request.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzdXJmYWNlIjogImNvdmVyIiwKICAibW9kZXMiOiBbCiAgICAiYnV0dG9uIiwKICAgICJlc2NhcGUiLAogICAgInNjcmltIgogIF0sCiAgImF0dGVtcHRlZFdyaXRlcyI6IFtdLAogICJicm93c2VyQmxvY2tzQWxsQXBpTXV0YXRpb25zIjogdHJ1ZSwKICAicHJvdmlkZXJJbWFnZUNhbGxzIjogMAp9"
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-cover-s-bd321-for-button-Escape-and-scrim-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-dfcdee59a44e3a4dbd7f",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "mobile real cover preview Escape returns to its settings and trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Existing real cover history on phone required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 529,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:22.852Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Existing real cover history on phone required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 529,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--c52fc-to-its-settings-and-trigger-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-49f4cf5be3993f617e89",
+          "file": "viewer-audit.pw.ts",
+          "line": 528,
+          "column": 5
+        },
+        {
+          "title": "mobile review tab returns to the addressed image in its kept pane",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:24.302Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--001d6-ssed-image-in-its-kept-pane-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-8f05c74725184c91536f",
+          "file": "viewer-audit.pw.ts",
+          "line": 434,
+          "column": 5
+        },
+        {
+          "title": "mobile workbench opens the requested review job after the review pane was hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4092,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:28.013Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--d4dba--the-review-pane-was-hidden-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-9a528ec40342f3dea930",
+          "file": "viewer-audit.pw.ts",
+          "line": 447,
+          "column": 5
+        },
+        {
+          "title": "stale review video address returns to a valid review job with explicit feedback and no writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6705,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:32.119Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "stale-target-receipt.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtaXNzaW5nUmV2aWV3VGFyZ2V0IjogIjMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYyIsCiAgImFsbG93ZWRGYWxsYmFja1RhcmdldHMiOiBbCiAgICAiYjgxNmM4YmEtZTgwZi00Nzc2LTkyYWItNWM4NDg0MjVkMjMzIiwKICAgICJkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIiCiAgXSwKICAiY2Fub25pY2FsQWRkcmVzcyI6ICIjL3JldmlldyIsCiAgIndyaXRlcyI6IFtdCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-stale-r-b9693-icit-feedback-and-no-writes-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-67c19363d07258470029",
+          "file": "viewer-audit.pw.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "prompt sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 485,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 629,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:38.837Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 485,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-prompt--8b4bf-for-button-Escape-and-scrim-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-9d4dfbcf2087d7fd0e82",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "cover sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 485,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 469,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:39.479Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 485,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-cover-s-bd321-for-button-Escape-and-scrim-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-184488c6464e2f11a835",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "mobile real cover preview Escape returns to its settings and trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2746,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:39.958Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--c52fc-to-its-settings-and-trigger-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-2c2ffc31ebf553f83d0d",
+          "file": "viewer-audit.pw.ts",
+          "line": 528,
+          "column": 5
+        },
+        {
+          "title": "mobile review tab returns to the addressed image in its kept pane",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3143,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:43.636Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--001d6-ssed-image-in-its-kept-pane-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-9544796e1cbbbfc38a9f",
+          "file": "viewer-audit.pw.ts",
+          "line": 434,
+          "column": 5
+        },
+        {
+          "title": "mobile workbench opens the requested review job after the review pane was hidden",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:47.410Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--d4dba--the-review-pane-was-hidden-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-7391580c612570e65523",
+          "file": "viewer-audit.pw.ts",
+          "line": 447,
+          "column": 5
+        },
+        {
+          "title": "stale review video address returns to a valid review job with explicit feedback and no writes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2657,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:51.077Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "stale-target-receipt.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtaXNzaW5nUmV2aWV3VGFyZ2V0IjogIjMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYyIsCiAgImFsbG93ZWRGYWxsYmFja1RhcmdldHMiOiBbCiAgICAiYjgxNmM4YmEtZTgwZi00Nzc2LTkyYWItNWM4NDg0MjVkMjMzIiwKICAgICJkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIiCiAgXSwKICAiY2Fub25pY2FsQWRkcmVzcyI6ICIjL3JldmlldyIsCiAgIndyaXRlcyI6IFtdCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-stale-r-b9693-icit-feedback-and-no-writes-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-e0e4c10b1639f47639d4",
+          "file": "viewer-audit.pw.ts",
+          "line": 465,
+          "column": 5
+        },
+        {
+          "title": "prompt sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 485,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:53.746Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 485,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-prompt--8b4bf-for-button-Escape-and-scrim-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-ad11f80f17b43ffd18a4",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "cover sample confirmation cancellation restores its viewer for button Escape and scrim",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 485,
+                    "column": 10
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 525,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:54.180Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop sample plus explicit zero-write confirmation guard required",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 485,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-cover-s-bd321-for-button-Escape-and-scrim-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-cebc64c438f8c0edd64c",
+          "file": "viewer-audit.pw.ts",
+          "line": 484,
+          "column": 7
+        },
+        {
+          "title": "mobile real cover preview Escape returns to its settings and trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2526,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T21:02:54.716Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/28-review-address-and-guarded-native-cancel/browser/viewer-audit.pw.ts-mobile--c52fc-to-its-settings-and-trigger-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-155fdd21663c929e6031",
+          "file": "viewer-audit.pw.ts",
+          "line": 528,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T21:01:41.291Z",
+    "duration": 76456.68400000001,
+    "expected": 14,
+    "skipped": 10,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

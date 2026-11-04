@@ -1,0 +1,19 @@
+{
+  "command": "go test -p 1 ./...",
+  "environment": "isolated local PostgreSQL QA test environment; REQUIRE_POSTGRES_TEST=1; no service storage override",
+  "result": "failed",
+  "failedTest": "TestRivalVideosEndpointLatency",
+  "failedPackage": "internal/persistence/postgres",
+  "worstVariant": "all/outlier/deep",
+  "worstP95Ms": 1371.48,
+  "limitMs": 400,
+  "allOutlierFirstP95Ms": 505.89,
+  "otherReportedPackages": "passed or cached pass; packages without tests reported separately by Go",
+  "elapsedSeconds": 528.76,
+  "notes": [
+    "Prior concurrent full run failed a different latency gate: board1000 p95=106.46ms >100ms.",
+    "Separate board1000 measurement passed at37.855916ms without changing its100ms limit.",
+    "No threshold, assertions or database query was changed to suppress these failures.",
+    "This is not a passing full-backend gate."
+  ]
+}

@@ -23,7 +23,6 @@ import { AddProviderBody } from './AddProvider'
 import { ModelCatalog, catalogSource } from './ModelCatalog'
 import { orderProviders } from './order'
 import { ProviderCard, reasonOf } from './ProviderCard'
-import { YoutubeDataKeyCard } from './YoutubeDataKeyCard'
 
 const c = aiCopy.connect
 
@@ -176,8 +175,6 @@ export function ConnectSection() {
 
         <Button size="lg" block variant="ghost" icon={<Icon name="add" size={15} />} onClick={() => setAddSheet(true)}>{c.addOpenShort}</Button>
 
-        <YoutubeDataKeyCard mobile />
-
         <Sheet open={addSheet} onClose={() => setAddSheet(false)} title={c.addTitle} subtitle={c.addSubMobile} size="md" homeIndicator height="auto">
           <AddProviderBody mobile onAdded={onAdded} onReveal={onReveal} onDone={() => setAddSheet(false)} providers={list} />
         </Sheet>
@@ -241,10 +238,6 @@ export function ConnectSection() {
       ) : (
         <Button size="compact" block variant="ghost" icon={<Icon name="add" size={15} />} onClick={() => setAddOpen(true)}>{c.addOpen}</Button>
       )}
-
-      {/* r38: khoá YouTube Data API không phải nhà cung cấp AI — nhóm riêng
-          DƯỚI nút Thêm nhà cung cấp (artboard Settings › section=connect). */}
-      <YoutubeDataKeyCard />
 
     </div>
   )

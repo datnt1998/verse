@@ -1,0 +1,217 @@
+{
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "rows": [
+    {
+      "id": "Review.confirm.none",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.confirm.none.png",
+      "referenceSHA256": "ed9b049be09d13be79efe57978ac321ccc25cc2137f5323147746732aade5074",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-default.png",
+      "appSHA256": "77377481ca6a2c919ea31a8bd58f37e43def98f437248291249463eebb818978",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.confirm.none.png",
+      "comparisonSHA256": "b8c7730ca1b40501cc79ee8f7d54b8480db9867be8b9505f6cbd9a2fb80bdba0",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.confirm.redrawAll",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.confirm.redrawAll.png",
+      "referenceSHA256": "c78444a5bbc62d3126c2aad0ec5b866b0868c0263d8027b5ce64a277ad0e9657",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-redraw-all-confirm.png",
+      "appSHA256": "dfda8d7f9bf38bfed59c62cb953d23228179aa05f253876c0d3022f5830bf015",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.confirm.redrawAll.png",
+      "comparisonSHA256": "680737a09b47ba7f75595732392e83700cb985f3ae84b12becaa36aff3894b87",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review",
+      "canonicalReference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Dialogs.dialog.redraw-all.png",
+      "canonicalComparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-verified-source/Dialogs.dialog.redraw-all.canonical.png",
+      "authority": "Workflow04/08 points redraw-all to Dialogs; retain original inline Review comparison rather than silently changing its reference"
+    },
+    {
+      "id": "Review.state.review",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.review.png",
+      "referenceSHA256": "14d7aa93b6ff372ac8798ed6ad556b448733f23b296c6a3e5df46863230b37de",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-default.png",
+      "appSHA256": "77377481ca6a2c919ea31a8bd58f37e43def98f437248291249463eebb818978",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.review.png",
+      "comparisonSHA256": "ba4d544b50c754f538c740cbe4328d6727a0d06fa152202f4345d7db72917f2c",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.redrawing",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.redrawing.png",
+      "referenceSHA256": "d42cf8d507d5a89376f48ecc745d2e5c461d8912d6a8e4dbc4098b592e2688e4",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-drawing.png",
+      "appSHA256": "dc8d68afb58b7b0031a9837e48df25efe99b74e087b4b91089bae4e32fe55b04",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.redrawing.png",
+      "comparisonSHA256": "f0f03278efdf91b8a5b2d84d1b0132a33bd2f5c55ca85585aba0bae2e682d38a",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.reveal",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.reveal.png",
+      "referenceSHA256": "9986e4b093bad920bdd89af710eab06285aa3e8be4bb729f5b991a6ae4f9adc5",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-reveal.png",
+      "appSHA256": "5e8a59c19e5a74bd9b032b66012948f00242011d6a38ade47833ffccf6c0c425",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.reveal.png",
+      "comparisonSHA256": "85e94894e1a878ea8acb0f412f1f7a0ab925a578c1e651b6dcfb1ccfd541a511",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.failed",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.failed.png",
+      "referenceSHA256": "1d2d0b0919765bf67d07c7f8e342d994a8628fd9a7490bf824e3bc4eb84d081f",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-failed.png",
+      "appSHA256": "5eb9b1996e907cc9061a40a7e6bc26db24361b7b93f006b397689275c9522d13",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.failed.png",
+      "comparisonSHA256": "deb2d96b2c235126372dfe4b02ac618ef9155659d31cd8191eea9cb27572a61d",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.batch",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.batch.png",
+      "referenceSHA256": "19b44a1ee39e6970f06022b63286731e9d15ef0ee3332434a43591f11e75b472",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-batch.png",
+      "appSHA256": "0d532a8c4d1a65d3b03acfbfc99a168186ceef9fc7a299850112cb2b255d8027",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.batch.png",
+      "comparisonSHA256": "ce8f57aa1d9ffd8f9b94532bc0c6c557809fa94e449f26d46bfc79cd89ebecae",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.blocked",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.blocked.png",
+      "referenceSHA256": "26c921f9f1cef850f4fcb9acddfb3470f2291b5c7a17d7b910033d32d5149eaf",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-blocked.png",
+      "appSHA256": "e5b7031353dd8024b8ede7cdba485f1bf821f4dea8dc840460bd57c0f7e3e540",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.blocked.png",
+      "comparisonSHA256": "bf6ed568b6901c3bfc04742641b7fe692ecf16baba10d7051c8ce737fd302a2b",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.state.empty",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.state.empty.png",
+      "referenceSHA256": "a58fdbc2a5c22f73bcd249340ba080cb090ceee07a9d0baf1a03ee42049cde1e",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-empty.png",
+      "appSHA256": "62b01afd5d7013237183c8ef861f536d2c96f759959a0492ee8e8af6b57139f1",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.state.empty.png",
+      "comparisonSHA256": "72c8b33a392bb8b7beaff1c76b68d071d8b3321d20ce1e3ebed59bddc7459d9f",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.view.full",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.view.full.png",
+      "referenceSHA256": "15e791d2ffe172302e79d76f4039d044a8092f34282c641665a3024f66115e2b",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-default.png",
+      "appSHA256": "77377481ca6a2c919ea31a8bd58f37e43def98f437248291249463eebb818978",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.view.full.png",
+      "comparisonSHA256": "82c03bc6b838f885bbbc79a6be180e3999a9f5994def7c4945c6f64a6429e5eb",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.view.cutout",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.view.cutout.png",
+      "referenceSHA256": "06835f8571965e818781687a2313a34bd3a865addca313c899ae0bf991dccafa",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-cutout.png",
+      "appSHA256": "9c787c34c72d5bd0ac0fa883fd3e6dcc34e45e73948a4002c3fee886ca596da3",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.view.cutout.png",
+      "comparisonSHA256": "bc031cc34f5276aba21dadeeb9373de60bcb42f9a73e3366a3be0df22205ed25",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.score.false",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.score.false.png",
+      "referenceSHA256": "1c1fc547a7d856df6b310519d06d7fdc7b3a39adffced91bd8153bc7fb375f3a",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-unscored.png",
+      "appSHA256": "fa23d62495d69332fc7d7bf0f673a798ba1ef96b44087d6702f3a10fa2b15d30",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.score.false.png",
+      "comparisonSHA256": "a23f931b0f51397d35fbae98124e8f52d3300b7d74a45bbf08ca4b29f603fd7a",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.score.true",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.score.true.png",
+      "referenceSHA256": "ae7956668b57c4dcf968eb8f6d0738dbfd2640fef82eff0d1eb011bce95370f5",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-scored.png",
+      "appSHA256": "92ac78a74e0a7b73c2fa5ba2066a9a4c1835eb8ba092770fa91be706ba20c944",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.score.true.png",
+      "comparisonSHA256": "e74d5a699fbc1aac4554fc4d5aaa58362ba1389dd32d944a5f2a2d3895fff617",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.prompt.view",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.prompt.view.png",
+      "referenceSHA256": "1d25db4801c87502ee2fdc479218399e4b27ab85e4a646a676a77c4ab5636ed0",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-default.png",
+      "appSHA256": "77377481ca6a2c919ea31a8bd58f37e43def98f437248291249463eebb818978",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.prompt.view.png",
+      "comparisonSHA256": "006a4ccd2c5026d9f5d8e837bb1659f9635ae7425fcc7ca06156bf916ee6a570",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.prompt.edit",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.prompt.edit.png",
+      "referenceSHA256": "fcf6e89c3ef5554b5d5ed6d711b98df43c4f21ed8d5c5271e5f02bd7541f45b1",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-prompt-edit-draft.png",
+      "appSHA256": "d2ed0e017c9c1c43899d620f14a9751de75f7d14d6985b180bba4a60c9ea9636",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.prompt.edit.png",
+      "comparisonSHA256": "f090800fe5f3d93df32932912eefe8572fd6d572f04f58244d021ee791fd02fd",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.prompt.raw",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.prompt.raw.png",
+      "referenceSHA256": "4907091f1973ceeb760f6f8d865f112daa044df7a1646227809018c55d738f2f",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-prompt-raw.png",
+      "appSHA256": "107b644a78562e4ad7293034edc78766bb6a73c7990565a88b7dfbd91b82da03",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.prompt.raw.png",
+      "comparisonSHA256": "2844e756b1e80ebdd105a1269d487b096ce9437e206fcd05b90bef40d95f4728",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.refs.view",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.refs.view.png",
+      "referenceSHA256": "e51dfe8be6aa27a66595fbfddbfbcfd307b58cf438c384172174c1d4d5e20b28",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-default.png",
+      "appSHA256": "77377481ca6a2c919ea31a8bd58f37e43def98f437248291249463eebb818978",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.refs.view.png",
+      "comparisonSHA256": "e788b827ba4603ec91f64ec2c79cdce5aec4c9df8ca1d74526a37a3e52959a3a",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Review.refs.add",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Review.refs.add.png",
+      "referenceSHA256": "7224fc0d5b8f6c6e87e54c3c409b918e790ff6aab96491db7d639cf054ca5156",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-refs-add-picked.png",
+      "appSHA256": "3d88e30c16e7ad4c307932dec45e8e04faccc86e9cf1938be6141d9ec4f3b420",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Review.refs.add.png",
+      "comparisonSHA256": "f76939df8aff763add12ea8481fea60e8326a6e15e9fb4c6863fb70dfbfb60a0",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    },
+    {
+      "id": "Dialogs.dialog.redraw-all",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Dialogs.dialog.redraw-all.png",
+      "referenceSHA256": "d2c042595d13b05d00390a74085c323f22caec1ff38d718168fe114952aeeec4",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/140-integrated-review-visual-states/desktop-redraw-all-confirm.png",
+      "appSHA256": "dfda8d7f9bf38bfed59c62cb953d23228179aa05f253876c0d3022f5830bf015",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-review-integrated/Dialogs.dialog.redraw-all.png",
+      "comparisonSHA256": "df4e8589180e2c3c6dcd5da0db8055e91bedb48422201405ad26ca1261ac5c6d",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review"
+    }
+  ]
+}

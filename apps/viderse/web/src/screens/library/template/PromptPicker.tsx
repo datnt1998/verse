@@ -5,16 +5,21 @@ import { libraryVars } from '../libraryTokens.stylex'
 // ô chọn thả xuống, đúng artboard Template; kèm thẻ "Prompt mới" dẫn về kho và
 // khối chi tiết của prompt đang chọn.
 import { useState } from 'react'
-import { Icon } from '@noverse/ui'
+import { Button, Icon } from '@noverse/ui'
+import { ImageViewer } from '../../../components/image-viewer/ImageViewer'
+import { sx as viewerStyles } from '../../../components/image-viewer/image-viewer.stylex'
+import { useMediaQuery } from '../../../lib/useMediaQuery'
+import { paths } from '../../../router'
 import { t } from '../../../i18n/library'
 import type { ImagePrompt } from '../../../api/library'
 
 /** Một ô prompt: vẽ ảnh mẫu thật khi có; không có hoặc tải hỏng thì giữ ô trung tính. */
-function PromptPick({ prompt, selected, mobileLayout, onSelect }: {
+function PromptPick({ prompt, selected, mobileLayout, onSelect, onPreview }: {
   prompt: ImagePrompt
   selected: boolean
   mobileLayout: boolean
   onSelect: (id: string) => void
+  onPreview?: () => void
 }) {
   const copy = t.library.template
   // Khoá theo URL: ảnh mẫu mới thay ảnh hỏng thì vẫn hiện.
@@ -22,12 +27,12 @@ function PromptPick({ prompt, selected, mobileLayout, onSelect }: {
   const sampleUrl = prompt.sampleUrls?.[0]
   const showArt = sampleUrl !== undefined && sampleUrl !== '' && sampleUrl !== failedUrl
   return (
-    <button
+    <div {...stylex.props(sx.pickWrap)}><button
       type="button"
       role="radio"
       aria-checked={selected}
       aria-label={prompt.name}
-      className={`vt-pick ${stylex.props(sx.pick, mobileLayout && sx.mobilePick, (selected === true) && sx.pickAriaCheckedTrue).className}`}
+      className={`vt-pick ${stylex.props(sx.pick, sx.pickFill, mobileLayout && sx.mobilePick, (selected === true) && sx.pickAriaCheckedTrue).className}`}
       data-kind={prompt.kind}
       onClick={() => onSelect(prompt.id)}
     >
@@ -42,28 +47,35 @@ function PromptPick({ prompt, selected, mobileLayout, onSelect }: {
       <span className={`vt-pick-name ${stylex.props(sx.pickName, mobileLayout && sx.mobileName).className}`} title={prompt.name}>{prompt.name}</span>
       {selected && <span className={`vt-pick-check ${stylex.props(sx.pickCheck, mobileLayout && sx.mobileCheck).className}`} aria-hidden="true"><Icon name="tick" size={12} /></span>}
     </button>
+      {onPreview && <Button variant="icon" size="sm" aria-label={`Xem lớn ${prompt.name}`} title={showArt ? 'Xem lớn' : 'Chưa có ảnh mẫu cho prompt này'} tooltip={showArt ? 'Xem lớn' : 'Chưa có ảnh mẫu cho prompt này'} disabled={!showArt} onClick={onPreview} xstyle={sx.previewButton}><Icon name="eye" size={14} /></Button>}
+    </div>
   )
 }
 
-export function PromptPicker({ prompts, value, onSelect, usedLabel, mobileLayout = false }: {
+export function PromptPicker({ kind, prompts, value, onSelect, usedLabel, mobileLayout = false }: {
+  kind: 'scene' | 'cover'
   prompts: ImagePrompt[]
   value: string
   onSelect: (id: string) => void
   usedLabel: (count: number) => string
   mobileLayout?: boolean
 }) {
-  const copy = t.library.template
+  const copy = t.library.template[kind === 'cover' ? 'cover' : 'images']
   const selected = prompts.find((prompt) => prompt.id === value)
+  const phone = useMediaQuery('(max-width: 767px)')
+  const [previewId, setPreviewId] = useState<string | null>(null)
+  const preview = prompts.find(prompt => prompt.id === previewId)
+  const previewItems = prompts.filter(prompt => prompt.kind === preview?.kind).map(prompt => ({ id: prompt.id, label: prompt.name, url: prompt.sampleUrls?.[0], disabled: !prompt.sampleUrls?.[0] }))
   return (
     <>
-      <div className={`vt-picks ${stylex.props(sx.picks).className}`} role="radiogroup" aria-label={copy.images.promptAria}>
+      <div className={`vt-picks ${stylex.props(sx.picks).className}`} role="radiogroup" aria-label={copy.promptAria}>
         {prompts.map((prompt) => (
-          <PromptPick key={prompt.id} prompt={prompt} selected={prompt.id === value} mobileLayout={mobileLayout} onSelect={onSelect} />
+          <PromptPick key={prompt.id} prompt={prompt} selected={prompt.id === value} mobileLayout={mobileLayout} onSelect={onSelect} onPreview={phone ? undefined : () => setPreviewId(prompt.id)} />
         ))}
         <a className={`vt-pick vt-pick--new ${stylex.props(sx.pickPickNew, mobileLayout && sx.mobileHidden).className}`} href="#/library?tab=prompts&prompt=new">
           <span className={`vt-pick-plus ${stylex.props(sx.pickPlus).className}`} aria-hidden="true"><Icon name="add" size={16} /></span>
-          <span className={`vt-pick-name ${stylex.props(sx.pickName).className}`}>{copy.images.promptNew}</span>
-          <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.images.promptNewHint}</span>
+          <span className={`vt-pick-name ${stylex.props(sx.pickName).className}`}>{copy.promptNew}</span>
+          <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.promptNewHint}</span>
         </a>
       </div>
       {selected && (
@@ -72,18 +84,26 @@ export function PromptPicker({ prompts, value, onSelect, usedLabel, mobileLayout
             <strong>{selected.name}</strong>
             {selected.composition && <span className={`vt-chip ${stylex.props(sx.chip).className}`}>{t.library.prompts.composition[selected.composition]}</span>}
             <a className={`vt-link ${stylex.props(sx.link).className}`} href={`#/library?tab=prompts&prompt=${selected.builtIn ? 'builtin' : 'mine'}`}>
-              {copy.images.promptEdit} <span aria-hidden="true">›</span>
+              {copy.promptEdit} <span aria-hidden="true">›</span>
             </a>
           </div>
           <p className={`vt-pick-text ${stylex.props(sx.pickText).className}`}>{selected.prompt}</p>
           <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{usedLabel(selected.usedBy.length)}</p>
         </div>
       )}
+      {!phone && preview && <ImageViewer mode="sample" title={preview.name} items={previewItems} selectedId={preview.id} onSelect={setPreviewId} onClose={() => setPreviewId(null)}
+        subtitle={`${preview.kind === 'scene' ? 'Prompt ảnh cảnh' : 'Prompt ảnh bìa'} · ảnh mẫu vẽ bằng prompt này`}
+        side={<><strong {...stylex.props(viewerStyles.sideTitle)}>{preview.name}</strong><h3 {...stylex.props(viewerStyles.caption)}>Prompt</h3><p>{preview.prompt}</p><h3 {...stylex.props(viewerStyles.caption)}>Đang dùng ở</h3>{preview.usedBy.length ? preview.usedBy.map(template => <a key={template.id} href={`#${paths.template(template.id)}`} {...stylex.props(viewerStyles.sideLink)}>{template.name}</a>) : <p>Chưa có template nào dùng prompt này.</p>}<a href={`#${paths.library('prompts', preview.builtIn ? 'builtin' : 'mine')}`} {...stylex.props(viewerStyles.sideLink)}>Mở trong kho prompt</a></>}
+        footer={<><span>← → xem mẫu khác · Esc đóng · đổi prompt không vẽ lại video đã xong</span>{preview.id === value ? <span>Template đang dùng</span> : <Button variant="primary" onClick={() => { onSelect(preview.id); setPreviewId(null) }}>Dùng prompt này</Button>}</>}
+      />}
     </>
   )
 }
 
 const sx = stylex.create({
+  pickWrap: { position: 'relative', minWidth: 0 },
+  pickFill: { width: '100%' },
+  previewButton: { position: 'absolute', left: 'var(--vv-s-10)', top: 'var(--vv-s-10)', backgroundColor: 'var(--vv-thumb-veil)', color: color['--color-fg'] },
   mobilePick: {
     paddingTop: { default: null, '@media (max-width: 767px)': 0 },
     paddingRight: { default: null, '@media (max-width: 767px)': 0 },

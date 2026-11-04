@@ -132,6 +132,10 @@ type PromptDraft struct {
 	Refs     *[]ImageRef   `json:"refs,omitempty"`
 	Feedback string        `json:"feedback,omitempty"`
 	Provider string        `json:"provider,omitempty"`
+	// SourceVersion là bản ảnh chủ kênh mở để sửa (có thể khác bản đang
+	// dùng); lần vẽ kế tiếp giữ các phần prompt và ảnh tham chiếu của đúng bản
+	// đó. Vắng mặt thì tiếp nối bản đang dùng như trước.
+	SourceVersion *int `json:"sourceVersion,omitempty"`
 	// BaseStatus là trạng thái ảnh trước khi vẽ lại, để huỷ trả ảnh về đúng
 	// trạng thái cũ.
 	BaseStatus string `json:"baseStatus,omitempty"`
@@ -165,6 +169,12 @@ func UsedParts(i Item) PromptParts {
 	if v == nil {
 		return nil
 	}
+	return VersionParts(*v)
+}
+
+// VersionParts trả các phần prompt đã lưu của một bản. Bản cũ chưa tách phần
+// thì cả prompt là phần Cảnh — không tự bịa phần chưa từng gửi.
+func VersionParts(v Version) PromptParts {
 	if len(v.Parts) > 0 {
 		return append(PromptParts(nil), v.Parts...)
 	}
@@ -172,6 +182,43 @@ func UsedParts(i Item) PromptParts {
 		return nil
 	}
 	return PromptParts{{Kind: PartScene, Text: v.Prompt, Source: PromptPartSource{Type: "artist", Label: "Bản cũ"}}}
+}
+
+// PromptSourceVersion trả bản ảnh mà draft chọn làm nguồn prompt/ảnh tham
+// chiếu, nil khi draft không chỉ định bản nguồn. Bản nguồn phải còn đúng nội
+// dung nguồn của ảnh và không đang vẽ; không bao giờ lặng lẽ quay về bản đang
+// dùng.
+func PromptSourceVersion(i Item) (*Version, error) {
+	if i.Draft == nil || i.Draft.SourceVersion == nil {
+		return nil, nil
+	}
+	n := *i.Draft.SourceVersion
+	if n <= 0 {
+		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Phiên bản ảnh không hợp lệ."}
+	}
+	if i.InFlight != nil && i.InFlight.Version == n {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang vẽ — chờ xong rồi sửa prompt"}
+	}
+	for index := range i.Versions {
+		v := &i.Versions[index]
+		if v.Version != n {
+			continue
+		}
+		if v.State() == VersionDrawing {
+			return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang vẽ — chờ xong rồi sửa prompt"}
+		}
+		if v.State() == VersionCancelled {
+			return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Bản ảnh đã huỷ — chọn bản khác để sửa"}
+		}
+		if v.SourceFingerprint != SourceFingerprint(i) {
+			return nil, &domain.CloneError{Code: domain.CloneErrStale, Message: "Bản ảnh không còn khớp cảnh hoặc nội dung nguồn"}
+		}
+		if len(v.Parts) == 0 && v.Prompt == "" {
+			return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Bản ảnh này chưa có prompt để giữ"}
+		}
+		return v, nil
+	}
+	return nil, &domain.CloneError{Code: domain.CloneErrNotFound, Message: "Không tìm thấy bản ảnh này"}
 }
 
 // UsedRefs trả ảnh tham chiếu của bản đang dùng.

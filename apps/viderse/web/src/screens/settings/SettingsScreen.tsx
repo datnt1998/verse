@@ -29,7 +29,7 @@ import { listPlatforms } from '../../api/platforms'
 import { logsExportUrl } from '../../api/logs'
 import { fill, fmtBytes } from './fmt'
 import { membersUrl } from '../../api/sso'
-import { ExternalIcon, MembersLink } from '../../components/AppLinks'
+import { ExternalIcon } from '../../components/AppLinks'
 import { AdminReadOnly } from '../../components/AdminReadOnly'
 import { box } from '../../styles/shared.stylex'
 
@@ -185,12 +185,10 @@ function NavList({ section, dots, facts, onPick }: {
   ]
   const render = (items: NavItem[]) =>
     items.map((n) => (
-      <Button
+      <button
         key={n.id}
-        variant="quiet"
-        size="compact"
-        block
-        active={n.id === section}
+        type="button"
+        {...stylex.props(settingsStyles.setNavItem, n.id === section && settingsStyles.setNavItemActive)}
         aria-current={n.id === section ? 'true' : undefined}
         onClick={() => onPick(n.id)}
       >
@@ -199,7 +197,7 @@ function NavList({ section, dots, facts, onPick }: {
         {dots.has(n.id) ? <span className={`vv-dot ${stylex.props(settingsStyles.dot, DOT_STYLE[dots.get(n.id)!]).className}`} aria-label={t.shell.settingsAttention(1)} /> : null}
         {/* Artboard luôn giữ span số ở cuối (kể cả rỗng) nên chấm không bị đẩy sát mép. */}
         <span className={`vv-set__nav-num ${stylex.props(settingsStyles.setNavNum).className}`}>{n.count ?? ''}</span>
-      </Button>
+      </button>
     ))
   return (
     <>
@@ -208,8 +206,16 @@ function NavList({ section, dots, facts, onPick }: {
       <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.data}</div>
       {render(data)}
       <div className={`vv-set__grp ${stylex.props(settingsStyles.setGrp).className}`}>{t.settings.nav.elsewhere}</div>
-      <a href={`#${paths.queue()}`}>{t.settings.nav.queue}</a>
-      {user?.role === 'admin' && memberHref && <MembersLink href={memberHref} settings />}
+      <a href={`#${paths.queue()}`} {...stylex.props(settingsStyles.setNavItem)}>
+        <Icon name="routing" size={17} className="vv-ic" xstyle={settingsStyles.ic} />
+        <span {...stylex.props(settingsStyles.setNavLabel)}>{t.settings.nav.queue}</span>
+        <Icon name="arrow-r" size={13} xstyle={settingsStyles.setNavArrow} />
+      </a>
+      {user?.role === 'admin' && memberHref && <a href={memberHref} target="_blank" rel="noopener noreferrer" {...stylex.props(settingsStyles.setNavItem, settingsStyles.setNavMember)}>
+        <Icon name="crown" size={17} className="vv-ic" xstyle={settingsStyles.ic} />
+        <span {...stylex.props(settingsStyles.setNavLabel)}>{t.account.membersSettings}</span>
+        <ExternalIcon />
+      </a>}
     </>
   )
 }

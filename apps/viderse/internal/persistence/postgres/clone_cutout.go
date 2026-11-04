@@ -84,6 +84,9 @@ func (s *CloneStore) deleteCutouts(ctx context.Context, job string) error {
 			return err
 		}
 		if !used {
+			// Head editor của chính job đã được retireJobEditorProject xoá trước
+			// bước này; head media toàn cục còn trỏ vào path thì lần Unbind này
+			// tự giữ binding (live ref), không cắt bytes của project khác.
 			if err = blobs.Unbind(ctx, state.Active, c.path); err != nil {
 				return err
 			}

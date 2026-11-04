@@ -5,7 +5,7 @@ import { libraryVars } from './libraryTokens.stylex'
 // template gồm sức khoẻ, prompt đang chọn, nền/overlay đang dùng, kênh dùng, và
 // menu Đổi tên / Thêm vào kênh / Xoá (khoá kèm lý do khi kênh còn dùng).
 import { useState } from 'react'
-import { ActionMenu, Banner, Button, Dialog, Icon, TextField, confirm } from '@noverse/ui'
+import { ActionMenu, Banner, Button, Dialog, Icon, TextField, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { navigate, paths } from '../../router'
@@ -60,10 +60,20 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
     }
   }
 
+  const exportFile = async () => {
+    try {
+      await downloadTemplate(template.id)
+      toast(copy.exported, 'ok')
+    } catch (err) {
+      onDeleted(err instanceof Error ? err.message : copy.exportFail)
+    }
+  }
+
   const duplicate = async () => {
     try {
       await duplicateTemplate(template.id)
       await invalidate(keys.templates())
+      toast(copy.duplicated, 'ok')
     } catch (err) {
       onDeleted(err instanceof Error ? err.message : String(err))
     }
@@ -109,14 +119,14 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
             onClick={() => void duplicate()}><Icon name="copy" size={14} />{t.library.duplicate}</Button>
           <span className={`vlb-card-end ${stylex.props(sx.cardEnd).className}`}>
             <Button xstyle={[sx.vlbCardActionsButton]} size="sm" variant="icon" aria-label={copy.exportAria(template.name)} title={copy.exportAria(template.name)}
-              onClick={() => downloadTemplate(template.id)}><Icon name="export" size={15} /></Button>
+              onClick={() => void exportFile()}><Icon name="export" size={15} /></Button>
             <ActionMenu triggerStyle={sx.touchTarget}
               label={copy.menuAria(template.name)}
               items={[
                 { id: 'rename', label: copy.rename, icon: <Icon name="edit" size={16} />, onSelect: onRename },
                 {
                   id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />,
-                  onSelect: () => downloadTemplate(template.id),
+                  onSelect: () => void exportFile(),
                 },
                 {
                   id: 'channel', label: copy.addToChannel, icon: <Icon name="channel" size={16} />,

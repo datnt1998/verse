@@ -353,6 +353,7 @@ const ax = stylex.create({
     boxShadow: 'var(--vv-toast-shadow, var(--kit-shadow-toast))',
     fontSize: 13, color: color['--color-fg'], whiteSpace: 'nowrap',
   },
+  pillText: { overflow: 'hidden', textOverflow: 'ellipsis' },
   pillTone: (border: string) => ({ borderColor: border }),
   pillCount: { fontVariantNumeric: 'tabular-nums', color: color['--color-fg-3'], fontWeight: 400 },
   closeActivity: { color: 'var(--vv-text-hint, var(--kit-fg-icon))' },
@@ -486,7 +487,7 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
       <div className={['ui-toast-pill', item.leaving ? 'ui-toast-out' : 'ui-toast-in', anim.className].filter(Boolean).join(' ')} style={anim.style}>
         <div className={['ui-toast-glass', pill.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={pill.style}>
           {ACT_PILL_ICON[item.tone] && <Icon name={ACT_PILL_ICON[item.tone]!} size={16} style={{ color: fg, flexShrink: 0 }} />}
-          <span {...stylex.props(sx.text)}>{item.text}</span>
+          <span {...stylex.props(sx.text, ax.pillText)}>{item.text}</span>
           {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.action!.onClick)}>
             {item.action.label}{item.undo && <span {...stylex.props(ax.pillCount)}> · {Math.ceil(left / 1000)}s</span>}
           </button>}
@@ -524,6 +525,58 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
   </div>
 }
 
+/** Tấm trượt đang mở — Sheet port sang body, nằm dưới toast (80 < 1000) nên toast
+ *  đè lên tấm. Tấm nào cũng neo đáy màn, trùng đúng dải nút đáy của tấm; vì vậy
+ *  toast nhường chỗ: nằm ngay TRÊN tấm (snackbar trên bottom sheet) thay vì che
+ *  nút chính. `offsetHeight` là chiều cao layout nên hoạt cảnh trượt vào/kéo tay
+ *  (transform) không làm vị trí toast nhảy. */
+function openSheet(): HTMLElement | null {
+  const sheets = document.querySelectorAll<HTMLElement>('.m-overlay:not(.m-out) > .m-sheet')
+  return sheets[sheets.length - 1] ?? null
+}
+
+/** Khoảng đáy (px) để toast nằm trên tấm đang mở; `null` = không có tấm, giữ đáy màn. */
+function useSheetLift() {
+  const pillRef = useRef<HTMLDivElement>(null)
+  const stackRef = useRef<HTMLDivElement>(null)
+  const [lift, setLift] = useState<number | null>(null)
+  useEffect(() => {
+    let watched: HTMLElement | null = null
+    // Overlay là con trực tiếp của body (Sheet portal sang body); `.m-out` bật trên
+    // chính overlay lúc tấm bắt đầu đóng, nên phải quan sát riêng phần tử đó.
+    const mounted = new MutationObserver(() => watch())
+    const closing = new MutationObserver(() => watch())
+    function update() {
+      const height = openSheet()?.offsetHeight ?? 0
+      const contentHeight = Math.max(pillRef.current?.offsetHeight ?? 0, stackRef.current?.offsetHeight ?? 0)
+      // Khi tấm gần đầy màn, giữ toàn bộ toast/thẻ trong viewport thay vì đẩy
+      // thẻ nhiều dòng lên ngoài màn bằng một trần cố định theo chiều cao viên.
+      setLift(height > 0 ? Math.min(height + 12, Math.max(0, window.innerHeight - contentHeight - 16)) : null)
+    }
+    const resize = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+    function watch() {
+      const next = openSheet()
+      if (next !== watched) {
+        resize?.disconnect()
+        closing.disconnect()
+        watched = next
+        if (next) {
+          resize?.observe(next)
+          if (pillRef.current) resize?.observe(pillRef.current)
+          if (stackRef.current) resize?.observe(stackRef.current)
+          closing.observe(next.parentElement ?? next, { attributes: true, attributeFilter: ['class'] })
+        }
+      }
+      update()
+    }
+    mounted.observe(document.body, { childList: true })
+    window.addEventListener('resize', update)
+    watch()
+    return () => { mounted.disconnect(); closing.disconnect(); resize?.disconnect(); window.removeEventListener('resize', update) }
+  }, [])
+  return { lift, pillRef, stackRef }
+}
+
 /** Chồng toast của Viderse: viên giữa đáy + thẻ góc phải (tối đa 2 · điện thoại 1). */
 export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   const notices = useSyncExternalStore(subscribe, snapshot, snapshot)
@@ -557,13 +610,16 @@ export function ActivityToastHost({ style }: { style?: CSSProperties }) {
   })
   const visiblePills = pills.filter((pill, index) => pill.leaving || index === pills.length - 1)
   const renderCards = [...shown, ...notices.filter((notice) => !!notice.card && notice.leaving)].reverse()
+  const { lift, pillRef, stackRef } = useSheetLift()
   const pillHost = stylex.props(ax.pillHost(mobile ? 'var(--m-toast-bottom)' : 'var(--vv-toast-bottom, calc(18px + var(--m-safe-bottom)))'))
   const stack = stylex.props(ax.stack)
+  // Tấm đang mở: đáy ghi đè bằng inline style (thắng cả media query của `ax.stack`).
+  const liftStyle: CSSProperties | null = lift != null ? { bottom: lift } : null
   return <>
-    <div className={pillHost.className} style={{ ...pillHost.style, ...style }}>
+    <div ref={pillRef} className={`ui-toast-sheet-layer ${pillHost.className}`} style={{ ...pillHost.style, ...liftStyle, ...style }}>
       {visiblePills.map((item) => <ActivityNotification key={item.id} item={item} front />)}
     </div>
-    <div role="region" aria-label={getKitLabels().toast.notifications} className={stack.className} style={stack.style}>
+    <div ref={stackRef} role="region" aria-label={getKitLabels().toast.notifications} className={`ui-toast-sheet-layer ${stack.className}`} style={{ ...stack.style, ...liftStyle }}>
       {renderCards.map((item, index) => <ActivityNotification key={item.id} item={item} front={index === 0} />)}
     </div>
   </>

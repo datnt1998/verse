@@ -28,6 +28,8 @@ describe('nhãn phiên bản', () => {
 
   it('dòng meta đúng thứ tự nhà cung cấp · model · cỡ · giờ vẽ · giờ · số ảnh', () => {
     expect(versionMeta(base())).toMatch(/^ChatGPT · gpt-image-2 · 1280×720 · vẽ 44 giây · \d\d:\d\d · tốn 1 ảnh$/)
+    // Artboard ghi số giây nguyên: không để lộ phần thập phân từ provider.
+    expect(versionMeta(base({ durationSec: 44.6 }))).toContain('vẽ 45 giây')
     expect(versionMeta(base({ state: 'drawing', durationSec: null, finishedAt: null, costImages: 0 }))).toBe('ChatGPT · gpt-image-2 · 1280×720')
   })
 

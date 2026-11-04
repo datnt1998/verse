@@ -5,8 +5,12 @@ import { libraryVars } from './libraryTokens.stylex'
 // ảnh cảnh/ảnh bìa, bố cục bìa, nội dung ≤ 2.000 ký tự, luật áp mọi prompt,
 // template đang dùng. Prompt có sẵn chỉ nhân bản được; prompt đang được dùng
 // thì không xoá và không đổi loại (máy chủ trả 409 in_use kèm tên template).
-import { useState } from 'react'
-import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon, confirm } from '@noverse/ui'
+import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { ImageViewer } from '../../components/image-viewer/ImageViewer'
+import { sx as viewerStyles } from '../../components/image-viewer/image-viewer.stylex'
+import { useMediaQuery } from '../../lib/useMediaQuery'
+import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon, confirm, useEscapeLayer } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { ActionButton } from '../../components'
 import { invalidate } from '@noverse/ui/data'
@@ -36,6 +40,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
   onDuplicate?: () => void
 }) {
   const copy = t.library.prompts.editor
+  const phone = useMediaQuery('(max-width: 767px)')
   const builtin = prompt?.builtIn ?? false
   const [name, setName] = useState(prompt?.name ?? '')
   const [kind, setKind] = useState<PromptKind>(prompt?.kind ?? 'scene')
@@ -44,6 +49,18 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
   const [saving, setSaving] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [viewing, setViewing] = useState<PromptSample | null>(null)
+  // Trên điện thoại, ảnh mẫu mở ngay trong khung sửa này (không mở lớp thứ hai):
+  // form/footer vẫn nằm đó nhưng ẩn, nên bản nháp còn nguyên. Nhớ ô ảnh mẫu đã
+  // bấm để trả tiêu điểm về đúng ô đó khi Quay lại.
+  const previewBackRef = useRef<HTMLButtonElement>(null)
+  const sampleTrigger = useRef<HTMLButtonElement | null>(null)
+  // Hộp xác nhận Vẽ thử có thể còn chờ khi tấm chỉnh sửa đã đóng (đổi route,
+  // đóng sheet): chỉ mở lại trình xem khi khung này còn sống.
+  const mounted = useRef(true)
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false }
+  }, [])
   const [pickedVideo, setPickedVideo] = useState('')
   const [pickedScene, setPickedScene] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -64,6 +81,9 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
     { enabled: kind === 'scene' && !!prompt && trialVideo !== '' },
   )
   const trialHistory = trial.status?.history ?? []
+  // Hàng ảnh mẫu mới nhất: hộp xác nhận chờ có thể vắt qua một lần làm mới.
+  const historyRef = useRef(trialHistory)
+  historyRef.current = trialHistory
   const runningSample = trialHistory.find((row) => row.state === 'running')
   const trialLockedReason = !prompt || dirty
     ? copy.trySaveFirst
@@ -73,9 +93,20 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
         ? trial.status?.blockedReason ?? t.library.template.cover.trialLocked
         : undefined
 
-  const askSample = async (videoId: string, sceneId: string): Promise<void> => {
+  // Quay lại (hoặc Esc) giữ bản nháp, không đóng tấm chỉnh sửa.
+  const closeSamplePreview = () => {
+    const trigger = sampleTrigger.current
+    flushSync(() => setViewing(null))
+    trigger?.focus()
+  }
+  useEscapeLayer(phone && viewing !== null, closeSamplePreview)
+  useEffect(() => {
+    if (phone && viewing) previewBackRef.current?.focus()
+  }, [phone, viewing])
+
+  const askSample = async (videoId: string, sceneId: string): Promise<boolean> => {
     const status = trial.status
-    if (!status || !videoId || trialLockedReason) return
+    if (!status || !videoId || trialLockedReason) return false
     const quota = !status.quota
       ? t.library.template.cover.trialQuotaUnknown
       : status.quota.paid
@@ -88,8 +119,23 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
       cancelLabel: t.library.cancel,
       onConfirm: () => undefined,
     })
-    if (!accepted) return
+    if (!accepted) return false
     await trial.start(videoId, kind === 'scene' ? sceneId : undefined)
+    return true
+  }
+
+  // Vẽ thử ngay trong trình xem ảnh mẫu, theo quy ước SceneImagePanel: đóng
+  // trình xem trước rồi mới hỏi (chỉ còn một lớp nhận tương tác). Huỷ hoặc
+  // chưa hỏi được thì mở lại đúng ảnh mẫu đó cùng vị trí trong dải; đã nhận
+  // thì giữ đóng và chỉ gửi đúng một lần.
+  const trySampleFromViewer = (sample: PromptSample) => {
+    flushSync(() => setViewing(null))
+    void askSample(sample.videoId, sample.sceneId ?? '').then((accepted) => {
+      if (accepted || !mounted.current) return
+      // Ảnh mẫu có thể đã rời 12 lần gần nhất trong lúc hỏi — đừng mở lại.
+      const latest = historyRef.current.find((row) => row.id === sample.id)
+      if (latest) setViewing(latest)
+    })
   }
 
   const save = async (): Promise<void> => {
@@ -156,7 +202,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
 
   return (
     <div className={`vlb-editor ${stylex.props(sx.editor).className}`}>
-      <div className={`vlb-scroll ${stylex.props(sx.scroll).className}`}>
+      <div className={`vlb-scroll ${stylex.props(sx.scroll, phone && viewing !== null && sx.previewHidden).className}`}>
         <button type="button" className={`vlb-back ${stylex.props(sx.back).className}`} onClick={onClose} aria-label={copy.backAria}>
           <span aria-hidden="true">←</span>{copy.back}
         </button>
@@ -245,7 +291,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
                   {trialHistory.map((row) => (
                     <li key={row.id} className={`vlb-sample ${stylex.props(sx.sample, ((kind) === "cover") && sx.sampleDataKindCover).className}`} data-kind={kind}>
                       {row.state === 'ready' && row.imageUrl ? (
-                        <button type="button" className={`vlb-sample-open ${stylex.props(sx.sampleOpen).className}`} aria-label={copy.tryView} onClick={() => setViewing(row)}>
+                        <button type="button" className={`vlb-sample-open ${stylex.props(sx.sampleOpen).className}`} aria-label={copy.tryView} onClick={(event) => { sampleTrigger.current = event.currentTarget; setViewing(row) }}>
                           <img className={`vlb-sample-img ${stylex.props(sx.sampleImg).className}`} src={row.imageUrl} alt="" loading="lazy" />
                         </button>
                       ) : (
@@ -322,7 +368,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
                     lockedReason={trialLockedReason}
                     onClick={() => void askSample(trialVideo, kind === 'scene' ? pickedScene : '')}
                   >
-                    {copy.tryCost(trial.status?.cost.label ?? 'AI')}
+                    {copy.tryCost(trial.status?.cost.label || 'AI')}
                   </ActionButton>
                   <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.tryNote}</p>
                 </div>
@@ -355,7 +401,7 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
         </div>
       </div>
 
-      <footer className={`vlb-ed-foot ${stylex.props(sx.edFoot).className}`}>
+      <footer className={`vlb-ed-foot ${stylex.props(sx.edFoot, phone && viewing !== null && sx.previewHidden).className}`}>
         <span className={`vlb-status ${stylex.props(sx.status).className}`} aria-live="polite">{status}</span>
         <span className={`vlb-ed-actions ${stylex.props(sx.edActions).className}`}>
           {prompt !== null && !builtin && (
@@ -373,12 +419,30 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
           <ActionButton xstyle={[sx.vlbCompsRadioCard]} variant="primary" pending={saving} onClick={() => void save()}>{primaryLabel}</ActionButton>
         </span>
       </footer>
-      {viewing && (
-        <Dialog title={copy.samplesTitle} onClose={() => setViewing(null)} width={720}
-          footer={<Button size="sm" onClick={() => setViewing(null)}>{t.library.close}</Button>}>
-          <img className={`vlb-sample-full ${stylex.props(sx.sampleFull).className}`} src={viewing.imageUrl ?? ''} alt="" />
-          <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{viewing.videoTitle} · {clock(viewing.createdAt)}</p>
-        </Dialog>
+      {!phone && viewing && <ImageViewer mode="sample" title={viewing.promptName} selectedId={viewing.id}
+        stripLabel="Ảnh mẫu của prompt" subtitle={`${viewing.promptKind === 'scene' ? 'Ảnh cảnh' : 'Ảnh bìa'} · ảnh mẫu của prompt`}
+        items={trialHistory.map(row => ({ id: row.id, label: `${row.videoTitle} · ${clock(row.createdAt)}`, url: row.imageUrl, disabled: row.state !== 'ready' || !row.imageUrl }))}
+        onSelect={id => { const sample = trialHistory.find(row => row.id === id); if (sample) setViewing(sample) }} onClose={() => setViewing(null)}
+        side={<><strong {...stylex.props(viewerStyles.sideTitle)}>{viewing.promptName}</strong><p>{viewing.videoTitle} · {clock(viewing.createdAt)}</p><h3 {...stylex.props(viewerStyles.caption)}>Prompt</h3><p>{prompt?.prompt}</p></>}
+        footer={<><span>Ảnh mẫu của prompt · không thay ảnh trong video</span><ActionButton variant="primary" lockedReason={viewing.promptKind !== kind ? copy.tryKindChanged : trialLockedReason} onClick={() => trySampleFromViewer(viewing)}>{copy.tryCost(trial.status?.cost.label || 'AI')}</ActionButton></>}
+      />}
+      {phone && viewing && (
+        // Cùng một khung sửa: form ở trên chỉ ẩn đi, bản nháp còn nguyên. Không
+        // mở lớp thứ hai nên cả tấm chỉ có một aria-modal (Sheet đang mở).
+        <div className={`vlb-sample-preview ${stylex.props(sx.previewPane).className}`} role="group" aria-label={copy.samplesTitle}>
+          <button type="button" ref={previewBackRef} className={`vlb-back ${stylex.props(sx.back, sx.previewBack).className}`} onClick={closeSamplePreview}>
+            <span aria-hidden="true">←</span>{t.library.mobile.backSection(copy.samplesTitle)}
+          </button>
+          <figure className={`vlb-sample-figure ${stylex.props(sx.previewFigure).className}`}>
+            <img className={`vlb-sample-full ${stylex.props(sx.sampleFull).className}`} src={viewing.imageUrl ?? ''}
+              alt={`Ảnh mẫu ${viewing.promptKind === 'scene' ? copy.kindScene : copy.kindCover} · ${viewing.promptName}`} />
+            <figcaption className={`vlb-sample-meta ${stylex.props(sx.previewMeta).className}`}>
+              <strong className={`vlb-sample-name ${stylex.props(sx.previewName).className}`}>{viewing.promptName}</strong>
+              <span className={`vlb-hint ${stylex.props(sx.hint).className}`}>{viewing.videoTitle} · {clock(viewing.createdAt)}</span>
+              {prompt?.prompt && <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{prompt.prompt}</p>}
+            </figcaption>
+          </figure>
+        </div>
       )}
       {confirming && prompt && (
         <Dialog title={copy.deleteTitle(prompt.name)} onClose={() => setConfirming(false)} width={420}
@@ -442,5 +506,14 @@ const sx = stylex.create({
   sampleState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-6)", fontSize: "var(--vv-s-11)", color: color["--color-fg-3"], textAlign: "center" },
   sampleFull: { display: "block", width: "100%", height: "auto", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)" },
   select: { minHeight: "var(--vv-s-34)", width: "100%", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-1"], borderRightColor: line["--line-1"], borderBottomColor: line["--line-1"], borderLeftColor: line["--line-1"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: color["--color-bg"], color: color["--color-fg"], paddingLeft: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", fontSize: "var(--vv-s-13)" },
+  /* Ảnh mẫu trên điện thoại mở ngay trong khung sửa: form chỉ ẩn (vẫn mounted
+     nên bản nháp nguyên vẹn, các ô ẩn không nhận tiêu điểm), khung ảnh chiếm
+     trọn chỗ cuộn. Định nghĩa sau `scroll`/`edFoot` để `display: none` thắng. */
+  previewHidden: { display: "none" },
+  previewPane: { display: "flex", flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", flexDirection: "column", minHeight: 0, minWidth: 0, overflowY: "auto", overscrollBehavior: "contain", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", paddingTop: "var(--vv-s-4)", paddingRight: "var(--vv-s-16)", paddingBottom: "var(--vv-s-24)", paddingLeft: "var(--vv-s-16)" },
+  previewBack: { minHeight: "var(--vv-s-44)" },
+  previewFigure: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)", marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0 },
+  previewMeta: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", fontSize: "var(--vv-s-13)", color: color["--color-fg-2"], lineHeight: libraryVars.bodyLineHeight },
+  previewName: { fontSize: "var(--vv-s-13)", color: color["--color-fg"] },
 
 })

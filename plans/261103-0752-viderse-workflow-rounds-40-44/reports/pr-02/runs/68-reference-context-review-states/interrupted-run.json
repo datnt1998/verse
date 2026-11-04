@@ -1,0 +1,21 @@
+{
+  "status": "timed-out-not-accepted",
+  "sourceRevision": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+  "timeoutSeconds": 600,
+  "processExit": "interrupted",
+  "captureReadinessIssue": "[INFERENCE] The harness has unbounded decode() waits for all document images, including possible offscreen lazy images; the exact blocked browser operation was not captured. The replacement bounds visible-image readiness and page operations. This timed-out run is not a passing acceptance receipt.",
+  "replayID": "b816c8ba-e80f-4776-92ab-5c848425d233",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "restoration": {
+    "performedBy": "controller after process timeout",
+    "guard": "Exact checkpoint equality with the known blocked scenario derived from the retained baseline; own qa-replay source_key, waiting job, no lease; compare-and-swap whole checkpoint",
+    "interruptedRevision": 55,
+    "restoredRevision": 25,
+    "updatedRows": 1,
+    "readbackEqualsRetainedBaseline": true
+  },
+  "paidOutputClaim": false,
+  "additionalProviderRequests": null,
+  "ownedBrowserCleanup": "No browser from this run remained; older test profiles owned by other sessions were preserved.",
+  "productAcceptance": false
+}

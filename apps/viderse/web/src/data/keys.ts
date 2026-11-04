@@ -75,8 +75,6 @@ export const keys = {
   reviewJobs: () => ['review', 'jobs'] as const satisfies Key,
   /** GET /api/clone/:id/images — cùng cache cho ảnh đang xem và video được tải trước. */
   reviewImages: (id: string) => ['review', 'images', id] as const satisfies Key,
-  /** GET /api/youtube/data-key — khoá YouTube Data API (Cài đặt › Kết nối AI). */
-  youtubeDataKey: () => ['youtube', 'data-key'] as const satisfies Key,
   /** GET /api/rivals/:id/posting-slots gộp mọi đối thủ liên kết của kênh theo múi giờ. */
   channelSchedule: (id: string, zone: string) => ['channels', 'schedule', id, zone] as const satisfies Key,
   /** GET /api/backdrop/channels — cột nguồn của tab Video nền + hộp chọn nguồn. */

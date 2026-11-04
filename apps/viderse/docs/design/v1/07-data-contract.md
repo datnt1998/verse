@@ -760,6 +760,7 @@ GET  /api/clone/:jobId/images → { images: Array<{ id; kind: "scene" | "cover";
 POST /api/clone/:jobId/images/redraw {
   imageIds: string[];                     // 1 ảnh, hoặc nhiều ảnh (chọn nhiều, Vẽ lại cả N)
   project?: boolean;                     // Editor gửi false: tự thay ảnh và giữ lịch sử hoàn tác; bỏ qua = máy chủ thay project
+  baseVersion?: number;                  // một ảnh: phiên bản đang xem làm nền prompt/refs, theo #84 đã chốt
   feedback?: string;                      // Hoạ sĩ sửa phần scene của từng ảnh
   parts?: Partial<Record<PromptPartKind, string>>;   // sửa tay, chỉ khi imageIds.length === 1
   refs?: Array<{ id?: string; upload?: string; videoImageId?: string; rivalFrame?: { videoId: string; atSec: number }; role: ImageRef["role"] }>;
@@ -771,8 +772,10 @@ SSE  image.progress { jobId, imageId, n, phase: "sending" | "drawing" | "receivi
 ```
 
 - **Phần không sửa được:** hàng rào an toàn (dữ liệu cảnh/nhân vật/ảnh tham chiếu viết từ nguồn không tin được) và chỉ dẫn công cụ của nguồn vẽ nằm trong `wrapper`, không nằm trong `parts`; sửa `parts` không bao giờ chạm tới chúng. Chỉ Codex nhận chỉ dẫn công cụ; Grok và nguồn HTTP nhận hàng rào nhưng không nhận lệnh gọi `image_gen` hay luật đọc tệp.
-- **Không sửa template:** `parts` chỉ áp cho ảnh đó. Lần vẽ sau (kể cả *Vẽ lại cả N ảnh*) của ảnh đó dùng prompt của **bản đang dùng**.
-- `refLimit` theo nhà cung cấp (ChatGPT 4). Quá giới hạn → 422 `{ code: "too_many_refs", limit }`.
+- **Không sửa template:** `parts` chỉ áp cho ảnh đó. Không gửi `baseVersion` (đặc biệt vẽ nhiều ảnh): giữ chính sách nền từ bản đang dùng của từng ảnh. Gửi `baseVersion` cho một ảnh: giữ phần prompt và ảnh tham chiếu đã lưu của đúng bản đó, chỉ thay các phần/refs được gửi; không tự đổi `usedVersion`. Đây là quyết định #84 đã duyệt, không phải gọi `/use` trước khi sửa.
+- **Phiên bản nền rõ ràng:** `baseVersion` là số dương của một bản thuộc chính ảnh duy nhất trong yêu cầu; không chấp nhận một số nền cho nhiều ảnh, bản không tồn tại hoặc chưa có dữ liệu prompt dùng được. Bản đang vẽ/đã huỷ không phải nền hợp lệ; bản lỗi có prompt/refs đã ghi dùng được cho sửa/thử lại. Ảnh còn chuyến vẽ chưa kết thúc từ chối lượt vẽ mới bằng `409 conflict`. Mọi từ chối xảy ra trước khi đổi manifest/revision. Nguồn nền giữ qua checkpoint/worker restart và độc lập với số bản đang dùng để kiểm race khi worker hoàn tất.
+- **Giữ dữ liệu không sửa:** phần Cảnh/Phong cách/Tránh không được thay bằng nội dung từ bản đang dùng khác. Không gửi `refs` thì dùng đúng refs của nền đã chọn, kể cả danh sách rỗng; gửi `refs:[]` thì bỏ hết. Cùng ảnh/vai trò giữ nguyên lời tham chiếu và nguồn đã lưu; đổi refs thì dựng lại mô tả theo tệp hiệu lực. Wrapper bảo vệ/chỉ dẫn công cụ dựng lại theo nguồn vẽ; bỏ hướng góp ý cũ từng dính trong Cảnh trước khi ghép hướng mới, không sửa lịch sử hoặc biến toàn bộ `sentText` thành phần Cảnh sửa được.
+- `refLimit` theo nguồn vẽ hiệu lực của video (ChatGPT 4, Grok 1; gồm thẻ nguồn riêng của video). Quá giới hạn, kể cả refs kế thừa từ `baseVersion` → 422 `{ code: "too_many_refs", limit }`; không nhận rồi âm thầm bỏ refs trong worker.
 - Vẽ xong: bản mới thành `usedVersion` (trừ khi người dùng đã chọn bản khác trong lúc vẽ). Video đã duyệt/dựng: ảnh mới đánh dấu `needsReview`, editor thay media của clip đó (giữ chuyển động, keyframe, thời lượng) và ghi vào lịch sử hoàn tác; Độ hoàn thiện đo lại mục ảnh.
 - **Một nơi ghi project:** Editor gửi `project:false` khi vẽ lại và khi dùng bản ảnh; cờ này được giữ từ draft qua chuyến vẽ tới phiên bản, kể cả worker khởi động lại. Worker vẫn lưu ảnh và cập nhật manifest dựng nhưng không ghi đè project đang sửa. Editor áp một lệnh đổi media có hoàn tác rồi lưu bằng `If-Match` đã tải; không tự nhận revision mới để bỏ qua xung đột. Duyệt/Bàn dựng không gửi cờ nên vẫn thay project ở máy chủ.
 - **Giữ media đã dùng:** lưu project và lệnh Editor giữ binding metadata, nguồn ảnh và liên kết media cùng giao dịch CAS với project. Đổi bản dựng về sau không làm mất ảnh cũ của project đã lưu hoặc bản có thể hoàn tác.

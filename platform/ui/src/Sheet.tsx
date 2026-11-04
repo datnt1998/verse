@@ -89,8 +89,9 @@ export function Sheet({ open, onClose, onExited, title, label, children, height 
       const sheets = document.querySelectorAll('.m-sheet')
       if (sheets[sheets.length - 1] !== ref.current) return
       if (event.key !== 'Tab') return
-      const focusable = ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]')
-      if (!focusable?.length) { event.preventDefault(); return }
+      const focusable = Array.from(ref.current?.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]') ?? [])
+        .filter(element => element.getClientRects().length > 0 && !element.closest('[hidden], [inert]') && getComputedStyle(element).visibility !== 'hidden')
+      if (!focusable.length) { event.preventDefault(); return }
       const first = focusable[0], last = focusable[focusable.length - 1]
       if (event.shiftKey && (document.activeElement === first || document.activeElement === ref.current)) { event.preventDefault(); last.focus() }
       else if (!event.shiftKey && (document.activeElement === last || document.activeElement === ref.current)) { event.preventDefault(); first.focus() }

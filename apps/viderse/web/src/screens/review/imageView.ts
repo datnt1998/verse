@@ -3,7 +3,7 @@
 // điểm Kiểm định, khung giờ, trạng thái duyệt) và tiến độ SSE đang chạy.
 import type { AiProvider } from '../../api/ai'
 import type { ImageProgress, ImageRef, ImageVersion, JobImage, PromptPartKind } from '../../api/images'
-import type { ReviewImage } from './useReview'
+import { reviewLabel, type ReviewImage } from './useReview'
 
 /** Trường cũ đi kèm payload §26 (schema của client để chúng đi qua). */
 type JobImageExtra = {
@@ -42,9 +42,6 @@ export interface ReviewItemView {
   /** URL ảnh gốc theo dữ liệu cũ khi chưa có phiên bản §26. */
   legacyUrl?: string
 }
-
-const sceneLabel = (item: ReviewImage, index: number) =>
-  item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${item.sceneId?.match(/\d+/)?.[0] ?? index + 1}`
 
 /** Bản §26 chưa có → dựng một phiên bản đọc được từ dữ liệu cũ của endpoint. */
 function legacyVersion(item: ReviewImage): ImageVersion[] {
@@ -114,13 +111,13 @@ export function toReviewItems(
           legacyUrl: old ? imageURLOf(old) : undefined,
         } satisfies ReviewItemView
       })
-      .sort((a, b) => a.index - b.index)
+      .sort((a, b) => Number(b.kind === 'cover') - Number(a.kind === 'cover') || a.index - b.index)
   }
-  return (legacy ?? []).map((item, index) => ({
+  return (legacy ?? []).map<ReviewItemView>((item, index) => ({
     id: item.id,
     kind: item.kind === 'thumbnail' ? 'cover' : 'scene',
-    label: sceneLabel(item, index),
-    index,
+    label: reviewLabel(item, index),
+    index: index + 1,
     status: item.status,
     approved: item.status === 'approved',
     narration: item.narration,
@@ -135,7 +132,7 @@ export function toReviewItems(
     versions: legacyVersion(item),
     progress: progress[item.id],
     legacyUrl: imageURLOf(item),
-  }))
+  })).sort((a, b) => Number(b.kind === 'cover') - Number(a.kind === 'cover') || a.index - b.index)
 }
 
 function imageURLOf(item: ReviewImage): string | undefined {
@@ -157,7 +154,7 @@ export const PART_LABELS: Record<PromptPartKind, string> = {
 }
 
 /** Phần người dùng sửa được (Tham chiếu sửa bằng thêm/bỏ ảnh, không bằng chữ). */
-export const EDITABLE_PARTS: PromptPartKind[] = ['scene', 'style', 'learned', 'avoid']
+export const EDITABLE_PARTS: PromptPartKind[] = ['scene', 'style', 'avoid']
 
 export const PROVIDER_NAMES: Record<string, string> = {
   chatgpt: 'ChatGPT',
@@ -177,9 +174,21 @@ const hhmm = (iso: string | null) => {
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
 
+/**
+ * Bản mới nhất còn dùng được: bản đã huỷ vẫn nằm trong lịch sử để xem, nhưng
+ * không bao giờ tự được chọn làm bản đang xem hay nguồn vẽ lại.
+ */
+export function defaultVersion(versions: readonly ImageVersion[] | undefined): ImageVersion | undefined {
+  return versions?.reduce<ImageVersion | undefined>(
+    (latest, version) => version.state !== 'cancelled' && (!latest || version.n > latest.n) ? version : latest,
+    undefined,
+  )
+}
+
 /** “Bản 2 · Theo góp ý “…” · 23:58” hoặc “Lần đầu · Hoạ sĩ viết từ lời kể · 23:58”. */
 export function versionNote(version: ImageVersion | undefined): string {
   if (!version) return ''
+  if (version.state === 'cancelled') return `Bản ${version.n} · đã huỷ · không dùng làm nguồn vẽ lại`
   const origin = version.feedback ? `Theo góp ý “${version.feedback}”` : 'Lần đầu · Hoạ sĩ viết từ lời kể'
   const when = hhmm(version.finishedAt ?? version.startedAt)
   return [`Bản ${version.n}`, origin, when].filter(Boolean).join(' · ')
@@ -193,7 +202,7 @@ export function versionMeta(version: ImageVersion | undefined, providers?: reado
     providerName(version.provider, providers),
     version.model,
     size,
-    version.durationSec != null ? `vẽ ${version.durationSec} giây` : '',
+    version.durationSec != null ? `vẽ ${Math.round(version.durationSec)} giây` : '',
     hhmm(version.finishedAt),
     version.costImages ? `tốn ${version.costImages} ảnh` : '',
   ].filter(Boolean).join(' · ')

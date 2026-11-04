@@ -4,13 +4,29 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"testing"
 
-	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/stepstest"
 )
+
+func TestCancelledHistoryWithoutPromptStillSerializesPartsAsArray(t *testing.T) {
+	service, _ := versionService(t)
+	view := service.versionView(context.Background(), loaded{}, model.Item{Width: 1920, Height: 1080}, model.Version{Version: 2, StateName: model.VersionCancelled})
+	body, err := json.Marshal(view)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var wire map[string]json.RawMessage
+	if err := json.Unmarshal(body, &wire); err != nil {
+		t.Fatal(err)
+	}
+	if string(wire["parts"]) != "[]" {
+		t.Fatalf("cancelled history breaks the non-null parts array contract: %s", wire["parts"])
+	}
+}
 
 func versionService(t *testing.T) (*Service, *editStore) {
 	t.Helper()
@@ -378,7 +394,231 @@ func TestImagesViewShapesVersionsAndLegacyParts(t *testing.T) {
 	}
 }
 
-var _ = jobedit.Change{}
+// seedSelectedVersions đặt ảnh scene-1 có bản đang dùng 1 và bản đang xem 2
+// với prompt/ảnh tham chiếu khác hẳn. Trả số bản đang xem.
+func seedSelectedVersions(store *editStore, selectedState string) int {
+	item := &store.m.Items[0]
+	one := 1
+	item.Status = "approved"
+	item.CurrentVersion = &one
+	fingerprint := model.SourceFingerprint(*item)
+	item.Versions = []model.Version{
+		{Version: 1, Path: "images/versions/scene-1/1-used.webp", StateName: model.VersionReady, SourceFingerprint: fingerprint},
+		{Version: 2, Path: "images/versions/scene-1/2-selected.webp", StateName: selectedState, SourceFingerprint: fingerprint,
+			Parts: model.PromptParts{
+				{Kind: model.PartScene, Text: "SELECTED SCENE TWO", Source: model.PromptPartSource{Type: "artist", Label: "Hoạ sĩ"}},
+				{Kind: model.PartStyle, Text: "SELECTED STYLE TWO", Source: model.PromptPartSource{Type: "template", Label: "Template"}},
+				{Kind: model.PartAvoid, Text: "SELECTED AVOID TWO", Source: model.PromptPartSource{Type: "template", Label: "Luật tránh của Viderse"}},
+			},
+			Refs: []model.ImageRef{{ID: "video:selected", Role: model.RefStyle, Path: "images/versions/scene-1/2-ref.webp", SHA256: "sha-selected", Source: model.RefSource{Type: "video_image", Label: "Selected ref"}}}},
+	}
+	return 2
+}
+
+// TestRedrawVersionsKeepsSelectedBaseVersion: vẽ lại khi đang xem bản 2 lưu
+// đúng bản nguồn 2 (không đụng bản đang dùng 1), sống qua checkpoint, và []
+// ảnh tham chiếu là "bỏ hết" chứ không phải "không đổi".
+func TestRedrawVersionsKeepsSelectedBaseVersion(t *testing.T) {
+	service, store := versionService(t)
+	two := seedSelectedVersions(store, model.VersionReady)
+	empty := []RedrawRef{}
+	out, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{
+		ImageIDs:    []string{"scene-1"},
+		BaseVersion: &two,
+		Parts:       map[string]string{"scene": "EDITED SELECTED SCENE"},
+		Refs:        empty,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(out.Versions) != 1 || out.Versions[0].N != 3 {
+		t.Fatalf("versions=%+v", out.Versions)
+	}
+	item := store.m.Items[0]
+	if item.Draft == nil || item.Draft.SourceVersion == nil || *item.Draft.SourceVersion != 2 {
+		t.Fatalf("mất bản nguồn đã chọn: %+v", item.Draft)
+	}
+	if item.Draft.Parts[model.PartScene] != "EDITED SELECTED SCENE" {
+		t.Fatalf("mất phần prompt đã sửa: %+v", item.Draft.Parts)
+	}
+	if item.Draft.Refs == nil || len(*item.Draft.Refs) != 0 {
+		t.Fatalf("[] ảnh tham chiếu không được giữ là bỏ hết: %+v", item.Draft.Refs)
+	}
+	if item.CurrentVersion == nil || *item.CurrentVersion != 1 {
+		t.Fatalf("bản đang dùng bị đổi: %+v", item.CurrentVersion)
+	}
+	if item.Status != "pending" || store.m.Revision != 4 {
+		t.Fatalf("item=%+v revision=%d", item, store.m.Revision)
+	}
+	raw, err := json.Marshal(store.m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reloaded model.Manifest
+	if err := json.Unmarshal(raw, &reloaded); err != nil {
+		t.Fatal(err)
+	}
+	draft := reloaded.Items[0].Draft
+	if draft == nil || draft.SourceVersion == nil || *draft.SourceVersion != 2 || draft.Refs == nil || len(*draft.Refs) != 0 {
+		t.Fatalf("bản nguồn không sống qua checkpoint: %+v", draft)
+	}
+	if reloaded.Items[0].CurrentVersion == nil || *reloaded.Items[0].CurrentVersion != 1 {
+		t.Fatalf("bản đang dùng đổi sau checkpoint: %+v", reloaded.Items[0].CurrentVersion)
+	}
+}
+
+// TestRedrawVersionsAcceptsFailedBaseVersion: bản lỗi còn prompt/ảnh tham chiếu
+// đã lưu vẫn là nguồn hợp lệ cho lần thử lại — không lặng lẽ dùng bản khác.
+func TestRedrawVersionsAcceptsFailedBaseVersion(t *testing.T) {
+	service, store := versionService(t)
+	two := seedSelectedVersions(store, model.VersionFailed)
+	if _, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{ImageIDs: []string{"scene-1"}, BaseVersion: &two}); err != nil {
+		t.Fatal(err)
+	}
+	draft := store.m.Items[0].Draft
+	if draft == nil || draft.SourceVersion == nil || *draft.SourceVersion != 2 {
+		t.Fatalf("draft=%+v", draft)
+	}
+}
+
+func TestRedrawSelectedBaseChecksInheritedRefsBeforeCommit(t *testing.T) {
+	service, store := versionService(t)
+	two := seedSelectedVersions(store, model.VersionReady)
+	service.RefLimits = func(context.Context, string) (int, bool) { return 0, true }
+	_, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{ImageIDs: []string{"scene-1"}, BaseVersion: &two})
+	var tooMany *TooManyRefsError
+	if !errors.As(err, &tooMany) || tooMany.Limit != 0 {
+		t.Fatalf("inherited refs must respect the provider limit: %v", err)
+	}
+	if store.commits != 0 || store.m.Revision != 3 || store.m.Items[0].Draft != nil || *store.m.Items[0].CurrentVersion != 1 {
+		t.Fatalf("rejected inherited refs changed the image: %+v", store.m.Items[0])
+	}
+	// Removing the inherited refs is a valid recovery for a provider with no
+	// reference support; an empty override must not restore the selected refs.
+	if _, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{
+		ImageIDs: []string{"scene-1"}, BaseVersion: &two, Refs: []RedrawRef{},
+	}); err != nil {
+		t.Fatal(err)
+	}
+	draft := store.m.Items[0].Draft
+	if draft == nil || draft.Refs == nil || len(*draft.Refs) != 0 || *store.m.Items[0].CurrentVersion != 1 {
+		t.Fatalf("empty reference override was not preserved: %+v", draft)
+	}
+}
+
+func TestRedrawSelectedBaseUsesVideoProviderReferenceLimit(t *testing.T) {
+	for _, videoProvider := range []string{"chatgpt", "grok", "gemini-1a2b"} {
+		t.Run(videoProvider, func(t *testing.T) {
+			service, store := versionService(t)
+			two := seedSelectedVersions(store, model.VersionReady)
+			selected := &store.m.Items[0].Versions[1]
+			selected.Refs = append(selected.Refs, model.ImageRef{ID: "video:second", Role: model.RefLayout})
+			store.m.Overrides = &model.Overrides{DrawProvider: videoProvider}
+			service.RefLimits = func(_ context.Context, provider string) (int, bool) {
+				if provider == videoProvider {
+					if provider == "chatgpt" {
+						return 4, true
+					}
+					if provider == "grok" {
+						return 1, true
+					}
+					return 0, true
+				}
+				// The global provider has the opposite limit.
+				if videoProvider == "chatgpt" {
+					return 1, true
+				}
+				return 4, true
+			}
+			_, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{ImageIDs: []string{"scene-1"}, BaseVersion: &two})
+			if videoProvider == "chatgpt" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				if store.m.Items[0].Draft == nil || *store.m.Items[0].Draft.SourceVersion != 2 {
+					t.Fatal("selected source lost")
+				}
+			} else {
+				var tooMany *TooManyRefsError
+				wantLimit := 1
+				if videoProvider == "gemini-1a2b" {
+					wantLimit = 0
+				}
+				if !errors.As(err, &tooMany) || tooMany.Limit != wantLimit {
+					t.Fatalf("expected video limit rejection: %v", err)
+				}
+				if store.commits != 0 || store.m.Items[0].Draft != nil {
+					t.Fatal("rejected refs changed the manifest")
+				}
+			}
+		})
+	}
+}
+
+func TestRedrawRejectsAnotherDrawWhileImageFlightIsLive(t *testing.T) {
+	for _, explicit := range []bool{false, true} {
+		t.Run(fmt.Sprint(explicit), func(t *testing.T) {
+			service, store := versionService(t)
+			two := seedSelectedVersions(store, model.VersionFailed)
+			store.m.Items[0].InFlight = &model.Flight{Version: 2}
+			input := RedrawVersionsInput{ImageIDs: []string{"scene-1"}}
+			if explicit {
+				input.BaseVersion = &two
+			}
+			_, err := service.RedrawVersions(context.Background(), "job-1", input)
+			requireCode(t, err, domain.CloneErrConflict)
+			if store.commits != 0 || store.m.Revision != 3 || store.m.Items[0].Draft != nil {
+				t.Fatal("busy rejection changed the image")
+			}
+		})
+	}
+}
+
+// TestRedrawVersionsRejectsUnusableBaseVersion: bản nguồn 0/âm/không có/đang vẽ
+// hoặc dùng cho nhiều ảnh là lỗi trước khi ghi manifest — không đổi revision,
+// bản đang dùng hay draft.
+func TestRedrawVersionsRejectsUnusableBaseVersion(t *testing.T) {
+	zero, negative, missing, two := 0, -1, 9, 2
+	tests := []struct {
+		name   string
+		ids    []string
+		base   *int
+		mutate func(*model.Item)
+		code   string
+	}{
+		{name: "zero", ids: []string{"scene-1"}, base: &zero, code: domain.CloneErrInvalidRequest},
+		{name: "negative", ids: []string{"scene-1"}, base: &negative, code: domain.CloneErrInvalidRequest},
+		{name: "missing", ids: []string{"scene-1"}, base: &missing, code: domain.CloneErrNotFound},
+		{name: "drawing", ids: []string{"scene-1"}, base: &two, mutate: func(i *model.Item) { i.Versions[1].StateName = model.VersionDrawing }, code: domain.CloneErrConflict},
+		{name: "cancelled", ids: []string{"scene-1"}, base: &two, mutate: func(i *model.Item) { i.Versions[1].StateName = model.VersionCancelled }, code: domain.CloneErrInvalidRequest},
+		{name: "stale", ids: []string{"scene-1"}, base: &two, mutate: func(i *model.Item) { i.Versions[1].SourceFingerprint = "other-source" }, code: domain.CloneErrStale},
+		{name: "many", ids: []string{"scene-1", "thumbnail"}, base: &two, code: domain.CloneErrInvalidRequest},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			service, store := versionService(t)
+			seedSelectedVersions(store, model.VersionReady)
+			if test.mutate != nil {
+				test.mutate(&store.m.Items[0])
+			}
+			_, err := service.RedrawVersions(context.Background(), "job-1", RedrawVersionsInput{
+				ImageIDs:    test.ids,
+				BaseVersion: test.base,
+			})
+			requireCode(t, err, test.code)
+			if store.commits != 0 {
+				t.Fatal("đã ghi manifest cho yêu cầu không hợp lệ")
+			}
+			if store.m.Revision != 3 {
+				t.Fatalf("revision=%d", store.m.Revision)
+			}
+			item := store.m.Items[0]
+			if item.CurrentVersion == nil || *item.CurrentVersion != 1 || item.Draft != nil {
+				t.Fatalf("item bị đổi: %+v", item)
+			}
+		})
+	}
+}
 
 // TestCancelVersionClearsOrphanedDrawingRow: dòng `drawing` còn lại khi chuyến
 // vẽ đã mất vẫn huỷ được từ giao diện — không tốn ảnh, ảnh về bản đang dùng.

@@ -1,7 +1,7 @@
 // Ba thao tác có hộp xác nhận của một video, dùng chung cho menu ⋯ của Bàn dựng
 // và của bảng Kênh › Video: Làm lại từ đầu · Dừng hẳn · Xoá video.
 import { confirm } from '@noverse/ui'
-import { getWorkbench, jobAction, previewRestart, restartJob, type CloneJobView } from '../../api/workbench'
+import { deleteJob, getWorkbench, jobAction, previewRestart, restartJob, type CloneJobView } from '../../api/workbench'
 import { confirmDeleteVideo } from '../../components'
 import { navigate, routePath } from '../../router'
 import { restartTarget } from './workbench-actions'
@@ -31,7 +31,7 @@ export function removeVideo(job: CloneJobView, { onRefresh, onError, afterRemove
     keeping: ['Video nguồn', 'Kênh'],
     running: job.stageGroup === 'working',
     onConfirm: async () => {
-      await jobAction(job.id, 'delete')
+      await deleteJob(job.id)
       onRefresh()
       if (afterRemove) afterRemove()
       else navigate(routePath({ name: 'workbench', channel: job.channelId }))

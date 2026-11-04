@@ -101,6 +101,9 @@ function installFetch() {
       return pending.promise
     }
     if (url === '/api/templates') return respond({ items: [summary()] })
+    if (url === '/api/templates/t1/export' && method === 'GET') {
+      return Promise.resolve(new Response(new Blob(['zip']), { status: 200, headers: { 'Content-Disposition': 'attachment; filename="truyen-ke-dem.ytf-template.zip"' } }))
+    }
     if (url.startsWith('/api/image-prompts')) return respond({ items: [prompt({ sampleUrls })] })
     if (url === '/api/overlays') return respond({ items: [] })
     if (url === '/api/owner-channels') return respond({ channels: [{ id: 'ch1', name: 'Kênh Một' }] })
@@ -253,11 +256,13 @@ describe('kênh — lối vào thư viện', () => {
 })
 
 describe('thư viện dùng chung — xuất tệp', () => {
-  it('hàng Xuất tệp template trong tấm thao tác tải thật, không còn khoá', async () => {
+  it('hàng Xuất tệp template trong tấm thao tác tải tệp thật qua API', async () => {
     const downloaded: string[] = []
-    const spy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
       downloaded.push(this.getAttribute('href') ?? '')
     })
+    const createSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:template-export')
+    const revokeSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined)
     try {
       const page = await render(<LibraryScreen route={libraryRoute} />)
       await click(page.querySelector(`[aria-label="${t.library.mobile.templateMenuAria('Truyện kể đêm')}"]`))
@@ -265,9 +270,11 @@ describe('thư viện dùng chung — xuất tệp', () => {
       const exportRow = byText(sheet, 'button', t.library.mobile.exportFile) as HTMLButtonElement
       expect(exportRow.disabled).toBe(false)
       await click(exportRow)
-      expect(downloaded).toEqual(['/api/templates/t1/export'])
+      await flush()
+      expect(calls.some((call) => call.url === '/api/templates/t1/export' && call.method === 'GET')).toBe(true)
+      expect(downloaded).toEqual(['blob:template-export'])
     } finally {
-      spy.mockRestore()
+      clickSpy.mockRestore(); createSpy.mockRestore(); revokeSpy.mockRestore()
     }
   })
 })

@@ -1,0 +1,337 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "viewer-audit.pw.ts",
+      "--project=desktop-reduced",
+      "--grep",
+      "workbench useVersion persists a real selected version then restores the original usedVersion",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workbench useVersion persists a real selected version then restores the original usedVersion",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2337,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T10:30:41.684Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "workbench-use-version.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0ZXN0VGl0bGUiOiAid29ya2JlbmNoIHVzZVZlcnNpb24gcGVyc2lzdHMgYSByZWFsIHNlbGVjdGVkIHZlcnNpb24gdGhlbiByZXN0b3JlcyB0aGUgb3JpZ2luYWwgdXNlZFZlcnNpb24iLAogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgImNhbGxlciI6IHsKICAgICJXT1JLRkxPV19RQV9NQUlOX1VTRV9WRVJTSU9OIjogIjEiLAogICAgIldPUktGTE9XX1FBX1dPUktFUl9TVEFOREJZIjogIjEiLAogICAgIldPUktGTE9XX1FBX0VYUEVDVEVEX1RFU1RfVElUTEUiOiAid29ya2JlbmNoIHVzZVZlcnNpb24gcGVyc2lzdHMgYSByZWFsIHNlbGVjdGVkIHZlcnNpb24gdGhlbiByZXN0b3JlcyB0aGUgb3JpZ2luYWwgdXNlZFZlcnNpb24iCiAgfSwKICAiZW52aXJvbm1lbnQiOiB7CiAgICAiYmFzZVVSTCI6ICJodHRwOi8vMTI3LjAuMC4xOjgwNDMiLAogICAgInZpZXdwb3J0IjogewogICAgICAid2lkdGgiOiAxNDQwLAogICAgICAiaGVpZ2h0IjogOTAwCiAgICB9LAogICAgInJlZHVjZWRNb3Rpb24iOiAicmVkdWNlIiwKICAgICJzb3VyY2VSZXZpc2lvbiI6ICIxMWYxY2QzNmUzOTUyMDVmMDFlOTkwMDg1NmUyNGFjN2UzMmYwN2ViIgogIH0sCiAgImpvYiI6ICJkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIiLAogICJ0YXJnZXQiOiB7CiAgICAiaWQiOiAic2MtMDQiLAogICAgImxhYmVsIjogIkPhuqNuaCA0IiwKICAgICJ1c2VkVmVyc2lvbiI6IDIsCiAgICAiYWx0ZXJuYXRpdmVWZXJzaW9uIjogMSwKICAgICJyZWFkeVZlcnNpb25zIjogWwogICAgICB7CiAgICAgICAgIm4iOiAxLAogICAgICAgICJ1cmwiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjphYzViZjZhZWEzZjc2ZmRiY2E4Njk3YzJhZjc5NWRiZjIwZmM3NTIxNTRlOWY2MGRhZDdlYTE1OTNkM2I3MGFhIgogICAgICB9LAogICAgICB7CiAgICAgICAgIm4iOiAyLAogICAgICAgICJ1cmwiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjpiZjI1OTc4M2Y1NzU1OWEyNzdmZWNkNWZlZTRhOTFhMDI0Y2U5NDg2Y2E3Y2Y4NzFmNTJjOGI2MGY0NzUxNDM5IgogICAgICB9CiAgICBdCiAgfSwKICAiYWRkcmVzcyI6IHsKICAgICJvcGVuZWQiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNCIsCiAgICAiYWZ0ZXJBbHRlcm5hdGl2ZSI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA0IiwKICAgICJhZnRlclJlc3RvcmUiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNCIKICB9LAogICJmZW5jZSI6IHsKICAgICJhbGxvd2VkIjogIlBPU1QgL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvaW1hZ2VzL3NjLTA0L3VzZSB3aXRoIGJvZHkgbiBpbiB7MSwyfSIsCiAgICAid3JpdGVzIjogWwogICAgICB7CiAgICAgICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICAgICAicGF0aCI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9pbWFnZXMvc2MtMDQvdXNlIiwKICAgICAgICAibiI6IDEKICAgICAgfSwKICAgICAgewogICAgICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgICAgInBhdGgiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvaW1hZ2VzL3NjLTA0L3VzZSIsCiAgICAgICAgIm4iOiAyCiAgICAgIH0KICAgIF0sCiAgICAidmlvbGF0aW9ucyI6IFtdCiAgfSwKICAicGF5bG9hZHMiOiB7CiAgICAiYWx0ZXJuYXRpdmUiOiB7CiAgICAgICJpbWFnZUlkIjogInNjLTA0IiwKICAgICAgIm4iOiAxLAogICAgICAidXNlZFZlcnNpb24iOiAxLAogICAgICAibmVlZHNSZXZpZXciOiBmYWxzZSwKICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICJjbGlwSWQiOiBudWxsLAogICAgICAibWVkaWFJZCI6IG51bGwsCiAgICAgICJzcmMiOiBudWxsLAogICAgICAicHJldmlvdXNNZWRpYUlkIjogbnVsbCwKICAgICAgInByZXZpb3VzVmVyc2lvbiI6IDIsCiAgICAgICJxdWFsaXR5IjogIm5vbmUiCiAgICB9LAogICAgInJlc3RvcmUiOiB7CiAgICAgICJpbWFnZUlkIjogInNjLTA0IiwKICAgICAgIm4iOiAyLAogICAgICAidXNlZFZlcnNpb24iOiAyLAogICAgICAibmVlZHNSZXZpZXciOiBmYWxzZSwKICAgICAgInByb2plY3RJZCI6IG51bGwsCiAgICAgICJjbGlwSWQiOiBudWxsLAogICAgICAibWVkaWFJZCI6IG51bGwsCiAgICAgICJzcmMiOiBudWxsLAogICAgICAicHJldmlvdXNNZWRpYUlkIjogbnVsbCwKICAgICAgInByZXZpb3VzVmVyc2lvbiI6IDEsCiAgICAgICJxdWFsaXR5IjogIm5vbmUiCiAgICB9CiAgfSwKICAiYmVmb3JlIjogewogICAgInVzZWRWZXJzaW9uIjogMiwKICAgICJ2ZXJzaW9ucyI6IFsKICAgICAgewogICAgICAgICJuIjogMSwKICAgICAgICAic3RhdGUiOiAicmVhZHkiLAogICAgICAgICJzZW50VGV4dEJ5dGVzIjogODkKICAgICAgfSwKICAgICAgewogICAgICAgICJuIjogMiwKICAgICAgICAic3RhdGUiOiAicmVhZHkiLAogICAgICAgICJzZW50VGV4dEJ5dGVzIjogNjMxMwogICAgICB9CiAgICBdCiAgfSwKICAiYWZ0ZXIiOiB7CiAgICAidXNlZFZlcnNpb24iOiAyCiAgfSwKICAicmVzdG9yZWQiOiB0cnVlLAogICJqb2JTb3VyY2VVbmNoYW5nZWQiOiB0cnVlLAogICJwcm92aWRlckNhbGxzIjogMCwKICAiaW1hZ2VFeGVjdXRpb25zIjogMCwKICAiZ2VuZXJhdGlvbk9yUmVkcmF3UmVxdWVzdHMiOiAwCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop-reduced/browser/viewer-audit.pw.ts-workben-c91d7-es-the-original-usedVersion-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-a0566d3c717955897150",
+          "file": "viewer-audit.pw.ts",
+          "line": 576,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T10:30:41.301Z",
+    "duration": 3777.4219999999996,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

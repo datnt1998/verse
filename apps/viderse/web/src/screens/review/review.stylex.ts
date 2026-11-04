@@ -2,7 +2,7 @@
 // Container query và maxWidth động giữ khung ảnh không phóng quá bề rộng gốc.
 import * as stylex from '@stylexjs/stylex'
 import { color, kit, line } from '@noverse/ui/tokens.stylex'
-import { corners, space } from '../../styles/viderse.stylex'
+import { corners, space, typography } from '../../styles/viderse.stylex'
 
 const WIDE = '@media (min-width: 1600px)'
 const NARROW = '@media (max-width: 1100px)'
@@ -22,7 +22,6 @@ export const sx = stylex.create({
   heading: { display: 'flex', alignItems: 'center', gap: space['--vv-s-10'], flexWrap: 'wrap' },
   title: { flex: '1 1 160px', minWidth: 0, margin: 0, fontSize: 17, fontWeight: 600, letterSpacing: '-.015em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   link: { color: color['--color-fg-2'], textDecorationLine: 'underline', textUnderlineOffset: 3 },
-  emptyLink: { marginTop: space['--vv-s-4'] },
 
   // Khung ảnh vừa container và bị giới hạn bởi bề rộng gốc.
   stageWrap: { flex: '1 1 auto', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', containerType: 'size' },
@@ -39,7 +38,13 @@ export const sx = stylex.create({
   badgeVersionUnused: { color: 'var(--vv-warn-ink)' },
   approved: { position: 'absolute', right: space['--vv-s-12'], top: space['--vv-s-12'], height: 26, paddingInline: space['--vv-s-10'], display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], borderRadius: corners['--vv-r-8'], backgroundColor: 'var(--vv-glass)', color: color['--color-ok'], fontSize: 12.5 },
   compare: { position: 'absolute', left: space['--vv-s-12'], top: 44 },
-  nav: { position: 'absolute', top: '50%', transform: 'translateY(-50%)' },
+  nav: {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    width: 40, height: 40, borderRadius: '50%',
+    borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: 'rgba(255,255,255,.14)',
+    backgroundColor: { default: 'rgba(11,11,13,.6)', ':hover': 'rgba(11,11,13,.85)' },
+    color: color['--color-fg'],
+  },
   prev: { left: space['--vv-s-10'] },
   prevIcon: { transform: 'rotate(180deg)' },
   blockedCard: { position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 'min(440px, 80%)', paddingBlock: space['--vv-s-14'], paddingInline: space['--vv-s-16'], borderRadius: corners['--vv-r-12'], backgroundColor: 'var(--vv-glass)', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: color['--color-warn'], display: 'flex', flexDirection: 'column', gap: space['--vv-s-6'] },
@@ -69,10 +74,13 @@ export const sx = stylex.create({
   bar: { flex: '0 0 auto', borderRadius: corners['--vv-r-16'], paddingBlock: space['--vv-s-8'], paddingInline: space['--vv-s-8'], display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: space['--vv-s-8'], backgroundColor: color['--color-surface-3'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'] },
   barEdit: { borderColor: kit['--kit-err-20'] },
   barInput: { flex: '1 1 140px', minWidth: 0 },
+  barInputFrame: { height: 36, minHeight: 36, paddingInline: 0, borderWidth: 0, borderStyle: 'none', borderRadius: 0, backgroundColor: 'transparent', boxShadow: 'none' },
+  barInputText: { height: 34, fontSize: 13.5 },
+  barEditIcon: { color: 'var(--vv-red-line)' },
   barIcon: { color: 'var(--vv-fg-note)', flex: '0 0 auto' },
   barText: { flex: '1 1 260px', minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.35 },
   barTitle: { fontSize: 13.5, fontWeight: 500 },
-  barSub: { fontSize: 12, color: 'var(--vv-fg-note)' },
+  barSub: { fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   countChip: { height: 26, paddingInline: space['--vv-s-9'], display: 'flex', alignItems: 'center', borderRadius: corners['--vv-r-7'], backgroundColor: 'var(--vv-wash-8)', fontSize: 12.5, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' },
 
   hints: { display: 'flex', flexWrap: 'wrap', gap: '4px 14px', paddingInline: space['--vv-s-6'], fontSize: 12, lineHeight: 1.55, color: 'var(--vv-fg-note)' },
@@ -115,8 +123,17 @@ export const sx = stylex.create({
   candOn: { borderColor: 'var(--vv-red-line)' },
   candImage: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   candTag: { position: 'absolute', left: space['--vv-s-4'], bottom: space['--vv-s-3'], fontSize: 10.5, paddingInline: space['--vv-s-4'], borderRadius: corners['--vv-r-4'], backgroundColor: 'var(--vv-glass)', color: color['--color-fg-2'] },
-  roleRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], flexWrap: 'wrap' },
+  roleRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   roleLabel: { fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap' },
+  /* Artboard refs:add: nhóm nguồn là `vv-seg--sm --fill` (chữ 12, mục 26 px);
+     nhãn 12 px và đệm từng mục đặt inline ở ImageRail để vừa 302 px nội dung. */
+  popSegLabel: { fontSize: typography['--vv-fs-meta'] },
+  popSegButton: { height: space['--vv-s-26'] },
+  /* Artboard refs:add: vai trò là hàng chip 26 px cạnh nhãn “Dùng làm”; chip
+     xuống dòng theo cặp `gap 4` chứ không bao giờ bị nhóm chọn cắt cụt. */
+  roleChips: { display: 'flex', alignItems: 'center', gap: space['--vv-s-4'], flexWrap: 'wrap', flex: '1 1 auto', minWidth: 0 },
+  roleChip: { height: space['--vv-s-26'], paddingInline: space['--vv-s-8'], display: 'inline-flex', alignItems: 'center', borderRadius: corners['--vv-r-7'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: kit['--kit-surface-15'], color: 'var(--vv-fg-note)', fontSize: typography['--vv-fs-meta'], whiteSpace: 'nowrap', cursor: 'pointer' },
+  roleChipOn: { backgroundColor: kit['--kit-wash-10'], color: color['--color-fg'] },
   popFoot: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   popFootText: { flex: 1, fontSize: 12, color: 'var(--vv-fg-note)' },
 
@@ -129,7 +146,7 @@ export const sx = stylex.create({
   ins: { textDecorationLine: 'none', backgroundColor: kit['--kit-ok-16'], color: color['--color-ok'], borderRadius: corners['--vv-r-3'], paddingInline: space['--vv-s-2'] },
   del: { color: color['--color-fg-4'], textDecorationLine: 'line-through' },
   segTextarea: { width: '100%', minHeight: 62, resize: 'vertical', paddingBlock: space['--vv-s-8'], paddingInline: space['--vv-s-10'], borderRadius: corners['--vv-r-8'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: color['--color-surface-0'], color: color['--color-fg'], fontFamily: 'inherit', fontSize: 12.5, lineHeight: 1.55, outline: 'none' },
-  segChanged: { borderColor: 'var(--vv-ok-20)' },
+  segChanged: { borderColor: 'var(--vv-ok-45)' },
   segChangedLabel: { textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: color['--color-ok'] },
   diffRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], fontSize: 12, color: 'var(--vv-fg-note)' },
   diffNote: { flex: 1, minWidth: 0 },
@@ -146,7 +163,28 @@ export const sx = stylex.create({
   emptyQa: { marginInlineStart: -6, marginTop: space['--vv-s-8'] },
   emptyTitle: { fontSize: 17, fontWeight: 600 },
   emptyText: { fontSize: 13.5, lineHeight: 1.6, color: color['--color-fg-3'] },
-  dialogBody: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], padding: '0 var(--vv-s-18) var(--vv-s-4)' },
-  dialogMeta: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-2'] },
+  /* Artboard Review › trạng thái rỗng: CTA là nút ghost 36 px, không phải liên kết gạch chân. */
+  emptyCta: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: space['--vv-s-7'], height: space['--vv-s-36'], paddingInline: space['--vv-s-14'], borderRadius: corners['--vv-r-10'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: kit['--kit-wash-12'], backgroundColor: { default: 'transparent', ':hover': line['--line-2'] }, color: color['--color-fg'], fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textDecorationLine: 'none' },
+  dialogBody: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], padding: '18px var(--vv-s-18) var(--vv-s-4)' },
+  dialogHead: { display: 'flex', alignItems: 'flex-start', gap: space['--vv-s-12'] },
+  dialogHeadText: { flex: '1 1 auto', minWidth: 0, display: 'flex', flexDirection: 'column', gap: space['--vv-s-4'], lineHeight: 1.35 },
+  dialogTitle: { margin: 0, fontSize: 17, fontWeight: 600, lineHeight: 1.35 },
+  dialogClose: { margin: '-4px -6px 0 0', width: 30, height: 30, borderRadius: corners['--vv-r-8'] },
+  /* Artboard Review › Hộp xác nhận vẽ lại cả bộ: biểu tượng cảnh báo 42 px. */
+  dialogIcon: { width: 42, height: 42, flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: corners['--vv-r-12'], backgroundColor: 'var(--vv-st-review-bg)', color: 'var(--vv-st-review)' },
+  dialogSub: { fontSize: 13, color: color['--color-fg-3'], lineHeight: 1.5 },
+  dialogThumbs: { display: 'flex', gap: space['--vv-s-6'] },
+  dialogThumb: { position: 'relative', flex: 1, minWidth: 0, aspectRatio: '16 / 9', borderRadius: corners['--vv-r-6'], overflow: 'hidden', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: color['--color-surface-3'] },
+  dialogThumbImage: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  dialogQuota: { display: 'flex', alignItems: 'center', gap: space['--vv-s-10'], paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-12'], backgroundColor: 'var(--vv-st-review-bg)', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: 'var(--vv-st-review-border)', fontSize: 13, color: 'var(--vv-st-review)', lineHeight: 1.5 },
+  dialogStyle: { display: 'flex', alignItems: 'flex-start', gap: space['--vv-s-10'], paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-1'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], fontSize: 13, color: color['--color-fg-2'], lineHeight: 1.5 },
+  dialogStyleIcon: { marginTop: space['--vv-s-2'], color: color['--color-link'] },
+  dialogStyleText: { flex: '1 1 auto', minWidth: 0 },
+  dialogInfo: { margin: 0, fontSize: 13, color: color['--color-fg-3'], lineHeight: 1.55 },
+  dialogFieldLabel: { fontSize: 13, color: color['--color-fg-2'], lineHeight: 1.5 },
+  dialogStrong: { fontWeight: 600, color: color['--color-fg'] },
+  dialogLink: { color: color['--color-link'], fontSize: 12.5, textDecorationLine: { default: 'none', ':hover': 'underline' }, whiteSpace: 'nowrap' },
+  dialogOptional: { color: 'var(--vv-fg-note)', fontWeight: 400 },
+  dialogEsc: { flex: 1, display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], color: color['--color-fg-3'], fontSize: 12 },
   hiddenLabel: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' },
 })

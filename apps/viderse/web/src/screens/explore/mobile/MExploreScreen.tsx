@@ -32,6 +32,7 @@ import { WITHIN, type StatusFilter } from '../FilterBar'
 import { bulkEnqueueOutcome } from '../bulk'
 import { addRivalError, type AddError } from '../AddRivalForm'
 import { fmtDuration, fmtScore, fmtSubs, videoMeta } from '../fmt'
+import { copyText } from '../media'
 import { hideBrokenImage } from '../VideoGrid'
 import { stageColor, stageLabel, usageHref } from '../status'
 import { scopeOf, type Scope } from '../scope'
@@ -274,12 +275,9 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     navigate(paths.explore({ rival: handleOf(scope, rivals), video: video.id }))
   }, [scope, rivals])
   const copy = useCallback(async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url)
-      toast.ok(tt.copied)
-    } catch {
-      toast.err(tt.copyFailed)
-    }
+    const ok = await copyText(url)
+    if (ok) toast.ok(tt.copied)
+    else toast.err(tt.copyFailed)
   }, [tt.copied, tt.copyFailed])
 
   const countLine = listState === 'firstScan' && scanning

@@ -116,7 +116,7 @@ export const aiCopy = {
       `Đã kết nối ${label} và lấy được ${models} model. Chọn ít nhất một model để các trợ lý dùng được. Viderse lọc sẵn model hợp làm video ở mục Gợi ý.`,
     failedTitle: 'Không lấy được danh sách model.',
     failedText: (label: string) =>
-      `${label} từ chối khoá API này (401). Kiểm tra lại khoá, hoặc thêm model theo tên nếu bạn biết chắc tên model.`,
+      `${label} từ chối khoá API này. Kiểm tra lại khoá, hoặc thêm model theo tên nếu bạn biết chắc tên model.`,
     retry: 'Thử lại',
     addManualShort: 'Thêm theo tên',
 

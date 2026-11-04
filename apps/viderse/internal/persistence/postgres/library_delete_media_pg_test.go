@@ -10,6 +10,7 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
@@ -79,10 +80,17 @@ func (f mediaDeleteFixture) seedCoverTrial(t *testing.T, templateID, path string
 
 func (f mediaDeleteFixture) seedPromptSample(t *testing.T, promptID, path string) {
 	t.Helper()
-	if _, err := f.pool.Exec(context.Background(), `INSERT INTO image_prompt_samples
-		(id, prompt_id, prompt_kind, video_id, state, media_path)
-		VALUES (gen_random_uuid(), $1, 'scene', gen_random_uuid(), 'ready', $2)`,
-		promptID, path); err != nil {
+	ctx := context.Background()
+	var sampleID, videoID string
+	if err := f.pool.QueryRow(ctx, `SELECT gen_random_uuid()::text, gen_random_uuid()::text`).Scan(&sampleID, &videoID); err != nil {
+		t.Fatal(err)
+	}
+	at := time.Date(2026, 1, 1, 10, 0, 0, 0, time.UTC)
+	if err := f.trials.InsertPromptSample(ctx, library.PromptSample{
+		ID: sampleID, PromptID: promptID, PromptName: "Ảnh mẫu", PromptKind: "scene",
+		VideoID: videoID, VideoTitle: "Video mẫu", State: library.TrialReady, MediaPath: path,
+		Width: 1920, Height: 1080, CreatedAt: at, FinishedAt: &at,
+	}); err != nil {
 		t.Fatalf("image_prompt_samples: %v", err)
 	}
 }

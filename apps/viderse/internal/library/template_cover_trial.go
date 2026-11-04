@@ -184,9 +184,10 @@ type TrialFiles interface {
 	// chặn xoá: chưa biết phải nhả gì thì xoá sẽ bỏ lại blob đã bind mà không
 	// còn hàng nào để thử lại.
 	PathsForTemplate(ctx context.Context, templateID string) ([]string, error)
-	// UnbindFiles nhả paths rồi chạy commit trong cùng transaction. commit
-	// phải chạy đúng một lần kể cả khi paths rỗng; có paths mà thiếu media thì
-	// trả lỗi thay vì xoá hàng cha.
+	// UnbindFiles nhả paths và chạy commit trong cùng transaction (commit xoá
+	// hàng sở hữu path nên chạy trước vòng nhả binding). commit phải chạy đúng
+	// một lần kể cả khi paths rỗng; có paths mà thiếu media thì trả lỗi thay vì
+	// xoá hàng cha.
 	UnbindFiles(ctx context.Context, paths []string, commit func(context.Context) error) error
 	// DropPromptSamples xoá hàng ảnh mẫu của prompt, nhả media_path của chúng
 	// rồi chạy commit trong cùng transaction. promptID còn nguyên khi lỗi.

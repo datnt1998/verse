@@ -34,10 +34,10 @@ func (m performanceMarker) MarkPosted(ctx context.Context, id string, posted boo
 }
 
 func mountPerformance(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, cfgDir string, jobs *pipeline.Service, store *postgres.CloneStore, metadata *clonemetadata.Service, publish func(string, any)) (*performance.Service, func()) {
-	keys := &performance.KeyStore{Settings: settings, Box: secretbox.New(cfgDir), Data: &performance.DataAPIReader{}}
+	keys := &performance.KeyStore{Settings: settings, Box: secretbox.New(cfgDir)}
 	reader := performance.AutoReader{
 		Key:    keys.Key,
-		Data:   keys.Data,
+		Data:   &performance.DataAPIReader{},
 		Public: performance.PublicPageReader{Client: youtube.NewClient(youtube.Options{Pacer: sharedYouTubePacer})},
 	}
 	svc := &performance.Service{
@@ -56,7 +56,7 @@ func mountPerformance(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, s
 		Configured: reader.Configured,
 		Publish:    publish,
 	}
-	web.MountPerformance(g, svc, keys)
+	web.MountPerformance(g, svc)
 	runCtx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	wg.Add(1)

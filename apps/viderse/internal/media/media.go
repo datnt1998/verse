@@ -429,21 +429,28 @@ func (s *Service) Protect(ctx context.Context, ref Ref, until time.Time) error {
 }
 
 // Unbind gỡ các logical path khỏi manifest trong một publication transaction
-// (cùng fence với Bind/GC), rồi chạy commit bên trong tx đó — caller xoá hàng
-// domain (clone_artifacts…) trong commit để gỡ ref và gỡ binding là một bước.
-// Idempotent: path vắng mặt không lỗi.
+// (cùng fence với Bind/GC). Commit chạy trước vòng gỡ binding vì nó xoá hàng
+// domain sở hữu path (clone_artifacts, editor head…): binding còn bị FK RESTRICT
+// giữ cho tới khi chủ của nó biến mất. Path vẫn còn chủ sống (head editor của
+// project khác, artifact/cutout của job khác) thì repository giữ binding lại —
+// đường nhả canonical của chủ cuối mới xoá nó. Lỗi ở commit để nguyên binding;
+// lỗi khi gỡ binding rollback luôn commit. Idempotent: path vắng mặt không lỗi.
 func (s *Service) Unbind(ctx context.Context, paths []string, commit func(context.Context) error) error {
 	return s.repo.Publication(ctx, func(txctx context.Context, state State) error {
 		for _, path := range paths {
 			if err := ValidatePath(path); err != nil {
 				return err
 			}
-			if err := s.repo.Unbind(txctx, state.Active, path); err != nil {
+		}
+		if commit != nil {
+			if err := commit(txctx); err != nil {
 				return err
 			}
 		}
-		if commit != nil {
-			return commit(txctx)
+		for _, path := range paths {
+			if err := s.repo.Unbind(txctx, state.Active, path); err != nil {
+				return err
+			}
 		}
 		return nil
 	})

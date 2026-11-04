@@ -199,7 +199,7 @@ export class HttpEditorStorage implements EditorStorage {
   }
   mediaUrl(id: string, contentHash: string): string { return `${this.baseUrl}/media/${component(id)}?v=${component(contentHash)}` }
   async deleteMedia(id: string): Promise<void> { await this.response(`/media/${component(id)}`, { method: 'DELETE' }) }
-  async linkMedia(projectId: string, mediaId: string): Promise<void> { await this.response(`/projects/${component(projectId)}/media/${component(mediaId)}`, { method: 'PUT' }) }
+  async linkMedia(projectId: string, mediaId: string): Promise<void> { await this.response(`/projects/${component(projectId)}/media/${component(mediaId)}`, this.jsonWrite('PUT', {})) }
   async unlinkMedia(projectId: string, mediaId: string): Promise<void> { await this.response(`/projects/${component(projectId)}/media/${component(mediaId)}`, { method: 'DELETE' }) }
   async listOverlayLibrary(): Promise<ServerMediaRecord[]> { return (await this.json<{ media: ServerMediaRecord[] }>('/overlays')).media }
   async removeFromOverlayLibrary(mediaId: string): Promise<ServerMediaRecord[]> { return (await this.json<{ media: ServerMediaRecord[] }>(`/overlays/${component(mediaId)}`, { method: 'DELETE' })).media }

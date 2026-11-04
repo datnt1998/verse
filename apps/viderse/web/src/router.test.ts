@@ -25,6 +25,16 @@ describe('parseHash', () => {
     expect(parseHash('#/review?channel=a&video=v').route).toEqual({ name: 'review', channel: 'a', video: 'v' })
     expect(routePath({ name: 'review', channel: 'a', video: 'v' })).toBe('/review?channel=a&video=v')
   })
+  it.each(['/', '/review'])('keeps a stable image address through canonicalization on %s', (path) => {
+    const hash = `#${path}?channel=k&video=v&img=${encodeURIComponent('cảnh %/3')}&ignored=old`
+    const parsed = parseHash(hash).route
+    expect(parsed).toMatchObject({ video: 'v', img: 'cảnh %/3' })
+    expect(routePath(parsed)).toBe(`${path}?channel=k&video=v&img=${encodeURIComponent('cảnh %/3').replace(/%20/g, '+')}`)
+    expect(parseHash(`#${routePath(parsed)}`).route).toEqual(parsed)
+  })
+  it.each(['/', '/review'])('drops an image without its owning video on %s', (path) => {
+    expect(routePath(parseHash(`#${path}?img=scene-3`).route)).toBe(path)
+  })
   it('#/queue', () => {
     expect(parseHash('#/queue').route).toEqual({ name: 'queue' })
   })

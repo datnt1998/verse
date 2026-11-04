@@ -43,18 +43,23 @@ export function imageTime(image: { startSec?: number; endSec?: number }): string
 export type JobStage = 'images' | 'review' | 'render' | 'issue' | 'quality' | 'done' | 'paused' | 'queued'
 
 /**
- * Suy trạng thái hiển thị từ dữ liệu thật của job. `attention` chỉ là Độ hoàn thiện
- * khi Kiểm định đang dừng ở bước score; còn lại là sự cố. `working` chỉ là màn
- * dựng/xuất khi bước hiện tại là build/export.
+ * Suy trạng thái hiển thị từ dữ liệu thật của job. Lỗi quality_gate của bước
+ * score hoặc export còn nằm trong steps sau khi worker đã xoá activeStep; lỗi công cụ hay
+ * nguồn AI ở cùng bước vẫn là sự cố, không phải quyền bỏ qua kiểm định.
  */
-export function jobStage(job: { stageGroup: string; activeStep: string | null }): JobStage {
+export function jobStage(job: { stageGroup: string; activeStep: string | null; steps?: Pick<JobStep, 'step' | 'status' | 'error'>[] | null }): JobStage {
   switch (job.stageGroup) {
     case 'paused': return 'paused'
     case 'review': return 'review'
     case 'ready':
     case 'posted': return 'done'
     case 'queued': return 'queued'
-    case 'attention': return job.activeStep === 'score' ? 'quality' : 'issue'
+    case 'attention': {
+      const blocked = job.steps?.find(step => (step.status === 'failed' || step.status === 'waiting') && step.error)
+      return blocked
+        ? (blocked.step === 'score' || blocked.step === 'export') && blocked.error?.code === 'quality_gate' ? 'quality' : 'issue'
+        : job.activeStep === 'score' ? 'quality' : 'issue'
+    }
     case 'working': return job.activeStep === 'build' || job.activeStep === 'export' ? 'render' : 'images'
     default: return 'images'
   }

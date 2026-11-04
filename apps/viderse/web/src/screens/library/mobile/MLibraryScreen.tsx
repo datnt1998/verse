@@ -135,6 +135,15 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     }
   }
 
+  const exportTemplate = async (template: TemplateSummary) => {
+    try {
+      await downloadTemplate(template.id)
+      toast(t.library.templates.exported, 'ok')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : t.library.templates.exportFail, 'err')
+    }
+  }
+
   const remove = async (template: TemplateSummary) => {
     try {
       await removeTemplate(template.id)
@@ -205,7 +214,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         },
     {
       key: 'export', icon: 'export', label: copy.exportFile,
-      onSelect: () => downloadTemplate(active.id),
+      onSelect: () => void exportTemplate(active),
     },
     {
       key: 'delete', icon: 'trash', label: copy.deleteTemplate,

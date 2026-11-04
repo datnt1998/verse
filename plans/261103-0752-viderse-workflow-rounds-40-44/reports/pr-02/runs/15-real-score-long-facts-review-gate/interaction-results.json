@@ -1,0 +1,611 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "tests/viderse-workflow/playwright.config.ts",
+      "tests/viderse-workflow/viewer-audit.pw.ts",
+      "--grep",
+      "real score explanation",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced",
+      "--workers=1",
+      "--no-deps"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real score explanation keeps long labels and values in separate columns",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4741,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T19:30:04.404Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "score-layout.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJsYWJlbCI6ICJLaOG7m3AgbOG7nWkga+G7gyIsCiAgICAidmFsdWUiOiAiNDUiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiTOG7l2kgaMOsbmgiLAogICAgInZhbHVlIjogIjkzIiwKICAgICJsYWJlbFJpZ2h0IjogMTI1NS41LAogICAgInZhbHVlTGVmdCI6IDEyNjUuNSwKICAgICJ2YWx1ZVJpZ2h0IjogMTQwOSwKICAgICJyb3dSaWdodCI6IDE0MDksCiAgICAidmFsdWVTY3JvbGwiOiAxNDQsCiAgICAidmFsdWVXaWR0aCI6IDE0NAogIH0sCiAgewogICAgImxhYmVsIjogIk5o4bqldCBxdcOhbiBuaMOibiB24bqtdCIsCiAgICAidmFsdWUiOiAiMTAiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiVHLDuW5nIOG6o25oIGtow6FjIiwKICAgICJ2YWx1ZSI6ICIxMDAiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiSMOgbmggxJHhu5luZyIsCiAgICAidmFsdWUiOiAiTmfGsOG7nWkgxJHDoG4gw7RuZyBixrDhu5tjIMSRaSwgxJHhuqd1IG5nb8OhaSBzYW5nIGLDqm4gduG7m2kgduG6uyBj4bqjbmggZ2nDoWMuIiwKICAgICJsYWJlbFJpZ2h0IjogMTI1NS41LAogICAgInZhbHVlTGVmdCI6IDEyNjUuNSwKICAgICJ2YWx1ZVJpZ2h0IjogMTQwOSwKICAgICJyb3dSaWdodCI6IDE0MDksCiAgICAidmFsdWVTY3JvbGwiOiAxNDQsCiAgICAidmFsdWVXaWR0aCI6IDE0NAogIH0sCiAgewogICAgImxhYmVsIjogIkLhu5FpIGPhuqNuaCIsCiAgICAidmFsdWUiOiAiTuG7gW4geMOhbSBraeG7g3Ugc3R1ZGlvLCBraMO0bmcgY8OzIGPhu61hIGhheSBj4bqldSB0csO6YyBow6BuaCBsYW5nLiIsCiAgICAibGFiZWxSaWdodCI6IDEyNTUuNSwKICAgICJ2YWx1ZUxlZnQiOiAxMjY1LjUsCiAgICAidmFsdWVSaWdodCI6IDE0MDksCiAgICAicm93UmlnaHQiOiAxNDA5LAogICAgInZhbHVlU2Nyb2xsIjogMTQ0LAogICAgInZhbHVlV2lkdGgiOiAxNDQKICB9LAogIHsKICAgICJsYWJlbCI6ICJDaOG6pXQgbMaw4bujbmcgaMOsbmggdGjhu4MiLAogICAgInZhbHVlIjogIk3hurd0IHbDoCB0YXkgcsO1LCB0b8OgbiB0aMOibiBu4bqxbSB0cm9uZyBraHVuZyBow6xuaC4iLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAi4bqibmggdGhhbSBjaGnhur91IiwKICAgICJ2YWx1ZSI6ICJLaHVuZyBow6xuaCBuZ3Xhu5NuIGNo4buJIGPDsyBi4bqjbmcgbcOgdSBraeG7g20gdHJhLCBraMO0bmcgY8OzIG5ow6JuIHbhuq10LiIsCiAgICAibGFiZWxSaWdodCI6IDEyNTUuNSwKICAgICJ2YWx1ZUxlZnQiOiAxMjY1LjUsCiAgICAidmFsdWVSaWdodCI6IDE0MDksCiAgICAicm93UmlnaHQiOiAxNDA5LAogICAgInZhbHVlU2Nyb2xsIjogMTQ0LAogICAgInZhbHVlV2lkdGgiOiAxNDQKICB9Cl0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser/viewer-audit.pw.ts-real-sc-705ec--values-in-separate-columns-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-307d3970483ad53b789a",
+          "file": "viewer-audit.pw.ts",
+          "line": 362,
+          "column": 5
+        },
+        {
+          "title": "real score explanation keeps long labels and values in separate columns",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3939,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T19:30:16.381Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "score-layout.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJsYWJlbCI6ICJLaOG7m3AgbOG7nWkga+G7gyIsCiAgICAidmFsdWUiOiAiNDUiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiTOG7l2kgaMOsbmgiLAogICAgInZhbHVlIjogIjkzIiwKICAgICJsYWJlbFJpZ2h0IjogMTI1NS41LAogICAgInZhbHVlTGVmdCI6IDEyNjUuNSwKICAgICJ2YWx1ZVJpZ2h0IjogMTQwOSwKICAgICJyb3dSaWdodCI6IDE0MDksCiAgICAidmFsdWVTY3JvbGwiOiAxNDQsCiAgICAidmFsdWVXaWR0aCI6IDE0NAogIH0sCiAgewogICAgImxhYmVsIjogIk5o4bqldCBxdcOhbiBuaMOibiB24bqtdCIsCiAgICAidmFsdWUiOiAiMTAiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiVHLDuW5nIOG6o25oIGtow6FjIiwKICAgICJ2YWx1ZSI6ICIxMDAiLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAiSMOgbmggxJHhu5luZyIsCiAgICAidmFsdWUiOiAiTmfGsOG7nWkgxJHDoG4gw7RuZyBixrDhu5tjIMSRaSwgxJHhuqd1IG5nb8OhaSBzYW5nIGLDqm4gduG7m2kgduG6uyBj4bqjbmggZ2nDoWMuIiwKICAgICJsYWJlbFJpZ2h0IjogMTI1NS41LAogICAgInZhbHVlTGVmdCI6IDEyNjUuNSwKICAgICJ2YWx1ZVJpZ2h0IjogMTQwOSwKICAgICJyb3dSaWdodCI6IDE0MDksCiAgICAidmFsdWVTY3JvbGwiOiAxNDQsCiAgICAidmFsdWVXaWR0aCI6IDE0NAogIH0sCiAgewogICAgImxhYmVsIjogIkLhu5FpIGPhuqNuaCIsCiAgICAidmFsdWUiOiAiTuG7gW4geMOhbSBraeG7g3Ugc3R1ZGlvLCBraMO0bmcgY8OzIGPhu61hIGhheSBj4bqldSB0csO6YyBow6BuaCBsYW5nLiIsCiAgICAibGFiZWxSaWdodCI6IDEyNTUuNSwKICAgICJ2YWx1ZUxlZnQiOiAxMjY1LjUsCiAgICAidmFsdWVSaWdodCI6IDE0MDksCiAgICAicm93UmlnaHQiOiAxNDA5LAogICAgInZhbHVlU2Nyb2xsIjogMTQ0LAogICAgInZhbHVlV2lkdGgiOiAxNDQKICB9LAogIHsKICAgICJsYWJlbCI6ICJDaOG6pXQgbMaw4bujbmcgaMOsbmggdGjhu4MiLAogICAgInZhbHVlIjogIk3hurd0IHbDoCB0YXkgcsO1LCB0b8OgbiB0aMOibiBu4bqxbSB0cm9uZyBraHVuZyBow6xuaC4iLAogICAgImxhYmVsUmlnaHQiOiAxMjU1LjUsCiAgICAidmFsdWVMZWZ0IjogMTI2NS41LAogICAgInZhbHVlUmlnaHQiOiAxNDA5LAogICAgInJvd1JpZ2h0IjogMTQwOSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE0NCwKICAgICJ2YWx1ZVdpZHRoIjogMTQ0CiAgfSwKICB7CiAgICAibGFiZWwiOiAi4bqibmggdGhhbSBjaGnhur91IiwKICAgICJ2YWx1ZSI6ICJLaHVuZyBow6xuaCBuZ3Xhu5NuIGNo4buJIGPDsyBi4bqjbmcgbcOgdSBraeG7g20gdHJhLCBraMO0bmcgY8OzIG5ow6JuIHbhuq10LiIsCiAgICAibGFiZWxSaWdodCI6IDEyNTUuNSwKICAgICJ2YWx1ZUxlZnQiOiAxMjY1LjUsCiAgICAidmFsdWVSaWdodCI6IDE0MDksCiAgICAicm93UmlnaHQiOiAxNDA5LAogICAgInZhbHVlU2Nyb2xsIjogMTQ0LAogICAgInZhbHVlV2lkdGgiOiAxNDQKICB9Cl0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser/viewer-audit.pw.ts-real-sc-705ec--values-in-separate-columns-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-817218af465ec66fd6be",
+          "file": "viewer-audit.pw.ts",
+          "line": 362,
+          "column": 5
+        },
+        {
+          "title": "real score explanation keeps long labels and values in separate columns",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T19:30:22.919Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "score-layout.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJsYWJlbCI6ICJLaOG7m3AgbOG7nWkga+G7gyIsCiAgICAidmFsdWUiOiAiNDUiLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIkzhu5dpIGjDrG5oIiwKICAgICJ2YWx1ZSI6ICI5MyIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiTmjhuqV0IHF1w6FuIG5ow6JuIHbhuq10IiwKICAgICJ2YWx1ZSI6ICIxMCIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiVHLDuW5nIOG6o25oIGtow6FjIiwKICAgICJ2YWx1ZSI6ICIxMDAiLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIkjDoG5oIMSR4buZbmciLAogICAgInZhbHVlIjogIk5nxrDhu51pIMSRw6BuIMO0bmcgYsaw4bubYyDEkWksIMSR4bqndSBuZ2/DoWkgc2FuZyBiw6puIHbhu5tpIHbhursgY+G6o25oIGdpw6FjLiIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiQuG7kWkgY+G6o25oIiwKICAgICJ2YWx1ZSI6ICJO4buBbiB4w6FtIGtp4buDdSBzdHVkaW8sIGtow7RuZyBjw7MgY+G7rWEgaGF5IGPhuqV1IHRyw7pjIGjDoG5oIGxhbmcuIiwKICAgICJsYWJlbFJpZ2h0IjogMTkwLAogICAgInZhbHVlTGVmdCI6IDIwMCwKICAgICJ2YWx1ZVJpZ2h0IjogMzU5LAogICAgInJvd1JpZ2h0IjogMzU5LAogICAgInZhbHVlU2Nyb2xsIjogMTU5LAogICAgInZhbHVlV2lkdGgiOiAxNTkKICB9LAogIHsKICAgICJsYWJlbCI6ICJDaOG6pXQgbMaw4bujbmcgaMOsbmggdGjhu4MiLAogICAgInZhbHVlIjogIk3hurd0IHbDoCB0YXkgcsO1LCB0b8OgbiB0aMOibiBu4bqxbSB0cm9uZyBraHVuZyBow6xuaC4iLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIuG6om5oIHRoYW0gY2hp4bq/dSIsCiAgICAidmFsdWUiOiAiS2h1bmcgaMOsbmggbmd14buTbiBjaOG7iSBjw7MgYuG6o25nIG3DoHUga2nhu4NtIHRyYSwga2jDtG5nIGPDsyBuaMOibiB24bqtdC4iLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0KXQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser/viewer-audit.pw.ts-real-sc-705ec--values-in-separate-columns-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-4b2847fb8f94d5a3430e",
+          "file": "viewer-audit.pw.ts",
+          "line": 362,
+          "column": 5
+        },
+        {
+          "title": "real score explanation keeps long labels and values in separate columns",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T19:30:28.238Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "score-layout.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJsYWJlbCI6ICJLaOG7m3AgbOG7nWkga+G7gyIsCiAgICAidmFsdWUiOiAiNDUiLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIkzhu5dpIGjDrG5oIiwKICAgICJ2YWx1ZSI6ICI5MyIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiTmjhuqV0IHF1w6FuIG5ow6JuIHbhuq10IiwKICAgICJ2YWx1ZSI6ICIxMCIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiVHLDuW5nIOG6o25oIGtow6FjIiwKICAgICJ2YWx1ZSI6ICIxMDAiLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIkjDoG5oIMSR4buZbmciLAogICAgInZhbHVlIjogIk5nxrDhu51pIMSRw6BuIMO0bmcgYsaw4bubYyDEkWksIMSR4bqndSBuZ2/DoWkgc2FuZyBiw6puIHbhu5tpIHbhursgY+G6o25oIGdpw6FjLiIsCiAgICAibGFiZWxSaWdodCI6IDE5MCwKICAgICJ2YWx1ZUxlZnQiOiAyMDAsCiAgICAidmFsdWVSaWdodCI6IDM1OSwKICAgICJyb3dSaWdodCI6IDM1OSwKICAgICJ2YWx1ZVNjcm9sbCI6IDE1OSwKICAgICJ2YWx1ZVdpZHRoIjogMTU5CiAgfSwKICB7CiAgICAibGFiZWwiOiAiQuG7kWkgY+G6o25oIiwKICAgICJ2YWx1ZSI6ICJO4buBbiB4w6FtIGtp4buDdSBzdHVkaW8sIGtow7RuZyBjw7MgY+G7rWEgaGF5IGPhuqV1IHRyw7pjIGjDoG5oIGxhbmcuIiwKICAgICJsYWJlbFJpZ2h0IjogMTkwLAogICAgInZhbHVlTGVmdCI6IDIwMCwKICAgICJ2YWx1ZVJpZ2h0IjogMzU5LAogICAgInJvd1JpZ2h0IjogMzU5LAogICAgInZhbHVlU2Nyb2xsIjogMTU5LAogICAgInZhbHVlV2lkdGgiOiAxNTkKICB9LAogIHsKICAgICJsYWJlbCI6ICJDaOG6pXQgbMaw4bujbmcgaMOsbmggdGjhu4MiLAogICAgInZhbHVlIjogIk3hurd0IHbDoCB0YXkgcsO1LCB0b8OgbiB0aMOibiBu4bqxbSB0cm9uZyBraHVuZyBow6xuaC4iLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0sCiAgewogICAgImxhYmVsIjogIuG6om5oIHRoYW0gY2hp4bq/dSIsCiAgICAidmFsdWUiOiAiS2h1bmcgaMOsbmggbmd14buTbiBjaOG7iSBjw7MgYuG6o25nIG3DoHUga2nhu4NtIHRyYSwga2jDtG5nIGPDsyBuaMOibiB24bqtdC4iLAogICAgImxhYmVsUmlnaHQiOiAxOTAsCiAgICAidmFsdWVMZWZ0IjogMjAwLAogICAgInZhbHVlUmlnaHQiOiAzNTksCiAgICAicm93UmlnaHQiOiAzNTksCiAgICAidmFsdWVTY3JvbGwiOiAxNTksCiAgICAidmFsdWVXaWR0aCI6IDE1OQogIH0KXQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/15-real-score-long-facts-review-gate/browser/viewer-audit.pw.ts-real-sc-705ec--values-in-separate-columns-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-c236ffca662b0991ab2e",
+          "file": "viewer-audit.pw.ts",
+          "line": 362,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T19:30:03.788Z",
+    "duration": 30494.378999999997,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -12,7 +12,7 @@ type Entry = { key: string; label: string; hint?: string; href?: string; onClick
 
 export function OverflowMenu({ job, onClose, onRefresh, onError, mobile }: { job: CloneJobView; onClose?: () => void; onRefresh: () => void; onError: (message: string) => void; mobile?: boolean }) {
   const project = editorProjectId(job)
-  const lockedReason = job.stageGroup === 'working' ? t.confirm.deleteVideo.locked : null
+  const lockedReason = job.stageGroup === 'working' || job.stageGroup === 'paused' ? t.confirm.deleteVideo.locked : null
   const report = (error: unknown) => onError(error instanceof Error ? error.message : 'Không thực hiện được')
   const restart = () => { onClose?.(); restartVideo(job, { onRefresh, onError: report }) }
   const remove = () => { onClose?.(); removeVideo(job, { onRefresh, onError: report }) }

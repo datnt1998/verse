@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { followAdmitted, groupJobs, imageTime, issueReason, readScope, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, groupJobs, imageTime, issueReason, jobStage, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
   it('đi theo job mới khi mục hàng chờ đang chọn được nhận', () => {
@@ -39,6 +39,30 @@ describe('Bàn dựng', () => {
     hash = '#/review'
     await Promise.resolve()
     expect(restore).not.toHaveBeenCalled()
+  })
+  it('giữ lựa chọn xuất ở cổng chất lượng sau khi worker đã nhả bước đang chạy', () => {
+    expect(jobStage({
+      stageGroup: 'attention', activeStep: null,
+      steps: [{ step: 'score', status: 'failed', error: { code: 'quality_gate', message: 'Video chưa đạt Độ hoàn thiện để xuất' } }],
+    })).toBe('quality')
+    expect(jobStage({
+      stageGroup: 'attention', activeStep: 'score',
+      steps: [{ step: 'score', status: 'waiting', error: { code: 'tool_missing', message: 'Cần Chrome for Testing' } }],
+    })).toBe('issue')
+    expect(jobStage({
+      stageGroup: 'attention', activeStep: null,
+      steps: [{ step: 'images', status: 'failed', error: { code: 'provider_auth', message: 'Hết phiên đăng nhập' } }],
+    })).toBe('issue')
+  })
+  it('giữ đường xử lý khi bước xuất kiểm tra lại cổng chất lượng, không bỏ qua lỗi bộ mã', () => {
+    expect(jobStage({
+      stageGroup: 'attention', activeStep: null,
+      steps: [{ step: 'export', status: 'failed', error: { code: 'quality_gate', message: 'Video chưa đạt mức hoàn thiện' } }],
+    })).toBe('quality')
+    expect(jobStage({
+      stageGroup: 'attention', activeStep: null,
+      steps: [{ step: 'export', status: 'failed', error: { code: 'export_failed', message: 'Bộ mã video bị gián đoạn' } }],
+    })).toBe('issue')
   })
 })
 

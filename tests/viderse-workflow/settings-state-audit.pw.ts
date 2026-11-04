@@ -1,0 +1,795 @@
+import { test, expect, type Page, type TestInfo, type Locator } from '@playwright/test'
+import { readFileSync, realpathSync } from 'node:fs'
+import { resolve, sep } from 'node:path'
+
+// Settings acceptance smoke for PR2. It boots the native Viderse app against the
+// isolated workflow.qa fixture and exercises only states that the real isolated
+// backend currently exposes:
+//   • frame sections connect/agents/tools/accounts at desktop + mobile,
+//   • the genuine provider list (including truthful logged-out subscriptions)
+//     and explicit absence of the retired YouTube Data API card,
+//   • every safe add-provider radio, field and disabled-submit state,
+//   • mobile sheet scrim/Esc and focus/scroll restoration,
+//   • model catalog filters/search/manual-cancel and models sheet when (and only
+//     when) a genuine provider exposes the control,
+//   • tools read-only rows/details; recheck POSTs only /api/tools/check.
+// It never POSTs/PATCHes/DELETEs providers, models, agents, tools install,
+// platform logins or paid endpoints. Unreachable artboard states are recorded as
+// explicit state gaps instead of being faked or silently skipped.
+
+const repo = resolve(__dirname, '../..')
+const cookiePath = process.env.WORKFLOW_QA_COOKIE_FILE
+const fixturePath = process.env.WORKFLOW_QA_FIXTURE
+if (!cookiePath || !fixturePath) throw new Error('Private workflow.qa cookies and fixture are required')
+if (realpathSync(cookiePath).startsWith(repo + sep)) throw new Error('Cookies must stay outside the repository')
+const fixture = JSON.parse(readFileSync(fixturePath, 'utf8')) as { username?: string }
+if (fixture.username !== 'workflow.qa') throw new Error('Only the isolated workflow.qa fixture is authorized')
+
+type Provider = {
+  id: string
+  kind: string
+  auth: 'subscription' | 'api_key' | 'local'
+  label: string
+  status: 'ready' | 'logged_out' | 'login_pending' | 'auth_failed' | 'unreachable'
+  baseUrl?: string
+  plan?: string
+  selected: string[]
+  catalogCount: number
+  quota?: { used: number; limit: number; period: 'day' | 'week'; resetAt: string }
+}
+type ModelPage = { models: { id: string; caps: string[]; recommended?: boolean }[]; total: number; nextCursor: string | null }
+type ToolRow = { id: string; state: string; version: string | null; provided?: boolean }
+type ToolsStatus = { tools: ToolRow[]; checkedAt: string; dataDir?: string }
+type Mutation = { method: string; path: string; search: string }
+type Observation = { project: string; viewport: string; control: string; expected: string; observed: string; verified: boolean }
+type Gap = { id: string; reason: string; needed: string }
+
+const observations = new WeakMap<Page, Observation[]>()
+const mutations = new WeakMap<Page, Mutation[]>()
+const runtimeFaults = new WeakMap<Page, string[]>()
+
+const ADD_KINDS = [
+  { kind: 'openai', label: 'OpenAI', auth: 'key' },
+  { kind: 'gemini', label: 'Gemini', auth: 'key' },
+  { kind: 'openrouter', label: 'OpenRouter', auth: 'key' },
+  { kind: 'deepseek', label: 'DeepSeek', auth: 'key' },
+  { kind: 'xai', label: 'xAI', auth: 'key' },
+  { kind: 'anthropic', label: 'Anthropic', auth: 'key' },
+  { kind: 'ollama', label: 'Ollama', auth: 'url' },
+  { kind: 'openai_compat', label: 'Tương thích OpenAI', auth: 'both' },
+] as const
+
+const SECTION_TITLE: Record<string, string> = {
+  tools: 'Công cụ trên máy',
+  connect: 'Kết nối AI',
+  agents: 'Trợ lý AI',
+  accounts: 'Tài khoản nền tảng',
+  storage: 'Lưu trữ',
+  logs: 'Báo lỗi',
+}
+
+function isMobile(testInfo: TestInfo): boolean {
+  return testInfo.project.name.startsWith('mobile')
+}
+function record(page: Page, testInfo: TestInfo, control: string, expected: string, observed: string, verified = true) {
+  observations.get(page)!.push({
+    project: testInfo.project.name,
+    viewport: `${page.viewportSize()!.width}×${page.viewportSize()!.height}`,
+    control,
+    expected,
+    observed,
+    verified,
+  })
+}
+async function attachGaps(page: Page, testInfo: TestInfo, gaps: Gap[]) {
+  if (gaps.length === 0) return
+  testInfo.annotations.push({ type: 'state-gap', description: gaps.map((gap) => `${gap.id}: ${gap.reason}`).join(' | ') })
+  await testInfo.attach('settings-state-gaps.json', { body: JSON.stringify(gaps, null, 2), contentType: 'application/json' })
+  record(page, testInfo, 'state-gaps', 'Every artboard tweak either exercised or explicitly reported', gaps.map((gap) => gap.id).join(', '), false)
+}
+function appMutations(page: Page): Mutation[] {
+  return mutations.get(page) ?? []
+}
+function assertNoMutations(page: Page) {
+  expect(appMutations(page)).toEqual([])
+}
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready
+    await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(done))))
+  })
+  await page.waitForFunction(() => document.getAnimations()
+    .filter((animation) => Number.isFinite(animation.effect?.getComputedTiming().endTime))
+    .every((animation) => animation.playState === 'finished' || animation.playState === 'idle'), undefined, { timeout: 10_000 })
+}
+async function capture(page: Page, testInfo: TestInfo, name: string) {
+  await settle(page)
+  const width = await page.evaluate(() => document.documentElement.scrollWidth)
+  expect(width).toBeLessThanOrEqual(page.viewportSize()!.width)
+  await page.screenshot({ path: testInfo.outputPath(`${name}.png`) })
+}
+async function withinViewport(page: Page, layer: Locator) {
+  await settle(page)
+  const box = await layer.boundingBox()
+  const viewport = page.viewportSize()!
+  expect(box).not.toBeNull()
+  expect(box!.x).toBeGreaterThanOrEqual(-1)
+  expect(box!.y).toBeGreaterThanOrEqual(-1)
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width + 1)
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height + 1)
+}
+async function boot(page: Page, path: string) {
+  await page.goto(path, { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => location.hash.startsWith('#/setup') || Boolean(document.querySelector('.vv-set__title, .vv-mset__title')), undefined, { timeout: 15_000 })
+  if (new URL(page.url()).hash.startsWith('#/setup')) {
+    // Existing native exit from first-run setup; no setup state is fabricated.
+    await page.getByRole('link', { name: 'Cài đặt nâng cao' }).click()
+    await page.goto(path, { waitUntil: 'domcontentloaded' })
+  }
+}
+async function expectTitle(page: Page, mobile: boolean, title: string) {
+  if (mobile) await expect(page.locator('.vv-mset__title')).toHaveText(title)
+  else await expect(page.locator('.vv-set__title')).toHaveText(title)
+}
+function waitApi(page: Page, predicate: (url: URL) => boolean, timeout = 30_000) {
+  return page.waitForResponse((response) => {
+    try {
+      return response.request().method() === 'GET' && predicate(new URL(response.url()))
+    } catch {
+      return false
+    }
+  }, { timeout })
+}
+async function getJson<T>(page: Page, path: string): Promise<T> {
+  const response = await page.request.get(path)
+  expect(response.status(), path).toBe(200)
+  return response.json() as Promise<T>
+}
+
+test.beforeEach(async ({ context, page }) => {
+  observations.set(page, [])
+  mutations.set(page, [])
+  const faults: string[] = []
+  runtimeFaults.set(page, faults)
+  page.on('pageerror', (error) => faults.push(error.message))
+  page.on('request', (request) => {
+    const method = request.method()
+    if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return
+    const url = new URL(request.url())
+    if (!url.pathname.startsWith('/api/')) return
+    mutations.get(page)!.push({ method, path: url.pathname, search: url.search })
+  })
+  await page.route('**/api/**', route => {
+    const request = route.request()
+    const pathname = new URL(request.url()).pathname
+    const readOnly = ['GET', 'HEAD', 'OPTIONS'].includes(request.method())
+    const toolsProbe = request.method() === 'POST' && pathname === '/api/tools/check'
+    return readOnly || toolsProbe ? route.continue() : route.abort('blockedbyclient')
+  })
+  await context.addCookies(JSON.parse(readFileSync(cookiePath, 'utf8')))
+  const identity = await context.request.get('/api/me')
+  expect(identity.status()).toBe(200)
+  const me = await identity.json() as { user?: { username?: string; role?: string } }
+  expect(me.user?.username).toBe('workflow.qa')
+  // Add-provider controls are functional only for the admin fixture; a member
+  // gets an inert section and this harness must fail with that prerequisite.
+  expect(me.user?.role, 'Settings write controls require the isolated admin fixture').toBe('admin')
+  page.on('dialog', (dialog) => { void dialog.dismiss() })
+})
+
+test.afterEach(async ({ page }, testInfo) => {
+  // Truthful evidence provenance only: no cookies, credentials or request
+  // headers. Missing env values stay null instead of being inferred.
+  await testInfo.attach('settings-evidence-metadata.json', {
+    body: JSON.stringify({
+      project: testInfo.project.name,
+      viewport: page.viewportSize(),
+      baseURL: testInfo.project.use.baseURL ?? process.env.WORKFLOW_APP_URL ?? null,
+      sourceRevision: process.env.WORKFLOW_SOURCE_REVISION ?? null,
+    }, null, 2),
+    contentType: 'application/json',
+  })
+  await testInfo.attach('settings-controls.json', { body: JSON.stringify(observations.get(page) ?? [], null, 2), contentType: 'application/json' })
+  await testInfo.attach('settings-mutations.json', { body: JSON.stringify(mutations.get(page) ?? [], null, 2), contentType: 'application/json' })
+  const faults = runtimeFaults.get(page) ?? []
+  await testInfo.attach('runtime-errors.json', { body: JSON.stringify(faults), contentType: 'application/json' })
+  expect(faults).toEqual([])
+})
+
+test('settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts', async ({ page }, testInfo) => {
+  const mobile = isMobile(testInfo)
+  const [providers, platforms, agents, tools] = await Promise.all([
+    getJson<Provider[]>(page, '/api/ai/providers'),
+    getJson<{ id: string; label: string; state: string; login: { saved: boolean; refreshError?: unknown }; usage: unknown }[]>(page, '/api/platforms'),
+    getJson<{ artist: { draw: { provider: string; model: string } } }>(page, '/api/ai/agents'),
+    getJson<ToolsStatus>(page, '/api/tools'),
+  ])
+  const expectSectionContent = async (section: string) => {
+    if (section === 'connect') await expect(page.locator('.conn-card')).toHaveCount(providers.length)
+    if (section === 'tools') await expect(page.locator('.vv-tools__row')).toHaveCount(tools.tools.length)
+    if (section === 'agents') await expect(page.getByText('Đạo diễn', { exact: true }).first()).toBeVisible()
+    if (section === 'accounts') for (const platform of platforms) await expect(page.getByRole('region', { name: platform.label })).toBeVisible()
+    if (section === 'storage') await expect(page.locator('.vv-sto__card').first()).toBeVisible()
+    if (section === 'logs') await expect(page.locator('.vv-logs__export')).toBeVisible()
+  }
+
+  await boot(page, '/#/settings?section=tools')
+  await expectTitle(page, mobile, 'Công cụ trên máy')
+  await expectSectionContent('tools')
+  await capture(page, testInfo, 'settings-frame-tools-entry')
+  record(page, testInfo, 'frame.tools', 'Native tools section opens with its desktop/mobile title', (await page.locator(mobile ? '.vv-mset__title' : '.vv-set__title').textContent()) ?? '')
+
+  if (mobile) {
+    await page.getByRole('button', { name: 'Quay lại' }).click()
+    await expect(page).toHaveURL(/#\/settings$/)
+    const list = page.locator('.vv-mset__list')
+    await expect(list).toBeVisible()
+    // Values in the mobile list come from the same live resources, not static copy.
+    const connectRow = list.locator('a[href="#/settings?section=connect"]')
+    await expect(connectRow).toContainText(`${providers.length} nhà cung cấp`)
+    const accountsRow = list.locator('a[href="#/settings?section=accounts"]')
+    await expect(accountsRow).toContainText(`${platforms.length} nền tảng`)
+    const artistProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)
+    const agentsRow = list.locator('a[href="#/settings?section=agents"]')
+    if (agents.artist.draw.provider) await expect(agentsRow).toContainText(`Vẽ bằng ${artistProvider?.label ?? agents.artist.draw.provider}`)
+    else await expect(agentsRow).toContainText('Chưa chọn nguồn vẽ')
+    const updateCount = tools.tools.filter((tool) => tool.state === 'update').length
+    const installingCount = tools.tools.filter((tool) => tool.state === 'installing').length
+    const toolsRow = list.locator('a[href="#/settings?section=tools"]')
+    if (installingCount > 0) await expect(toolsRow).toContainText(`Đang cài ${installingCount} công cụ`)
+    else if (updateCount > 0) await expect(toolsRow).toContainText(`${updateCount} bản cập nhật`)
+    else await expect(toolsRow).toContainText('Mọi công cụ đã cài')
+    // MSettings has no logs child screen row: "Báo lỗi" is the native export
+    // action (a download), so it is asserted but never activated.
+    await expect(list.getByText('Xuất log', { exact: true })).toBeVisible()
+    await capture(page, testInfo, 'settings-frame-mobile-list')
+    record(page, testInfo, 'frame.mobile-list', 'List values match live providers/platforms/agents/tools resources', `${providers.length} providers, ${platforms.length} platforms`)
+
+    for (const section of ['connect', 'agents', 'accounts', 'tools', 'storage'] as const) {
+      if (section !== 'connect') {
+        await page.getByRole('button', { name: 'Quay lại' }).click()
+        await expect(page).toHaveURL(/#\/settings$/)
+      }
+      const row = page.locator(`a[href="#/settings?section=${section}"]`)
+      await row.click()
+      await expect(page).toHaveURL(new RegExp(`section=${section}`))
+      await expectTitle(page, true, SECTION_TITLE[section])
+      await expectSectionContent(section)
+      await capture(page, testInfo, `settings-frame-${section}`)
+      record(page, testInfo, `frame.${section}`, `Mobile list row opens ${SECTION_TITLE[section]}`, (await page.locator('.vv-mset__title').textContent()) ?? '')
+    }
+    // The router still accepts the logs child screen; MSettings simply has no
+    // row for it. Exercise the deep link without pretending a missing row exists.
+    await boot(page, '/#/settings?section=logs')
+    await expectTitle(page, true, 'Báo lỗi')
+    await expect(page.locator('.vv-logs__export')).toBeVisible()
+    await capture(page, testInfo, 'settings-frame-logs-deeplink')
+    record(page, testInfo, 'frame.logs', 'Mobile logs deep link renders; list row is the native export action, not a section row', 'logs screen + export card visible')
+  } else {
+    const nav = page.locator('aside.vv-set__side')
+    await expect(nav).toBeVisible()
+    const navigation = await nav.locator('button').evaluateAll(buttons => buttons.map(button => {
+      const row = button.getBoundingClientRect()
+      const icon = button.querySelector('.vv-ic')!.getBoundingClientRect()
+      const label = button.querySelector('.vv-set__nav-label')!.getBoundingClientRect()
+      const count = button.querySelector('.vv-set__nav-num')!.getBoundingClientRect()
+      return { name: button.textContent?.trim(), height: row.height, iconX: icon.x, labelX: label.x, countRight: count.right }
+    }))
+    for (const edge of ['iconX', 'labelX', 'countRight'] as const) {
+      const positions = navigation.map(row => row[edge])
+      expect(Math.max(...positions) - Math.min(...positions), `${edge} must form one sidebar column`).toBeLessThanOrEqual(2)
+    }
+    for (const row of navigation) expect(Math.abs(row.height - 34), `${row.name} navigation row height`).toBeLessThanOrEqual(1)
+    const queueLink = nav.getByRole('link', { name: 'Luồng chạy · hàng chờ', exact: true })
+    await expect(queueLink).toHaveAttribute('href', '#/queue')
+    const queueGeometry = await queueLink.evaluate(link => {
+      const box = link.getBoundingClientRect()
+      const icon = link.firstElementChild!.getBoundingClientRect()
+      const label = link.children[1]?.getBoundingClientRect()
+      return { height: box.height, display: getComputedStyle(link).display, iconX: icon.x, labelX: label?.x }
+    })
+    expect(queueGeometry.display).toBe('flex')
+    expect(Math.abs(queueGeometry.height - 34)).toBeLessThanOrEqual(1)
+    expect(Math.abs(queueGeometry.iconX - navigation[0].iconX)).toBeLessThanOrEqual(2)
+    expect(Math.abs(queueGeometry.labelX! - navigation[0].labelX)).toBeLessThanOrEqual(2)
+    await testInfo.attach('settings-sidebar-geometry.json', { body: JSON.stringify({ navigation, queue: queueGeometry }), contentType: 'application/json' })
+    await page.keyboard.press('Tab')
+    const navigationButtons = nav.locator('button')
+    await navigationButtons.first().focus()
+    await expect(navigationButtons.first()).toBeFocused()
+    const focusRing = await navigationButtons.first().evaluate(button => ({
+      visible: button.matches(':focus-visible'),
+      style: getComputedStyle(button).outlineStyle,
+      width: parseFloat(getComputedStyle(button).outlineWidth),
+    }))
+    expect(focusRing.visible).toBe(true)
+    expect(focusRing.style).not.toBe('none')
+    expect(focusRing.width).toBeGreaterThan(0)
+    await capture(page, testInfo, 'settings-sidebar-keyboard-focus')
+    for (let index = 1; index < await navigationButtons.count(); index++) {
+      await page.keyboard.press('Tab')
+      await expect(navigationButtons.nth(index)).toBeFocused()
+    }
+    await page.keyboard.press('Tab')
+    await expect(queueLink).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#\/queue$/)
+    await page.goBack()
+    await expectTitle(page, false, 'Công cụ trên máy')
+    await expectSectionContent('tools')
+    await testInfo.attach('settings-sidebar-keyboard.json', { body: JSON.stringify({ focusRing, order: navigation.map(row => row.name), queueEnterAndBack: true }), contentType: 'application/json' })
+    for (const section of ['connect', 'agents', 'accounts', 'tools', 'storage', 'logs'] as const) {
+      const label = SECTION_TITLE[section]
+      await nav.getByRole('button', { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).click()
+      await expect(page).toHaveURL(new RegExp(`section=${section}`))
+      await expectTitle(page, false, label)
+      await expectSectionContent(section)
+      await capture(page, testInfo, `settings-frame-${section}`)
+      record(page, testInfo, `frame.${section}`, `Desktop nav opens ${label}`, (await page.locator('.vv-set__title').textContent()) ?? '')
+    }
+    await queueLink.click()
+    await expect(page).toHaveURL(/#\/queue$/)
+    await page.goBack()
+    await expect(page).toHaveURL(/section=logs/)
+  }
+
+  // Agents is read-only for this smoke: assert the live director/artist labels
+  // and selected model ids are rendered without opening a picker (pick = PUT).
+  if (mobile) {
+    await page.getByRole('button', { name: 'Quay lại' }).click()
+    await page.locator('a[href="#/settings?section=agents"]').click()
+    await expectTitle(page, true, 'Trợ lý AI')
+  } else {
+    await page.locator('aside.vv-set__side').getByRole('button', { name: /^Trợ lý AI/ }).click()
+    await expectTitle(page, false, 'Trợ lý AI')
+  }
+  await expect(page.getByText('Đạo diễn', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText(/^Hoạ sĩ/).first()).toBeVisible()
+  await expect(page.getByText('Trinh sát', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('Kiểm định', { exact: true }).first()).toBeVisible()
+  const drawProvider = providers.find((provider) => provider.id === agents.artist.draw.provider)
+  if (drawProvider?.quota) {
+    const quota = drawProvider.quota
+    const group = page.getByRole('radiogroup', { name: mobile ? 'Hoạ sĩ vẽ ảnh bằng' : 'Vẽ ảnh bằng' })
+    await expect(group).toContainText(`${quota.used}/${quota.limit}`)
+    await expect(group).toContainText(quota.period === 'week' ? 'tuần này' : 'hôm nay')
+    if (!mobile) {
+      const bar = group.locator('.agt-drawcard__bar').first()
+      const barBox = await bar.boundingBox()
+      const fillBox = await bar.locator('span').first().boundingBox()
+      expect(fillBox!.width).toBeLessThanOrEqual(barBox!.width + 1)
+    }
+    record(page, testInfo, 'agents.quota', 'Draw-source quota mirrors provider.quota without inventing a plan', `${quota.used}/${quota.limit} ${quota.period}`)
+  } else {
+    testInfo.annotations.push({ type: 'state-gap', description: 'agents.quota: draw provider has no provider.quota in genuine state; agents quota row is not renderable without a seeded/logged-in subscription' })
+  }
+  await capture(page, testInfo, 'settings-agents-readonly')
+  record(page, testInfo, 'agents.readonly', 'Agent roles render and navigation returns to the selected section without changing configuration', 'director/artist/scout/qa visible')
+
+  // Accounts is a read-only render of /api/platforms. Login buttons are present
+  // but deliberately not activated (QR start is a server POST).
+  if (mobile) {
+    await page.getByRole('button', { name: 'Quay lại' }).click()
+    await page.locator('a[href="#/settings?section=accounts"]').click()
+    await expectTitle(page, true, 'Tài khoản nền tảng')
+  } else {
+    await page.locator('aside.vv-set__side').getByRole('button', { name: /^Tài khoản nền tảng/ }).click()
+    await expectTitle(page, false, 'Tài khoản nền tảng')
+  }
+  for (const platform of platforms) {
+    const card = page.getByRole('region', { name: platform.label })
+    await expect(card).toBeVisible()
+    const expectedState = platform.state === 'paused'
+      ? 'Tạm chặn'
+      : platform.login.saved && platform.login.refreshError
+        ? mobile ? 'Hết hạn' : 'Cần đăng nhập lại'
+        : 'Sẵn sàng'
+    await expect(card).toContainText(expectedState)
+  }
+  await capture(page, testInfo, 'settings-frame-accounts-readonly')
+  record(page, testInfo, 'accounts.readonly', 'Platform cards render genuine status and login controls without activation', `${platforms.length} platform cards, states asserted`)
+  assertNoMutations(page)
+})
+
+test('connect: truthful provider cards, all safe add radios, scrim/Esc and conditional model catalog', async ({ page }, testInfo) => {
+  const mobile = isMobile(testInfo)
+  const providers = await getJson<Provider[]>(page, '/api/ai/providers')
+  const gaps: Gap[] = []
+  await boot(page, '/#/settings?section=connect')
+  await expectTitle(page, mobile, 'Kết nối AI')
+
+  if (providers.length === 0) {
+    await expect(page.getByText('Chưa có nhà cung cấp nào', { exact: false })).toBeVisible()
+  } else {
+    await expect(page.locator('.conn-card')).toHaveCount(providers.length)
+  }
+  record(page, testInfo, 'connect.list', 'Provider list matches GET /api/ai/providers', `${providers.length} genuine providers`)
+
+  // Round 44 retired the YouTube Data API credential card and its group on
+  // both Settings surfaces. Assert absence after the real provider list has
+  // rendered, rather than before the section has any content to inspect.
+  await expect(page.getByText('YouTube Data API', { exact: false })).toHaveCount(0)
+  await expect(page.getByText('Số liệu YouTube', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('region', { name: /YouTube Data API/ })).toHaveCount(0)
+  record(page, testInfo, 'connect.retired.yt-data-key', 'Retired YouTube Data API card and group are absent from the real Settings DOM', 'no YouTube Data API/Số liệu YouTube text and no matching region')
+
+  for (const provider of providers) {
+    const card = page.getByRole('region', { name: provider.label })
+    await expect(card).toBeVisible()
+    const sub = card.locator('.conn-id .conn-sub')
+    const planText = provider.plan ? provider.plan.charAt(0).toUpperCase() + provider.plan.slice(1) : ''
+    const expected = provider.status === 'logged_out'
+      ? 'Chưa đăng nhập'
+      : provider.status === 'login_pending'
+        ? mobile ? (planText ? `Gói ${planText}` : 'Đã đăng nhập') : 'Đang đăng nhập'
+        : provider.status === 'auth_failed'
+          ? provider.auth === 'api_key' ? 'chưa lấy được model' : 'Phiên đăng nhập đã hết hạn'
+          : provider.status === 'unreachable'
+            ? 'Không kết nối được'
+            : provider.auth === 'subscription'
+              ? mobile ? (planText ? `Gói ${planText}` : 'Đã đăng nhập') : 'Đã đăng nhập'
+              : provider.auth === 'api_key'
+                ? mobile ? 'Khoá' : 'Khoá API'
+                : (provider.baseUrl ?? '').replace(/^https?:\/\//, '').replace(/\/.*$/, '')
+    await expect(sub).toContainText(expected)
+    record(page, testInfo, `connect.card.${provider.id}`, `Truthful ${provider.status}/${provider.auth} subline`, (await sub.textContent()) ?? '')
+
+    if (provider.status === 'logged_out') {
+      const loginName = provider.kind === 'grok' ? 'Đăng nhập Grok' : 'Đăng nhập ChatGPT'
+      await expect(card.getByRole('button', { name: loginName })).toBeVisible()
+      // ProviderCard hides Model while logged out; asserting absence documents
+      // why conn=models/manual are unreachable without a fake login/add.
+      await expect(card.getByRole('button', { name: /^(Model · \d+|Chọn model)$/ })).toHaveCount(0)
+    }
+
+    if (provider.status === 'auth_failed' || provider.status === 'unreachable') {
+      const error = card.locator('.conn-err')
+      await expect(error).toBeVisible()
+      await expect(error).toContainText('Không lấy được danh sách model.')
+      await expect(error.getByRole('button', { name: 'Thử lại' })).toBeVisible()
+      await expect(error.getByRole('button', { name: 'Thêm theo tên' })).toBeVisible()
+      const secondaryLabel = provider.auth === 'api_key' ? 'Đổi khoá' : provider.auth === 'local' ? 'Đổi địa chỉ' : 'Đăng xuất'
+      await expect(error.getByRole('button', { name: secondaryLabel })).toBeVisible()
+      record(page, testInfo, `connect.failed.${provider.id}`, 'Orange failed card exposes retry/change/manual without activation', (await error.textContent()) ?? '')
+    }
+
+    if (provider.quota) {
+      const quota = card.locator(mobile ? '.conn-m__quota' : '.conn-quota')
+      await expect(quota).toBeVisible()
+      await expect(quota).toContainText(new RegExp(`Ảnh (hôm nay|tuần này) ${provider.quota.used}/${provider.quota.limit}`))
+      const bar = quota.locator(mobile ? '.conn-m__bar' : '.conn-bar')
+      const barBox = await bar.boundingBox()
+      const fillBox = await bar.locator('span').first().boundingBox()
+      expect(fillBox!.width).toBeLessThanOrEqual(barBox!.width + 1)
+      record(page, testInfo, `connect.quota.${provider.id}`, 'Quota line and bar are truthful and contained', (await quota.textContent()) ?? '')
+    }
+  }
+
+  if (!providers.some((provider) => provider.quota)) {
+    gaps.push({
+      id: 'conn.quota',
+      reason: 'No genuine provider carries quota (subscriptions are logged_out and quota is optional on the wire)',
+      needed: 'Seeded/logged-in subscription with provider.quota, or explicit approval for a login handshake',
+    })
+  }
+  if (!providers.some((provider) => provider.status === 'auth_failed' || provider.status === 'unreachable')) {
+    gaps.push({
+      id: 'conn.failed',
+      reason: 'No genuine provider is auth_failed/unreachable; the orange failed card is unreachable without creating a provider',
+      needed: 'Isolated seeded provider with status auth_failed or unreachable (POST add + bad credential is forbidden)',
+    })
+  }
+  gaps.push({
+    id: 'conn.added',
+    reason: 'conn=added is local state set only by a successful POST /api/ai/providers in this session; no seeded card can produce it and faking is forbidden',
+    needed: 'Explicit isolated new-provider record with proven cleanup, or accepted report-only status for this state',
+  })
+
+  // ----- Add panel / sheet: every radio and every safe local field state. -----
+  const addName = mobile ? 'Thêm nhà cung cấp' : /^Thêm nhà cung cấp —/
+  const opener = page.getByRole('button', { name: addName }).first()
+  const addPanel = mobile ? page.getByRole('dialog', { name: 'Thêm nhà cung cấp' }) : page.locator('.conn-add')
+  async function openAdd() {
+    await expect(addPanel).toHaveCount(0)
+    await opener.click()
+    await expect(addPanel).toHaveCount(1)
+    if (mobile) await withinViewport(page, page.locator('.m-sheet--md').last())
+  }
+  async function closeAdd() {
+    if (mobile) {
+      await page.locator('.m-overlay .m-scrim').last().click({ position: { x: 10, y: 10 } })
+      await expect(page.locator('.m-overlay')).toHaveCount(0)
+    } else {
+      await page.locator('.conn-add').getByRole('button', { name: 'Đóng' }).click()
+      await expect(page.locator('.conn-add')).toHaveCount(0)
+    }
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('')
+  }
+
+  await openAdd()
+  const group = page.getByRole('radiogroup', { name: 'Thêm nhà cung cấp' })
+  await expect(group.getByRole('radio')).toHaveCount(8)
+  record(page, testInfo, 'connect.add.group', 'Eight add-provider radio cards in native order', (await group.getByRole('radio').allTextContents()).map((text) => text.replace(/\s+/g, ' ').trim()).join(' | '))
+
+  for (const kind of ADD_KINDS) {
+    const tile = group.getByRole('radio', { name: new RegExp(`^${kind.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) })
+    await expect(tile).toBeVisible()
+    const tileText = (await tile.innerText()).replace(/\s+/g, ' ')
+    const taken = tileText.includes('Đã kết nối')
+    if (taken) {
+      const takenProvider = providers.find((provider) => provider.kind === kind.kind)
+      await tile.click()
+      await expect(addPanel).toHaveCount(0)
+      if (takenProvider?.auth === 'api_key') {
+        const target = page.getByRole('region', { name: takenProvider.label })
+        await expect(target.locator('.conn-edit')).toBeVisible()
+        await target.locator('.conn-edit').getByRole('button', { name: 'Huỷ' }).click()
+        await expect(target.locator('.conn-edit')).toHaveCount(0)
+      }
+      record(page, testInfo, `connect.add.${kind.kind}`, 'Existing kind reveals its card and never creates a duplicate', tileText)
+      await openAdd()
+      continue
+    }
+
+    await tile.click()
+    await expect(tile).toHaveAttribute('aria-checked', 'true')
+    await expect(group.locator('[role="radio"][aria-checked="true"]')).toHaveCount(1)
+    const keyField = page.getByLabel(`Khoá API ${kind.label}`, { exact: true })
+    const urlField = page.getByLabel(`Địa chỉ ${kind.label}`, { exact: true })
+    await expect(keyField).toHaveCount(kind.auth === 'url' ? 0 : 1)
+    await expect(urlField).toHaveCount(kind.auth === 'key' ? 0 : 1)
+    const submit = page.getByRole('button', { name: 'Kết nối và lấy model', exact: true })
+    await expect(submit).toBeDisabled()
+    if (kind.auth !== 'url') await keyField.fill('qa-not-submitted')
+    if (kind.auth !== 'key') await urlField.fill('http://127.0.0.1:11434/v1')
+    await expect(submit).toBeEnabled()
+    if (kind.auth !== 'url') await keyField.fill('')
+    if (kind.auth !== 'key') await urlField.fill('')
+    await expect(submit).toBeDisabled()
+    record(page, testInfo, `connect.add.${kind.kind}`, 'Radio selects, required fields appear, submit enables only with input and was never clicked', `${tileText} [${kind.auth}]`)
+
+    if (kind.kind === 'openai_compat') {
+      await capture(page, testInfo, 'settings-connect-add-both-fields')
+    }
+  }
+
+  // No add-provider field was submitted: no provider/model/agent mutation.
+  assertNoMutations(page)
+
+  if (mobile) {
+    // Sheet scrim, focus restoration and body scroll lock.
+    await page.locator('.m-overlay .m-scrim').last().click({ position: { x: 10, y: 10 } })
+    await expect(page.locator('.m-overlay')).toHaveCount(0)
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('')
+    await expect(opener).toBeFocused()
+    await openAdd()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.m-overlay')).toHaveCount(0)
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('')
+    await expect(opener).toBeFocused()
+    record(page, testInfo, 'connect.add.overlay', 'Scrim and Escape close the sheet, restore focus and body overflow', 'both dismissal paths passed')
+  } else {
+    await closeAdd()
+    record(page, testInfo, 'connect.add.overlay', 'Desktop inline panel closes via its native Đóng control', 'closed; no dialog layer exists on desktop')
+    assertNoMutations(page)
+  }
+
+  // ----- Model catalog: genuine control only. No route interception. -----
+  const directProvider = providers.find((provider) => !['logged_out', 'login_pending', 'auth_failed', 'unreachable'].includes(provider.status))
+  const failedProvider = providers.find((provider) => provider.status === 'auth_failed' || provider.status === 'unreachable')
+  const catalogProvider = directProvider ?? failedProvider
+  if (!catalogProvider) {
+    gaps.push({
+      id: 'conn.models',
+      reason: 'Every genuine provider is logged_out/login_pending, so ProviderCard exposes neither the Model control nor the failed-card manual entry (models and manual panels are unreachable)',
+      needed: 'Genuinely ready provider, or seeded auth_failed/unreachable provider, exposing GET models; no fake list/login',
+    })
+    gaps.push({
+      id: 'conn.manual',
+      reason: 'The manual “Thêm theo tên” panel lives inside ModelCatalog, which is gated by the same hidden Model/failed control',
+      needed: 'Same as conn.models; manual check/cancel must remain non-submitting',
+    })
+    await capture(page, testInfo, 'settings-connect-logged-out')
+    await attachGaps(page, testInfo, gaps)
+    assertNoMutations(page)
+    return
+  }
+
+  const card = page.getByRole('region', { name: catalogProvider.label })
+  const catalogOpener = directProvider
+    ? card.getByRole('button', { name: /^(Model · \d+|Chọn model)$/ })
+    : card.locator('.conn-err').getByRole('button', { name: 'Thêm theo tên' })
+  await expect(catalogOpener).toBeVisible()
+  record(page, testInfo, 'connect.models.entry', directProvider ? 'Direct Model control opens the genuine catalog' : 'Failed-card “Thêm theo tên” opens the genuine catalog without retry', directProvider ? 'header Model control' : 'failed error-box manual entry')
+
+  if (mobile) {
+    const modelsPath = `/api/ai/providers/${catalogProvider.id}/models`
+    const responsePromise = waitApi(page, (url) => url.pathname === modelsPath)
+    await catalogOpener.click()
+    const response = await responsePromise
+    const catalogOk = response.status() === 200
+    const pageData = catalogOk ? await response.json() as ModelPage : undefined
+    const dialog = page.getByRole('dialog', { name: `Model của ${catalogProvider.label}` })
+    await expect(dialog).toBeVisible()
+    await withinViewport(page, dialog)
+    if (!pageData) {
+      await expect(dialog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()
+      record(page, testInfo, 'connect.models.sheet', 'Genuine catalog API failure is shown truthfully in the sheet', `HTTP ${response.status()}`)
+    } else {
+      if (pageData.models.length > 0) {
+        await expect.poll(() => dialog.getByRole('checkbox').count()).toBeGreaterThan(0)
+      } else {
+        await expect(dialog.getByText('Không có model nào khớp.')).toBeVisible()
+      }
+      record(page, testInfo, 'connect.models.sheet', 'Genuine models sheet renders rows and obeys MSettings (no filter/search/manual)', `${pageData.models.length}/${pageData.total} models in first page`)
+    }
+    // MSettings intentionally has no filter/search/manual controls in the sheet.
+    await expect(dialog.locator('.conn-cat__tools')).toHaveCount(0)
+    await expect(dialog.getByRole('button', { name: 'Không thấy model? Thêm theo tên' })).toHaveCount(0)
+    await capture(page, testInfo, 'settings-connect-models-sheet')
+    await page.locator('.m-overlay .m-scrim').last().click({ position: { x: 10, y: 10 } })
+    await expect(page.locator('.m-overlay')).toHaveCount(0)
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('')
+    await catalogOpener.click()
+    await expect(page.getByRole('dialog', { name: `Model của ${catalogProvider.label}` })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.m-overlay')).toHaveCount(0)
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe('')
+    record(page, testInfo, 'connect.models.overlay', 'Models sheet scrim and Escape dismiss with focus/scroll restoration', 'both paths passed')
+    assertNoMutations(page)
+    await attachGaps(page, testInfo, gaps)
+    return
+  }
+
+  const modelsPath = `/api/ai/providers/${catalogProvider.id}/models`
+  const initialResponse = waitApi(page, (url) => url.pathname === modelsPath)
+  await catalogOpener.click()
+  const first = await initialResponse
+  const catalog = card
+  await expect(card.getByRole('list', { name: catalogProvider.label, exact: true })).toBeVisible()
+  const firstPage = first.status() === 200 ? await first.json() as ModelPage : undefined
+  if (!firstPage) {
+    await expect(catalog.getByText('Không tải được danh mục model của nhà cung cấp này.')).toBeVisible()
+    record(page, testInfo, 'connect.models.catalog', 'Genuine catalog API failure is shown truthfully', `HTTP ${first.status()}`)
+  } else {
+    const rows = catalog.locator('.conn-row')
+    if (firstPage.models.length > 0) await expect.poll(() => rows.count()).toBeGreaterThan(0)
+    else await expect(catalog.getByText('Không có model nào khớp.')).toBeVisible()
+    await capture(page, testInfo, 'settings-connect-models-catalog')
+    record(page, testInfo, 'connect.models.catalog', 'Inline catalog renders genuine first page', `${firstPage.models.length}/${firstPage.total} models`)
+
+    const filterGroup = catalog.getByRole('radiogroup', { name: 'Lọc model' })
+    const allRadio = filterGroup.getByRole('radio', { name: 'Tất cả' })
+    const recommendedRadio = filterGroup.getByRole('radio', { name: 'Gợi ý' })
+    const selectedCount = catalogProvider.selected.length
+    const selectedRadio = filterGroup.getByRole('radio', { name: `Đã chọn · ${selectedCount}` })
+    const rowIds = async () => (await catalog.locator('.conn-row .conn-row__id').allInnerTexts()).map((id) => id.trim()).sort()
+    // Page 0 always prepends draft models that the API page does not contain.
+    const allIds = [...new Set([...catalogProvider.selected, ...firstPage.models.map((model) => model.id)])].sort()
+    await expect(allRadio).toHaveAttribute('aria-checked', 'true')
+
+    // Read-only server data is the oracle; a native control may legitimately use
+    // its cached resource. Do not require or manufacture another browser GET.
+    const expectedRows = (data: ModelPage) => [...new Set([
+      ...catalogProvider.selected, ...data.models.map(model => model.id),
+    ])].sort()
+    const recommendedPage = await getJson<ModelPage>(page, `${modelsPath}?limit=200&filter=recommended`)
+    await recommendedRadio.click()
+    if (recommendedPage.models.length === 0 && (recommendedPage.total > 0 || catalogProvider.catalogCount > 0)) {
+      await expect(allRadio).toHaveAttribute('aria-checked', 'true')
+      await expect.poll(rowIds).toEqual(allIds)
+    } else {
+      await expect(recommendedRadio).toHaveAttribute('aria-checked', 'true')
+      await expect.poll(rowIds).toEqual(expectedRows(recommendedPage))
+    }
+
+    await selectedRadio.click()
+    await expect(selectedRadio).toHaveAttribute('aria-checked', 'true')
+    await expect.poll(rowIds).toEqual([...catalogProvider.selected].sort())
+    const marks = await rows.getByRole('checkbox').evaluateAll(nodes => nodes.map(node => node.getAttribute('aria-checked')))
+    expect(marks.every(mark => mark === 'true')).toBe(true)
+
+    await allRadio.click()
+    await expect(allRadio).toHaveAttribute('aria-checked', 'true')
+    await expect.poll(rowIds).toEqual(allIds)
+    record(page, testInfo, 'connect.models.filters', 'Recommended/Selected/All retarget the visible rows to genuine server data, including cache hits', `recommended ${recommendedPage.total}; selected ${selectedCount}; all ${allIds.length} visible`)
+
+    if (firstPage.models.length > 0) {
+      const search = catalog.getByRole('searchbox')
+      const query = firstPage.models[0].id
+      const searchPage = await getJson<ModelPage>(page, `${modelsPath}?limit=200&q=${encodeURIComponent(query)}`)
+      const searchedIds = expectedRows(searchPage)
+      if (allIds.length > catalogProvider.selected.length + 1) expect(searchedIds.length).toBeLessThan(allIds.length)
+      await search.fill(query)
+      await expect(search).toHaveValue(query)
+      await expect(allRadio).toHaveAttribute('aria-checked', 'true')
+      await expect.poll(rowIds).toEqual(searchedIds)
+      await expect(catalog.locator('.conn-cat__foot')).toContainText(`trong ${searchPage.total}`)
+      await capture(page, testInfo, 'settings-connect-models-search')
+      await search.fill('')
+      await expect(search).toHaveValue('')
+      await expect.poll(rowIds).toEqual(allIds)
+      record(page, testInfo, 'connect.models.search', 'Search narrows the list to genuine matches; clearing restores the unfiltered first page without a forced request', `${searchPage.total} matches; restored ${allIds.length} rows`)
+      await capture(page, testInfo, 'settings-connect-models-search-cleared')
+    } else {
+      gaps.push({ id: 'conn.models.search', reason: 'Genuine catalog first page is empty, so no model id exists to search', needed: 'Catalog with at least one model' })
+    }
+  }
+
+  const manualOpen = catalog.getByRole('button', { name: 'Không thấy model? Thêm theo tên' })
+  await manualOpen.click()
+  const manual = catalog.locator('.conn-manual')
+  await expect(manual).toBeVisible()
+  const manualName = manual.getByLabel('Tên model', { exact: true })
+  const manualCheck = manual.getByRole('button', { name: 'Kiểm tra & thêm', exact: true })
+  await expect(manualName).toHaveValue('')
+  await expect(manualCheck).toBeDisabled()
+  await manualName.fill('qa-manual-never-submitted')
+  await expect(manualName).toHaveValue('qa-manual-never-submitted')
+  await expect(manualCheck).toBeEnabled()
+  await capture(page, testInfo, 'settings-connect-models-manual')
+  record(page, testInfo, 'connect.models.manual.input', 'Manual name field starts empty; the real check button enables only after non-empty input', 'empty → disabled; non-empty → enabled; never submitted')
+  await manual.getByRole('button', { name: 'Đóng', exact: true }).click()
+  await expect(manual).toHaveCount(0)
+  expect(appMutations(page).filter((mutation) => mutation.path.endsWith('/models/check'))).toEqual([])
+  record(page, testInfo, 'connect.models.manual', 'Manual panel opens, validates input and cancels without POST models/check', firstPage ? 'closed with no mutation' : 'closed with no mutation despite catalog API failure')
+  assertNoMutations(page)
+
+  await attachGaps(page, testInfo, gaps)
+})
+
+test('tools details keep technical paths behind a reversible native disclosure without installs', async ({ page }, testInfo) => {
+  const mobile = isMobile(testInfo)
+  const status = await getJson<ToolsStatus>(page, '/api/tools')
+  await boot(page, '/#/settings?section=tools')
+  await expectTitle(page, mobile, 'Công cụ trên máy')
+  const details = page.locator('details.vv-tools__adv')
+  await expect(details).toBeVisible()
+  const summary = details.locator('summary')
+  const directory = status.dataDir ? details.getByText(status.dataDir, { exact: true }) : undefined
+  if (directory) await expect(directory).not.toBeVisible()
+  await capture(page, testInfo, 'settings-tools-details-collapsed')
+  await summary.click()
+  await expect(details).toHaveJSProperty('open', true)
+  if (directory) await expect(directory).toBeVisible()
+  await expect(details.getByText('yt-dlp', { exact: true })).toBeVisible()
+  await capture(page, testInfo, 'settings-tools-details-expanded')
+  await summary.focus()
+  await page.keyboard.press('Enter')
+  await expect(details).toHaveJSProperty('open', false)
+  if (directory) await expect(directory).not.toBeVisible()
+  record(page, testInfo, 'tools.details', 'Click reveals technical data; keyboard collapse hides it again without install or update', 'native details/summary round trip')
+  assertNoMutations(page)
+})
+
+test('tools recheck: only the safe POST /api/tools/check probe, never install', async ({ page }, testInfo) => {
+  test.setTimeout(150_000)
+  const mobile = isMobile(testInfo)
+  test.skip(mobile, 'Current MSettings artboard and implementation omit recheck; mobile functional parity stays open for PR6, not passed by this desktop case')
+  const before = await getJson<ToolsStatus>(page, '/api/tools')
+  expect(before.tools.some((tool) => tool.state === 'installing')).toBe(false)
+  await boot(page, '/#/settings?section=tools')
+  await expectTitle(page, mobile, 'Công cụ trên máy')
+  await expect(page.locator('.vv-tools__row')).toHaveCount(before.tools.length)
+  const recheck = page.getByRole('button', { name: 'Kiểm tra lại' })
+  await expect(recheck).toBeVisible()
+
+  const responsePromise = page.waitForResponse((response) => {
+    const url = new URL(response.url())
+    return response.request().method() === 'POST' && url.pathname === '/api/tools/check'
+  }, { timeout: 120_000 })
+  await recheck.click()
+  const response = await responsePromise
+  expect(response.status()).toBe(200)
+  const after = await response.json() as ToolsStatus
+  const recent = await getJson<ToolsStatus>(page, '/api/tools')
+  expect(recent.tools.map((tool) => tool.state)).toEqual(after.tools.map((tool) => tool.state))
+  record(page, testInfo, 'tools.recheck', 'POST /api/tools/check recomputes the snapshot with no install/cancel call', `${before.checkedAt || 'cold'} → ${after.checkedAt}; ${after.tools.map((tool) => `${tool.id}:${tool.state}`).join(', ')}`)
+
+  const calls = appMutations(page)
+  expect(calls.filter((mutation) => mutation.path === '/api/tools/check' && mutation.method === 'POST')).toHaveLength(1)
+  expect(calls.filter((mutation) => !(mutation.path === '/api/tools/check' && mutation.method === 'POST'))).toEqual([])
+  expect(calls.filter((mutation) => /\/(install|cancel)$/.test(mutation.path))).toEqual([])
+  await testInfo.attach('tools-recheck-receipt.json', { body: JSON.stringify({ before, after, calls }, null, 2), contentType: 'application/json' })
+  await capture(page, testInfo, 'settings-tools-rechecked')
+})

@@ -1,0 +1,28 @@
+{
+  "authoredInputOnly": true,
+  "providerInvocations": 0,
+  "costImages": 0,
+  "samples": [
+    {
+      "promptId": "5483055e-d74a-4536-9159-77bbf06002b5",
+      "id": "4a994407-65ec-4fa2-9f09-4f41d9db54b5",
+      "sourceScene": "sc-01"
+    },
+    {
+      "promptId": "5483055e-d74a-4536-9159-77bbf06002b5",
+      "id": "ead6be13-0e2b-499d-8209-250179be9b13",
+      "sourceScene": "sc-02"
+    },
+    {
+      "promptId": "cb991c84-26b4-45da-bcd3-05e79cd0b2cb",
+      "id": "f77ee06e-beba-4d7a-9e4b-68b52d8bfea9",
+      "sourceScene": "sc-03"
+    },
+    {
+      "promptId": "cb991c84-26b4-45da-bcd3-05e79cd0b2cb",
+      "id": "9ea695ba-22aa-4b32-88c2-18e54d7d1cc0",
+      "sourceScene": "sc-04"
+    }
+  ],
+  "doesNotProve": "AI sample generation or paid redraw success"
+}

@@ -1,0 +1,31 @@
+{
+  "maximumAuthorizedImages": 2,
+  "actualGeneratedImages": 2,
+  "sceneImageVersion": 2,
+  "coverTrialId": "6b287035-40bb-4722-bc98-d6d349594e1c",
+  "coverProvider": "codex",
+  "coverMimeObserved": "image/png",
+  "coverSizeObserved": [
+    1672,
+    941
+  ],
+  "coverBytesObserved": 2300224,
+  "coverCancelSentWrites": 0,
+  "sourceJobVersionUnchanged": true,
+  "sourceImageCheckpointUnchanged": true,
+  "copiedQaAccessRemoved": true,
+  "productionCredentialUnchanged": true,
+  "refreshCredentialCopied": false,
+  "moreImageGenerationPermitted": false,
+  "qaDailyImageLimit": 2,
+  "realQuotaAfterUsage": { "left": 0, "total": 2 },
+  "syntheticUsageLedger": false,
+  "readOnlyAccessRestorations": {
+    "reason": "Native cancellation, exhausted-quota and real production module-load-failure checks; provider access needed only for readiness",
+    "browserBlocksAllApiMutations": true,
+    "additionalImageRequests": 0,
+    "cleanup": "Private wrapper removes copied QA access in finally, including subprocess failure",
+    "completedRuns": [28, 31, 32, 33],
+    "latestCleanupObserved": true
+  }
+}

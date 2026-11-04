@@ -1,0 +1,124 @@
+{
+  "viderse": {
+    "success": true,
+    "numTotalTests": 3727,
+    "numPassedTests": 3723,
+    "numFailedTests": 0,
+    "numPendingTests": 4,
+    "numTotalTestSuites": 1280,
+    "numPassedTestSuites": 1280,
+    "numFailedTestSuites": 0
+  },
+  "noverse": {
+    "success": true,
+    "numTotalTests": 1894,
+    "numPassedTests": 1894,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "numTotalTestSuites": 647,
+    "numPassedTestSuites": 647,
+    "numFailedTestSuites": 0
+  },
+  "sharedKit": {
+    "passedTests": 261,
+    "passedFiles": 33,
+    "warningsPresent": true,
+    "scope": "Full kit after measured sheet/host toast placement; typecheck passed, native run51 proves no CTA overlap"
+  },
+  "historicalProposedSourceTree": "0c509a1bcbc6cc2ad86f2989e7d03569a5a01f0b",
+  "currentViderseFullRun": {
+    "sourceCommitBase": "ee94b6f36db1048beaeeeed640f30a14ca72c2a9",
+    "workingTreeFollowup": "Provider failure feedback, reference-picker focus, activity toast placement; current source fingerprint receipt accompanies publication",
+    "passedTests": 3723,
+    "failedTests": 0,
+    "skippedTests": 4,
+    "job": "bg_2906",
+    "includesLaterProviderFailureFix": true
+  },
+  "providerFailureFollowup": {
+    "focusedPassedTests": 16,
+    "focusedFailedTests": 0,
+    "typecheck": "passed",
+    "nativeRun": "51-provider-feedback-layout",
+    "nativePassed": 8,
+    "nativeFailed": 0,
+    "visualLimit": "Toast/CTA overlap and exit-phase capture fixed and visually verified in run51. Separate selected-version draft defect remains open in design question84."
+  },
+  "noverseBoundedWorkers": {
+    "success": true,
+    "numTotalTests": 1894,
+    "numPassedTests": 1894,
+    "numFailedTests": 0,
+    "numPendingTests": 0,
+    "maxWorkers": 2,
+    "sourceChanged": false,
+    "note": "Earlier default-worker run failed5 tests/2 unhandled errors under concurrent load; retained as failing evidence, no source/assertion/timeout changes."
+  },
+  "historicalEvidence": {
+    "viderse": {
+      "success": true,
+      "numTotalTests": 3722,
+      "numPassedTests": 3718,
+      "numFailedTests": 0,
+      "numPendingTests": 4,
+      "numTotalTestSuites": 1280,
+      "numPassedTestSuites": 1280,
+      "numFailedTestSuites": 0
+    },
+    "noverse": {
+      "success": false,
+      "numTotalTests": 1894,
+      "numPassedTests": 1889,
+      "numFailedTests": 5,
+      "numPendingTests": 0,
+      "numTotalTestSuites": 647,
+      "numPassedTestSuites": 643,
+      "numFailedTestSuites": 4
+    },
+    "proposedSourceTree": "065c281f213c21b8e9d02de34e8a8ac963aabe22",
+    "noverseBoundedWorkers": {
+      "success": true,
+      "numTotalTests": 1894,
+      "numPassedTests": 1894,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "maxWorkers": 2,
+      "sourceChanged": false,
+      "note": "Earlier default-worker run failed5 tests/2 unhandled errors under concurrent load; retained as failing evidence, no source/assertion/timeout changes."
+    }
+  },
+  "viderseLogoutFollowup": {
+    "passedTests": 41,
+    "failedTests": 0,
+    "command": "npm test -w apps/viderse/web -- src/screens/auth/AccessDeniedScreen.test.tsx src/api/session.test.tsx src/App.test.tsx",
+    "scope": "Migrated the two failing access-denied consumer cases to the new confirmation contract; verifies cancellation, revoke errors and session retention",
+    "replacesFullSuitePass": false
+  },
+  "note": "Current integrated full run: Viderse3723pass4skip, Noverse1894pass; full kit261pass and both typechecks pass. Native Settings52=14pass2mobile-recheck skips owned by PR6, provider51=8pass, compiled Template54=16pass, compiled Review55=24captured2N/A with source/replay guards. Question84 remains a real semantic-draft blocker; green control/unit gates do not waive it. Earlier failures retained; no thresholds/timeouts relaxed.",
+  "previousReviewedRuns": [
+    {
+      "viderse": {
+        "success": false,
+        "numTotalTests": 3724,
+        "numPassedTests": 3718,
+        "numFailedTests": 2,
+        "numPendingTests": 4,
+        "numTotalTestSuites": 1280,
+        "numPassedTestSuites": 1278,
+        "numFailedTestSuites": 2
+      },
+      "noverse": {
+        "success": false,
+        "numTotalTests": 1894,
+        "numPassedTests": 1891,
+        "numFailedTests": 3,
+        "numPendingTests": 0,
+        "numTotalTestSuites": 647,
+        "numPassedTestSuites": 645,
+        "numFailedTestSuites": 2
+      },
+      "proposedSourceTree": "8406d47d0414fc174f20bfaee3e3d15077323180",
+      "note": "Latest full runs are retained as failures. Viderse two failing access-denied cases were repaired and affected three suites passed41/41; no aggregate full-pass claim. Noverse three store cases are being diagnosed without raising thresholds/timeouts."
+    }
+  ]
+}

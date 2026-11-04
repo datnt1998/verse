@@ -994,6 +994,14 @@ func (s *CloneStore) SetJobStatus(ctx context.Context, jobID string, status doma
 			ID: u, Status: string(status), Column3: nowTz()}); err != nil {
 			return err
 		}
+		// Trạng thái cancelled là terminal: người ghi nào (service, worker) cũng
+		// phải bỏ tạm dừng trong cùng tx, nếu không video đã huỷ vẫn hiện "tạm
+		// dừng" và pipeline.Delete chặn như video còn dừng.
+		if status == domain.CloneCancelled {
+			if err := clearPaused(txctx, s.pool, u); err != nil {
+				return err
+			}
+		}
 		return s.refreshDerived(txctx, u, nil)
 	})
 }
@@ -1017,22 +1025,41 @@ func (s *CloneStore) SetPaused(ctx context.Context, jobID string, paused bool) e
 	})
 }
 
-func (s *CloneStore) RequestCancel(ctx context.Context, jobID string) error {
+// CancelJob hoàn tất huỷ trong một transaction: ghi yêu cầu huỷ, đóng step mở,
+// bỏ tạm dừng và ghi trạng thái cancelled. Huỷ video đang chạy giữ nguyên nghĩa
+// cũ (cancel_requested_at cho worker/fence + step đóng lại + status cancelled);
+// video đang tạm dừng thành terminal ngay nên Delete không còn bị guard tạm
+// dừng chặn. Cột paused_at là state UI, không sống sót qua huỷ.
+func (s *CloneStore) CancelJob(ctx context.Context, jobID string) error {
 	u, err := cloneUUIDOf(jobID)
 	if err != nil {
 		return ErrNotFound
 	}
 	return s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
-		if err := q.RequestJobCancel(txctx, gen.RequestJobCancelParams{ID: u, Column2: nowTz()}); err != nil {
+		now := nowTz()
+		if err := q.RequestJobCancel(txctx, gen.RequestJobCancelParams{ID: u, Column2: now}); err != nil {
 			return err
 		}
 		// Pending work không bao giờ chạy được nữa.
-		if err := q.CancelOpenSteps(txctx, gen.CancelOpenStepsParams{JobID: u, Column2: nowTz()}); err != nil {
+		if err := q.CancelOpenSteps(txctx, gen.CancelOpenStepsParams{JobID: u, Column2: now}); err != nil {
+			return err
+		}
+		if err := clearPaused(txctx, s.pool, u); err != nil {
+			return err
+		}
+		if err := q.SetJobStatus(txctx, gen.SetJobStatusParams{ID: u, Status: string(domain.CloneCancelled), Column3: now}); err != nil {
 			return err
 		}
 		return s.refreshDerived(txctx, u, nil)
 	})
+}
+
+// clearPaused bỏ dấu tạm dừng trong transaction hiện tại. Tách khỏi SetPaused để
+// cancel/terminal không phải gọi thêm một lượt ghi không nguyên tử.
+func clearPaused(ctx context.Context, pool *pgxpool.Pool, job pgtype.UUID) error {
+	_, err := mediaDB(ctx, pool).Exec(ctx, `UPDATE clone_jobs SET paused_at=NULL WHERE id=$1 AND paused_at IS NOT NULL`, job)
+	return err
 }
 
 // ResumeJob: failed/waiting(non-gate) steps → pending; job → pending; nếu job
@@ -1179,6 +1206,12 @@ func (s *CloneStore) DeleteJob(ctx context.Context, jobID string) error {
 		return ErrNotFound
 	}
 	return s.inTx(ctx, func(tx context.Context) error {
+		// Head editor của chính job phải bị xoá/tombstone trước khi binding của
+		// nó được nhả (media.Unbind). Head media toàn cục của project khác được
+		// giữ nguyên, và Unbind tôn trọng live ref nên binding của chúng ở lại.
+		if err := s.retireJobEditorProject(tx, u); err != nil {
+			return err
+		}
 		if err := s.deleteCutouts(tx, jobID); err != nil {
 			return err
 		}

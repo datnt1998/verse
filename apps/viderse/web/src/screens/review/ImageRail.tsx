@@ -1,20 +1,38 @@
 // Cột phải màn Duyệt: Phiên bản → Ảnh tham chiếu → Prompt đã gửi → meta →
 // Lời kể (artboard Review › aside.ipanel). Prompt hiện đúng văn bản đã gửi,
 // giữ nguyên ngôn ngữ gốc; mọi nhãn quanh nó là tiếng Việt.
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button, Dropzone, Icon, Segmented, usePopup } from '@noverse/ui'
 import type { AiProvider } from '../../api/ai'
 import type { ImageQuota, ImageRef, PromptPartKind } from '../../api/images'
 import { DevelopEffect } from '../../components'
 import {
-  EDITABLE_PARTS, PART_LABELS, REF_ROLES, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
+  EDITABLE_PARTS, PART_LABELS, REF_ROLES, defaultVersion, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
 } from './imageView'
 import type { ImageEditing } from './useImageEditing'
 import type { ReviewItemView } from './imageView'
 import { sx } from './review.stylex'
 
 export interface RefCandidate { id: string; url: string; tag: string; label: string; kind: 'image' | 'frame' }
+
+/**
+ * Nhóm nguồn của hộp Thêm ảnh tham chiếu (artboard refs:add: `vv-seg--sm --fill`):
+ * chữ 12 px, mục chia đều nhưng nhãn giữ đủ chữ. Đệm 10 px của artboard cần
+ * 303,7 px trong khi cột 360 chỉ để lại 302 px nội dung (Be Vietnam Pro rộng hơn
+ * font dựng artboard), nên mục dùng 8 px: cùng bề rộng mục trong ~1 px, không
+ * cắt “…” và không phải cuộn ngang. `options[].style` là inline nên thắng đệm
+ * của kit.
+ */
+const SOURCE_TABS = [
+  { id: 'images', label: 'Ảnh trong video' },
+  { id: 'frames', label: 'Khung video gốc' },
+  { id: 'upload', label: 'Tải lên' },
+].map((option) => ({
+  ...option,
+  label: <span {...stylex.props(sx.popSegLabel)}>{option.label}</span>,
+  style: { paddingInline: 'var(--vv-s-8)' },
+}))
 
 export interface ImageRailProps {
   item: ReviewItemView
@@ -28,6 +46,7 @@ export interface ImageRailProps {
   onUseVersion: (n: number) => void
   edit: ImageEditing
   online: boolean
+  mutationBlocked: boolean
   candidates: { images: RefCandidate[]; frames: RefCandidate[] }
   onUpload: (file: File) => void
   uploading?: boolean
@@ -36,7 +55,7 @@ export interface ImageRailProps {
 }
 
 export function ImageRail({
-  item, quota, providers, mode, onMode, selected, onSelectVersion, onUseVersion, edit, online, candidates, onUpload, uploading, score,
+  item, quota, providers, mode, onMode, selected, onSelectVersion, onUseVersion, edit, online, mutationBlocked, candidates, onUpload, uploading, score,
 }: ImageRailProps) {
   const refPopup = usePopup()
   const { open: refsOpen, setOpen: setRefsOpen } = refPopup
@@ -47,11 +66,25 @@ export function ImageRail({
   const [diffHidden, setDiffHidden] = useState(false)
   const copyTimer = useRef<number | undefined>(undefined)
   const uploadInput = useRef<HTMLInputElement>(null)
+  const refsTrigger = useRef<HTMLButtonElement>(null)
   useEffect(() => () => window.clearTimeout(copyTimer.current), [])
   useEffect(() => { setRefsOpen(false); setPicked(null); setCopied(false); setDiffHidden(false) }, [item.id])
-  useEffect(() => { if (refsOpen) refPopup.root.current?.querySelector<HTMLButtonElement>('[role="dialog"] button:not(:disabled)')?.focus() }, [refsOpen, refPopup.root])
+  useEffect(() => {
+    if (!refsOpen) return
+    const panel = refPopup.root.current?.querySelector<HTMLElement>('[role="dialog"]')
+    panel?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus()
+    return () => {
+      const active = document.activeElement
+      if (refsTrigger.current?.isConnected && (active === document.body || panel?.contains(active))) {
+        refsTrigger.current.focus()
+      }
+    }
+  }, [refsOpen, refPopup.root])
 
-  const version = item.versions.find((candidate) => candidate.n === selected) ?? item.versions.at(-1)
+  const liveVersion = item.versions.find((candidate) => candidate.n === selected && candidate.state !== 'cancelled') ?? defaultVersion(item.versions)
+  const version = mode === 'edit' || (mode === 'raw' && edit.changedCount > 0) ? edit.base : liveVersion
+  const canMutate = online && !mutationBlocked
+  useEffect(() => { if (!canMutate) setRefsOpen(false) }, [canMutate, setRefsOpen])
   const drawingVersion = item.versions.find((candidate) => candidate.state === 'drawing')
   const failedVersion = item.versions.find((candidate) => candidate.state === 'failed')
   const refs = mode === 'edit' ? edit.refs : version?.refs ?? []
@@ -76,7 +109,7 @@ export function ImageRail({
   }
 
   const addPicked = () => {
-    if (!picked) return
+    if (!picked || !canMutate || refs.length >= item.refLimit) return
     const candidate = list.find((entry) => entry.id === picked)
     if (!candidate) return
     edit.addRef(candidate.kind === 'frame'
@@ -89,6 +122,23 @@ export function ImageRail({
         })
     setRefsOpen(false)
     setPicked(null)
+  }
+
+  /** Phím mũi tên như nhóm chọn của kit: đổi vai trò và giữ focus trên chip vừa chọn. */
+  const roleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+    event.preventDefault()
+    const radios = event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+    let index = 0
+    for (let at = 0; at < radios.length; at++) {
+      if (radios[at] === event.target) { index = at; break }
+    }
+    const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : REF_ROLES.length - 1
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? REF_ROLES.length - 1
+        : (index + step) % REF_ROLES.length
+    setRole(REF_ROLES[next].role)
+    radios[next]?.focus()
   }
 
   return (
@@ -110,15 +160,21 @@ export function ImageRail({
             const previous = item.versions.find((candidate) => candidate.n === entry.n - 1)
             const url = entry.url ?? entry.previewUrl ?? (entry.state === 'drawing' ? previous?.url : null) ?? item.legacyUrl
             const on = entry.n === selected
+            const cancelled = entry.state === 'cancelled'
             return (
               <button
                 key={entry.n}
                 type="button"
                 aria-pressed={on}
-                onClick={() => onSelectVersion(entry.n)}
-                aria-label={`Bản ${entry.n} · ${entry.feedback ? `theo góp ý “${entry.feedback}”` : 'lần đầu'}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
-                title={`${versionNote(entry)}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
-                {...stylex.props(sx.ver, on && sx.verOn)}
+                onClick={() => { if (!cancelled) onSelectVersion(entry.n) }}
+                disabled={cancelled}
+                aria-label={cancelled
+                  ? versionNote(entry)
+                  : `Bản ${entry.n} · ${entry.feedback ? `theo góp ý “${entry.feedback}”` : 'lần đầu'}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
+                title={cancelled
+                  ? versionNote(entry)
+                  : `${versionNote(entry)}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
+                {...stylex.props(sx.ver, on && sx.verOn, cancelled && sx.dimmed)}
               >
                 {url && <img alt="" src={url} {...stylex.props(sx.verImage)} />}
                 {entry.state === 'drawing' && <DevelopEffect state="drawing" baseUrl={url ?? undefined} compact hideCard />}
@@ -136,7 +192,7 @@ export function ImageRail({
               : versionNote(version)}
         </span>
         {version && version.n !== item.usedVersion && version.state === 'ready' && (
-          <Button size="sm" xstyle={sx.useButton} type="button" disabled={!online} onClick={() => onUseVersion(version.n)} >
+          <Button size="sm" xstyle={sx.useButton} type="button" disabled={!canMutate} onClick={() => onUseVersion(version.n)} >
             Dùng bản {version.n} cho video
           </Button>
         )}
@@ -146,12 +202,13 @@ export function ImageRail({
         <div {...stylex.props(sx.sectionHead)}>
           <span {...stylex.props(sx.sectionTitle)}>Ảnh tham chiếu · {refs.length}/{item.refLimit}</span>
           <Button size="sm" type="button"
+          ref={refsTrigger}
           onClick={() => { setRefsOpen((open) => !open); setPicked(null) }}
           aria-label="Thêm"
           title="Thêm"
           aria-haspopup="dialog"
           aria-expanded={refsOpen}
-          disabled={!online || mode === 'edit' && refs.length >= item.refLimit} ><Icon name="add" size={14} />Thêm
+          disabled={!canMutate || mode === 'edit' && refs.length >= item.refLimit} ><Icon name="add" size={14} />Thêm
                     </Button>
         </div>
         {refs.map((ref, index) => (
@@ -165,7 +222,7 @@ export function ImageRail({
               <span {...stylex.props(sx.refSource)} title={ref.source.label}>{ref.source.label}</span>
             </span>
             {mode === 'edit' && (
-              <Button variant="icon" type="button" onClick={() => edit.toggleRef(ref.id)} aria-label={`Bỏ ảnh tham chiếu ${index + 1}`} ><Icon name="close" size={14} /></Button>
+              <Button variant="icon" type="button" disabled={!canMutate} onClick={() => edit.toggleRef(ref.id)} aria-label={`Bỏ ảnh tham chiếu ${index + 1}`} ><Icon name="close" size={14} /></Button>
             )}
           </div>
         ))}
@@ -176,13 +233,16 @@ export function ImageRail({
           <div role="dialog" aria-label="Thêm ảnh tham chiếu" {...stylex.props(sx.pop)}>
             <div {...stylex.props(sx.popHead)}>
               <b {...stylex.props(sx.popTitle)}>Thêm ảnh tham chiếu</b>
-              <Button variant="icon" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
+              <Button variant="icon" size="sm" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
             </div>
-            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} fit="content" options={[{ id: 'images', label: 'Ảnh trong video' }, { id: 'frames', label: 'Khung video gốc' }, { id: 'upload', label: 'Tải lên' }]} />
+            {/* Artboard refs:add: `vv-seg vv-seg--sm vv-seg--fill` — chữ 12, mục chia
+                đều nhưng nhãn giữ đủ chữ. Cột 360 để lại 302 px nội dung, nên mục
+                dùng đệm 8 px để “Khung video gốc” và “Tải lên” không bị cắt. */}
+            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} size="sm" buttonStyle={sx.popSegButton} fit="fill" options={SOURCE_TABS} />
             {tab === 'upload' ? (
               <>
-                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (files[0]) onUpload(files[0]) }} />
-                <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={event => { const file = event.target.files?.[0]; if (file) onUpload(file); event.target.value = '' }} />
+                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={!canMutate || uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (canMutate && files[0]) onUpload(files[0]) }} />
+                <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={!canMutate || uploading} onChange={event => { const file = event.target.files?.[0]; if (canMutate && file) onUpload(file); event.target.value = '' }} />
               </>
             ) : (
               <div {...stylex.props(sx.candGrid)}>
@@ -205,12 +265,31 @@ export function ImageRail({
             )}
             <div {...stylex.props(sx.roleRow)}>
               <span {...stylex.props(sx.roleLabel)}>Dùng làm</span>
-              <Segmented label="Vai trò của ảnh" value={role} onChange={next => setRole(next as ImageRef['role'])} size="sm" fit="content" options={REF_ROLES.map(option => ({ id: option.role, label: option.label }))} />
+              {/* Artboard refs:add: vai trò là hàng chip `role=radio` xuống dòng —
+                  nhãn “Đồ vật” không bao giờ bị nhóm chọn cắt cụt. */}
+              <div role="radiogroup" aria-label="Vai trò của ảnh" onKeyDown={roleKeys} {...stylex.props(sx.roleChips)}>
+                {REF_ROLES.map((option) => {
+                  const on = option.role === role
+                  return (
+                    <button
+                      key={option.role}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      tabIndex={on ? 0 : -1}
+                      onClick={() => setRole(option.role)}
+                      {...stylex.props(sx.roleChip, on && sx.roleChipOn)}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             <div {...stylex.props(sx.popFoot)}>
               <span {...stylex.props(sx.popFootText)}>{providerName(version?.provider ?? 'chatgpt', providers)} nhận tối đa {item.refLimit} ảnh tham chiếu</span>
               <Button size="sm" type="button" onClick={() => setRefsOpen(false)} >Huỷ</Button>
-              <Button size="sm" variant="primary" type="button" onClick={addPicked} aria-disabled={!picked || refs.length >= item.refLimit} >{addLabel}</Button>
+              <Button size="sm" variant="primary" type="button" onClick={addPicked} aria-disabled={!canMutate || !picked || refs.length >= item.refLimit} >{addLabel}</Button>
             </div>
           </div>
         )}
@@ -218,11 +297,11 @@ export function ImageRail({
 
       <section {...stylex.props(sx.section)}>
         <div {...stylex.props(sx.sectionHead)}>
-          <span {...stylex.props(sx.sectionTitle)}>Chỉ dẫn đã gửi</span>
-          {mode !== 'edit' && (
+          <span {...stylex.props(sx.sectionTitle)}>Prompt đã gửi</span>
+          {mode === 'view' && (
             <>
               <Button size="sm" type="button" onClick={() => void copy()} aria-label={copied ? 'Đã chép' : 'Chép'} title={copied ? 'Đã chép' : 'Chép'} ><Icon name="copy" size={14} />{copied ? 'Đã chép' : 'Chép'}</Button>
-              <Button size="sm" type="button" onClick={() => onMode('edit')} aria-label="Sửa" title="Sửa" aria-keyshortcuts="E" disabled={!online || legacyParts} ><Icon name="edit" size={14} />Sửa
+              <Button size="sm" type="button" onClick={() => onMode('edit')} aria-label="Sửa" title="Sửa" aria-keyshortcuts="E" disabled={!canMutate || legacyParts} ><Icon name="edit" size={14} />Sửa
                             </Button>
             </>
           )}
@@ -240,10 +319,10 @@ export function ImageRail({
             <pre {...stylex.props(sx.raw)}>{rawSentText(version)}</pre>
             {rawParams(version) && <span {...stylex.props(sx.verNote)}>{rawParams(version)}</span>}
           </>
-        ) : mode === 'edit' ? (
+        ) : mode === 'edit' && !legacyParts ? (
           <div>
             {editable.map((entry, index) => (
-              <div key={entry.kind} {...stylex.props(sx.seg, index === 0 && sx.segFirst, entry.changed && sx.segChanged)}>
+              <div key={entry.kind} {...stylex.props(sx.seg, index === 0 && sx.segFirst)}>
                 <span {...stylex.props(sx.segLabel)}>
                   {PART_LABELS[entry.kind]}
                   {entry.part && <span {...stylex.props(sx.segSource)}>· {entry.part.source.label}</span>}
@@ -267,7 +346,7 @@ export function ImageRail({
         ) : (
           <div {...stylex.props(sx.promptCard)}>
             {version?.parts.length
-              ? version.parts.map((part, index) => (
+              ? version.parts.filter(part => part.kind !== 'learned').map((part, index) => (
                   <div key={`${part.kind}-${index}`} {...stylex.props(sx.seg, index === 0 && sx.segFirst)}>
                     <span {...stylex.props(sx.segLabel)}>
                       {PART_LABELS[part.kind]}
@@ -289,7 +368,7 @@ export function ImageRail({
         )}
         <div {...stylex.props(sx.metaRow)}>
           <span {...stylex.props(sx.metaText)}>{versionMeta(version, providers)}</span>
-          <Button variant="quiet" size="sm" type="button" aria-pressed={mode === 'raw'} onClick={() => onMode(mode === 'raw' ? 'view' : 'raw')} >{mode === 'raw' ? 'Xem theo phần' : 'Xem nguyên văn gửi máy chủ'}</Button>
+          <Button variant="quiet" size="sm" type="button" aria-pressed={mode === 'raw'} onClick={() => onMode(mode === 'raw' ? (edit.changedCount ? 'edit' : 'view') : 'raw')} >{mode === 'raw' ? 'Xem theo phần' : 'Xem nguyên văn gửi máy chủ'}</Button>
         </div>
         {quota && mode === 'edit' && (
           <span {...stylex.props(sx.verNote)}>

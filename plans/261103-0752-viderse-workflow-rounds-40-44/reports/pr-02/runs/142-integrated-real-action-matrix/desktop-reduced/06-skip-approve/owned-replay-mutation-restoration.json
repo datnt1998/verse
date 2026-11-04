@@ -1,0 +1,165 @@
+{
+  "schema": "viderse-owned-replay-restoration/2",
+  "generatedAt": "2026-11-04T10:29:27.520224+00:00",
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "replayID": "b816c8ba-e80f-4776-92ab-5c848425d233",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "expectedTestTitle": "skip image then approve the whole video returns the real 202s, advances to B and leaves A queued (not finished)",
+  "childExitCode": 0,
+  "pwTestPassed": true,
+  "pwTestSkipped": false,
+  "pwReport": {
+    "passed": true,
+    "skipped": false,
+    "matchedSpecs": 1,
+    "matchedTests": 1,
+    "stats": {
+      "startTime": "2026-11-04T10:29:23.192Z",
+      "duration": 3563.7140000000004,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "problems": [],
+    "reason": "exact test passed"
+  },
+  "pwReportPath": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop-reduced/06-skip-approve/playwright-report.json",
+  "baselinePath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-kx2a2up8/owned-replay-baseline.json",
+  "replayRestored": true,
+  "intentTablesRestored": true,
+  "approvalIntentProof": {
+    "imageRevision": 26,
+    "intentRows": [
+      {
+        "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+        "created_at": "2026-11-04T17:29:25.934446+07:00",
+        "image_revision": 26
+      }
+    ],
+    "matched": true
+  },
+  "originalSourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "artifactsUnchanged": true,
+  "artifactsRestored": true,
+  "newArtifacts": [
+    {
+      "id": "sha256:c7a8ab0d626ff15547a3b822107ebffbfe6d2d7a75f44f6fa1e40cdfbef3dde8",
+      "path": "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json",
+      "step": "images",
+      "bytes": 38937,
+      "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+      "sha256": "048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34",
+      "filename": "",
+      "created_at": "2026-11-04T17:29:25.833579+07:00",
+      "content_type": "application/json"
+    }
+  ],
+  "newManifestArtifacts": [
+    {
+      "id": "sha256:c7a8ab0d626ff15547a3b822107ebffbfe6d2d7a75f44f6fa1e40cdfbef3dde8",
+      "path": "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json",
+      "step": "images",
+      "bytes": 38937,
+      "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+      "sha256": "048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34",
+      "filename": "",
+      "created_at": "2026-11-04T17:29:25.833579+07:00",
+      "content_type": "application/json"
+    }
+  ],
+  "manifestCleanup": {
+    "required": true,
+    "attempted": true,
+    "status": "passed",
+    "newArtifacts": [
+      {
+        "id": "sha256:c7a8ab0d626ff15547a3b822107ebffbfe6d2d7a75f44f6fa1e40cdfbef3dde8",
+        "path": "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json",
+        "step": "images",
+        "bytes": 38937,
+        "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+        "sha256": "048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34",
+        "filename": "",
+        "created_at": "2026-11-04T17:29:25.833579+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "allowedManifestArtifacts": [
+      {
+        "id": "sha256:c7a8ab0d626ff15547a3b822107ebffbfe6d2d7a75f44f6fa1e40cdfbef3dde8",
+        "path": "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json",
+        "step": "images",
+        "bytes": 38937,
+        "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+        "sha256": "048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34",
+        "filename": "",
+        "created_at": "2026-11-04T17:29:25.833579+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "unexpectedArtifacts": [],
+    "helper": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/workflow-manifest-cleanup",
+    "inputPath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-kx2a2up8/manifest-cleanup-input.json",
+    "receiptPath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-kx2a2up8/manifest-cleanup-receipt.json",
+    "helperExitCode": 0,
+    "helperReceipt": {
+      "complete": true,
+      "unbound": [
+        "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json"
+      ]
+    },
+    "bindingPathsRemaining": [],
+    "rowsDeleted": 1,
+    "artifactsRestored": true,
+    "error": null,
+    "artifactRowsRemaining": [],
+    "artifactRowsDeletedByHelper": [
+      {
+        "id": "sha256:c7a8ab0d626ff15547a3b822107ebffbfe6d2d7a75f44f6fa1e40cdfbef3dde8",
+        "path": "clone/b816c8ba-e80f-4776-92ab-5c848425d233/048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34/images/manifest.json",
+        "step": "images",
+        "bytes": 38937,
+        "job_id": "b816c8ba-e80f-4776-92ab-5c848425d233",
+        "sha256": "048bf37aede72c157bea11e07df05de90c2b458e428a5e69112bdfda26b96c34",
+        "filename": "",
+        "created_at": "2026-11-04T17:29:25.833579+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "artifactRowsDeletedByWrapper": 0
+  },
+  "jobStepsRestore": {
+    "attempted": true,
+    "jobStepsRestored": true,
+    "intentTablesRestored": true,
+    "skipped": null,
+    "error": null,
+    "intentErrors": []
+  },
+  "providerAllowance": 0,
+  "providerCallsAuthorized": 0,
+  "providerCallsObservedCharged": 0,
+  "providerAllowanceRespected": true,
+  "receiptJournalProof": {
+    "table": "image_receipts",
+    "scope": "draw_key LIKE replayID:%; snapshotted before child and read back after child",
+    "beforeCount": 0,
+    "afterCount": 0,
+    "beforeDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "afterDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "newRows": [],
+    "chargedNew": [],
+    "preexistingRowsChanged": []
+  },
+  "standbySessionPID": 20341,
+  "standbyBackendStart": "2026-11-04T15:08:19.198979+07:00",
+  "standbyFinalLockObserved": true,
+  "standbySessionUnchanged": true,
+  "standbyLoss": null,
+  "apiStop": null,
+  "workerIsolation": "Production HA standby: controller holds the actual advisory lock and measurable liveness query before server startup; lock observed before child and again before restore; no worker dispatch",
+  "scope": "Real HTTP queued/cancel/use/skip/approve effects only, not a new image completion proof",
+  "errors": []
+}

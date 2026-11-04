@@ -1,0 +1,927 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "provider-catalog-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "provider-catalog-audit.pw.ts",
+      "file": "provider-catalog-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3190,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:51:36.306Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLWQ4NjNlMGU2IiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtZDg2M2UwZTYiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-5878046f5549cbe595ab",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12444,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                      "column": 47,
+                      "line": 99
+                    },
+                    "snippet": "   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                        "column": 47,
+                        "line": 99
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n\n\n   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:51:40.879Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTBjNjg2MzdiIiwicGFzc2VkIjpmYWxzZSwicmVhbEluc3RhbGxlZE9sbGFtYSI6ZmFsc2UsIm1vZGVsc0Rvd25sb2FkZWQiOjAsImluZmVyZW5jZVJlcXVlc3RzIjowLCJzb3VyY2VBbmRBZ2VudENvbmZpZ3VyYXRpb25VbmNoYW5nZWQiOnRydWUsInByb3ZpZGVyUmVjb3Jkc1Jlc3RvcmVkIjp0cnVlLCJicm93c2VyTXV0YXRpb25zIjpbeyJtZXRob2QiOiJQT1NUIiwicGF0aCI6Ii9hcGkvYWkvcHJvdmlkZXJzIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                    "column": 47,
+                    "line": 99
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-cd3d7657d26433d2e3af",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2173,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:51:53.990Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLWMxZTVmMGZjIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtYzFlNWYwZmMiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-e3e15145602bc0d657c3",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12382,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                      "column": 47,
+                      "line": 99
+                    },
+                    "snippet": "   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                        "column": 47,
+                        "line": 99
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.conn-add').getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" locator('.conn-add').getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('.conn-add').getByRole('alert')\u001b[22m\n\n\n   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:51:56.585Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTRkNmVhOTMxIiwicGFzc2VkIjpmYWxzZSwicmVhbEluc3RhbGxlZE9sbGFtYSI6ZmFsc2UsIm1vZGVsc0Rvd25sb2FkZWQiOjAsImluZmVyZW5jZVJlcXVlc3RzIjowLCJzb3VyY2VBbmRBZ2VudENvbmZpZ3VyYXRpb25VbmNoYW5nZWQiOnRydWUsInByb3ZpZGVyUmVjb3Jkc1Jlc3RvcmVkIjp0cnVlLCJicm93c2VyTXV0YXRpb25zIjpbeyJtZXRob2QiOiJQT1NUIiwicGF0aCI6Ii9hcGkvYWkvcHJvdmlkZXJzIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                    "column": 47,
+                    "line": 99
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-c53dba980433551a7d8e",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4152,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:52:09.657Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTdiZTU1NmY1IiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtN2JlNTU2ZjUiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-6b815d6b0a98b429a33c",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 13026,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                      "column": 47,
+                      "line": 99
+                    },
+                    "snippet": "   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                        "column": 47,
+                        "line": 99
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n\n\n   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:52:14.322Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTBiZDgxNDkzIiwicGFzc2VkIjpmYWxzZSwicmVhbEluc3RhbGxlZE9sbGFtYSI6ZmFsc2UsIm1vZGVsc0Rvd25sb2FkZWQiOjAsImluZmVyZW5jZVJlcXVlc3RzIjowLCJzb3VyY2VBbmRBZ2VudENvbmZpZ3VyYXRpb25VbmNoYW5nZWQiOnRydWUsInByb3ZpZGVyUmVjb3Jkc1Jlc3RvcmVkIjp0cnVlLCJicm93c2VyTXV0YXRpb25zIjpbeyJtZXRob2QiOiJQT1NUIiwicGF0aCI6Ii9hcGkvYWkvcHJvdmlkZXJzIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                    "column": 47,
+                    "line": 99
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-545a9e2aaea290460f04",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog ready: add feedback, model surface and owned-record removal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2165,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:52:28.049Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InJlYWR5IiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzQiLCJvd25lZElEIjoib2xsYW1hLTZkOWM4ZjdhIiwicGFzc2VkIjp0cnVlLCJyZWFsSW5zdGFsbGVkT2xsYW1hIjp0cnVlLCJtb2RlbHNEb3dubG9hZGVkIjowLCJpbmZlcmVuY2VSZXF1ZXN0cyI6MCwic291cmNlQW5kQWdlbnRDb25maWd1cmF0aW9uVW5jaGFuZ2VkIjp0cnVlLCJwcm92aWRlclJlY29yZHNSZXN0b3JlZCI6dHJ1ZSwiYnJvd3Nlck11dGF0aW9ucyI6W3sibWV0aG9kIjoiUE9TVCIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycyIsImJvb3QiOmZhbHNlLCJhbGxvd2VkIjp0cnVlfSx7Im1ldGhvZCI6IkRFTEVURSIsInBhdGgiOiIvYXBpL2FpL3Byb3ZpZGVycy9vbGxhbWEtNmQ5YzhmN2EiLCJib290IjpmYWxzZSwiYWxsb3dlZCI6dHJ1ZX1dfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-93c614890898b1a566b7",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        },
+        {
+          "title": "real local catalog unreachable: add feedback, model surface and owned-record removal",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12112,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47",
+                    "location": {
+                      "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                      "column": 47,
+                      "line": 99
+                    },
+                    "snippet": "   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                        "column": 47,
+                        "line": 99
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert') with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Thêm nhà cung cấp', exact: true }).getByRole('alert')\u001b[22m\n\n\n   97 |       expect(beforeIDs.has(owned!.id)).toBe(false)\n   98 |       if (scenario === 'unreachable') {\n>  99 |         await expect(form.getByRole('alert')).toBeVisible()\n      |                                               ^\n  100 |         await capture(page, info, 'real-refused-catalog-add-feedback')\n  101 |         if (mobile) await page.keyboard.press('Escape')\n  102 |         else await form.getByRole('button', { name: 'Đóng', exact: true }).click()\n    at /Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts:99:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T22:52:30.680Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "real-local-provider-catalog-receipt.json",
+                      "contentType": "application/json",
+                      "body": "eyJzY2VuYXJpbyI6InVucmVhY2hhYmxlIiwiYmFzZVVSTCI6Imh0dHA6Ly8xMjcuMC4wLjE6MTE0MzUiLCJvd25lZElEIjoib2xsYW1hLTVjZjg3NGRmIiwicGFzc2VkIjpmYWxzZSwicmVhbEluc3RhbGxlZE9sbGFtYSI6ZmFsc2UsIm1vZGVsc0Rvd25sb2FkZWQiOjAsImluZmVyZW5jZVJlcXVlc3RzIjowLCJzb3VyY2VBbmRBZ2VudENvbmZpZ3VyYXRpb25VbmNoYW5nZWQiOnRydWUsInByb3ZpZGVyUmVjb3Jkc1Jlc3RvcmVkIjp0cnVlLCJicm93c2VyTXV0YXRpb25zIjpbeyJtZXRob2QiOiJQT1NUIiwicGF0aCI6Ii9hcGkvYWkvcHJvdmlkZXJzIiwiYm9vdCI6ZmFsc2UsImFsbG93ZWQiOnRydWV9XX0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile-reduced/test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile-reduced/video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/45-real-local-provider-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile-reduced/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/provider-catalog-audit.pw.ts",
+                    "column": 47,
+                    "line": 99
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "e1daeaa7a108dc29b97a-d51673c9dbb2fb518bd8",
+          "file": "provider-catalog-audit.pw.ts",
+          "line": 74,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T22:51:35.994Z",
+    "duration": 67266.898,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}

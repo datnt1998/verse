@@ -5,7 +5,7 @@
 import { Suspense, lazy, type ReactNode } from 'react'
 import { Spinner } from '@noverse/ui'
 import { WorkbenchScreen as HomeScreen } from './workbench/WorkbenchScreen'
-import { SystemLoading } from '../components'
+import { SystemLoading } from '../components/states'
 import type { Route } from '../router'
 import { AdminReadOnly } from '../components/AdminReadOnly'
 
@@ -40,7 +40,7 @@ export function RouteScreen({ route }: { route: Route }) {
   const screen: ReactNode = (() => {
     switch (route.name) {
       case 'workbench': return <HomeScreen route={route} />
-      case 'review': return <ReviewScreen />
+      case 'review': return <ReviewScreen route={route} />
       case 'queue': return <QueueScreen />
       case 'channel': return <ChannelScreen route={route} />
       case 'channel-new': return <ChannelNewScreen route={route} />

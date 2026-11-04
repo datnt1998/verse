@@ -585,3 +585,42 @@ Mẫu:
   - Chia đều chỉ khi nhóm chiếm hết bề rộng và nhãn ngắn ngang nhau: `.vv-seg--fill` (mới) hoặc `--m`; nhãn dài hơn phần chia vẫn giữ đủ chữ (`min-width: max-content`). Viên trượt `--vv-selected-2` đo theo mục thật.
   - Nhãn giữ đủ: Sắp xếp “Nổi trội · Mới nhất · Lượt xem”; Vùng giờ “VN · New York” (board có 2 vùng, không phải 3).
   - Đã sửa: `kit.css` (và khối kit nhúng trong mọi board), `Kit` › Ô nhập & nút › Nhóm chọn có ví dụ hai nhóm này; `Explore`/`MExplore` vốn vẽ co theo nhãn nên không đổi. Ghi ở 04-components › SegmentedTabs, 05-kit, 06-copy › Nhóm chọn: nhãn.
+
+### #81 · Ảnh mẫu trong tấm chỉnh prompt trên điện thoại — Đã chốt
+- Màn / artboard: `MLibrary` · chỉnh prompt / lịch sử ảnh mẫu; `MTemplate` · ảnh bìa. Gói V36, ngoại lệ Trình xem ảnh mobile đợt45 chưa có thiết kế.
+- Hiện trạng đã kiểm trên app thật ở390×844: nút ảnh mẫu mở `Dialog` bên dưới `Sheet` đang chỉnh (`z-index40` so với80). Người dùng không thấy ảnh, nhưng focus chuyển vào lớp ẩn. Chỉ nâng z-index sẽ tạo hai lớp modal và vi phạm quy tắc không chồng hộp thoại.
+- Hỏi design: **(A)** giữ chức năng xem ảnh mẫu hiện hữu nhưng hiển thị ngay trong cùng tấm đang mở, có Quay lại để trở về bản nháp được giữ nguyên; không thêm viewer đợt45 / không mở lớp thứ hai; hay **(B)** trước đợt45 chỉ hiển thị thumbnail tĩnh trên điện thoại, không dựng nút xem lớn chưa hoạt động? Nếu cần bố cục khác, bổ sung artboard trước khi dev triển khai.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — xem ngay trong cùng tấm**. Giữ chức năng xem ảnh lớn, có Quay lại và giữ nguyên bản nháp; chỉ một lớp, không triển khai viewer đợt45. Desktop giữ nguyên.
+- Bằng chứng: `plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/sample-acceptance.md` mục7/D1, ảnh và hit-test trong `sample-acceptance/`.
+
+### #82 · Ảnh tách nền từ lượt vẽ thật không cùng kích thước ảnh đã chuẩn hoá — Đã chốt
+- Nghiệm thu V36 bằng một ảnh QA thật phát hiện: WebP đã chuẩn hoá1920×1080, nhưng pipeline tách nền từ PNG gốc1672×941; bước dựng đòi PNG tách nền cùng1920×1080 nên dừng. PNG fixture tự dựng và bản xem tách nền sinh từ WebP đều đúng1920×1080.
+- Bằng chứng: `plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/real-cutout-normalization-blocker.json`. Diagnostic runtime đã ghi codec/kích thước, không sửa ngưỡng kiểm; dòng log tạm đã gỡ khỏi source.
+- Chủ sở hữu: `internal/pipeline/steps/images/handler.go` chuẩn hoá WebP rồi gọi tách nền với PNG gốc; `internal/clone/images/cutout.go` đã dùng ảnh WebP chuẩn hoá cho preview. Đây là lỗi backend ngoài danh sách backend V36 ban đầu.
+- Hỏi: **(A)** cho phép vá tối thiểu đường chuẩn hoá tách nền và xử lý derivative đã lưu từ chính ảnh hiện có, không thêm lượt AI/không nới validation; hay **(B)** giữ nguyên giới hạn backend, để nghiệm thu trial bìa và V36 bị chặn? Tối đa2 ảnh QA vẫn giữ nguyên; hiện dùng1.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — vá tối thiểu lỗi tách nền**. Chuẩn hoá đúng đường ảnh; xử lý derivative đã lưu từ ảnh hiện có, không thêm lượt AI/không nới validation.
+
+### #83 · Gate baseline toàn cục và thứ tự mở PR — Đã chốt
+- Build cuối hiện qua cold entry141,5KiB/150KiB; cold phone còn202,5KiB/200KiB (baseline đã merge202,5KiB). V37 sẽ bỏ các module Bản tin/Kế hoạch hiện đang nằm trong cold phone; chưa tuyên bố việc đó tự bảo đảm qua budget.
+- Full Go còn gate latency Khám phá lỗi (`all/outlier/deep` p95=1371,48ms/400ms) trong lúc có các suite/build khác; source query này không thuộc thay đổi V36. Chưa đo riêng khi không có tải kiểm tra khác, không nới threshold hoặc lấy lượt tốt nhất để che lỗi.
+- Hỏi: **(A)** cho phép giữ hai gate baseline này mở tới nghiệm thu cuối lộ trình, vẫn đủ nghiệm thu chức năng/UI gói trước khi merge và không deploy production khi gate chưa đạt; hay **(B)** giữ merge gate mọi gate phải xanh ngay PR2, cần xử lý trước khi mở V37? Không thay đổi phạm vi tính năng hoặc bỏ báo cáo lỗi.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — giữ tới gate deploy cuối**. Chỉ hai gate dung lượng cold phone và độ trễ Khám phá được giữ mở tới nghiệm thu cuối; UI/chức năng từng gói vẫn phải đủ trước merge. Không deploy khi hai gate chưa đạt.
+
+### #84 · Sửa chỉ dẫn khi đang xem một bản ảnh chưa dùng (V36, đã chốt A)
+- **Trạng thái:** Người dùng chọn **“Sửa đúng bản đang xem”** ngày04/11/2026. Cho phép mở rộng tối thiểu backend/callers/worker để giữ đúng prompt và ảnh tham chiếu của phiên bản được chọn; không thêm tính năng khác.
+- **Bằng chứng thật:** Lượt50 native trên replay QA có bản1 đang dùng và bản2 đang xem. Cột phải hiển thị prompt và2 ảnh tham chiếu của bản2; bấm Sửa/Thêm lại khởi tạo draft từ bản1, nên hai ảnh tham chiếu biến mất. Sau thêm một ảnh mới, draft chỉ còn1 ảnh. Không gửi vẽ, không tốn thêm hạn mức; source và replay được khôi phục. Ảnh: [bản2/cutout](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-cutout.png), [draft sau thêm](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-refs-draft-visible.png).
+- **Nguyên nhân:** `ReviewScreen` hiển thị `version` đã chọn nhưng `useImageEditing` lấy `usedVersion`; backend `images/redraw` cũng dựng nền từ `UsedParts/UsedRefs`, chưa nhận phiên bản làm nền. Chỉ đổi draft FE sang bản2 chưa đủ: phần không sửa có thể lại lấy từ bản1 khi máy chủ vẽ.
+- **A — Giữ sửa đúng bản đang xem (đã chọn):** Mở rộng tối thiểu contract redraw với phiên bản nền và cập nhật caller/worker liên quan; giữ đúng prompt/tham chiếu đã thấy. Không đổi bản đang dùng khi mở/sửa/gửi; việc dùng ảnh mới tiếp tục theo luật worker/chọn bản hiện hành.
+- **B — Chỉ sửa bản đang dùng:** Không mở rộng backend; khi xem bản khác, phải bấm “Dùng bản N cho video” trước khi Sửa/Thêm. Cần chốt khác biệt tương tác với artboard và lời hướng dẫn, không tự khoá nút âm thầm.
+- **Giới hạn triển khai:** Chốt A không có nghĩa lỗi đã sửa. Thêm `baseVersion` cho một ảnh, giữ nền qua checkpoint/worker restart, không lấy nhầm bản đang dùng; bản không tồn tại/đang vẽ hoặc gán một nền cho nhiều ảnh phải bị từ chối trước khi ghi. Kiểm những phần không sửa và refs rỗng, đổi bản trong lúc xác nhận, desktop/mobile/Editor/Main. Không gọi thêm ảnh vượt2/2; không coi lượt50/55 control/focus là semantic pass.
+
+
+### #85 · Trợ lý AI: nguồn vẽ là thẻ đầy đủ hay thanh chọn gọn?
+- **Ngày phát hiện:** 04/11/2026.
+- **Trạng thái:** **Đã chốt A — người dùng chọn “Giữ thẻ đầy đủ” ngày04/11/2026.**
+- **Nguồn thật đang lệch ngay trong artboard:** `Settings.dc.html` dòng1143–1157 chứa radio có tên nhà cung cấp, model, gói, thanh hạn mức và giờ đặt lại; `.opt` dòng112 xếp theo cột. Nhưng quy tắc `.vv-seg > button` dòng459 giới hạn cao30px, làm ảnh artboard render thành ba ô thấp và cắt bớt nội dung. Nguồn artboard không đổi giữa capture và đối chiếu; không phải ảnh chuẩn cũ.
+- **Code hiện tại:** radio-card nhiều dòng giữ đủ tên/model/gói/hạn mức. Model và số nguồn khác artboard là dữ liệu thật, không phải lý do tự đổi bố cục.
+- **Bằng chứng:** [ảnh chuẩn bên trái / code thật bên phải](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-settings-current/Settings.section.agents.png). Không sửa file artboard trong task triển khai.
+- **Cần chốt một phương án:** (A) giữ radio-card đầy đủ và Design vá CSS artboard để phản ánh đúng; (B) theo thanh chọn gọn, Design xác định phần tên/gói/hạn mức nào giữ trên ô và phần nào chuyển ra dòng phụ, không triển khai bằng cách cố ý cắt chữ.
+- **Quyết định:** giữ radio-card đầy đủ tên nhà cung cấp, model, gói, hạn mức và giờ đặt lại. Không ép cao30px hoặc cắt nội dung để khớp lỗi render của artboard. Design cập nhật chiều cao artboard riêng; task triển khai không sửa file artboard.
+- **Ranh giới:** đây là câu hỏi bố cục nguồn vẽ, không đổi model, quota, suy luận, lưu tức thì hay nguồn dự phòng. Ô chọn model thiếu ngữ cảnh nhà cung cấp là lỗi riêng có thể sửa theo markup đã rõ, không chờ câu trả lời này.

@@ -6,7 +6,7 @@ import { libraryVars } from './libraryTokens.stylex'
 // (mỗi cụm kết thúc bằng tile "Prompt mới"), prompt có sẵn trước prompt của
 // bạn, rồi khung sửa. Tìm/lọc một loại thì vẽ một lưới duy nhất (có ảo hoá).
 import { useEffect, useRef, useState } from 'react'
-import { Icon, TextField } from '@noverse/ui'
+import { Icon, TextField, toast } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
@@ -124,8 +124,9 @@ export function PromptsTab({ view, all, allLoading, onView }: {
       const copyOf = await createPrompt({ name: copy.copyName(prompt.name), kind: prompt.kind, prompt: prompt.prompt, fromId: prompt.id })
       await Promise.all([invalidate(keys.prompts('', '')), invalidate(keys.prompts('scene', '')), invalidate(keys.prompts('cover', ''))])
       setEditing({ mode: 'edit', prompt: copyOf })
-    } catch {
-      // lỗi hiện trong khung sửa; ở đây bỏ qua để không chặn lưới
+      toast(copy.editor.duplicated, 'ok')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : copy.editor.duplicateFail, 'err')
     }
   }
 

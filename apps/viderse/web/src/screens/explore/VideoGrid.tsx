@@ -10,30 +10,8 @@ import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { fmtDuration, fmtScore, scoreText, videoMeta } from './fmt'
+import { copyText } from './media'
 import { stageColor, stageLabel, usageHref } from './status'
-
-/** Sao chép một link — navigator.clipboard, fallback execCommand. Trả false
- *  khi trình duyệt chặn (toast lỗi ở caller). */
-export async function copyText(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch {
-    try {
-      const el = document.createElement('textarea')
-      el.value = text
-      el.style.position = 'fixed'
-      el.style.opacity = '0'
-      document.body.append(el)
-      el.select()
-      const ok = document.execCommand('copy')
-      el.remove()
-      return ok
-    } catch {
-      return false
-    }
-  }
-}
 
 /** Ảnh không tải được (mất mạng, YouTube chặn) thì ẩn để thấy nền khung thay
  *  cho biểu tượng ảnh vỡ. Ảnh gắn key theo video nên không ẩn nhầm video khác. */

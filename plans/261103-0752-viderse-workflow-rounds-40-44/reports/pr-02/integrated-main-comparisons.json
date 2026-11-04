@@ -1,0 +1,41 @@
+{
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "rows": [
+    {
+      "id": "Main.viewer.none",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Main.viewer.none.png",
+      "referenceSHA256": "ac0c3fd7e7aaa178a0edc25b7071d53da29ff97064ff1369b10294d181803c1a",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/146-integrated-main-default-state/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop/workbench-none.png",
+      "appSHA256": "7e6100092815128447a32a76159cd37b31cd73b34244ca4533960140a50dfcdc",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-integrated/Main.viewer.none.png",
+      "comparisonSHA256": "9522f7ff7093e7a51e65dc9289a08f54ca496c909bc889eef99fa7bfc7ec68d9",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review",
+      "deferredGlobalShell": "PR3–PR5; not an all-screen parity claim"
+    },
+    {
+      "id": "Main.viewer.view",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Main.viewer.view.png",
+      "referenceSHA256": "90bd2de192dcabe2e19edfbb3367ae8bfff9b2dff69f2018054de2cbc70c2d03",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/146-integrated-main-default-state/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop/workbench-viewer.png",
+      "appSHA256": "ffb329ddbdfc10eb005fdd34f1a295c319f40396cb054ca18851ebd4e87d8726",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-integrated/Main.viewer.view.png",
+      "comparisonSHA256": "0d3f2fc7cfdc73d82157986ce75807c06d04f1f893c871f0edba258cf25954d9",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review",
+      "deferredGlobalShell": "PR3–PR5; not an all-screen parity claim"
+    },
+    {
+      "id": "Main.viewer.redraw",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Main.viewer.redraw.png",
+      "referenceSHA256": "81dba5a565e76c3acb5bb8fdc28c17bd4290d65c5ec7fd0c614bbf982d99ed43",
+      "app": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/146-integrated-main-default-state/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop/workbench-feedback.png",
+      "appSHA256": "5f13dab27818a461516bd2b7537cea7630900c49973dfd6000dd9a7be1e4258f",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-integrated/Main.viewer.redraw.png",
+      "comparisonSHA256": "5e0ea8d7222f06af702be77fb250003c94e6aad5db7323ea9a741732088e3892",
+      "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+      "status": "pending-controller-review",
+      "deferredGlobalShell": "PR3–PR5; not an all-screen parity claim"
+    }
+  ]
+}

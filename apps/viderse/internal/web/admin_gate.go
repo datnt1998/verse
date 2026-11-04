@@ -57,9 +57,8 @@ func requireAdmin(w http.ResponseWriter, user identity.User) bool {
 //     uỷ quyền) — cả đọc lẫn ghi.
 //   - Tài khoản nền tảng: mọi thứ dưới /api/platforms/ (cookie, hồ sơ Chrome
 //     kèm email, QR) trừ POST /api/platforms/requests là yêu cầu của thành viên.
-//   - Khoá dữ liệu YouTube, công cụ (cài/huỷ/kiểm), bước Chuẩn bị máy, dọn
-//     dữ liệu, thao tác thư mục lưu trữ (kể cả duyệt thư mục của máy chủ), cài
-//     đặt thông báo — ghi.
+//   - Công cụ (cài/huỷ/kiểm), bước Chuẩn bị máy, dọn dữ liệu, thao tác thư mục
+//     lưu trữ (kể cả duyệt thư mục của máy chủ), cài đặt thông báo — ghi.
 //
 // /api/setup, /api/setup/verify và /api/setup/admin (tạo quản trị viên đầu
 // tiên) do platform/webapp phục vụ trước phiên đăng nhập nên không qua cổng này.
@@ -78,8 +77,6 @@ func machineAdminOnly(method, path string) bool {
 		return false
 	case strings.HasPrefix(path, "/api/platforms/"):
 		return true
-	case path == "/api/youtube/data-key":
-		return write
 	case path == "/api/tools" || strings.HasPrefix(path, "/api/tools/"):
 		return write
 	case strings.HasPrefix(path, "/api/setup/"):

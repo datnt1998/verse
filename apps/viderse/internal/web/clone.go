@@ -454,6 +454,10 @@ func WriteCloneError(w http.ResponseWriter, err error) {
 		webapp.WriteJSON(w, http.StatusNotFound, cloneErrorWire{Error: "Không tìm thấy video.", Code: domain.CloneErrNotFound})
 		return
 	}
+	if errors.Is(err, pipeline.ErrConflict) {
+		webapp.WriteJSON(w, http.StatusConflict, cloneErrorWire{Error: "Video đã đổi trạng thái hoặc vẫn đang làm. Hãy tải lại; dừng hẳn video trước khi xoá.", Code: domain.CloneErrConflict})
+		return
+	}
 	switch {
 	case errors.Is(err, blobstore.ErrNotFound):
 		status = http.StatusNotFound
