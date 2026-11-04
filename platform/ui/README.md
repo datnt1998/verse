@@ -273,6 +273,8 @@ Notable behaviours:
   (`useEscapeLayer` / `pushEscapeLayer`); menus join it while open.
   `Dialog` restores the exact connected opener on close, including nested
   dialogs; rerendering its callback does not move focus or rebuild the stack.
+  Brand-specific backdrop treatment is opt-in through `--kit-dialog-backdrop-filter`
+  in [`Dialog.tsx`](src/Dialog.tsx), keeping one app's scrim styling out of other brands.
 - Mobile `ListRow` (`@noverse/ui`) — use the row's title/hint/trailing
   slots rather than a centred `Button` for full-width navigation. `disabled`
   blocks native activation; disabled links omit `href` and leave the tab order.

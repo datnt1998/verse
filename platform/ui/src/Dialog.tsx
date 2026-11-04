@@ -16,6 +16,7 @@ const sx = stylex.create({
   overlay: { position: 'fixed', inset: 0, zIndex: 40 },
   scrim: {
     position: 'absolute', inset: 0, backgroundColor: kit['--kit-scrim'],
+    backdropFilter: 'var(--kit-dialog-backdrop-filter, none)',
     animationName: { default: 'kit-fade', [NO_MOTION]: 'none' },
     animationDuration: '.2s', animationTimingFunction: 'ease-out', animationFillMode: 'both',
   },
