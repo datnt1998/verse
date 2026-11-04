@@ -393,7 +393,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
       {review.jobs && !jobs.length && <span {...stylex.props(sx.small)}>Không còn video nào chờ duyệt.</span>}
       {counts.data?.approvedToday != null && <div {...stylex.props(sx.footer)}><span>Duyệt xong hôm nay</span><span>{counts.data.approvedToday} video</span></div>}
     </aside>
-    {!review.jobs ? <main {...stylex.props(sx.empty)}>{review.error ? <div role="alert"><span>Chưa tải được video chờ duyệt. </span><ActionButton size="sm" onClick={() => void review.loadJobs()}>Thử lại</ActionButton></div> : <SystemLoading label="Đang tải video chờ duyệt…" />}</main> : !job ? <main {...stylex.props(sx.empty)}><div role="status" {...stylex.props(sx.emptyInner)}><span aria-hidden="true" {...stylex.props(sx.emptyOrbs)}><Orb of="artist" size={30} /><span {...stylex.props(sx.emptyQa)}><Orb of="qa" size={24} /></span></span><strong {...stylex.props(sx.emptyTitle)}>Đã duyệt hết</strong><span {...stylex.props(sx.emptyText)}>Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.</span><a href={`#${paths.workbench()}`} {...stylex.props(sx.link, sx.emptyLink)} >Xem tiến độ trên Bàn dựng</a></div></main> : <>
+    {!review.jobs ? <main {...stylex.props(sx.empty)}>{review.error ? <div role="alert"><span>Chưa tải được video chờ duyệt. </span><ActionButton size="sm" onClick={() => void review.loadJobs()}>Thử lại</ActionButton></div> : <SystemLoading label="Đang tải video chờ duyệt…" />}</main> : !job ? <main {...stylex.props(sx.empty)}><div role="status" {...stylex.props(sx.emptyInner)}><span aria-hidden="true" {...stylex.props(sx.emptyOrbs)}><Orb of="artist" size={30} /><span {...stylex.props(sx.emptyQa)}><Orb of="qa" size={24} /></span></span><strong {...stylex.props(sx.emptyTitle)}>Đã duyệt hết</strong><span {...stylex.props(sx.emptyText)}>{review.building > 0 ? `Kiểm định đang dựng ${review.building} video vừa duyệt. Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.` : 'Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.'}</span><a href={`#${paths.workbench()}`} {...stylex.props(sx.emptyCta)}>Xem tiến độ trên Bàn dựng</a></div></main> : <>
       <ImageViewer inline mode="review" stage={<main className={`vv-wide vv-wide--grid ${stylex.props(sx.main).className}`}>
         <div {...stylex.props(sx.heading)}>
           <h1 title={job.source.title} {...stylex.props(sx.title)}>{job.source.title}</h1>
@@ -567,13 +567,34 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
         />
       ))} />
     </>}
-    {allOpen && job && allOpen.jobId === job.id && <Dialog title={`Vẽ lại cả ${allOpen.count} ảnh?`} onClose={closeAll} width={540} padBody={false} footer={<><Button disabled={allBusy} onClick={closeAll}>Huỷ</Button><Button variant="primary" pending={allBusy} disabled={allBusy || !online} onClick={() => void submitAll()}>Vẽ lại {allOpen.count} ảnh</Button></>}>
+    {allOpen && job && allOpen.jobId === job.id && <Dialog
+      title={`Vẽ lại cả ${allOpen.count} ảnh?`}
+      icon={<span {...stylex.props(sx.dialogIcon)}><Icon name="gallery-edit" size={20} /></span>}
+      onClose={closeAll}
+      width={540}
+      padBody={false}
+      footer={<><span {...stylex.props(sx.dialogEsc)}><Kbd>Esc</Kbd> đóng</span><Button disabled={allBusy} onClick={closeAll}>Huỷ</Button><Button variant="primary" pending={allBusy} disabled={allBusy || !online} onClick={() => void submitAll()}><Icon name="gallery-edit" size={15} />Vẽ lại {allOpen.count} ảnh</Button></>}
+    >
       <div {...stylex.props(sx.dialogBody)}>
-        <div {...stylex.props(sx.dialogMeta)}><span>{job.source.title}</span><span {...stylex.props(sx.small)}>{channel?.name}</span></div>
-        <div {...stylex.props(sx.strip)}>{items.map(img => <span key={img.id} {...stylex.props(sx.tile)}>{(img.legacyUrl ?? img.versions.at(-1)?.url) && <img alt={img.label} src={img.legacyUrl ?? img.versions.at(-1)?.url ?? ''} {...stylex.props(sx.tileImage)} />}</span>)}</div>
-        <p>Dùng {allOpen.count} ảnh trong hạn mức {usedVersion?.provider ? providerName(usedVersion.provider, providers.data) : 'AI'} hôm nay{quotaLine ? ` · ${quotaLine}` : ''}</p>
-        <p {...stylex.props(sx.small)}>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</p>
-        <TextArea label="Góp ý chung cho cả bộ" rows={3} showCount={false} maxLength={-1} disabled={allBusy} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
+        <span {...stylex.props(sx.dialogSub)}>{job.source.title}{channel?.name ? ` · ${channel.name}` : ''}</span>
+        <div {...stylex.props(sx.dialogThumbs)}>{items.map(img => <span key={img.id} {...stylex.props(sx.dialogThumb)}>{(img.legacyUrl ?? img.versions.at(-1)?.url) && <img alt={img.label} src={img.legacyUrl ?? img.versions.at(-1)?.url ?? ''} {...stylex.props(sx.dialogThumbImage)} />}</span>)}</div>
+        <ul {...stylex.props(sx.dialogFacts)}>
+          <li {...stylex.props(sx.dialogFact)}>
+            <Icon name="gallery" size={15} {...stylex.props(sx.dialogFactIcon, sx.dialogFactQuotaIcon)} />
+            <span>Dùng <b {...stylex.props(sx.dialogFactStrong)}>{allOpen.count} ảnh</b> trong hạn mức {usedVersion?.provider ? providerName(usedVersion.provider, providers.data) : 'AI'} hôm nay{quotaLine ? ` · ${quotaLine}` : ''}</span>
+          </li>
+          {images?.manifest?.scenePrompt?.name && images.manifest.coverPrompt?.name && (
+            <li {...stylex.props(sx.dialogFact)}>
+              <Icon name="layer" size={15} {...stylex.props(sx.dialogFactIcon)} />
+              <span>Ảnh cảnh vẽ theo <b {...stylex.props(sx.dialogFactStrong)}>{images.manifest.scenePrompt.name}</b>, ảnh bìa theo <b {...stylex.props(sx.dialogFactStrong)}>{images.manifest.coverPrompt.name}</b>, theo prompt của video này. <a href={`#${paths.workbench({ video: job.id })}`} {...stylex.props(sx.dialogLink)}>Đổi ở Bàn dựng</a></span>
+            </li>
+          )}
+          <li {...stylex.props(sx.dialogFact)}>
+            <Icon name="info" size={15} {...stylex.props(sx.dialogFactIcon)} />
+            <span>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</span>
+          </li>
+        </ul>
+        <TextArea label={<>Góp ý chung cho cả bộ <span {...stylex.props(sx.dialogOptional)}>(tuỳ chọn)</span></>} placeholder="Ví dụ: tông lạnh hơn, ít người hơn" rows={3} showCount={false} maxLength={-1} disabled={allBusy} value={allFeedback} onChange={event => setAllFeedback(event.currentTarget.value)} />
         {allError && <p role="alert">{allError}</p>}
       </div>
     </Dialog>}

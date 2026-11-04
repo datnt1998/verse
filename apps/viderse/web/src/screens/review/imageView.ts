@@ -3,7 +3,7 @@
 // điểm Kiểm định, khung giờ, trạng thái duyệt) và tiến độ SSE đang chạy.
 import type { AiProvider } from '../../api/ai'
 import type { ImageProgress, ImageRef, ImageVersion, JobImage, PromptPartKind } from '../../api/images'
-import type { ReviewImage } from './useReview'
+import { reviewLabel, type ReviewImage } from './useReview'
 
 /** Trường cũ đi kèm payload §26 (schema của client để chúng đi qua). */
 type JobImageExtra = {
@@ -42,9 +42,6 @@ export interface ReviewItemView {
   /** URL ảnh gốc theo dữ liệu cũ khi chưa có phiên bản §26. */
   legacyUrl?: string
 }
-
-const sceneLabel = (item: ReviewImage, index: number) =>
-  item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${item.sceneId?.match(/\d+/)?.[0] ?? index + 1}`
 
 /** Bản §26 chưa có → dựng một phiên bản đọc được từ dữ liệu cũ của endpoint. */
 function legacyVersion(item: ReviewImage): ImageVersion[] {
@@ -119,7 +116,7 @@ export function toReviewItems(
   return (legacy ?? []).map<ReviewItemView>((item, index) => ({
     id: item.id,
     kind: item.kind === 'thumbnail' ? 'cover' : 'scene',
-    label: sceneLabel(item, index),
+    label: reviewLabel(item, index),
     index: index + 1,
     status: item.status,
     approved: item.status === 'approved',
@@ -205,7 +202,7 @@ export function versionMeta(version: ImageVersion | undefined, providers?: reado
     providerName(version.provider, providers),
     version.model,
     size,
-    version.durationSec != null ? `vẽ ${version.durationSec} giây` : '',
+    version.durationSec != null ? `vẽ ${Math.round(version.durationSec)} giây` : '',
     hhmm(version.finishedAt),
     version.costImages ? `tốn ${version.costImages} ảnh` : '',
   ].filter(Boolean).join(' · ')

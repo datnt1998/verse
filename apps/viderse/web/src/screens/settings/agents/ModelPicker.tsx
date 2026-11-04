@@ -80,16 +80,20 @@ function noteOf(p: Picked): string {
 }
 
 const groupTitle = (p: Picked) =>
-  p.auth === 'subscription' && p.plan ? a.groupPlan(p.providerLabel, planLabel(p.plan)) : `${p.providerLabel} · ${a.groupAuth[p.auth]}`
+  p.auth === 'subscription'
+    ? (p.plan ? a.groupPlan(p.providerLabel, planLabel(p.plan)) : p.providerLabel)
+    : `${p.providerLabel} · ${a.groupAuth[p.auth]}`
 
-/** Shared option data keeps the provider groups, capability guards and real prices. */
+/** Shared option data keeps the provider groups, closed-trigger provider context, capability guards and real prices. */
 function modelOptions(picked: Picked[], needs?: 'vision' | 'image' | 'text'): Option[] {
   return picked.map((item) => {
     const reason = blockedReason(item, needs)
+    const providerContext = groupTitle(item)
     return {
       value: refId(item.ref),
       label: item.label,
-      group: groupTitle(item),
+      description: providerContext,
+      group: providerContext,
       disabled: reason != null,
       meta: <span {...stylex.props(settingsStyles.modelOptionMeta)}>
         <span {...stylex.props(settingsStyles.modelOptionNote)}>{reason ?? noteOf(item)}</span>
@@ -133,6 +137,9 @@ export function ModelPicker({ picked, value, needs, onPick, placeholder, disable
     options={modelOptions(picked, needs)}
     value={value}
     disabled={disabled}
+    inlineDescription
+    chevronSize={12}
+    popWidth={400}
     placeholder={placeholder ?? a.pickModel}
     onChange={(id) => { const item = picked.find((p) => refId(p.ref) === id); if (item) onPick(item) }}
     footer={<>

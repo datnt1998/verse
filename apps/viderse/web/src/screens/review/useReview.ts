@@ -10,10 +10,12 @@ import { keys } from '../../data/keys'
 import { useResource } from '../../data/useResource'
 
 import type { Suggestion } from '../../api/suggestions'
-export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; source: { title: string; thumbnailUrl: string | null } }
+export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; activeStep?: string | null; source: { title: string; thumbnailUrl: string | null } }
 export interface ReviewVersion { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string; source?: string; width?: number; height?: number; createdAt?: string; prompt?: string; promptVersion?: number; score?: unknown }
 export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; promptVersion?: number; queuePosition?: number; currentVersion: number | null; reviewVersion: number | null; versions: ReviewVersion[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
-export interface ReviewImages { manifest: { revision: number } | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null; summary?: ReviewSummary | null }
+/** Chỉ dẫn hiệu lực của bộ ảnh — cùng `manifest` endpoint trả về (tên thật, không phải câu mẫu). */
+export interface ReviewManifest { revision: number; scenePrompt?: { name: string } | null; coverPrompt?: { name: string } | null }
+export interface ReviewImages { manifest: ReviewManifest | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; learn?: Suggestion | null; summary?: ReviewSummary | null }
 /** Tóm tắt điểm của video + câu server viết (artboard MReview › băng điểm). */
 export type ReviewSummary = NonNullable<ScoreSummary> & { text: string }
 const readReviewSummary = (value: unknown): ReviewSummary | null => {
@@ -26,8 +28,14 @@ const readReviewSummary = (value: unknown): ReviewSummary | null => {
 export const isDrawing = (item: ReviewImage) => item.status === 'running' || item.status === 'pending' || item.status === 'queued'
 /** Ảnh bị bộ lọc chặn hoặc Hoạ sĩ từ chối vẽ — màn hình dùng ảnh cảnh bên cạnh. */
 export const isBlocked = (item: ReviewImage) => item.status === 'blocked' || item.status === 'skipped' && item.skipReason === 'refused'
-/** Nhãn ảnh dùng chung cho danh sách, ảnh lớn, phiên bản và sheet prompt. */
-export const reviewLabel = (item: ReviewImage, index: number) => item.kind === 'thumbnail' ? 'Ảnh bìa' : `Cảnh ${item.sceneId?.match(/\d+/)?.[0] || index + 1}`
+/** Nhãn ảnh dùng chung cho danh sách, ảnh lớn, phiên bản và sheet prompt.
+ *  Số cảnh lấy từ `sceneId` nhưng bỏ số 0 đệm (“Cảnh 4”, không phải “Cảnh 04”),
+ *  id ảnh và nhãn không có số vẫn giữ nguyên. */
+export const reviewLabel = (item: ReviewImage, index: number) => {
+  if (item.kind === 'thumbnail') return 'Ảnh bìa'
+  const digits = item.sceneId?.match(/\d+/)?.[0]
+  return `Cảnh ${digits ? Number(digits) : index + 1}`
+}
 /** Bản mới nhất của ảnh — bản đang xem khi chưa chọn bản khác. */
 export const latestVersion = (item: ReviewImage) => item.versions.reduce((max, version) => Math.max(max, version.version), 0)
 /** Bản đang được video dùng: bản đã chốt, không thì bản mới nhất. */
@@ -74,6 +82,8 @@ export interface ReviewState {
   pending: Record<string, boolean>
   /** Thử lại danh sách video chờ duyệt (nút "Thử lại" khi lỗi). */
   loadJobs: () => Promise<unknown>
+  /** Số video đang dựng/xuất thật từ danh sách Bàn dựng — cho câu “Kiểm định đang dựng N video”. */
+  building: number
   /** Đọc lại ảnh một video — lần đầu mở hoặc sau khi vẽ/duyệt. */
   loadImages: (id: string, force?: boolean) => Promise<void>
   mutate: (job: string, item: ReviewImage | null, op: ReviewOp, feedback?: string, version?: number) => Promise<boolean>
@@ -106,6 +116,15 @@ export function useReview(): ReviewState {
     }
     return next.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [serverJobs, hidden])
+  // “Kiểm định đang dựng”: chỉ đếm job thật đang ở bước build/export của nhóm
+  // working trong cùng payload Bàn dựng; chưa có thì màn hình không bịa số nào.
+  const building = useMemo(() => {
+    let count = 0
+    for (const job of serverJobs ?? []) {
+      if (job.stageGroup === 'working' && (job.activeStep === 'build' || job.activeStep === 'export')) count++
+    }
+    return count
+  }, [serverJobs])
   useEffect(() => { previousJobs.current = jobs }, [jobs])
   // Server đã đưa video ra khỏi nhóm duyệt → thôi ẩn lạc quan (duyệt xong).
   useEffect(() => {
@@ -199,7 +218,7 @@ export function useReview(): ReviewState {
       const result = await request<{ manifest?: { revision: number }; revision?: number; learn?: Suggestion | null; generation?: { learn?: Suggestion | null } | null }>(item ? `${base(job)}/${encodeURIComponent(item.id)}` : base(job), { body: { op, expectedRevision: revision, ...(item && feedback ? { prompt: feedback } : {}), ...(version !== undefined ? { version } : {}), ...(op === 'regenerateAll' ? { confirmCount: view.items.length, ...(feedback ? { feedback } : {}) } : {}) } })
       const nextRevision = result.manifest?.revision ?? result.revision
       const learn = result.generation?.learn ?? result.learn
-      if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
+      if (nextRevision || learn) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, ...(nextRevision ? { manifest: { ...(v.manifest ?? {}), revision: nextRevision } } : {}), ...(learn ? { learn } : {}) } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
       else void loadImages(job, true)
       return true
@@ -214,5 +233,5 @@ export function useReview(): ReviewState {
       return false
     } finally { locks.current.delete(job); setPending(old => ({ ...old, [job]: false })) }
   }
-  return { jobs, images, error: !!jobsResource.error, imageErrors, pending, loadJobs, loadImages, mutate }
+  return { jobs, images, error: !!jobsResource.error, imageErrors, pending, building, loadJobs, loadImages, mutate }
 }

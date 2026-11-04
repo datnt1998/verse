@@ -186,23 +186,34 @@ describe('giao diện select được điều khiển', () => {
   it('Combobox không làm mất lựa chọn cũ khi nguồn đang lỗi hoặc đang tải', () => {
     const html = renderToStaticMarkup(<Combobox label="Model" value="saved-model" options={[]} loading loadError="Nhà cung cấp không phản hồi." onChange={() => {}} />)
     expect(html).toContain('value="saved-model"')
-    expect(html).not.toContain('Selected:')
     expect(html).toContain('aria-autocomplete="list"')
   })
 
-  it('Combobox chỉ hiện dòng “Đang chọn” khi bật showCurrent (kit), và compact giữ ô 32 px thẳng hàng', () => {
-    const withHelper = renderToStaticMarkup(<Combobox label="Model" value="saved-model" options={[]} showCurrent onChange={() => {}} />)
-    expect(withHelper).toContain('Selected:')
-    const compact = renderToStaticMarkup(<Combobox aria-label="Model" value="m" options={[{ value: 'm', label: 'm' }]} compact onChange={() => {}} />)
-    expect(compact).toContain('min-height:32px')
-    expect(compact).not.toContain('Selected:')
-    expect(compact).not.toContain('search-normal-1')
+  it('Combobox inlineDescription giữ tên model đầy đủ + mô tả phụ trên nút đóng, chỉ mở ô tìm sau khi bấm', async () => {
+    const container = await mount(<Combobox aria-label="Model" inlineDescription value="openai/gpt-5.2" options={[{ value: 'openai/gpt-5.2', label: 'openai/gpt-5.2', description: 'OpenAI · khoá API' }]} onChange={() => {}} />)
+    const trigger = container.querySelector<HTMLButtonElement>('[role="combobox"]')!
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.textContent).toContain('openai/gpt-5.2')
+    expect(trigger.textContent).toContain('OpenAI · khoá API')
+    expect(container.querySelector('input[role="combobox"]')).toBeNull()
+    await act(async () => { trigger.click() })
+    const search = container.querySelector<HTMLInputElement>('input[role="combobox"]')
+    expect(search).toBeTruthy()
+    expect(document.activeElement).toBe(search)
   })
 
-  it('chevron của select dùng icon arrow-down-2 của kit, không phải mũi tên ↓', () => {
-    const html = renderToStaticMarkup(<KitSelect aria-label="x" value="a" options={[{ value: 'a', label: 'A' }]} onChange={() => {}} />)
-    expect(html).toContain('arrow-down-2')
-    expect(html).not.toMatch(/arrow-down(?!-2)/)
+  it('Combobox inlineDescription đóng khi focus chuyển ra ngoài mà không giành lại focus', async () => {
+    const container = await mount(<>
+      <Combobox aria-label="Model" inlineDescription value="alpha" options={[{ value: 'alpha', label: 'Alpha', description: 'Provider' }]} onChange={() => {}} />
+      <button id="next-control" type="button">Tiếp theo</button>
+    </>)
+    const trigger = container.querySelector<HTMLButtonElement>('[role="combobox"]')!
+    await act(async () => { trigger.click() })
+    const next = container.querySelector<HTMLButtonElement>('#next-control')!
+    await act(async () => { next.focus() })
+    expect(container.querySelector('input[role="combobox"]')).toBeNull()
+    expect(document.activeElement).toBe(next)
+    expect(container.querySelector('[role="combobox"]')?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('MultiCombobox hiển thị chip, nút bỏ và số lượng theo giới hạn cấu hình', () => {

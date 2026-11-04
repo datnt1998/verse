@@ -26,7 +26,8 @@ const state = vi.hoisted(() => ({
   progress: { current: {} as Record<string, unknown> },
   legacyStatus: 'review',
   legacy: null as null | Array<Record<string, unknown>>,
-  otherJob: false,
+  jobs: ['j'] as string[],
+  building: 0,
   pending: {} as Record<string, boolean>,
 }))
 
@@ -58,7 +59,8 @@ vi.mock('./useReview', async importOriginal => {
     ...actual,
     imageURL: (_job: string, item: { id: string }) => `/legacy/${item.id}.jpg`,
     useReview: () => ({
-      jobs: (state.otherJob ? ['j', 'j2'] : ['j']).map(id => ({ id, channelId: 'c', source: { title: id === 'j' ? 'Video' : 'Video khác' }, subline: '' })),
+      jobs: state.jobs.map(id => ({ id, channelId: 'c', source: { title: id === 'j' ? 'Video' : 'Video khác' }, subline: '' })),
+      building: state.building,
       images: { j: { manifest: { revision: 4 }, approved: false, items: state.legacy ?? [
         { id: 'a', kind: 'scene', status: state.legacyStatus, prompt: 'p', versions: [], sceneId: '3', narration: 'Lời kể cảnh 3.' },
         { id: 'b', kind: 'scene', status: 'review', prompt: 'q', versions: [], sceneId: '4' },
@@ -88,7 +90,7 @@ vi.mock('../../components/autonomy/ScoreParts', () => ({ ScoreBadge: () => null,
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) : ({ data: undefined }) }))
 
-beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.legacy = null; state.otherJob = false; state.pending = {} })
+beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.legacy = null; state.jobs = ['j']; state.building = 0; state.pending = {} })
 let root: Root | undefined
 afterEach(async () => {
   await act(async () => { dismissConfirmations(); root?.unmount(); await Promise.resolve() })
@@ -193,6 +195,20 @@ describe('duyệt từng ảnh trên dải ảnh', () => {
     expect(approved('Ảnh bìa')).toBeNull()
     expect(approved('Cảnh 4')).toBeNull()
     expect(approved('Cảnh 3')).not.toBeNull()
+  })
+
+  it('bỏ số 0 đệm trong nhãn cảnh nhưng giữ id ảnh', async () => {
+    state.images.current = { images: [], quota: undefined }
+    state.legacy = [
+      { id: 'scene-03', kind: 'scene', status: 'review', prompt: 'p', versions: [], sceneId: '03' },
+      { id: 'cover', kind: 'thumbnail', status: 'review', prompt: 'c', versions: [] },
+    ]
+    const node = await render()
+    const labels = [...node.querySelectorAll('[role="option"]')].map(entry => entry.getAttribute('aria-label'))
+    expect(labels).toContain('Cảnh 3')
+    expect(labels).toContain('Ảnh bìa')
+    expect(labels).not.toContain('Cảnh 03')
+    expect(node.querySelector('[role="option"][aria-label="Cảnh 3"]')).not.toBeNull()
   })
 })
 
@@ -317,7 +333,7 @@ describe('sửa chỉ dẫn', () => {
   })
 
   it('discards another video’s draft even when image ID and version number are identical', async () => {
-    state.otherJob = true
+    state.jobs = ['j', 'j2']
     history.replaceState(null, '', '/#/review?video=j&img=a')
     state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
     const node = await render()
@@ -627,6 +643,19 @@ it('preserves a draft when inspecting raw prompt and returning to editable parts
   expect(button(node, 'Huỷ sửa')).toBeDefined()
 })
 
+it('shows copy and edit only in the parts view, not in the raw prompt view', async () => {
+  state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
+  const node = await render()
+  expect(node.querySelector('button[aria-label="Chép"]')).not.toBeNull()
+  expect(node.querySelector('button[aria-label="Sửa"]')).not.toBeNull()
+  await act(async () => button(node, 'Xem nguyên văn gửi máy chủ')!.click())
+  expect(node.querySelector('button[aria-label="Chép"]')).toBeNull()
+  expect(node.querySelector('button[aria-label="Sửa"]')).toBeNull()
+  expect(button(node, 'Xem theo phần')).toBeDefined()
+  await act(async () => button(node, 'Xem theo phần')!.click())
+  expect(node.querySelector('button[aria-label="Sửa"]')).not.toBeNull()
+})
+
 it('makes an added reference immediately visible as an editable draft and cancels it without a draw', async () => {
   state.images.current = { images: [image('a', 3, [version(1)]), image('b', 4, [version(1)])], quota: undefined }
   const node = await render()
@@ -640,6 +669,61 @@ it('makes an added reference immediately visible as an editable draft and cancel
   await act(async () => button(node, 'Huỷ sửa')!.click())
   expect(node.querySelector('button[aria-label="Bỏ ảnh tham chiếu 1"]')).toBeNull()
   expect(state.redraw).not.toHaveBeenCalled()
+})
+
+it('cancels a reference that was just added and leaves a zero-change draft', async () => {
+  state.images.current = { images: [image('a', 3, [version(1)]), image('b', 4, [version(1)])], quota: undefined }
+  const node = await render()
+  const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
+  await act(async () => button(rail, 'Thêm')!.click())
+  const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
+  await act(async () => button(picker, 'Cảnh 4')!.click())
+  await act(async () => button(picker, 'Thêm 1 ảnh')!.click())
+  expect(rail.textContent).toContain('Ảnh tham chiếu · 2/4')
+  await act(async () => rail.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 2"]')!.click())
+  expect(rail.textContent).toContain('Ảnh tham chiếu · 1/4')
+  expect(rail.querySelector('[aria-label="Bỏ ảnh tham chiếu 2"]')).toBeNull()
+  expect(rail.querySelector('[aria-label="Bỏ ảnh tham chiếu 1"]')).not.toBeNull()
+  expect(node.textContent).toContain('Sửa chỉ dẫn cảnh 3')
+  expect(node.textContent).not.toContain('Đã sửa 2 chỗ')
+  const submit = button(node, 'Vẽ lại với chỉ dẫn này')!
+  expect(submit.getAttribute('aria-disabled')).toBe('true')
+  await act(async () => submit.click())
+  expect(state.redraw).not.toHaveBeenCalled()
+})
+
+it('keeps one entry when the same candidate reference is added twice', async () => {
+  state.images.current = { images: [image('a', 3, [version(1)]), image('b', 4, [version(1)])], quota: undefined }
+  const node = await render()
+  const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
+  const addCandidate = async () => {
+    await act(async () => button(rail, 'Thêm')!.click())
+    const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
+    await act(async () => button(picker, 'Cảnh 4')!.click())
+    await act(async () => button(picker, 'Thêm 1 ảnh')!.click())
+  }
+  await addCandidate()
+  expect(rail.textContent).toContain('Ảnh tham chiếu · 2/4')
+  await addCandidate()
+  expect(rail.textContent).toContain('Ảnh tham chiếu · 2/4')
+  expect(rail.querySelectorAll('[aria-label^="Bỏ ảnh tham chiếu"]').length).toBe(2)
+  expect(node.textContent).toContain('Đã sửa 1 chỗ trong chỉ dẫn cảnh 3')
+})
+
+it('moves reference-role selection from the focused radio, even when a different role is checked', async () => {
+  state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
+  const node = await render()
+  await act(async () => button(node, 'Thêm')!.click())
+  const group = node.querySelector<HTMLElement>('[role="radiogroup"][aria-label="Vai trò của ảnh"]')!
+  const first = button(group, 'Nhân vật')!
+  const last = button(group, 'Đồ vật')!
+  await act(async () => last.click())
+  await act(async () => {
+    first.focus()
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }))
+  })
+  expect(last.getAttribute('aria-checked')).toBe('true')
+  expect(document.activeElement).toBe(last)
 })
 
 it('returns reference-picker focus on cancellation without stealing focus from an outside field', async () => {
@@ -658,4 +742,16 @@ it('returns reference-picker focus on cancellation without stealing focus from a
   expect(node.querySelector('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')).toBeNull()
   expect(document.activeElement).toBe(outside)
   expect(state.redraw).not.toHaveBeenCalled()
+})
+
+describe('trạng thái rỗng', () => {
+  it('chỉ nêu số video đang dựng khi Bàn dựng trả về số thật', async () => {
+    state.jobs = []
+    const node = await render()
+    expect(node.textContent).toContain('Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.')
+    expect(node.textContent).not.toContain('Kiểm định đang dựng')
+    state.building = 2
+    await act(async () => { root!.render(<ReviewRouteHost />) })
+    expect(node.textContent).toContain('Kiểm định đang dựng 2 video vừa duyệt.')
+  })
 })

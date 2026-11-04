@@ -128,13 +128,17 @@ export function ImageRail({
   const roleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
     event.preventDefault()
-    const index = REF_ROLES.findIndex((option) => option.role === role)
+    const radios = event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')
+    let index = 0
+    for (let at = 0; at < radios.length; at++) {
+      if (radios[at] === event.target) { index = at; break }
+    }
     const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : REF_ROLES.length - 1
-    const next = event.key === 'Home' ? REF_ROLES[0]
-      : event.key === 'End' ? REF_ROLES[REF_ROLES.length - 1]
-        : REF_ROLES[(index + step) % REF_ROLES.length]
-    setRole(next.role)
-    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')[REF_ROLES.indexOf(next)]?.focus()
+    const next = event.key === 'Home' ? 0
+      : event.key === 'End' ? REF_ROLES.length - 1
+        : (index + step) % REF_ROLES.length
+    setRole(REF_ROLES[next].role)
+    radios[next]?.focus()
   }
 
   return (
@@ -294,7 +298,7 @@ export function ImageRail({
       <section {...stylex.props(sx.section)}>
         <div {...stylex.props(sx.sectionHead)}>
           <span {...stylex.props(sx.sectionTitle)}>Prompt đã gửi</span>
-          {mode !== 'edit' && (
+          {mode === 'view' && (
             <>
               <Button size="sm" type="button" onClick={() => void copy()} aria-label={copied ? 'Đã chép' : 'Chép'} title={copied ? 'Đã chép' : 'Chép'} ><Icon name="copy" size={14} />{copied ? 'Đã chép' : 'Chép'}</Button>
               <Button size="sm" type="button" onClick={() => onMode('edit')} aria-label="Sửa" title="Sửa" aria-keyshortcuts="E" disabled={!canMutate || legacyParts} ><Icon name="edit" size={14} />Sửa

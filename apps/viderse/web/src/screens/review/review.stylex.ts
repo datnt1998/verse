@@ -22,7 +22,6 @@ export const sx = stylex.create({
   heading: { display: 'flex', alignItems: 'center', gap: space['--vv-s-10'], flexWrap: 'wrap' },
   title: { flex: '1 1 160px', minWidth: 0, margin: 0, fontSize: 17, fontWeight: 600, letterSpacing: '-.015em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   link: { color: color['--color-fg-2'], textDecorationLine: 'underline', textUnderlineOffset: 3 },
-  emptyLink: { marginTop: space['--vv-s-4'] },
 
   // Khung ảnh vừa container và bị giới hạn bởi bề rộng gốc.
   stageWrap: { flex: '1 1 auto', minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', containerType: 'size' },
@@ -154,7 +153,22 @@ export const sx = stylex.create({
   emptyQa: { marginInlineStart: -6, marginTop: space['--vv-s-8'] },
   emptyTitle: { fontSize: 17, fontWeight: 600 },
   emptyText: { fontSize: 13.5, lineHeight: 1.6, color: color['--color-fg-3'] },
+  /* Artboard Review › trạng thái rỗng: CTA là nút ghost 36 px, không phải liên kết gạch chân. */
+  emptyCta: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: space['--vv-s-7'], height: space['--vv-s-36'], paddingInline: space['--vv-s-14'], borderRadius: corners['--vv-r-10'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: kit['--kit-wash-12'], backgroundColor: { default: 'transparent', ':hover': line['--line-2'] }, color: color['--color-fg'], fontSize: 13, fontWeight: 500, whiteSpace: 'nowrap', textDecorationLine: 'none' },
   dialogBody: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], padding: '0 var(--vv-s-18) var(--vv-s-4)' },
-  dialogMeta: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-2'] },
+  /* Artboard Review › Hộp xác nhận vẽ lại cả bộ: biểu tượng cảnh báo 42 px. */
+  dialogIcon: { width: 42, height: 42, flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: corners['--vv-r-12'], backgroundColor: 'var(--vv-st-review-bg)', color: 'var(--vv-st-review)' },
+  dialogSub: { fontSize: 13, color: color['--color-fg-3'], lineHeight: 1.5 },
+  dialogThumbs: { display: 'flex', gap: space['--vv-s-6'] },
+  dialogThumb: { position: 'relative', flex: 1, minWidth: 0, aspectRatio: '16 / 9', borderRadius: corners['--vv-r-6'], overflow: 'hidden', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: color['--color-surface-3'] },
+  dialogThumbImage: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  dialogFacts: { margin: 0, paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-11'], backgroundColor: 'var(--vv-wash-3)', borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: 'var(--vv-hairline)', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: space['--vv-s-5'], fontSize: 12.5, color: color['--color-fg-2'], lineHeight: 1.55 },
+  dialogFact: { display: 'flex', alignItems: 'flex-start', gap: space['--vv-s-8'] },
+  dialogFactIcon: { marginTop: space['--vv-s-2'] },
+  dialogFactQuotaIcon: { color: 'var(--vv-st-review)' },
+  dialogFactStrong: { fontWeight: 600, color: color['--color-fg'] },
+  dialogLink: { color: color['--color-link'], fontSize: 12.5, textDecorationLine: { default: 'none', ':hover': 'underline' }, whiteSpace: 'nowrap' },
+  dialogOptional: { color: 'var(--vv-fg-note)', fontWeight: 400 },
+  dialogEsc: { flex: 1, display: 'flex', alignItems: 'center', gap: space['--vv-s-6'], color: color['--color-fg-3'], fontSize: 12 },
   hiddenLabel: { position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' },
 })

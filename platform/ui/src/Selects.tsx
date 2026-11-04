@@ -258,7 +258,11 @@ const sx = stylex.create({
   valueRich: { lineHeight: 1.3 },
   valueInline: { flexDirection: 'row', alignItems: 'center', gap: 6, overflow: 'hidden' },
   modelName: { flexShrink: 0, fontSize: 12.5, fontFamily: 'var(--font-mono)' },
+  modelNameNowrap: { whiteSpace: 'nowrap' },
   modelDesc: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: kit['--kit-fg-icon'], fontSize: 12.5 },
+  modelDescFill: { flex: '1 1 auto' },
+  modelDescInline: { fontSize: 12, color: kit['--kit-fg-sub'] },
+  modelChevInline: { color: kit['--kit-fg-sub'] },
   modelOptionName: { fontSize: 12.5, fontFamily: 'var(--font-mono)', lineHeight: 1.35 },
   modelOptionDesc: { fontSize: 12, lineHeight: 1.35 },
   modelTrigger: { paddingLeft: 11, paddingRight: 8, borderRadius: 9 },
@@ -690,14 +694,17 @@ function LoadingOptions({ noun }: { noun: string }) {
 
 
 
-export function Combobox({ options, value, onChange, id: suppliedId, label, 'aria-label': ariaLabel, name, placeholder, disabled, error, loading, loadError, onRetry, onAddProvider, footer, className, style, defaultOpen, compact, showCurrent, noun }: ComboboxProps) {
+export function Combobox({ options, value, onChange, id: suppliedId, label, 'aria-label': ariaLabel, name, placeholder, disabled, error, loading, loadError, onRetry, onAddProvider, footer, className, style, defaultOpen, compact, showCurrent, noun, inlineDescription = false, chevronSize, popWidth }: ComboboxProps) {
   const generatedId = useId()
   const L = getKitLabels().selects
   const ph = placeholder ?? L.search
   const thing = noun ?? L.noun
   const id = suppliedId ?? generatedId
   const { root, open, setOpen, active, setActive } = usePopup(disabled, defaultOpen, 0)
+  const trigger = useRef<HTMLButtonElement>(null)
   const input = useRef<HTMLInputElement>(null)
+  const returnFocus = useRef(false)
+  const wasOpen = useRef(open)
   const [query, setQuery] = useState('')
   const selected = options.find((option) => option.value === value)
   const groups = filterOptionGroups(options, query)
@@ -705,14 +712,39 @@ export function Combobox({ options, value, onChange, id: suppliedId, label, 'ari
   const ready = !loading && !loadError
   const currentActive = ready && active >= 0 && active < flat.length && !flat[active].disabled ? active : -1
   useActiveScroll(open, id, currentActive)
-  const begin = () => { setQuery(''); setActive(nextActive(options, -1, 'ArrowDown')); setOpen(true) }
+  // Mở bằng nút đóng: ô tìm chỉ dựng sau khi mở nên phải tự focus; đóng bằng
+  // bàn phím/chọn xong thì trả focus về nút để không rơi khỏi trình đọc màn hình.
+  useLayoutEffect(() => {
+    if (open && inlineDescription) input.current?.focus()
+  }, [open, inlineDescription])
+  useLayoutEffect(() => {
+    const closing = wasOpen.current && !open
+    wasOpen.current = open
+    if (!closing) return
+    // Layer-level Escape can close before the input handler runs. Its removal
+    // leaves focus on body; restore the trigger, but never steal Tab's target.
+    const restore = returnFocus.current || document.activeElement === document.body
+    returnFocus.current = false
+    if (inlineDescription && restore) trigger.current?.focus()
+  }, [open, inlineDescription])
+  const begin = (seed = '') => {
+    setQuery(seed)
+    const list = seed ? filterOptionGroups(options, seed).flatMap((group) => group.options) : options
+    setActive(nextActive(list, -1, 'ArrowDown'))
+    setOpen(true)
+  }
+  const close = (focusTrigger: boolean) => {
+    if (focusTrigger) returnFocus.current = true
+    setOpen(false); setQuery('')
+  }
   const choose = (option: Option) => {
     if (disabled || option.disabled || !ready) return
-    onChange(option.value); setQuery(''); setOpen(false)
+    onChange(option.value)
+    close(inlineDescription)
   }
   const keyboard = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.nativeEvent.isComposing) return
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); setOpen(false); setQuery('') }
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(inlineDescription) }
     else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key) && (open || event.key.startsWith('Arrow'))) {
       event.preventDefault()
       if (!open) begin()
@@ -722,24 +754,46 @@ export function Combobox({ options, value, onChange, id: suppliedId, label, 'ari
       if (currentActive >= 0) choose(flat[currentActive])
     }
   }
+  /** Nút đóng của ô chọn model: mở như KitSelect, gõ chữ đầu để tìm ngay. */
+  const triggerKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.nativeEvent.isComposing || disabled) return
+    if (['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter', ' '].includes(event.key)) { event.preventDefault(); begin(); return }
+    if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) { event.preventDefault(); begin(event.key) }
+  }
   let optionIndex = 0
   const rootP = stylex.props(sx.col)
   const wrap = stylex.props(sx.popWrap, open && sx.popWrapOpen)
   const box = stylex.props(sx.box, disabled ? sx.boxDisabled : error ? sx.boxInvalid : sx.boxNormal, compact ? sx.boxCompact : sx.boxTall)
   const ghost = stylex.props(sx.iconButton, sx.ghost)
   const chev = stylex.props(sx.chev, open && sx.chevOpen)
+  const chevClosed = stylex.props(sx.chev, sx.modelChevInline)
   const inp = stylex.props(sx.boxInput, compact ? sx.inputCompact : sx.input)
+  const trg = stylex.props(sx.trg, disabled ? sx.trgDisabled : error ? sx.trgInvalid : sx.trgNormal, compact && sx.trgCompact, compact && sx.trgCompactH)
   return <div ref={root} className={[rootP.className, className].filter(Boolean).join(' ')} style={{ ...rootP.style, ...style }} onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) { setOpen(false); setQuery('') } }}>
     <Label id={id} label={label} />
     {name && <input type="hidden" name={name} value={value} disabled={disabled} />}
     <div className={wrap.className} style={wrap.style}>
-      <div className={`kit-frame ${box.className}`} data-invalid={!!error || undefined} data-disabled={disabled || undefined} style={{ ...box.style, ...(compact ? { minHeight: 32 } : { height: 38 }) }}>
-        {!compact && <Icon name="search-normal-1" size={15} style={{ color: 'var(--color-fg-4)' }} />}
-        <input ref={input} id={id} className={`mono ${inp.className}`} role="combobox" aria-label={ariaLabel ?? label ?? L.choose} aria-expanded={open} aria-autocomplete="list" aria-controls={open ? `${id}-list` : undefined} aria-activedescendant={open && currentActive >= 0 ? `${id}-option-${currentActive}` : undefined} aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-error` : undefined} autoComplete="off" spellCheck={false} disabled={disabled} placeholder={ph} value={open ? query : selected?.label ?? value} onFocus={begin} onClick={() => { if (!open) begin() }} onChange={(event) => { const text = event.target.value; setQuery(text); setActive(nextActive(filterOptionGroups(options, text).flatMap((group) => group.options), -1, 'ArrowDown')); setOpen(true) }} onKeyDown={keyboard} style={inp.style} />
-        {open && query && <button type="button" className={ghost.className} aria-label={L.clearSearch} onMouseDown={(event) => event.preventDefault()} onClick={() => { setQuery(''); setActive(nextActive(options, -1, 'ArrowDown')); input.current?.focus() }} style={ghost.style}><Icon name="add" size={14} style={{ transform: 'rotate(45deg)' }} /></button>}
-        <button type="button" className={ghost.className} tabIndex={-1} disabled={disabled} aria-label={open ? L.closeList : L.openList} onMouseDown={(event) => event.preventDefault()} onClick={() => { if (open) { setOpen(false); setQuery('') } else { input.current?.focus(); begin() } }} style={ghost.style}><Icon name="arrow-down-2" size={15} className={chev.className} style={chev.style} /></button>
-      </div>
-      {open && <Pop max={300} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); input.current?.focus(); setOpen(false); setQuery('') } }}>
+      {/* Ô chọn model: nút đóng như KitSelect (id mono + ngữ cảnh provider + chevron);
+          ô tìm chỉ dựng khi mở nên nút đóng không mang icon kính lúp. */}
+      {inlineDescription && !open
+        ? <button ref={trigger} id={id} type="button" role="combobox" className={trg.className} style={trg.style} aria-label={ariaLabel ?? label ?? L.choose} aria-haspopup="listbox" aria-expanded={false} aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-error` : undefined} disabled={disabled} title={selected ? [selected.label, selected.description].filter(Boolean).join(' · ') : value || ph} onClick={() => begin()} onKeyDown={triggerKeyboard}>
+          {selected
+            ? <>
+              <span {...stylex.props(sx.modelName, sx.modelNameNowrap)}>{selected.label}</span>
+              {selected.description && <span {...stylex.props(sx.modelDesc, sx.modelDescFill, sx.modelDescInline)}>{selected.description}</span>}
+            </>
+            : value
+              ? <span {...stylex.props(sx.modelName, sx.modelNameNowrap)}>{value}</span>
+              : <span {...stylex.props(sx.valuePlaceholder)}>{ph}</span>}
+          <Icon name="arrow-down-2" size={chevronSize ?? 15} className={chevClosed.className} style={chevClosed.style} />
+        </button>
+        : <div className={`kit-frame ${box.className}`} data-invalid={!!error || undefined} data-disabled={disabled || undefined} style={{ ...box.style, ...(compact ? { minHeight: 32 } : inlineDescription ? { height: 36 } : { height: 38 }) }}>
+          {!compact && <Icon name="search-normal-1" size={15} style={{ color: 'var(--color-fg-4)' }} />}
+          <input ref={input} id={id} className={`mono ${inp.className}`} role="combobox" aria-label={ariaLabel ?? label ?? L.choose} aria-haspopup="listbox" aria-expanded={open} aria-autocomplete="list" aria-controls={open ? `${id}-list` : undefined} aria-activedescendant={open && currentActive >= 0 ? `${id}-option-${currentActive}` : undefined} aria-invalid={!!error || undefined} aria-describedby={error ? `${id}-error` : undefined} autoComplete="off" spellCheck={false} disabled={disabled} placeholder={ph} value={open ? query : selected?.label ?? value} onFocus={() => { if (!open) begin() }} onClick={() => { if (!open) begin() }} onChange={(event) => { const text = event.target.value; setQuery(text); setActive(nextActive(filterOptionGroups(options, text).flatMap((group) => group.options), -1, 'ArrowDown')); setOpen(true) }} onKeyDown={keyboard} style={inp.style} />
+          {open && query && <button type="button" className={ghost.className} aria-label={L.clearSearch} onMouseDown={(event) => event.preventDefault()} onClick={() => { setQuery(''); setActive(nextActive(options, -1, 'ArrowDown')); input.current?.focus() }} style={ghost.style}><Icon name="add" size={14} style={{ transform: 'rotate(45deg)' }} /></button>}
+          <button type="button" className={ghost.className} tabIndex={-1} disabled={disabled} aria-label={open ? L.closeList : L.openList} onMouseDown={(event) => event.preventDefault()} onClick={() => { if (open) close(inlineDescription); else { input.current?.focus(); begin() } }} style={ghost.style}><Icon name="arrow-down-2" size={chevronSize ?? 15} className={chev.className} style={chev.style} /></button>
+        </div>}
+      {open && <Pop max={300} width={popWidth} onKeyDown={(event) => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(inlineDescription) } }}>
         <div id={`${id}-list`} role="listbox" aria-label={ariaLabel ?? label ?? L.options} aria-busy={loading || undefined}>
           {loading ? <LoadingOptions noun={thing} /> : loadError ? <div role="alert" {...stylex.props(sx.loadError)}><span {...stylex.props(sx.loadErrorTitle)}><Icon name="warning-2" size={15} />{L.loadFailed(thing)}</span><span {...stylex.props(sx.loadErrorBody)}>{loadError}</span>{onRetry && <button type="button" {...stylex.props(sx.retry)} onMouseDown={(event) => event.preventDefault()} onClick={onRetry}><Icon name="refresh-2" size={13} />{getKitLabels().retry}</button>}</div> : groups.length ? groups.map((group) => <div key={group.label} role="group" aria-label={group.label || L.options}>
             {group.label && <GroupLabel count={group.options.length}>{group.label}</GroupLabel>}
