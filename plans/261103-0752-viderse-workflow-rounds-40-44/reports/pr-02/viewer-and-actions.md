@@ -1,6 +1,6 @@
 # V36 · Trình xem ảnh và nối thao tác
 
-Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3), source followup đã đẩy `84458549b6250b8098026dbda5e14e74d6015781`; chưa merge PR2, chưa deploy; cần chốt #84**. PR nền [#2](https://github.com/datnt1998/verse/pull/2) đã merge `a7341d37db67e7cfafdb8035818f700820a11594`. Không đọc báo cáo này thành kết quả của V37–V40.
+Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3); source đã kiểm `52d3871225e4a6c8dd0799c0e5d151692463d600`, chưa merge PR2, chưa deploy. #84A đã sửa và review đóng; đang chốt ledger/tweak toàn V36.** PR nền [#2](https://github.com/datnt1998/verse/pull/2) đã merge `a7341d37db67e7cfafdb8035818f700820a11594`. Không đọc báo cáo này thành kết quả của V37–V40.
 
 ## Màn → đã sửa / còn lệch
 
@@ -8,7 +8,7 @@ Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3), sourc
 |---|---|---|
 | Trình xem ảnh desktop | Chung khung cho Bàn dựng, mẫu prompt và Biên tập; tối đa 1240×800, cột phải 340px; ảnh contain không phóng quá kích thước thật; strip bỏ qua ô chưa sẵn sàng; Esc/scrim/focus/scroll theo kit. | Không có thiết kế mobile viewer đợt45: không triển khai, không tính pass. Đối chiếu từng trạng thái còn đang bổ sung. |
 | Bàn dựng | URL giữ `video` + `img` theo ID; đổi ảnh không nhồi history; Back/Forward/reload đúng ngữ cảnh; shortcut nền không xuyên modal; góp ý giữ lại khi huỷ. | Bàn dựng gọn, hai tab, tiến độ và đề xuất thuộc V37. |
-| Duyệt desktop/mobile hiện hữu | Route/image identity, hai bản thật, mobile dùng bản đúng API, focus Huỷ picker, raw/draft/ref/cutout/batch/confirm và motion có native proof mới trên binary nhúng lượt55. | **#84 đang mở:** xem bản2 nhưng Sửa/Thêm lấy nền bản1 đang dùng. Chỉ sửa FE không đủ cho backend redraw; chưa merge khi chưa chốt/fix. Không làm viewer mobile45. |
+| Duyệt desktop/mobile hiện hữu | Route/image identity, raw/draft/ref/cutout/batch/confirm và motion có proof55. #84A cuối: native61 bốn context HTTP202 thật, source2/current1/refs2, cancelled3 disabled, source/replay khôi phục,0provider. Full3755qua/4skip; stale-source/draft/upload/shortcut guards và review đã đóng. | Ledger mọi tweak/control còn chốt;4skip OffscreenCanvas được ghi riêng, không gọi đã chạy. Không làm viewer mobile45; editor4phần mobile thuộc V40. |
 | Biên tập desktop | Chọn bản → viewer giữ đúng bản; Delete không xoá clip nền; Thay ảnh chuyển sang duy nhất một picker. Thay thật chỉ đổi `mediaId`/`src` của cảnh3, giữ hình học/thời lượng/keyframes; Hoàn tác khôi phục timeline đã lưu. | 15 điều khiển Editor tổng thể thuộc V37; không tự tạo mobile Editor. |
 | Template / Thư viện | Viewer chung, xem không chọn prompt; ZIP thật; sửa placeholder INSERT. #81 preview cùng mobile surface, Quay lại/Esc giữ draft/lựa chọn/focus. Trial bìa AI thật ready; preview desktop/mobile4/4. Desktop huỷ xác nhận bằng nút/Esc/scrim khôi phục đúng ảnh và focus. | Template mặc định/luân phiên thuộc V38; các tweak Template composition thuộc PR3/PR4. Những probe phrase/tagline trong delegation cũ không có trong yêu cầu/artboard, đã loại khỏi checklist thay vì tạo tính năng. Đã dùng đủ2/2 ảnh, không gọi thêm. |
 | Kết nối AI | Bỏ data-key UI/client như checklist; native catalog/filter/search/manual-cancel thật lượt52, provider added/failed thật lượt51. Sửa local unreachable báo sai khoá và nút; toast không che CTA Sheet, PC/mobile normal/reduced. | Mobile Tools recheck thiếu ở cả code/artboard có owner PR6; không coi hai skip là đã có parity. Danh mục đọc được không chứng minh inference. |
@@ -17,7 +17,7 @@ Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3), sourc
 ## Bằng chứng đã chạy
 
 - Typecheck ứng dụng và Editor: qua ở build và lượt kiểm tra nguồn.
-- Full Viderse hiện hành sau provider/focus/Toast: **3723 test qua,0lỗi,4skip**; full Noverse hiện hành **1894/1894**; full kit **261/261**. Viderse/Editor/kit typecheck và production+Go embedded build qua. Các suite vẫn có diagnostic icon/act/intentional chunk-fault đã giữ trong output, không gọi là không warning.
+- Full ở source followup `84458549`, trước #84: **Viderse3723qua/4skip**, **Noverse1894/1894**, **kit261/261**; typecheck và production+Go embedded build qua. Noverse/kit không đổi bởi #84; kết quả này không thay kiểm tra Viderse sau sửa source contract. Diagnostic icon/act/intentional chunk-fault được giữ trong output.
 - Lịch sử Noverse default-worker FAIL5 và rồi3test được giữ; root cause test harness dynamic-import nguội đã sửa như ghi phía dưới, không tăng timeout/assertion/đổi production store. Full hiện hành chạy lại sau thay đổi shared Toast, không chỉ tái dùng lượt cũ.
 - PostgreSQL thật: hai ca `TestDeletePrompt*` qua khi fixture dùng `InsertPromptSample` thật, xem [sample-store-regression.txt](sample-store-regression.txt).
 - Browser [lượt04](runs/04-complete-local-browser/interaction-results.json): **30 qua, 2 skip có tên**. Hai skip là Editor dưới768px không có thiết kế, không phải bỏ một lỗi test. Các ca chạy ở1440×900 và390×844, normal/reduced motion; có kiểm runtime errors và overflow. Đây là tập ca cụ thể, **không phải tuyên bố đã click mọi control của mọi tweak**.
@@ -61,12 +61,18 @@ Trạng thái: **PR nháp [#3](https://github.com/datnt1998/verse/pull/3), sourc
 - Lượt45 Ollama thật:4pass/4fail (harness đòi inline alert), sau sửa lời lỗi/nút đúng loại kết nối, lượt46 có8/8 qua. Đọc ảnh/video tìm thêm pill phủ31,7px CTA, không phải stacking lỗi: activity host đo Sheet/content để nhường CTA; **lượt51 8/8**, bounding boxes và ảnh settled PC/mobile normal/reduced qua. Toàn bộ provider QA đã gỡ, Ollama QA đã dừng;0download/0inference, job nguồn/trợ lý không đổi.
 - **Settings52:14qua/0lỗi/2skip** recheck mobile thuộc PR6; oracle filter/search dùng dữ liệu server và visible rows, không ép GET trên cache hit. **Template54 binary nhúng:16/16** gồm preview trial bìa thật đã có,0ảnh mới. Access QA đã gỡ sau cả hai lượt.
 - **Review55 binary nhúng:24hàng captured/2N/A**, raw đối chiếu wire thật, draft/raw giữ nội dung, popup Huỷ trả focus, cutout decode, batch2 và redraw-all scrim trả focus; reveal normal/reduced đúng nhịp. Original checksum giữ nguyên, replay finally khôi phục,0provider.
-- **Không đủ semantic để merge:** chính ảnh Review50/55 cho thấy refs của bản2 bị mất khi draft khởi tạo từ bản1 đang dùng. [Câu hỏi #84](../../../../apps/viderse/docs/design/v1/11-hoi-dap.md) ghi A: contract phiên bản nền/backend, hoặc B: chỉ sửa bản đang dùng kèm chốt tương tác. Không che bằng pass32focused/full3723; chưa sửa theo một phương án chưa được duyệt.
+- **#84 đã chốt A:** nguồn `baseVersion` được lưu qua checkpoint/worker, giữ phần không sửa và refs của bản đang xem; không tự `/use`. Focused app43/editor21, typechecks và build qua; full frontend tiếp theo **3736qua/4skip** sau sửa harness chờ lazy dialog. Lượt full trước đó3734qua/2lỗi/4skip và hai unhandled late imports giữ nguyên, không đổi assertion/timeout để che. [Backend contract và review](selected-version-backend.md), [frontend](selected-version-frontend.md). Các lượt này có trước bộ sửa edge-case frontend cuối, không gán lại thành pass cho nguồn sau đó.
+- [Lượt58 HTTP thật](runs/58-selected-source-api-boundaries/rejection-results.json): sáu ca sai nền/đang vẽ/quá refs trả400/404/409/422 đúng; Grok limit1, thẻ API limit0. Không đổi job/checkpoint, replay khôi phục, source giữ nguyên và0provider. Backend focused+web/pipeline qua sau review; không coi là full performance xanh.
+- **Nguồn cuối #84A `52d38712`:** [gates + hashes](selected-source-integration.json), [review](selected-source-review.md). Full3755qua/0lỗi/4skip Canvas đã nêu tên; focused58 app consumer/editor25, typechecks và production+Go embedded build qua. Một model generated của người dùng giữ nguyên/unstaged; Go overlay dùng bytes HEAD để không xuất bản thay đổi ngoài scope.
+- **Native61:4/4, HTTP62:6/6**, đủ rich history dù cancelled cũ không prompt, default/source không chọn bản huỷ, overlay thật không ra ngoài màn/không stack active modal/tràn ngang. `parts:null` từng làm client rơi về DTO cũ: đã sửa producer đúng array contract, không nới schema hoặc giả prompt; có hồi quy lỗi-trước/qua-sau. Inline `ReasonPopover` trong rail cuộn không phải floating overlay.
+- Bundle cuối `npm run size`: entry142.1/150KiB và CSS34.7/40KiB qua, phone203.1/200KiB **FAIL**. Giữ đúng hai gate #83, chưa đủ điều kiện deploy.
 
 
 ## Ảnh và nguồn dữ liệu
 
 Ảnh/code/video/geometry theo từng ca trong các thư mục `runs/`; ảnh native Biên tập: [viewer](editor-viewer-desktop.png), [picker](editor-replace-picker-desktop.png). Ảnh native ban đầu khác trong thư mục này không phải bộ so sánh đã nghiệm thu.
+
+So sánh nguồn52d không resize: [PC1440×900](comparison-selected-source/desktop-edit.png), [điện thoại390×844](comparison-selected-source/mobile-edit.png), [provenance vị trí/hash](comparison-selected-source/comparison-receipts.json). Artboard ở trái, code thật ở phải. Khác nội dung ảnh/prompt là dữ liệu QA đã ghi; bản mobile4phần thuộc PR6, chưa đọc ảnh này thành đã đạt1:1 toàn mobile.
 
 Dữ liệu QA ban đầu tạo trong DB/HOME/media riêng bằng FFmpeg, **không phải AI**; xem [provenance](fixture-provenance.json). Sau quyền tối đa2 ảnh do người dùng cấp, QA chỉ nhận access token còn hạn, bỏ refresh token, tắt fallback; không logout/ghi kho production. Redraw ban đầu chưa tới provider vì fixture thiếu thumbnail và captured model refs; đã hoàn tất metadata QA tương ứng job mới có cấu hình đầy đủ, không sửa production. Bản2 trong receipt provider phía trên là ảnh AI thật; không gán nguồn AI cho các ảnh màu QA trước đó. Trace tắt, không commit token/cookie/DSN/private fixture.
 
@@ -74,8 +80,8 @@ Dữ liệu QA ban đầu tạo trong DB/HOME/media riêng bằng FFmpeg, **khô
 
 1. **#81 đã chốt A:** Prompt mobile2/2 và Cover desktop/mobile4/4 qua trên surface thật; không làm viewer đợt45. Các tweak/control ngoài những ca đã báo vẫn cần ledger đầy đủ.
 2. Hoàn tất bảng tweak/control cùng ảnh reference/code đặt cạnh; giữ nguyên từng trạng thái thiếu prerequisite, không gán pass.
-3. Surface nhúng nguồn tích hợp đã chạy thật ở lượt54/55, không chỉ Vite. Cần giữ source fingerprint/build receipt đúng các blob đưa vào commit; generated dist stage toàn bộ trong private index.
-4. Gap V36 đã có ngày04/11 và commit thật `ee94b6f3`, chưa ghi hoàn tất. Giữ PR nháp khi #84 chưa chốt/fix và review chưa đóng.
+3. Surface nhúng nguồn cuối52d đã chạy native61 và boundary62; [fingerprints/checks](selected-source-integration.json) gắn đúng source commit. Generated dist đi cùng code; model generated không thuộc scope không được stage.
+4. Gap V36 có ngày04/11 và source commit52d thật. #84 review/semantic gate đã đóng; giữ PR nháp tới khi bảng nghiệm thu mọi trạng thái hoàn chỉnh.
 5. Chưa có bằng chứng Safari/iPhone vật lý; Chromium emulation không thay cho kiểm bàn phím thiết bị thật. Chưa đủ điều kiện báo deploy full.
 6. Cold phone và độ trễ Khám phá chưa đạt, được người dùng duyệt giữ tới gate deploy cuối (#83), không phải miễn kiểm tra. Board1000 đo riêng qua37,86ms/100ms; không dùng thay full suite/hosted CI.
-7. **#84:** chốt và sửa nguyên nhân draft sai phiên bản nền, rồi kiểm prompt/refs không sửa cũng giữ đúng phiên bản đã chọn; không gọi thêm ảnh quá2/2 để lấy proof.
+7. **#84 đã đóng ở source52d:** không còn chờ quyền sửa hoặc fix source-version. Tiếp tục phần nghiệm thu V36 còn lại, không gọi thêm ảnh quá2/2.

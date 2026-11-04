@@ -1,0 +1,147 @@
+{
+  "receipts": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "cancelledHistoryDisabled": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "desktop-reduced",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "cancelledHistoryDisabled": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "mobile",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "cancelledHistoryDisabled": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "mobile-reduced",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "cancelledHistoryDisabled": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "name": "desktop-selected-two-draft",
+      "width": 1440,
+      "height": 900,
+      "documentWidth": 1440,
+      "reducedMotion": false,
+      "dialogs": [
+        {
+          "role": "dialog",
+          "modal": null,
+          "position": "static",
+          "overlay": false,
+          "x": 1017,
+          "y": -397.375,
+          "right": 1424,
+          "bottom": 359.625
+        }
+      ]
+    },
+    {
+      "name": "desktop-reduced-selected-two-draft",
+      "width": 1440,
+      "height": 900,
+      "documentWidth": 1440,
+      "reducedMotion": true,
+      "dialogs": [
+        {
+          "role": "dialog",
+          "modal": null,
+          "position": "static",
+          "overlay": false,
+          "x": 1017,
+          "y": -397.375,
+          "right": 1424,
+          "bottom": 359.625
+        }
+      ]
+    },
+    {
+      "name": "mobile-selected-two-draft",
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "reducedMotion": false,
+      "dialogs": [
+        {
+          "role": "dialog",
+          "modal": "true",
+          "position": "absolute",
+          "overlay": true,
+          "x": 0,
+          "y": 381.15625,
+          "right": 390,
+          "bottom": 844
+        }
+      ]
+    },
+    {
+      "name": "mobile-reduced-selected-two-draft",
+      "width": 390,
+      "height": 844,
+      "documentWidth": 390,
+      "reducedMotion": true,
+      "dialogs": [
+        {
+          "role": "dialog",
+          "modal": "true",
+          "position": "absolute",
+          "overlay": true,
+          "x": 0,
+          "y": 381.15625,
+          "right": 390,
+          "bottom": 844
+        }
+      ]
+    }
+  ],
+  "originalSourceUnchanged": true,
+  "replayRestored": true,
+  "additionalProviderRequests": 0,
+  "fixturePolicy": "Explicit cancelled-history domain row without media/provider receipt on the owned replay; not a third generated image or observed provider outcome.",
+  "proofLimit": "Actual HTTP/UI and checkpoint source persistence only; worker kept paused, no third image or provider output claimed. Worker plan preservation is covered by focused Go regressions."
+}

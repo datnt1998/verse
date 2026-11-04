@@ -1,0 +1,46 @@
+[
+  {
+    "state": "Review.prompt.edit",
+    "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/Review.prompt.edit.png",
+    "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/61-selected-source-final-empty-cancelled-history/desktop-selected-two-draft.png",
+    "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-selected-source/desktop-edit.png",
+    "referenceSHA256": "8c4a4e3a8b4816f64a069bb95890dd03b669af720db00a191a11066f8d312a42",
+    "applicationSHA256": "69ff8f8a93b69aed5a89b4ca57c3823ceb5973ba3c5a1a344fa95020019fe920",
+    "sourceCommit": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+    "referencePosition": "left",
+    "applicationPosition": "right",
+    "scale": 1,
+    "referenceViewport": [
+      1440,
+      900
+    ],
+    "applicationViewport": [
+      1440,
+      900
+    ],
+    "scope": "Actual V36 source edit; media/prompt content intentionally differs from the canonical illustration. No new image generated.",
+    "remainingParity": "Full V36 state/control ledger still being completed."
+  },
+  {
+    "state": "MReview.state.edit",
+    "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/MReview.state.edit.png",
+    "application": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/61-selected-source-final-empty-cancelled-history/mobile-selected-two-draft.png",
+    "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-selected-source/mobile-edit.png",
+    "referenceSHA256": "75ad6f6b2afc21b83f440c87a7a9c057ea6c9d83578253f29324dd6a80768198",
+    "applicationSHA256": "6eb0b9aeb536477cd11603408aec4bacf8da6e51bda48a249d182c79ddfb38de",
+    "sourceCommit": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+    "referencePosition": "left",
+    "applicationPosition": "right",
+    "scale": 1,
+    "referenceViewport": [
+      390,
+      844
+    ],
+    "applicationViewport": [
+      390,
+      844
+    ],
+    "scope": "Actual V36 source edit; media/prompt content intentionally differs from the canonical illustration. No new image generated.",
+    "remainingParity": "Mobile four-part edit is owned by PR6; this is not its parity acceptance."
+  }
+]

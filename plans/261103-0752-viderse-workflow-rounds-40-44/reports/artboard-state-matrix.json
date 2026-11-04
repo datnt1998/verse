@@ -68,7 +68,7 @@
     "plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md": "afbe00cca3745e93fdaf8fcbe76c2aa3710e220e289b5f3d744abecc695f366d",
     "plans/261103-0752-viderse-workflow-rounds-40-44/verification.md": "eae9484fe822f949493df055c1cd3d7859a3cf360adee49af6f066a4617241ff",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-01-inventory.md": "ba5af68912c911acb716b6b77cf0ecc6124ed745f215cd13dc9c67163ee4c459",
-    "plans/261103-0752-viderse-workflow-rounds-40-44/phase-03-v36-viewer-and-actions.md": "c6b4259a6fb8a756dd6d5027afe9603e8f8fba912c3bf87b15ed0a32b076737f",
+    "plans/261103-0752-viderse-workflow-rounds-40-44/phase-03-v36-viewer-and-actions.md": "a3b5048e1f7957466ec227731febd536ff6715ce21ed28cd220edfd18f64a2b6",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-04-v37-compact-studio.md": "58c12a2d9021449785e6bd18897b32536404d0bcbbc1c9c89e2c5912a7228fa1",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-05-v38-channels-and-library.md": "5c120f534f8e8f4d43133925be195f541a8ea4e02604c13ba6edd86ad563c23a",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md": "f6714121d030e6e4e1aa558508888b44e2a68ed421975e3b5579a5e17a0530a3",
@@ -77,9 +77,9 @@
     "apps/viderse/docs/design/v1/04-components.md": "634aaf4f49bd94b4672df94ab7a1bf6de613757f9b5e2c3283b4865af2041c42",
     "apps/viderse/docs/design/v1/05-kit.md": "8ae47877c86203e1bc4e9ab85aeae3e9b2ec0606fadc288f6caa9340c1e7db1f",
     "apps/viderse/docs/design/v1/06-copy.md": "f3f92d94cbd4e9031cd0ae195164f72495980e98da820d2f8ca0155acaa61b97",
-    "apps/viderse/docs/design/v1/07-data-contract.md": "ed441019f8712e9b31ee36f51b6b467067822f2611c0d1e2321388c37b018bdb",
+    "apps/viderse/docs/design/v1/07-data-contract.md": "9217185d7a47addafce641adff9c3985504eaa641eff4c2b595e8a86a6c1fd5c",
     "apps/viderse/docs/design/v1/08-dev-prompt.md": "7665372b7fe169af7cbf0cc1aae51b1b5c20a8d600571bcbf355b0cb56156485",
-    "apps/viderse/docs/design/v1/10-gap-closure.md": "b5c023f9cda87f2b474fbfd216682e13aecc7ee7ce60119aa7dd32a920f1789d"
+    "apps/viderse/docs/design/v1/10-gap-closure.md": "1103e748fdff6d429dca9cc18791f4c8446b27b1fd4c2b61c44121b904e8fef1"
   },
   "runtimeProtocol": {
     "source": "apps/viderse/docs/design/v1/artboards/support.js",
