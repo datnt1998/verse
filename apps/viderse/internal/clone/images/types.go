@@ -21,14 +21,7 @@ type FfmpegResolver interface {
 	Resolve(context.Context) *tools.FfmpegResolved
 }
 
-// Learner nhận góp ý vẽ lại của chủ kênh để Hoạ sĩ học (07 §19). Cả hai hàm
-// trả đề xuất learn_rule hoặc nil; lỗi của Learner không làm hỏng lần vẽ lại.
-type Learner interface {
-	ObserveRedraw(ctx context.Context, jobID, channelID, imagePromptID, promptName, feedback string) (any, error)
-	OpenFor(ctx context.Context, jobID string) (any, error)
-}
 type Service struct {
-	Learner   Learner
 	Edits     *jobedit.Service
 	Prompts   PromptCatalog
 	QuotaLeft func(context.Context) (int, error)
@@ -89,8 +82,6 @@ type GenerateResult struct {
 	Pending  []string `json:"pending"`
 	Count    int      `json:"count,omitempty"`
 	ItemID   string   `json:"itemId,omitempty"`
-	// Learn là đề xuất “Thêm vào Ghi chú đã học” khi góp ý vừa lặp lần thứ 2.
-	Learn any `json:"learn"`
 }
 type ReviewResult struct {
 	Manifest struct {
@@ -327,8 +318,6 @@ type View struct {
 	Approved      bool          `json:"approved"`
 	ApprovedToday *int          `json:"approvedToday"`
 	Reason        string        `json:"reason,omitempty"`
-	// Learn: đề xuất “Thêm vào Ghi chú đã học” đang mở mà video này góp phần.
-	Learn any `json:"learn"`
 }
 
 // OptionalString distinguishes omission (retain override) from null (template).

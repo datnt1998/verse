@@ -3,7 +3,6 @@ package web
 import (
 	"context"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -17,13 +16,6 @@ const (
 	perfTemplate = "aaaaaaaa-1111-4111-8111-111111111111"
 	perfTemplB   = "bbbbbbbb-1111-4111-8111-111111111111"
 )
-
-type perfFakeRules struct{ got []performance.RuleInput }
-
-func (f *perfFakeRules) AddRule(_ context.Context, in performance.RuleInput) (string, error) {
-	f.got = append(f.got, in)
-	return "rule-1", nil
-}
 
 func TestPerformanceStorePostgres(t *testing.T) {
 	_, pool := planFixture(t)
@@ -64,8 +56,7 @@ func TestPerformanceStorePostgres(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	rules := &perfFakeRules{}
-	svc := &performance.Service{Store: store, Rules: rules, Loc: time.FixedZone("ICT", 7*3600)}
+	svc := &performance.Service{Store: store, Loc: time.FixedZone("ICT", 7*3600)}
 	view, err := svc.Performance(ctx, perfChannel)
 	if err != nil {
 		t.Fatal(err)
@@ -77,19 +68,6 @@ func TestPerformanceStorePostgres(t *testing.T) {
 		if !in.Preliminary {
 			t.Errorf("%s not preliminary", in.ID)
 		}
-	}
-
-	// áp dụng nhận xét tiêu đề: quy tắc có nguồn số, áp lần hai → 409
-	titleID := "title_pattern:question"
-	w := httptest.NewRecorder()
-	applyInsight(w, httptest.NewRequest("POST", "/api/channels/"+perfChannel+"/insights/x/apply", nil), svc, perfChannel, titleID)
-	if w.Code != 200 || len(rules.got) != 1 || rules.got[0].Source != "Từ số liệu 9 video" {
-		t.Fatalf("apply status=%d body=%s rules=%+v", w.Code, w.Body.String(), rules.got)
-	}
-	w = httptest.NewRecorder()
-	applyInsight(w, httptest.NewRequest("POST", "/", nil), svc, perfChannel, titleID)
-	if w.Code != 409 || len(rules.got) != 1 {
-		t.Fatalf("second apply status=%d rules=%d", w.Code, len(rules.got))
 	}
 
 	// Template luân phiên: Đều đặn không đổi; áp dụng nhận xét mẫu → mẫu A chạy gấp đôi

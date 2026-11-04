@@ -16,32 +16,19 @@ type QuietHours struct {
 	End     string `json:"end"`
 }
 
-// SuggestionOff tắt một loại Đề xuất: cho một kênh, hoặc cho mọi kênh khi
-// ChannelID nil (Cài đặt › Trợ lý chủ động › Chọn loại).
-type SuggestionOff struct {
-	ChannelID *string `json:"channelId"`
-	Kind      string  `json:"kind"`
-}
-type SuggestionPrefs struct {
-	Off []SuggestionOff `json:"off"`
-}
-
-// SuggestionKinds là bảy loại Đề xuất của trợ lý (07 §18).
-var SuggestionKinds = []string{"hot_video", "template_failing", "learn_rule", "raise_autonomy", "pace", "perf_insight", "cleanup"}
-
 type NotificationSettings struct {
-	Kinds         map[string]NotificationChannels `json:"kinds"`
-	DoNotDisturb  QuietHours                      `json:"doNotDisturb"`
-	Badge         bool                            `json:"badge"`
-	Merge         bool                            `json:"merge"`
-	RecapOnReturn bool                            `json:"recapOnReturn"`
-	Suggestions   SuggestionPrefs                 `json:"suggestions"`
+	Kinds        map[string]NotificationChannels `json:"kinds"`
+	DoNotDisturb QuietHours                      `json:"doNotDisturb"`
+	Badge        bool                            `json:"badge"`
+	Merge        bool                            `json:"merge"`
+	// Suggestions là công tắc chung cho cả ba loại Đề xuất của trợ lý.
+	Suggestions bool `json:"suggestions"`
 }
 
 var notificationKinds = []string{"review_ready", "needs_attention", "ready_to_post", "task_done", "action_result"}
 
 func DefaultNotificationSettings() NotificationSettings {
-	s := NotificationSettings{Kinds: make(map[string]NotificationChannels), DoNotDisturb: QuietHours{Start: "23:00", End: "07:00"}, Badge: true, Merge: true, RecapOnReturn: true, Suggestions: SuggestionPrefs{Off: []SuggestionOff{}}}
+	s := NotificationSettings{Kinds: make(map[string]NotificationChannels), DoNotDisturb: QuietHours{Start: "23:00", End: "07:00"}, Badge: true, Merge: true, Suggestions: true}
 	for _, k := range notificationKinds {
 		s.Kinds[k] = NotificationChannels{InApp: true, System: k == "review_ready" || k == "needs_attention" || k == "ready_to_post"}
 	}
@@ -61,15 +48,6 @@ func (s NotificationSettings) Validate() error {
 	for _, k := range notificationKinds {
 		if _, ok := s.Kinds[k]; !ok {
 			return fmt.Errorf("thiếu loại thông báo %s", k)
-		}
-	}
-	for _, o := range s.Suggestions.Off {
-		known := false
-		for _, k := range SuggestionKinds {
-			known = known || k == o.Kind
-		}
-		if !known {
-			return fmt.Errorf("loại đề xuất không hợp lệ")
 		}
 	}
 	if _, err := minuteOfDay(s.DoNotDisturb.Start); err != nil {
@@ -117,9 +95,6 @@ func (s *Service) NotificationSettings(ctx context.Context) (NotificationSetting
 		return prefs, nil
 	}
 	_, err := store.Get(ctx, notificationSettingsKey, &prefs)
-	if prefs.Suggestions.Off == nil {
-		prefs.Suggestions.Off = []SuggestionOff{}
-	}
 	return prefs, err
 }
 func (s *Service) SetNotificationSettings(ctx context.Context, prefs NotificationSettings) error {

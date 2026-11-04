@@ -28,7 +28,7 @@ beforeEach(async () => {
       action_result: { inApp: true, system: false },
     },
     doNotDisturb: { enabled: false, start: '22:00', end: '08:00' },
-    badge: true, merge: false, recapOnReturn: true, suggestions: { off: [] },
+    badge: true, merge: false, suggestions: true,
   }
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
@@ -56,15 +56,15 @@ afterEach(async () => {
   vi.unstubAllGlobals()
 })
 
-it('saves the changed notification field and displays the persisted choice', async () => {
-  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Gộp thông báo trong 10 giây"]')!
+it('turns all assistant suggestions off without changing notification channels', async () => {
+  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"][aria-label="Đề xuất của trợ lý"]')!
   expect(toggle).toBeTruthy()
   await act(async () => toggle.click())
   await flush()
   expect(writes).toHaveLength(1)
-  expect(writes[0].merge).toBe(true)
+  expect(writes[0].suggestions).toBe(false)
   expect(writes[0].kinds.review_ready).toEqual({ inApp: true, system: false })
-  expect(toggle.getAttribute('aria-checked')).toBe('true')
+  expect(toggle.getAttribute('aria-checked')).toBe('false')
 })
 
 it('reports save rejection without presenting an unpersisted selection', async () => {

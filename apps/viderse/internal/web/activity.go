@@ -66,9 +66,6 @@ func MountActivity(g *Gateway, svc Activity) {
 				webapp.Error(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			if prefs.Suggestions.Off == nil {
-				prefs.Suggestions.Off = []activity.SuggestionOff{}
-			}
 			if err := preferences.SetNotificationSettings(r.Context(), prefs); err != nil {
 				webapp.Error(w, http.StatusInternalServerError, err.Error())
 				return

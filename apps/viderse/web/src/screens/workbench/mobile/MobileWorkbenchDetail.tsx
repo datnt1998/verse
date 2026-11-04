@@ -1,9 +1,10 @@
 // Trang chi tiết video của Bàn dựng điện thoại (artboard MMain › detail): thanh
 // tiêu đề 52px, bốn trợ lý một hàng, "Ảnh của video", Phòng vẽ, Nội dung đăng,
-// Nhật ký và ô nhắn dính đáy. Không thanh thứ hai; tab ẩn nhờ useTabMode('hide').
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+// Nhật ký. Không có ô nhắn; thao tác ảnh ở Trình xem ảnh. Không thanh thứ hai;
+// tab ẩn nhờ useTabMode('hide').
+import { useEffect, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, Shimmer, useEscapeLayer } from '@noverse/ui'
+import { Button, Icon, Shimmer } from '@noverse/ui'
 import { ApiError } from '../../../api/request'
 import { getScoreArtifact, jobAction, type CloneJobView, type JobImageList } from '../../../api/workbench'
 import { getMetadata } from '../../../api/workbenchPanels'
@@ -14,19 +15,15 @@ import { requestDeleteExport, requestMarkPosted } from '../../../components/perf
 import { Orb } from '../../../components/Orb'
 import { DevelopEffect } from '../../../components'
 import { ASSISTANTS, ASSISTANT_INK, assistantName } from '../../../components/agents'
-import { ReasonPopover } from '../../../components/reason/ReasonPopover'
-import { workbenchPlaceholder } from '../../../components/assistant/placeholders'
 import { progressState, progressText } from '../../../lib/progress-copy'
 import { screenWorkbench } from '../../../i18n/screens'
 import { navigate, routePath } from '../../../router'
-import { imageTime } from '../workbench-logic'
+import { finishedVideo, imageTime } from '../workbench-logic'
 import { durationLabel, imageLabel, imageUrl } from './mworkbench-logic'
 import { mw, mwDetail as d } from './mworkbench.stylex'
 import { OverflowMenu } from '../OverflowMenu'
-import { PromptMenu } from '../PromptMenu'
 import { MobileMetaSheet } from './MobileMetaSheet'
 import { MobileImageSheet } from './MobileImageSheet'
-const LearnSlot = lazy(() => import('../../../components/learn/LearnSlot').then((module) => ({ default: module.LearnSlot })))
 
 const c = screenWorkbench.mobile
 const STATE: Record<string, string> = { waiting: 'Chờ lượt', running: 'Đang làm', done: 'Xong', stopped: 'Dừng', needs_you: 'Chờ bạn' }
@@ -37,7 +34,7 @@ const STEP_AGENT: Record<string, string> = {
   build: 'qa', score: 'qa', export: 'qa',
 }
 
-export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError, jobChannel, onBack, onRefresh, onPlan, onNotice, planOpen }: {
+export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError, jobChannel, onBack, onRefresh, onNotice }: {
   job: CloneJobView
   images: JobImageList | undefined
   imagesLoading: boolean
@@ -45,29 +42,24 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
   jobChannel?: string
   onBack: () => void
   onRefresh: () => void
-  onPlan: (text: string) => void
   onNotice: (text: string) => void
-  /** Sheet Kế hoạch đang mở: khoá ô nhập để không gửi trùng cùng một câu. */
-  planOpen: boolean
 }) {
-  const [promptOpen, setPromptOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [metaOpen, setMetaOpen] = useState<'edit' | 'rewrite' | 'history' | null>(null)
   const [imageOpen, setImageOpen] = useState(false)
-  const [whyOpen, setWhyOpen] = useState(false)
   const [imageId, setImageId] = useState<string | undefined>(undefined)
-  const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [actionBusy, setActionBusy] = useState(false)
   const [actionError, setActionError] = useState('')
+  // Lỗi tải/giải mã không đồng nghĩa tệp đã bị xoá.
+  const [failedVideoUrl, setFailedVideoUrl] = useState<string | null>(null)
   const online = useOnline()
-  const draftInput = useRef<HTMLInputElement>(null)
-  const sendLock = useRef(false)
-  const wasPlanOpen = useRef(planOpen)
   const meta = useResource(['workbench', 'meta', job.id], ({ signal }) => getMetadata(job.id, signal))
   const scoreArtifact = job.steps?.find((step) => step.step === 'score')?.output?.artifacts?.find((item) => item.path.endsWith('score.json'))
   const score = useResource(['workbench', 'score', job.id, scoreArtifact?.id || ''], ({ signal }) => getScoreArtifact(job.id, scoreArtifact!.id, signal), { enabled: Boolean(scoreArtifact) && job.activeStep === 'score' })
-  const video = job.steps?.find((step) => step.step === 'export')?.output?.artifacts?.find((item) => item.contentType === 'video/mp4')
+  const video = finishedVideo(job)
+  const playable = video && video.url !== failedVideoUrl ? video : null
+  useEffect(() => { setFailedVideoUrl(null) }, [video?.url])
   const items = images?.items ?? []
   const cover = items.find((item) => item.kind === 'thumbnail' || item.kind === 'cover')
   const drawn = items.filter((item) => imageUrl(item)).length
@@ -92,19 +84,6 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
   // Xoá riêng file MP4 của video đã đăng: giữ project, job, ảnh và video nguồn.
   const deleteMp4 = () => { void requestDeleteExport(job, onRefresh).catch((err: unknown) => onNotice(err instanceof Error ? err.message : 'Không xoá được')) }
   const hasExport = (job.exportBytes ?? 0) > 0
-  // Câu đã gửi vẫn nằm trong ô: đóng sheet Kế hoạch thì người dùng sửa lại chính
-  // câu đó, không mất bản nháp. Chỉ chặn gửi trùng khi sheet còn mở.
-  const send = () => {
-    const text = draft.trim()
-    if (!text || planOpen || sendLock.current) return
-    sendLock.current = true
-    onPlan(text)
-  }
-  useEffect(() => {
-    if (!planOpen) sendLock.current = false
-    if (wasPlanOpen.current && !planOpen) draftInput.current?.focus()
-    wasPlanOpen.current = planOpen
-  }, [planOpen])
   const openImage = (id?: string) => { setImageId(id); setImageOpen(true) }
   const copyPackage = () => {
     if (!meta.data?.metadata) return
@@ -113,7 +92,6 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
       .then(() => onNotice(c.metaPackageCopied)).catch(() => onNotice(c.metaCopyFailed))
   }
 
-  useEscapeLayer(whyOpen && !metaOpen, () => setWhyOpen(false))
   useEffect(() => { setActionError('') }, [job.id])
   useEffect(() => subscribeEvents(['clone.step.progress', 'clone.job.updated'], () => { void meta.refresh() }), [meta.refresh])
 
@@ -148,20 +126,6 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
         <span {...stylex.props(d.reviewBannerText)}><Icon name="clock" size={18} /><span>{c.queued} Hoạ sĩ bắt đầu vẽ khi video được nhận lượt; chỉ dẫn cảnh và bìa đã chọn áp dụng lúc bắt đầu.</span></span>
         <a href="#/queue" {...stylex.props(mw.moreLink)}>{c.openQueue}<Icon name="arrow-r" size={14} /></a>
       </div>}
-
-      <button type="button" aria-haspopup="dialog" onClick={() => setPromptOpen(true)} {...stylex.props(d.promptRow)}>
-        <span {...stylex.props(d.promptIcon)}><Icon name="magicpen" size={18} /></span>
-        <span {...stylex.props(d.promptText)}>
-          <span {...stylex.props(d.promptTitle)}>{c.images}</span>
-          <span {...stylex.props(d.promptSub)}>
-            {images?.manifest
-              ? `Cảnh ${images.manifest.scenePrompt.name} · Bìa ${images.manifest.coverPrompt.name}`
-              : 'Chọn chỉ dẫn cảnh và ảnh bìa cho video này'}
-          </span>
-        </span>
-        {(images?.manifest?.scenePrompt.overridden || images?.manifest?.coverPrompt.overridden) && <span {...stylex.props(d.promptBadge)}>Riêng video này</span>}
-        <Icon name="arrow-r" size={15} xstyle={d.promptChevron} />
-      </button>
 
       {job.stageGroup === 'paused' && <div role="status" {...stylex.props(d.reviewBanner)}>
         <span {...stylex.props(d.reviewBannerText)}><Icon name="pause" size={18} xstyle={d.reviewFlag} /><span>Video đang tạm dừng. Phần đã làm được giữ nguyên; chạy tiếp không vẽ lại ảnh đã xong.</span></span>
@@ -254,15 +218,8 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
             <span>{c.metaSheet.titleField} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{data.title.length}/100</span></span>
             {(data.edited?.title || edited) && <span style={{ color: 'var(--vv-st-review)' }}>· bạn đã sửa</span>}
             <span {...stylex.props(d.fieldGrow)} />
-            {data.reason?.title && !edited && <button type="button" aria-expanded={whyOpen} onClick={() => setWhyOpen(!whyOpen)} {...stylex.props(d.whyBtn)}><Icon name="info" size={13} />{c.metaWhy}</button>}
           </div>
           <button type="button" aria-label={c.metaSheet.titleField} onClick={() => setMetaOpen('edit')} {...stylex.props(d.titleBox)}>{data.title}</button>
-          {whyOpen && data.reason?.title && <div {...stylex.props(mw.field)}>
-            <ReasonPopover reason={data.reason.title} label={c.metaWhy} />
-            <Button variant="quiet" size="sm" onClick={() => setWhyOpen(false)}>{c.metaWhyClose}</Button>
-          </div>}
-          {!metaOpen && <Suspense fallback={null}><LearnSlot ownerKey={`${job.channelId}:${job.id}`} learn={meta.data?.learn} /></Suspense>}
-
           <span {...stylex.props(d.fieldLabel)}>{c.metaSheet.descriptionField} · <span style={{ fontVariantNumeric: 'tabular-nums' }}>{data.description.length}/5.000</span>{meta.data?.descriptionFooter ? ', có đoạn cuối của kênh' : ''}</span>
           <button type="button" aria-label={c.metaSheet.descriptionField} onClick={() => setMetaOpen('edit')} {...stylex.props(d.descBox)}>{data.description}</button>
 
@@ -312,25 +269,15 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
 
       {(job.stageGroup === 'ready' || job.stageGroup === 'posted') && <section aria-label={c.readyTitle} {...stylex.props(d.videoCard)}>
         <h2 {...stylex.props(d.sectionTitle)}><Icon name="video-add" size={15} />{c.readyTitle}</h2>
-        {video ? <video controls {...stylex.props(d.viewer)} src={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} /> : <p {...stylex.props(d.sectionNote)}>{c.noVideoFile}</p>}
-        {video && <a {...stylex.props(mw.moreLink)} href={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} target="_blank" rel="noreferrer">Mở file video<Icon name="arrow-r" size={14} /></a>}
+        {playable ? <video controls preload="metadata" {...stylex.props(d.viewer)} src={playable.url} onError={() => setFailedVideoUrl(playable.url)} /> : <p {...stylex.props(d.sectionNote)}>{video ? screenWorkbench.videoPlaybackError : c.noVideoFile}</p>}
+        {playable && <a {...stylex.props(mw.moreLink)} href={playable.url} target="_blank" rel="noreferrer">Mở file video<Icon name="arrow-r" size={14} /></a>}
         {job.stageGroup === 'posted' && hasExport && <Button size="sm" variant="ghost" icon={<Icon name="trash" size={15} />} onClick={deleteMp4}>{c.deleteMp4}</Button>}
       </section>}
     </main>
 
-    <form onSubmit={(event) => { event.preventDefault(); send() }} aria-busy={planOpen || undefined} {...stylex.props(d.composerBar, d.composerSafe)}>
-      <div {...stylex.props(d.composerCard)}>
-        <label htmlFor="mmsg" {...stylex.props(mw.srOnly)}>{c.composerDetail}</label>
-        <input ref={draftInput} id="mmsg" value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={workbenchPlaceholder(job)} aria-label={c.composerDetail}
-          disabled={planOpen} autoComplete="off" enterKeyHint="send" autoCapitalize="sentences" {...stylex.props(d.composerInput)} />
-        <Button type="submit" variant="primary" size="lg" aria-label={c.send} disabled={!draft.trim() || planOpen} aria-busy={planOpen || undefined} xstyle={d.composerSend} icon={<Icon name="arrow-up" size={18} />} />
-      </div>
-    </form>
-
-    {promptOpen && <PromptMenu mobile job={job} onClose={() => setPromptOpen(false)} onRefresh={onRefresh} />}
     {moreOpen && <OverflowMenu mobile job={job} onClose={() => setMoreOpen(false)} onRefresh={onRefresh} onError={onNotice} />}
     <MobileMetaSheet open={metaOpen !== null} initialView={metaOpen ?? 'edit'} jobId={job.id} onClose={() => setMetaOpen(null)} onRefresh={() => { void meta.refresh(); onRefresh() }} />
     <MobileImageSheet open={imageOpen} jobId={job.id} initialId={imageId} images={images} loading={imagesLoading} error={imagesError}
-      onClose={() => setImageOpen(false)} onChangePrompt={() => { setImageOpen(false); setPromptOpen(true) }} onRetry={onRefresh} />
+      onClose={() => setImageOpen(false)} onRetry={onRefresh} />
   </div>
 }

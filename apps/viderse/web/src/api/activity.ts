@@ -8,11 +8,10 @@
 // động (ActivityBridge trong khung app) nên không được kéo cả thư viện schema.
 import { bool, list, maybe, nullable, num, oneOf, record, str } from './guard'
 import { mutate, request } from './request'
-import type { SuggestionKind } from './suggestions'
 
 export type TaskKind =
   | 'video' | 'identity' | 'channel_scan' | 'backdrop_scan' | 'thumbnail_preview'
-  | 'template_preview' | 'image_trial' | 'editor_export' | 'setup' | 'cleanup' | 'logs' | 'storage_move' | 'storage_migrate' | 'assistant_plan'
+  | 'template_preview' | 'image_trial' | 'editor_export' | 'setup' | 'cleanup' | 'logs' | 'storage_move' | 'storage_migrate'
 
 export type TaskState = 'running' | 'paused' | 'waiting' | 'failed'
 
@@ -160,30 +159,18 @@ export const readActivity = (value: unknown): Activity => {
   }
 }
 
-export type SuggestionSettings = { off: { channelId: string | null; kind: SuggestionKind }[] }
-
 export type NotificationSettings = {
   kinds: Record<NotificationKind, { inApp: boolean; system: boolean }>
   doNotDisturb: { enabled: boolean; start: string; end: string }
   badge: boolean
   merge: boolean
-  recapOnReturn: boolean
-  suggestions: SuggestionSettings
+  suggestions: boolean
 }
 
 export const readNotificationSettings = (value: unknown): NotificationSettings => {
   const root = record(value, 'settings')
   const kinds = record(root.kinds, 'settings.kinds')
   const dnd = record(root.doNotDisturb, 'settings.doNotDisturb')
-  const suggestions = maybe(root.suggestions, (value, at) => {
-    const s = record(value, at)
-    return {
-      off: list(s.off ?? [], (entry, sub) => {
-        const o = record(entry, sub)
-        return { channelId: nullable(o.channelId, str, `${sub}.channelId`), kind: str(o.kind, `${sub}.kind`) as SuggestionKind }
-      }, `${at}.off`),
-    }
-  }, 'settings.suggestions') ?? { off: [] }
   return {
     kinds: Object.fromEntries(KINDS.map((kind) => {
       const entry = record(kinds[kind], `settings.kinds.${kind}`)
@@ -196,8 +183,7 @@ export const readNotificationSettings = (value: unknown): NotificationSettings =
     },
     badge: bool(root.badge, 'settings.badge'),
     merge: bool(root.merge, 'settings.merge'),
-    recapOnReturn: bool(root.recapOnReturn, 'settings.recapOnReturn'),
-    suggestions,
+    suggestions: bool(root.suggestions, 'settings.suggestions'),
   }
 }
 

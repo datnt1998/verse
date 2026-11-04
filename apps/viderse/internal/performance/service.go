@@ -2,7 +2,6 @@ package performance
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -81,19 +80,6 @@ type PostMarker interface {
 	MarkPosted(ctx context.Context, jobID string, posted bool) error
 }
 
-// RuleInput là một quy tắc đã học cần thêm (P08LearnApi thoả RuleAdder).
-type RuleInput struct {
-	ChannelID string
-	Field     string // "title" cho nhận xét kiểu tiêu đề
-	Text      string
-	Source    string // "Từ số liệu N video"
-}
-
-// RuleAdder thêm quy tắc đã học và trả mã quy tắc.
-type RuleAdder interface {
-	AddRule(ctx context.Context, in RuleInput) (ruleID string, err error)
-}
-
 // Service là cửa chung của HTTP, bộ lập lịch đọc số liệu và bộ sinh đề xuất.
 type Service struct {
 	Store  Store
@@ -102,7 +88,6 @@ type Service struct {
 	Marker PostMarker
 	// Title trả tiêu đề hiện tại của video (lỗi → facts không có tiêu đề).
 	Title func(ctx context.Context, jobID string) (string, error)
-	Rules RuleAdder
 	// Configured cho biết đang dùng khoá Data API (để báo nguồn số liệu).
 	Configured func(ctx context.Context) bool
 	Now        func() time.Time
@@ -306,30 +291,7 @@ func (s *Service) Performance(ctx context.Context, channelID string) (View, erro
 	return c.view, nil
 }
 
-// OpenInsights trả các nhận xét chưa áp dụng của mọi kênh (tín hiệu perf_insight).
-func (s *Service) OpenInsights(ctx context.Context) ([]InsightSignal, error) {
-	ids, err := s.Store.PostedChannelIDs(ctx)
-	if err != nil {
-		return nil, err
-	}
-	out := []InsightSignal{}
-	for _, id := range ids {
-		c, err := s.compute(ctx, id)
-		if err != nil {
-			return nil, err
-		}
-		for _, in := range openInsights(c) {
-			sig := InsightSignal{ChannelID: id, InsightID: in.ID, Dimension: string(in.Dimension), Text: in.Text, Preliminary: in.Preliminary, Videos: c.videos}
-			if in.Apply != nil {
-				sig.ApplyOp = in.Apply.Op
-			}
-			out = append(out, sig)
-		}
-	}
-	return out, nil
-}
-
-// Apply áp dụng một nhận xét: thêm quy tắc đã học hoặc cho template chạy nhiều hơn.
+// Apply áp dụng một nhận xét có thao tác: cho template chạy nhiều hơn.
 // Gọi lại trên nhận xét đã áp dụng trả kết quả cũ với AlreadyApplied.
 func (s *Service) Apply(ctx context.Context, channelID, insightID string) (ApplyResult, error) {
 	c, err := s.compute(ctx, channelID)
@@ -337,7 +299,7 @@ func (s *Service) Apply(ctx context.Context, channelID, insightID string) (Apply
 		return ApplyResult{}, err
 	}
 	if done, ok := c.applied[insightID]; ok {
-		return ApplyResult{Kind: done.Kind, RuleID: done.RuleID, AlreadyApplied: true}, nil
+		return ApplyResult{Kind: done.Kind, AlreadyApplied: true}, nil
 	}
 	var found *Insight
 	for i := range c.all {
@@ -351,17 +313,6 @@ func (s *Service) Apply(ctx context.Context, channelID, insightID string) (Apply
 	}
 	result := ApplyResult{}
 	switch found.Apply.Op {
-	case "add_rule":
-		if s.Rules == nil {
-			return ApplyResult{}, ErrNoRuleAdder
-		}
-		text, _ := found.Apply.Params["text"].(string)
-		field, _ := found.Apply.Params["field"].(string)
-		id, err := s.Rules.AddRule(ctx, RuleInput{ChannelID: channelID, Field: field, Text: text, Source: fmt.Sprintf("Từ số liệu %d video", c.videos)})
-		if err != nil {
-			return ApplyResult{}, err
-		}
-		result = ApplyResult{Kind: "rule", RuleID: id}
 	case "template.rotation":
 		templateID, _ := found.Apply.Params["templateId"].(string)
 		if err := s.Store.SetTemplateWeight(ctx, channelID, templateID, 2); err != nil {
@@ -371,7 +322,7 @@ func (s *Service) Apply(ctx context.Context, channelID, insightID string) (Apply
 	default:
 		return ApplyResult{}, ErrInsightGone
 	}
-	first, err := s.Store.MarkApplied(ctx, channelID, insightID, Applied{Kind: result.Kind, RuleID: result.RuleID})
+	first, err := s.Store.MarkApplied(ctx, channelID, insightID, Applied{Kind: result.Kind})
 	if err != nil {
 		return ApplyResult{}, err
 	}

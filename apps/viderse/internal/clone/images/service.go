@@ -206,9 +206,6 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	}
 	out.Manifest.ScenePrompt, out.Manifest.CoverPrompt = scene, cover
 	out.Manifest.Overrides = m.Overrides
-	if s.Learner != nil {
-		out.Learn, _ = s.Learner.OpenFor(ctx, id)
-	}
 	if m.ImageMode != "" {
 		mode := m.ImageMode
 		out.Manifest.ImageMode = &mode
@@ -389,47 +386,10 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	out.Manifest.Revision = l.manifest.Revision
 	if rerun {
 		out.Generation = &GenerateResult{Accepted: true, JobID: id, Pending: pending, Count: len(pending)}
-		out.Generation.Learn = s.observeFeedback(ctx, id, l, input.Actions)
 	}
 	return out, nil
 }
 
-// observeFeedback ghi các góp ý vẽ lại để Hoạ sĩ học. Mỗi (prompt, góp ý) tính
-// một lần dù áp cho nhiều ảnh trong cùng một lệnh. Lỗi không làm hỏng lần vẽ lại.
-func (s *Service) observeFeedback(ctx context.Context, id string, l loaded, actions []Action) any {
-	if s.Learner == nil {
-		return nil
-	}
-	scene, cover, err := s.effectivePrompts(ctx, l)
-	if err != nil {
-		return nil
-	}
-	kinds := map[string]string{}
-	for _, i := range l.manifest.Items {
-		kinds[i.ID] = i.Kind
-	}
-	type key struct{ prompt, text string }
-	seen := map[key]bool{}
-	var found any
-	for _, a := range actions {
-		if a.Op != "regenerate" || a.Prompt == nil || strings.TrimSpace(*a.Prompt) == "" {
-			continue
-		}
-		prompt := scene
-		if kinds[a.ID] == "thumbnail" && cover.ID != "" {
-			prompt = cover
-		}
-		if prompt.ID == "" || seen[key{prompt.ID, *a.Prompt}] {
-			continue
-		}
-		seen[key{prompt.ID, *a.Prompt}] = true
-		learn, err := s.Learner.ObserveRedraw(ctx, id, l.snapshot.Job.ChannelID, prompt.ID, prompt.Name, *a.Prompt)
-		if err == nil && learn != nil && found == nil {
-			found = learn
-		}
-	}
-	return found
-}
 func sameChoice(a, b *int) bool { return (a == nil && b == nil) || (a != nil && b != nil && *a == *b) }
 func firstReviewCompleted(snapshot jobedit.Snapshot, wasApproved bool, next model.Manifest) bool {
 	if wasApproved || !model.ImagesApproved(next) {

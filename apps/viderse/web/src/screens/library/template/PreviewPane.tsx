@@ -8,6 +8,7 @@ import { useState } from 'react'
 // thì `fresh` hiện `stale`. Bản xem thử là project editor đổ nội dung từ một
 // video đã xong; trình phát là chunk riêng, chỉ tải khi có project.
 import { ActionButton } from '../../../components'
+import { ResponsiveSelect } from '../../../components/responsive-overlays'
 import { t } from '../../../i18n/library'
 import { clock } from '../fmt'
 import type { TemplateDetail } from '../../../api/library'
@@ -71,21 +72,20 @@ export function PreviewPane({ detail, dirty }: { detail: TemplateDetail; dirty: 
       <div className={`vt-preview-source ${stylex.props(sx.previewSource).className}`}>
         <label className={`vt-hint ${stylex.props(sx.sourceLabel).className}`} htmlFor="vt-preview-source">{copy.videoTitle}</label>
         {preview.sources.length > 0 ? (
-          <select
+          <ResponsiveSelect
             id="vt-preview-source"
-            className={`vt-select ${stylex.props(sx.sourceSelect).className}`}
             aria-label={copy.sourceAria}
             value={sourceJob ?? ''}
             disabled={building || preview.busy}
-            onChange={(event) => setPickedJob(event.currentTarget.value || undefined)}
-          >
-            {preview.sources.map((source) => (
-              <option key={source.jobId} value={source.jobId} disabled={source.disabled}>
-                {copy.sourceOption(source.title, Math.max(1, Math.round(source.durationSec / 60)))}
-                {source.disabled && source.reason ? ` — ${source.reason}` : ''}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setPickedJob(value || undefined)}
+            xstyle={sx.sourceField}
+            options={preview.sources.map((source) => ({
+              value: source.jobId,
+              // Video không dựng được vẫn hiện kèm lý do, nhưng không chọn được.
+              label: `${copy.sourceOption(source.title, Math.max(1, Math.round(source.durationSec / 60)))}${source.disabled && source.reason ? ` — ${source.reason}` : ''}`,
+              disabled: source.disabled,
+            }))}
+          />
         ) : (
           <span className={`vt-hint ${stylex.props(sx.hint3).className}`}>{copy.noVideo}</span>
         )}
@@ -145,5 +145,5 @@ const sx = stylex.create({
   vtPreviewNoteP: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0 },
   previewSource: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)', flexWrap: 'wrap' },
   sourceLabel: { flexShrink: 0 },
-  sourceSelect: { minWidth: 0, flexGrow: 1, flexShrink: 1, flexBasis: 'auto', maxWidth: '100%', minHeight: 'var(--vv-s-32)', paddingTop: 'var(--vv-s-4)', paddingRight: 'var(--vv-s-8)', paddingBottom: 'var(--vv-s-4)', paddingLeft: 'var(--vv-s-8)', borderTopWidth: 'var(--vv-s-1)', borderRightWidth: 'var(--vv-s-1)', borderBottomWidth: 'var(--vv-s-1)', borderLeftWidth: 'var(--vv-s-1)', borderTopStyle: 'solid', borderRightStyle: 'solid', borderBottomStyle: 'solid', borderLeftStyle: 'solid', borderTopColor: line['--line-2'], borderRightColor: line['--line-2'], borderBottomColor: line['--line-2'], borderLeftColor: line['--line-2'], borderTopLeftRadius: 'var(--vv-r-8)', borderTopRightRadius: 'var(--vv-r-8)', borderBottomRightRadius: 'var(--vv-r-8)', borderBottomLeftRadius: 'var(--vv-r-8)', backgroundColor: 'var(--vv-tile-idle)', color: color['--color-fg'], fontSize: libraryVars.captionFontSize },
+  sourceField: { flexGrow: 1, flexShrink: 1, flexBasis: "auto", minWidth: 0 },
 })

@@ -31,13 +31,12 @@ func scanSuggestion(row pgx.Row) (suggest.Suggestion, error) {
 	}
 	var stored struct {
 		Evidence string         `json:"evidence"`
-		Banner   string         `json:"banner"`
 		Reason   insight.Reason `json:"reason"`
 	}
 	if err := json.Unmarshal(reason, &stored); err != nil {
 		return x, err
 	}
-	x.Evidence, x.Banner, x.Reason = stored.Evidence, stored.Banner, stored.Reason
+	x.Evidence, x.Reason = stored.Evidence, stored.Reason
 	if x.Reason.Facts == nil {
 		x.Reason.Facts = []insight.Fact{}
 	}
@@ -45,7 +44,7 @@ func scanSuggestion(row pgx.Row) (suggest.Suggestion, error) {
 }
 
 func (s *SuggestStore) Upsert(ctx context.Context, d suggest.Draft, now time.Time) (suggest.Suggestion, bool, error) {
-	reason, err := json.Marshal(map[string]any{"evidence": d.Evidence, "banner": d.Banner, "reason": d.Reason})
+	reason, err := json.Marshal(map[string]any{"evidence": d.Evidence, "reason": d.Reason})
 	if err != nil {
 		return suggest.Suggestion{}, false, err
 	}
@@ -93,7 +92,7 @@ func (s *SuggestStore) Get(ctx context.Context, id string) (suggest.Suggestion, 
 }
 
 func (s *SuggestStore) Open(ctx context.Context, now time.Time) ([]suggest.Suggestion, error) {
-	rows, err := s.db.Query(ctx, `SELECT `+suggestColumns+suggestFrom+` WHERE s.state='open' AND s.expires_at > $1 ORDER BY s.value DESC, s.created_at DESC, s.id`, now)
+	rows, err := s.db.Query(ctx, `SELECT `+suggestColumns+suggestFrom+` WHERE s.state='open' AND s.expires_at > $1 AND s.kind = ANY($2::text[]) ORDER BY s.value DESC, s.created_at DESC, s.id`, now, suggest.Kinds)
 	if err != nil {
 		return nil, err
 	}
@@ -145,16 +144,6 @@ func (s *SuggestStore) ChannelNames(ctx context.Context) (map[string]string, err
 		out[id] = name
 	}
 	return out, rows.Err()
-}
-
-func (s *SuggestStore) OpenLearnForJob(ctx context.Context, jobID, agent string, now time.Time) (suggest.Suggestion, bool, error) {
-	x, err := scanSuggestion(s.db.QueryRow(ctx, `SELECT `+suggestColumns+suggestFrom+`
-WHERE s.kind='learn_rule' AND s.state='open' AND s.expires_at > $1 AND s.agent=$3 AND s.primary_action->'params'->'jobIds' ? $2
-ORDER BY s.value DESC, s.created_at DESC LIMIT 1`, now, jobID, agent))
-	if errors.Is(err, pgx.ErrNoRows) {
-		return x, false, nil
-	}
-	return x, err == nil, err
 }
 
 // ---- Tín hiệu -------------------------------------------------------------
@@ -223,39 +212,6 @@ ORDER BY 5 DESC, t.id`, now.Add(-suggest.FailingWindow))
 			return nil, err
 		}
 		out = append(out, f)
-	}
-	return out, rows.Err()
-}
-
-func (s *SuggestStore) PaceFull(ctx context.Context, now time.Time) ([]suggest.PaceSignal, error) {
-	tz := now.Location().String()
-	if tz == "Local" {
-		tz = "UTC"
-	}
-	rows, err := s.db.Query(ctx, `
-WITH done AS (
-  SELECT j.channel_id, (j.updated_at AT TIME ZONE $2::text)::date AS d, (j.updated_at AT TIME ZONE $2::text)::time AS t,
-         row_number() OVER (PARTITION BY j.channel_id, (j.updated_at AT TIME ZONE $2::text)::date ORDER BY j.updated_at) AS rn
-  FROM clone_jobs j WHERE j.superseded_at IS NULL AND j.stage_group IN ('ready','posted') AND j.updated_at >= $1::timestamptz - interval '8 days'
-), today AS (SELECT ($1::timestamptz AT TIME ZONE $2::text)::date AS d)
-SELECT oc.id::text, oc.name, oc.pace_per_day,
-  (SELECT count(*) FROM clone_queue q WHERE q.channel_id = oc.id AND q.state = 'queued' AND q.removed_at IS NULL)::int,
-  count(DISTINCT done.d)::int
-FROM owner_channels oc
-JOIN done ON done.channel_id = oc.id AND done.rn = oc.pace_per_day AND done.t < time '12:00'
-JOIN today ON done.d < today.d AND done.d >= today.d - 5
-GROUP BY oc.id, oc.name, oc.pace_per_day`, now, tz)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var out []suggest.PaceSignal
-	for rows.Next() {
-		var p suggest.PaceSignal
-		if err := rows.Scan(&p.ChannelID, &p.ChannelName, &p.Pace, &p.Queued, &p.Days); err != nil {
-			return nil, err
-		}
-		out = append(out, p)
 	}
 	return out, rows.Err()
 }

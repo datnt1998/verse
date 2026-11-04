@@ -5,7 +5,8 @@ import (
 )
 
 // PromptPartKind là một phần của prompt đã gửi (07 §26). Thứ tự ghép cố định:
-// scene → style → refs → learned → avoid.
+// scene → style → refs → learned → avoid. "learned" chỉ còn trong prompt cũ;
+// prompt mới không ghép phần này nhưng vẫn đọc được nguyên văn đã gửi.
 type PromptPartKind string
 
 const (

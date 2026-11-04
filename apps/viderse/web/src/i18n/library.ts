@@ -6,7 +6,6 @@
 // chung tệp để vi.ts chỉ thêm một import và một khoá.
 import { base } from './vi'
 import { backdropCopy } from './backdrop'
-import { learnCopy } from './learn'
 import { shared } from './shared'
 
 const libraryTabs = {
@@ -643,4 +642,4 @@ export const libraryCopy = {
 } as const
 
 /** `t` của màn Thư viện: chữ khung app + Thư viện + Video nền + Prompt ảnh. */
-export const t = { ...base, library: libraryCopy, backdrop: backdropCopy, learn: learnCopy } as const
+export const t = { ...base, library: libraryCopy, backdrop: backdropCopy } as const

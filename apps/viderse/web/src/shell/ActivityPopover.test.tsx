@@ -21,7 +21,7 @@ describe('activity priorities', () => {
     expect(groups.map((group) => [group.label, group.rows.map((row) => row.id)])).toEqual([['Hôm nay', ['today']], ['Hôm qua', ['yesterday']], ['Trước đó', ['older']]])
   })
   it('handles quiet hours crossing midnight', () => {
-    const settings = { kinds: {} as never, badge: true, merge: true, recapOnReturn: true, suggestions: { off: [] }, doNotDisturb: { enabled: true, start: '23:00', end: '07:00' } }
+    const settings = { kinds: {} as never, badge: true, merge: true, suggestions: true, doNotDisturb: { enabled: true, start: '23:00', end: '07:00' } }
     expect(isQuiet(settings, new Date(2026, 10, 1, 23, 30))).toBe(true)
     expect(isQuiet(settings, new Date(2026, 10, 2, 6, 59))).toBe(true)
     expect(isQuiet(settings, new Date(2026, 10, 2, 7, 0))).toBe(false)

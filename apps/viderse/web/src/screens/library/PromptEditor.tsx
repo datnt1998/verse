@@ -13,6 +13,7 @@ import { useMediaQuery } from '../../lib/useMediaQuery'
 import { Banner, Button, Dialog, FieldError, FieldLabel, RadioCard, TextArea, TextField, Icon, confirm, useEscapeLayer } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { ActionButton } from '../../components'
+import { ResponsiveSelect } from '../../components/responsive-overlays'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { trialFailureText } from '../../i18n/errorsCopy'
@@ -23,7 +24,6 @@ import {
 } from '../../api/library'
 import { keys } from '../../data/keys'
 import { clock } from './fmt'
-import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
 import { useResource } from '../../data/useResource'
 import { getPromptTrialScenes, type PromptSample } from '../../api/cover-trials'
 import { usePromptTrial } from './usePromptTrial'
@@ -275,7 +275,6 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
                 {(kind === 'scene' ? copy.rulesScene : copy.rulesCover).map((rule) => <li key={rule}>{rule}</li>)}
               </ul>
             </div>
-            {prompt && <LearnedRulesList scope={{ imagePromptId: prompt.id }} title={t.learn.notes.title} help={t.learn.notes.help} empty={t.learn.notes.empty} errorText={t.learn.notes.error} />}
           </div>
 
           <aside className={`vlb-ed-aside ${stylex.props(sx.edAside).className}`}>
@@ -312,18 +311,15 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
               <div className={`vlb-field ${stylex.props(sx.field).className}`}>
                 <label className={`vlb-hint ${stylex.props(sx.hint).className}`} htmlFor="vlb-trial-video">{copy.tryVideo}</label>
                 {trialSources.length > 0 ? (
-                  <select
+                  <ResponsiveSelect
                     id="vlb-trial-video"
-                    className={`vlb-select ${stylex.props(sx.select).className}`}
                     aria-label={copy.tryVideoAria}
                     value={trialVideo}
                     disabled={trial.running}
-                    onChange={(event) => { setPickedVideo(event.currentTarget.value); setPickedScene('') }}
-                  >
-                    {trialSources.map((item) => (
-                      <option key={item.jobId} value={item.jobId}>{item.title}</option>
-                    ))}
-                  </select>
+                    onChange={(value) => { setPickedVideo(value); setPickedScene('') }}
+                    xstyle={sx.trialField}
+                    options={trialSources.map((item) => ({ value: item.jobId, label: item.title }))}
+                  />
                 ) : (
                   <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{trial.loading ? copy.tryRunning : copy.tryNoSources}</p>
                 )}
@@ -332,19 +328,18 @@ export function PromptEditor({ prompt, onClose, onSaved, onDeleted, onDuplicate 
               {kind === 'scene' && trialVideo !== '' && (
                 <div className={`vlb-field ${stylex.props(sx.field).className}`}>
                   <label className={`vlb-hint ${stylex.props(sx.hint).className}`} htmlFor="vlb-trial-scene">{copy.tryScene}</label>
-                  <select
+                  <ResponsiveSelect
                     id="vlb-trial-scene"
-                    className={`vlb-select ${stylex.props(sx.select).className}`}
                     aria-label={copy.trySceneAria}
                     value={pickedScene}
                     disabled={trial.running}
-                    onChange={(event) => setPickedScene(event.currentTarget.value)}
-                  >
-                    <option value="">{copy.tryFirstScene}</option>
-                    {(sceneQuery.data?.items ?? []).map((scene) => (
-                      <option key={scene.id} value={scene.id}>{scene.label}</option>
-                    ))}
-                  </select>
+                    onChange={(value) => setPickedScene(value)}
+                    xstyle={sx.trialField}
+                    options={[
+                      { value: '', label: copy.tryFirstScene },
+                      ...(sceneQuery.data?.items ?? []).map((scene) => ({ value: scene.id, label: scene.label })),
+                    ]}
+                  />
                   {Boolean(sceneQuery.error) && <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.tryScenesFail}</p>}
                 </div>
               )}
@@ -505,7 +500,7 @@ const sx = stylex.create({
   sampleImg: { display: "block", width: "100%", height: "100%", objectFit: "cover" },
   sampleState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-6)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-6)", fontSize: "var(--vv-s-11)", color: color["--color-fg-3"], textAlign: "center" },
   sampleFull: { display: "block", width: "100%", height: "auto", borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)" },
-  select: { minHeight: "var(--vv-s-34)", width: "100%", borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-1"], borderRightColor: line["--line-1"], borderBottomColor: line["--line-1"], borderLeftColor: line["--line-1"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", backgroundColor: color["--color-bg"], color: color["--color-fg"], paddingLeft: "var(--vv-s-8)", paddingRight: "var(--vv-s-8)", fontSize: "var(--vv-s-13)" },
+  trialField: { width: "100%", minWidth: 0 },
   /* Ảnh mẫu trên điện thoại mở ngay trong khung sửa: form chỉ ẩn (vẫn mounted
      nên bản nháp nguyên vẹn, các ô ẩn không nhận tiêu điểm), khung ảnh chiếm
      trọn chỗ cuộn. Định nghĩa sau `scroll`/`edFoot` để `display: none` thắng. */

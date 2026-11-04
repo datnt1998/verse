@@ -7,10 +7,9 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/insight"
 	"github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres"
 	"testing"
-	"time"
 )
 
-func TestRecapIncludesDurableAutoActions(t *testing.T) {
+func TestDurableAutoActionRecordsReason(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
 	var job string
@@ -18,17 +17,22 @@ func TestRecapIncludesDurableAutoActions(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	reason, _ := json.Marshal(insight.Reason{Agent: "artist", Text: "Lý do", Facts: []insight.Fact{{Label: "Ảnh", Value: "scene-1", Source: "Bước Ảnh"}}})
-	_, err = pool.Exec(ctx, `INSERT INTO clone_auto_actions(job_id,kind,text,reason) VALUES($1,'safety_redraw','Tự vẽ lại',$2::jsonb)`, job, reason)
+	reasonJSON, _ := json.Marshal(insight.Reason{Agent: "artist", Text: "Lý do", Facts: []insight.Fact{{Label: "Ảnh", Value: "scene-1", Source: "Bước Ảnh"}}})
+	_, err = pool.Exec(ctx, `INSERT INTO clone_auto_actions(job_id,kind,text,reason) VALUES($1,'safety_redraw','Tự vẽ lại',$2::jsonb)`, job, reasonJSON)
 	if err != nil {
 		t.Fatal(err)
 	}
-	recap, err := postgres.NewActivityStore(pool).ReadRecap(ctx, time.Now().Add(-time.Hour), time.Now().Add(time.Second))
-	if err != nil {
+	var kind, text string
+	var stored []byte
+	if err := pool.QueryRow(ctx, `SELECT kind, text, reason FROM clone_auto_actions WHERE job_id=$1`, job).Scan(&kind, &text, &stored); err != nil {
 		t.Fatal(err)
 	}
-	if len(recap.Auto) != 1 || recap.Auto[0].Kind != "safety_redraw" || recap.Auto[0].Reason == nil || recap.Auto[0].Reason.Agent != "artist" || !recap.HasNew {
-		t.Fatalf("recap: %+v", recap)
+	var reason insight.Reason
+	if err := json.Unmarshal(stored, &reason); err != nil {
+		t.Fatal(err)
+	}
+	if kind != "safety_redraw" || text != "Tự vẽ lại" || reason.Agent != "artist" || len(reason.Facts) != 1 {
+		t.Fatalf("auto action = %s %q %+v", kind, text, reason)
 	}
 }
 

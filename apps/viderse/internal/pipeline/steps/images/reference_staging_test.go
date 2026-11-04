@@ -38,7 +38,7 @@ func TestUploadedReferencePlanningReleasesAfterCopy(t *testing.T) {
 		}
 	})
 	for range 8 {
-		plan, err := h.plan(context.Background(), s, &manifest, LearnedNotes{}, item)
+		plan, err := h.plan(context.Background(), s, &manifest, item)
 		if err != nil {
 			t.Fatal(err)
 		}

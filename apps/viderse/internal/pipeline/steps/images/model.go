@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
-	"github.com/datnt1998/verse/apps/viderse/internal/learn"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	"strings"
@@ -482,18 +481,6 @@ func CloneManifest(m Manifest) (Manifest, error) {
 	return result, err
 }
 
-// LearnedNotes là Ghi chú đã học của prompt cảnh và prompt bìa (07 §19).
-type LearnedNotes struct{ Scene, Cover []string }
-
-// Apply nối "Ghi chú đã học" vào cuối nội dung prompt cảnh và prompt bìa. Ảnh
-// bìa không có prompt riêng thì dùng prompt cảnh, nên không có ghi chú bìa.
-func (n LearnedNotes) Apply(m Manifest) Manifest {
-	m.TemplatePrompt = learn.AppendNotes(m.TemplatePrompt, n.Scene)
-	if m.CoverPrompt != "" {
-		m.CoverPrompt = learn.AppendNotes(m.CoverPrompt, n.Cover)
-	}
-	return m
-}
 func ItemPrompt(m Manifest, i Item) string {
 	if i.Kind == "thumbnail" && m.CoverPrompt != "" {
 		return m.CoverPrompt

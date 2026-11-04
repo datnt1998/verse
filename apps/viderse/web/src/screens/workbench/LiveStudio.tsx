@@ -13,17 +13,16 @@ import {
 import { useResource } from '../../data/useResource'
 import { subscribeEvents } from '../../data/events'
 import { useOnline } from '../../data/status'
-import { DevelopEffect, Orb } from '../../components'
+import { ASSISTANT_INK, assistantName, DevelopEffect, Orb } from '../../components'
 import { ImageViewer, type ImageViewerItem } from '../../components/image-viewer'
 import { navigate, routePath, useRoute } from '../../router'
 import { screenWorkbench } from '../../i18n/screens'
 import { progressState, progressText } from '../../lib/progress-copy'
 import { PART_LABELS, REF_ROLES, rawParams, rawSentText, versionMeta, versionNote } from '../review/imageView'
-import { clockLabel, imageTime, issueReason, jobStage, stepDuration, stepPercent, QUALITY_MIN_SCORE, type JobStage } from './workbench-logic'
+import { clockLabel, finishedVideo, imageTime, issueReason, jobStage, stepAgent, stepClock, stepDuration, stepPercent, QUALITY_MIN_SCORE, type FinishedVideo, type JobStage } from './workbench-logic'
 
 type Props = {
   job: CloneJobView
-  onChangePrompt: () => void
   onRefresh: () => void
   /** Duyệt cả video & dựng — do Bàn dựng giữ khoá/đếm ảnh để header cũng dùng. */
   onApproveAll?: () => void
@@ -40,8 +39,11 @@ const isWaiting = (status: string) => status === 'pending' || status === 'queued
 const copy = screenWorkbench.live
 const agentOrb = { images: 'artist', review: 'artist', issue: 'artist', paused: 'artist', render: 'qa', quality: 'qa', done: 'qa', queued: 'qa' } as const
 
-export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, approveBusy, redrawAllOpen, onRedrawAllChange }: Props) {
+export function LiveStudio({ job, onRefresh, onApproveAll, approveBusy, redrawAllOpen, onRedrawAllChange }: Props) {
   const stage = jobStage(job)
+  const [logOpen, setLogOpen] = useState(false)
+  const logAll = job.steps ?? []
+  const logShow = logOpen ? logAll : logAll.slice(-2)
   const { route } = useRoute()
   const imageAddress = route.name === 'workbench' && route.video === job.id ? route.img : undefined
   const viewer = useMemo(() => imageAddress ? { jobId: job.id, imageId: imageAddress } : null, [job.id, imageAddress])
@@ -52,7 +54,7 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
   // đọc khi thật sự mở viewer/xác nhận để không gọi trùng endpoint lúc xem lưới.
   const online = useOnline()
   const scoreArtifact = job.steps?.find(step => step.step === 'score')?.output?.artifacts?.find(item => item.path.endsWith('score.json'))
-  const video = job.steps?.find(step => step.step === 'export')?.output?.artifacts?.find(item => item.contentType === 'video/mp4')
+  const video = useMemo(() => finishedVideo(job), [job])
   const score = useResource(['workbench', 'score', job.id, scoreArtifact?.id || ''], ({ signal }) => getScoreArtifact(job.id, scoreArtifact!.id, signal), { enabled: !!scoreArtifact })
   // Hộp vẽ lại cả bộ gắn với đúng video đang mở: đổi video thì hộp cũ không còn hiệu lực.
   const [allOpen, setAllOpen] = useState<string | null>(null)
@@ -339,10 +341,28 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
         {runStep && <span {...stylex.props(styles.run)}><Shimmer>{meta.runLabel}</Shimmer><span {...stylex.props(styles.elapsed)}>{stepDuration(runStep)}</span></span>}
       </div>
 
+      {logAll.length > 0 && <div {...stylex.props(styles.logBox)}>
+        <ol aria-label="Nhật ký" {...stylex.props(styles.logList)}>{logShow.map(step => {
+          const running = step.status === 'running'
+          const failed = step.status === 'failed'
+          const done = step.status === 'succeeded' || step.status === 'done'
+          const agent = stepAgent(step.step)
+          return <li key={step.step} {...stylex.props(styles.logRow)}>
+            <span {...stylex.props(styles.logTime)}>{stepClock(step.startedAt)}</span>
+            <span {...stylex.props(styles.logIcon)}>{running ? <span aria-label="Đang chạy" {...stylex.props(styles.spinner)} /> : <Icon name={failed ? 'danger' : done ? 'tick-b' : 'clock'} size={15} label={progressState(step.status) || undefined} xstyle={failed ? styles.warnIcon : done ? styles.okIcon : styles.waitIcon} />}</span>
+            <span {...stylex.props(styles.logText)}>{agent && <b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b>}{agent && ' · '}<span>{progressText(step)}</span></span>
+            <span {...stylex.props(styles.logDuration)}>{stepDuration(step)}</span>
+          </li>
+        })}</ol>
+        <button type="button" aria-expanded={logOpen} onClick={() => setLogOpen(!logOpen)} {...stylex.props(styles.logToggle)}><Icon name="activity" size={13} />{logOpen ? 'Thu gọn nhật ký' : logAll.length > 2 ? `Nhật ký · ${logAll.length} bước` : 'Nhật ký'}<Icon name="arrow-d" size={12} xstyle={logOpen ? styles.logRot : undefined} /></button>
+      </div>}
+
       {(stage === 'images' || stage === 'review' || stage === 'issue' || stage === 'paused') && (images.error
         ? <p role="alert" {...stylex.props(styles.notice)}>Không tải được bộ ảnh. <Button variant="quiet" size="sm" onClick={() => void images.refresh()}>Thử lại</Button></p>
         : total === 0
-          ? <div role="status" {...stylex.props(styles.notice)}>{images.initialLoading ? 'Đang tải bộ ảnh…' : job.noImages ? 'Video này không tạo ảnh.' : job.subline || 'Chưa có ảnh. Hoạ sĩ vẽ sau khi Đạo diễn chia cảnh.'}</div>
+          ? images.initialLoading
+            ? <div role="status" {...stylex.props(styles.notice)}>Đang tải bộ ảnh…</div>
+            : <SummaryStage job={job} />
           : <div role="listbox" aria-label="Ảnh của video" {...stylex.props(styles.grid)}>{items.map((item, index) => {
             const url = legacyUrlOf(item)
             const status = item.status
@@ -409,7 +429,7 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
       <p>Dùng {items.length} ảnh trong hạn mức hôm nay</p>
       {quota && <p>{quota.providers.map(entry => `${entry.label} còn ${entry.left}/${entry.total} hôm nay`).join(' · ')}</p>}
       {!quota && <p role="status">Chưa tải được hạn mức ảnh nên chưa gửi được.</p>}
-      {images.data?.manifest && <p>Ảnh cảnh vẽ theo <b>{images.data.manifest.scenePrompt.name}</b>, ảnh bìa theo <b>{images.data.manifest.coverPrompt.name}</b>, theo chỉ dẫn của video này. <Button variant="quiet" size="sm" disabled={busy} onClick={() => { closeRedraw(); onChangePrompt() }}>Đổi ở Bàn dựng</Button></p>}
+      {images.data?.manifest && <p>Ảnh cảnh vẽ theo <b>{images.data.manifest.scenePrompt.name}</b>, ảnh bìa theo <b>{images.data.manifest.coverPrompt.name}</b>, theo template của kênh.</p>}
       <p>Ảnh cũ được giữ tới khi ảnh mới xong; ảnh mới cần bạn duyệt lại.</p>
       <TextArea label="Góp ý chung cho cả bộ (tuỳ chọn)" value={feedback} onChange={event => setFeedback(event.currentTarget.value)} showCount={false} maxLength={-1} />
       {error && <p role="alert">{error}</p>}
@@ -670,6 +690,23 @@ function ViewerSide({
   </div>
 }
 
+/** Video không có bộ ảnh: ảnh nguồn 16:9 + các dòng sự kiện thật, không bịa ảnh cảnh. */
+function SummaryStage({ job }: { job: CloneJobView }) {
+  const active = job.steps?.find(step => step.status === 'failed' || step.status === 'running') ?? job.steps?.find(step => step.status === 'waiting')
+  const facts = [
+    active ? { icon: active.status === 'failed' ? 'danger' as const : 'clock' as const, text: progressText(active), sub: job.subline || 'Bước đang chạy của video' } : null,
+    { icon: 'gallery' as const, text: job.noImages ? 'Video này không tạo ảnh' : 'Chưa có ảnh nào', sub: job.noImages ? 'Dựng từ video nguồn và clip nền' : 'Hoạ sĩ vẽ sau khi Đạo diễn chia cảnh' },
+    active?.step === 'images' ? { icon: 'warning' as const, text: 'Ảnh đã xong vẫn được giữ', sub: 'Xử lý xong thì Hoạ sĩ vẽ tiếp' } : null,
+  ].filter((fact): fact is { icon: 'danger' | 'clock' | 'gallery' | 'warning'; text: string; sub: string } => !!fact)
+  return <div {...stylex.props(styles.summary)}>
+    <div {...stylex.props(styles.summaryCover)}>
+      {job.source.thumbnailUrl ? <img src={job.source.thumbnailUrl} alt="" {...stylex.props(styles.image)} /> : <span {...stylex.props(styles.muted)}>Chưa có ảnh nguồn</span>}
+      <span {...stylex.props(styles.summaryChip)}>Video nguồn</span>
+    </div>
+    <div {...stylex.props(styles.facts)}>{facts.map((fact, index) => <div key={index} {...stylex.props(styles.fact)}><Icon name={fact.icon === 'warning' ? 'danger' : fact.icon} size={15} xstyle={fact.icon === 'danger' || fact.icon === 'warning' ? styles.warnIcon : undefined} /><span {...stylex.props(styles.factBody)}><b>{fact.text}</b><small>{fact.sub}</small></span></div>)}</div>
+  </div>
+}
+
 /** Dải trạng thái đầu thẻ Phòng vẽ: tên + câu thật theo ảnh/bước đang chạy. */
 function stageMeta(stage: JobStage, input: {
   total: number
@@ -728,22 +765,50 @@ function RenderSteps({ job, score, scoreLoading }: { job: CloneJobView; score: {
 }
 
 /** Thành phẩm: file thật + điểm + ảnh bìa; nút tải/đánh dấu nằm ở header. */
-function DoneStage({ job, video, score, items, onOpenImage }: { job: CloneJobView; video: { id: string } | undefined; score: { total: number } | null | undefined; items: JobImage[]; onOpenImage: (imageId: string) => void }) {
+function DoneStage({ job, video, score, items, onOpenImage }: { job: CloneJobView; video: FinishedVideo | null; score: { total: number } | null | undefined; items: JobImage[]; onOpenImage: (imageId: string) => void }) {
   const cover = items.find(item => item.kind === 'thumbnail' || item.kind === 'cover')
-  const seconds = job.source.durationSec
-  const size = job.exportBytes
+  // Lỗi tải/giải mã không chứng minh tệp đã bị xoá; removedAt mới xác nhận việc xoá.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const player = useRef<HTMLVideoElement>(null)
+  const [playing, setPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [mediaDuration, setMediaDuration] = useState<number | null>(null)
+  useEffect(() => {
+    setFailedUrl(null)
+    setPlaying(false)
+    setCurrentTime(0)
+    setMediaDuration(null)
+  }, [video?.url])
+  const shown = video && video.url !== failedUrl ? video : null
+  // Thời lượng thật của bản xuất khi máy chủ đã đo; job cũ chỉ có độ dài nguồn.
+  const seconds = mediaDuration ?? shown?.durationSec ?? job.source.durationSec
+  const size = shown ? shown.bytes ?? job.exportBytes : null
   return <div {...stylex.props(styles.done)}>
     <div {...stylex.props(styles.playerBox)}>
-      {video ? <video controls {...stylex.props(styles.video)} src={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} /> : <span {...stylex.props(styles.muted)}>File video không còn trên máy.</span>}
-      <div {...stylex.props(styles.playerBar)}>
-        <span {...stylex.props(styles.num)}>{seconds != null ? clockLabel(seconds) : 'MP4'}</span>
-        <span {...stylex.props(styles.playerLine)} />
-        <span>{[size != null ? `${(size / 1024 / 1024).toFixed(1)} MB` : null, video ? 'MP4' : null].filter(Boolean).join(' · ')}</span>
-      </div>
+      {shown ? <>
+        <video ref={player} preload="metadata" playsInline {...stylex.props(styles.video)} src={shown.url}
+          poster={cover?.versions?.find(version => version.version === (cover.reviewVersion ?? cover.currentVersion))?.originalUrl}
+          onLoadedMetadata={event => { const duration = event.currentTarget.duration; if (Number.isFinite(duration) && duration > 0) setMediaDuration(duration) }}
+          onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
+          onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)}
+          onError={() => setFailedUrl(shown.url)} />
+        <button type="button" aria-label={playing ? 'Tạm dừng video' : 'Phát video'} {...stylex.props(styles.playerToggle)}
+          onClick={() => { const element = player.current; if (!element) return; if (element.paused) void element.play().catch(() => toast.err('Chưa phát được video. Thử lại.')); else element.pause() }}>
+          <Icon name={playing ? 'pause' : 'play'} size={24} />
+        </button>
+        <div {...stylex.props(styles.playerBar)}>
+          <span {...stylex.props(styles.num)}>{clockLabel(currentTime)} / {seconds != null ? clockLabel(seconds) : '—'}</span>
+          <input type="range" aria-label="Vị trí phát video" min={0} max={seconds ?? 0} step={0.05}
+            value={Math.min(currentTime, seconds ?? 0)} disabled={!seconds}
+            onChange={event => { if (player.current) { const time = Number(event.currentTarget.value); player.current.currentTime = time; setCurrentTime(time) } }}
+            {...stylex.props(styles.playerSeek)} />
+          <span>{size != null ? `${(size / 1024 / 1024).toFixed(1)} MB` : 'MP4'}</span>
+        </div>
+      </> : <span {...stylex.props(styles.muted)}>{video ? screenWorkbench.videoPlaybackError : 'File video không còn trên máy.'}</span>}
     </div>
     <div {...stylex.props(styles.facts)}>
       {score && <div {...stylex.props(styles.fact)}><Icon name="tick-b" size={15} xstyle={styles.okIcon} /><span {...stylex.props(styles.factBody)}><b>Độ hoàn thiện {score.total} / 100</b><small>Kiểm định đã đo trên bản xuất</small></span></div>}
-      {video && <div {...stylex.props(styles.fact)}><Icon name="video-play" size={15} /><span {...stylex.props(styles.factBody)}><b>MP4{seconds != null ? ` ${clockLabel(seconds)}` : ''}{size != null ? ` · ${(size / 1024 / 1024).toFixed(1)} MB` : ''}</b><small>File xuất của video</small></span></div>}
+      {shown && <div {...stylex.props(styles.fact)}><Icon name="video-play" size={15} /><span {...stylex.props(styles.factBody)}><b>MP4{seconds != null ? ` ${clockLabel(seconds)}` : ''}{size != null ? ` · ${(size / 1024 / 1024).toFixed(1)} MB` : ''}</b><small>File xuất của video</small></span></div>}
       {cover && <button type="button" onClick={() => onOpenImage(cover.id)} aria-label="Xem ảnh bìa" title="Xem ảnh bìa" {...stylex.props(styles.fact, styles.factButton)}><Icon name="gallery" size={15} /><span {...stylex.props(styles.factBody)}><b>Ảnh bìa của video</b><small>Đi kèm gói đăng · bấm để xem ảnh</small></span></button>}
       <div {...stylex.props(styles.fact)}><Icon name="flag" size={15} xstyle={styles.reviewIcon} /><span {...stylex.props(styles.factBody)}><b>{job.stageGroup === 'posted' ? 'Đã đánh dấu đã đăng' : 'Đăng xong thì đánh dấu đã đăng'}</b><small>Video chuyển sang Đã đăng; file MP4 có thể xoá để lấy chỗ</small></span></div>
     </div>
@@ -751,7 +816,7 @@ function DoneStage({ job, video, score, items, onOpenImage }: { job: CloneJobVie
 }
 
 const styles = stylex.create({
-  root: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid var(--line-1)', borderRadius: r['--vv-r-14'], background: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' },
+  root: { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid var(--line-1)', borderRadius: r['--vv-r-14'], backgroundImage: 'var(--card-bg)', boxShadow: 'var(--card-shadow)' },
   progressTrack: { flex: '0 0 2px', height: 2, backgroundColor: 'var(--line-1)', overflow: 'hidden' },
   progressFill: { height: '100%', transition: 'width .3s ease' },
   body: { flex: 1, minHeight: 0, padding: `${s['--vv-s-10']} ${s['--vv-s-14']} ${s['--vv-s-12']} ${s['--vv-s-16']}`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'], overflowY: 'auto' },
@@ -763,6 +828,15 @@ const styles = stylex.create({
   run: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: 12 },
   elapsed: { display: 'inline-block', minWidth: '5ch', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: 'var(--vv-fg-note)' },
   keyHint: { display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], fontSize: 12, color: 'var(--vv-fg-note)' },
+  logBox: { flex: '0 0 auto', borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-0)', border: '1px solid var(--line-1)', paddingBlock: s['--vv-s-4'] },
+  logList: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' },
+  logRow: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], padding: `${s['--vv-s-3']} ${s['--vv-s-10']}`, borderRadius: r['--vv-r-7'] },
+  logTime: { flex: '0 0 58px', paddingTop: 3, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  logIcon: { flex: '0 0 auto', display: 'flex', marginTop: 2 },
+  logText: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-4'], color: 'var(--vv-fg-note)', fontSize: 13, lineHeight: 1.45, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  logDuration: { flex: '0 0 auto', fontStyle: 'italic', fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  logToggle: { width: '100%', height: 26, marginTop: 2, paddingInline: s['--vv-s-10'], borderWidth: 0, borderRadius: r['--vv-r-7'], backgroundColor: 'transparent', color: 'var(--color-fg-3)', fontFamily: 'inherit', fontSize: 12, display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], cursor: 'pointer' },
+  logRot: { transform: 'rotate(180deg)' },
   kbd: { fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--color-fg-3)', paddingBlock: 1, paddingInline: 5, borderRadius: r['--vv-r-4'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-0)' },
   grid: { flex: '0 1 auto', minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gridAutoRows: 'min-content', gap: `${s['--vv-s-12']} ${s['--vv-s-10']}`, paddingInlineEnd: s['--vv-s-4'] },
   tile: { minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'], color: 'var(--color-fg-3)', fontSize: 12, cursor: 'pointer', borderRadius: r['--vv-r-10'], ':focus-visible': { outline: '2px solid var(--vv-red-line)', outlineOffset: 2 } },
@@ -806,11 +880,15 @@ const styles = stylex.create({
   kv: { padding: `${s['--vv-s-3']} ${s['--vv-s-8']}`, borderRadius: r['--vv-r-6'], backgroundColor: 'var(--color-surface-0)', border: '1px solid var(--line-1)', fontSize: 12, color: 'var(--vv-fg-note)' },
   kvWarn: { color: 'var(--vv-warn-ink)', borderColor: 'var(--vv-warn-bd)' },
   muted: { margin: 0, color: 'var(--vv-fg-note)', fontSize: 12.5, lineHeight: 1.55 },
+  summary: { flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) minmax(0, 1fr)', gap: s['--vv-s-14'] },
+  summaryCover: { position: 'relative', aspectRatio: '16 / 9', alignSelf: 'start', minHeight: 160, borderRadius: r['--vv-r-12'], overflow: 'hidden', border: '1px solid var(--line-1)', backgroundColor: 'var(--color-surface-0)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  summaryChip: { position: 'absolute', left: s['--vv-s-10'], top: s['--vv-s-10'], height: 20, paddingInline: s['--vv-s-7'], display: 'flex', alignItems: 'center', borderRadius: r['--vv-r-6'], backgroundColor: 'var(--vv-img-badge)', fontSize: 11.5, color: 'var(--color-fg)' },
   done: { flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) minmax(0, 1fr)', gap: s['--vv-s-14'] },
-  playerBox: { position: 'relative', minHeight: 160, borderRadius: r['--vv-r-12'], overflow: 'hidden', border: '1px solid var(--line-1)', backgroundColor: 'var(--color-surface-0)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  video: { display: 'block', width: '100%', maxHeight: 360, backgroundColor: 'var(--color-surface-2)' },
+  playerBox: { position: 'relative', minHeight: 0, aspectRatio: '16 / 9', alignSelf: 'start', borderRadius: r['--vv-r-12'], overflow: 'hidden', border: '1px solid var(--line-1)', backgroundColor: 'var(--color-surface-0)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  video: { display: 'block', width: '100%', height: '100%', objectFit: 'contain', backgroundColor: 'var(--color-surface-2)' },
   playerBar: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], background: 'linear-gradient(0deg, rgba(11,11,13,.85), transparent)', fontSize: 12, color: 'var(--color-fg-2)' },
-  playerLine: { flex: 1, height: 3, borderRadius: r['--vv-r-3'], backgroundColor: 'var(--line-3)' },
+  playerToggle: { position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: s['--vv-s-56'], height: s['--vv-s-56'], padding: 0, borderRadius: r['--vv-r-pill'], border: '1px solid var(--line-5)', backgroundColor: 'var(--vv-img-badge)', color: 'var(--color-fg)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ':hover': { backgroundColor: 'var(--color-surface-2)' }, ':focus-visible': { outline: '2px solid var(--color-fg)', outlineOffset: 2 } },
+  playerSeek: { flex: 1, minWidth: 0, height: s['--vv-s-14'], margin: 0, accentColor: 'var(--color-fg)', cursor: 'pointer' },
   num: { fontVariantNumeric: 'tabular-nums', fontFamily: "'JetBrains Mono', monospace" },
   facts: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], minWidth: 0 },
   fact: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], padding: `${s['--vv-s-9']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-0)', border: '1px solid var(--line-1)', color: 'var(--color-fg-3)' },

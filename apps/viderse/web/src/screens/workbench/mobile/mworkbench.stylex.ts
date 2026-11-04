@@ -13,14 +13,6 @@ export const mw = stylex.create({
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-14'],
     paddingTop: s['--vv-s-8'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-8'],
   },
-  recapSheet: { top: 0, height: '100dvh', '--m-sheet-max-height': '100dvh', borderRadius: 0, paddingBottom: 'max(8px, var(--m-safe-bottom))' },
-  recapHeader: { position: 'sticky', top: 0, zIndex: 1, backgroundColor: color['--color-surface-3'], paddingTop: `calc(var(--m-safe-top) + ${s['--vv-s-8']})`, paddingBottom: s['--vv-s-8'] },
-  recapHeading: { margin: 0, fontSize: 16, fontWeight: 600, color: color['--color-fg'] },
-  recapSubtitle: { margin: `${s['--vv-s-4']} 0 0`, fontSize: 12.5, color: color['--color-fg-3'] },
-  recapRoot: {
-    display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'],
-    paddingTop: s['--vv-s-8'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-8'],
-  },
   headRow: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: s['--vv-s-12'] },
   h1: { margin: 0, fontSize: 24, lineHeight: 1.25, fontWeight: 600, color: color['--color-fg'], letterSpacing: '-.01em' },
   dayBlock: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], marginTop: s['--vv-s-6'] },
@@ -33,18 +25,6 @@ export const mw = stylex.create({
   sectionTitle: { margin: 0, fontSize: 13, fontWeight: 600, color: color['--color-fg-3'], letterSpacing: '.01em' },
   sectionCount: { fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
 
-  // Thẻ Bản tin
-  recapCard: {
-    width: '100%', display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], textAlign: 'left',
-    padding: s['--vv-s-14'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'],
-    borderRadius: r['--vv-r-16'], backgroundColor: color['--color-surface-1'], color: color['--color-fg'],
-    cursor: 'pointer',
-  },
-  recapTop: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: s['--vv-s-8'] },
-  recapTitle: { fontSize: 12.5, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: color['--color-fg-3'] },
-  recapWhen: { fontSize: 11.5, color: 'var(--vv-fg-note)' },
-  recapSummary: { fontSize: 13.5, lineHeight: 1.5, color: color['--color-fg-2'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
-  recapCta: { fontSize: 12.5, fontWeight: 600, color: color['--color-fg'] },
 
   // Rail ngang (đề xuất, kênh)
   rail: {
@@ -53,7 +33,6 @@ export const mw = stylex.create({
     scrollSnapType: 'x mandatory', scrollbarWidth: 'none',
   },
   railItem: { flex: '0 0 auto', scrollSnapAlign: 'start' },
-  suggestCard: { width: 288, minWidth: 288 },
   channelCard: {
     flex: '0 0 158px', display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], textAlign: 'left',
     padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'],
@@ -159,16 +138,6 @@ export const mw = stylex.create({
   promptLine: { fontSize: 12, lineHeight: 1.5, color: color['--color-fg-3'], overflowWrap: 'anywhere' },
   promptTag: { color: 'var(--vv-warn-ink)' },
 
-  // Bản tin
-  recapLead: { margin: 0, fontSize: 19, lineHeight: 1.4, fontWeight: 600, color: color['--color-fg'] },
-  recapGroup: { fontSize: 11.5, fontWeight: 600, letterSpacing: '.06em', textTransform: 'uppercase', color: color['--color-fg-3'] },
-  recapRow: {
-    width: '100%', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`,
-    borderWidth: 0, borderRadius: r['--vv-r-10'], backgroundColor: color['--color-surface-1'],
-    color: color['--color-fg-2'], fontSize: 13, textAlign: 'left', cursor: 'pointer',
-  },
-  recapRowText: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  recapRowState: { fontSize: 12, color: color['--color-fg-3'], whiteSpace: 'nowrap' },
   tiles: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: s['--vv-s-8'] },
   tile: {
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'], padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`,
@@ -202,6 +171,7 @@ export const mw = stylex.create({
   },
   tagRemove: { width: 24, minWidth: 24, height: 24, minHeight: 24, padding: 0 },
   metaActions: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-8'] },
+  sheetFooter: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
   notice: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
   promptText: { margin: 0, fontSize: 12.5, lineHeight: 1.6, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', color: color['--color-fg-2'] },
   error: { fontSize: 12.5, lineHeight: 1.5, color: color['--color-err'] },
@@ -228,26 +198,6 @@ export const mw = stylex.create({
   filmImage: { width: '100%', height: '100%', objectFit: 'cover' },
   versionRow: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'] },
 
-  // Kế hoạch
-  planBody: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-12'] },
-  planHead: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
-  planTitle: { margin: 0, fontSize: 17, fontWeight: 600, color: color['--color-fg'], overflowWrap: 'anywhere' },
-  planQuote: { margin: 0, fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)', fontStyle: 'italic', overflowWrap: 'anywhere' },
-  planStep: {
-    display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], paddingBlock: s['--vv-s-8'],
-    borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'],
-  },
-  planStepText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
-  planStepTitle: { fontSize: 13.5, fontWeight: 600, color: color['--color-fg'], lineHeight: 1.4, overflowWrap: 'anywhere' },
-  planStepSub: { fontSize: 12, lineHeight: 1.45, color: color['--color-fg-3'], overflowWrap: 'anywhere' },
-  planCost: { fontSize: 11.5, color: 'var(--vv-fg-note)' },
-  planFooter: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
-  planTotal: { flex: '1 1 160px', minWidth: 0, fontSize: 12.5, color: color['--color-fg-2'], overflowWrap: 'anywhere' },
-  planFailed: { color: 'var(--vv-warn-ink)' },
-  planKeep: { flex: '1 1 140px', fontSize: 11.5, lineHeight: 1.4, color: 'var(--vv-fg-note)', textAlign: 'right' },
-  planStepOff: { opacity: .5, textDecorationLine: 'line-through' },
-  planAck: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: 12.5, color: color['--color-fg-2'] },
-  planAsk: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
   runState: { marginLeft: 'auto', fontSize: 11.5, color: color['--color-fg-3'] },
   runStateDone: { color: color['--color-ok'] },
   runStateFailed: { color: 'var(--vv-warn-ink)' },
@@ -256,7 +206,7 @@ export const mw = stylex.create({
   kit: { color: kit['--kit-fg-sub'] },
 })
 
-// ── MMain list: đúng bố cục artboard (thẻ Bản tin, dải kênh, hàng theo nhóm) ──
+// ── MMain list: dải kênh và hàng theo nhóm ──
 export const mwList = stylex.create({
   headBlock: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
   h1: { margin: 0, fontSize: 24, lineHeight: 1.25, fontWeight: 600, color: color['--color-fg'], letterSpacing: '-.02em' },
@@ -267,18 +217,6 @@ export const mwList = stylex.create({
   dayFill: (pct: number) => ({ display: 'block', width: `${pct}%`, height: '100%', borderRadius: s['--vv-s-2'], backgroundColor: color['--color-fg'] }),
   dayAuto: { flexShrink: 0, whiteSpace: 'nowrap' },
 
-  recapCard: {
-    width: '100%', display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'], textAlign: 'left',
-    padding: `${s['--vv-s-12']} ${s['--vv-s-14']}`, borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'],
-    borderRadius: r['--vv-r-16'], backgroundColor: color['--color-surface-1'], color: color['--color-fg'], cursor: 'pointer',
-    transitionProperty: 'transform', transitionDuration: '.16s', transitionTimingFunction: 'ease-out',
-  },
-  recapOrbs: { position: 'relative', width: 26, height: 26, flex: '0 0 auto', marginTop: 2 },
-  recapBody: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
-  recapKicker: { fontSize: 12, color: 'var(--vv-fg-note)' },
-  recapLead: { fontSize: 14.5, fontWeight: 500, lineHeight: 1.45, color: color['--color-fg'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
-  recapMeta: { fontSize: 12.5, color: color['--color-fg-3'] },
-  recapChevron: { color: 'var(--vv-fg-note)', marginTop: s['--vv-s-4'], flex: '0 0 auto' },
 
   channelTop: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], width: '100%', minWidth: 0 },
   channelToday: { flex: 1, fontSize: 12, color: color['--color-fg-3'], fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
@@ -463,18 +401,6 @@ export const mwDetail = stylex.create({
   },
   viewer: { width: '100%', aspectRatio: '16 / 9', objectFit: 'contain', borderRadius: r['--vv-r-12'], backgroundColor: color['--color-surface-2'] },
 
-  composerBar: {
-    position: 'sticky', bottom: 0, zIndex: 8, flex: '0 0 auto', padding: `8px 12px 0`, borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)', backgroundColor: visualRoles.mobileComposerSurface,
-  },
-  composerSafe: { paddingBottom: 'var(--m-safe-bottom, 0px)' },
-  // Trong Sheet Bản tin (không có root co lại): nhấc thanh nhắn lên trên bàn phím ảo.
-  composerKb: { bottom: 'var(--kb, 0px)' },
-  composerCard: {
-    borderRadius: r['--vv-r-22'], padding: '4px 4px 4px 14px', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'],
-    backgroundColor: color['--color-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-1)',
-  },
-  composerInput: { flex: 1, minWidth: 0, height: 44, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: 'inherit', fontSize: 16, outline: 'none' },
-  composerSend: { flex: '0 0 auto', width: 40, height: 40, borderRadius: '50%', paddingInline: 0 },
   notice: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
   error: { fontSize: 12.5, lineHeight: 1.5, color: 'var(--color-err)' },
   skeleton: { backgroundColor: color['--color-surface-3'], borderRadius: 10, display: 'block' },

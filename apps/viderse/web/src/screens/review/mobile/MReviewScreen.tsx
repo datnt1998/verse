@@ -15,7 +15,6 @@ import { keys } from '../../../data/keys'
 import { useOnline } from '../../../data/status'
 import { navigate, paths, type Route } from '../../../router'
 import { DevelopEffect, Orb } from '../../../components'
-import { LearnSlot } from '../../../components/learn/LearnSlot'
 import { ReasonPopover } from '../../../components/reason/ReasonPopover'
 import { isLow } from '../../../components/autonomy/scoreSummary'
 import { screenReview } from '../../../i18n/screens'
@@ -419,7 +418,6 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
         <Icon name="arrow-r" size={16} />
       </button>}
 
-      {item && <LearnSlot ownerKey={`${job.channelId}:${job.id}:${item.id}`} learn={images?.learn} />}
       {metaLine && <span {...stylex.props(ms.meta)}>{metaLine}</span>}
     </main>
 

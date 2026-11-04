@@ -23,7 +23,6 @@ import { channelFieldErrors, patchChannel, deleteChannel, type Channel, type Cha
 import { getAgents, listProviders } from '../../api/ai'
 import { getChannelJobs } from '../../api/channelVideos'
 import { IdentityBlock } from './IdentityBlock'
-import { LearnedRulesList } from '../../components/learn/LearnedRulesList'
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -304,7 +303,6 @@ export function SettingsTab({ channel }: { channel: Channel }) {
 
                 <p {...stylex.props(channelStyles.fieldHint, channelStyles.hintRoom)}>{tt.writingHint}</p>
 
-                <LearnedRulesList scope={{ channelId: channel.id }} />
               </div>
             </section>
 
