@@ -133,24 +133,34 @@ func TestSuggestionsCutoverPreservesPreferencesAndClosesOnlyRetiredWork(t *testi
 	}
 }
 
-func TestSuggestionsCutoverDoesNotTurnScopedOrPartialDisablesIntoGlobalOff(t *testing.T) {
-	ctx := context.Background()
-	pool := provisionSuggestionsBeforeCutover(t)
-	prefs := `{"recapOnReturn":true,"suggestions":{"off":[{"kind":"hot_video"},{"kind":"template_failing","channelId":"11111111-1111-4111-8111-111111111111"},{"kind":"cleanup","channelId":"11111111-1111-4111-8111-111111111111"}]}}`
-	if _, err := pool.Exec(ctx, `INSERT INTO settings(key,value) VALUES('notifications.preferences',$1::jsonb)`, prefs); err != nil {
-		t.Fatal(err)
-	}
-	tx, err := pool.Begin(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tx.Rollback(ctx)
-	if _, err = tx.Exec(ctx, suggestionsCutoverSQL(t)); err != nil {
-		t.Fatal(err)
-	}
-	var enabled bool
-	if err = tx.QueryRow(ctx, `SELECT (value->>'suggestions')::boolean FROM settings WHERE key='notifications.preferences'`).Scan(&enabled); err != nil || !enabled {
-		t.Fatalf("scoped opt-outs disabled every channel: enabled=%v err=%v", enabled, err)
+func TestSuggestionsCutoverStopsBeforeLosingScopedOrPartialDisables(t *testing.T) {
+	for name, prefs := range map[string]string{
+		"scoped":  `{"recapOnReturn":true,"suggestions":{"off":[{"kind":"hot_video"},{"kind":"template_failing","channelId":"11111111-1111-4111-8111-111111111111"},{"kind":"cleanup","channelId":"11111111-1111-4111-8111-111111111111"}]}}`,
+		"partial": `{"recapOnReturn":true,"suggestions":{"off":[{"kind":"hot_video"}]}}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			ctx := context.Background()
+			pool := provisionSuggestionsBeforeCutover(t)
+			if _, err := pool.Exec(ctx, `INSERT INTO settings(key,value) VALUES('notifications.preferences',$1::jsonb)`, prefs); err != nil {
+				t.Fatal(err)
+			}
+			tx, err := pool.Begin(ctx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = tx.Exec(ctx, suggestionsCutoverSQL(t))
+			var migrationError *pgconn.PgError
+			if !errors.As(err, &migrationError) || migrationError.Code != "P0001" {
+				t.Fatalf("unrepresentable preferences must stop the cutover: %v", err)
+			}
+			if err := tx.Rollback(ctx); err != nil {
+				t.Fatal(err)
+			}
+			var unchanged bool
+			if err := pool.QueryRow(ctx, `SELECT value = $1::jsonb FROM settings WHERE key='notifications.preferences'`, prefs).Scan(&unchanged); err != nil || !unchanged {
+				t.Fatalf("stopped cutover changed the owner's opt-outs: unchanged=%v err=%v", unchanged, err)
+			}
+		})
 	}
 }
 

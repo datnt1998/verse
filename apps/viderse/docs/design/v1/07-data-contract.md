@@ -457,7 +457,7 @@ POST /api/suggestions/:id/dismiss {}
 - Khi cần xác nhận: `409 { code: "confirm_required", cost: { images } }`. Xác nhận một lần, gửi lại `{ confirm: true }`; dọn MP4 nêu rõ số video/dung lượng và không đụng dự án, nguồn hoặc video chưa đăng.
 - Khoá trùng `kind + channelId + đối tượng`; bỏ qua nghỉ7ngày. Không còn `forever` hoặc tắt theo từng loại/kênh; bộ sinh và truy vấn chỉ nhận ba loại sống.
 - `GET/PUT /api/notifications/settings`: trường `suggestions` là **boolean**, mặc định `true`; `false` ngừng sinh và không trả đề xuất. Các thiết lập thông báo khác giữ nguyên. Bỏ `recapOnReturn`.
-- Migration [`00038_global_suggestions.sql`](../../../internal/persistence/migrations/00038_global_suggestions.sql) đổi dữ liệu cũ trong cùng transaction: ba loại sống đều bị tắt toàn cục → `false`; không có/tắt một phần/tắt theo kênh → `true`. Dữ liệu sai kiểu/loại lạ dừng để quản trị kiểm tra, không tự đoán. Đóng đề xuất mở đã bỏ, giữ lịch sử đã giải quyết; gỡ con trỏ học/bản tin và tác vụ kế hoạch cũ.
+- Migration [`00038_global_suggestions.sql`](../../../internal/persistence/migrations/00038_global_suggestions.sql) đổi dữ liệu cũ trong cùng transaction: cả ba loại sống đều bị tắt toàn cục → `false`; chưa tắt loại sống nào → `true`. Tắt một phần hoặc theo kênh không biểu diễn được bằng một công tắc nên **dừng để chủ dữ liệu chốt**, không tự bật lại. Dữ liệu sai kiểu/loại lạ cũng dừng để quản trị kiểm tra. Đóng đề xuất mở đã bỏ, giữ lịch sử đã giải quyết; gỡ con trỏ học/bản tin và tác vụ kế hoạch cũ.
 - Ràng buộc cơ sở dữ liệu chỉ cho ba loại sống có trạng thái `open`; loại đã bỏ được giữ để đọc lịch sử nhưng không được tạo mới hoặc mở lại.
 
 ## §19 · Quy tắc đã học đã ngừng (Gói V37) <a id="learned-rules"></a>

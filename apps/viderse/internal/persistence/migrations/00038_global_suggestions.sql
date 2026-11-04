@@ -9,8 +9,8 @@
 --   * thiếu suggestions / suggestions.off rỗng → bật.
 --   * tắt đủ cả ba loại còn sống, không đặt theo kênh → tắt.
 --   * off[] chỉ chứa loại đã bỏ → bỏ các mục đó rồi xét phần còn lại.
---   * mục đặt theo kênh hoặc chỉ tắt một phần ba loại → bỏ mục đó, KHÔNG tắt
---     công tắc chung (sẽ tắt oan kênh/loại người dùng vẫn muốn nhận).
+--   * mục đặt theo kênh hoặc chỉ tắt một phần ba loại → dừng để chủ dữ liệu chọn
+--     chính sách chung, không tự bật lại điều họ đã tắt.
 --   * loại lạ hoặc sai hình → dừng migration, không tự đoán.
 -- +goose StatementBegin
 DO $$
@@ -52,6 +52,9 @@ BEGIN
             IF entry ? 'channelId' AND jsonb_typeof(entry->'channelId') NOT IN ('null', 'string') THEN
                 RAISE EXCEPTION 'suggestions.off.channelId phải là chuỗi hoặc null; dừng để không tự đoán';
             END IF;
+            IF entry->>'kind' = ANY(live_kinds) AND jsonb_typeof(entry->'channelId') = 'string' THEN
+                RAISE EXCEPTION 'suggestions.off theo kênh không biểu diễn được bằng một công tắc; cần chủ dữ liệu chốt trước migration';
+            END IF;
             IF entry->>'kind' = ANY(live_kinds) AND COALESCE(jsonb_typeof(entry->'channelId'), 'null') <> 'string' THEN
                 known_off := known_off || (entry->>'kind');
             END IF;
@@ -59,6 +62,8 @@ BEGIN
         live_off := ARRAY(SELECT DISTINCT unnest(known_off));
         IF cardinality(live_off) = cardinality(live_kinds) THEN
             enabled := false;
+        ELSIF cardinality(live_off) > 0 THEN
+            RAISE EXCEPTION 'suggestions.off chỉ tắt một phần các loại còn dùng; cần chủ dữ liệu chốt trước migration';
         ELSE
             enabled := true;
         END IF;
