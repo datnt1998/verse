@@ -449,6 +449,8 @@ input::placeholder, textarea::placeholder { color: var(--color-fg-4); }
 /* Kit tự vẽ .hov-ghost trên nút icon (Dialog, Overlays, QrCode, Toast) và
    portal .kit-pop/.kit-option ra body (Menus, Overlays). */
 .hov-ghost:hover { background: rgba(255, 255, 255, .07) !important; }
+/* Hộp xác nhận của Viderse dùng lớp mờ theo kit thiết kế, không đổi skin Noverse. */
+.kit-dlg-scrim { backdrop-filter: blur(var(--vv-s-3)); }
 /* Menu kit trên điện thoại cảm ứng: mỗi dòng ≥ 44px chạm được. */
 @media (max-width: 767px) and (pointer: coarse) {
   .kit-pop .kit-option { min-height: var(--vv-s-44); }
