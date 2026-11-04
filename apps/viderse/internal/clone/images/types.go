@@ -246,6 +246,10 @@ type RedrawVersionsInput struct {
 	Parts    map[string]string `json:"parts,omitempty"`
 	Refs     []RedrawRef       `json:"refs,omitempty"`
 	Provider string            `json:"provider,omitempty"`
+	// BaseVersion giữ đúng bản ảnh chủ kênh đang xem làm nguồn prompt/ảnh
+	// tham chiếu cho lần vẽ lại (kể cả khi bản đang dùng khác bản đó). Chỉ dùng
+	// cho một ảnh; vắng mặt thì tiếp nối bản đang dùng như trước.
+	BaseVersion *int `json:"baseVersion,omitempty"`
 }
 
 // RedrawRef là một ảnh tham chiếu chủ kênh chọn cho lần vẽ lại.

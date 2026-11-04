@@ -156,12 +156,19 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
   }, [viewer, liveImages, job.id, live.data, images.data])
 
   const viewerImage = viewer ? liveImages.find(image => image.id === viewer.imageId) : undefined
-  const baseVersion = viewerImage ? viewerImage.versions.find(candidate => candidate.n === viewerImage.usedVersion) ?? viewerImage.versions.at(-1) : undefined
+  const usedVersion = viewerImage?.versions.find(candidate => candidate.n === viewerImage.usedVersion)
+  // Bản đã huỷ vẫn nằm trong lịch sử nhưng không còn là nguồn vẽ lại hợp lệ:
+  // bỏ qua nó khi chọn mặc định hoặc khi lựa chọn cũ trỏ vào nó.
+  const baseVersion = usedVersion && usedVersion.state !== 'cancelled'
+    ? usedVersion
+    : viewerImage?.versions.findLast(candidate => candidate.state !== 'cancelled')
   // Mặc định bám bản mới nhất đã vẽ xong, không bám bản đang vẽ (bản đang vẽ
   // chưa có ảnh): sau khi gửi góp ý, khung vẫn hiện ảnh đang dùng cho video.
-  const latestReady = viewerImage?.versions.filter(candidate => candidate.state === 'ready').at(-1)
-  const viewVersionN = viewerImage ? viewN ?? latestReady?.n ?? baseVersion?.n ?? viewerImage.usedVersion : null
-  const viewerVersion = viewerImage?.versions.find(candidate => candidate.n === viewVersionN) ?? latestReady ?? baseVersion
+  const latestReady = viewerImage?.versions.findLast(candidate => candidate.state === 'ready')
+  const explicitVersion = viewerImage && viewN != null
+    ? viewerImage.versions.find(candidate => candidate.n === viewN && candidate.state !== 'cancelled')
+    : undefined
+  const viewerVersion = viewerImage ? explicitVersion ?? latestReady ?? baseVersion : undefined
   const viewerDrawing = viewerImage?.versions.find(candidate => candidate.state === 'drawing')
   const quota = live.data?.quota
 
@@ -240,13 +247,17 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
   // Một lượt gửi tại một thời điểm; form và góp ý còn nguyên khi lỗi.
   const sendViewerRedraw = async () => {
     if (!viewerImage || viewerBusyRef.current || !online || viewerDrawing) return
+    // Bản đã huỷ không phải nguồn hợp lệ: không gửi gì để máy chủ khỏi từ chối.
+    if (viewerVersion?.state === 'cancelled') return
     // Chưa có hạn mức thật thì chưa gửi: nút gửi phải nói đúng chi phí trước khi tiêu ảnh.
     if (!quota || quota.left <= 0) return
     const imageId = viewerImage.id
+    // Chốt bản đang xem lúc gửi: SSE đổi bản chọn trong lúc chờ không được đổi nguồn.
+    const baseVersion = viewerVersion?.n
     viewerBusyRef.current = true; setViewerBusy(true); setViewerError('')
     try {
       const text = viewerFeedback.trim()
-      const result = await redrawImages(job.id, { imageIds: [imageId], ...(text ? { feedback: text } : {}) })
+      const result = await redrawImages(job.id, { imageIds: [imageId], ...(baseVersion != null ? { baseVersion } : {}), ...(text ? { feedback: text } : {}) })
       const created = result.versions.find(entry => entry.imageId === imageId)
       const n = created?.n ?? null
       setViewerSent({ imageId, n })
@@ -305,11 +316,11 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
       if (node?.isContentEditable || (node && ['INPUT', 'TEXTAREA', 'SELECT'].includes(node.tagName))) return
       if (event.key.toLowerCase() !== 'r') return
       event.preventDefault()
-      if (!viewerDrawing && online) setViewerFbOpen(true)
+      if (!viewerDrawing && online && viewerVersion?.state !== 'cancelled') setViewerFbOpen(true)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [viewer, viewerImage, stage, viewerDrawing, online])
+  }, [viewer, viewerImage, viewerVersion, stage, viewerDrawing, online])
 
   const meta = stageMeta(stage, { total, drawn, manifest: images.data?.manifest, job, drawingIndex: firstDrawing, runStep })
   const activeStep = job.steps?.find(step => step.status === 'running') ?? failedStep
@@ -439,10 +450,10 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
               : 'Video đang làm · ảnh vẽ lại cần bạn duyệt lại · ← → đổi ảnh · Esc đóng'}</span>
             <span {...stylex.props(styles.spacer)} />
             {!viewerFbOpen
-              ? <Button size="sm" tooltip="Góp ý rồi vẽ lại (R)" kbd="R" disabled={!online || !!viewerDrawing} onClick={() => setViewerFbOpen(true)} icon={<Icon name="gallery-edit" size={15} />}>Góp ý &amp; vẽ lại</Button>
+              ? <Button size="sm" tooltip="Góp ý rồi vẽ lại (R)" kbd="R" disabled={!online || !!viewerDrawing || viewerVersion?.state === 'cancelled'} onClick={() => setViewerFbOpen(true)} icon={<Icon name="gallery-edit" size={15} />}>Góp ý &amp; vẽ lại</Button>
               : <>
                   <Button size="sm" variant="quiet" disabled={viewerBusy} onClick={() => { setViewerFbOpen(false); setViewerFeedback(''); setViewerError('') }}>Huỷ</Button>
-                  <Button size="sm" variant="primary" pending={viewerBusy} pendingLabel="Đang gửi…" disabled={viewerBusy || !online || !!viewerDrawing || !quota || quota.left <= 0} onClick={() => void sendViewerRedraw()}>Vẽ lại · tốn 1 ảnh{quota ? ` (còn ${quota.left})` : ''}</Button>
+                  <Button size="sm" variant="primary" pending={viewerBusy} pendingLabel="Đang gửi…" disabled={viewerBusy || !online || !!viewerDrawing || viewerVersion?.state === 'cancelled' || !quota || quota.left <= 0} onClick={() => void sendViewerRedraw()}>Vẽ lại · tốn 1 ảnh{quota ? ` (còn ${quota.left})` : ''}</Button>
                 </>}
           </>}
     />}
@@ -503,7 +514,16 @@ function ViewerSide({
   useEffect(() => () => window.clearTimeout(copyTimer.current), [])
   useEffect(() => { setRaw(false); setCopied('idle') }, [image.id, version?.n])
   const drawingVersion = image.versions.find(candidate => candidate.state === 'drawing')
-  const failedVersion = drawingVersion ? undefined : image.versions.find(candidate => candidate.state === 'failed')
+  // Bản lỗi chỉ được báo khi nó vẫn là lần vẽ mới nhất chưa bị một bản vẽ xong
+  // thay thế — không lấy bản lỗi cũ che bản mới đang hiển thị.
+  const latestFailed = image.versions.findLast(candidate => candidate.state === 'failed')
+  const failedVersion = drawingVersion
+    ? undefined
+    : version?.state === 'failed'
+      ? version
+      : latestFailed && !image.versions.some(candidate => candidate.n > latestFailed.n && candidate.state === 'ready')
+        ? latestFailed
+        : undefined
   const selectedN = version?.n ?? image.usedVersion
   const span = sceneSpan(image)
   // Prompt cấu trúc chỉ hiện phần người dùng kiểm được; ghi chú đã học vẫn còn
@@ -532,14 +552,17 @@ function ViewerSide({
           const previous = image.versions.find(candidate => candidate.n === entry.n - 1)
           const url = entry.url ?? entry.previewUrl ?? (entry.state === 'drawing' ? previous?.url : null)
           const on = entry.n === selectedN
+          const cancelled = entry.state === 'cancelled'
+          const note = `Bản ${entry.n} · đã huỷ · không dùng làm nguồn vẽ lại`
           return <button
             key={entry.n}
             type="button"
+            disabled={cancelled}
             aria-pressed={on}
-            aria-label={`Bản ${entry.n}${entry.feedback ? ` · theo góp ý “${entry.feedback}”` : ' · lần đầu'}${entry.n === image.usedVersion ? ' · đang dùng' : ''}`}
-            title={`${versionNote(entry)}${entry.n === image.usedVersion ? ' · đang dùng' : ''}`}
-            onClick={() => onSelectVersion(entry.n)}
-            {...stylex.props(styles.viewerVer, on && styles.viewerVerOn)}
+            aria-label={cancelled ? note : `Bản ${entry.n}${entry.feedback ? ` · theo góp ý “${entry.feedback}”` : ' · lần đầu'}${entry.n === image.usedVersion ? ' · đang dùng' : ''}`}
+            title={cancelled ? note : `${versionNote(entry)}${entry.n === image.usedVersion ? ' · đang dùng' : ''}`}
+            onClick={() => { if (!cancelled) onSelectVersion(entry.n) }}
+            {...stylex.props(styles.viewerVer, on && styles.viewerVerOn, cancelled && styles.viewerVerCancelled)}
           >
             {url && <img alt="" src={url} {...stylex.props(styles.viewerVerImage)} />}
             <span {...stylex.props(styles.viewerVerN)}>{entry.n}</span>
@@ -804,6 +827,7 @@ const styles = stylex.create({
   viewerVersions: { display: 'flex', gap: s['--vv-s-6'], flexWrap: 'wrap' },
   viewerVer: { position: 'relative', width: 64, aspectRatio: '16 / 9', padding: 0, borderRadius: r['--vv-r-7'], overflow: 'hidden', border: '2px solid transparent', backgroundColor: 'var(--color-surface-1)', flex: '0 0 auto', cursor: 'pointer' },
   viewerVerOn: { borderColor: 'var(--vv-red-line)' },
+  viewerVerCancelled: { opacity: 0.45, cursor: 'not-allowed' },
   viewerVerImage: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   viewerVerN: { position: 'absolute', left: s['--vv-s-3'], bottom: s['--vv-s-2'], paddingInline: s['--vv-s-4'], borderRadius: r['--vv-r-4'], backgroundColor: 'var(--vv-glass)', color: 'var(--color-fg-2)', fontSize: 10, fontVariantNumeric: 'tabular-nums' },
   viewerVerUsed: { position: 'absolute', right: s['--vv-s-3'], bottom: s['--vv-s-3'], width: 7, height: 7, borderRadius: '50%', backgroundColor: 'var(--color-ok)', boxShadow: '0 0 0 2px var(--color-surface-0)' },

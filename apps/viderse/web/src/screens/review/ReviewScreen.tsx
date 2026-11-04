@@ -30,7 +30,7 @@ import { readChannelAutonomy, readImageScore } from '../../api/autonomy'
 import { LearnSlot } from '../../components/learn/LearnSlot'
 import { MReviewScreen } from './mobile/MReviewScreen'
 import { ImageRail, type RefCandidate } from './ImageRail'
-import { toReviewItems, stageWidthVar, providerName, resetAtLabel, type ReviewItemView } from './imageView'
+import { toReviewItems, defaultVersion, stageWidthVar, providerName, resetAtLabel, type ReviewItemView } from './imageView'
 import { useImageEditing } from './useImageEditing'
 import { ImageViewer } from '../../components/image-viewer/ImageViewer'
 import { sx } from './review.stylex'
@@ -40,7 +40,7 @@ const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.fl
 /** Ảnh tham chiếu gửi kèm: ảnh đã lưu gửi lại bằng id, ảnh mới gửi bằng nguồn. */
 function toRedrawRefs(refs: ImageRef[]) {
   return refs.map((ref) => {
-    if (ref.source.type === 'upload') return { upload: ref.id, role: ref.role }
+    if (ref.source.type === 'upload') return { upload: ref.source.imageId ?? ref.id, role: ref.role }
     if (ref.source.type === 'rival_frame' && ref.source.videoId != null && ref.source.atSec != null) {
       return { rivalFrame: { videoId: ref.source.videoId, atSec: ref.source.atSec }, role: ref.role }
     }
@@ -114,17 +114,29 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   const neighbour = [...legacyItems.slice(0, selected)].reverse().find(candidate => candidate.kind === 'scene' && candidate.status !== 'skipped') ?? legacyItems.find((candidate, i) => i > selected && candidate.kind === 'scene' && candidate.status !== 'skipped')
   const pipelineBusy = !!job && !!review.pending[job.id]
 
-  const usedVersion = item?.versions.find(version => version.n === item.usedVersion) ?? item?.versions.at(-1)
+  const usedVersion = item?.versions.find(version => version.n === item.usedVersion && version.state !== 'cancelled') ?? defaultVersion(item?.versions)
   const drawingVersion = item?.versions.find(version => version.state === 'drawing')
-  const failedVersion = item?.versions.find(version => version.state === 'failed')
-  const versionN = viewN ?? item?.versions.at(-1)?.n ?? item?.usedVersion ?? 1
-  const version = item?.versions.find(candidate => candidate.n === versionN) ?? usedVersion
+  const latestVersion = defaultVersion(item?.versions)
+  const requestedVersionN = viewN ?? latestVersion?.n ?? item?.usedVersion ?? 1
+  const version = item?.versions.find(candidate => candidate.n === requestedVersionN && candidate.state !== 'cancelled') ?? latestVersion ?? usedVersion
+  const versionN = version?.n ?? requestedVersionN
   const previousVersion = item?.versions.find(candidate => candidate.n === versionN - 1)
-  const editing = useImageEditing(item?.id, failedVersion ?? usedVersion)
-  const legacyParts = !!(failedVersion ?? usedVersion)?.partsLegacy || !(failedVersion ?? usedVersion)?.parts.length
-  const batch = selection.length > 0
   const isDrawing = !!drawingVersion
+  const failedVersion = version?.state === 'failed' ? version : undefined
   const isFailed = !isDrawing && !!failedVersion
+  // Sửa/góp ý bám đúng bản đang hiện: thẻ lỗi giữ prompt + ảnh tham chiếu của
+  // bản lỗi, còn lại giữ bản đang xem (không phải bản đang dùng của video).
+  const editingBase = isFailed ? failedVersion : version
+  const editing = useImageEditing(job && item ? `${job.id}:${item.id}` : undefined, editingBase)
+  const legacyParts = !editing.base || !!editing.base.partsLegacy || !editing.base.parts.length
+  const liveEditSource = editing.base && item?.versions.find(candidate => candidate.n === editing.base!.n)
+  const editSourceStale = editing.mode !== 'view' && (editing.base
+    ? !liveEditSource || (liveEditSource.state !== 'ready' && liveEditSource.state !== 'failed')
+    : !!version)
+  const editBlocked = isDrawing || pipelineBusy || !online || editSourceStale
+  const refTarget = useRef({ jobId: job?.id, imageId: item?.id, source: editing.base?.n, blocked: editBlocked })
+  refTarget.current = { jobId: job?.id, imageId: item?.id, source: editing.base?.n, blocked: editBlocked }
+  const batch = selection.length > 0
   const readyVersion = item?.versions.reduce((latest, candidate) => candidate.state === 'ready' ? Math.max(latest, candidate.n) : latest, 0) ?? 0
   const justRevealed = !!reveal && reveal.imageId === item?.id && reveal.n === versionN && !cmp
   const shownVersion = cmp && previousVersion ? previousVersion : version
@@ -132,7 +144,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
     ? versionURL(job.id, legacy ?? { id: item.id, versions: [] }, shownVersion?.n ?? versionN, 'cutout')
     : shownVersion?.url ?? shownVersion?.previewUrl ?? (cmp ? undefined : usedVersion?.url) ?? item?.legacyUrl ?? (legacy ? imageURL(job!.id, legacy, view) : undefined)
   const frameTime = item?.startSec != null && item.endSec != null ? `${clock(item.startSec)}–${clock(item.endSec)}` : item?.kind === 'cover' && usedVersion?.width ? `${usedVersion.width}×${usedVersion.height}` : ''
-  const versionTag = isDrawing ? `đang vẽ bản ${drawingVersion!.n}` : cmp && previousVersion ? `bản ${previousVersion.n} (so sánh)` : `bản ${versionN}${versionN === item?.usedVersion ? '' : ' · chưa dùng'}`
+  const versionTag = isDrawing ? `đang vẽ bản ${drawingVersion!.n}` : !version ? 'chưa có bản vẽ dùng được' : cmp && previousVersion ? `bản ${previousVersion.n} (so sánh)` : `bản ${versionN}${versionN === item?.usedVersion ? '' : ' · chưa dùng'}`
   const blockedNow = !!legacy && blocked(legacy)
 
   const candidates = useMemo(() => {
@@ -156,6 +168,11 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   useEffect(() => { setImageFailed(false) }, [job?.id, item?.id, view, shownImage])
   useEffect(() => { setViewN(null); setCmp(false); setFeedback('') }, [item?.id, job?.id])
   useEffect(() => {
+    if (editing.mode === 'view' || !editing.base) return
+    setViewN(editing.base.n)
+    setCmp(false)
+  }, [editing.mode, editing.base?.n])
+  useEffect(() => {
     if (!job || !item) return
     const key = `${job.id}:${item.id}`
     const previous = seenReady.current[key]
@@ -168,12 +185,13 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
       setReveal(null)
       return
     }
+    if (editing.mode !== 'view') return
     setViewN(readyVersion)
     setCmp(false)
     setReveal({ imageId: item.id, n: readyVersion })
     const timer = window.setTimeout(() => setReveal(null), 2600)
     return () => window.clearTimeout(timer)
-  }, [job?.id, item?.id, isDrawing, readyVersion])
+  }, [job?.id, item?.id, isDrawing, readyVersion, editing.mode])
 
   const selectJob = (id: string) => { navigate(paths.review({ channel: channelFilter, video: id })); setView('full'); setFeedback(''); setSelection([]) }
   useEffect(() => { if (job && !review.images[job.id] && !review.imageErrors[job.id]) void review.loadImages(job.id) }, [job, review.images, review.imageErrors, review.loadImages])
@@ -249,26 +267,38 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
     } finally { busyRef.current = false }
   }
 
-  /** Góp ý → Hoạ sĩ sửa phần Cảnh của đúng ảnh rồi vẽ (giữ như cũ, nay có phiên bản). */
-  const redraw = () => { if (!item || isDrawing) return; void runRedraw(feedback ? { feedback } : {}) }
+  /** Góp ý → Hoạ sĩ sửa phần Cảnh của đúng bản nguồn đang sửa rồi vẽ (giữ như cũ, nay có phiên bản). */
+  const redraw = () => {
+    const source = editing.base
+    if (!item || editBlocked) return
+    // Không còn bản dùng được (ví dụ chỉ có bản đã huỷ): vẽ mới theo chính sách
+    // thường của máy chủ, không gửi baseVersion và không sửa prompt của bản huỷ.
+    const baseVersion = source && source.state !== 'cancelled' ? source.n : undefined
+    void runRedraw({ ...(baseVersion !== undefined ? { baseVersion } : {}), ...(feedback ? { feedback } : {}) })
+  }
 
   /** Vẽ lại với prompt đã sửa: chỉ gửi phần đã đổi + ảnh tham chiếu nếu đổi. */
   const submitEdit = () => {
-    if (!item || editing.changedCount === 0) return
-    const body: Omit<RedrawBody, 'imageIds'> = {}
+    const source = editing.base
+    if (!item || editBlocked || editing.changedCount === 0) return
+    const body: Omit<RedrawBody, 'imageIds'> = source ? { baseVersion: source.n } : {}
     if (Object.keys(editing.changed).length) body.parts = editing.changed as Partial<Record<PromptPartKind, string>>
-    const baseRefs = (failedVersion ?? usedVersion)?.refs ?? []
+    const baseRefs = source?.refs ?? []
     const refsChanged = editing.changedCount - Object.keys(editing.changed).length > 0
     if (refsChanged || baseRefs.length !== editing.refs.length) body.refs = toRedrawRefs(editing.refs)
     void runRedraw(body).then(accepted => { if (accepted) editing.reset() })
   }
 
-  /** Thẻ lỗi: vẽ bằng Grok đúng prompt đã sửa (phần + ảnh tham chiếu của bản lỗi). */
+  /** R khi đang có nháp sửa prompt phải gửi nháp đó, không vẽ lại bằng góp ý rồi bỏ nháp. */
+  const redrawShortcut = () => {
+    if (editing.mode === 'edit' || (editing.mode === 'raw' && editing.changedCount > 0)) { submitEdit(); return }
+    redraw()
+  }
+
+  /** Thẻ lỗi: vẽ bằng Grok đúng bản lỗi; máy chủ giữ nguyên prompt + ảnh tham chiếu đã lưu. */
   const retryWithGrok = () => {
-    if (!item || !failedVersion) return
-    const parts: Partial<Record<PromptPartKind, string>> = {}
-    for (const part of failedVersion.parts) if (part.kind !== 'refs' && part.kind !== 'learned') parts[part.kind] = part.text
-    void runRedraw({ provider: 'grok', ...(Object.keys(parts).length ? { parts } : {}), ...(failedVersion.refs.length ? { refs: toRedrawRefs(failedVersion.refs) } : {}) })
+    if (!item || !failedVersion || editBlocked) return
+    void runRedraw({ provider: 'grok', baseVersion: failedVersion.n })
   }
 
   const cancelDrawing = () => {
@@ -286,9 +316,16 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   }
 
   const upload = (file: File) => {
+    if (refTarget.current.blocked) return
+    const target = refTarget.current
     setUploading(true)
     void uploadRefImage(file)
       .then((id) => {
+        const current = refTarget.current
+        if (current.blocked || current.jobId !== target.jobId || current.imageId !== target.imageId || current.source !== target.source) {
+          toast('Đã tải ảnh lên nhưng lựa chọn đã thay đổi; hãy thêm ảnh vào bản đang xem.')
+          return
+        }
         editing.setMode('edit')
         editing.addRef({ id, role: 'character', url: URL.createObjectURL(file), source: { type: 'upload', label: file.name } })
       })
@@ -312,7 +349,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
   }
   useReviewKeys({
     nextJob: () => moveJob(1), previousJob: () => moveJob(-1), nextImage: () => moveImage(1), previousImage: () => moveImage(-1),
-    redraw, approve, editPrompt: () => { if (item && !isDrawing && !legacyParts) editing.setMode('edit') }, compare: toggleCompare,
+    redraw: redrawShortcut, approve, editPrompt: () => { if (item && !isDrawing && !pipelineBusy && online && !legacyParts && version?.state !== 'cancelled') editing.setMode('edit') }, compare: toggleCompare,
     escape, submit: submitEdit,
   }, !allOpen)
 
@@ -389,9 +426,9 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                       {' '}Bản {item.usedVersion} vẫn được giữ; chỉ dẫn bạn sửa vẫn còn.
                     </span>
                     <div {...stylex.props(sx.failedActions)}>
-                      <Button variant="primary" size="sm" type="button" disabled={!online} onClick={retryWithGrok} >
+                      <Button variant="primary" size="sm" type="button" disabled={editBlocked} onClick={retryWithGrok} >
                         Vẽ bằng {providerName('grok', providers.data)}{live.data?.quota?.fallback ? ` · còn ${live.data.quota.fallback.left} ảnh` : ''}</Button>
-                      <Button size="sm" type="button" disabled={legacyParts} onClick={() => editing.setMode('edit')} >Sửa chỉ dẫn</Button>
+                      <Button size="sm" type="button" disabled={editBlocked || legacyParts} onClick={() => editing.setMode('edit')} >Sửa chỉ dẫn</Button>
                     </div>
                   </div>
                 </>
@@ -467,7 +504,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                 <span {...stylex.props(sx.barSub)}>Chỉ áp cho ảnh này · tốn 1 ảnh{quotaLine ? `, ${quotaLine}` : ''}</span>
               </span>
               <Button onClick={editing.reset} kbd="Esc">Huỷ sửa</Button>
-              <Button variant="primary" onClick={submitEdit} aria-disabled={editing.changedCount === 0 || !online} icon={<Icon name="magicpen" size={15} />} kbd="⌘↵">Vẽ lại với chỉ dẫn này</Button>
+              <Button variant="primary" onClick={submitEdit} aria-disabled={editing.changedCount === 0 || editBlocked} tooltip={editSourceStale ? 'Bản nguồn đã thay đổi; huỷ sửa để chọn lại. Bản nháp vẫn được giữ.' : undefined} icon={<Icon name="magicpen" size={15} />} kbd="⌘↵">Vẽ lại với chỉ dẫn này</Button>
             </div>
           ) : (
             <div {...stylex.props(sx.bar)}>
@@ -517,11 +554,12 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
           providers={providers.data}
           mode={editing.mode}
           onMode={editing.setMode}
-          selected={versionN}
-          onSelectVersion={(n) => { setViewN(n); setCmp(false) }}
+          selected={editing.mode === 'view' ? versionN : editing.base?.n ?? versionN}
+          onSelectVersion={(n) => { editing.reset(); setViewN(n); setCmp(false) }}
           onUseVersion={useVersion}
           edit={editing}
           online={online}
+          mutationBlocked={isDrawing || pipelineBusy || editSourceStale}
           candidates={candidates}
           onUpload={upload}
           uploading={uploading}

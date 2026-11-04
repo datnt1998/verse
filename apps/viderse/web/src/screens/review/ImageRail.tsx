@@ -8,7 +8,7 @@ import type { AiProvider } from '../../api/ai'
 import type { ImageQuota, ImageRef, PromptPartKind } from '../../api/images'
 import { DevelopEffect } from '../../components'
 import {
-  EDITABLE_PARTS, PART_LABELS, REF_ROLES, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
+  EDITABLE_PARTS, PART_LABELS, REF_ROLES, defaultVersion, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
 } from './imageView'
 import type { ImageEditing } from './useImageEditing'
 import type { ReviewItemView } from './imageView'
@@ -28,6 +28,7 @@ export interface ImageRailProps {
   onUseVersion: (n: number) => void
   edit: ImageEditing
   online: boolean
+  mutationBlocked: boolean
   candidates: { images: RefCandidate[]; frames: RefCandidate[] }
   onUpload: (file: File) => void
   uploading?: boolean
@@ -36,7 +37,7 @@ export interface ImageRailProps {
 }
 
 export function ImageRail({
-  item, quota, providers, mode, onMode, selected, onSelectVersion, onUseVersion, edit, online, candidates, onUpload, uploading, score,
+  item, quota, providers, mode, onMode, selected, onSelectVersion, onUseVersion, edit, online, mutationBlocked, candidates, onUpload, uploading, score,
 }: ImageRailProps) {
   const refPopup = usePopup()
   const { open: refsOpen, setOpen: setRefsOpen } = refPopup
@@ -62,7 +63,10 @@ export function ImageRail({
     }
   }, [refsOpen, refPopup.root])
 
-  const version = item.versions.find((candidate) => candidate.n === selected) ?? item.versions.at(-1)
+  const liveVersion = item.versions.find((candidate) => candidate.n === selected && candidate.state !== 'cancelled') ?? defaultVersion(item.versions)
+  const version = mode === 'edit' || (mode === 'raw' && edit.changedCount > 0) ? edit.base : liveVersion
+  const canMutate = online && !mutationBlocked
+  useEffect(() => { if (!canMutate) setRefsOpen(false) }, [canMutate, setRefsOpen])
   const drawingVersion = item.versions.find((candidate) => candidate.state === 'drawing')
   const failedVersion = item.versions.find((candidate) => candidate.state === 'failed')
   const refs = mode === 'edit' ? edit.refs : version?.refs ?? []
@@ -87,7 +91,7 @@ export function ImageRail({
   }
 
   const addPicked = () => {
-    if (!picked) return
+    if (!picked || !canMutate || refs.length >= item.refLimit) return
     const candidate = list.find((entry) => entry.id === picked)
     if (!candidate) return
     edit.addRef(candidate.kind === 'frame'
@@ -121,15 +125,21 @@ export function ImageRail({
             const previous = item.versions.find((candidate) => candidate.n === entry.n - 1)
             const url = entry.url ?? entry.previewUrl ?? (entry.state === 'drawing' ? previous?.url : null) ?? item.legacyUrl
             const on = entry.n === selected
+            const cancelled = entry.state === 'cancelled'
             return (
               <button
                 key={entry.n}
                 type="button"
                 aria-pressed={on}
-                onClick={() => onSelectVersion(entry.n)}
-                aria-label={`Bản ${entry.n} · ${entry.feedback ? `theo góp ý “${entry.feedback}”` : 'lần đầu'}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
-                title={`${versionNote(entry)}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
-                {...stylex.props(sx.ver, on && sx.verOn)}
+                onClick={() => { if (!cancelled) onSelectVersion(entry.n) }}
+                disabled={cancelled}
+                aria-label={cancelled
+                  ? versionNote(entry)
+                  : `Bản ${entry.n} · ${entry.feedback ? `theo góp ý “${entry.feedback}”` : 'lần đầu'}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
+                title={cancelled
+                  ? versionNote(entry)
+                  : `${versionNote(entry)}${entry.n === item.usedVersion ? ' · đang dùng' : ''}`}
+                {...stylex.props(sx.ver, on && sx.verOn, cancelled && sx.dimmed)}
               >
                 {url && <img alt="" src={url} {...stylex.props(sx.verImage)} />}
                 {entry.state === 'drawing' && <DevelopEffect state="drawing" baseUrl={url ?? undefined} compact hideCard />}
@@ -147,7 +157,7 @@ export function ImageRail({
               : versionNote(version)}
         </span>
         {version && version.n !== item.usedVersion && version.state === 'ready' && (
-          <Button size="sm" xstyle={sx.useButton} type="button" disabled={!online} onClick={() => onUseVersion(version.n)} >
+          <Button size="sm" xstyle={sx.useButton} type="button" disabled={!canMutate} onClick={() => onUseVersion(version.n)} >
             Dùng bản {version.n} cho video
           </Button>
         )}
@@ -163,7 +173,7 @@ export function ImageRail({
           title="Thêm"
           aria-haspopup="dialog"
           aria-expanded={refsOpen}
-          disabled={!online || mode === 'edit' && refs.length >= item.refLimit} ><Icon name="add" size={14} />Thêm
+          disabled={!canMutate || mode === 'edit' && refs.length >= item.refLimit} ><Icon name="add" size={14} />Thêm
                     </Button>
         </div>
         {refs.map((ref, index) => (
@@ -177,7 +187,7 @@ export function ImageRail({
               <span {...stylex.props(sx.refSource)} title={ref.source.label}>{ref.source.label}</span>
             </span>
             {mode === 'edit' && (
-              <Button variant="icon" type="button" onClick={() => edit.toggleRef(ref.id)} aria-label={`Bỏ ảnh tham chiếu ${index + 1}`} ><Icon name="close" size={14} /></Button>
+              <Button variant="icon" type="button" disabled={!canMutate} onClick={() => edit.toggleRef(ref.id)} aria-label={`Bỏ ảnh tham chiếu ${index + 1}`} ><Icon name="close" size={14} /></Button>
             )}
           </div>
         ))}
@@ -193,8 +203,8 @@ export function ImageRail({
             <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} fit="content" options={[{ id: 'images', label: 'Ảnh trong video' }, { id: 'frames', label: 'Khung video gốc' }, { id: 'upload', label: 'Tải lên' }]} />
             {tab === 'upload' ? (
               <>
-                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (files[0]) onUpload(files[0]) }} />
-                <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={event => { const file = event.target.files?.[0]; if (file) onUpload(file); event.target.value = '' }} />
+                <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={!canMutate || uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (canMutate && files[0]) onUpload(files[0]) }} />
+                <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" hidden disabled={!canMutate || uploading} onChange={event => { const file = event.target.files?.[0]; if (canMutate && file) onUpload(file); event.target.value = '' }} />
               </>
             ) : (
               <div {...stylex.props(sx.candGrid)}>
@@ -222,7 +232,7 @@ export function ImageRail({
             <div {...stylex.props(sx.popFoot)}>
               <span {...stylex.props(sx.popFootText)}>{providerName(version?.provider ?? 'chatgpt', providers)} nhận tối đa {item.refLimit} ảnh tham chiếu</span>
               <Button size="sm" type="button" onClick={() => setRefsOpen(false)} >Huỷ</Button>
-              <Button size="sm" variant="primary" type="button" onClick={addPicked} aria-disabled={!picked || refs.length >= item.refLimit} >{addLabel}</Button>
+              <Button size="sm" variant="primary" type="button" onClick={addPicked} aria-disabled={!canMutate || !picked || refs.length >= item.refLimit} >{addLabel}</Button>
             </div>
           </div>
         )}
@@ -234,7 +244,7 @@ export function ImageRail({
           {mode !== 'edit' && (
             <>
               <Button size="sm" type="button" onClick={() => void copy()} aria-label={copied ? 'Đã chép' : 'Chép'} title={copied ? 'Đã chép' : 'Chép'} ><Icon name="copy" size={14} />{copied ? 'Đã chép' : 'Chép'}</Button>
-              <Button size="sm" type="button" onClick={() => onMode('edit')} aria-label="Sửa" title="Sửa" aria-keyshortcuts="E" disabled={!online || legacyParts} ><Icon name="edit" size={14} />Sửa
+              <Button size="sm" type="button" onClick={() => onMode('edit')} aria-label="Sửa" title="Sửa" aria-keyshortcuts="E" disabled={!canMutate || legacyParts} ><Icon name="edit" size={14} />Sửa
                             </Button>
             </>
           )}

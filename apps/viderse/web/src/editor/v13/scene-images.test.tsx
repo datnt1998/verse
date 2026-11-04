@@ -348,7 +348,128 @@ describe('scene panel', () => {
     fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
     expect(save).toHaveBeenCalledTimes(1)
-    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({ imageIds: ['img-1'], project: false, feedback: 'Giữ chuyển động, thêm đèn đỏ' })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({ imageIds: ['img-1'], project: false, baseVersion: 1, feedback: 'Giữ chuyển động, thêm đèn đỏ' })
+  })
+
+  it('sends the reviewed version as the redraw source instead of the version used by the video', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 3 }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Xem lớn Đèn pin soi phòng trống' }))
+    const viewer = await screen.findByRole('dialog')
+    fireEvent.click(within(viewer).getByRole('button', { name: /Bản 2 ·/ }))
+    expect(within(viewer).getByRole('img', { name: 'Cảnh 1', exact: true }).getAttribute('src')).toBe('/api/clone/job-1/images/img-1/versions/2')
+    fireEvent.click(within(viewer).getByRole('button', { name: 'Sửa' }))
+    const area = within(viewer).getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement
+    expect(area.value).toBe('Cảnh 5 bản 2: đèn pin soi vào phòng trống, bụi lơ lửng trong chùm sáng.')
+    fireEvent.change(area, { target: { value: 'Cảnh 5 bản 2 đã sửa: đèn pin soi vào phòng trống, có bóng người.' } })
+    fireEvent.click(within(viewer).getByRole('button', { name: 'Vẽ lại với chỉ dẫn này' }))
+    const confirmation = await screen.findByRole('alertdialog')
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      imageIds: ['img-1'], project: false, baseVersion: 2, parts: { scene: 'Cảnh 5 bản 2 đã sửa: đèn pin soi vào phòng trống, có bóng người.' },
+    })
+  })
+
+  it('keeps the captured source when the used version changes during confirmation', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 3 }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    const panel = (usedVersion: number) => <SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion })} />
+    const { rerender } = render(panel(1))
+    fireEvent.click(screen.getByRole('button', { name: 'Xem lớn Đèn pin soi phòng trống' }))
+    const viewer = await screen.findByRole('dialog')
+    fireEvent.click(within(viewer).getByRole('button', { name: 'Sửa' }))
+    const area = within(viewer).getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement
+    fireEvent.change(area, { target: { value: 'Cảnh 5 bản 1 đã sửa: thêm ánh đèn đỏ.' } })
+    fireEvent.click(within(viewer).getByRole('button', { name: 'Vẽ lại với chỉ dẫn này' }))
+    const confirmation = await screen.findByRole('alertdialog')
+    rerender(panel(2))
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      imageIds: ['img-1'], project: false, baseVersion: 1, parts: { scene: 'Cảnh 5 bản 1 đã sửa: thêm ánh đèn đỏ.' },
+    })
+  })
+
+  it('keeps a cancelled draw in history but redraws from the version still in use', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 3 }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    const panel = (versions: JobImage['versions']) => <SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions })} />
+    const drawingVersion = version(2, { state: 'drawing', url: null, finishedAt: null, durationSec: null })
+    const { rerender } = render(panel([version(1), drawingVersion]))
+    fireEvent.click(screen.getByRole('button', { name: /Bản 2 ·/ }))
+    rerender(panel([version(1), version(2, { state: 'cancelled', url: null })]))
+    const cancelled = screen.getByRole('button', { name: /Bản 2 · đã huỷ/ }) as HTMLButtonElement
+    expect(cancelled.disabled).toBe(true)
+    expect(screen.getByRole('img', { name: 'Cảnh 1 · bản 1' })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Dùng bản 2' })).toBeNull()
+    fireEvent.click(cancelled)
+    expect(screen.getByRole('img', { name: 'Cảnh 1 · bản 1' })).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Góp ý để vẽ lại cảnh 1'), { target: { value: 'giữ bản đang dùng' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Vẽ lại', exact: true }))
+    const confirmation = await screen.findByRole('alertdialog')
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      imageIds: ['img-1'], project: false, baseVersion: 1, feedback: 'giữ bản đang dùng',
+    })
+  })
+
+  it('keeps a failed version selectable as the redraw source next to a cancelled history entry', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 4 }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    const failedVersion = version(2, { state: 'failed', url: null, error: { reason: 'provider', message: 'Chưa vẽ được' } })
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1), failedVersion, version(3, { state: 'cancelled', url: null })] })} />)
+    const cancelled = screen.getByRole('button', { name: /Bản 3 · đã huỷ/ }) as HTMLButtonElement
+    expect(cancelled.disabled).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: /Bản 2 ·/ }))
+    expect(screen.getByText(/Cảnh 5 bản 2/)).toBeTruthy()
+    fireEvent.click(cancelled)
+    expect(screen.getByText(/Cảnh 5 bản 2/)).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Góp ý để vẽ lại cảnh 1'), { target: { value: 'vẽ tiếp từ bản lỗi' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Vẽ lại', exact: true }))
+    const confirmation = await screen.findByRole('alertdialog')
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      imageIds: ['img-1'], project: false, baseVersion: 2, feedback: 'vẽ tiếp từ bản lỗi',
+    })
+  })
+
+  it('does not send a cancelled first attempt as the redraw base', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => json({ versions: [{ imageId: 'img-1', n: 2 }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1, { state: 'cancelled', url: null })] })} />)
+    expect((screen.getByRole('button', { name: /Bản 1 · đã huỷ/ }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('button', { name: 'Sửa' }) as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.change(screen.getByLabelText('Góp ý để vẽ lại cảnh 1'), { target: { value: 'vẽ lại từ đầu' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Vẽ lại', exact: true }))
+    const confirmation = await screen.findByRole('alertdialog')
+    fireEvent.click(within(confirmation).getByRole('button', { name: 'Vẽ lại', exact: true }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toEqual({
+      imageIds: ['img-1'], project: false, feedback: 'vẽ lại từ đầu',
+    })
+  })
+
+  it('keeps a dirty draft and blocks its submit when its source version is cancelled', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const panel = (versions: JobImage['versions']) => <SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions })} />
+    const { rerender } = render(panel([version(1), version(2)]))
+    fireEvent.click(screen.getByRole('button', { name: /Bản 2 ·/ }))
+    fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
+    const area = screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement
+    fireEvent.change(area, { target: { value: 'Cảnh 5 bản 2 đã sửa: giữ bản nháp này.' } })
+    rerender(panel([version(1), version(2, { state: 'cancelled', url: null })]))
+    expect((screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement).value).toBe('Cảnh 5 bản 2 đã sửa: giữ bản nháp này.')
+    const submit = screen.getByRole('button', { name: 'Vẽ lại với chỉ dẫn này' })
+    expect(submit.getAttribute('aria-disabled')).toBe('true')
+    fireEvent.click(submit)
+    await act(async () => { await Promise.resolve() })
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('does not request a redraw when saving the editor fails', async () => {
@@ -366,25 +487,34 @@ describe('scene panel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
     const area = screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement
     fireEvent.change(area, { target: { value: 'Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ' } })
-    expect(screen.getByText('Đã sửa')).toBeTruthy()
     rerender(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion: 2, needsReview: true })} />)
     expect((screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement).value).toBe('Cảnh 5: đèn pin soi vào phòng trống, có bóng người cạnh cửa sổ')
+    expect(screen.getByRole('img', { name: 'Cảnh 1 · bản 1' }).getAttribute('src')).toBe('/api/clone/job-1/images/img-1/versions/1')
+    fireEvent.click(screen.getByRole('button', { name: /Bản 2 ·/ }))
+    expect(screen.queryByLabelText('Phần Cảnh của chỉ dẫn')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
+    expect((screen.getByLabelText('Phần Cảnh của chỉ dẫn') as HTMLTextAreaElement).value).toBe(version(2).parts.find(part => part.kind === 'scene')?.text)
   })
 
-  it('shows the drawing state in the box, keeps the used version selectable and can cancel the draw', () => {
+  it('does not turn a legacy full provider prompt into an editable scene', () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1, { parts: [], partsLegacy: true, sentText: 'Provider wrapper and legacy scene' })] })} />)
+    const edit = screen.getByRole('button', { name: 'Sửa' }) as HTMLButtonElement
+    expect(edit.disabled).toBe(true)
+    fireEvent.click(edit)
+    expect(screen.queryByLabelText('Phần Cảnh của chỉ dẫn')).toBeNull()
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('keeps the used version selectable and prevents another generation while a draw is running', () => {
     const onRedrawn = vi.fn()
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ versions: [version(1), version(2, { state: 'drawing', url: null, finishedAt: null, durationSec: null })] })} progress={{ jobId: 'job-1', imageId: 'img-1', n: 2, phase: 'drawing', elapsedSec: 21 }} beforeMutation={async () => true} onRedrawn={onRedrawn} />)
-    // Đang vẽ bản mới vẫn giữ bản đã duyệt và provenance; ẩn thao tác sửa/xoá ảnh.
-    expect(screen.getByText('Đã duyệt')).toBeTruthy()
-    expect(screen.queryByText('Đang vẽ bản 2')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /Bản 1 ·/ }))
     expect(screen.queryByLabelText('Góp ý để vẽ lại cảnh 1')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Thay ảnh' })).toBeNull()
-    expect(screen.getByText('Hoạ sĩ đang vẽ bản 2')).toBeTruthy()
-    expect(screen.getByText('Đang vẽ')).toBeTruthy()
-    expect(screen.getByText('0:21 · thường khoảng 41 giây')).toBeTruthy()
-    expect(screen.getByText(/Bản 1 · đang vẽ bản 2/)).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Huỷ lần vẽ' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: /^Vẽ lại$/ })).toBeNull()
     fireEvent.click(screen.getByRole('button', { name: 'Sửa' }))
@@ -392,12 +522,6 @@ describe('scene panel', () => {
     expect(redraw.getAttribute('aria-disabled')).toBe('true')
     fireEvent.click(redraw)
     expect(fetchMock).not.toHaveBeenCalled()
-  })
-
-  it('marks a redrawn scene as needing review again and offers the way back', () => {
-    render(<SceneImagePanel item={sceneItem()} number={1} jobId="job-1" image={jobImage({ usedVersion: 2, needsReview: true })} />)
-    expect(screen.getByText('Bản mới · cần duyệt lại')).toBeTruthy()
-    expect(screen.getByText(/⌘Z để quay lại bản 1/)).toBeTruthy()
   })
 })
 

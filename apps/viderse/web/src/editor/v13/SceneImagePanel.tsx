@@ -36,7 +36,11 @@ export interface SceneImagePanelProps {
   onRedrawn?: () => Promise<void> | void
 }
 
-type SceneDraft = { imageId: string; feedback: string; draft: string | null; editing: boolean }
+type SceneDraft = { imageId: string; feedback: string; draft: string | null; editing: boolean; version: number | null }
+
+/** Bản đã huỷ vẫn nằm trong lịch sử nhưng không còn là nguồn vẽ lại hợp lệ. */
+const selectableVersion = (version: ImageVersion | undefined): ImageVersion | undefined =>
+  version && version.state !== 'cancelled' ? version : undefined
 
 export function SceneImagePanel(props: SceneImagePanelProps) {
   const [viewing, setViewing] = useState<string | null>(null)
@@ -50,7 +54,12 @@ export function SceneImagePanel(props: SceneImagePanelProps) {
   const clipId = target && projectId ? clipIdFor(projectId, target) : null
   const clip = (clipId ? itemById[clipId] : undefined) ?? (viewing === props.image?.id || viewing === props.item.id ? props.item : undefined)
   const targetClip = clip?.type === 'image' ? clip : undefined
-  const sourceVersion = target ? versionOf(target, pickedVersion ?? target.usedVersion) : undefined
+  const usedSource = target ? versionOf(target, target.usedVersion) : undefined
+  const sourceVersion = target
+    ? selectableVersion(pickedVersion != null ? versionOf(target, pickedVersion) : undefined)
+      ?? selectableVersion(usedSource)
+      ?? target.versions.findLast(version => version.state !== 'cancelled')
+    : undefined
   useEffect(() => {
     if (!viewing || targetClip) return
     setViewing(null)
@@ -73,7 +82,7 @@ export function SceneImagePanel(props: SceneImagePanelProps) {
       onConfirm: async () => { await request() },
     })
     if (accepted) { setResume(null); toast.ok('Đã gửi Hoạ sĩ · vẽ lại 1 ảnh') }
-    else if (returnTo) setViewing(returnTo)
+    else if (returnTo) { setPickedVersion(draft.version); setViewing(returnTo) }
     return accepted
   }
   return <>
@@ -101,6 +110,7 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
   const [more, setMore] = useState(false)
   const [editing, setEditing] = useState(initialDraft && initialDraft.imageId === image?.id ? initialDraft.editing : false)
   const [draft, setDraft] = useState<string | null>(initialDraft && initialDraft.imageId === image?.id ? initialDraft.draft : null)
+  const [editSource, setEditSource] = useState<number | null>(initialDraft && initialDraft.imageId === image?.id ? initialDraft.version : null)
   const [feedback, setFeedback] = useState(initialDraft && initialDraft.imageId === image?.id ? initialDraft.feedback : '')
   const [busy, setBusy] = useState(false)
   const pending = useRef(false)
@@ -108,12 +118,29 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
   const [picker, setPicker] = useState(false)
   const notices = useSceneSwapStore(state => state.notices)
   const used = image?.usedVersion ?? 1
-  const selected = (onViewVersion ? viewVersion : picked) ?? used
+  const usedEntry = image ? versionOf(image, used) : undefined
+  const explicit = editing && editSource != null ? editSource : onViewVersion ? viewVersion : picked
+  // Lựa chọn cũ trỏ vào bản đã huỷ (hoặc bản đã biến mất) thì rơi về bản đang
+  // dùng, rồi tới bản còn dùng được mới nhất — không giữ nguồn bị từ chối.
+  const selectedEntry = image
+    ? selectableVersion(explicit != null ? versionOf(image, explicit) : undefined)
+      ?? selectableVersion(usedEntry)
+      ?? image.versions.findLast(entry => entry.state !== 'cancelled')
+    : undefined
+  const selected = selectedEntry?.n ?? used
   const drawing = image ? drawingVersionOf(image) : undefined
-  const version = image ? versionOf(image, selected) ?? versionOf(image, used) : undefined
+  const version = selectedEntry ?? selectableVersion(usedEntry)
   const sceneText = version?.parts.find(part => part.kind === 'scene')?.text ?? version?.sentText ?? ''
+  const editableScene = version && !version.partsLegacy ? version.parts.find(part => part.kind === 'scene')?.text ?? null : null
+  const pinnedEdit = image && editing && editSource != null ? selectableVersion(versionOf(image, editSource)) : undefined
+  // Bản nguồn của bản nháp không còn dùng được (đã huỷ/biến mất) thì không tự
+  // lấy bản khác để gửi kèm bản nháp: giữ nháp và khoá gửi cho tới khi chọn lại.
+  const editSourceStale = editing && editSource != null && !pinnedEdit
+  const editVersion = editing && editSource != null ? pinnedEdit : version
+  // So bản nháp với đúng bản nguồn lúc bắt đầu sửa, không phải bản SSE vừa chọn.
+  const editSceneText = editVersion?.parts.find(part => part.kind === 'scene')?.text ?? editVersion?.sentText ?? ''
   const refs = version?.refs ?? []
-  const changed = draft !== null && draft.trim() !== sceneText.trim()
+  const changed = draft !== null && draft.trim() !== editSceneText.trim()
   const justSwapped = notices.some(notice => notice.clipId === item.id)
   const review = image ? needsReviewOf(image) : false
   useEffect(() => {
@@ -134,9 +161,17 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
   }
   const redraw = (body: { feedback?: string; parts?: { scene: string } }) => {
     if (!jobId || !image) return
+    // Chốt bản nguồn tại lúc bấm gửi: bản đã chốt khi bắt đầu sửa prompt, hoặc
+    // bản đang xem với góp ý. SSE đổi bản dùng trong lúc chờ không đổi nguồn.
+    const source = editing ? editVersion : version
+    // Bản đã huỷ không phải nguồn hợp lệ: không mở xác nhận hay gửi gì.
+    if (source?.state === 'cancelled') return
+    // Bản nháp đang sửa mất nguồn thì không gửi kèm một bản khác.
+    if (editing && editSourceStale) return
+    const baseVersion = source?.n ?? null
     void run(async () => {
-      const accepted = await confirmRedraw({ imageId: image.id, feedback, draft, editing }, () => redrawImages(jobId, { imageIds: [image.id], project: false, ...body }))
-      if (accepted) { setFeedback(''); setEditing(false); setDraft(null) }
+      const accepted = await confirmRedraw({ imageId: image.id, feedback, draft, editing, version: baseVersion }, () => redrawImages(jobId, { imageIds: [image.id], project: false, ...(baseVersion != null ? { baseVersion } : {}), ...body }))
+      if (accepted) { setFeedback(''); setEditing(false); setDraft(null); setEditSource(null) }
     })
   }
   const cancel = () => {
@@ -202,7 +237,7 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
           pressed={drawing ? entry.n === drawing.n : entry.n === selected}
           drawing={entry.n === drawing?.n}
           baseUrl={versionOf(image, used)?.url ?? undefined}
-          onPick={() => { const next = entry.n === used ? null : entry.n; setPicked(next); onViewVersion?.(next) }}
+          onPick={() => { const next = entry.n === used ? null : entry.n; setEditing(false); setDraft(null); setEditSource(null); setPicked(next); onViewVersion?.(next) }}
         />)}
         <span {...stylex.props(sx.grow)} />
         {selected !== used && !drawing && <Button size="sm" pending={busy} onClick={usePicked}>Dùng bản {selected}</Button>}
@@ -221,14 +256,14 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
                 rows={6}
                 value={draft ?? sceneText}
                 onChange={event => setDraft(event.currentTarget.value)}
-                onKeyDown={event => { if (event.key === 'Escape') { setEditing(false); setDraft(null) } }}
+                onKeyDown={event => { if (event.key === 'Escape') { setEditing(false); setDraft(null); setEditSource(null) } }}
                 {...stylex.props(sx.psegArea, changed ? sx.psegAreaChanged : null)}
               />
               <span {...stylex.props(sx.help)}>Phong cách, Tham chiếu và Tránh giữ nguyên · <a href={`#${paths.review({ video: jobId, img: image.id })}`} {...stylex.props(sx.psegLink)}>sửa đủ ở Duyệt</a></span>
             </div>
             <div {...stylex.props(sx.editFooter)}>
-              <Button disabled={busy} onClick={() => { setEditing(false); setDraft(null) }}>Huỷ</Button>
-              <Button variant="primary" pending={busy} aria-disabled={!changed || !!drawing} title={drawing ? 'Đang vẽ một bản khác; chờ xong hoặc huỷ lần vẽ.' : !changed ? 'Sửa phần Cảnh trước khi vẽ lại.' : 'Vẽ lại bằng chỉ dẫn vừa sửa'} onClick={() => { if (changed && !drawing) redraw({ parts: { scene: (draft ?? '').trim() } }) }} icon={<Icon name="magicpen" size={15} />}>Vẽ lại với chỉ dẫn này</Button>
+              <Button disabled={busy} onClick={() => { setEditing(false); setDraft(null); setEditSource(null) }}>Huỷ</Button>
+              <Button variant="primary" pending={busy} aria-disabled={!changed || !!drawing || editSourceStale} title={drawing ? 'Đang vẽ một bản khác; chờ xong hoặc huỷ lần vẽ.' : editSourceStale ? 'Bản đang sửa không còn dùng được; huỷ để chọn bản khác.' : !changed ? 'Sửa phần Cảnh trước khi vẽ lại.' : 'Vẽ lại bằng chỉ dẫn vừa sửa'} onClick={() => { if (changed && !drawing && !editSourceStale) redraw({ parts: { scene: (draft ?? '').trim() } }) }} icon={<Icon name="magicpen" size={15} />}>Vẽ lại với chỉ dẫn này</Button>
             </div>
           </>
         : <>
@@ -236,7 +271,7 @@ function SceneImageDetails({ item, number, jobId, image, progress, quota, before
               <span {...stylex.props(sx.promptHead)}>
                 <span {...stylex.props(sx.promptTitle)}>Prompt đã gửi</span>
                 <Button size="sm" variant="quiet" onClick={() => setMore(value => !value)}>{more ? 'Thu gọn' : 'Xem đủ'}</Button>
-                <Button size="sm" onClick={() => { setEditing(true); setDraft(sceneText) }} icon={<Icon name="edit" size={13} />}>Sửa</Button>
+                <Button size="sm" disabled={editableScene == null} onClick={() => { if (editableScene == null) return; setEditing(true); setEditSource(selected); setDraft(editableScene) }} icon={<Icon name="edit" size={13} />}>Sửa</Button>
               </span>
               <span {...stylex.props(sx.promptText, more ? null : sx.promptClamp)}>{sceneText || 'Chưa có chỉ dẫn nào được gửi cho bản này.'}</span>
               <span {...stylex.props(sx.promptRefs)}>
@@ -280,18 +315,24 @@ function VersionTile({ version, used, pressed, drawing, baseUrl, onPick }: {
   baseUrl?: string
   onPick: () => void
 }) {
-  const note = version.state === 'drawing'
-    ? 'đang vẽ'
-    : version.feedback
-      ? `Theo góp ý “${version.feedback}”`
-      : version.n === 1 ? 'Lần đầu · Hoạ sĩ viết từ lời kể' : `vẽ lúc ${startedLabel(version.startedAt)}`
+  const cancelled = version.state === 'cancelled'
+  const note = cancelled
+    ? 'đã huỷ · không dùng làm nguồn vẽ lại'
+    : version.state === 'drawing'
+      ? 'đang vẽ'
+      : version.feedback
+        ? `Theo góp ý “${version.feedback}”`
+        : version.n === 1 ? 'Lần đầu · Hoạ sĩ viết từ lời kể' : `vẽ lúc ${startedLabel(version.startedAt)}`
+  const label = `Bản ${version.n} · ${note}${used ? ' · đang dùng' : ''}`
   return <button
     type="button"
+    disabled={cancelled}
     aria-pressed={pressed}
-    aria-label={`Bản ${version.n} · ${note}${used ? ' · đang dùng' : ''}`}
-    title={`Bản ${version.n} · ${note}${used ? ' · đang dùng' : ''}`}
-    onClick={onPick}
+    aria-label={label}
+    title={label}
+    onClick={() => { if (!cancelled) onPick() }}
     {...stylex.props(sx.verTile, pressed ? sx.verTileOn : null)}
+    style={cancelled ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
   >
     {version.url && version.state === 'ready' && <img src={version.url} alt="" {...stylex.props(sx.ipMedia)} />}
     {drawing && <DevelopEffect state="drawing" compact baseUrl={baseUrl} />}

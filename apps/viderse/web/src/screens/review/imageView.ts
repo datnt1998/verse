@@ -177,9 +177,21 @@ const hhmm = (iso: string | null) => {
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
 }
 
+/**
+ * Bản mới nhất còn dùng được: bản đã huỷ vẫn nằm trong lịch sử để xem, nhưng
+ * không bao giờ tự được chọn làm bản đang xem hay nguồn vẽ lại.
+ */
+export function defaultVersion(versions: readonly ImageVersion[] | undefined): ImageVersion | undefined {
+  return versions?.reduce<ImageVersion | undefined>(
+    (latest, version) => version.state !== 'cancelled' && (!latest || version.n > latest.n) ? version : latest,
+    undefined,
+  )
+}
+
 /** “Bản 2 · Theo góp ý “…” · 23:58” hoặc “Lần đầu · Hoạ sĩ viết từ lời kể · 23:58”. */
 export function versionNote(version: ImageVersion | undefined): string {
   if (!version) return ''
+  if (version.state === 'cancelled') return `Bản ${version.n} · đã huỷ · không dùng làm nguồn vẽ lại`
   const origin = version.feedback ? `Theo góp ý “${version.feedback}”` : 'Lần đầu · Hoạ sĩ viết từ lời kể'
   const when = hhmm(version.finishedAt ?? version.startedAt)
   return [`Bản ${version.n}`, origin, when].filter(Boolean).join(' · ')

@@ -11,6 +11,7 @@ import type { Channel } from '../../api/channels'
 import { DEFAULT_AUTONOMY, type Autonomy } from '../../api/autonomy'
 import { applyViderseLabels } from '../../kitLabels'
 import { AutonomyCard } from './AutonomyCard'
+import './AutonomyDialog'
 
 const net = vi.hoisted(() => ({ online: true }))
 vi.mock('../../data/status', () => ({ useOnline: () => net.online }))
@@ -49,6 +50,7 @@ const radio = (root: ParentNode, name: string) => [...root.querySelectorAll('[ro
 const dialogButton = (name: string) => [...document.querySelectorAll('[role="alertdialog"] button')].find((el) => el.textContent?.trim() === name)
 
 beforeEach(() => {
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   applyViderseLabels()
   patches = []
   net.online = true
@@ -98,6 +100,7 @@ describe('AutonomyCard', () => {
   it('Huỷ hộp xác nhận thì không lưu gì', async () => {
     const el = await mount(<AutonomyCard channel={channel()} />)
     await click(radio(el, 'Tự chạy'))
+    await waitFor(() => expect(document.querySelector('[role="alertdialog"]')).not.toBeNull())
     await click(dialogButton('Huỷ'))
     expect(patches).toHaveLength(0)
   })

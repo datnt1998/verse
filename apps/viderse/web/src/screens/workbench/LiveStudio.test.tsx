@@ -40,6 +40,12 @@ const liveBundle = (ids: string[]) => ({
   quota: { providers: [{ provider: 'chatgpt', label: 'ChatGPT', left: 7, total: 10, resetAt: null, paid: true }], left: 7, fallback: null },
 })
 const setLive = (ids: string[]) => { state.live = { data: liveBundle(ids), error: false, loading: false, reload: state.reload, progress: {} } }
+const setLiveVersions = (versions: ImageVersion[], usedVersion = 1) => {
+  state.live = {
+    data: { images: [{ id: 'scene-one', kind: 'scene', index: 0, label: 'Cảnh 1', usedVersion, refLimit: 4, status: 'review', versions }], quota: liveBundle(['scene-one']).quota },
+    error: false, loading: false, reload: state.reload, progress: {},
+  }
+}
 
 let root: Root, host: HTMLDivElement
 beforeEach(() => {
@@ -92,10 +98,128 @@ it('opens the shared viewer from a tile and sends feedback for exactly that imag
   expect(fetcher).toHaveBeenCalledOnce()
   const [url, init] = fetcher.mock.calls[0] as unknown as [string, RequestInit]
   expect(url).toBe('/api/clone/job/images/redraw')
-  expect(JSON.parse(String(init.body))).toEqual({ imageIds: ['scene-one'], feedback: 'ánh sáng lạnh hơn' })
+  expect(JSON.parse(String(init.body))).toEqual({ imageIds: ['scene-one'], baseVersion: 2, feedback: 'ánh sáng lạnh hơn' })
   expect(state.refresh).toHaveBeenCalled()
   expect(state.reload).toHaveBeenCalled()
   expect(document.body.textContent).toContain('Đã gửi Hoạ sĩ · bản 2')
+})
+
+it('uses the version explicitly selected in the viewer as the feedback source', async () => {
+  const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 3 }] }))
+  vi.stubGlobal('fetch', fetcher)
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
+  const dialog = document.querySelector('[role="dialog"]')!
+  await act(async () => dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click())
+  const openFeedback = [...dialog.querySelectorAll('button')].find(button => button.textContent?.includes('Góp ý'))!
+  await act(async () => openFeedback.click())
+  const textarea = dialog.querySelector('textarea')!
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
+    setter.call(textarea, 'giữ đúng khung bản 1')
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  const send = [...dialog.querySelectorAll('button')].find(button => button.textContent?.startsWith('Vẽ lại · tốn 1 ảnh'))!
+  await act(async () => send.click())
+  await act(async () => { for (let i = 0; i < 6; i += 1) await Promise.resolve() })
+  expect(JSON.parse(String((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({
+    imageIds: ['scene-one'], baseVersion: 1, feedback: 'giữ đúng khung bản 1',
+  })
+})
+
+it('skips a cancelled draw in history and redraws from the version still in use', async () => {
+  const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 3 }] }))
+  vi.stubGlobal('fetch', fetcher)
+  const drawingVersion: ImageVersion = { ...version(2, '/one-2.webp'), state: 'drawing', url: null, finishedAt: null, durationSec: null }
+  setLiveVersions([version(1, '/one-1.webp')])
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
+  const dialog = document.querySelector('[role="dialog"]')!
+  setLiveVersions([version(1, '/one-1.webp'), drawingVersion])
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  // Chốt lựa chọn đang vẽ, rồi lần vẽ đó bị huỷ: lịch sử còn nhưng không phải nguồn.
+  await act(async () => dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 ·"]')!.click())
+  const cancelledVersion: ImageVersion = { ...version(2, '/one-2.webp'), state: 'cancelled', url: null }
+  setLiveVersions([version(1, '/one-1.webp'), cancelledVersion])
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  const cancelled = dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 · đã huỷ"]')!
+  expect(cancelled.disabled).toBe(true)
+  expect(dialog.querySelector('[aria-label^="Bản 1 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+  await act(async () => cancelled.click())
+  expect(dialog.querySelector('[aria-label^="Bản 1 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+  const openFeedback = [...dialog.querySelectorAll('button')].find(button => button.textContent?.includes('Góp ý'))!
+  await act(async () => openFeedback.click())
+  const textarea = dialog.querySelector('textarea')!
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
+    setter.call(textarea, 'giữ bản đang dùng')
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  const send = [...dialog.querySelectorAll('button')].find(button => button.textContent?.startsWith('Vẽ lại · tốn 1 ảnh'))!
+  await act(async () => send.click())
+  await act(async () => { for (let i = 0; i < 6; i += 1) await Promise.resolve() })
+  expect(fetcher).toHaveBeenCalledOnce()
+  expect(JSON.parse(String((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({
+    imageIds: ['scene-one'], baseVersion: 1, feedback: 'giữ bản đang dùng',
+  })
+})
+
+it('does not use a cancelled-only history as the redraw base', async () => {
+  const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 2 }] }))
+  vi.stubGlobal('fetch', fetcher)
+  const cancelledVersion: ImageVersion = { ...version(1, '/one-1.webp'), state: 'cancelled', url: null }
+  setLiveVersions([cancelledVersion])
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
+  const dialog = document.querySelector('[role="dialog"]')!
+  expect(dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 · đã huỷ"]')!.disabled).toBe(true)
+  const openFeedback = [...dialog.querySelectorAll('button')].find(button => button.textContent?.includes('Góp ý'))!
+  await act(async () => openFeedback.click())
+  const textarea = dialog.querySelector('textarea')!
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
+    setter.call(textarea, 'vẽ lại từ đầu')
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  const send = [...dialog.querySelectorAll('button')].find(button => button.textContent?.startsWith('Vẽ lại · tốn 1 ảnh'))!
+  await act(async () => send.click())
+  await act(async () => { for (let i = 0; i < 6; i += 1) await Promise.resolve() })
+  expect(fetcher).toHaveBeenCalledOnce()
+  expect(JSON.parse(String((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({
+    imageIds: ['scene-one'], feedback: 'vẽ lại từ đầu',
+  })
+})
+
+it('reports the displayed failed version and redraws from it instead of an older failure', async () => {
+  const fetcher = vi.fn(async () => Response.json({ versions: [{ imageId: 'scene-one', n: 4 }] }))
+  vi.stubGlobal('fetch', fetcher)
+  const failedVersion: ImageVersion = {
+    ...version(2, '/one-2.webp'), state: 'failed', url: null,
+    error: { reason: 'provider', message: 'Chưa vẽ được' },
+  }
+  setLiveVersions([version(1, '/one-1.webp'), failedVersion, version(3, '/one-3.webp')])
+  await act(async () => root.render(<LiveStudio job={job} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  await clickAndWaitForRoute(host.querySelector<HTMLElement>('[role="option"][aria-label="Cảnh 1"]')!)
+  const dialog = document.querySelector('[role="dialog"]')!
+  expect(dialog.querySelector('[aria-label^="Bản 3 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+  expect(dialog.textContent).not.toContain('Bản 2 chưa vẽ được')
+  await act(async () => dialog.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 ·"]')!.click())
+  expect(dialog.textContent).toContain('Bản 2 chưa vẽ được')
+  const openFeedback = [...dialog.querySelectorAll('button')].find(button => button.textContent?.includes('Góp ý'))!
+  await act(async () => openFeedback.click())
+  const textarea = dialog.querySelector('textarea')!
+  await act(async () => {
+    const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
+    setter.call(textarea, 'vẽ tiếp từ bản lỗi')
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  const send = [...dialog.querySelectorAll('button')].find(button => button.textContent?.startsWith('Vẽ lại · tốn 1 ảnh'))!
+  await act(async () => send.click())
+  await act(async () => { for (let i = 0; i < 6; i += 1) await Promise.resolve() })
+  expect(fetcher).toHaveBeenCalledOnce()
+  expect(JSON.parse(String((fetcher.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({
+    imageIds: ['scene-one'], baseVersion: 2, feedback: 'vẽ tiếp từ bản lỗi',
+  })
 })
 
 it('closes the viewer and keeps a valid selection when the viewed image disappears', async () => {

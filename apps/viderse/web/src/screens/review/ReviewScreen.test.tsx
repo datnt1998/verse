@@ -25,6 +25,8 @@ const state = vi.hoisted(() => ({
   images: { current: { images: [] as unknown[], quota: undefined as unknown } },
   progress: { current: {} as Record<string, unknown> },
   legacyStatus: 'review',
+  otherJob: false,
+  pending: {} as Record<string, boolean>,
 }))
 
 const part = (kind: string, text: string, label: string) => ({ kind, text, source: { type: 'artist', label } })
@@ -55,12 +57,12 @@ vi.mock('./useReview', async importOriginal => {
     ...actual,
     imageURL: (_job: string, item: { id: string }) => `/legacy/${item.id}.jpg`,
     useReview: () => ({
-      jobs: [{ id: 'j', channelId: 'c', source: { title: 'Video' }, subline: '' }],
+      jobs: (state.otherJob ? ['j', 'j2'] : ['j']).map(id => ({ id, channelId: 'c', source: { title: id === 'j' ? 'Video' : 'Video khác' }, subline: '' })),
       images: { j: { manifest: { revision: 4 }, approved: false, items: [
         { id: 'a', kind: 'scene', status: state.legacyStatus, prompt: 'p', versions: [], sceneId: '3', narration: 'Lời kể cảnh 3.' },
         { id: 'b', kind: 'scene', status: 'review', prompt: 'q', versions: [], sceneId: '4' },
       ] } },
-      error: false, imageErrors: {}, pending: {}, loadJobs: vi.fn(), loadImages: state.loadImages, mutate: state.mutate,
+      error: false, imageErrors: {}, pending: state.pending, loadJobs: vi.fn(), loadImages: state.loadImages, mutate: state.mutate,
     }),
   }
 })
@@ -85,7 +87,7 @@ vi.mock('../../components/autonomy/ScoreParts', () => ({ ScoreBadge: () => null,
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) : ({ data: undefined }) }))
 
-beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review' })
+beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.otherJob = false; state.pending = {} })
 let root: Root | undefined
 afterEach(async () => {
   await act(async () => { dismissConfirmations(); root?.unmount(); await Promise.resolve() })
@@ -141,7 +143,7 @@ it('keeps the addressed image selected across reordered polling data and browser
   await type(node.querySelector<HTMLInputElement>('#redraw')!, 'cold moonlight')
   await act(async () => [...node.querySelectorAll<HTMLButtonElement>('button')].find(entry => entry.textContent?.trim().startsWith('Vẽ lại') && !entry.textContent.includes('cả'))!.click())
   await answerRedraw()
-  expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['b'], feedback: 'cold moonlight' })
+  expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['b'], baseVersion: 1, feedback: 'cold moonlight' })
   await act(async () => {
     history.replaceState(null, '', '/#/review?video=j&img=a')
     dispatchEvent(new HashChangeEvent('hashchange'))
@@ -200,7 +202,115 @@ describe('sửa chỉ dẫn', () => {
     await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 1"]')!.click() })
     await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
     await answerRedraw()
-    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], parts: { scene: 'A guard on the roof at dawn.' }, refs: [] })
+    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], baseVersion: 2, parts: { scene: 'A guard on the roof at dawn.' }, refs: [] })
+  })
+
+  it('edits the version being viewed even when the video still uses an older version', async () => {
+    const selected = version(2, {
+      parts: [
+        part('scene', 'Cảnh 2 chọn: guard on the roof at dawn.', 'Hoạ sĩ viết từ lời kể'),
+        part('style', 'Flat cinematic, teal palette.', 'prompt “Đêm xanh rêu”'),
+      ],
+      refs: [{ id: 'r2', role: 'character', url: '/img/ref2.jpg', source: { type: 'video_image', label: 'Cảnh 1 · từ cảnh đầu', imageId: 'b' } }],
+    })
+    state.images.current = { images: [image('a', 3, [version(1, { refs: [] }), selected], 1)], quota: undefined }
+    const node = await render()
+    expect(node.textContent).toContain('bản 2 · chưa dùng')
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    const scene = node.querySelector<HTMLTextAreaElement>('#prompt-scene')!
+    expect(scene.value).toBe('Cảnh 2 chọn: guard on the roof at dawn.')
+    expect(node.textContent).toContain('Cảnh 1 · từ cảnh đầu')
+    await type(scene, 'Cảnh 2 chọn: guard on the roof with a red umbrella.')
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await answerRedraw(false)
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2 chọn: guard on the roof with a red umbrella.')
+    expect(node.querySelector('[aria-label="Bỏ ảnh tham chiếu 1"]')).not.toBeNull()
+    expect(state.redraw).not.toHaveBeenCalled()
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', {
+      imageIds: ['a'],
+      baseVersion: 2,
+      parts: { scene: 'Cảnh 2 chọn: guard on the roof with a red umbrella.' },
+    })
+    expect(useImageVersion).not.toHaveBeenCalled()
+  })
+
+  it('keeps the base captured for a pending confirmation when the viewed version changes', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2)], 1)], quota: undefined }
+    const node = await render()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: selected before the dialog.')
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await vi.waitFor(async () => {
+      await act(async () => { await vi.dynamicImportSettled() })
+      expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
+    })
+    const dialog = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label^="Bản 1"]')!.click() })
+    await act(async () => {
+      const { promise: removed, resolve } = Promise.withResolvers<void>()
+      const observer = new MutationObserver(() => { if (!dialog.isConnected) { observer.disconnect(); resolve() } })
+      observer.observe(document.body, { childList: true, subtree: true })
+      button(dialog, 'Vẽ lại')!.click()
+      await removed
+    })
+    expect(state.redraw).toHaveBeenCalledWith('j', {
+      imageIds: ['a'],
+      baseVersion: 2,
+      parts: { scene: 'Cảnh 2: selected before the dialog.' },
+    })
+  })
+
+  it('keeps the draft and its base when new versions arrive while editing', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2)], 1)], quota: undefined }
+    const node = await render()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: draft before the new version.')
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3)], 1)], quota: undefined }
+    await act(async () => root!.render(<ReviewRouteHost />))
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3)], 2)], quota: undefined }
+    await act(async () => root!.render(<ReviewRouteHost />))
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2: draft before the new version.')
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v2.jpg')
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', {
+      imageIds: ['a'],
+      baseVersion: 2,
+      parts: { scene: 'Cảnh 2: draft before the new version.' },
+    })
+  })
+
+  it('does not reuse an old failure as the draft source after a newer ready version exists', async () => {
+    state.images.current = { images: [image('a', 3, [
+      version(1),
+      version(2, { state: 'failed', error: { reason: 'quota', message: 'Hết lượt.' } }),
+      version(3),
+    ], 3)], quota: undefined }
+    const node = await render()
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v3.jpg')
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 3: a guard on a stopped escalator.')
+    expect(state.redraw).not.toHaveBeenCalled()
+  })
+
+  it('discards another video’s draft even when image ID and version number are identical', async () => {
+    state.otherJob = true
+    history.replaceState(null, '', '/#/review?video=j&img=a')
+    state.images.current = { images: [image('a', 3, [version(1)])], quota: undefined }
+    const node = await render()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Old video draft: never send this to another video.')
+    state.images.current = { images: [image('a', 3, [version(1, { parts: [part('scene', 'Scene belonging to the other video.', 'Hoạ sĩ')] })])], quota: undefined }
+    await act(async () => {
+      history.replaceState(null, '', '/#/review?video=j2&img=a')
+      dispatchEvent(new HashChangeEvent('hashchange'))
+    })
+    expect(node.querySelector('#prompt-scene')).toBeNull()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Scene belonging to the other video.')
+    expect(state.redraw).not.toHaveBeenCalled()
   })
 
   it('keeps edited instructions and removed references when the quota confirmation is cancelled', async () => {
@@ -231,6 +341,108 @@ describe('sửa chỉ dẫn', () => {
     expect(state.redraw).not.toHaveBeenCalled()
   })
 
+  it('giữ đúng id media của ảnh tải lên đã lưu khi ảnh tham chiếu khác đổi', async () => {
+    const selected = version(2, {
+      refs: [
+        { id: 'upload:media-9', role: 'character', url: '/img/upload.jpg', source: { type: 'upload', label: 'Bạn tải lên', imageId: 'media-9' } },
+        { id: 'r1', role: 'layout', url: '/img/ref1.jpg', source: { type: 'rival_frame', label: 'Khung đối thủ · Nocturne Stories 14:02', videoId: 'v', atSec: 842 } },
+      ],
+    })
+    state.images.current = { images: [image('a', 3, [version(1, { refs: [] }), selected])], quota: undefined }
+    const node = await render()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label="Bỏ ảnh tham chiếu 2"]')!.click() })
+    await act(async () => { button(node, 'Vẽ lại với chỉ dẫn này')!.click() })
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', {
+      imageIds: ['a'],
+      baseVersion: 2,
+      refs: [{ upload: 'media-9', role: 'character' }],
+    })
+  })
+
+  it('R đang sửa thì gửi bản nháp, không vẽ lại bằng góp ý rồi bỏ nháp', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
+    const node = await render()
+    await type(node.querySelector<HTMLInputElement>('#redraw')!, 'góp ý cũ trong ô vẽ lại')
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: bản nháp gửi bằng phím R.')
+    await key({ key: 'r' })
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', {
+      imageIds: ['a'],
+      baseVersion: 2,
+      parts: { scene: 'Cảnh 2: bản nháp gửi bằng phím R.' },
+    })
+  })
+
+  it('không gửi vẽ lại lần hai khi bản vẽ mới về sau bản nháp', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2)], 2)], quota: undefined }
+    const node = await render()
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Cảnh 2: bản nháp chờ bản mới về.')
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3, { state: 'drawing', url: null, previewUrl: null })], 2)], quota: undefined }
+    state.pending = { j: true }
+    await act(async () => { root!.render(<ReviewRouteHost />) })
+    expect(node.querySelector('[data-develop="drawing"]')).not.toBeNull()
+    expect(button(node, 'Vẽ lại với chỉ dẫn này')?.getAttribute('aria-disabled')).toBe('true')
+    await key({ key: 'Enter', metaKey: true })
+    await key({ key: 'r' })
+    expect(state.redraw).not.toHaveBeenCalled()
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2: bản nháp chờ bản mới về.')
+  })
+
+  it('can submit new references with no cancelled source when all attempts were cancelled', async () => {
+    state.images.current = { images: [image('a', 3, [version(1, { state: 'cancelled', url: null })], 0), image('b', 4, [version(1)])], quota: undefined }
+    const node = await render()
+    const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
+    await act(async () => button(rail, 'Thêm')!.click())
+    const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
+    await act(async () => button(picker, 'Cảnh 4')!.click())
+    await act(async () => button(picker, 'Thêm 1 ảnh')!.click())
+    await act(async () => button(node, 'Vẽ lại với chỉ dẫn này')!.click())
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], refs: [{ videoImageId: 'b', role: 'character' }] })
+  })
+
+  it('keeps the exact source draft but blocks mutation when that source is cancelled', async () => {
+    const selected = version(2, { parts: [part('scene', 'Cảnh bản 2', 'Hoạ sĩ'), part('style', 'Phong cách riêng bản 2', 'Template')] })
+    state.images.current = { images: [image('a', 3, [version(1), selected], 1)], quota: undefined }
+    const node = await render()
+    await act(async () => button(node, 'Sửa chỉ dẫn')!.click())
+    await type(node.querySelector<HTMLTextAreaElement>('#prompt-scene')!, 'Giữ bản nháp của bản 2')
+    state.images.current = { images: [image('a', 3, [version(1), { ...selected, state: 'cancelled', url: null }], 1)], quota: undefined }
+    await act(async () => root!.render(<ReviewRouteHost />))
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Giữ bản nháp của bản 2')
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-style')?.value).toBe('Phong cách riêng bản 2')
+    expect(button(node, 'Vẽ lại với chỉ dẫn này')?.getAttribute('aria-disabled')).toBe('true')
+    const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
+    expect(button(rail, 'Thêm')?.disabled).toBe(true)
+    await key({ key: 'r' })
+    expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+    expect(state.redraw).not.toHaveBeenCalled()
+  })
+
+  it('does not attach an in-flight upload to a different viewed source', async () => {
+    let resolveUpload!: (id: string) => void
+    state.upload.mockImplementationOnce(() => new Promise<string>(resolve => { resolveUpload = resolve }))
+    state.images.current = { images: [image('a', 3, [version(1), version(2)], 1)], quota: undefined }
+    const node = await render()
+    const rail = node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!
+    await act(async () => button(rail, 'Thêm')!.click())
+    const picker = node.querySelector<HTMLElement>('[role="dialog"][aria-label="Thêm ảnh tham chiếu"]')!
+    await act(async () => button(picker, 'Tải lên')!.click())
+    const input = picker.querySelector<HTMLInputElement>('input[type="file"]')!
+    Object.defineProperty(input, 'files', { value: [new File(['image'], 'reference.png', { type: 'image/png' })], configurable: true })
+    await act(async () => input.dispatchEvent(new Event('change', { bubbles: true })))
+    expect(state.upload).toHaveBeenCalledOnce()
+    await act(async () => node.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click())
+    await act(async () => { resolveUpload('uploaded-media'); await Promise.resolve() })
+    expect(node.querySelector('#prompt-scene')).toBeNull()
+    expect(button(node, 'Vẽ lại với chỉ dẫn này')).toBeUndefined()
+    expect(state.redraw).not.toHaveBeenCalled()
+  })
+
   it('Esc huỷ sửa, ⌘↵ gửi', async () => {
     state.images.current = { images: [image('a', 3, [version(1), version(2)])], quota: undefined }
     const node = await render()
@@ -244,7 +456,7 @@ describe('sửa chỉ dẫn', () => {
     await type(node.querySelector<HTMLTextAreaElement>('#prompt-style')!, 'Grainy 35mm, cold teal.')
     await key({ key: 'Enter', metaKey: true })
     await answerRedraw()
-    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], parts: { style: 'Grainy 35mm, cold teal.' } })
+    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], baseVersion: 2, parts: { style: 'Grainy 35mm, cold teal.' } })
   })
 })
 
@@ -278,7 +490,7 @@ describe('chọn nhiều', () => {
 })
 
 describe('thẻ lỗi', () => {
-  it('giờ đặt lại thật và Vẽ bằng Grok đúng prompt đã sửa của bản lỗi', async () => {
+  it('giờ đặt lại thật và Vẽ bằng Grok đúng bản lỗi (máy chủ giữ prompt đã lưu)', async () => {
     state.legacyStatus = 'failed'
     const failed = version(3, {
       state: 'failed', url: null, finishedAt: null, durationSec: null,
@@ -292,12 +504,19 @@ describe('thẻ lỗi', () => {
     expect(node.textContent).not.toContain('Bộ lọc nội dung đã chặn ảnh này')
     const resetAt = new Date('2026-11-02T00:30:00Z').toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
     expect(node.textContent).toContain(`đặt lại lúc ${resetAt}`)
+    state.pending = { j: true }
+    await act(async () => root!.render(<ReviewRouteHost />))
+    expect(button(node, 'Vẽ bằng Grok')?.disabled).toBe(true)
+    await act(async () => button(node, 'Vẽ bằng Grok')!.click())
+    expect(state.redraw).not.toHaveBeenCalled()
+    state.pending = {}
+    await act(async () => root!.render(<ReviewRouteHost />))
     await act(async () => { button(node, 'Vẽ bằng Grok')!.click() })
     await answerRedraw()
     expect(state.redraw).toHaveBeenCalledWith('j', {
       imageIds: ['a'],
       provider: 'grok',
-      parts: { scene: 'Cảnh 3 đã sửa: guard on the roof.' },
+      baseVersion: 3,
     })
   })
 })
@@ -310,6 +529,7 @@ describe('đang vẽ', () => {
     expect(node.querySelector('[data-develop="drawing"]')).not.toBeNull()
     expect(node.textContent).toContain('Hoạ sĩ đang vẽ bản 3')
     expect(node.textContent).toContain('0:24 · thường khoảng 40 giây')
+    expect((button(node.querySelector<HTMLElement>('[aria-label="Ảnh và chỉ dẫn"]')!, 'Thêm') as HTMLButtonElement).disabled).toBe(true)
     await act(async () => { button(node, 'Huỷ lần vẽ')!.click() })
     expect(state.cancel).toHaveBeenCalledWith('j', 'a', 3)
     expect(node.textContent).toContain('Bản 2 vẫn dùng cho video tới khi bản mới xong.')
@@ -325,6 +545,45 @@ describe('đang vẽ', () => {
     expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v3.jpg')
     expect(node.querySelector('[data-develop="done"]')).not.toBeNull()
     expect(state.redraw).not.toHaveBeenCalled()
+  })
+})
+
+describe('bản đã huỷ', () => {
+  it('không tự chọn bản đã huỷ làm bản đang xem hay nguồn sửa', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2), version(3, { state: 'cancelled', url: null, previewUrl: null })], 2)], quota: undefined }
+    const node = await render()
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v2.jpg')
+    expect(node.textContent).toContain('bản 2')
+    const tile = node.querySelector<HTMLButtonElement>('[aria-label^="Bản 3 · đã huỷ"]')
+    expect(tile?.disabled).toBe(true)
+    expect(tile?.title).toContain('đã huỷ · không dùng làm nguồn vẽ lại')
+    expect(tile?.getAttribute('aria-pressed')).toBe('false')
+    await act(async () => { tile!.click() })
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v2.jpg')
+    await act(async () => { button(node, 'Sửa chỉ dẫn')!.click() })
+    expect(node.querySelector<HTMLTextAreaElement>('#prompt-scene')?.value).toBe('Cảnh 2: a guard on a stopped escalator.')
+  })
+
+  it('rơi về bản còn dùng được khi bản đang chọn bị huỷ', async () => {
+    state.images.current = { images: [image('a', 3, [version(1), version(2, { state: 'drawing', url: null, previewUrl: null })], 1)], quota: undefined }
+    const node = await render()
+    await act(async () => { node.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 ·"]')!.click() })
+    expect(node.querySelector('[aria-label^="Bản 2 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+    state.images.current = { images: [image('a', 3, [version(1), version(2, { state: 'cancelled', url: null, previewUrl: null })], 1)], quota: undefined }
+    await act(async () => { root!.render(<ReviewRouteHost />) })
+    expect(node.querySelector('[aria-label^="Bản 1 ·"]')?.getAttribute('aria-pressed')).toBe('true')
+    expect(node.querySelector('main img[alt="Cảnh 3"]')?.getAttribute('src')).toBe('/img/v1.jpg')
+    expect(node.querySelector('[data-develop="drawing"]')).toBeNull()
+    expect(state.redraw).not.toHaveBeenCalled()
+  })
+  it('vẫn vẽ mới theo chính sách thường khi ảnh chỉ còn bản đã huỷ', async () => {
+    state.images.current = { images: [image('a', 3, [version(1, { state: 'cancelled', url: null, previewUrl: null })], 1)], quota: undefined }
+    const node = await render()
+    expect(button(node, 'Sửa chỉ dẫn')?.disabled).toBe(true)
+    await type(node.querySelector<HTMLInputElement>('#redraw')!, 'vẽ mới từ lời kể')
+    await act(async () => { [...node.querySelectorAll<HTMLButtonElement>('button')].find(entry => entry.textContent?.trim().startsWith('Vẽ lại') && !entry.textContent.includes('cả'))!.click() })
+    await answerRedraw()
+    expect(state.redraw).toHaveBeenCalledWith('j', { imageIds: ['a'], feedback: 'vẽ mới từ lời kể' })
   })
 })
 
