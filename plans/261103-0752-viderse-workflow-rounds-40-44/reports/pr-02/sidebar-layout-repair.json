@@ -1,0 +1,205 @@
+{
+  "status": "fixed-locally-not-deployed",
+  "baseSourceCommit": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+  "exercisedSource": "52d3871225e4a6c8dd0799c0e5d151692463d600+sidebar-working-tree-2686b94dc604",
+  "sourceSHA256": {
+    "apps/viderse/web/src/screens/settings/SettingsScreen.tsx": "1860dabc449f42992948e8d89bf601e3a7e398a11e774650200be2a8a0b12bbd",
+    "apps/viderse/web/src/screens/settings/settings.stylex.ts": "66f10e0034340f00e4b97f238144de5c0bc7ea7083d89d9d1a57bb3923cdee73"
+  },
+  "reportedImage": "orca-paste-1793767354749-7ace04b8-03e9-46dc-88e2-ae254bad7fff.png",
+  "cause": "Action Button content slot shrink-wraps and centers; child flex label cannot stretch to the sidebar row width. Queue anchor had no navigation-row styling.",
+  "repair": "Local native navigation rows matching artboard dimensions/tokens, active/focus state, preserved destinations and permission conditions; mobile retains existing ListRow implementation.",
+  "checks": {
+    "failingBefore": {
+      "run": "runs/70-sidebar-layout-before",
+      "expectedMaxIconColumnSpreadPx": 2,
+      "observedIconColumnSpreadPx": 37.53125
+    },
+    "passingAfter": {
+      "run": "runs/71-sidebar-layout-after",
+      "passed": 4,
+      "failed": 0,
+      "projects": [
+        "desktop",
+        "desktop-reduced",
+        "mobile",
+        "mobile-reduced"
+      ],
+      "navigationAndQueueRoundtrip": true
+    },
+    "componentTests": {
+      "file": "apps/viderse/web/src/screens/settings/SettingsScreen.test.tsx",
+      "passed": 15,
+      "failed": 0
+    },
+    "typecheck": "passed",
+    "frontendBuild": "passed",
+    "nativeBuild": "passed; committed Postgres model overlay preserves unrelated user changes"
+  },
+  "geometry": [
+    {
+      "project": "desktop",
+      "geometry": {
+        "navigation": [
+          {
+            "name": "Công cụ trên máy",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Kết nối AI",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Trợ lý AI",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Tài khoản nền tảng",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Thông báo",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Lưu trữ2,2 GB",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Báo lỗi28",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          }
+        ],
+        "queue": {
+          "height": 34,
+          "display": "flex",
+          "iconX": 20,
+          "labelX": 47
+        }
+      }
+    },
+    {
+      "project": "desktop-reduced",
+      "geometry": {
+        "navigation": [
+          {
+            "name": "Công cụ trên máy",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Kết nối AI",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Trợ lý AI",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Tài khoản nền tảng",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Thông báo",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Lưu trữ2,2 GB",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          },
+          {
+            "name": "Báo lỗi28",
+            "height": 34,
+            "iconX": 20,
+            "labelX": 47,
+            "countRight": 227
+          }
+        ],
+        "queue": {
+          "height": 34,
+          "display": "flex",
+          "iconX": 20,
+          "labelX": 47
+        }
+      }
+    }
+  ],
+  "comparison": {
+    "path": "comparison-sidebar/before-reference-after.png",
+    "order": [
+      "before",
+      "canonical-artboard",
+      "after"
+    ],
+    "originalSize": [
+      1440,
+      900
+    ],
+    "crop": [
+      0,
+      54,
+      248,
+      900
+    ],
+    "scaled": false,
+    "inputs": [
+      {
+        "path": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png",
+        "sha256": "6be0afd8045f90453fb84c5b40840113492a019c04e726d4b70ff6571f01997b"
+      },
+      {
+        "path": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/63-current-v36-reference/reference/Settings.section.connect.png",
+        "sha256": "7c374568a439e12cc4351503d12dd2c6f659eba7c9d24ebbfe40dcd3fd3e98bb"
+      },
+      {
+        "path": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/71-sidebar-layout-after/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png",
+        "sha256": "ce1dd264a4c7a7d30432991d3e58259c975213807cd34cdf48380455a23798fc"
+      }
+    ],
+    "outputSHA256": "1333ce9f3505cb58b4f4421f5a363defaa4f31e7077eac4d693a1fd50d2831c3"
+  },
+  "physicalSafari": "not exercised",
+  "globalDeployGates": "unchanged; no deployment allowed before final gates",
+  "verifiedSourceCommit": "1108e3932d877efe5297505a61d175f4b97a764b",
+  "ordinaryIndexPreserved": true,
+  "nativeBinarySHA256": "0445afbf9481ee3a1778e80d3fc5373765abe58fa8a0cef86b2907c85768367c",
+  "exercisedTestSHA256": "28d5f9db930686675337083c400d3950bfd10631bd95b3ad52ae2098767c038f"
+}
