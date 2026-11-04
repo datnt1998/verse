@@ -1,0 +1,363 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "review-control-ledger-audit.pw.ts",
+      "--project=desktop",
+      "--grep",
+      "local\\ prompt\\ edit\\ sends\\ only\\ the\\ changed\\ part,\\ returns\\ 202\\ and\\ cancel\\ restores\\ versions\\ and\\ prompt\\ bytes",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "review-control-ledger-audit.pw.ts",
+      "file": "review-control-ledger-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Replay mutation acceptance (controller-owned A/B checkpoints)",
+          "file": "review-control-ledger-audit.pw.ts",
+          "line": 1664,
+          "column": 6,
+          "specs": [
+            {
+              "title": "local prompt edit sends only the changed part, returns 202 and cancel restores versions and prompt bytes",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/review-control-ledger-audit.pw.ts",
+                        "line": 1664,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "desktop",
+                  "projectName": "desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2623,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-04T10:28:37.522Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/Users/dat/Projects/verse/tests/viderse-workflow/review-control-ledger-audit.pw.ts",
+                            "line": 1664,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": [
+                        {
+                          "name": "replay-mutation-edit-redraw.json",
+                          "contentType": "application/json",
+                          "body": "ewogICJnYXRlIjogewogICAgImEiOiAiYjgxNmM4YmEtZTgwZi00Nzc2LTkyYWItNWM4NDg0MjVkMjMzIiwKICAgICJiIjogImRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiIKICB9LAogICJ0YXJnZXQiOiAic2MtMDQiLAogICJiYXNlVmVyc2lvbiI6IDIsCiAgImVkaXRlZFBhcnQiOiAic2NlbmUiLAogICJyZWRyYXdTdGF0dXMiOiAyMDIsCiAgInBsYW5uZWQiOiB7CiAgICAiaW1hZ2VJZCI6ICJzYy0wNCIsCiAgICAibiI6IDMKICB9LAogICJjYW5jZWwiOiB7CiAgICAiaW1hZ2VJZCI6ICJzYy0wNCIsCiAgICAibiI6IDMsCiAgICAiY2FuY2VsbGVkIjogdHJ1ZSwKICAgICJjb3N0SW1hZ2VzIjogMCwKICAgICJ1c2VkVmVyc2lvbiI6IDIKICB9LAogICJyZXN0b3JlZCI6IHRydWUsCiAgIndyaXRlcyI6IFsKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICAgInBhdGgiOiAiL2FwaS9jbG9uZS9iODE2YzhiYS1lODBmLTQ3NzYtOTJhYi01Yzg0ODQyNWQyMzMvaW1hZ2VzL3JlZHJhdyIsCiAgICAgICJib2R5IjogewogICAgICAgICJiYXNlVmVyc2lvbiI6IDIsCiAgICAgICAgInBhcnRzIjogewogICAgICAgICAgInNjZW5lIjogIlBob3RvcmVhbGlzdGljIGRvY3VtZW50YXJ5IHBob3RvZ3JhcGggb2YgQW4gc3RhbmRpbmcgYWxvbmUsIGNhdWdodCBpbiBhIGNhdXRpb3VzIHdhbGtpbmcgc3RhbmNlIHdpdGggb25lIGZvb3Qgc2xpZ2h0bHkgYWhlYWQgb2YgdGhlIG90aGVyLCBzaG91bGRlcnMgdGVuc2UgYW5kIGhlYWQgdHVybmVkIGJhY2sgdG93YXJkIHRoZSBsZWZ0LiBCb3RoIGhhbmRzIGFyZSBoZWxkIHNsaWdodGx5IGF3YXkgZnJvbSB0aGUgc2lkZXMgd2l0aCByZWxheGVkIGZpbmdlcnMsIGFuZCB0aGUgYWxlcnQgZXllcyBhbmQga25pdHRlZCBicm93cyBjb252ZXkgY29uY2VybiBhYm91dCBzb21ldGhpbmcgYmVoaW5kIHRoZSBmaWd1cmUuIEV5ZS1sZXZlbCBmdWxsLWJvZHkgdmlldyBmcm9tIHRoZSBmcm9udC1yaWdodCwgc2hvd2luZyB0aGUgY29tcGxldGUgZmFjZSwgYm90aCBoYW5kcyBhbmQgYm90aCBzaG9lcyB3aXRob3V0IGNyb3BwaW5nLiBQbGFpbiBuZXV0cmFsIHNlYW1sZXNzIGJhY2tncm91bmQgc3VpdGFibGUgZm9yIGNvbXBvc2l0aW5nOyBubyBoYWxsd2F5LCBzY2VuZXJ5LCBwcm9wcyBvciBvdGhlciBwZW9wbGUuIEJyaWdodCwgc29mdCwgZXZlbiBpbGx1bWluYXRpb24gYWNyb3NzIHRoZSB3aG9sZSBmaWd1cmUsIHRydWUtdG8tbGlmZSBjb2xvcnMsIG5hdHVyYWwgc2tpbiB0ZXh0dXJlIGFuZCB0YWNrLXNoYXJwIGRldGFpbCB3aXRoIG5vIG1vdGlvbiBibHVyLCBub2lzZSwgdGV4dCwgbGV0dGVycywgbG9nb3MsIGdyYXBoaWNzLCBib3JkZXJzIG9yIHdhdGVybWFya3MuIFtRQSByZXBsYXkgZWRpdCByZWFkYmFja10iCiAgICAgICAgfSwKICAgICAgICAiaW1hZ2VJZHMiOiBbCiAgICAgICAgICAic2MtMDQiCiAgICAgICAgXQogICAgICB9CiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIlBPU1QiLAogICAgICAicGF0aCI6ICIvYXBpL2Nsb25lL2I4MTZjOGJhLWU4MGYtNDc3Ni05MmFiLTVjODQ4NDI1ZDIzMy9pbWFnZXMvc2MtMDQvdmVyc2lvbnMvMy9jYW5jZWwiLAogICAgICAiYm9keSI6IHt9CiAgICB9CiAgXQp9"
+                        },
+                        {
+                          "name": "runtime-errors.json",
+                          "contentType": "application/json",
+                          "body": "W10="
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/142-integrated-real-action-matrix/desktop/03-prompt-edit-redraw/browser/review-control-ledger-audi-b1a0a-s-versions-and-prompt-bytes-desktop/video.webm"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c2162f80dd28eac3aa69-b0d5be3b00d9dbce6c76",
+              "file": "review-control-ledger-audit.pw.ts",
+              "line": 1845,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T10:28:37.193Z",
+    "duration": 3996.526,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

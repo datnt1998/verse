@@ -613,3 +613,14 @@ Mẫu:
 - **A — Giữ sửa đúng bản đang xem (đã chọn):** Mở rộng tối thiểu contract redraw với phiên bản nền và cập nhật caller/worker liên quan; giữ đúng prompt/tham chiếu đã thấy. Không đổi bản đang dùng khi mở/sửa/gửi; việc dùng ảnh mới tiếp tục theo luật worker/chọn bản hiện hành.
 - **B — Chỉ sửa bản đang dùng:** Không mở rộng backend; khi xem bản khác, phải bấm “Dùng bản N cho video” trước khi Sửa/Thêm. Cần chốt khác biệt tương tác với artboard và lời hướng dẫn, không tự khoá nút âm thầm.
 - **Giới hạn triển khai:** Chốt A không có nghĩa lỗi đã sửa. Thêm `baseVersion` cho một ảnh, giữ nền qua checkpoint/worker restart, không lấy nhầm bản đang dùng; bản không tồn tại/đang vẽ hoặc gán một nền cho nhiều ảnh phải bị từ chối trước khi ghi. Kiểm những phần không sửa và refs rỗng, đổi bản trong lúc xác nhận, desktop/mobile/Editor/Main. Không gọi thêm ảnh vượt2/2; không coi lượt50/55 control/focus là semantic pass.
+
+
+### #85 · Trợ lý AI: nguồn vẽ là thẻ đầy đủ hay thanh chọn gọn?
+- **Ngày phát hiện:** 04/11/2026.
+- **Trạng thái:** **Đã chốt A — người dùng chọn “Giữ thẻ đầy đủ” ngày04/11/2026.**
+- **Nguồn thật đang lệch ngay trong artboard:** `Settings.dc.html` dòng1143–1157 chứa radio có tên nhà cung cấp, model, gói, thanh hạn mức và giờ đặt lại; `.opt` dòng112 xếp theo cột. Nhưng quy tắc `.vv-seg > button` dòng459 giới hạn cao30px, làm ảnh artboard render thành ba ô thấp và cắt bớt nội dung. Nguồn artboard không đổi giữa capture và đối chiếu; không phải ảnh chuẩn cũ.
+- **Code hiện tại:** radio-card nhiều dòng giữ đủ tên/model/gói/hạn mức. Model và số nguồn khác artboard là dữ liệu thật, không phải lý do tự đổi bố cục.
+- **Bằng chứng:** [ảnh chuẩn bên trái / code thật bên phải](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-settings-current/Settings.section.agents.png). Không sửa file artboard trong task triển khai.
+- **Cần chốt một phương án:** (A) giữ radio-card đầy đủ và Design vá CSS artboard để phản ánh đúng; (B) theo thanh chọn gọn, Design xác định phần tên/gói/hạn mức nào giữ trên ô và phần nào chuyển ra dòng phụ, không triển khai bằng cách cố ý cắt chữ.
+- **Quyết định:** giữ radio-card đầy đủ tên nhà cung cấp, model, gói, hạn mức và giờ đặt lại. Không ép cao30px hoặc cắt nội dung để khớp lỗi render của artboard. Design cập nhật chiều cao artboard riêng; task triển khai không sửa file artboard.
+- **Ranh giới:** đây là câu hỏi bố cục nguồn vẽ, không đổi model, quota, suy luận, lưu tức thì hay nguồn dự phòng. Ô chọn model thiếu ngữ cảnh nhà cung cấp là lỗi riêng có thể sửa theo markup đã rõ, không chờ câu trả lời này.

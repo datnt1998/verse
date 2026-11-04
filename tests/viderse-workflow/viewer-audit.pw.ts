@@ -11,6 +11,27 @@ const fixture = JSON.parse(readFileSync(fixturePath, 'utf8')) as { username: str
 if (fixture.username !== 'workflow.qa') throw new Error('Only workflow.qa is authorized')
 const runtimeFaults = new WeakMap<Page, string[]>()
 
+// §26 snapshot đọc thẳng từ endpoint thật; `sentText`/`parts` là nguồn duy nhất
+// cho clipboard và chế độ nguyên văn — không chép chuỗi kỳ vọng từ fixture.
+type SnapshotPromptPart = { kind: string; text: string; source: { label: string } }
+type SnapshotVersion = {
+  n: number
+  state: string
+  url: string | null
+  previewUrl: string | null
+  width: number
+  height: number
+  sentText?: string
+  parts?: SnapshotPromptPart[]
+  feedback?: string | null
+}
+type SnapshotImage = { id: string; kind: 'scene' | 'cover'; label: string; usedVersion: number; versions: SnapshotVersion[] }
+type Snapshot = { images?: SnapshotImage[]; quota?: { left: number } | null }
+
+const MAIN_USE_VERSION_JOB = 'de3a4a6e-8a5c-4e57-9415-2704497bd292'
+const MAIN_UNTOUCHED_REPLAY_A = 'b816c8ba-e80f-4776-92ab-5c848425d233'
+const ORIGINAL_SOURCE_JOB = '3225b629-51c8-4f81-8456-9ecacde664ac'
+
 async function settle(page: Page) {
   await page.evaluate(async () => { await document.fonts.ready; await new Promise(done => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(done)))) })
   await page.waitForFunction(() => document.getAnimations().filter(animation => Number.isFinite(animation.effect?.getComputedTiming().endTime)).every(animation => animation.playState === 'finished' || animation.playState === 'idle'))
@@ -66,7 +87,7 @@ test('review image address survives reload, navigation and cancelling paid feedb
     await confirmation.getByRole('button', { name: 'Huỷ', exact: true }).click()
     await expect(confirmation).toHaveCount(0)
     await expect(input).toHaveValue('Giữ ánh đèn lạnh trong cảnh')
-    await expect(page.getByRole('button', { name: 'Sửa chỉ dẫn', exact: true })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Sửa prompt', exact: true })).toBeDisabled()
     await page.keyboard.press('Escape')
     const stage = page.getByRole('img', { name: 'Cảnh 4', exact: true })
     await stage.click()
@@ -97,7 +118,7 @@ test('review image address survives reload, navigation and cancelling paid feedb
   await info.attach('review-address.json', { body: JSON.stringify({ viewport: page.viewportSize(), finalAddress: new URL(page.url()).hash, redrawMutations: mutations, mobileViewerRound45Excluded: true }, null, 2), contentType: 'application/json' })
 })
 
-test('workbench viewer uses stable addresses, contains the natural image and restores focus/scroll', async ({ page }, info) => {
+test('workbench viewer uses stable addresses, contains the natural image and restores focus/scroll', async ({ page, context }, info) => {
   if (page.viewportSize()!.width < 768) {
     await page.goto(`/#/review?video=${fixture.jobs[0].id}&img=sc-03`)
     await expect(page.getByRole('option', { name: /^Cảnh 0?3$/ })).toHaveAttribute('aria-selected', 'true')
@@ -107,9 +128,6 @@ test('workbench viewer uses stable addresses, contains the natural image and res
   }
   const job = fixture.jobs[1].id
   const imageBase = `/api/clone/${encodeURIComponent(job)}/images`
-  type SnapshotVersion = { n: number; state: string; url: string | null; previewUrl: string | null; width: number; height: number }
-  type SnapshotImage = { id: string; kind: 'scene' | 'cover'; label: string; usedVersion: number; versions: SnapshotVersion[] }
-  type Snapshot = { images?: SnapshotImage[]; quota?: { left: number } | null }
   const readSnapshot = async () => {
     const response = await page.request.get(imageBase)
     expect(response.status(), 'the live §26 image snapshot must be readable').toBe(200)
@@ -222,6 +240,37 @@ test('workbench viewer uses stable addresses, contains the natural image and res
   const stageURL = new URL(geometry.src!, page.url())
   expect(stageURL.href).toBe(new URL(shownVersionURL!, page.url()).href)
 
+  // Clipboard + raw provenance trên đúng phiên bản đang pressed: chuỗi chép ra
+  // phải trùng từng byte với `sentText` của snapshot thật, và chế độ nguyên văn
+  // chỉ hiện lại đúng chuỗi đã lưu đó — không chép chuỗi kỳ vọng từ fixture.
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(page.url()).origin })
+  await page.evaluate(() => navigator.clipboard.writeText('__qa_clipboard_baseline__'))
+  expect(shownVersion!.sentText?.length, 'the selected version must carry its saved sentText').toBeGreaterThan(0)
+  const selectedVersionButton = dialog.getByRole('group', { name: 'Phiên bản của ảnh', exact: true })
+    .getByRole('button', { name: new RegExp(`^Bản ${shownVersion!.n}(?: ·|$)`) })
+  await expect(selectedVersionButton).toHaveAttribute('aria-pressed', 'true')
+  const copyButton = dialog.getByRole('button', { name: 'Chép prompt', exact: true })
+  await expect(copyButton).toBeEnabled()
+  await copyButton.click()
+  await expect.poll(async () => page.evaluate(async () => navigator.clipboard.readText().catch(() => ''))).toBe(shownVersion!.sentText!)
+  expect(await page.evaluate(() => navigator.clipboard.readText()), 'the clipboard must hold the exact selected version sentText').toBe(shownVersion!.sentText)
+  expect(stageURL.href, 'the copied version must be the one whose native image is addressed').toBe(new URL((shownVersion!.url ?? shownVersion!.previewUrl)!, page.url()).href)
+  await capture(page, info, 'workbench-prompt-copied')
+
+  const rawButton = dialog.getByRole('button', { name: 'Xem nguyên văn', exact: true })
+  await rawButton.click()
+  await expect(dialog.getByRole('button', { name: 'Xem theo phần', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  const rawPre = dialog.locator('pre')
+  await expect(rawPre).toHaveCount(1)
+  expect(await rawPre.textContent(), '“Xem nguyên văn” must expose the exact saved prompt bytes').toBe(shownVersion!.sentText)
+  await dialog.getByRole('button', { name: 'Xem theo phần', exact: true }).click()
+  const shownParts = (shownVersion!.parts ?? []).filter(part => part.kind !== 'learned')
+  if (shownParts.length) await expect(rawPre).toHaveCount(0)
+  else await expect(rawPre).toHaveCount(1)
+  await expect(dialog.getByRole('button', { name: 'Xem nguyên văn', exact: true })).toHaveAttribute('aria-pressed', 'false')
+  expect(redrawMutations, 'copy and raw/parts toggles must never send a redraw').toEqual([])
+  expect(imageMutations, 'copy and raw/parts toggles must never mutate images').toEqual([])
+
   const environment = await page.evaluate(() => ({ reduced: matchMedia('(prefers-reduced-motion: reduce)').matches, fonts: document.fonts.status }))
   expect(environment.fonts).toBe('loaded')
   expect(environment.reduced).toBe(info.project.use.reducedMotion === 'reduce')
@@ -246,6 +295,7 @@ test('workbench viewer uses stable addresses, contains the natural image and res
     expect(motion.scrim?.animationName).not.toBe('none')
     expect(motion.selectedThumb?.transitionDuration).not.toBe('0s')
   }
+  await expect(dialog.getByRole('button', { name: 'Chép prompt', exact: true })).toBeVisible()
   await capture(page, info, 'workbench-viewer')
 
   const panels = await page.locator('aside').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().width))
@@ -290,6 +340,79 @@ test('workbench viewer uses stable addresses, contains the natural image and res
   await dialog.getByRole('button', { name: 'Ảnh trước (←)', exact: true }).click()
   await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
   expect(new URL(page.url()).hash).toBe(openedHash)
+
+  // Quét mọi ô ảnh mở được và mọi bản đã vẽ của từng ô: địa chỉ phải giữ đúng
+  // id ảnh, ảnh gốc phải là asset của bản đang pressed, và các lần xem chỉ thay
+  // selection cục bộ (replace, không push) — snapshot không được ghi.
+  const exerciseSnapshot = await readSnapshot()
+  const exerciseImages = exerciseSnapshot.images ?? []
+  const optionEntries = await strip.getByRole('option').evaluateAll(nodes => nodes.map(node => ({
+    label: (node.getAttribute('aria-label') ?? '').replace(/ · chưa mở được$/, ''),
+    disabled: node.getAttribute('aria-disabled') === 'true',
+  })))
+  const historyBeforeExercise = await page.evaluate(() => history.length)
+  const versionGroup = dialog.getByRole('group', { name: 'Phiên bản của ảnh', exact: true })
+  const stripReadback: { label: string; id: string; address: string; versions: number[] }[] = []
+  const versionReadback: { image: string; n: number; address: string; src: string }[] = []
+  for (const entry of optionEntries) {
+    if (entry.disabled) continue
+    const snap = exerciseImages.find(image => image.label === entry.label)
+    expect(snap, `visible strip option ${entry.label} must map to a live snapshot image`).toBeDefined()
+    const option = strip.getByRole('option', { name: entry.label, exact: true })
+    if (await option.getAttribute('aria-disabled') === 'true') continue
+    if (!(await option.evaluate(node => node.getAttribute('aria-selected') === 'true'))) await option.click()
+    await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${entry.label}`)
+    const addressNow = new URL(page.url()).hash
+    expect(addressNow, `the strip address must name image ${snap!.id}`).toBe(`#/?video=${job}&img=${snap!.id}`)
+    expect(hashParams().get('img')).toBe(snap!.id)
+    await expect(option).toHaveAttribute('aria-selected', 'true')
+    const image = dialog.getByRole('img', { name: entry.label, exact: true })
+    await expect(image).toBeVisible()
+    await expect.poll(() => image.evaluate(node => (node as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    const pressed = versionGroup.getByRole('button', { pressed: true })
+    let selectedN: number | null = null
+    if (await pressed.count()) {
+      selectedN = Number((await pressed.first().textContent())?.trim())
+      expect(selectedN).toBeGreaterThan(0)
+    }
+    const selectedVersion = snap!.versions.find(version => version.n === (selectedN ?? snap!.usedVersion))
+    const selectedAsset = selectedVersion ? (selectedVersion.url ?? selectedVersion.previewUrl) : null
+    if (selectedAsset) {
+      await expect.poll(async () => {
+        const src = await image.getAttribute('src')
+        return src ? new URL(src, page.url()).href : null
+      }, `${entry.label}: the stage must show the pressed version asset`).toBe(new URL(selectedAsset, page.url()).href)
+    }
+    const previewed: number[] = []
+    for (const version of snap!.versions.filter(candidate => candidate.state === 'ready' && (candidate.url ?? candidate.previewUrl))) {
+      const button = versionGroup.getByRole('button', { name: new RegExp(`^Bản ${version.n}(?: ·|$)`) })
+      await expect(button).toBeVisible()
+      await button.click()
+      await expect(button).toHaveAttribute('aria-pressed', 'true')
+      expect(new URL(page.url()).hash, 'previewing a version must not leave its image address').toBe(addressNow)
+      const asset = (version.url ?? version.previewUrl)!
+      await expect.poll(async () => {
+        const src = await image.getAttribute('src')
+        return src ? new URL(src, page.url()).href : null
+      }, `${entry.label} bản ${version.n}: the native image must match the pressed version`).toBe(new URL(asset, page.url()).href)
+      versionReadback.push({ image: snap!.id, n: version.n, address: addressNow, src: asset })
+      previewed.push(version.n)
+    }
+    stripReadback.push({ label: entry.label, id: snap!.id, address: addressNow, versions: previewed })
+  }
+  expect(stripReadback.length, 'the real strip must expose more than one viewable image').toBeGreaterThan(1)
+  await strip.getByRole('option', { name: sceneLabel, exact: true }).click()
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+  await expect(strip.getByRole('option', { name: sceneLabel, exact: true })).toHaveAttribute('aria-selected', 'true')
+  if (pressedN != null) {
+    const restoredVersion = versionGroup.getByRole('button', { name: new RegExp(`^Bản ${pressedN}(?: ·|$)`) })
+    await restoredVersion.click()
+    await expect(restoredVersion).toHaveAttribute('aria-pressed', 'true')
+  }
+  expect(await page.evaluate(() => history.length), 'strip/version previews replace the viewer address instead of pushing').toBe(historyBeforeExercise)
+  expect(redrawMutations).toEqual([])
+  expect(imageMutations).toEqual([])
 
   // Portrait chỉ đo khi job có ảnh dọc thật; fixture hiện tại toàn 16:9.
   const thumbSizes = await strip.getByRole('option').evaluateAll(nodes => nodes.map(node => {
@@ -418,6 +541,22 @@ test('workbench viewer uses stable addresses, contains the natural image and res
       orientation: { landscape: { label: sceneLabel, natural: geometry.natural, rendered: geometry.rendered, stage: geometry.stage }, portrait: portraitProbe },
       quota: { snapshotLeft: quotaLeft ?? null, costLabel },
       sourceGuard: { stagePath: stageURL.pathname, snapshotImageId: snapImage!.id, shownVersion: pressedN },
+      copyRaw: {
+        selectedVersion: shownVersion!.n,
+        clipboardExactSentText: true,
+        clipboardBytes: shownVersion!.sentText!.length,
+        rawExactSavedBytes: true,
+        partsCount: shownParts.length,
+        writes: 0,
+      },
+      stripExercise: {
+        optionCount: optionEntries.length,
+        viewableOptions: stripReadback.length,
+        stripReadback,
+        versionReadback,
+        restoredInitialSelection: true,
+        addressStable: true,
+      },
       redrawMutations,
       imageMutations,
     }, null, 2),
@@ -425,6 +564,211 @@ test('workbench viewer uses stable addresses, contains the natural image and res
   })
   expect(redrawMutations).toEqual([])
   expect(imageMutations).toEqual([])
+})
+
+/**
+ * Controller-owned useVersion acceptance of the real Main workbench viewer.
+ * The controller pauses replay B before Playwright starts and restores the
+ * exact job/steps/intents/artifacts/bindings afterwards. This test only flips
+ * `usedVersion` through the native UI and its single real POST route, then
+ * restores the original version the same way; every other API write is fenced.
+ */
+test('workbench useVersion persists a real selected version then restores the original usedVersion', async ({ page }, info) => {
+  if (process.env.WORKFLOW_QA_MAIN_USE_VERSION !== '1') {
+    test.skip(true, 'Requires WORKFLOW_QA_MAIN_USE_VERSION=1 with a controller that pauses replay B and restores it afterwards')
+    return
+  }
+  test.skip(info.project.name.startsWith('mobile'), 'Desktop Main viewer only; the round45 mobile viewer is excluded')
+  // Opt-in prerequisites are hard failures: a missing paused replay must never look like a passing skip.
+  expect(process.env.WORKFLOW_QA_WORKER_STANDBY, 'The controller must hold the real standby lock (WORKFLOW_QA_WORKER_STANDBY=1)').toBe('1')
+  expect(process.env.WORKFLOW_QA_MAIN_USE_VERSION, 'The opt-in flag must stay set for the executed run').toBe('1')
+  expect(fixture.jobs[1]?.id, 'The fixture must expose replay B at jobs[1]; a missing prerequisite is a hard failure').toBe(MAIN_USE_VERSION_JOB)
+  expect(fixture.jobs[0]?.id, 'Owned replay A must stay outside this useVersion flow').toBe(MAIN_UNTOUCHED_REPLAY_A)
+  expect(fixture.jobs.map(job => job.id), 'The paused replay must never be the paid original source').not.toContain(ORIGINAL_SOURCE_JOB)
+  expect(MAIN_USE_VERSION_JOB).not.toBe(ORIGINAL_SOURCE_JOB)
+  expect(MAIN_USE_VERSION_JOB).not.toBe(MAIN_UNTOUCHED_REPLAY_A)
+  const job = MAIN_USE_VERSION_JOB
+  const imageBase = `/api/clone/${encodeURIComponent(job)}/images`
+  const readSnapshot = async () => {
+    const response = await page.request.get(imageBase)
+    expect(response.status(), 'the live §26 image snapshot must be readable').toBe(200)
+    return await response.json() as Snapshot
+  }
+  const hashParams = () => {
+    const hash = new URL(page.url()).hash
+    return new URLSearchParams(hash.slice(hash.indexOf('?') + 1))
+  }
+
+  // The controller pauses B; the real workbench gallery must be reachable without any review dialog.
+  await page.goto(`/#/?video=${job}`, { waitUntil: 'domcontentloaded' })
+  await expect.poll(async () => new URL(page.url()).hash.startsWith('#/setup') || await page.getByRole('listbox', { name: 'Ảnh của video', exact: true }).isVisible()).toBe(true)
+  if (new URL(page.url()).hash.startsWith('#/setup')) {
+    await page.getByRole('link', { name: 'Cài đặt nâng cao', exact: true }).click()
+    await page.goto(`/#/?video=${job}`, { waitUntil: 'domcontentloaded' })
+  }
+  expect(new URL(page.url()).hash, 'the paused replay opens the real workbench gallery').toBe(`#/?video=${job}`)
+  const grid = page.getByRole('listbox', { name: 'Ảnh của video', exact: true })
+  await expect(grid).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Bộ ảnh chờ duyệt', exact: true }), 'The controller must pause replay B into a non-review stage before this test').toHaveCount(0)
+
+  const before = await readSnapshot()
+  const images = before.images ?? []
+  const target = images.find(image => {
+    if (image.kind !== 'scene') return false
+    const ready = image.versions.filter(version => version.state === 'ready' && (version.url ?? version.previewUrl))
+    return ready.length >= 2 && ready.some(version => version.n === image.usedVersion) && ready.some(version => version.n !== image.usedVersion)
+  })
+  expect(target, 'Replay B needs a real scene with its used version and another ready version; this opt-in is a hard failure when missing').toBeDefined()
+  const ready = target!.versions.filter(version => version.state === 'ready' && (version.url ?? version.previewUrl))
+  expect(ready.length, 'the chosen scene needs at least two ready real versions').toBeGreaterThanOrEqual(2)
+  const original = ready.find(version => version.n === target!.usedVersion)
+  expect(original, 'the scene usedVersion must still have a ready published asset').toBeDefined()
+  const alternatives = ready.filter(version => version.n !== target!.usedVersion).sort((left, right) => left.n - right.n)
+  const alternative = alternatives.at(-1)
+  expect(alternative, 'a real alternative ready version must exist; it is never synthesised').toBeDefined()
+
+  const tile = grid.getByRole('option', { name: target!.label, exact: true })
+  await expect(tile).toBeVisible()
+  await tile.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${target!.label}`)
+  const openedHash = new URL(page.url()).hash
+  expect(hashParams().get('img')).toBe(target!.id)
+  expect(openedHash).toBe(`#/?video=${job}&img=${target!.id}`)
+
+  const versionGroup = dialog.getByRole('group', { name: 'Phiên bản của ảnh', exact: true })
+  const altButton = versionGroup.getByRole('button', { name: new RegExp(`^Bản ${alternative!.n}(?: ·|$)`) })
+  await altButton.click()
+  await expect(altButton).toHaveAttribute('aria-pressed', 'true')
+  const altUseButton = dialog.getByRole('button', { name: new RegExp(`^Dùng bản ${alternative!.n}(?: cho video)?$`) })
+  await expect(altUseButton).toBeVisible()
+  await expect(altUseButton).toBeEnabled()
+
+  // Fence every API write: only the real POST /images/<scene>/use with one of
+  // the two expected body versions may reach the server. Redraw/generation/
+  // build/export/approval paths are aborted before they leave the browser.
+  const allowedUsePath = `${imageBase}/${encodeURIComponent(target!.id)}/use`
+  const allowedVersions = new Set([alternative!.n, original!.n])
+  const fenceWrites: { method: string; path: string; n: number | null }[] = []
+  const fenceViolations: string[] = []
+  await page.route('**/api/**', async route => {
+    const request = route.request()
+    if (['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
+      await route.continue()
+      return
+    }
+    let body: unknown = null
+    try { body = request.postDataJSON() } catch { body = request.postData() }
+    const pathname = new URL(request.url()).pathname
+    const n = body && typeof body === 'object' && 'n' in body && typeof body.n === 'number' ? body.n : null
+    fenceWrites.push({ method: request.method(), path: pathname, n })
+    if (request.method() === 'POST' && pathname === allowedUsePath && n !== null && allowedVersions.has(n)) {
+      await route.continue()
+      return
+    }
+    fenceViolations.push(`${request.method()} ${pathname} n=${n ?? 'n/a'}`)
+    await route.abort('blockedbyclient')
+  })
+
+  const jobURL = `/api/clone/${encodeURIComponent(job)}`
+  const jobResponseBefore = await page.request.get(jobURL)
+  expect(jobResponseBefore.status()).toBe(200)
+  const jobBefore = await jobResponseBefore.json() as { source?: { url?: string } }
+  await capture(page, info, 'workbench-use-version-before')
+
+  const [firstResponse] = await Promise.all([
+    page.waitForResponse(candidate => candidate.request().method() === 'POST' && new URL(candidate.url()).pathname === allowedUsePath),
+    altUseButton.click(),
+  ])
+  expect(firstResponse.status(), 'Dùng bản must return the real 200').toBe(200)
+  const firstPayload = await firstResponse.json() as { imageId: string; n: number; usedVersion: number; previousVersion?: number | null }
+  expect(firstPayload.imageId).toBe(target!.id)
+  expect(firstPayload.n).toBe(alternative!.n)
+  expect(firstPayload.usedVersion).toBe(alternative!.n)
+  expect(firstPayload.previousVersion).toBe(original!.n)
+  await expect.poll(async () => (await readSnapshot()).images?.find(image => image.id === target!.id)?.usedVersion, 'the persisted usedVersion must be the selected alternative').toBe(alternative!.n)
+  await expect(altButton).toHaveAttribute('aria-label', /· đang dùng/)
+  await expect(altUseButton).toHaveCount(0)
+  expect(new URL(page.url()).hash, 'the viewer address must stay on the same image while usedVersion changes').toBe(openedHash)
+  await capture(page, info, 'workbench-use-version-alternative')
+
+  // Restore the original version through the same native UI, never an API shortcut.
+  const originalButton = versionGroup.getByRole('button', { name: new RegExp(`^Bản ${original!.n}(?: ·|$)`) })
+  await originalButton.click()
+  await expect(originalButton).toHaveAttribute('aria-pressed', 'true')
+  const originalUseButton = dialog.getByRole('button', { name: new RegExp(`^Dùng bản ${original!.n}(?: cho video)?$`) })
+  await expect(originalUseButton).toBeVisible()
+  const [restoreResponse] = await Promise.all([
+    page.waitForResponse(candidate => candidate.request().method() === 'POST' && new URL(candidate.url()).pathname === allowedUsePath),
+    originalUseButton.click(),
+  ])
+  expect(restoreResponse.status(), 'restoring the original usedVersion must return the real 200').toBe(200)
+  const restorePayload = await restoreResponse.json() as { imageId: string; n: number; usedVersion: number; previousVersion?: number | null }
+  expect(restorePayload.imageId).toBe(target!.id)
+  expect(restorePayload.n).toBe(original!.n)
+  expect(restorePayload.usedVersion).toBe(original!.n)
+  expect(restorePayload.previousVersion).toBe(alternative!.n)
+  await expect.poll(async () => (await readSnapshot()).images?.find(image => image.id === target!.id)?.usedVersion, 'the original usedVersion must be restored through the same real UI route').toBe(original!.n)
+  await expect(originalButton).toHaveAttribute('aria-label', /· đang dùng/)
+  await expect(originalUseButton).toHaveCount(0)
+  expect(new URL(page.url()).hash).toBe(openedHash)
+  await capture(page, info, 'workbench-use-version-restored')
+
+  const after = await readSnapshot()
+  const afterTarget = after.images?.find(image => image.id === target!.id)
+  expect(afterTarget, 'the target image must remain after the reversible useVersion flow').toBeDefined()
+  expect(afterTarget!.usedVersion).toBe(original!.n)
+  expect(afterTarget!.versions, 'useVersion must not rewrite version assets or prompt bytes').toEqual(target!.versions)
+  for (const image of images.filter(candidate => candidate.id !== target!.id)) {
+    expect(after.images?.find(candidate => candidate.id === image.id), `image ${image.id} must be unchanged by a useVersion on ${target!.id}`).toEqual(image)
+  }
+  const jobResponseAfter = await page.request.get(jobURL)
+  expect(jobResponseAfter.status()).toBe(200)
+  const jobAfter = await jobResponseAfter.json() as { source?: { url?: string } }
+  expect(jobAfter.source, 'useVersion must never replace the saved source').toEqual(jobBefore.source)
+  expect(fenceViolations, 'only the exact real /use route may ever reach the server').toEqual([])
+  expect(fenceWrites.map(write => `${write.method} ${write.path} n=${write.n}`), 'exactly the two real UI useVersion posts are allowed').toEqual([
+    `POST ${allowedUsePath} n=${alternative!.n}`,
+    `POST ${allowedUsePath} n=${original!.n}`,
+  ])
+  expect(await page.getByRole('alertdialog').count(), 'the paid redraw confirmation must never open').toBe(0)
+
+  await info.attach('workbench-use-version.json', {
+    body: JSON.stringify({
+      testTitle: info.title,
+      project: info.project.name,
+      caller: {
+        WORKFLOW_QA_MAIN_USE_VERSION: process.env.WORKFLOW_QA_MAIN_USE_VERSION ?? null,
+        WORKFLOW_QA_WORKER_STANDBY: process.env.WORKFLOW_QA_WORKER_STANDBY ?? null,
+        WORKFLOW_QA_EXPECTED_TEST_TITLE: process.env.WORKFLOW_QA_EXPECTED_TEST_TITLE ?? null,
+      },
+      environment: {
+        baseURL: info.project.use.baseURL ?? process.env.WORKFLOW_APP_URL ?? null,
+        viewport: page.viewportSize(),
+        reducedMotion: info.project.use.reducedMotion ?? 'no-preference',
+        sourceRevision: process.env.WORKFLOW_SOURCE_REVISION ?? null,
+      },
+      job,
+      target: {
+        id: target!.id,
+        label: target!.label,
+        usedVersion: original!.n,
+        alternativeVersion: alternative!.n,
+        readyVersions: ready.map(version => ({ n: version.n, url: version.url ?? version.previewUrl })),
+      },
+      address: { opened: openedHash, afterAlternative: openedHash, afterRestore: new URL(page.url()).hash },
+      fence: { allowed: `POST ${allowedUsePath} with body n in {${alternative!.n},${original!.n}}`, writes: fenceWrites, violations: fenceViolations },
+      payloads: { alternative: firstPayload, restore: restorePayload },
+      before: { usedVersion: target!.usedVersion, versions: target!.versions.map(version => ({ n: version.n, state: version.state, sentTextBytes: version.sentText?.length ?? 0 })) },
+      after: { usedVersion: afterTarget!.usedVersion },
+      restored: true,
+      jobSourceUnchanged: true,
+      providerCalls: 0,
+      imageExecutions: 0,
+      generationOrRedrawRequests: 0,
+    }, null, 2),
+    contentType: 'application/json',
+  })
 })
 
 test('template sample eye does not change selection until its explicit action; retired key card is absent', async ({ page }, info) => {
