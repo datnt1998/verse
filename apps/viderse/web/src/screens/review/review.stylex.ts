@@ -2,7 +2,7 @@
 // Container query và maxWidth động giữ khung ảnh không phóng quá bề rộng gốc.
 import * as stylex from '@stylexjs/stylex'
 import { color, kit, line } from '@noverse/ui/tokens.stylex'
-import { corners, space } from '../../styles/viderse.stylex'
+import { corners, space, typography } from '../../styles/viderse.stylex'
 
 const WIDE = '@media (min-width: 1600px)'
 const NARROW = '@media (max-width: 1100px)'
@@ -115,8 +115,16 @@ export const sx = stylex.create({
   candOn: { borderColor: 'var(--vv-red-line)' },
   candImage: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
   candTag: { position: 'absolute', left: space['--vv-s-4'], bottom: space['--vv-s-3'], fontSize: 10.5, paddingInline: space['--vv-s-4'], borderRadius: corners['--vv-r-4'], backgroundColor: 'var(--vv-glass)', color: color['--color-fg-2'] },
-  roleRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], flexWrap: 'wrap' },
+  roleRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   roleLabel: { fontSize: 12, color: 'var(--vv-fg-note)', whiteSpace: 'nowrap' },
+  /* Artboard refs:add: nhóm nguồn là `vv-seg--sm --fill` (chữ 12, mục 26 px);
+     nhãn 12 px và đệm từng mục đặt inline ở ImageRail để vừa 302 px nội dung. */
+  popSegLabel: { fontSize: typography['--vv-fs-meta'] },
+  /* Artboard refs:add: vai trò là hàng chip 26 px cạnh nhãn “Dùng làm”; chip
+     xuống dòng theo cặp `gap 4` chứ không bao giờ bị nhóm chọn cắt cụt. */
+  roleChips: { display: 'flex', alignItems: 'center', gap: space['--vv-s-4'], flexWrap: 'wrap', flex: '1 1 auto', minWidth: 0 },
+  roleChip: { height: space['--vv-s-26'], paddingInline: space['--vv-s-8'], display: 'inline-flex', alignItems: 'center', borderRadius: corners['--vv-r-7'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: kit['--kit-surface-15'], color: 'var(--vv-fg-note)', fontSize: typography['--vv-fs-meta'], whiteSpace: 'nowrap', cursor: 'pointer' },
+  roleChipOn: { backgroundColor: kit['--kit-wash-10'], color: color['--color-fg'] },
   popFoot: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   popFootText: { flex: 1, fontSize: 12, color: 'var(--vv-fg-note)' },
 

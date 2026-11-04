@@ -482,7 +482,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
                   {imgDrawing && <DevelopEffect state="drawing" baseUrl={imgUrl ?? undefined} compact hideCard />}
                   {isNew && <span {...stylex.props(sx.tileNew)}>MỚI</span>}
                   {scores && imgScore && !imgDrawing && !batch && !checked && <ScoreBadge value={imgScore.value} low={isLow(imgScore, scores.min)} corner />}
-                  {legacyItems[i]?.status === 'approved' && <span {...stylex.props(sx.tileApproved)}><Icon name="tick-b" size={14} /></span>}
+                  {img.status === 'approved' && <span {...stylex.props(sx.tileApproved)}><Icon name="tick-b" size={14} label="Đã duyệt" /></span>}
                   {(batch || checked) && <span role="checkbox" aria-checked={checked} aria-label={`Chọn ${img.label}`} {...stylex.props(sx.selbox, checked && sx.selboxOn)}>{checked && <Icon name="tick" size={11} />}</span>}
                 </button>
               )

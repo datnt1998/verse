@@ -25,6 +25,7 @@ const state = vi.hoisted(() => ({
   images: { current: { images: [] as unknown[], quota: undefined as unknown } },
   progress: { current: {} as Record<string, unknown> },
   legacyStatus: 'review',
+  legacy: null as null | Array<Record<string, unknown>>,
   otherJob: false,
   pending: {} as Record<string, boolean>,
 }))
@@ -58,7 +59,7 @@ vi.mock('./useReview', async importOriginal => {
     imageURL: (_job: string, item: { id: string }) => `/legacy/${item.id}.jpg`,
     useReview: () => ({
       jobs: (state.otherJob ? ['j', 'j2'] : ['j']).map(id => ({ id, channelId: 'c', source: { title: id === 'j' ? 'Video' : 'Video khác' }, subline: '' })),
-      images: { j: { manifest: { revision: 4 }, approved: false, items: [
+      images: { j: { manifest: { revision: 4 }, approved: false, items: state.legacy ?? [
         { id: 'a', kind: 'scene', status: state.legacyStatus, prompt: 'p', versions: [], sceneId: '3', narration: 'Lời kể cảnh 3.' },
         { id: 'b', kind: 'scene', status: 'review', prompt: 'q', versions: [], sceneId: '4' },
       ] } },
@@ -87,7 +88,7 @@ vi.mock('../../components/autonomy/ScoreParts', () => ({ ScoreBadge: () => null,
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
 vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) : ({ data: undefined }) }))
 
-beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.otherJob = false; state.pending = {} })
+beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.legacy = null; state.otherJob = false; state.pending = {} })
 let root: Root | undefined
 afterEach(async () => {
   await act(async () => { dismissConfirmations(); root?.unmount(); await Promise.resolve() })
@@ -174,6 +175,26 @@ it('does not apply an old version response to the image selected while the reque
   expect(node.querySelector('[aria-label^="Bản 2"]')?.getAttribute('aria-pressed')).toBe('false')
 })
 
+
+describe('duyệt từng ảnh trên dải ảnh', () => {
+  it('gắn trạng thái đã duyệt theo id ảnh khi dải §26 và danh sách cũ xếp khác nhau', async () => {
+    state.legacy = [
+      { id: 'b', kind: 'scene', status: 'blocked', prompt: 'q', versions: [], sceneId: '4' },
+      { id: 'cover', kind: 'thumbnail', status: 'review', prompt: 'c', versions: [] },
+      { id: 'a', kind: 'scene', status: 'approved', prompt: 'p', versions: [], sceneId: '3' },
+    ]
+    state.images.current = { images: [
+      { ...image('a', 3, [version(1)]), status: 'approved' },
+      { ...image('b', 4, [version(1)]), status: 'blocked' },
+      { ...image('cover', 1, [version(1)]), kind: 'cover', label: 'Ảnh bìa' },
+    ], quota: undefined }
+    const node = await render()
+    const approved = (label: string) => node.querySelector(`[role="option"][aria-label="${label}"] [role="img"][aria-label="Đã duyệt"]`)
+    expect(approved('Ảnh bìa')).toBeNull()
+    expect(approved('Cảnh 4')).toBeNull()
+    expect(approved('Cảnh 3')).not.toBeNull()
+  })
+})
 
 describe('chỉ dẫn đã gửi', () => {
   it('hiện theo phần kèm nguồn và dòng meta của bản', async () => {

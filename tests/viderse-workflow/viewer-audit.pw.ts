@@ -325,6 +325,7 @@ test('workbench viewer uses stable addresses, contains the natural image and res
     expect(portraitGeometry.image.width).toBeLessThanOrEqual(portraitGeometry.stage.width + 1)
     expect(portraitGeometry.image.height).toBeLessThanOrEqual(portraitGeometry.stage.height + 1)
     portraitProbe = { available: true, label: portraitThumb.label, geometry: portraitGeometry }
+    await capture(page, info, 'workbench-portrait-viewer')
     await strip.getByRole('option', { name: sceneLabel, exact: true }).click()
     await expect(dialog).toHaveAttribute('aria-label', `Xem ảnh ${sceneLabel}`)
   } else {
@@ -430,6 +431,13 @@ test('template sample eye does not change selection until its explicit action; r
   const removed = await page.request.get('/api/youtube/data-key')
   expect(removed.status()).toBe(404)
   await page.goto(`/#/templates/${fixture.templates[0].id}?section=images`, { waitUntil: 'domcontentloaded' })
+  if (page.viewportSize()!.width >= 768) {
+    await expect.poll(async () => new URL(page.url()).hash.startsWith('#/setup') || await page.getByRole('region', { name: 'Ảnh cảnh', exact: true }).isVisible()).toBe(true)
+    if (new URL(page.url()).hash.startsWith('#/setup')) {
+      await page.getByRole('link', { name: 'Cài đặt nâng cao', exact: true }).click()
+      await page.goto(`/#/templates/${fixture.templates[0].id}?section=images`, { waitUntil: 'domcontentloaded' })
+    }
+  }
   if (page.viewportSize()!.width < 768) {
     await expect(page.getByRole('region', { name: 'Ảnh cảnh', exact: true })).toBeVisible()
     await expect(page.getByRole('dialog')).toHaveCount(0)

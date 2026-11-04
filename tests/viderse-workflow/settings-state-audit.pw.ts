@@ -293,6 +293,31 @@ test('settings frame: genuine section values, desktop/mobile navigation and read
     expect(Math.abs(queueGeometry.iconX - navigation[0].iconX)).toBeLessThanOrEqual(2)
     expect(Math.abs(queueGeometry.labelX! - navigation[0].labelX)).toBeLessThanOrEqual(2)
     await testInfo.attach('settings-sidebar-geometry.json', { body: JSON.stringify({ navigation, queue: queueGeometry }), contentType: 'application/json' })
+    await page.keyboard.press('Tab')
+    const navigationButtons = nav.locator('button')
+    await navigationButtons.first().focus()
+    await expect(navigationButtons.first()).toBeFocused()
+    const focusRing = await navigationButtons.first().evaluate(button => ({
+      visible: button.matches(':focus-visible'),
+      style: getComputedStyle(button).outlineStyle,
+      width: parseFloat(getComputedStyle(button).outlineWidth),
+    }))
+    expect(focusRing.visible).toBe(true)
+    expect(focusRing.style).not.toBe('none')
+    expect(focusRing.width).toBeGreaterThan(0)
+    await capture(page, testInfo, 'settings-sidebar-keyboard-focus')
+    for (let index = 1; index < await navigationButtons.count(); index++) {
+      await page.keyboard.press('Tab')
+      await expect(navigationButtons.nth(index)).toBeFocused()
+    }
+    await page.keyboard.press('Tab')
+    await expect(queueLink).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page).toHaveURL(/#\/queue$/)
+    await page.goBack()
+    await expectTitle(page, false, 'Công cụ trên máy')
+    await expectSectionContent('tools')
+    await testInfo.attach('settings-sidebar-keyboard.json', { body: JSON.stringify({ focusRing, order: navigation.map(row => row.name), queueEnterAndBack: true }), contentType: 'application/json' })
     for (const section of ['connect', 'agents', 'accounts', 'tools', 'storage', 'logs'] as const) {
       const label = SECTION_TITLE[section]
       await nav.getByRole('button', { name: new RegExp(`^${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`) }).click()

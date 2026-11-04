@@ -1,7 +1,7 @@
 // Cột phải màn Duyệt: Phiên bản → Ảnh tham chiếu → Prompt đã gửi → meta →
 // Lời kể (artboard Review › aside.ipanel). Prompt hiện đúng văn bản đã gửi,
 // giữ nguyên ngôn ngữ gốc; mọi nhãn quanh nó là tiếng Việt.
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { Button, Dropzone, Icon, Segmented, usePopup } from '@noverse/ui'
 import type { AiProvider } from '../../api/ai'
@@ -15,6 +15,24 @@ import type { ReviewItemView } from './imageView'
 import { sx } from './review.stylex'
 
 export interface RefCandidate { id: string; url: string; tag: string; label: string; kind: 'image' | 'frame' }
+
+/**
+ * Nhóm nguồn của hộp Thêm ảnh tham chiếu (artboard refs:add: `vv-seg--sm --fill`):
+ * chữ 12 px, mục chia đều nhưng nhãn giữ đủ chữ. Đệm 10 px của artboard cần
+ * 303,7 px trong khi cột 360 chỉ để lại 302 px nội dung (Be Vietnam Pro rộng hơn
+ * font dựng artboard), nên mục dùng 8 px: cùng bề rộng mục trong ~1 px, không
+ * cắt “…” và không phải cuộn ngang. `options[].style` là inline nên thắng đệm
+ * của kit.
+ */
+const SOURCE_TABS = [
+  { id: 'images', label: 'Ảnh trong video' },
+  { id: 'frames', label: 'Khung video gốc' },
+  { id: 'upload', label: 'Tải lên' },
+].map((option) => ({
+  ...option,
+  label: <span {...stylex.props(sx.popSegLabel)}>{option.label}</span>,
+  style: { paddingInline: 'var(--vv-s-8)' },
+}))
 
 export interface ImageRailProps {
   item: ReviewItemView
@@ -104,6 +122,19 @@ export function ImageRail({
         })
     setRefsOpen(false)
     setPicked(null)
+  }
+
+  /** Phím mũi tên như nhóm chọn của kit: đổi vai trò và giữ focus trên chip vừa chọn. */
+  const roleKeys = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return
+    event.preventDefault()
+    const index = REF_ROLES.findIndex((option) => option.role === role)
+    const step = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : REF_ROLES.length - 1
+    const next = event.key === 'Home' ? REF_ROLES[0]
+      : event.key === 'End' ? REF_ROLES[REF_ROLES.length - 1]
+        : REF_ROLES[(index + step) % REF_ROLES.length]
+    setRole(next.role)
+    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="radio"]')[REF_ROLES.indexOf(next)]?.focus()
   }
 
   return (
@@ -200,7 +231,10 @@ export function ImageRail({
               <b {...stylex.props(sx.popTitle)}>Thêm ảnh tham chiếu</b>
               <Button variant="icon" type="button" onClick={() => setRefsOpen(false)} aria-label="Đóng" ><Icon name="close" size={14} /></Button>
             </div>
-            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} fit="content" options={[{ id: 'images', label: 'Ảnh trong video' }, { id: 'frames', label: 'Khung video gốc' }, { id: 'upload', label: 'Tải lên' }]} />
+            {/* Artboard refs:add: `vv-seg vv-seg--sm vv-seg--fill` — chữ 12, mục chia
+                đều nhưng nhãn giữ đủ chữ. Cột 360 để lại 302 px nội dung, nên mục
+                dùng đệm 8 px để “Khung video gốc” và “Tải lên” không bị cắt. */}
+            <Segmented label="Nguồn ảnh tham chiếu" value={tab} onChange={next => { setTab(next as typeof tab); setPicked(null) }} size="sm" fit="fill" options={SOURCE_TABS} />
             {tab === 'upload' ? (
               <>
                 <Dropzone label="Tải ảnh tham chiếu" title={uploading ? 'Đang tải ảnh lên…' : 'Kéo ảnh vào đây, hoặc chọn tệp'} hint="PNG, JPG, WebP · tối đa 20 MB" multiple={false} busy={uploading} disabled={!canMutate || uploading} onPick={() => uploadInput.current?.click()} onDrop={files => { if (canMutate && files[0]) onUpload(files[0]) }} />
@@ -227,7 +261,26 @@ export function ImageRail({
             )}
             <div {...stylex.props(sx.roleRow)}>
               <span {...stylex.props(sx.roleLabel)}>Dùng làm</span>
-              <Segmented label="Vai trò của ảnh" value={role} onChange={next => setRole(next as ImageRef['role'])} size="sm" fit="content" options={REF_ROLES.map(option => ({ id: option.role, label: option.label }))} />
+              {/* Artboard refs:add: vai trò là hàng chip `role=radio` xuống dòng —
+                  nhãn “Đồ vật” không bao giờ bị nhóm chọn cắt cụt. */}
+              <div role="radiogroup" aria-label="Vai trò của ảnh" onKeyDown={roleKeys} {...stylex.props(sx.roleChips)}>
+                {REF_ROLES.map((option) => {
+                  const on = option.role === role
+                  return (
+                    <button
+                      key={option.role}
+                      type="button"
+                      role="radio"
+                      aria-checked={on}
+                      tabIndex={on ? 0 : -1}
+                      onClick={() => setRole(option.role)}
+                      {...stylex.props(sx.roleChip, on && sx.roleChipOn)}
+                    >
+                      {option.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
             <div {...stylex.props(sx.popFoot)}>
               <span {...stylex.props(sx.popFootText)}>{providerName(version?.provider ?? 'chatgpt', providers)} nhận tối đa {item.refLimit} ảnh tham chiếu</span>
