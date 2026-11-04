@@ -10,7 +10,7 @@ import { mutate } from '../../api/request'
 import { useResource } from '../../data/useResource'
 import { useOnline } from '../../data/status'
 import { subscribeEvents } from '../../data/events'
-import { navigate, routePath, type Route } from '../../router'
+import { navigate, pickChannelRoute, routePath, type Route } from '../../router'
 import { ChannelAvatar, EmptyWorkbench, Orb, SystemLoading, SystemNotFound } from '../../components'
 import { ActionButton } from '../../components/ActionButton'
 import { SuggestionRow } from '../../components/suggestions/SuggestionRow'
@@ -82,7 +82,7 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
   }, [route.channel, route.scope, route.video])
   const pickScope = (channel?: string) => {
     try { localStorage.setItem(SCOPE_KEY, channel || 'all') } catch { /* storage unavailable */ }
-    navigate(routePath({ name: 'workbench', channel }))
+    navigate(routePath(pickChannelRoute({ ...route, video: selectedId }, channel)))
   }
   const refresh = () => { void list.refresh(); void detail.refresh(); void channels.refresh() }
   const action = async (kind: 'pause' | 'resume' | 'cancel' | 'run') => {
