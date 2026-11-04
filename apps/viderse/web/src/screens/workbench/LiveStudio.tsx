@@ -613,7 +613,7 @@ function ViewerSide({
             : <pre {...stylex.props(styles.viewerRaw)}>{version.sentText}</pre>}
       <div {...stylex.props(styles.viewerSectionHead)}>
         <Button size="sm" disabled={!version?.sentText} onClick={() => void copyPromptText()}>
-          <Icon name="copy" size={14} />{copied === 'done' ? 'Đã chép' : copied === 'failed' ? 'Không chép được' : 'Chép'}
+          <Icon name="copy" size={14} />{copied === 'done' ? 'Đã chép' : copied === 'failed' ? 'Không chép được' : 'Chép prompt'}
         </Button>
         <Button variant="quiet" size="sm" aria-pressed={raw} disabled={!version} onClick={() => setRaw(value => !value)}>
           {raw ? 'Xem theo phần' : 'Xem nguyên văn'}
@@ -836,7 +836,7 @@ const styles = stylex.create({
   viewerVerUsed: { position: 'absolute', right: s['--vv-s-3'], bottom: s['--vv-s-3'], width: 7, height: 7, borderRadius: '50%', backgroundColor: 'var(--color-ok)', boxShadow: '0 0 0 2px var(--color-surface-0)' },
   viewerUseButton: { alignSelf: 'flex-start' },
   viewerVerNote: { fontSize: 12, color: 'var(--color-fg-3)', lineHeight: 1.5 },
-  viewerPrompt: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], padding: s['--vv-s-10'], borderRadius: r['--vv-r-10'], border: '1px solid var(--line-1)', backgroundColor: 'var(--color-surface-0)' },
+  viewerPrompt: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'] },
   viewerPart: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
   viewerPartLabel: { fontSize: 10.5, fontWeight: 600, letterSpacing: '.05em', textTransform: 'uppercase', color: 'var(--vv-fg-note)' },
   viewerPartSource: { textTransform: 'none', letterSpacing: 0, fontWeight: 400, color: 'var(--color-fg-4)' },
