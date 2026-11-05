@@ -217,12 +217,13 @@ func runServe(args []string) error {
 	scanSvc.SetNotifier(learnRT.OnRivals(bg, web.Notifier(hub, "rivals")))
 	go learnRT.Run(bg)
 	seams := &assistantSeams{Learn: learnRT}
-	headlessOrigin := fmt.Sprintf("http://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port)
+	loopbackOrigin := fmt.Sprintf("http://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port)
+	headlessOrigin := loopbackOrigin
 	if proxyCfg.PublicURL != nil {
 		// Browser claims must use the same configured origin as the hosted guard.
 		headlessOrigin = proxyCfg.PublicURL.Scheme + "://" + proxyCfg.PublicURL.Host
 	}
-	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, headlessOrigin, seams)
+	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, loopbackOrigin, headlessOrigin, seams)
 	if err != nil {
 		return err
 	}

@@ -115,7 +115,7 @@ func (g cloneText) Generate(ctx context.Context, m []llm.Message, t []llm.ToolSp
 	return nil, last
 }
 
-func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin string, seams *assistantSeams) (func() error, error) {
+func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool, settings *postgres.SettingsStore, hub *events.Hub, statusSvc *status.Service, cfgDir string, toolKit *tools.Tools, toolDeps tools.Deps, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, files *media.Service, scans *scan.Service, origin, browserOrigin string, seams *assistantSeams) (func() error, error) {
 	store := postgres.NewCloneStore(pool)
 	queueStore := postgres.NewQueueStore(pool)
 	rules := cloneSettings{settings}
@@ -210,7 +210,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 	if err := previewSvc.Reconcile(ctx); err != nil {
 		fmt.Fprintln(os.Stderr, "Dọn bản xem thử:", err)
 	}
-	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, toolKit, toolDeps, activityService)
+	renderRuntime := mountRender(ctx, g, store, files, editorService, cfgDir, origin, browserOrigin, toolKit, toolDeps, activityService)
 	renderRuntime.ChannelName = func(ctx context.Context, id string) (string, error) {
 		owner, err := queueStore.Owner(ctx, id)
 		if err != nil || owner == nil {
