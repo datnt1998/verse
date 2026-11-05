@@ -1,0 +1,37 @@
+{
+  "proof": "NATIVE_COMPUTED_STYLE_KEYBOARD_AND_VISUAL",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "focus": {
+        "active": true,
+        "innerOutline": "none",
+        "innerOutlineWidth": "3px",
+        "outerOutline": "solid",
+        "outerOutlineWidth": "2px",
+        "outerRadius": "12px",
+        "outerFocus": true
+      },
+      "keyboardTabReturn": true
+    },
+    {
+      "width": 390,
+      "status": "PASS",
+      "focus": {
+        "active": true,
+        "innerOutline": "none",
+        "innerOutlineWidth": "3px",
+        "outerOutline": "solid",
+        "outerOutlineWidth": "2px",
+        "outerRadius": "16px",
+        "outerFocus": true
+      },
+      "keyboardTabReturn": true
+    }
+  ],
+  "blocked": [],
+  "pageErrors": [],
+  "status": "PASS",
+  "browserClosed": true
+}

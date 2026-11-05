@@ -1,7 +1,7 @@
 ---
 phase: 5
 title: "Bước 4 · V38 Kênh, Thư viện, Template"
-status: in-progress
+status: completed
 priority: P1
 dependencies: [4]
 ---
@@ -58,6 +58,6 @@ Rollback schema chỉ restore backup đã kiểm khi mọi writer còn quiesced 
 
 ## Checklist
 - [x] Hoàn tất preflight, mapping/truth table và stop conditions trên DB QA riêng; migration CLI thật và regression STOP/admission đã qua.
-- [x] Cutover schema/backend/query/caller kể cả mobile và CLI; full backend suite, vet, build và regression chỉ dẫn qua với SQLC model overlay bảo vệ file người dùng. Chưa merge/publish; trạng thái runtime/ảnh/UI còn ở [báo cáo tích hợp](reports/pr-04/integration-state.md).
-- [ ] Channel/library/template/create theo board, fixtures chỉ QA.
-- [ ] Qua migration/API/score-boundary/UI/motion checks; gửi report và gap V38, merge PR4.
+- [x] Cutover schema/backend/query/caller kể cả mobile và CLI; full backend suite, vet, build và regression chỉ dẫn qua với SQLC model overlay bảo vệ file người dùng.
+- [x] Channel/library/template/create đã cutover; bằng chứng và giới hạn nằm trong [báo cáo tích hợp](reports/pr-04/integration-state.md). Mobile layout/tweak/motion cuối cùng tiếp tục ở phase07, không đọc ảnh reference thành pixel-pass.
+- [x] Migration/API/score-boundary và các luồng UI đã ghi trong report/gap V38. [PR #5](https://github.com/datnt1998/verse/pull/5) merged `1591b66b466e3767327459ccb2630d412115f192` ngày 05/11/2026; GitHub không có CI run, không gọi là CI xanh.

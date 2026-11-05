@@ -1,0 +1,36 @@
+{
+  "proof": "UI_FIXTURE_SOURCE_DATA_REAL_COMPONENT_INTERACTIONS_NO_MUTATIONS",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "bounds": {
+        "x": 400,
+        "y": 76,
+        "width": 640,
+        "height": 537.09375
+      },
+      "selectionPreserved": true,
+      "singleOwner": true,
+      "source": "UI_FIXTURE",
+      "mutations": 0
+    },
+    {
+      "width": 390,
+      "status": "PASS",
+      "bounds": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 844
+      },
+      "selectionPreserved": true,
+      "singleOwner": true,
+      "source": "UI_FIXTURE",
+      "mutations": 0
+    }
+  ],
+  "pageErrors": [],
+  "status": "PASS",
+  "browserClosed": true
+}

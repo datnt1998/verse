@@ -66,20 +66,20 @@ Quy tắc trạng thái:
 - “Chờ bạn duyệt ảnh” (bước images đỗ `awaiting_review`)
 - “Bản dựng đang chờ duyệt” (bước build đỗ `awaiting_review`; ảnh đã duyệt xong). Hai bước kỹ thuật cùng nhóm `review` phải khác dòng phụ; nếu cả hai cùng đỗ thì ưu tiên duyệt ảnh.
 
-## §3 · Hàng chờ (mới: ưu tiên, nhịp, giải thích)
+## §3 · Hàng chờ (hợp đồng workflow gọn)
 
 **DB:**
-- `clone_queue.priority`: `"pick" | "batch"`, mặc định `"batch"` cho dữ liệu cũ.
-- `clone_queue.position`: dùng sẵn có.
+- `clone_queue.priority`: `"pick" | "batch"` là biểu diễn nội bộ: người dùng thêm = `pick`, Tự lấy = `batch`. API/CLI không nhận cờ ưu tiên.
+- `clone_queue.position`: thứ tự toàn bộ hàng chung, không tính cực trị theo riêng kênh hoặc tập đã cắt `LIMIT`. Migration `00041_manual_queue_front.sql` chuyển mục người dùng còn chờ (kể cả mục có thể Hoàn tác) sang lane chọn tay, giữ thứ tự cũ và không đụng job đã bắt đầu.
 
 **Luật** (xem [ia-flows §5](01-ia-flows.md#5-luật-chạy)):
-- Enqueue `pick` → chèn sau mục `pick` cuối cùng.
-- Enqueue `batch` → cuối hàng.
+- Video người dùng tự thêm → một khối ở **đầu toàn bộ hàng chờ**, giữ thứ tự các link trong lần thêm; không ngắt video đang làm. Ví dụ hàng cũ A, thêm B,C rồi Tự lấy thêm D → B,C,A,D.
+- Video Tự lấy → cuối hàng; chịu nhịp và công tắc Tự lấy của kênh. Enqueue, Lên đầu và Làm lại từ đầu dùng cùng khoá phân bổ toàn cục.
 - Scheduler:
   1. Lấy mục `pick` đầu tiên trước.
   2. Hết mục `pick` thì luân phiên kênh trong các mục `batch`.
   3. Bỏ qua kênh đã đủ nhịp, hoặc kênh không còn template dùng được.
-- **Nhịp** chỉ đếm job bắt đầu từ mục `batch`, kể cả mục do Tự lấy video tạo. Thay cho “giới hạn mỗi ngày” hiện tại, vốn đếm cả video chọn tay đi qua hàng chờ.
+- **Nhịp** chỉ đếm video Tự lấy đã bắt đầu; chọn tay một hay nhiều link đều không tính vào nhịp. Dữ liệu tổng hợp để chọn trước được đọc trước khi cắt cửa sổ 2.000 mục.
 - **Thay đổi hành vi:** video chọn tay không còn “bắt đầu thẳng không qua hàng chờ”. Nó vào hàng `pick`, và còn luồng thì scheduler bắt đầu ngay (kích hoạt scheduler ngay khi enqueue, không đợi chu kỳ 1 phút).
 
 **`GET /api/queue`** trả:
@@ -89,8 +89,8 @@ Quy tắc trạng thái:
   paused: boolean;
   pausedAt: string | null;                             // r31-v27: giờ bấm Tạm dừng → “Đã tạm dừng lúc 00:04”
   workers: { used: number; total: number };
-  imageWorkers: number;
-  rescanHours: number;
+  imageWorkers: 3;                                     // chỉ đọc, không phải thiết lập
+  rescanHours: 1;                                      // chỉ đọc, giờ
   running: Array<{ jobId; channelId; title; agent: AgentId; now: string; stepIndex: number /* 0–8 */; etaMinutes: number | null }>;
   rotation: {
     order: string[];                                    // channelId theo vòng
@@ -109,8 +109,8 @@ Quy tắc trạng thái:
 
 **Hành động:**
 - Có sẵn: `pause`, `resume`, `move` (lên đầu, đổi vị trí), `remove`.
-- Mới: `PATCH settings { workers, imageWorkers, rescanHours }`. Các khoá này đang nằm ở Cài đặt → Clone video, chỉ đổi nơi gọi.
-- Theo dev (#52, #64, đã duyệt): hợp đồng v2 `PATCH /api/queue` nhận `{ paused }` · `{ workers (1–6), imageWorkers (1–8), rescanHours (1–24) }` · `{ id, position }` · `{ id, action: "front" | "remove" | "restore" }`. `id` là UUID. `front` chuyển mục thành `pick`, đặt trước mọi `pick`. `paused_channel` = kênh tắt Tự lấy, chỉ khoá mục tự lấy của kênh đó. SSE `queue.updated`. <!-- r31-v27 -->
+- `PATCH /api/queue` nhận `{ paused }` · `{ workers (1–6) }` · `{ id, position }` · `{ id, action: "front" | "remove" | "restore" }`. Chỉ `workers` là quy tắc chạy có thể chỉnh; `imageWorkers`, `rescanHours` hoặc trường lạ trả `400`, không lặng lẽ bỏ qua.
+- `id` là UUID. `front` chuyển mục thành chọn tay và đặt trước mọi mục đang chờ, không dừng job đã chạy. `paused_channel` = kênh tắt Tự lấy, chỉ khoá mục tự lấy. SSE `queue.updated`. Đồng thời thay đổi `workers` cần quyền quản trị; pause và thao tác hàng chờ giữ quyền vận hành hiện hữu.
 - `PATCH { id, action: "remove" }` trả `200` với toàn bộ `CloneQueueView` như GET, thêm `removed: { id: string, position: number, priority: "pick" | "batch" }`. Ghi `clone_queue.removed_at`, không xoá vật lý hoặc tạo job; mục biến mất ngay khỏi `items`, ETA, lượt luân phiên, bộ đếm và lựa chọn scheduler.
 - `PATCH { id, action: "restore" }` trả `200` với toàn bộ `CloneQueueView` (không có `removed`), xoá `removed_at` trên **chính dòng cũ**, giữ nguyên `id`, `position`, `priority`, nguồn, tuỳ chọn ảnh và `templateId`/recipe hiện hữu. Không gọi enqueue hoặc chọn lại template. Gọi lại restore trên mục vẫn chờ là an toàn.
 - Restore trả `409 { error: string, code: "conflict", recovery: null, retryAt: null }` nếu mục đã bị dọn, đã chạy, hoặc cùng nguồn đã được xếp/chạy thành một mục/job khác. UUID sai/thao tác sai → `400` (`invalid_request`); bỏ/di chuyển mục không còn tồn tại → `404` (`not_found`).
@@ -119,28 +119,38 @@ Quy tắc trạng thái:
 - Bớt `workers` không dừng job đang chạy; luồng thừa nghỉ khi job đó xong.
 - `GET /api/status` lỗi 2 lần liền hoặc SSE đứt quá 10 giây → viên việc nền “Mất kết nối”, giữ số cũ.
 
-## §4 · Kế hoạch trước khi làm video (mới)
+## §4 · Nhập nhanh và tạo video
 
-`POST /api/clone/plan` với `{ channelId, urls: string[], priority?: "pick" | "batch", templateId?: string, noImages?: boolean }`. Mặc định `priority` là `pick` khi có 1 link, `batch` khi nhiều hơn. Công tắc “Ưu tiên cả N” gửi `priority: "pick"`.
+`POST /api/clone/plan` giữ vai trò **đọc trước** metadata, trùng lặp, template thực và ước tính; không tạo job. Body `{ channelId, urls: string[], templateId?: string, noImages?: boolean }`, tối đa 200 link. Không nhận `priority`. `noImages` giữ cho CLI, không thêm công tắc vào hộp Làm video.
 
-<!-- r31-v27 --> `templateId` khi chọn khác vòng luân phiên ở chip Template (#53). `noImages` **không** gửi từ Video mới (L14, #58): giữ cho CLI; ngoại lệ ảnh của một video đặt ở Bàn dựng (§14). Trả thêm (#52): `accepted[].imageCalls`, `accepted[].priceUSD` (`null` khi chưa có bảng giá → UI chỉ ghi số ảnh), `viewCount`, `publishedAt`, `rivalLinked`; `duplicates[]` có `title`, `thumbnailUrl`, `durationSec`, `state` (kể cả `"queued"`, `jobId: null`).
-
-Trả:
+- Bỏ `templateId` → lấy đúng template mặc định của kênh. Có `templateId` → chỉ áp dụng cho các video của lần thêm, không đổi mặc định kênh.
+- Trùng theo cặp **(video nguồn, kênh)**; cùng nguồn cho kênh khác vẫn được phép. Metadata đọc từ bản lưu sẵn khi có, không thăm dò nguồn ngoài chỉ để hiện lại bản trùng.
+- `accepted[]` giữ metadata và ước tính thật; `priceUSD: null` nghĩa chưa có giá, không được bịa số tiền.
 
 ```ts
 {
-  accepted: Array<{ url; videoId; title; durationSec; outlier: number | null; hasCaptions: boolean }>;
-  duplicates: Array<{ url; jobId; state }>;   // đã làm cho kênh này → UI dẫn tới video đó
+  accepted: Array<{ url; videoId; title; durationSec; outlier: number | null; hasCaptions: boolean;
+    thumbnailUrl; sourceChannelId; sourceChannelTitle; viewCount; publishedAt; rivalLinked;
+    imageEstimate; imageCalls; priceUSD: number | null }>;
+  duplicates: Array<{ url; jobId: string | null; queueItemId?: string; state; title; thumbnailUrl }>;
   invalid: Array<{ url; reason: "unreadable" | "private" | "not_youtube" }>;
-  position: "front" | "back";
-  etaStart: string | null;                    // giờ bắt đầu dự kiến của video đầu
-  paceLeftToday: number;                      // chỉ có nghĩa với batch
-  overflowDays: number;                       // số ngày rải ra theo nhịp
-  template: { id; name; fromRotation: boolean };
+  position: "front";
+  etaStart: string | null;
+  paceLeftToday: number;
+  overflowDays: number;
+  template: { id; name; fromDefault: boolean };
+  imageCalls: number;
+  priceUSD: number | null;
 }
 ```
 
-Sau đó `POST /api/clone/enqueue` với cùng body (không còn endpoint “start now” riêng cho UI; CLI `clone start` giữ nguyên và tương đương `priority: "pick"`).
+Tạo video chỉ qua **`POST /api/jobs`**, cùng body với plan. Frontend, CLI `clone start|batch` và machine caller đều đi hợp đồng này. Bỏ route tạo cũ `POST /api/clone`, `/api/clone/enqueue` và cờ CLI `--priority`; các route đọc/thao tác job dưới `/api/clone` vẫn giữ.
+
+Kết quả `{ items: CloneQueueItem[], duplicates: ClonePlanDuplicate[], invalid: ClonePlanInvalid[] }`: các link hợp lệ được xếp, các link trùng/không hợp lệ được trả riêng để UI không mất bản nháp. Kiểm trùng được lặp lại trong giao dịch dưới khoá phân bổ; yêu cầu đồng thời cùng cặp không tạo hai mục.
+
+`items[].jobId` có thể chưa có: job và recipe snapshot bất biến chỉ được tạo ở bước admission. `duplicates[].queueItemId` chỉ tới mục thật đang chờ; không bịa job tạm. `GET /api/queue/items/:id` (phiên đăng nhập và kênh thuộc kho hiện hành) trả `{ id, channelId, jobId: string | null, state }` cho Bàn dựng `?queueItem=:id`; sau admission đọc được job mới, kể cả khi tải lại trang. Một mục Làm lại từ đầu còn chờ là đích trùng lặp sống, ưu tiên hơn job thế hệ cũ chưa bị đánh dấu thay thế.
+
+Hộp Làm video có một owner ở shell, giữ trang phía dưới. Phím N không chạy trong ô nhập/contenteditable hoặc khi có lớp phủ khác. Khám phá chọn nhiều mở cùng hộp; chi tiết Video đối thủ trên điện thoại giữ thao tác thêm thẳng với kênh mặc định và có lối phụ mở hộp để đổi kênh/template. Huỷ không xếp video; lỗi gửi giữ bản nháp.
 
 ## §5 · Đầu trang (mới)
 

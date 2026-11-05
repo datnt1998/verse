@@ -1,0 +1,108 @@
+{
+  "proof": "NATIVE_UI_POST_JOBS_GET_QUEUE_PERSISTED_READBACK; EXPLICIT_SYNTHETIC_CACHED_SOURCE_METADATA; WORKER_FENCED",
+  "cases": [
+    {
+      "id": "desktop-override",
+      "status": "PASS",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "itemId": "0e30bc52-7eb6-4018-939f-d09cc2590dd2",
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "expectedTemplate": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "request": {
+        "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "urls": [
+          "https://www.youtube.com/watch?v=V39qa000002"
+        ],
+        "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06"
+      },
+      "mapping": {
+        "id": "0e30bc52-7eb6-4018-939f-d09cc2590dd2",
+        "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "jobId": null,
+        "state": "queued"
+      },
+      "channelDefaultsUnchanged": true,
+      "pendingTargetSurvivesReload": true
+    },
+    {
+      "id": "phone-default",
+      "status": "PASS",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "itemId": "f6fc110b-7efd-4ce2-9626-99ff4fc57836",
+      "channelId": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "expectedTemplate": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "request": {
+        "channelId": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "urls": [
+          "https://www.youtube.com/watch?v=V39qa000004"
+        ]
+      },
+      "mapping": {
+        "id": "f6fc110b-7efd-4ce2-9626-99ff4fc57836",
+        "channelId": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "jobId": null,
+        "state": "queued"
+      },
+      "channelDefaultsUnchanged": true,
+      "pendingTargetSurvivesReload": true
+    }
+  ],
+  "writes": [
+    {
+      "case": "desktop-override",
+      "path": "/api/jobs",
+      "body": {
+        "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "urls": [
+          "https://www.youtube.com/watch?v=V39qa000002"
+        ],
+        "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06"
+      }
+    },
+    {
+      "case": "phone-default",
+      "path": "/api/jobs",
+      "body": {
+        "channelId": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "urls": [
+          "https://www.youtube.com/watch?v=V39qa000004"
+        ]
+      }
+    }
+  ],
+  "blocked": [
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    }
+  ],
+  "pageErrors": [],
+  "noProviderClaim": true,
+  "status": "PASS"
+}

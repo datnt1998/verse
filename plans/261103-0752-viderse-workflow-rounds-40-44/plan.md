@@ -13,7 +13,7 @@ created: 2026-11-03
 # Viderse · Workflow gọn theo thiết kế đợt40–44
 
 ## Kết quả và ranh giới
-HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory/QA đã merge qua [PR #1](https://github.com/datnt1998/verse/pull/1) (`f120a62c8ce664b8e4c42f8edda6a74a24e55d91`); nền UI đã merge qua [PR #2](https://github.com/datnt1998/verse/pull/2) ngày 2026-11-03 (`a7341d37db67e7cfafdb8035818f700820a11594`). Tiếp tục PR2/V36 viewer và nối actions. Local gates đã qua; GitHub Actions đang tắt, không có kết quả CI hosted. **Chưa deploy UI mới**. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
+HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory, nền UI, V36, V37 và V38 đã merge qua PR #1–#5; merge mới nhất `1591b66b466e3767327459ccb2630d412115f192`. Đang triển khai V39, sau đó V40 và gate phát hành cuối. GitHub Actions đang tắt, không có kết quả CI hosted. **Chưa deploy workflow mới**; kiểm live ngày 05/11/2026 còn `a61dc0d02035016bf2157fa8fdd040b22a41ceb6`, `/readyz` trả `{"ok":true}`. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
 Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 01-ia-flows §0.3/§6.1/§6.2 Đợt44/W3–W13 → 08-dev-prompt V36–V40 → artboard/footer/kit/copy/data/stack. Không sửa artboards; muốn lệch phải ghi `11-hoi-dap.md` và chờ trả lời.
 
 ## Bảng kiểm kê gửi trước sửa code
@@ -26,8 +26,8 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 | 2 | [1 · Nền UI dùng chung](phase-02-shared-ui-foundation.md) | Kit tối thiểu + Viderse policy | PR0 merge | Completed · PR #2 merged |
 | 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | Completed · PR #3 merged `3e238b08` |
 | 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | Completed · [PR #4 merged](https://github.com/datnt1998/verse/pull/4) `277b902b`, [nghiệm thu](reports/pr-03/acceptance.md) |
-| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | In progress · ba slice cô lập; design #86 chốt1–20 |
-| 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | Pending |
+| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Completed · [PR #5 merged](https://github.com/datnt1998/verse/pull/5) `1591b66b`; mobile final gate ở phase07 |
+| 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | In progress · backend và frontend có phạm vi riêng |
 | 7 | [6 · V40 Mobile và full-flow gate](phase-07-v40-mobile-parity.md) | §6.2 Đợt44 + desktop regression | PR5 merge | Pending |
 
 ## Kiến trúc và hợp đồng
@@ -45,7 +45,7 @@ Không merge PR có blocker chức năng/UI. Ngoại lệ thực thi được ng
 - [x] PR1: nền UI reuse đúng, shared-kit regression và [bằng chứng](reports/pr-01/foundation.md); PR #2 merged.
 - [x] PR2: viewer/action/data-key theo V36, PR #3 merged; giới hạn thiết bị và gate#83 vẫn giữ ở nghiệm thu cuối.
 - [x] PR3: Main/progress/3proposal + backend obsolete theo V37; PR #4 merged.
-- [ ] PR4: default template/automation/library/create cùng schema, cả mobile contract.
+- [x] PR4: default template/automation/library/create cùng schema, cả mobile contract; PR #5 merged `1591b66b`.
 - [ ] PR5: Nhập nhanh/jobs API/dedup/front ordering/compact queue rules.
 - [ ] PR6: full mobile parity/motion/keyboard/prompt4parts và toàn gate cuối.
 

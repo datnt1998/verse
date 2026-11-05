@@ -1,7 +1,7 @@
 ---
 phase: 6
 title: "Bước 5 · V39 Làm video Nhập nhanh và hàng chờ"
-status: pending
+status: in-progress
 priority: P1
 dependencies: [5]
 ---
