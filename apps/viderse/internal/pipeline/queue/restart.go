@@ -54,15 +54,14 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 		return nil, err
 	}
 	index := -1
-	position := 0.0
+	minimum, _, err := s.store.QueuePositionBounds(ctx)
+	if err != nil {
+		return nil, err
+	}
+	position := minimum - 1
 	for i := range lanes {
 		if lanes[i].ChannelID == job.ChannelID {
 			index = i
-		}
-		for _, item := range lanes[i].Items {
-			if item.Priority == "pick" && item.Position <= position {
-				position = item.Position - 1
-			}
 		}
 	}
 	if index < 0 {
@@ -131,6 +130,9 @@ func (s *Service) EnqueueRestart(ctx context.Context, job *domain.CloneJob) (*do
 	}
 	defer tx.Rollback(ctx)
 	repo := s.store.With(tx)
+	if err = lockAllocation(ctx, tx); err != nil {
+		return nil, err
+	}
 	if err = repo.LockOwnerChannel(ctx, job.ChannelID); err != nil {
 		return nil, err
 	}
@@ -146,9 +148,6 @@ func (s *Service) EnqueueRestart(ctx context.Context, job *domain.CloneJob) (*do
 	if superseded != nil || status == "pending" || status == "running" || (lease != nil && lease.After(s.d.Now())) {
 		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video vẫn đang làm hoặc đã có bản làm lại"}
 	}
-	if _, err = tx.Exec(ctx, `SELECT pg_advisory_xact_lock(27900503)`); err != nil {
-		return nil, err
-	}
 	owner, err := repo.Owner(ctx, job.ChannelID)
 	if err != nil {
 		return nil, err
@@ -161,19 +160,20 @@ func (s *Service) EnqueueRestart(ctx context.Context, job *domain.CloneJob) (*do
 		return nil, err
 	}
 	templateID := tpl.ID
-	queued, err := repo.ListQueuedItems(ctx)
+	existing, err := repo.FindQueueRowsBySourceKeys(ctx, []string{job.SourceKey})
 	if err != nil {
 		return nil, err
 	}
-	position := float64(s.d.Now().UnixNano()) / 1e9
-	for _, item := range queued {
-		if item.SourceKey == job.SourceKey {
+	for _, item := range existing {
+		if item.State == domain.QueueQueued {
 			return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã có bản làm lại trong hàng chờ"}
 		}
-		if item.Priority == domain.ClonePick && item.Position <= position {
-			position = item.Position - 1
-		}
 	}
+	minimum, _, err := repo.QueuePositionBounds(ctx)
+	if err != nil {
+		return nil, err
+	}
+	position := minimum - 1
 	raw, err := json.Marshal(job.Source)
 	if err != nil {
 		return nil, err

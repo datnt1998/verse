@@ -282,9 +282,7 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
     if (making) return
     setMaking(true)
     try {
-      const result = await makeLatestRivalVideo(channelId, source.rivalId)
-      toast.ok(t.channels.latestQueued)
-      navigate(result.jobId ? paths.workbench({ video: result.jobId }) : paths.queue())
+      await makeLatestRivalVideo(channelId, source.rivalId)
     } catch (err) {
       toast.err(err instanceof Error ? err.message : t.channels.latestFailed)
     } finally {

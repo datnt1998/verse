@@ -5,8 +5,7 @@ import "time"
 // DTO của GET/PATCH /api/queue (hợp đồng dữ liệu §3). `CloneQueueItem` ở
 // clone.go là bản ghi DB; các kiểu ở đây chỉ tồn tại trên wire.
 
-// Giới hạn luồng chạy (Quy tắc chạy): jobConcurrency 1–6 mặc định 2,
-// imageConcurrency 1–8 mặc định 3; rescanHours ở rivals.go.
+// Quy tắc chạy cho phép chỉnh jobConcurrency 1–6; vẽ luôn 3 luồng.
 const (
 	JobConcurrencyMin       = 1
 	JobConcurrencyMax       = 6
@@ -15,7 +14,6 @@ const (
 	ImageConcurrencyMax     = 8
 	ImageConcurrencyDefault = 3
 	KeyJobConcurrency       = "clone.jobConcurrency"
-	KeyImageConcurrency     = "clone.imageConcurrency"
 	// KeyQueuePaused (domain.go) là cờ tạm dừng hàng chờ.
 )
 
@@ -91,7 +89,7 @@ type QueuePace struct {
 // QueueImageQuota là hạn mức còn lại của một nguồn vẽ. `limit`/`resetsAt`
 // nil khi nhà cung cấp không báo; UI ghi "N ảnh hôm nay", không bịa "/50".
 type QueueImageQuota struct {
-	Provider string     `json:"provider"`
+	Provider string `json:"provider"`
 	// Label là tên hiển thị của thẻ Kết nối AI (Kết nối AI §); rỗng → UI tự
 	// suy từ Provider.
 	Label    string     `json:"label,omitempty"`
@@ -142,12 +140,18 @@ type QueueWorkers struct {
 // QueuePatch là thân PATCH /api/queue: đổi Quy tắc chạy, tạm dừng/chạy tiếp,
 // dời, bỏ hoặc khôi phục một mục. Trường nil/0 nghĩa "giữ nguyên".
 type QueuePatch struct {
-	Paused       *bool `json:"paused,omitempty"`
-	Workers      *int  `json:"workers,omitempty"`
-	ImageWorkers *int  `json:"imageWorkers,omitempty"`
-	RescanHours  *int  `json:"rescanHours,omitempty"`
+	Paused  *bool `json:"paused,omitempty"`
+	Workers *int  `json:"workers,omitempty"`
 	// Thao tác trên một mục: đặt ID cùng Position (vị trí số mới) hoặc Action.
 	ID       *string  `json:"id,omitempty"`
 	Position *float64 `json:"position,omitempty"`
 	Action   string   `json:"action,omitempty"` // "remove" | "restore" | "front"
+}
+
+// QueueItemTarget giữ định vị mục chờ qua thời điểm admission tạo job.
+type QueueItemTarget struct {
+	ID        string          `json:"id"`
+	ChannelID string          `json:"channelId"`
+	JobID     *string         `json:"jobId"`
+	State     CloneQueueState `json:"state"`
 }

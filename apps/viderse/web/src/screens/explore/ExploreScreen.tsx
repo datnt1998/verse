@@ -22,15 +22,13 @@ import {
   type PostingZone, type Rival, type Video, type VideoSort,
 } from '../../api/rivals'
 import { listChannels } from '../../api/channels'
-import { enqueueClone } from '../../api/clone'
-import { toast } from '@noverse/ui'
+import { openQuickCreate } from '../new/quickCreate'
 import { RivalSidebar, rivalColor } from './RivalSidebar'
 import { AddRivalForm } from './AddRivalForm'
 import { FilterBar, WITHIN, type StatusFilter } from './FilterBar'
 import { SearchBox } from './SearchBox'
 import { VideoGrid } from './VideoGrid'
 import { BulkBar } from './BulkBar'
-import { bulkEnqueueOutcome } from './bulk'
 import { RivalCard } from './RivalCard'
 import { ScanCard } from './ScanCard'
 import { PostingCard } from './PostingCard'
@@ -248,40 +246,11 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
 
   const selectedVideos = useMemo(() => items.filter((v) => checkedIds.has(v.id)), [items, checkedIds])
 
-  const [bulkBusy, setBulkBusy] = useState(false)
-  const bulkEnqueue = useCallback(async (channelId: string) => {
-    if (bulkBusy || !channels.some((channel) => channel.id === channelId) || selectedVideos.length === 0) return
-    setBulkBusy(true)
-    try {
-      const result = await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
-      const outcome = bulkEnqueueOutcome(result, selectedVideos)
-      // Toàn bộ đã có sẵn: không báo thành công, giữ nguyên lựa chọn và mở job có sẵn.
-      if (outcome.added === 0 && outcome.duplicateCount > 0) {
-        toast(tt.bulkAllDuplicate(String(outcome.duplicateCount)), 'warn', {
-          label: outcome.duplicateJobId ? tt.queuePlanOpen : t.screens.new.toasts.openQueue,
-          onClick: () => navigate(outcome.duplicateJobId ? paths.workbench({ video: outcome.duplicateJobId }) : paths.queue()),
-        })
-        return
-      }
-      if (outcome.added === 0) {
-        toast.err(t.screens.new.toasts.failed)
-        return
-      }
-      if (outcome.duplicateCount > 0) {
-        // Chỉ đếm video thật sự vào hàng chờ; giữ lựa chọn đúng nhóm trùng để chọn kênh khác.
-        setCheckedIds(new Set(outcome.duplicateVideoIds))
-        toast(tt.bulkMadePartial(String(outcome.added), String(selectedVideos.length), String(outcome.duplicateCount)), 'ok', {
-          label: t.screens.new.toasts.openQueue,
-          onClick: () => navigate(paths.queue()),
-        })
-        return
-      }
-      toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
-      exitSelect()
-    } catch {
-      toast.err(t.screens.new.toasts.failed)
-    } finally { setBulkBusy(false) }
-  }, [bulkBusy, channels, selectedVideos, exitSelect, tt.bulkAllDuplicate, tt.bulkMadePartial, tt.queuePlanOpen])
+  const bulkBusy = false
+  const bulkEnqueue = useCallback((channelId: string) => {
+    if (!selectedVideos.length) return
+    openQuickCreate({ channelId, urls: selectedVideos.map((video) => video.url), fromSelection: true })
+  }, [selectedVideos])
 
   // ─── Trạng thái trống: chưa theo dõi đối thủ nào ───
   // Artboard vẫn giữ cột đối thủ 252 px (nhóm "Đối thủ 0" + câu hướng dẫn)

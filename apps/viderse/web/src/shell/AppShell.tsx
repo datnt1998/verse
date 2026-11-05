@@ -1,7 +1,7 @@
 // AppShell — khung ứng dụng cho người đã đăng nhập: AppHeader (+ dải offline
 // ngay dưới đầu), vùng cuộn của màn hình, và MobileShell ở bề ngang <768px.
 // Nội dung mờ 42% khi mất kết nối (System artboard · state=offline).
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Route } from '../router'
 import { useMediaQuery } from '../lib/useMediaQuery'
 import { useStatus, useOnline } from '../data/status'
@@ -24,6 +24,10 @@ import { vi as t } from '../i18n/vi'
 import { AdminStorageStrip } from './AdminStorageStrip'
 import { ActivityBridge } from './ActivityBridge'
 import { useDocumentTitle } from './useNames'
+import { blocksQuickCreate, openQuickCreate, QUICK_CREATE_EVENT, type QuickCreateRequest } from '../screens/new/quickCreate'
+import { paths } from '../router'
+
+const NewVideoDialog = lazy(() => import('../screens/new/NewScreen').then((m) => ({ default: m.NewVideoDialog })))
 
 export function AppShell({ route, user, children }: {
   route: Route
@@ -36,6 +40,39 @@ export function AppShell({ route, user, children }: {
   const status = useStatus()
   const online = useOnline()
   const connecting = useEventsStatus().state === 'connecting'
+  const [quickCreate, setQuickCreate] = useState<QuickCreateRequest | null>(null)
+  const quickOpen = useRef(false)
+  const contextChannel = route.name === 'channel' ? route.channelId : route.name === 'workbench' ? route.channel : undefined
+  useEffect(() => {
+    const open = (event: Event) => {
+      if (quickOpen.current) return
+      quickOpen.current = true
+      const detail = (event as CustomEvent<QuickCreateRequest>).detail
+      setQuickCreate({ ...detail, channelId: detail.channelId || contextChannel })
+    }
+    const click = (event: MouseEvent) => {
+      const anchor = (event.target as Element | null)?.closest<HTMLAnchorElement>('a[href^="#/new"]')
+      if (!anchor || anchor.dataset.quickCreateHandoff || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
+      event.preventDefault()
+      const params = new URLSearchParams(anchor.hash.split('?')[1])
+      openQuickCreate({ channelId: params.get('channel') || contextChannel })
+    }
+    const key = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.key.toLowerCase() !== 'n' || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || blocksQuickCreate(event.target)) return
+      if (document.querySelector('[role="dialog"], [aria-modal="true"], [role="menu"], [role="listbox"]')) return
+      event.preventDefault(); openQuickCreate({ channelId: contextChannel })
+    }
+    window.addEventListener(QUICK_CREATE_EVENT, open)
+    document.addEventListener('click', click, true)
+    window.addEventListener('keydown', key)
+    return () => { window.removeEventListener(QUICK_CREATE_EVENT, open); document.removeEventListener('click', click, true); window.removeEventListener('keydown', key) }
+  }, [contextChannel])
+  useEffect(() => {
+    if (route.name !== 'new') return
+    openQuickCreate({ channelId: route.channel })
+    navigate(paths.workbench({ channel: route.channel }), true)
+  }, [route])
+  const composer = quickCreate && <Suspense fallback={null}><NewVideoDialog request={quickCreate} onClose={() => { quickOpen.current = false; setQuickCreate(null) }} /></Suspense>
 
   // Kênh của tôi cho Bộ đổi kênh + luật Onboard. Lỗi/không có gì → danh sách
   // rỗng, không chặn khung (test shell và máy chưa có kênh vẫn chạy).
@@ -92,13 +129,14 @@ export function AppShell({ route, user, children }: {
   const onboard = !mobile && route.name === 'channel-new' && (route.step ?? 'create') === 'create'
     && !onboardDismissed() && channelList.data !== undefined && channels.length === 0
   if (inSetup || onboard || (mobile && route.name === 'account')) {
-    return <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>{strip}{children}</div>
+    return <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>{composer}{strip}{children}</div>
   }
 
   if (mobile) {
     return (
       <MobileShell route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref}>
         <ActivityBridge />
+        {composer}
         {route.name !== 'queue' && strip}
         {/* Vùng nội dung điện thoại là khung tĩnh: mỗi pane của thanh tab tự cuộn
             (MobileRouteStage) nên vị trí cuộn của tab này không dùng chung với tab
@@ -115,6 +153,7 @@ export function AppShell({ route, user, children }: {
     // không bị đẩy xuống khi dải offline/chưa-sẵn-sàng hiện.
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
       <ActivityBridge />
+      {composer}
       <AppHeader route={route} status={status.data} online={online} userName={user.name || user.username} channels={channels} channelHref={channelHref} />
       {setupSkipped && !inSetup ? (
         // Cảnh báo bền "máy chưa sẵn sàng" — có thể làm việc tiếp, không chặn.

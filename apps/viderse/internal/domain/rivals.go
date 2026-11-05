@@ -22,14 +22,8 @@ const (
 	HistoryCapDefault = 2000
 )
 
-// Khoảng quét lại đối thủ (giờ): 1–24, mặc định 1. Lưu ở settings với khoá
-// KeyRescanHours.
-const (
-	RescanHoursMin     = 1
-	RescanHoursMax     = 24
-	RescanHoursDefault = 1
-	KeyRescanHours     = "clone.rescanHours"
-)
+// Khoảng quét lại đối thủ cố định một giờ.
+const RescanHoursDefault = 1
 
 // RivalChannel là một kênh đối thủ đang theo dõi.
 type RivalChannel struct {

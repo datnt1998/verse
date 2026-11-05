@@ -21,16 +21,16 @@ import (
 )
 
 const cloneUsage = `Cách dùng:
-  viderse clone run <url> --channel <id> [--priority pick|batch] [--no-images]
+  viderse clone run <url> --channel <id> [--template <id>] [--no-images]
   viderse clone run <jobId> [--wait] [--timeout GIÂY]
-  viderse clone batch <url>... --channel <id> [--priority pick|batch] [--no-images]
+  viderse clone batch <url>... --channel <id> [--template <id>] [--no-images]
   viderse clone pause|resume|cancel <jobId>
   viderse clone status [jobId] [--channel <id>] [--limit N] [--counts]
   viderse clone status <jobId> --watch [--timeout GIÂY]
   viderse clone wait <jobId> [--timeout GIÂY]
 
   --for <id> là cách viết khác của --channel khi xếp video vào hàng chờ.
-  run URL mặc định ưu tiên pick; batch mặc định batch. Mọi URL đều vào hàng chờ.
+  Mọi URL được thêm vào đầu hàng chờ, giữ thứ tự trong cùng lần thêm.
   wait dừng khi xong, thất bại, bị huỷ hoặc chờ duyệt; thất bại trả exit 1.
   --timeout mặc định 1800 giây. Tạm dừng hoặc chờ hạn mức không được coi là xong.
 
@@ -44,7 +44,7 @@ type cloneOptions struct {
 	command  string
 	operands []string
 	channel  string
-	priority domain.ClonePriority
+	template string
 	noImages bool
 	wait     bool
 	counts   bool
@@ -151,7 +151,7 @@ func parseCloneOptions(args []string, getenv func(string) string) (cloneOptions,
 			case "--no-images":
 				o.noImages = true
 			}
-		case "--channel", "--priority", "--limit", "--timeout", "--api", "--cookie":
+		case "--channel", "--template", "--limit", "--timeout", "--api", "--cookie":
 			if !hasValue {
 				if i+1 >= len(args) || strings.HasPrefix(args[i+1], "--") {
 					return o, cloneInvalid(name + " cần một giá trị")
@@ -166,11 +166,8 @@ func parseCloneOptions(args []string, getenv func(string) string) (cloneOptions,
 			switch name {
 			case "--channel":
 				o.channel = value
-			case "--priority":
-				if value != string(domain.ClonePick) && value != string(domain.CloneBatch) {
-					return o, cloneInvalid("--priority phải là pick|batch")
-				}
-				o.priority = domain.ClonePriority(value)
+			case "--template":
+				o.template = value
 			case "--limit":
 				n, err := strconv.Atoi(value)
 				if err != nil || n < 1 || n > 100 {
@@ -199,7 +196,7 @@ func parseCloneOptions(args []string, getenv func(string) string) (cloneOptions,
 	allowed := map[string]bool{"--api": true, "--cookie": true}
 	switch o.command {
 	case "run", "batch":
-		allowed["--channel"], allowed["--priority"], allowed["--no-images"] = true, true, true
+		allowed["--channel"], allowed["--template"], allowed["--no-images"] = true, true, true
 		if o.command == "run" {
 			allowed["--wait"], allowed["--timeout"] = true, true
 		}
@@ -220,17 +217,11 @@ func parseCloneOptions(args []string, getenv func(string) string) (cloneOptions,
 				}
 			}
 		} else {
-			if seen["--priority"] || o.noImages {
-				return o, cloneInvalid("--priority/--no-images chỉ dùng khi xếp URL vào hàng chờ")
+			if seen["--template"] || o.noImages {
+				return o, cloneInvalid("--template/--no-images chỉ dùng khi xếp URL vào hàng chờ")
 			}
 			if err := validateCloneJobID(o.operands[0]); err != nil {
 				return o, err
-			}
-		}
-		if o.priority == "" {
-			o.priority = domain.ClonePick
-			if o.command == "batch" {
-				o.priority = domain.CloneBatch
 			}
 		}
 	case "status":
@@ -312,8 +303,12 @@ type cloneHTTPClient struct {
 
 func (c *cloneHTTPClient) execute(ctx context.Context, o cloneOptions) (json.RawMessage, error) {
 	if o.command == "batch" || o.command == "run" && o.channel != "" {
-		return c.request(ctx, http.MethodPost, "/api/clone/enqueue", domain.CloneEnqueueRequest{
-			ChannelID: o.channel, URLs: o.operands, Priority: o.priority, NoImages: o.noImages,
+		var templateID *string
+		if o.template != "" {
+			templateID = &o.template
+		}
+		return c.request(ctx, http.MethodPost, "/api/jobs", domain.CloneEnqueueRequest{
+			ChannelID: o.channel, URLs: o.operands, TemplateID: templateID, NoImages: o.noImages,
 		})
 	}
 	if o.command == "status" && len(o.operands) == 0 {

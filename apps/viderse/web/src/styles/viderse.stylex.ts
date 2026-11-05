@@ -53,6 +53,11 @@ export const pipeline = stylex.defineVars({
   newSubmitRadius: '13px',
   mobileDockRadius: '32px',
   mobileDockItemRadius: '27px',
+  quickDialogWidth: '640px',
+  quickHeaderHeight: '52px',
+  quickPreviewWidth: '168px',
+  quickSelectorHeight: '54px',
+  quickPreviewWash: 'rgba(255,255,255,.03)',
 })
 
 /** Bề rộng tối đa cột giữa từ 1600px (03-tokens › đợt 32). Luật áp ở viderse.css (.vv-wide*). */

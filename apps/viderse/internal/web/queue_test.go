@@ -12,21 +12,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func TestQueueFrontPromotesBatchAheadOfExistingPick(t *testing.T) {
+func TestQueueFrontMovesOlderManualAheadOfNewerManual(t *testing.T) {
 	svc, _ := planFixture(t)
 	ctx := context.Background()
-	first, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/aaaaaaaaaaa"}, Priority: domain.ClonePick})
+	first, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/aaaaaaaaaaa"}})
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/bbbbbbbbbbb"}, Priority: domain.CloneBatch})
+	second, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/bbbbbbbbbbb"}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(first.Items) != 1 || len(second.Items) != 1 {
 		t.Fatal("enqueue missing items")
 	}
-	id := second.Items[0].ID
+	id := first.Items[0].ID
 	view, err := svc.Patch(ctx, domain.QueuePatch{ID: &id, Action: "front"})
 	if err != nil {
 		t.Fatal(err)
@@ -43,14 +43,12 @@ func TestQueuePauseExplainsAllRowsAndPersistsTimestamp(t *testing.T) {
 		t.Fatal(err)
 	}
 	paused := true
-	workers := 99
-	images := 0
-	rescan := 99
-	view, err := svc.Patch(ctx, domain.QueuePatch{Paused: &paused, Workers: &workers, ImageWorkers: &images, RescanHours: &rescan})
+	workers := 6
+	view, err := svc.Patch(ctx, domain.QueuePatch{Paused: &paused, Workers: &workers})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !view.Paused || view.PausedAt == nil || view.Workers.Total != 6 || view.ImageWorkers != 1 || view.RescanHours != 24 {
+	if !view.Paused || view.PausedAt == nil || view.Workers.Total != 6 || view.ImageWorkers != 3 || view.RescanHours != 1 {
 		t.Fatalf("rules=%+v", view)
 	}
 	expected := time.Date(2026, 10, 13, 12, 0, 0, 0, time.Local)

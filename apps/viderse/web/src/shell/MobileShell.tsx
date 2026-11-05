@@ -14,7 +14,7 @@ import { getActivity } from '../api/activity'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
 import * as stylex from '@stylexjs/stylex'
-import { color, line, radius } from '@noverse/ui/tokens.stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
 
 // Bảng Hàng chờ của điện thoại chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
@@ -102,23 +102,6 @@ export function MobileShell({ route, status, online, userName, channels, channel
   /* Chấm vàng đếm đúng thông báo cần bạn chưa đọc — cùng nguồn với sheet Việc nền
      (§11 GET /api/activity), nên “Đánh dấu đã đọc” là chấm mất. */
   const unread = activity.data?.unread.length ?? 0
-  const isNew = route.name === 'new'
-  // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
-  if (isNew) {
-    return (
-      <MobileRuntimeProvider hidden><div className={`vv-mobile-shell vv-mobile-shell--new ${stylex.props(mobileShellStyles.shell).className}`}>
-        <MobileTopBar
-          slots={{ root: `vv-mbar vv-mbar--new ${stylex.props(mobileShellStyles.bar, mobileShellStyles.newBar).className}`, leading: stylex.props(mobileShellStyles.newLead).className, title: `vv-mnew-title ${stylex.props(mobileShellStyles.newTitle).className}` }}
-          leading={<button type="button" aria-label={t.common.close} className={`vv-mclose ${stylex.props(mobileShellStyles.close).className}`}
-            onClick={() => navigate(paths.workbench())}>
-            <Icon name="close" size={18} />
-          </button>}
-          title={t.screens.new.title}
-        />
-        {children}
-      </div></MobileRuntimeProvider>
-    )
-  }
   return (
     <MobileRuntimeProvider hidden={subPage}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
       {!subPage &&
@@ -159,12 +142,8 @@ export const mobileShellStyles = stylex.create({
   shell: { position: 'relative', overflow: 'hidden', height: 'max(100dvh, var(--m-viewport-bottom, 0px))', display: 'flex', flexDirection: 'column', paddingTop: 'var(--m-top)', lineHeight: 1.5 },
   /* AppBar đợt 36: một hàng 52px, đệm 0 12 0 16, khe 10; phải đẩy sát mép khe 8. */
   bar: { position: 'relative', zIndex: 30, flex: '0 0 52px', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], height: 52, padding: `0 ${s['--vv-s-12']} 0 ${s['--vv-s-16']}`, backgroundColor: color['--color-bg'] },
-  newBar: { padding: `0 ${s['--vv-s-6']}`, gap: 0 },
-  close: { width: 44, height: 44, display: 'grid', placeItems: 'center', borderRadius: radius['--radius-tile'], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color['--color-fg-2'], cursor: 'pointer' },
-  newTitle: { flex: 1, minWidth: 0, paddingLeft: s['--vv-s-2'], fontSize: 16, fontWeight: 600 },
   /* Nhóm trái: logo 24 + bộ đổi kênh, khe 10 như hàng thanh trên. */
   lead: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], minWidth: 0, flex: '0 1 auto' },
-  newLead: { display: 'flex', alignItems: 'center', flex: '0 0 auto' },
   /* Nhóm phải: nút Việc nền + avatar, không co, đẩy sát mép phải. */
   end: { marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flex: '0 0 auto' },
   /* Mọi phần tử thanh trên cao 36, nền surface-1, viền line-2 (artboard .vv-mbtn). */

@@ -40,7 +40,7 @@ func TestQueueDurableRemoveRestore(t *testing.T) {
 	repo := postgres.NewQueueStore(pool)
 	svc := queue.New(queue.Options{Pool: pool, Store: repo, Settings: postgres.NewSettingsStore(pool), Now: func() time.Time { return now }, Notify: func(event string) { events = append(events, event) }})
 	templateID := "aaaaaaaa-1111-4111-8111-111111111111"
-	enqueued, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/aaaaaaaaaaa"}, Priority: domain.ClonePick, TemplateID: &templateID, NoImages: true})
+	enqueued, err := svc.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: "11111111-1111-4111-8111-111111111111", URLs: []string{"https://youtu.be/aaaaaaaaaaa"}, TemplateID: &templateID, NoImages: true})
 	if err != nil {
 		t.Fatal(err)
 	}

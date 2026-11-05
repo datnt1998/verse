@@ -140,9 +140,7 @@ export function DoneStep({ channelId, onLeave }: {
     if (!reference || !video || making) return
     setMaking(true)
     try {
-      const result = await makeLatestRivalVideo(data.id, reference.rivalId)
-      onLeave()
-      navigate(result.jobId ? paths.workbench({ video: result.jobId }) : paths.queue())
+      await makeLatestRivalVideo(data.id, reference.rivalId)
     } catch (err) {
       toast.err(err instanceof Error ? err.message : t.channels.latestFailed)
     } finally {

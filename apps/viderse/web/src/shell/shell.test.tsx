@@ -95,12 +95,15 @@ describe('MobileShell — MMain', () => {
     // Mọi ô đều là <button> thật (bàn phím + screen reader dùng được), không phải <a>.
     expect(c.querySelectorAll('.vv-tabbar a')).toHaveLength(0)
   })
-  it('chạm ô giữa mở Video mới; ô Kênh đi tới kênh đang mở', async () => {
+  it('chạm ô giữa yêu cầu cùng composer và giữ nguyên màn bên dưới', async () => {
     location.hash = '#/'
+    const open = vi.fn(); window.addEventListener('viderse:quick-create', open)
     const c = await render(<MobileShell route={{ name: 'workbench' }} status={STATUS} online><p>x</p></MobileShell>)
     const newTab = c.querySelector('.vv-tabbar__new')?.closest('button') as HTMLButtonElement
     await act(async () => { newTab.click() })
-    expect(location.hash).toBe('#/new')
+    expect(location.hash).toBe('#/')
+    expect(open).toHaveBeenCalledOnce()
+    window.removeEventListener('viderse:quick-create', open)
   })
   it('màn tạo kênh không vẽ thanh tab (artboard MCreate)', async () => {
     const c = await render(<MobileShell route={{ name: 'channel-new' }} status={STATUS} online><p>x</p></MobileShell>)

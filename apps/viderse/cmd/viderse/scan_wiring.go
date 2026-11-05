@@ -69,7 +69,6 @@ func scanServiceDeps(pool *pgxpool.Pool, settings *postgres.SettingsStore, activ
 	return scan.Deps{
 		Store:    postgres.NewScanStore(pool),
 		YouTube:  youtube.NewClient(youtube.Options{Pacer: sharedYouTubePacer}),
-		Settings: settings,
 		Tasks:    activities,
 		Platform: platformGate{state: state, now: now, blocked: recordBlockedViaStore(state, now)},
 		Now:      now,

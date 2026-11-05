@@ -63,7 +63,7 @@ func (s cloneSettings) JobConcurrency() int {
 	return s.read(domain.KeyJobConcurrency, domain.JobConcurrencyDefault)
 }
 func (s cloneSettings) ImageConcurrency() int {
-	return s.read(domain.KeyImageConcurrency, domain.ImageConcurrencyDefault)
+	return domain.ImageConcurrencyDefault
 }
 
 type cloneStatusSource struct{ queue *queue.Service }

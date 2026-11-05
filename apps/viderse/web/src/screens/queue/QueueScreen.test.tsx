@@ -97,7 +97,10 @@ it('filters queued rows with controlled keyboard choices and retains native menu
   expect(choices[1].getAttribute('aria-checked')).toBe('true')
   expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(1)
   expect(el.querySelector('.vq-row:not(.vq-row--head)')?.textContent).toContain(view.items[0].title)
-  await act(async () => { choices[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
+  await act(async () => { choices[2].click() })
+  expect(el.querySelector('.vq-row:not(.vq-row--head)')?.textContent).toContain(view.items[1].title)
+  expect(el.querySelector('.vq-row:not(.vq-row--head) .vq-num')?.textContent).toBe('2')
+  await act(async () => { choices[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
   expect(choices[0].getAttribute('aria-checked')).toBe('true')
   expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(2)
   const trigger = el.querySelector<HTMLButtonElement>(`[aria-label="${t.screens.queue.menuMore(view.items[0].title)}"]`)!

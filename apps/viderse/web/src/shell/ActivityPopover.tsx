@@ -183,7 +183,7 @@ export function ActivityPopover({ activity, error, retry, close, anchorX, anchor
           <div {...stylex.props(s.emptyBody)}>
             <span aria-hidden="true" {...stylex.props(s.emptyOrbs)}><span {...stylex.props(s.emptyOrb, s.scout)} /><span {...stylex.props(s.emptyOrb, s.director)} /><span {...stylex.props(s.emptyOrb, s.artist)} /><span {...stylex.props(s.emptyOrb, s.qa)} /></span>
             <span {...stylex.props(s.emptyTitle)}>Máy đang rảnh</span><span {...stylex.props(s.emptyDescription)}>Không có video nào đang chạy hay chờ lượt.{activity.nextScan && <> Tự lấy video kiểm tra đối thủ lần tới lúc {new Date(activity.nextScan.at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}.</>}</span>
-            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} {...stylex.props(s.mini)}>Làm video</a><a href="#/explore" {...stylex.props(s.mini)}>Mở Khám phá</a></div>
+            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} onClick={close} {...stylex.props(s.mini)}>Làm video</a><a href="#/explore" onClick={close} {...stylex.props(s.mini)}>Mở Khám phá</a></div>
           </div>
           {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <NotificationRow key={n.id} n={n} showDot={false} onOpen={close} />)}</>}
         </>

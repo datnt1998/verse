@@ -259,7 +259,6 @@ func TestServiceAddCheckCapAndRemove(t *testing.T) {
 	svc := scan.New(scan.Deps{
 		Store:    store,
 		YouTube:  provider,
-		Settings: postgres.NewSettingsStore(pool),
 		Tasks:    activities,
 		Platform: &recordingGate{},
 		Now:      time.Now,
@@ -360,7 +359,7 @@ func TestCheckDoesNotResumePausedHistory(t *testing.T) {
 		Videos: []youtube.ScannedVideo{v("vid3", 300), v("vid2", 200)}, Profile: profile(), NextCursor: baselineCursor(),
 	}}}
 	svc := scan.New(scan.Deps{
-		Store: store, YouTube: provider, Settings: postgres.NewSettingsStore(pool),
+		Store: store, YouTube: provider,
 		Tasks: activity.New(postgres.NewActivityStore(pool), nil), Platform: &recordingGate{}, Now: time.Now,
 	})
 	if _, err := svc.Add(ctx, "@fixture"); err != nil {
@@ -416,7 +415,7 @@ func TestTaskAdoptionKeepsStoredProgress(t *testing.T) {
 	}}}
 	activities := activity.New(postgres.NewActivityStore(pool), nil)
 	svc := scan.New(scan.Deps{
-		Store: store, YouTube: provider, Settings: postgres.NewSettingsStore(pool),
+		Store: store, YouTube: provider,
 		Tasks: activities, Platform: &recordingGate{}, Now: time.Now,
 	})
 	if _, err := svc.Add(ctx, "@fixture"); err != nil {
@@ -471,7 +470,7 @@ func TestDiscoveryTaskActionsDispatchWithoutHistory(t *testing.T) {
 			}}
 			activities := activity.New(postgres.NewActivityStore(pool), nil)
 			svc := scan.New(scan.Deps{
-				Store: store, YouTube: provider, Settings: postgres.NewSettingsStore(pool),
+				Store: store, YouTube: provider,
 				Tasks: activities, Platform: &recordingGate{}, Now: time.Now,
 			})
 			if _, err := svc.Add(ctx, "@fixture"); err != nil {
@@ -571,7 +570,7 @@ func TestHealthySyncPublishesActivityChange(t *testing.T) {
 		events = append(events, ref)
 	})
 	svc := scan.New(scan.Deps{
-		Store: store, YouTube: provider, Settings: postgres.NewSettingsStore(pool),
+		Store: store, YouTube: provider,
 		Tasks: activities, Platform: &recordingGate{}, Now: time.Now,
 	})
 	if _, err := svc.Add(ctx, "@fixture"); err != nil {

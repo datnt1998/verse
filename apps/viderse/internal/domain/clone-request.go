@@ -3,11 +3,10 @@ package domain
 import "time"
 
 type CloneEnqueueRequest struct {
-	ChannelID  string        `json:"channelId"`
-	URLs       []string      `json:"urls"`
-	Priority   ClonePriority `json:"priority,omitempty"`
-	NoImages   bool          `json:"noImages,omitempty"`
-	TemplateID *string       `json:"templateId,omitempty"`
+	ChannelID  string   `json:"channelId"`
+	URLs       []string `json:"urls"`
+	NoImages   bool     `json:"noImages,omitempty"`
+	TemplateID *string  `json:"templateId,omitempty"`
 }
 type ClonePlanAccepted struct {
 	URL                string     `json:"url"`
@@ -35,6 +34,7 @@ type ClonePlanDuplicate struct {
 	// JobID là job đang hoạt động của video này; null khi video mới chỉ nằm
 	// trong hàng chờ (state "queued").
 	JobID              *string    `json:"jobId"`
+	QueueItemID        *string    `json:"queueItemId,omitempty"`
 	State              string     `json:"state"`
 	Title              string     `json:"title,omitempty"`
 	ThumbnailURL       *string    `json:"thumbnailUrl"`
@@ -72,4 +72,5 @@ type ClonePlan struct {
 type CloneEnqueueResult struct {
 	Items      []CloneQueueItem     `json:"items"`
 	Duplicates []ClonePlanDuplicate `json:"duplicates"`
+	Invalid    []ClonePlanInvalid   `json:"invalid"`
 }

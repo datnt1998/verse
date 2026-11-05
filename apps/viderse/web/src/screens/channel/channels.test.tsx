@@ -358,24 +358,6 @@ describe('Nhận diện', () => {
 })
 
 describe('Khám phá mở khoá theo kênh', () => {
-  it('có kênh: chọn được kênh đích, chưa có kế hoạch hợp lệ thì chưa làm video', async () => {
-    const el = await mount(
-      <PreviewPanel
-        video={{
-          id: 'v1', channelId: 'r1', title: 'Video mẫu', durationSec: 600, viewCount: 1000,
-          publishedAt: '2026-10-28T04:00:00Z', exactTime: true, score: 4.2,
-          hasCaptions: null, thumbnailUrl: '', url: 'https://youtu.be/v1',
-        }}
-        rival={rival}
-        channels={[{ id: 'c1', name: 'Chuyện Lạ' }]}
-        onClose={() => {}}
-      />,
-    )
-    const radio = el.querySelector('[role="radio"][aria-checked="true"]')
-    expect(radio).not.toBeNull()
-    const make = byText(el, 'button', et.makeVideo) as HTMLButtonElement
-    expect(make.getAttribute('aria-disabled')).toBe('true')
-  })
 
   it('chưa có kênh: giữ lý do cũ và lối tạo kênh', async () => {
     const el = await mount(
