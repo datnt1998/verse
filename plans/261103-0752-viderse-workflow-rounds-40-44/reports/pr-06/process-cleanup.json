@@ -1,0 +1,10 @@
+{
+  "ownedNativeServer": "STOPPED",
+  "ownedArtboardReference": "STOPPED",
+  "ownedWorkerFence": "service stopped; surviving owned psql backend91613 verified by QA DB and exact guard query then terminated; zero locks after",
+  "browserControllers": "all Playwright controllers closed in finally",
+  "retainedChrome": "omp Puppeteer runtime daemon74518, parent4244; not a test controller, left untouched because shared ownership not established",
+  "listeners8041And8043": "none",
+  "qaCredentialRemoved": true,
+  "sourceAuthSHAUnchanged": true
+}

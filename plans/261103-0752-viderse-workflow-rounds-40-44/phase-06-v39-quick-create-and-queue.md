@@ -1,7 +1,7 @@
 ---
 phase: 6
 title: "Bước 5 · V39 Làm video Nhập nhanh và hàng chờ"
-status: in-progress
+status: completed
 priority: P1
 dependencies: [5]
 ---
@@ -54,7 +54,7 @@ Không cho frontend tự chọn auto-origin hoặc bypass cadence; request input
 Rollback FE+BE nguyên tử; snapshot/order migration phải backup và không rewrite job đang chạy. Nếu không thể serialize front allocation, PR chưa đạt, không đổi lời copy “đầu hàng” thành “trước auto” để che thiếu.
 
 ## Checklist
-- [ ] Một Nhập nhanh entrypoint, link/explore/default override/cancel đúng.
-- [ ] Cutover `/api/jobs` + all callers; dedup/front ordering/rules đúng thực tế.
-- [ ] Qua concurrency/API/CLI/UI/motion checks cả hai bố cục.
-- [ ] Gửi comparison/control report + gap V39, merge PR5 trước PR6.
+- [x] Một Nhập nhanh entrypoint, link/explore/default override/cancel đúng.
+- [x] Cutover `/api/jobs` + all callers; dedup/front ordering/rules đúng thực tế.
+- [x] Qua concurrency/API/CLI và scoped UI checks cả hai bố cục; full mobile/motion/Safari là gate phase07.
+- [x] [Comparison/control report và giới hạn](reports/pr-05/acceptance.md), gap V39; [PR #6](https://github.com/datnt1998/verse/pull/6) merged `9ad1effc6ac8cd14b537d47c6056942a67cf2bd6` ngày05/11/2026. Không có CI run; chưa deploy.

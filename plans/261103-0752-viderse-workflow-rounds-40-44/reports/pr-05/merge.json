@@ -1,0 +1,11 @@
+{
+  "pr": 6,
+  "url": "https://github.com/datnt1998/verse/pull/6",
+  "state": "MERGED",
+  "sourceCommit": "cdc8c7d73b0eec779428edfe6c82ed55e70e863e",
+  "mergeCommit": "9ad1effc6ac8cd14b537d47c6056942a67cf2bd6",
+  "mergedAt": "2026-11-05T09:30:57Z",
+  "checks": [],
+  "qualification": "No CI workflow runs configured/returned; local gates in acceptance.md, not reported as green remote CI",
+  "deploy": "NOT_DEPLOYED"
+}

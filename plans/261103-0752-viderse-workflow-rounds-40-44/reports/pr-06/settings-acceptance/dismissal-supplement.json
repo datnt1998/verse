@@ -1,0 +1,69 @@
+{
+  "qualification": "Response-only UI_FIXTURE. Correcting controller assumption: kit Sheet has a drag handle, not a Close button. Earlier close-button-exits checks actually used Escape and are not Close-button proof.",
+  "cases": [
+    {
+      "name": "phone-normal close control is Sheet drag handle, not separate Close button",
+      "ok": true,
+      "detail": {
+        "x": 0,
+        "y": 537.2974853515625,
+        "width": 390,
+        "height": 14
+      }
+    },
+    {
+      "name": "phone-normal drag close exits",
+      "ok": true
+    },
+    {
+      "name": "phone-normal remove transition peak at most one visible modal",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "phone-normal edit unmounted before danger confirm",
+      "ok": true
+    },
+    {
+      "name": "phone-normal danger confirm Escape exits",
+      "ok": true
+    },
+    {
+      "name": "phone-normal no mutations during drag/remove cancellation",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced close control is Sheet drag handle, not separate Close button",
+      "ok": true,
+      "detail": {
+        "x": 0,
+        "y": 537.703125,
+        "width": 390,
+        "height": 14
+      }
+    },
+    {
+      "name": "phone-reduced drag close exits",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced remove transition peak at most one visible modal",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "phone-reduced edit unmounted before danger confirm",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced danger confirm Escape exits",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced no mutations during drag/remove cancellation",
+      "ok": true
+    }
+  ],
+  "mutations": [],
+  "failures": []
+}

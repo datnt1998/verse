@@ -1,0 +1,9 @@
+{
+  "failedStage": "native linker",
+  "message": "mapping output file failed: no space left on device",
+  "frontendFocusedTests": 36,
+  "frontendBuild": "PASS",
+  "sizeGate": "PASS",
+  "retryPrerequisite": "df observed11GiB free after transient disk saturation; no user cache deleted",
+  "nativeRetry": "PASS"
+}

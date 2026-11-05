@@ -1,0 +1,82 @@
+{
+  "sourceBranch": "refactor/viderse-v40-mobile-parity",
+  "previousPR": {
+    "number": 6,
+    "mergeCommit": "9ad1effc6ac8cd14b537d47c6056942a67cf2bd6"
+  },
+  "frontendSuite": {
+    "files": 441,
+    "passed": 3667,
+    "skipped": 4,
+    "qualifier": "before last missing-template fallback copy-only edit; focused recheck and final embed still required"
+  },
+  "typecheck": "PASS before final copy-only edit",
+  "build": "PASS before final copy-only edit",
+  "native": "V40 QA process ready; acceptance in progress",
+  "sizeKiBGzip": {
+    "entry": 142.5,
+    "phoneInitial": 179.4,
+    "css": 33.7
+  },
+  "budgetsKiB": {
+    "entry": 150,
+    "phoneInitial": 200,
+    "css": 40
+  },
+  "openDecisions": [
+    91,
+    92
+  ],
+  "deploy": "NOT_DEPLOYED",
+  "finalSourceCommit": "4da829e8c7eb7d4a2784a0c408b0d0f1a936adec",
+  "finalFocusedTests": {
+    "files": 2,
+    "passed": 28
+  },
+  "finalTypecheck": "PASS",
+  "finalViteBuild": "PASS",
+  "finalNativeBuild": "PASS after disk headroom recovered",
+  "finalNativeFocusedSmoke": {
+    "actions": 10,
+    "checks": 30,
+    "failed": 0,
+    "mutations": 0,
+    "motion": [
+      "normal",
+      "reduced"
+    ],
+    "sliderProof": "Actual selected-button vs thumb x/y/width/height deltas <=2px after document.fonts.ready; not count of range controls"
+  },
+  "latencyGate": {
+    "status": "PASS",
+    "execution": "serial after builds, unit suites and browser controllers settled",
+    "sourceTest": "apps/viderse/internal/persistence/postgres/rivals_bench_pg_test.go",
+    "testSHA256": "c69459c88a23e8010c33f7a1a9168aa282ace51016bc7d00f6a3cafacab57b06",
+    "sourceCommit": "4da829e8c7eb7d4a2784a0c408b0d0f1a936adec",
+    "regressionThresholdMs": 400,
+    "rivalVideos": {
+      "fixtureVideos": 20000,
+      "variants": 16,
+      "worstVariant": "all/views/first",
+      "worstP95Ms": 155.83
+    },
+    "rivalList": {
+      "channels": 50,
+      "videos": 100000,
+      "retainedJobs": 50000,
+      "p50Ms": 22.68,
+      "p95Ms": 25.05
+    },
+    "packageSeconds": 125.27,
+    "modelOverlay": true,
+    "productionDBMutation": false
+  },
+  "physicalSafari": {
+    "status": "UNVERIFIED",
+    "attempts": [
+      "local xcrun devicectl list devices: utility unavailable",
+      "Mac mini xcrun devicectl list devices: utility unavailable"
+    ],
+    "qualification": "No operable physical Safari-device route established; not evidence that no device exists. Chromium not substituted."
+  }
+}

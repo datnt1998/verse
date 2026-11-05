@@ -1,0 +1,5142 @@
+{
+  "qualification": "Native V40 UI; response-only UI_FIXTURE for missing mobile review/history/content states. No persistence/provider proof. Headless Chrome viewport emulation, not physical Safari.",
+  "actions": [
+    {
+      "n": 1,
+      "label": "copy publishing package"
+    },
+    {
+      "n": 2,
+      "label": "click Ảnh · 2"
+    },
+    {
+      "n": 3,
+      "label": "click Nội dung đăng"
+    },
+    {
+      "n": 4,
+      "label": "click Thông tin video"
+    },
+    {
+      "n": 5,
+      "label": "copy transcript"
+    },
+    {
+      "n": 6,
+      "label": "Escape info sheet"
+    },
+    {
+      "n": 7,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 8,
+      "label": "copy actual submitted prompt"
+    },
+    {
+      "n": 9,
+      "label": "Escape prompt"
+    },
+    {
+      "n": 10,
+      "label": "compare previous version"
+    },
+    {
+      "n": 11,
+      "label": "exit compare"
+    },
+    {
+      "n": 12,
+      "label": "click Bản 1"
+    },
+    {
+      "n": 13,
+      "label": "click Bản 2"
+    },
+    {
+      "n": 14,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 15,
+      "label": "type manual feedback"
+    },
+    {
+      "n": 16,
+      "label": "toggle chip on"
+    },
+    {
+      "n": 17,
+      "label": "toggle chip off"
+    },
+    {
+      "n": 18,
+      "label": "Escape focused feedback"
+    },
+    {
+      "n": 19,
+      "label": "scroll review main down"
+    },
+    {
+      "n": 20,
+      "label": "resize viewport shorter"
+    },
+    {
+      "n": 21,
+      "label": "restore viewport"
+    },
+    {
+      "n": 22,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 23,
+      "label": "Escape legacy prompt"
+    },
+    {
+      "n": 24,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 25,
+      "label": "Escape legacy feedback"
+    },
+    {
+      "n": 26,
+      "label": "copy publishing package"
+    },
+    {
+      "n": 27,
+      "label": "click Ảnh · 2"
+    },
+    {
+      "n": 28,
+      "label": "click Nội dung đăng"
+    },
+    {
+      "n": 29,
+      "label": "click Thông tin video"
+    },
+    {
+      "n": 30,
+      "label": "copy transcript"
+    },
+    {
+      "n": 31,
+      "label": "Escape info sheet"
+    },
+    {
+      "n": 32,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 33,
+      "label": "copy actual submitted prompt"
+    },
+    {
+      "n": 34,
+      "label": "Escape prompt"
+    },
+    {
+      "n": 35,
+      "label": "compare previous version"
+    },
+    {
+      "n": 36,
+      "label": "exit compare"
+    },
+    {
+      "n": 37,
+      "label": "click Bản 1"
+    },
+    {
+      "n": 38,
+      "label": "click Bản 2"
+    },
+    {
+      "n": 39,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 40,
+      "label": "type manual feedback"
+    },
+    {
+      "n": 41,
+      "label": "toggle chip on"
+    },
+    {
+      "n": 42,
+      "label": "toggle chip off"
+    },
+    {
+      "n": 43,
+      "label": "Escape focused feedback"
+    },
+    {
+      "n": 44,
+      "label": "scroll review main down"
+    },
+    {
+      "n": 45,
+      "label": "resize viewport shorter"
+    },
+    {
+      "n": 46,
+      "label": "restore viewport"
+    },
+    {
+      "n": 47,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 48,
+      "label": "Escape legacy prompt"
+    },
+    {
+      "n": 49,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 50,
+      "label": "Escape legacy feedback"
+    },
+    {
+      "n": 51,
+      "label": "PC legacy edit keyboard E"
+    }
+  ],
+  "checks": [
+    {
+      "name": "no-preference MVideo exactly two tabs",
+      "pass": true,
+      "detail": [
+        "Nội dung đăng",
+        "Ảnh · 2"
+      ]
+    },
+    {
+      "name": "no-preference content default",
+      "pass": true
+    },
+    {
+      "name": "MVideo no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference actual metadata clipboard",
+      "pass": true,
+      "detail": {
+        "length": 111
+      }
+    },
+    {
+      "name": "no-preference image tab content",
+      "pass": true
+    },
+    {
+      "name": "no-preference one info sheet",
+      "pass": true
+    },
+    {
+      "name": "no-preference info contains all sections",
+      "pass": true,
+      "detail": {
+        "template": 1,
+        "source": 1,
+        "backdrop": 1
+      }
+    },
+    {
+      "name": "Info no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference actual transcript clipboard",
+      "pass": true
+    },
+    {
+      "name": "no-preference transcript clipboard feedback",
+      "pass": true
+    },
+    {
+      "name": "no-preference template link readonly navigation",
+      "pass": true
+    },
+    {
+      "name": "Info Escape no-preference overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Info Escape no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Review initial no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference modern four sections",
+      "pass": true,
+      "detail": "Prompt đã gửi\nCảnh 1 · bản 2\nCảnh\n·\nHoạ sĩ\nSCENE_UI_FIXTURE rainy roadside cafe version 2\nPhong cách\n·\nPrompt ảnh\nSTYLE_UI_FIXTURE cold cinematic light\nTham chiếu\n·\nẢnh tham chiếu\nREFS_UI_FIXTURE keep original camera angle\nTránh\n·\nTemplate\nAVOID_UI_FIXTURE no readable text\nUI_FIXTURE · 07:01\nChép chỉ dẫn\nSửa chỉ dẫn rồi vẽ lại"
+    },
+    {
+      "name": "no-preference no Why or learned",
+      "pass": true
+    },
+    {
+      "name": "Modern prompt no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference actual prompt clipboard",
+      "pass": true
+    },
+    {
+      "name": "Prompt Escape no-preference overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Prompt Escape no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference compare selected",
+      "pass": true
+    },
+    {
+      "name": "no-preference version 1 selected",
+      "pass": true
+    },
+    {
+      "name": "Feedback no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference chip preserves manual words",
+      "pass": true,
+      "detail": "Giữ nguyên câu riêng, Tông lạnh hơn là một phần câu riêng"
+    },
+    {
+      "name": "Feedback Escape no-preference overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Feedback Escape no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock after feedback no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock after scroll no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock resized short no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock restored no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference legacy raw whole prompt",
+      "pass": true
+    },
+    {
+      "name": "no-preference legacy edit disabled",
+      "pass": true
+    },
+    {
+      "name": "no-preference legacy no invented scene heading",
+      "pass": true
+    },
+    {
+      "name": "Legacy prompt no-preference overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Legacy prompt no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "no-preference legacy Scene edit tab disabled",
+      "pass": true
+    },
+    {
+      "name": "Legacy feedback no-preference overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Legacy feedback no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce MVideo exactly two tabs",
+      "pass": true,
+      "detail": [
+        "Nội dung đăng",
+        "Ảnh · 2"
+      ]
+    },
+    {
+      "name": "reduce content default",
+      "pass": true
+    },
+    {
+      "name": "MVideo reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce actual metadata clipboard",
+      "pass": true,
+      "detail": {
+        "length": 111
+      }
+    },
+    {
+      "name": "reduce image tab content",
+      "pass": true
+    },
+    {
+      "name": "reduce one info sheet",
+      "pass": true
+    },
+    {
+      "name": "reduce info contains all sections",
+      "pass": true,
+      "detail": {
+        "template": 1,
+        "source": 1,
+        "backdrop": 1
+      }
+    },
+    {
+      "name": "Info reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce actual transcript clipboard",
+      "pass": true
+    },
+    {
+      "name": "reduce transcript clipboard feedback",
+      "pass": true
+    },
+    {
+      "name": "reduce template link readonly navigation",
+      "pass": true
+    },
+    {
+      "name": "Info Escape reduce overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Info Escape reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Review initial reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce modern four sections",
+      "pass": true,
+      "detail": "Prompt đã gửi\nCảnh 1 · bản 2\nCảnh\n·\nHoạ sĩ\nSCENE_UI_FIXTURE rainy roadside cafe version 2\nPhong cách\n·\nPrompt ảnh\nSTYLE_UI_FIXTURE cold cinematic light\nTham chiếu\n·\nẢnh tham chiếu\nREFS_UI_FIXTURE keep original camera angle\nTránh\n·\nTemplate\nAVOID_UI_FIXTURE no readable text\nUI_FIXTURE · 07:01\nChép chỉ dẫn\nSửa chỉ dẫn rồi vẽ lại"
+    },
+    {
+      "name": "reduce no Why or learned",
+      "pass": true
+    },
+    {
+      "name": "Modern prompt reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce actual prompt clipboard",
+      "pass": true
+    },
+    {
+      "name": "Prompt Escape reduce overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Prompt Escape reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce compare selected",
+      "pass": true
+    },
+    {
+      "name": "reduce version 1 selected",
+      "pass": true
+    },
+    {
+      "name": "Feedback reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce chip preserves manual words",
+      "pass": true,
+      "detail": "Giữ nguyên câu riêng, Tông lạnh hơn là một phần câu riêng"
+    },
+    {
+      "name": "Feedback Escape reduce overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Feedback Escape reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock after feedback reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock after scroll reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock resized short reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "Dock restored reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce legacy raw whole prompt",
+      "pass": true
+    },
+    {
+      "name": "reduce legacy edit disabled",
+      "pass": true
+    },
+    {
+      "name": "reduce legacy no invented scene heading",
+      "pass": true
+    },
+    {
+      "name": "Legacy prompt reduce overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Legacy prompt reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "reduce legacy Scene edit tab disabled",
+      "pass": true
+    },
+    {
+      "name": "Legacy feedback reduce overlay removed",
+      "pass": true
+    },
+    {
+      "name": "Legacy feedback reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "PC legacy raw prompt",
+      "pass": true
+    },
+    {
+      "name": "PC legacy bottom edit disabled",
+      "pass": true
+    },
+    {
+      "name": "PC legacy rail edit disabled",
+      "pass": true
+    },
+    {
+      "name": "PC legacy keyboard cannot open scene editing",
+      "pass": true
+    },
+    {
+      "name": "PC legacy no document overflow",
+      "pass": true,
+      "detail": {
+        "width": 1440,
+        "viewport": 1440
+      }
+    }
+  ],
+  "geometry": [
+    {
+      "label": "MVideo no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Quay lại Bàn dựng",
+          "w": 44,
+          "h": 44,
+          "x": 6,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thông tin video",
+          "w": 44,
+          "h": 44,
+          "x": 294,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thao tác khác",
+          "w": 44,
+          "h": 44,
+          "x": 340,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt 2 ảnh",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 127.5,
+          "disabled": false
+        },
+        {
+          "name": "Nội dung đăng",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh · 2",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Tiêu đề",
+          "w": 332,
+          "h": 42.296875,
+          "x": 29,
+          "y": 327.5,
+          "disabled": false
+        },
+        {
+          "name": "Mô tả",
+          "w": 332,
+          "h": 62.28125,
+          "x": 29,
+          "y": 407.796875,
+          "disabled": false
+        },
+        {
+          "name": "Viết lại",
+          "w": 133,
+          "h": 44,
+          "x": 29,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Lịch sử",
+          "w": 50,
+          "h": 44,
+          "x": 170,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép gói",
+          "w": 133,
+          "h": 44,
+          "x": 228,
+          "y": 546.078125,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Info no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Mở trên YouTube",
+          "w": 104.78125,
+          "h": 44,
+          "x": 29,
+          "y": 395.46875,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 65.578125,
+          "h": 44,
+          "x": 141.78125,
+          "y": 395.46875,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 528.96875,
+          "disabled": false
+        },
+        {
+          "name": "Mở template",
+          "w": 81.140625,
+          "h": 44,
+          "x": 29,
+          "y": 676.96875,
+          "disabled": false
+        },
+        {
+          "name": "Thêm clip",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 821.96875,
+          "disabled": false
+        },
+        {
+          "name": "Đổi ngẫu nhiên tất cả",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 905.46875,
+          "disabled": false
+        },
+        {
+          "name": "Đổi ngẫu nhiên clip 1",
+          "w": 135.78125,
+          "h": 44,
+          "x": 44,
+          "y": 1030.46875,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ clip 1",
+          "w": 81.40625,
+          "h": 44,
+          "x": 187.78125,
+          "y": 1030.46875,
+          "disabled": false
+        },
+        {
+          "name": "Mở Thư viện video nền",
+          "w": 138.25,
+          "h": 44,
+          "x": 29,
+          "y": 1146.46875,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Info Escape no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Quay lại Bàn dựng",
+          "w": 44,
+          "h": 44,
+          "x": 6,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thông tin video",
+          "w": 44,
+          "h": 44,
+          "x": 294,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thao tác khác",
+          "w": 44,
+          "h": 44,
+          "x": 340,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt 2 ảnh",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 127.5,
+          "disabled": false
+        },
+        {
+          "name": "Nội dung đăng",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh · 2",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Tiêu đề",
+          "w": 332,
+          "h": 42.296875,
+          "x": 29,
+          "y": 327.5,
+          "disabled": false
+        },
+        {
+          "name": "Mô tả",
+          "w": 332,
+          "h": 62.28125,
+          "x": 29,
+          "y": 407.796875,
+          "disabled": false
+        },
+        {
+          "name": "Viết lại",
+          "w": 133,
+          "h": 44,
+          "x": 29,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Lịch sử",
+          "w": 50,
+          "h": 44,
+          "x": 170,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép gói",
+          "w": 133,
+          "h": 44,
+          "x": 228,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 242.90625,
+          "y": 772,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Review initial no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 316.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 169.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 169.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 381.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 381.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 516.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 566.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 566.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 624.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Modern prompt no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Chép chỉ dẫn",
+          "w": 134.609375,
+          "h": 44,
+          "x": 16,
+          "y": 768,
+          "disabled": false
+        },
+        {
+          "name": "Sửa chỉ dẫn rồi vẽ lại",
+          "w": 215.390625,
+          "h": 44,
+          "x": 158.609375,
+          "y": 768,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": true
+        }
+      ]
+    },
+    {
+      "label": "Prompt Escape no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Feedback no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Góp ý",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 496.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sửa chỉ dẫn",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 496.078125,
+          "disabled": false
+        },
+        {
+          "name": "Tông lạnh hơn",
+          "w": 111.3125,
+          "h": 44,
+          "x": 16,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Bớt người",
+          "w": 85.4375,
+          "h": 44,
+          "x": 133.3125,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Góc máy rộng hơn",
+          "w": 138.15625,
+          "h": 44,
+          "x": 224.75,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Thêm sương",
+          "w": 100.75,
+          "h": 44,
+          "x": 368.90625,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Huỷ",
+          "w": 134.609375,
+          "h": 44,
+          "x": 16,
+          "y": 723.5,
+          "disabled": false
+        },
+        {
+          "name": "Gửi cho Hoạ sĩ",
+          "w": 215.390625,
+          "h": 44,
+          "x": 158.609375,
+          "y": 723.5,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": true
+        }
+      ]
+    },
+    {
+      "label": "Feedback Escape no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock after feedback no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock after scroll no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock resized short no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 600
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 372,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 372,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 424,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 512,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 506,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock restored no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Legacy prompt no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Legacy feedback no-preference",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "MVideo reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Quay lại Bàn dựng",
+          "w": 44,
+          "h": 44,
+          "x": 6,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thông tin video",
+          "w": 44,
+          "h": 44,
+          "x": 294,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thao tác khác",
+          "w": 44,
+          "h": 44,
+          "x": 340,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt 2 ảnh",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 127.5,
+          "disabled": false
+        },
+        {
+          "name": "Nội dung đăng",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh · 2",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Tiêu đề",
+          "w": 332,
+          "h": 42.296875,
+          "x": 29,
+          "y": 327.5,
+          "disabled": false
+        },
+        {
+          "name": "Mô tả",
+          "w": 332,
+          "h": 62.28125,
+          "x": 29,
+          "y": 407.796875,
+          "disabled": false
+        },
+        {
+          "name": "Viết lại",
+          "w": 133,
+          "h": 44,
+          "x": 29,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Lịch sử",
+          "w": 50,
+          "h": 44,
+          "x": 170,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép gói",
+          "w": 133,
+          "h": 44,
+          "x": 228,
+          "y": 546.078125,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Info reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Mở trên YouTube",
+          "w": 104.78125,
+          "h": 44,
+          "x": 29,
+          "y": 395.46875,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 65.578125,
+          "h": 44,
+          "x": 141.78125,
+          "y": 395.46875,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 528.96875,
+          "disabled": false
+        },
+        {
+          "name": "Mở template",
+          "w": 81.140625,
+          "h": 44,
+          "x": 29,
+          "y": 676.96875,
+          "disabled": false
+        },
+        {
+          "name": "Thêm clip",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 821.96875,
+          "disabled": false
+        },
+        {
+          "name": "Đổi ngẫu nhiên tất cả",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 905.46875,
+          "disabled": false
+        },
+        {
+          "name": "Đổi ngẫu nhiên clip 1",
+          "w": 135.78125,
+          "h": 44,
+          "x": 44,
+          "y": 1030.46875,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ clip 1",
+          "w": 81.40625,
+          "h": 44,
+          "x": 187.78125,
+          "y": 1030.46875,
+          "disabled": false
+        },
+        {
+          "name": "Mở Thư viện video nền",
+          "w": 138.25,
+          "h": 44,
+          "x": 29,
+          "y": 1146.46875,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Info Escape reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Quay lại Bàn dựng",
+          "w": 44,
+          "h": 44,
+          "x": 6,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thông tin video",
+          "w": 44,
+          "h": 44,
+          "x": 294,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thao tác khác",
+          "w": 44,
+          "h": 44,
+          "x": 340,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt 2 ảnh",
+          "w": 332,
+          "h": 44,
+          "x": 29,
+          "y": 127.5,
+          "disabled": false
+        },
+        {
+          "name": "Nội dung đăng",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh · 2",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 204.5,
+          "disabled": false
+        },
+        {
+          "name": "Tiêu đề",
+          "w": 332,
+          "h": 42.296875,
+          "x": 29,
+          "y": 327.5,
+          "disabled": false
+        },
+        {
+          "name": "Mô tả",
+          "w": 332,
+          "h": 62.28125,
+          "x": 29,
+          "y": 407.796875,
+          "disabled": false
+        },
+        {
+          "name": "Viết lại",
+          "w": 133,
+          "h": 44,
+          "x": 29,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Lịch sử",
+          "w": 50,
+          "h": 44,
+          "x": 170,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sao chép gói",
+          "w": 133,
+          "h": 44,
+          "x": 228,
+          "y": 546.078125,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 242.90625,
+          "y": 772,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    },
+    {
+      "label": "Review initial reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 316.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 169.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 169.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 381.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 381.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 516.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 566.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 566.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 624.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Modern prompt reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Chép chỉ dẫn",
+          "w": 134.609375,
+          "h": 44,
+          "x": 16,
+          "y": 768,
+          "disabled": false
+        },
+        {
+          "name": "Sửa chỉ dẫn rồi vẽ lại",
+          "w": 215.390625,
+          "h": 44,
+          "x": 158.609375,
+          "y": 768,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": true
+        }
+      ]
+    },
+    {
+      "label": "Prompt Escape reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Feedback reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Góp ý",
+          "w": 173.5,
+          "h": 30,
+          "x": 20,
+          "y": 496.078125,
+          "disabled": false
+        },
+        {
+          "name": "Sửa chỉ dẫn",
+          "w": 173.5,
+          "h": 30,
+          "x": 196.5,
+          "y": 496.078125,
+          "disabled": false
+        },
+        {
+          "name": "Tông lạnh hơn",
+          "w": 111.3125,
+          "h": 44,
+          "x": 16,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Bớt người",
+          "w": 85.4375,
+          "h": 44,
+          "x": 133.3125,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Góc máy rộng hơn",
+          "w": 138.15625,
+          "h": 44,
+          "x": 224.75,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Thêm sương",
+          "w": 100.75,
+          "h": 44,
+          "x": 368.90625,
+          "y": 622.5,
+          "disabled": false
+        },
+        {
+          "name": "Huỷ",
+          "w": 134.609375,
+          "h": 44,
+          "x": 16,
+          "y": 723.5,
+          "disabled": false
+        },
+        {
+          "name": "Gửi cho Hoạ sĩ",
+          "w": 215.390625,
+          "h": 44,
+          "x": 158.609375,
+          "y": 723.5,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": true
+        }
+      ]
+    },
+    {
+      "label": "Feedback Escape reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock after feedback reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Đóng thông báo",
+          "w": 28,
+          "h": 28,
+          "x": 254.59375,
+          "y": 704,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock after scroll reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock resized short reduce",
+      "viewport": {
+        "w": 390,
+        "h": 600
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 372,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 372,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 424,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 512,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 512,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 506,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Dock restored reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Legacy prompt reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "Legacy feedback reduce",
+      "viewport": {
+        "w": 390,
+        "h": 844
+      },
+      "documentWidth": 390,
+      "buttons": [
+        {
+          "name": "Việc nền: 0 đang chạy, 9 chờ lượt, 50 thông báo cần bạn",
+          "w": 36,
+          "h": 36,
+          "x": 298,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản và cài đặt",
+          "w": 36,
+          "h": 36,
+          "x": 342,
+          "y": 16,
+          "disabled": false
+        },
+        {
+          "name": "Video sau",
+          "w": 44,
+          "h": 44,
+          "x": 338,
+          "y": 62,
+          "disabled": true
+        },
+        {
+          "name": "So với bản 1",
+          "w": 108.453125,
+          "h": 44,
+          "x": 256.546875,
+          "y": 214.625,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 17,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 106.796875,
+          "h": 199.375,
+          "x": 266.203125,
+          "y": 67.25,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 76,
+          "h": 44,
+          "x": 16,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 76,
+          "h": 44,
+          "x": 98,
+          "y": 279.625,
+          "disabled": false
+        },
+        {
+          "name": "Dùng bản 2",
+          "w": 111.9375,
+          "h": 44,
+          "x": 262.0625,
+          "y": 414.421875,
+          "disabled": true
+        },
+        {
+          "name": "Bản 1",
+          "w": 72,
+          "h": 44,
+          "x": 16,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2",
+          "w": 72,
+          "h": 44,
+          "x": 94,
+          "y": 464.421875,
+          "disabled": false
+        },
+        {
+          "name": "Xem prompt đã gửi",
+          "w": 358,
+          "h": 39.5,
+          "x": 16,
+          "y": 522.421875,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại",
+          "w": 175,
+          "h": 44,
+          "x": 16,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh này",
+          "w": 175,
+          "h": 44,
+          "x": 199,
+          "y": 616,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựng",
+          "w": 358,
+          "h": 48,
+          "x": 16,
+          "y": 668,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 70,
+          "h": 52,
+          "x": 20,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt",
+          "w": 70,
+          "h": 52,
+          "x": 90,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Video mới",
+          "w": 70,
+          "h": 52,
+          "x": 160,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 70,
+          "h": 52,
+          "x": 230,
+          "y": 756,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 70,
+          "h": 52,
+          "x": 300,
+          "y": 756,
+          "disabled": false
+        }
+      ],
+      "dock": [
+        {
+          "x": 14,
+          "y": 750,
+          "w": 362,
+          "h": 64,
+          "opacity": "1",
+          "transform": "none",
+          "pointer": "auto",
+          "covered": false
+        }
+      ]
+    },
+    {
+      "label": "PC legacy",
+      "viewport": {
+        "w": 1440,
+        "h": 900
+      },
+      "documentWidth": 1440,
+      "buttons": [
+        {
+          "name": "Viderse",
+          "w": 26,
+          "h": 26,
+          "x": 17,
+          "y": 14,
+          "disabled": false
+        },
+        {
+          "name": "Bàn dựng",
+          "w": 105.671875,
+          "h": 30,
+          "x": 466.0625,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt2",
+          "w": 108.234375,
+          "h": 30,
+          "x": 573.734375,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Kênh",
+          "w": 77.125,
+          "h": 30,
+          "x": 683.96875,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Khám phá",
+          "w": 110.046875,
+          "h": 30,
+          "x": 763.09375,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Thư viện",
+          "w": 98.796875,
+          "h": 30,
+          "x": 875.140625,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Làm videoN",
+          "w": 129.21875,
+          "h": 32,
+          "x": 1026.3125,
+          "y": 11,
+          "disabled": false
+        },
+        {
+          "name": "Việc nền: 0 đang chạy · 9 chờ lượt",
+          "w": 182.46875,
+          "h": 30,
+          "x": 1163.53125,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "Cài đặt · 2 việc cần xem",
+          "w": 32,
+          "h": 32,
+          "x": 1354,
+          "y": 11,
+          "disabled": false
+        },
+        {
+          "name": "Tài khoản của bạn",
+          "w": 30,
+          "h": 30,
+          "x": 1394,
+          "y": 12,
+          "disabled": false
+        },
+        {
+          "name": "UI_FIXTURE Mobile V40 acceptanceMidnight Tales · UI_FIXTURE",
+          "w": 247,
+          "h": 58.28125,
+          "x": 10,
+          "y": 96.8125,
+          "disabled": false
+        },
+        {
+          "name": "Vẽ lại cả 2 ảnh",
+          "w": 108.484375,
+          "h": 30,
+          "x": 854.96875,
+          "y": 67,
+          "disabled": false
+        },
+        {
+          "name": "Mở Bàn dựng",
+          "w": 88.546875,
+          "h": 21.6875,
+          "x": 973.453125,
+          "y": 71.15625,
+          "disabled": false
+        },
+        {
+          "name": "So với bản 1",
+          "w": 112.453125,
+          "h": 30,
+          "x": 299,
+          "y": 231.171875,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh trước",
+          "w": 40,
+          "h": 40,
+          "x": 297,
+          "y": 384.421875,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh sau",
+          "w": 40,
+          "h": 40,
+          "x": 1011,
+          "y": 384.421875,
+          "disabled": false
+        },
+        {
+          "name": "Ảnh gốc",
+          "w": 94.375,
+          "h": 28,
+          "x": 848.6875,
+          "y": 577.671875,
+          "disabled": false
+        },
+        {
+          "name": "Tách nền",
+          "w": 98.9375,
+          "h": 28,
+          "x": 946.0625,
+          "y": 577.671875,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 1",
+          "w": 104,
+          "h": 58.5,
+          "x": 286,
+          "y": 711.859375,
+          "disabled": false
+        },
+        {
+          "name": "Cảnh 2",
+          "w": 104,
+          "h": 58.5,
+          "x": 398,
+          "y": 711.859375,
+          "disabled": false
+        },
+        {
+          "name": "Sửa prompt",
+          "w": 126.890625,
+          "h": 36,
+          "x": 491.0625,
+          "y": 789.359375,
+          "disabled": true
+        },
+        {
+          "name": "Vẽ lạiR",
+          "w": 113.46875,
+          "h": 36,
+          "x": 625.953125,
+          "y": 789.359375,
+          "disabled": false
+        },
+        {
+          "name": "Bỏ ảnh",
+          "w": 74.1875,
+          "h": 36,
+          "x": 747.421875,
+          "y": 789.359375,
+          "disabled": false
+        },
+        {
+          "name": "Duyệt cả video & dựngA",
+          "w": 223.390625,
+          "h": 36,
+          "x": 829.609375,
+          "y": 789.359375,
+          "disabled": false
+        },
+        {
+          "name": "Bản 1 · lần đầu",
+          "w": 64,
+          "h": 36,
+          "x": 1097,
+          "y": 158.671875,
+          "disabled": false
+        },
+        {
+          "name": "Bản 2 · lần đầu · đang dùng",
+          "w": 64,
+          "h": 36,
+          "x": 1167,
+          "y": 158.671875,
+          "disabled": false
+        },
+        {
+          "name": "Thêm",
+          "w": 76.0625,
+          "h": 30,
+          "x": 1347.9375,
+          "y": 236.671875,
+          "disabled": false
+        },
+        {
+          "name": "Chép",
+          "w": 74.609375,
+          "h": 30,
+          "x": 1275.75,
+          "y": 326.671875,
+          "disabled": false
+        },
+        {
+          "name": "Sửa",
+          "w": 65.640625,
+          "h": 30,
+          "x": 1358.359375,
+          "y": 326.671875,
+          "disabled": true
+        },
+        {
+          "name": "Xem nguyên văn gửi máy chủ",
+          "w": 191.796875,
+          "h": 30,
+          "x": 1097,
+          "y": 557.8125,
+          "disabled": false
+        }
+      ],
+      "dock": []
+    }
+  ],
+  "mutations": [],
+  "externalBlocked": 0,
+  "errors": [],
+  "screenshots": [
+    "final-01-native-workbench-390.png",
+    "final-02-mvideo-content-no-preference.png",
+    "final-03-mvideo-info-no-preference.png",
+    "final-04-mvideo-info-closed-no-preference.png",
+    "final-05-review-modern-no-preference.png",
+    "final-06-review-modern-prompt-no-preference.png",
+    "final-07-review-compare-no-preference.png",
+    "final-08-review-feedback-no-preference.png",
+    "final-09-review-scrolled-no-preference.png",
+    "final-10-review-dock-restored-no-preference.png",
+    "final-11-review-legacy-prompt-no-preference.png",
+    "final-12-review-legacy-feedback-no-preference.png",
+    "final-13-mvideo-content-reduce.png",
+    "final-14-mvideo-info-reduce.png",
+    "final-15-mvideo-info-closed-reduce.png",
+    "final-16-review-modern-reduce.png",
+    "final-17-review-modern-prompt-reduce.png",
+    "final-18-review-compare-reduce.png",
+    "final-19-review-feedback-reduce.png",
+    "final-20-review-scrolled-reduce.png",
+    "final-21-review-dock-restored-reduce.png",
+    "final-22-review-legacy-prompt-reduce.png",
+    "final-23-review-legacy-feedback-reduce.png",
+    "final-24-pc-legacy-prompt.png"
+  ],
+  "native": {
+    "status": 200,
+    "jobCount": 6,
+    "reviewCount": 2
+  },
+  "actionCount": 51,
+  "status": "DONE_WITH_CONCERNS",
+  "functionalCheckSummary": {
+    "passed": 81,
+    "total": 81
+  },
+  "concerns": [
+    {
+      "name": "MVideo segmented tabs below 44px",
+      "observedHeight": 30,
+      "parentReportsSourceFixed": true,
+      "nativeRebuildRecheck": "PENDING"
+    },
+    {
+      "name": "Review feedback segmented tabs below 44px",
+      "observedHeight": 30,
+      "parentReportsSourceFixed": true,
+      "nativeRebuildRecheck": "PENDING"
+    },
+    {
+      "name": "Review submitted-prompt opener below 44px",
+      "observedHeight": 39.5,
+      "parentReportsSourceFixed": true,
+      "nativeRebuildRecheck": "PENDING"
+    }
+  ]
+}

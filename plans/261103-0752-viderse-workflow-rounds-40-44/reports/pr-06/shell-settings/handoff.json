@@ -1,0 +1,66 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "summary": "Completed bounded round44 provider overlay, confirmation and touch-control mismatches; preserved accepted shell/runtime and current dark-only navigation. Mobile tool recheck remains an evidenced design-location decision, not claimed complete.",
+  "changedFiles": {
+    "apps/viderse/web/src/screens/settings/connect/ProviderCard.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/screens/settings/connect/ProviderCard.tsx",
+    "apps/viderse/web/src/screens/settings/connect/ConnectSection.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/screens/settings/connect/ConnectSection.tsx",
+    "apps/viderse/web/src/screens/settings/connect/ConnectSection.test.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/screens/settings/connect/ConnectSection.test.tsx",
+    "apps/viderse/web/src/screens/settings/settings.stylex.ts": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/screens/settings/settings.stylex.ts",
+    "apps/viderse/web/src/screens/settings/tools/ToolsSection.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/screens/settings/tools/ToolsSection.tsx",
+    "apps/viderse/web/src/components/confirm.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/components/confirm.tsx",
+    "apps/viderse/web/src/components/confirm.test.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/components/confirm.test.tsx",
+    "apps/viderse/web/src/i18n/vi.ts": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/shell-settings/src/i18n/vi.ts"
+  },
+  "changes": [
+    {
+      "source": "01-ia-flows.md:285,295; 08-dev-prompt.md:1125; Workflow.dc.html:977 conventions4-6",
+      "implementation": "Mobile provider key/address editing now uses the existing kit Sheet instead of an inline editor. Desktop retains its inline form and both invoke the same updateProvider action. Key field is46px with16px text and44px reveal control; address uses the kit mobile field. Submission has an in-flight guard and pending state."
+    },
+    {
+      "source": "Workflow.dc.html:977 convention5; 08-dev-prompt.md:1125",
+      "implementation": "Provider removal waits for edit Sheet.onExited before opening confirm. Choosing an already-connected provider from the add sheet likewise waits for add Sheet.onExited before opening the key sheet. No simultaneous edit/add/confirm layers are introduced."
+    },
+    {
+      "source": "01-ia-flows.md:295; 08-dev-prompt.md:1133; phase07 step5",
+      "implementation": "Removed the hardcoded OpenRouter fallback from the shared provider logout API/caller. Shared Vietnamese confirmation describes machine-wide credentials, new calls, potentially finishing submitted images, conditional existing fallback and preserved output. Success only confirms logout; it no longer falsely declares the artist switched providers. Existing logoutProvider endpoint is unchanged."
+    },
+    {
+      "source": "08-dev-prompt.md:1125; phase07 step6 Vietnamese errors",
+      "implementation": "Mobile unsaved-model Save/Cancel actions now use44px lg controls. Provider login/edit/logout and connection-test failures plus the tools-load failure render Vietnamese product errors instead of raw exception/test error text."
+    },
+    {
+      "source": "Behavioral regression coverage for changed overlays/actions",
+      "implementation": "Migrated shared logout tests to the no-fallback contract and covered cancellation and single invocation. Updated local-address mobile regression to find the portal editor and verify cancel makes no writes. Added mobile key save and edit-to-remove-confirm cancellation coverage. Tests were authored only, not executed."
+    }
+  ],
+  "preservedEvidence": [
+    "Current artboard inventory has Settings.dc.html and MSettings.dc.html but no MMore, Theme or MTop board. 01-ia-flows.md:275-279 specifies the existing5-item dock and avatar-to-settings entry. MSettings.dc.html:90-92 explicitly says dark-only. Parent approved following these current authoritative sources rather than stale More/theme plan inventory.",
+    "MobileShell.tsx:98,106 uses MobileRuntimeProvider;142 uses max(100dvh,var(--m-viewport-bottom,0px));158 anchors the dock within the shell. platform/ui/src/mobile/safeArea.ts:138-143 explicitly documents that same viewport policy, with event cleanup in the same owner. src/styles/viderse.css:527 onward already globally disables animations/transitions for reduced motion. These accepted shell policies were not rewritten.",
+    "No YouTube data-key card is imported or rendered by the inspected ConnectSection desktop/mobile branches.",
+    "Provider lifecycle source is read-only: internal/aiconn/login.go:253-278 cancels login and deletes credentials, not active drawing requests; internal/imagegen/service.go:159-174 and193-223 settle idempotent receipts;452-477 preserves successful output;503-556 uses fallback only after provider failure and when eligible. This supports conditional copy, not an immediate-switch or named-provider promise. No backend change or provider call was made."
+  ],
+  "remainingConcreteIssue": {
+    "owner": "Parent/product decision for11-hoi-dap; implementation after location is approved",
+    "issue": "Mobile tools recheck is not complete and was intentionally not placed in an invented location.",
+    "evidence": [
+      "Workflow.dc.html:981 explicitly identifies Settings Kiểm tra lại as a control to connect;982 round44 requires mobile workflow parity.",
+      "01-ia-flows.md:285 requires the same functions/options/labels/defaults as desktop.",
+      "MSettings.dc.html:939-942 tools-screen header contains only Back and title;967-986 tools content contains explanatory text, per-tool update/install actions, and the data-only details disclosure; there is no recheck action.",
+      "MSettings.dc.html:982-985 details disclosure contains only binary versions and data directory, not an action or menu. The settings-list summary at945-948 is also display-only.",
+      "SettingsScreen.tsx:299-308 routes the mobile tools row into that subpage;315-320 header has only Back and title. ToolsSection.tsx:239-250 implements the actual POST checkTools/cache readback in desktop Summary; settings.stylex.ts:160 hides Summary on mobile. ToolsSection.tsx:254-284 Advanced exposes only dataDir/version pairs. Neither existing mobile entry nor details provides a designed shared action location.",
+      "phase-07-v40-mobile-parity.md:30-31 explicitly forbids inventing a control location and requires a question before cutover if the location is absent."
+    ],
+    "proposedQuestionFor11HoiDap": "Điện thoại cần giữ chức năng Kiểm tra lại công cụ như máy tính (POST /api/tools/check, chỉ kiểm tra rồi đọc lại, không cài). MSettings hiện không có vị trí cho nút này: đầu màn chỉ có Quay lại và tiêu đề; thẻ Chi tiết chỉ có phiên bản/thư mục. Có chốt đặt một nút Kiểm tra lại44px ngay dưới câu dẫn của màn Công cụ trên máy (screen=tools), trước danh sách công cụ, dùng cùng action/cache với desktop không? Nếu không, xin chỉ rõ vị trí trên MSettings.",
+    "notClaimed": "Native mobile POST/readback/no-install gate remains pending until design decision and parent verification."
+  },
+  "verification": {
+    "executed": [],
+    "notExecuted": "No builds, tests, lint, formatters, server launches, browser runs, provider calls or production state mutations; parent owns verification.",
+    "parentChecks": [
+      "Run focused settings/connect and components/confirm behavioral tests and web typecheck/build after integration.",
+      "Native UI: mobile key/address editor scrim/Escape/cancel/save, add-existing-provider handoff, remove-confirm handoff, one visible overlay,44px controls, keyboard open/dismiss and safe-area behavior on real Safari; desktop inline editor unchanged.",
+      "Native provider logout idle/drawing/fallback-unavailable cases only with existing isolation receipts; confirm actual endpoint effect and no duplicate drawing/billing.",
+      "After approved mobile recheck location: prove POST /api/tools/check, updated readback/cache and zero install calls."
+    ]
+  }
+}

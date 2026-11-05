@@ -1,0 +1,37 @@
+{
+  "sourceCommit": "4da829e8c7eb7d4a2784a0c408b0d0f1a936adec",
+  "nativeBinarySHA256": "4a3db6e438dcf87d45cdb9e0c3ce9e4730e87a09ac86a4627aa387c8997dbd8e",
+  "files": {
+    "apps/viderse/web/src/api/rivals.ts": "16cf87bf48f6c60d3cdc2bd822027bed46ad86c6e8d1228567e919614f3ed131",
+    "apps/viderse/web/src/components/autonomy/ScoreParts.tsx": "7284093e1ed5e681e78f2e981652003f742b0398888ee2163276b1d657569d1f",
+    "apps/viderse/web/src/components/autonomy/score.stylex.ts": "74acb0252fd1dbbbb2e3540eb2cd366cebeb40018d9d1de146d788cc12c1b6f8",
+    "apps/viderse/web/src/components/confirm.test.tsx": "8ca0d52a2d70a3c9f7736bd492e10881c8fbe06266648a6d7150ffb920212061",
+    "apps/viderse/web/src/components/confirm.tsx": "65f5b6cbe08f3d84e6489a52341a214c21728798fbc74a137fe3b021676fb50f",
+    "apps/viderse/web/src/i18n/autonomy.ts": "630a4ab3ac8c5424dd72f977a90762fbe4b32e8c9707c2750963557efef2d502",
+    "apps/viderse/web/src/i18n/screens.ts": "20279194b87794e9550521e23fc136ea2c4820db72d5ee488d08808890b98d78",
+    "apps/viderse/web/src/i18n/vi.ts": "dde3b53f34d0373dd38806b574af6a305b00a6cbc3ba699559f71e49beff5c3c",
+    "apps/viderse/web/src/screens/dev/DevKitScreen.tsx": "7be805c453495c1dbc03b7b503c8d1dbeff1c64dbfc88be8de98ededb6564102",
+    "apps/viderse/web/src/screens/review/ImageRail.tsx": "8a46496d92f54f49bdc1bb401f167c7801b94f1ae9a2b75c53a1e05da9a8221e",
+    "apps/viderse/web/src/screens/review/ReviewScreen.tsx": "913df9ac688d4c7a90f7c2be56842a2bd2e74452ae47bd33f3891560fd88e8c7",
+    "apps/viderse/web/src/screens/review/imageView.ts": "fdc75529e456733dce11f3f154cac6045497a965d9a12adf46474c5f9fd37e29",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.test.tsx": "192381ebf34463bd3d0dac150c13b0291c0799c5e93695b05ffed19291f0d025",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.tsx": "67f97bb1617b100f952adcb448126c6d8187d694eea7ca7350ff76f280a45e4d",
+    "apps/viderse/web/src/screens/review/mobile/mreview.stylex.ts": "9fdd2c29979c6ae8495db7a16618dc50274306578c87c967f80cc566d58d1792",
+    "apps/viderse/web/src/screens/settings/connect/ConnectSection.test.tsx": "fb73c2dadaa57ec76bbc2ec07e7dbc409a5ffecea2d76ffd936f9ed2a4316a8f",
+    "apps/viderse/web/src/screens/settings/connect/ConnectSection.tsx": "397546c236e42dd8327c385cf289f08ae987f75571b54e5fde6b80d2439fbcd1",
+    "apps/viderse/web/src/screens/settings/connect/ProviderCard.tsx": "034c7c380306b338623e92a01e0a358ebb84ca4ab0bc96e7c3cdc1953c5c796f",
+    "apps/viderse/web/src/screens/settings/settings.stylex.ts": "b79e71ea386cafe592c73c22520fbd1f58b6790a0da3e58c01bc54cc4ab60bfd",
+    "apps/viderse/web/src/screens/settings/tools/ToolsSection.tsx": "ce9eaabfd39b665c16150ee197ea29b14d63148ddbb8d92bf77aa96a73c6a117",
+    "apps/viderse/web/src/screens/workbench/jobActions.tsx": "3faa8ee6168fdca13524fec03999d5c4b5ead717a2717c275f1aede9b88b5c78",
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchDetail.test.tsx": "95a32007477573eec170002ca4561d8d24953b39d4850cabbac350bfffa98a4b",
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchDetail.tsx": "d83501e1b5dee59d2ad865e8f70257e1b214176dc275d4fd60d42b467a802d1d",
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchList.tsx": "2ab3d30ad7f2d458e9d701ca52d75da3b82df3b72da4bc5a971734ce5aa43ef5",
+    "apps/viderse/web/src/screens/workbench/mobile/mworkbench.stylex.ts": "8e53aada776d481747dc03ac6cb9dceb597efdb0b77aa452c2d92871fc3ede48"
+  },
+  "removed": [
+    "apps/viderse/web/src/components/reason/ReasonPopover.tsx"
+  ],
+  "ledger": "3|27|2",
+  "authSourceSHAUnchanged": true,
+  "userModelSHAUnchanged": true
+}

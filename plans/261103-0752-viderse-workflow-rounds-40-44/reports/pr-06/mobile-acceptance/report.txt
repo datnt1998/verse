@@ -1,0 +1,48 @@
+Status: DONE_WITH_CONCERNS
+
+Summary
+Executed scoped native V40 acceptance only after V40_NATIVE_READY on http://127.0.0.1:8043. Real Google Chrome headless, 390x844 mobile/touch emulation and 1440x900 desktop counterpart; 390x600 resize probe. Normal and reduced motion. This is not physical Safari testing.
+
+Final functional run: 51 completed UI actions, 81 recorded functional/layout/clipboard checks passed, 24 final-* screenshots, zero page/controller errors. All owned browser contexts/browser closed in finally. Controller: controller.cjs. Detailed evidence and all control rectangles: evidence.json.
+
+The native GET list returned HTTP 200, six jobs, two in review. For deterministic modern/legacy/history/backdrop/content states, the controller fulfilled clone list/detail/images/metadata/backdrop responses locally with explicit UI_FIXTURE records. The native application and assets were real; data coverage is response-fixture-qualified, not persistence/provider proof. Image pixels are a local 1x1 response fixture: no image-quality conclusion. No source files changed. All non-GET/HEAD routes were intercepted before any UI action and never continued; the completed functional run attempted zero non-GET requests. External/media requests were blocked by policy. No generation, quota, provider, database or artboard writes. Round 45 excluded.
+
+Observed behavior
+- MVideo has exactly two tabs: Nội dung đăng and Ảnh · 2. Content is the default. Switching to images displays the live drawing gallery panel.
+- One Info sheet contains the four assistants and Source, Template, Backdrop sections. Template is text plus a navigation link rather than inline editing; href is #/templates/<id>. This proves the job sheet is read-only for template data, not that the separate template editor is read-only. The separate template destination was not opened.
+- Actual browser clipboard readback exactly matched publishing title/description/tags, source transcript, and submitted prompt. No clipboard API stub. Source copy feedback visibly showed Đã sao chép; publishing copy toast is visible in final-03 screenshot.
+- Submitted modern prompt shows exactly Scene, Style, Reference, Avoid sections. Learned sentinel and Why/Vì sao commentary are absent.
+- Legacy prompt displays the complete raw string, preserving newlines and double spaces; no invented Scene/source heading. Mobile prompt Edit and Scene-edit feedback tab are disabled. Desktop legacy raw text is visible; rail Edit and bottom Sửa prompt are disabled; E does not open a textarea.
+- Version 1 selection and previous-version comparison changed selected/pressed state. Returning to version 2 restored selection.
+- Feedback chip on/off preserves the manual sentence "Giữ nguyên câu riêng, Tông lạnh hơn là một phần câu riêng" byte-for-byte; matching words inside a longer manually typed segment are not deleted. Feedback sending/generation was intentionally not submitted.
+- Info, prompt, feedback, legacy prompt and legacy feedback Escape close removed the dialog in normal and reduced motion. Settled exit probes left no stale hit-test cover over the dock. Direct prompt-to-edit transition sampling is in the prepared focused script, not claimed exercised here.
+- Document width stayed 390 at every mobile probe and 1440 on desktop; no document horizontal overflow. Feedback chips use an intentional horizontally scrolling rail.
+- Bottom dock after feedback open/close, scroll, shrink and restore: x14/y750/w362/h64 at 390x844, x14/y506/w362/h64 at 390x600, restored y750. Opacity 1, transform none, pointer auto, center hit test uncovered after exit. Same normal and reduced. MVideo detail intentionally has no bottom dock.
+
+Geometry / concerns
+Reported immediately to Main; Main confirmed source-only fixes pending rebuilt native evidence:
+1. MVideo segmented tabs were 173.5x30px (requested minimum 44px).
+2. Review feedback segmented tabs were 173.5x30px.
+3. Review prompt opener was 358x39.5px.
+Do NOT call these old-binary observations a final geometry pass. All nine Info-sheet link/action targets measured height 44px; the three MVideo header controls were 44x44; publishing actions, review compare, version tiles, image tiles, and feedback chips were at least 44px high. Existing metadata title field measured 42.3px, and existing shell avatar/jobs controls 36px; these are recorded but not treated as the newly introduced action regression.
+
+Parent reports additional pending copy-only missing-template fallback change (technical id -> Chưa xác định mẫu); the main functional fixture had a template name, so that missing-name copy change is not validated here.
+
+Focused rebuild handoff
+Prepared but NOT executed: focused-recheck.cjs. Run only after parent's rebuilt native V40 readiness:
+  node <this directory>/focused-recheck.cjs
+It reuses guarded response-only fixtures and probes ONLY the three changed control groups, missing-template label, font readiness/current family, scoped slider/range counts <=2, no overflow, normal/reduced Escape exits and direct prompt-to-edit competing-overlay sampling. It writes focused-recheck-evidence.json and four focused screenshots, then closes all browser/context resources in finally. Slider count is scoped to these mobile detail/review views; it is not a separate template slider test. No rebuild/server/check suite is started by this controller.
+
+Evidence highlights
+- final-02 / final-13: default MVideo content.
+- final-03 / final-14: one Info sheet with Source/Template/Backdrop.
+- final-06 / final-17: four modern submitted sections.
+- final-08 / final-19: feedback manual text/chips.
+- final-11 / final-22: legacy whole prompt.
+- final-10 / final-21: dock restored after resize.
+- final-24: desktop legacy raw prompt with disabled edit actions.
+
+Harness qualification
+The first attempt had incorrect chip selectors, incomplete workbench manifest fixture and same-route SPA cache reuse. Its timeouts/false desktop flags were harness issues, not product bugs. It is retained as initial-evidence.json and non-final screenshot names. The corrected final functional run uses complete manifest shape and full reload per fixture mode and had no errors. Overall status remains DONE_WITH_CONCERNS because of the three real geometry failures awaiting native rebuild recheck.
+
+Known product decisions #91 tool-check location and #92 nonapproving unskip remain unchanged; no fake fix or broader audit.

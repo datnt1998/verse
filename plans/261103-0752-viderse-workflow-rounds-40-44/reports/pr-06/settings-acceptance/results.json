@@ -1,0 +1,1142 @@
+{
+  "qualification": "Native Chrome UI at /#/settings?section=connect; AI GET responses and all exercised mutation responses are explicit UI_FIXTURE, never provider/native persistence proof.",
+  "cases": [
+    {
+      "name": "desktop-normal correct native connections URL",
+      "ok": true,
+      "detail": "http://127.0.0.1:8043/#/settings?section=connect"
+    },
+    {
+      "name": "desktop-normal one editor",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop-normal desktop inline versus phone Sheet",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal key editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 0,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-normal key editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-normal cancel closes editor",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal cancel discards key draft",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal saved address shown by fixture",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal address editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 0,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-normal address editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-normal address cancel closes",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal no DELETE before confirmation",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal danger confirm visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-normal danger confirm no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-normal cancel remove issues no DELETE",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal raw DELETE 500 text never visible",
+      "ok": true,
+      "detail": "Có lỗi xảy ra. Thử lại."
+    },
+    {
+      "name": "desktop-normal DELETE failure preserves card",
+      "ok": true
+    },
+    {
+      "name": "desktop-normal DELETE 500 visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-normal DELETE 500 no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-normal logout truthful consequence with conditional fallback",
+      "ok": true,
+      "detail": "Đăng xuất gói ChatGPT?\n\nTài khoản này dùng chung cho cả máy. Trợ lý sẽ không dùng nhà cung cấp này cho lượt gọi mới cho tới khi bạn đăng nhập lại. Ảnh đã gửi có thể vẫn hoàn tất; nếu lượt vẽ báo lỗi, Viderse dùng nguồn dự phòng đã bật và còn dùng được, nếu không thì chờ bạn xử lý. Video đang làm và ảnh đã có được giữ nguyên.\n\nHuỷ\nĐăng xuất ChatGPT"
+    },
+    {
+      "name": "desktop-normal logout visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-normal logout no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-normal logout not performed",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced correct native connections URL",
+      "ok": true,
+      "detail": "http://127.0.0.1:8043/#/settings?section=connect"
+    },
+    {
+      "name": "desktop-reduced one editor",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "desktop-reduced desktop inline versus phone Sheet",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced key editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 0,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-reduced key editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-reduced cancel closes editor",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced cancel discards key draft",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced saved address shown by fixture",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced address editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 0,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-reduced address editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-reduced address cancel closes",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced no DELETE before confirmation",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced danger confirm visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-reduced danger confirm no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-reduced cancel remove issues no DELETE",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced raw DELETE 500 text never visible",
+      "ok": true,
+      "detail": "Có lỗi xảy ra. Thử lại."
+    },
+    {
+      "name": "desktop-reduced DELETE failure preserves card",
+      "ok": true
+    },
+    {
+      "name": "desktop-reduced DELETE 500 visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-reduced DELETE 500 no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-reduced logout truthful consequence with conditional fallback",
+      "ok": true,
+      "detail": "Đăng xuất gói ChatGPT?\n\nTài khoản này dùng chung cho cả máy. Trợ lý sẽ không dùng nhà cung cấp này cho lượt gọi mới cho tới khi bạn đăng nhập lại. Ảnh đã gửi có thể vẫn hoàn tất; nếu lượt vẽ báo lỗi, Viderse dùng nguồn dự phòng đã bật và còn dùng được, nếu không thì chờ bạn xử lý. Video đang làm và ảnh đã có được giữ nguyên.\n\nHuỷ\nĐăng xuất ChatGPT"
+    },
+    {
+      "name": "desktop-reduced logout visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "desktop-reduced logout no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 1440,
+        "scroll": 1440,
+        "body": 1440
+      }
+    },
+    {
+      "name": "desktop-reduced logout not performed",
+      "ok": true
+    },
+    {
+      "name": "phone-normal correct native connections URL",
+      "ok": true,
+      "detail": "http://127.0.0.1:8043/#/settings?section=connect"
+    },
+    {
+      "name": "phone-normal one editor",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "phone-normal desktop inline versus phone Sheet",
+      "ok": true
+    },
+    {
+      "name": "phone-normal 44px editor touch targets",
+      "ok": true,
+      "detail": [
+        {
+          "name": "Hiện mật khẩu",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "name": "Lưu",
+          "width": 358,
+          "height": 44
+        },
+        {
+          "name": "Huỷ",
+          "width": 358,
+          "height": 44
+        },
+        {
+          "name": "Gỡ",
+          "width": 358,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "phone-normal key editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal key editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal cancel closes editor",
+      "ok": true
+    },
+    {
+      "name": "phone-normal cancel discards key draft",
+      "ok": true
+    },
+    {
+      "name": "phone-normal sheet has one accessible close button",
+      "ok": false,
+      "detail": 0
+    },
+    {
+      "name": "phone-normal close button exits",
+      "ok": true
+    },
+    {
+      "name": "phone-normal Escape exits",
+      "ok": true
+    },
+    {
+      "name": "phone-normal scrim exits",
+      "ok": true
+    },
+    {
+      "name": "phone-normal saved address shown by fixture",
+      "ok": true
+    },
+    {
+      "name": "phone-normal address editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal address editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal address cancel closes",
+      "ok": true
+    },
+    {
+      "name": "phone-normal earlier deferred save preserves reopened draft",
+      "ok": true
+    },
+    {
+      "name": "phone-normal deferred save visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal deferred save no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal remove unmounts edit before danger confirm",
+      "ok": true
+    },
+    {
+      "name": "phone-normal no DELETE before confirmation",
+      "ok": true
+    },
+    {
+      "name": "phone-normal danger confirm visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal danger confirm no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal cancel remove issues no DELETE",
+      "ok": true
+    },
+    {
+      "name": "phone-normal raw DELETE 500 text never visible",
+      "ok": true,
+      "detail": "Có lỗi xảy ra. Thử lại."
+    },
+    {
+      "name": "phone-normal DELETE failure preserves card",
+      "ok": true
+    },
+    {
+      "name": "phone-normal DELETE 500 visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal DELETE 500 no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal logout truthful consequence with conditional fallback",
+      "ok": true,
+      "detail": "Đăng xuất gói ChatGPT?\n\nTài khoản này dùng chung cho cả máy. Trợ lý sẽ không dùng nhà cung cấp này cho lượt gọi mới cho tới khi bạn đăng nhập lại. Ảnh đã gửi có thể vẫn hoàn tất; nếu lượt vẽ báo lỗi, Viderse dùng nguồn dự phòng đã bật và còn dùng được, nếu không thì chờ bạn xử lý. Video đang làm và ảnh đã có được giữ nguyên.\n\nHuỷ\nĐăng xuất ChatGPT"
+    },
+    {
+      "name": "phone-normal logout visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-normal logout no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-normal logout not performed",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced correct native connections URL",
+      "ok": true,
+      "detail": "http://127.0.0.1:8043/#/settings?section=connect"
+    },
+    {
+      "name": "phone-reduced one editor",
+      "ok": true,
+      "detail": 1
+    },
+    {
+      "name": "phone-reduced desktop inline versus phone Sheet",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced 44px editor touch targets",
+      "ok": true,
+      "detail": [
+        {
+          "name": "Hiện mật khẩu",
+          "width": 44,
+          "height": 44
+        },
+        {
+          "name": "Lưu",
+          "width": 358,
+          "height": 44
+        },
+        {
+          "name": "Huỷ",
+          "width": 358,
+          "height": 44
+        },
+        {
+          "name": "Gỡ",
+          "width": 358,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "phone-reduced key editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced key editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced cancel closes editor",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced cancel discards key draft",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced sheet has one accessible close button",
+      "ok": false,
+      "detail": 0
+    },
+    {
+      "name": "phone-reduced close button exits",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced Escape exits",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced scrim exits",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced saved address shown by fixture",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced address editor visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced address editor no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced address cancel closes",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced earlier deferred save preserves reopened draft",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced deferred save visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced deferred save no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced remove unmounts edit before danger confirm",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced no DELETE before confirmation",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced danger confirm visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced danger confirm no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced cancel remove issues no DELETE",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced raw DELETE 500 text never visible",
+      "ok": true,
+      "detail": "Có lỗi xảy ra. Thử lại."
+    },
+    {
+      "name": "phone-reduced DELETE failure preserves card",
+      "ok": true
+    },
+    {
+      "name": "phone-reduced DELETE 500 visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced DELETE 500 no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced logout truthful consequence with conditional fallback",
+      "ok": true,
+      "detail": "Đăng xuất gói ChatGPT?\n\nTài khoản này dùng chung cho cả máy. Trợ lý sẽ không dùng nhà cung cấp này cho lượt gọi mới cho tới khi bạn đăng nhập lại. Ảnh đã gửi có thể vẫn hoàn tất; nếu lượt vẽ báo lỗi, Viderse dùng nguồn dự phòng đã bật và còn dùng được, nếu không thì chờ bạn xử lý. Video đang làm và ảnh đã có được giữ nguyên.\n\nHuỷ\nĐăng xuất ChatGPT"
+    },
+    {
+      "name": "phone-reduced logout visible modal count",
+      "ok": true,
+      "detail": {
+        "count": 1,
+        "max": 1
+      }
+    },
+    {
+      "name": "phone-reduced logout no horizontal overflow",
+      "ok": true,
+      "detail": {
+        "width": 390,
+        "scroll": 390,
+        "body": 390
+      }
+    },
+    {
+      "name": "phone-reduced logout not performed",
+      "ok": true
+    }
+  ],
+  "failures": [
+    {
+      "name": "phone-normal sheet has one accessible close button",
+      "detail": 0
+    },
+    {
+      "name": "phone-reduced sheet has one accessible close button",
+      "detail": 0
+    }
+  ],
+  "safety": {
+    "continuedMutations": 0,
+    "fixtureMutations": [
+      {
+        "method": "DELETE",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      },
+      {
+        "method": "DELETE",
+        "path": "/api/ai/providers/ui-fixture-or",
+        "fixture": "UI_FIXTURE"
+      }
+    ],
+    "blocked": [
+      {
+        "method": "GET",
+        "path": "/assets/workbench-C8dvxkhe.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/folder-CHIoXNO-.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/video-add-fpEAdCmk.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/setting-8SswWu69.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/cpu-Bokn8h1p.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/key-CgUnPpHe.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/magic-B84lK2wZ.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/global-TA_-oTcI.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/notification-CkepdTpR.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/folder-CHIoXNO-.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/flag-BggdRYsj.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/routing-rr8szoCo.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/refresh-8urF4N3U.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/danger-B0Wn1yVs.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/workbench-C8dvxkhe.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/folder-CHIoXNO-.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/video-add-fpEAdCmk.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/setting-8SswWu69.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/cpu-Bokn8h1p.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/key-CgUnPpHe.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/magic-B84lK2wZ.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/global-TA_-oTcI.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/notification-CkepdTpR.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/folder-CHIoXNO-.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/flag-BggdRYsj.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/routing-rr8szoCo.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/refresh-8urF4N3U.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/danger-B0Wn1yVs.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/refresh-8urF4N3U.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/danger-B0Wn1yVs.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/refresh-8urF4N3U.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/eye-slash-CKVrFYVP.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/warning-2-C_tHPlew.svg",
+        "type": "image"
+      },
+      {
+        "method": "GET",
+        "path": "/assets/danger-B0Wn1yVs.svg",
+        "type": "image"
+      }
+    ],
+    "nativeGets": [
+      "/api/me",
+      "/api/events",
+      "/api/activity",
+      "/api/notifications/settings",
+      "/api/queue",
+      "/api/status",
+      "/api/owner-channels",
+      "/api/channels/summary",
+      "/api/setup/state",
+      "/api/storage/server",
+      "/api/tools",
+      "/api/storage",
+      "/api/errors",
+      "/api/version",
+      "/api/platforms",
+      "/api/me",
+      "/api/events",
+      "/api/activity",
+      "/api/notifications/settings",
+      "/api/queue",
+      "/api/status",
+      "/api/owner-channels",
+      "/api/channels/summary",
+      "/api/setup/state",
+      "/api/storage/server",
+      "/api/tools",
+      "/api/storage",
+      "/api/errors",
+      "/api/version",
+      "/api/platforms",
+      "/api/me",
+      "/api/events",
+      "/api/queue",
+      "/api/activity",
+      "/api/notifications/settings",
+      "/api/status",
+      "/api/owner-channels",
+      "/api/channels/summary",
+      "/api/tools",
+      "/api/storage/server",
+      "/api/errors",
+      "/api/version",
+      "/api/platforms",
+      "/api/storage",
+      "/api/me",
+      "/api/events",
+      "/api/queue",
+      "/api/activity",
+      "/api/notifications/settings",
+      "/api/status",
+      "/api/owner-channels",
+      "/api/channels/summary",
+      "/api/tools",
+      "/api/storage/server",
+      "/api/errors",
+      "/api/version",
+      "/api/platforms",
+      "/api/storage"
+    ]
+  }
+}
