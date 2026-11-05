@@ -107,6 +107,14 @@ toàn bộ UI đang giữ gate. Public HTML có thể được Cloudflare chèn 
 đối chiếu asset URL và byte của chunk với build, không coi hash HTML công khai
 khác nhau là bằng chứng đang phục vụ bundle cũ.
 
+Hotfix revision Editor phải phát hành backend và frontend cùng nhau. GET project,
+sidecar và workspace effect presets cung cấp `X-Editor-Revision`; client gửi lại
+revision đã tải bằng `If-Match` có dấu nháy kép. Không dùng `ETag` sau proxy làm
+token CAS, không nhận revision mới để bỏ qua xung đột. Khi chẩn đoán, đối chiếu
+hai header này với mã `revision_conflict`, không suy diễn người ghi/thời điểm từ
+dialog. Tab cũ có thay đổi chưa lưu phải giữ lại; mở tab mới để kiểm bản cập nhật,
+không yêu cầu tải lại làm mất công việc.
+
 Không xem SHA của file đang cài là bằng chứng process đang dùng file đó. Với
 launchd tự khởi động lại, SIGTERM trước khi thay file có thể mở lại inode cũ.
 Thứ tự hotfix không đổi schema: **cài → `launchctl kickstart -k` → kiểm inode

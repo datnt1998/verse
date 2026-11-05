@@ -51,3 +51,12 @@ Trạng thái UI: đã kiểm tới `24bf453d`; backend forward-port `776195e6` 
 - [Receipt và giới hạn](playback-hotfix/receipt.json), [PC](playback-hotfix/desktop-real-mp4.webp), [điện thoại](playback-hotfix/mobile-real-mp4.webp): built UI + read-response fixture + đúng MP4 production phát và seek1800s thật; metadata3380,7s, mobile direct-open URL đúng, không tràn ngang. Banner mất kết nối là SSE fixture kết thúc; không nhận đây là authenticated prod hoặc Safari physical proof.
 - Rollout PID47165/inode2830537/SHA khớp; public ready200, chunk PC/mobile công khai byte-identical với build đã smoke. Public HTML có Cloudflare chèn script động, không dùng raw HTML hash làm version. Không có chrome-profile/live relay để vào phiên người dùng; HEAD không đăng nhập401 đúng chính sách. Không mint session hoặc mở auth để vượt kiểm.
 - Chỉ hotfix phát Thành phẩm được deploy; toàn bộ UI/workflow V40 và gate Safari#93 vẫn giữ.
+
+## Hotfix Editor và sidebar Cài đặt · 2026-11-06
+
+- Production `9d1e4b6f`: backend và frontend dùng `X-Editor-Revision`, `If-Match` có dấu nháy kép, chỉ `revision_conflict` mở dialog. Không bỏ CAS; bỏ lời gán “Kiểm định” và giờ ghi giả.
+- Native HTTP + PostgreSQL thật: transport cũ gặp ETag yếu → lưu409; transport mới cùng revision → lưu được. UI mở project schema15 và normalization PUT200; xung đột thật vẫn409, giữ snapshot; “Tiếp tục ở đây” tắt tự lưu. Chưa quan sát request có xác thực của ảnh lỗi production nên chưa kết luận nguyên nhân chính xác của ảnh đó.
+- Sidebar desktop:9 hàng chung cột icon20px/nhãn47px, không wrap/overflow;7 nút đổi đúng route, link Hàng chờ hoạt động. Mobile390×844 không tràn; link Thành viên giữ đích/role. Không phải nghiệm thu toàn bộ Settings1:1.
+- Isolated production:452 file,3740 test qua/4 bỏ qua; typecheck/Vite/native build qua. PostgreSQL bắt buộc3/3 qua, không skip. Primary focused59 qua.
+- Đã cài rồi kickstart: PID79761/inode2856607 đúng binary; loopback/public ready200, chunk Settings/Editor public trùng build. [Receipt và ảnh](editor-settings-hotfix/receipt.json).
+- [Team audit Template đầu ra](template-output-audit.md): báo cáo source/artboard, chưa sửa UI Template, chưa có browser production đăng nhập hoặc Safari thật. Giữ V40 chưa phát hành và gate #93 KEEP.

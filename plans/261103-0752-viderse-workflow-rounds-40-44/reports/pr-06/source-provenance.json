@@ -82,8 +82,20 @@
     "commit": "9d440603fdb56fe3cad4bc8f28ccebbdb8f917d8",
     "binarySHA256": "d4d86907f2dd59fd85711b1b96358090774be989022d02d23ac0a95a25298606",
     "UIIndexSHA256": "ddc73d77a7bc2d30e86b2441d1bc0bdd99d5a555892d3d052adffe4914fea59e",
-    "mappedExecutable": {"pidAtVerification": 47165, "inode": 2830537, "matchesInstalled": true},
+    "mappedExecutable": {
+      "pidAtVerification": 47165,
+      "inode": 2830537,
+      "matchesInstalled": true
+    },
     "receipt": "playback-hotfix/receipt.json",
     "scope": "Minimal playback resolver/caller backport on old production UI; supersedes backend-only binary above. Not V40 release."
+  },
+  "productionEditorSettingsHotfix": {
+    "deployed": true,
+    "sourceCommit": "9d1e4b6fe1ee67997576b73985602ea0bacda1f3",
+    "binarySHA256": "b17d076001826caf305ee91a99af5107372f2faa7371f3fef76a0cdbd1230be0",
+    "fullWorkflowUIDeployed": false,
+    "receipt": "editor-settings-hotfix/receipt.json",
+    "limits": "Original authenticated production conflict not captured; template output audit is not implementation; physical Safari gate #93 KEEP."
   }
 }

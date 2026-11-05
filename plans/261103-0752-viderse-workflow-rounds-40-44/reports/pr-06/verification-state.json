@@ -25,7 +25,7 @@
   },
   "openDecisions": [],
   "deploy": "NOT_DEPLOYED",
-  "finalSourceCommit": "bbfab83c5c6d1ea0b38d91f5c158d0d5bbdecc53",
+  "finalSourceCommit": "828ff4c91a5f9dd3c91b8c3cac763394c72c3398",
   "finalFocusedTests": {
     "files": 3,
     "passed": 37
@@ -107,14 +107,21 @@
   "productionBackendHotfix": {
     "deployed": true,
     "sourceCommit": "401d1b4585b8e243874acd23dc7d877a3fbfaec3",
-    "PR": [9, 10],
+    "PR": [
+      9,
+      10
+    ],
     "fullWorkflowUIDeployed": false,
     "readiness": "Loopback/public HTTP200; workspace assertion unchanged",
     "browserOrigin": "Launcher-bound direct HTTP loopback; scoped render/measure only; no proxy metadata",
     "launchdImage": "PID38806 inode2809657 matches installed binary after install then kickstart -k",
     "actualRecovery": "Score attempt12 succeeded100/100, accepted=false; export attempt1 now succeeded,432805526B MP4 verified SHA and ffprobe3380.7s. Playback UI subsequently patched separately below.",
     "publicWorkaround": "Attempt10 claimed, uploaded426240000bytes, failed existing10minute deadline",
-    "transportBenchmark": {"bytes": 9216000, "publicMs": 36327.88, "loopbackMs": 53.479},
+    "transportBenchmark": {
+      "bytes": 9216000,
+      "publicMs": 36327.88,
+      "loopbackMs": 53.479
+    },
     "upstreamAI": "All preceding succeeded attempts preserved; no broad invalidation/retry",
     "artifactLookup": "Approved images persisted in job catalog but absent from step output. Exact own-job relative catalog resolution restored; retained upstream precedence and hash checks.",
     "tests": "Before claim regression403; after scoped origin race PASS. Final exact production and actual integration web/render/cmd suites PASS; catalog Inputs-to-ComputeScore and tamper/isolation/ambiguity/precedence regression PASS; catalog race PASS. Earlier unchanged15ms hang test failed under concurrent load, isolated and final serial suites PASS. No hosted CI claim.",
@@ -130,5 +137,13 @@
     "productionProof": "Mapped PID47165/inode2830537; public readiness200; public PC/mobile chunks byte-identical to smoke build. Unauthenticated export HEAD401 retained.",
     "limits": "No authenticated production browser proof: chrome-profile unavailable, live relay timed out. Fixture is not physical Safari; no auth bypass/session minted.",
     "receipt": "playback-hotfix/receipt.json"
+  },
+  "productionEditorSettingsHotfix": {
+    "deployed": true,
+    "sourceCommit": "9d1e4b6fe1ee67997576b73985602ea0bacda1f3",
+    "binarySHA256": "b17d076001826caf305ee91a99af5107372f2faa7371f3fef76a0cdbd1230be0",
+    "fullWorkflowUIDeployed": false,
+    "receipt": "editor-settings-hotfix/receipt.json",
+    "limits": "Original authenticated production conflict not captured; template output audit is not implementation; physical Safari gate #93 KEEP."
   }
 }
