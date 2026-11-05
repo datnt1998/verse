@@ -5,6 +5,7 @@
 export const tools = {
   lead: 'Viderse tự tải, cài và cập nhật các công cụ này. Mọi việc xử lý video đều chạy trên máy của bạn.',
   recheck: 'Kiểm tra lại',
+  rechecked: 'Đã kiểm tra lại công cụ trên máy.',
   jobNames: {
     'yt-dlp': 'Tải video và phụ đề',
     ffmpeg: 'Xử lý hình và tiếng',

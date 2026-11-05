@@ -7,7 +7,7 @@ import { styles as settingsStyles, toolsListMarker, toolsAdvMarker, toolsIboxMar
 // (server ghép phiên bản), tiến độ khi đang cài, nút chỉ khi có việc; vùng
 // “Nâng cao · thư mục dữ liệu và phiên bản” giữ tên binary. Cài/cập nhật chạy
 // nền, tiến độ về qua SSE `tools` (invalidate khoá `tools`).
-import { Button, Icon, ProgressBar, Spinner, useAsyncAction } from '@noverse/ui'
+import { Button, Icon, ProgressBar, Spinner, toast, useAsyncAction } from '@noverse/ui'
 import { setData } from '@noverse/ui/data'
 import { useResource } from '../../../data/useResource'
 import { useMediaQuery } from '../../../lib/useMediaQuery'
@@ -236,15 +236,19 @@ function Summary({ tools, checkedAt }: { tools: ToolRow[]; checkedAt: string }) 
   )
 }
 
-/** Nút “Kiểm tra lại” — gọi probe thật rồi ghi thẳng hình mới vào cache.
- *  Thẻ tổng chỉ có ở desktop (MSettings không có), nên dùng cỡ gọn. */
-function RecheckButton() {
+/** Dùng chung probe/readback cho thẻ desktop và hàng hành động mobile. */
+function RecheckButton({ mobile = false }: { mobile?: boolean }) {
   const recheck = useAsyncAction(async () => {
-    const next = await checkTools()
-    if (next) setData(keys.tools(), next)
+    try {
+      const next = await checkTools()
+      setData(keys.tools(), next)
+      toast.ok(t.tools.rechecked)
+    } catch {
+      throw new Error(t.errors.failed)
+    }
   })
   return (
-    <ActionButton size="compact" pending={recheck.pending} icon={<Icon name="refresh" size={15} />} onClick={() => void recheck.run()}>
+    <ActionButton size={mobile ? 'lg' : 'compact'} pending={recheck.pending} icon={<Icon name="refresh" size={15} />} onClick={() => void recheck.run()}>
       {t.tools.recheck}
     </ActionButton>
   )
@@ -313,6 +317,7 @@ export default function ToolsSection() {
     <>
       <Summary tools={tools} checkedAt={res.data?.checkedAt ?? ''} />
       <p className={`vv-tools__lead-m ${stylex.props(settingsStyles.toolsLeadM).className}`}>{t.tools.lead}</p>
+      {mobile && <RecheckButton mobile />}
       <section className={`vv-tools__list ${stylex.props(settingsStyles.card, toolsListMarker, settingsStyles.toolsList).className}`} role="list" aria-label={t.settings.nav.tools}>
         {rows}
         {/* Desktop: vùng Nâng cao là hàng cuối của chính thẻ danh sách

@@ -194,6 +194,34 @@ export function useReview(): ReviewState {
     setData(key, view)
     setImages(old => ({ ...old, [job]: view }))
   }
+  // Undo owns the successful skip's IDs/revision, never a later render's mutate.
+  // The server alone restores the before-skip state; no local approval/redraw.
+  const offerSkipUndo = (job: string, image: string, revision: number) => {
+    let restored = false
+    toast('Đã bỏ ảnh này.', 'ok', {
+      label: 'Hoàn tác',
+      onClick: async () => {
+        if (restored || locks.current.has(job)) {
+          toast.err(restored ? 'Ảnh này đã được hoàn tác.' : 'Đang lưu thay đổi. Chưa hoàn tác ảnh; vui lòng thử lại.')
+          await loadImages(job, true)
+          return
+        }
+        locks.current.add(job)
+        if (alive.current) setPending(old => ({ ...old, [job]: true }))
+        try {
+          await request(`${base(job)}/${encodeURIComponent(image)}`, { body: { op: 'unskip', expectedRevision: revision } })
+          restored = true
+          await loadImages(job, true)
+        } catch (err) {
+          toast.err(err instanceof ApiError ? `Chưa hoàn tác được ảnh: ${err.message}` : 'Chưa hoàn tác được ảnh. Vui lòng kiểm tra kết nối và thử lại.')
+          await loadImages(job, true)
+        } finally {
+          locks.current.delete(job)
+          if (alive.current) setPending(old => ({ ...old, [job]: false }))
+        }
+      },
+    }, { undo: true, duration: 4_000 })
+  }
   /**
    * Một cửa cho mọi thao tác duyệt: vẽ lại theo góp ý (`regenerate`), sửa prompt
    * (`editPrompt`), bỏ ảnh (`skip`), chọn bản đã vẽ (`approve` + `version`),
@@ -218,7 +246,11 @@ export function useReview(): ReviewState {
       const nextRevision = result.manifest?.revision ?? result.revision
       if (nextRevision) setImages(old => { const v = old[job]; return v ? { ...old, [job]: { ...v, manifest: { ...(v.manifest ?? {}), revision: nextRevision } } } : old })
       if (op === 'approveAll') { void invalidate(keys.status()); void invalidate(['review', 'counts']); window.dispatchEvent(new Event('activity:refresh')) }
-      else void loadImages(job, true)
+      else if (op === 'skip') {
+        await loadImages(job, true)
+        if (item && nextRevision !== undefined) offerSkipUndo(job, item.id, nextRevision)
+        else toast.err('Đã bỏ ảnh nhưng máy chủ chưa trả mã thay đổi để hoàn tác. Vui lòng tải lại bộ ảnh.')
+      } else void loadImages(job, true)
       return true
     } catch (err) {
       if (op === 'approveAll') { setHidden(old => { if (!old.has(job)) return old; const next = new Set(old); next.delete(job); return next }); const status = getData<Status>(keys.status()); if (status) setData<Status>(keys.status(), { ...status, reviewCount: status.reviewCount + 1 }); void invalidate(keys.status()) } else { redrawing.current.delete(job); if (op !== 'approve') setImages(old => ({ ...old, [job]: oldView })) }

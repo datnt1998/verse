@@ -339,6 +339,9 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 		}
 		actionSeen[a.ID] = true
 		actionIDs = append(actionIDs, a.ID)
+		if a.Op == "unskip" && (a.Prompt != nil || a.Version != nil) {
+			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Hoàn tác bỏ qua không nhận prompt hoặc phiên bản")
+		}
 		if a.Prompt != nil && strings.TrimSpace(*a.Prompt) == "" {
 			return ReviewResult{}, cloneError(domain.CloneErrInvalidRequest, "Prompt không được để trống")
 		}
@@ -364,6 +367,9 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 					if i.Kind == "scene" {
 						sceneChanged = true
 					}
+				}
+				if i.Kind == "scene" && (before.Status == "skipped") != (i.Status == "skipped") {
+					sceneChanged = true
 				}
 				if (a.Op == "regenerate" || a.Op == "editPrompt" || a.Op == "restore") && !seen[i.ID] {
 					pending = append(pending, i.ID)

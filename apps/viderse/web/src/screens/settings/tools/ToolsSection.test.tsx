@@ -9,6 +9,7 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ToolsSection from './ToolsSection'
 import type { ToolId, ToolRow, ToolsStatus } from '../../../api/tools'
+import { tools as copy } from '../../../i18n/tools'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -93,11 +94,16 @@ describe('Công cụ trên máy', () => {
     expect(el.textContent).toContain('419,4 MB')
   })
 
-  it('thẻ tổng báo bản cập nhật và Kiểm tra lại gọi probe thật', async () => {
+  it.each([false, true])('recheck updates the displayed tool state without installing (mobile=%s)', async (phone) => {
+    mobile = phone
     const el = await render()
-    expect(el.querySelector('.vv-tools__sum-title')?.textContent).toBe('Máy sẵn sàng · có 1 bản cập nhật')
-    await click(byText(el, 'button', 'Kiểm tra lại'))
-    expect(calls.some((c) => c.url === '/api/tools/check' && c.method === 'POST')).toBe(true)
+    tools = { ...tools, checkedAt: '2026-11-05T10:00:00Z', tools: tools.tools.map(tool => tool.id === 'yt-dlp' ? { ...tool, state: 'ready', update: null, version: '2026.10.22' } : tool) }
+    const recheck = [...el.querySelectorAll('button')].find(button => button.textContent?.includes(copy.recheck) && Boolean(button.closest('.vv-tools__sum')) !== phone)
+    await click(recheck)
+    const download = el.querySelector('.vv-tools__row')!
+    expect(download.querySelector('.vv-tools__pill')?.textContent).toBe(copy.pills.ready)
+    expect([...download.querySelectorAll('button')].some(button => button.textContent?.includes('Cập nhật'))).toBe(false)
+    expect(calls.filter(call => call.method === 'POST').map(call => call.url)).toEqual(['/api/tools/check'])
   })
 
   it('hàng cập nhật chỉ có nút Cập nhật; bấm là gọi install', async () => {

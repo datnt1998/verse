@@ -269,7 +269,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   }
   const skip = () => {
     if (!job || !item || busy || !online || item.kind !== 'scene' || scenesLeft <= 1) return
-    void review.mutate(job.id, item, 'skip').then(ok => { if (ok) toast.ok('Đã bỏ ảnh này.') })
+    void review.mutate(job.id, item, 'skip')
   }
   const useVersion = () => {
     if (!job || !item || isDrawing(item) || busy || !online || version === used || !usable(item, version)) return

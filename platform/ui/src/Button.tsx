@@ -50,7 +50,7 @@ const styles = stylex.create({
   iconXl: { width: 48, borderRadius: 13 },
   sm: { height: 30, paddingInline: 10, fontSize: 12, borderRadius: 8 },
   /* Cỡ lớn của mobile/CTA cuối thẻ: 44px, chữ 14, góc 12 (artboard .btn 44px). */
-  lg: { height: 44, paddingInline: 16, fontSize: 14, borderRadius: 12 },
+  lg: { height: kit['--kit-touch-min'], minHeight: kit['--kit-touch-min'], paddingInline: 16, fontSize: 14, borderRadius: 12 },
   /* Cỡ gọn của desktop trong Cài đặt: 32px, pad 12, góc 8, chữ 13 (artboard
      Settings `.btn`; Onboard dùng cùng chiều cao cho nút ghost). */
   compact: { height: 32, paddingInline: 12, borderRadius: 8, fontSize: 13, fontWeight: 400 },

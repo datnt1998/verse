@@ -63,7 +63,7 @@ const sx = stylex.create({
     borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: kit['--kit-fg-icon'],
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   },
-  ring: { position: 'absolute', inset: 0, transform: 'rotate(-90deg)' },
+  ring: { position: 'absolute', top: '50%', left: '50%', width: 28, height: 28, transform: 'translate(-50%, -50%) rotate(-90deg)' },
   countdown: { transition: 'stroke-dashoffset .16s linear, opacity .3s ease' },
   host: (bottom: string) => ({
     position: 'fixed', left: '50%', bottom, transform: 'translateX(-50%)', zIndex: 1000,
@@ -356,7 +356,8 @@ const ax = stylex.create({
   pillText: { overflow: 'hidden', textOverflow: 'ellipsis' },
   pillTone: (border: string) => ({ borderColor: border }),
   pillCount: { fontVariantNumeric: 'tabular-nums', color: color['--color-fg-3'], fontWeight: 400 },
-  closeActivity: { color: 'var(--vv-text-hint, var(--kit-fg-icon))' },
+  closeActivity: { color: 'var(--vv-text-hint, var(--kit-fg-icon))', minWidth: { default: 0, [ACT_MOBILE]: kit['--kit-touch-min'] }, minHeight: { default: 0, [ACT_MOBILE]: kit['--kit-touch-min'] } },
+  pillAction: { minWidth: { default: 0, [ACT_MOBILE]: kit['--kit-touch-min'] }, minHeight: { default: 0, [ACT_MOBILE]: kit['--kit-touch-min'] } },
   stack: {
     position: 'fixed', zIndex: 1000, display: 'flex', flexDirection: 'column-reverse', gap: 8,
     left: { default: 'auto', [ACT_MOBILE]: 12 },
@@ -488,8 +489,8 @@ function ActivityNotification({ item, front }: { item: ToastItem; front: boolean
         <div className={['ui-toast-glass', pill.className].filter(Boolean).join(' ')} role={urgent ? 'alert' : 'status'} aria-live={urgent ? 'assertive' : 'polite'} style={pill.style}>
           {ACT_PILL_ICON[item.tone] && <Icon name={ACT_PILL_ICON[item.tone]!} size={16} style={{ color: fg, flexShrink: 0 }} />}
           <span {...stylex.props(sx.text, ax.pillText)}>{item.text}</span>
-          {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action).className}`} onClick={() => run(item.action!.onClick)}>
-            {item.action.label}{item.undo && <span {...stylex.props(ax.pillCount)}> · {Math.ceil(left / 1000)}s</span>}
+          {item.action && <button type="button" disabled={busy || item.leaving} aria-busy={busy} className={`hov-ghost ${stylex.props(sx.action, ax.pillAction).className}`} onClick={() => run(item.action!.onClick)}>
+            {item.action.label}{item.undo && <span aria-hidden="true" {...stylex.props(ax.pillCount)}> · {Math.ceil(left / 1000)}s</span>}
           </button>}
           {closeButton(stylex.props(sx.close, ax.closeActivity))}
         </div>
