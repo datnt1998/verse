@@ -1,0 +1,8 @@
+{
+  "sourceCommit": "7daef5fc7a453c9f277ba7e895c76f7100379222",
+  "nativeCaptures": 36,
+  "ledger": "3|27|2",
+  "normalIndexGuard": true,
+  "sourceAuthGuard": true,
+  "userModelGuard": true
+}

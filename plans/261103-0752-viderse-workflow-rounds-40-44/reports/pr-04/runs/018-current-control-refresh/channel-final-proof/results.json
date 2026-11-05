@@ -1,0 +1,716 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "startedAt": "2026-11-05T05:57:20.598Z",
+  "origin": "http://127.0.0.1:8043",
+  "fixtureChannelIds": [
+    "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+    "98ae68b2-813e-427a-8238-8eb0e86de231",
+    "c76cc725-0e9d-43fd-98d1-4d55412510e8"
+  ],
+  "cases": [
+    {
+      "name": "sources-native-layout-and-blank-follow",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native GET / no writes",
+      "status": "unproven",
+      "screenshots": [
+        "1440-sources-native-invalid.png",
+        "1440-sources-native-layout-and-blank-follow-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "columns": [
+        634.172,
+        487.828
+      ],
+      "layout": "UNPROVEN: no native linked rivals",
+      "reason": "Grid/validation measured, but native 34px populated rival/two-row state absent"
+    },
+    {
+      "name": "sources-picker-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native shared-rival data",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "create-native-blank-follow",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native GET / local validation only",
+      "status": "pass",
+      "screenshots": [
+        "1440-create-native-invalid.png"
+      ],
+      "boundary": "No rival selected; never clicked Create channel"
+    },
+    {
+      "name": "brief-dirty-pending-400",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "synthetic PATCH rejection; native ready identity",
+      "status": "pass",
+      "screenshots": [
+        "1440-brief-dirty-400.png",
+        "1440-brief-pending-400.png",
+        "1440-brief-error-400.png"
+      ],
+      "fixture": null,
+      "requestProof": [
+        {
+          "scope": "brief-dirty-pending-400",
+          "method": "PATCH",
+          "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "queryKeys": [],
+          "action": "SYNTHETIC_400",
+          "bodyKeys": [
+            "brief"
+          ],
+          "draftLength": 57
+        }
+      ],
+      "boundary": "Error/draft/locks only, NOT real backend save or successful persistence"
+    },
+    {
+      "name": "brief-dirty-pending-network",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "synthetic PATCH rejection; native ready identity",
+      "status": "pass",
+      "screenshots": [
+        "1440-brief-dirty-network.png",
+        "1440-brief-pending-network.png",
+        "1440-brief-error-network.png"
+      ],
+      "fixture": null,
+      "requestProof": [
+        {
+          "scope": "brief-dirty-pending-network",
+          "method": "PATCH",
+          "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "queryKeys": [],
+          "action": "SYNTHETIC_NETWORK_FAILURE",
+          "bodyKeys": [
+            "brief"
+          ],
+          "draftLength": 61
+        }
+      ],
+      "boundary": "Error/draft/locks only, NOT real backend save or successful persistence"
+    },
+    {
+      "name": "profile-native-layout-safe-area",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native identity/media GET; no writes",
+      "status": "unproven",
+      "screenshots": [
+        "1440-profile-native-layout.png",
+        "1440-profile-native-layout-safe-area-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "reason": "Native real same-origin banner unavailable; safe-area pixel proof unsupported"
+    },
+    {
+      "name": "profile-old-avatar-pending-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native old media + GET-only identity override: identity.state=generating, part=avatar; no invented activity/progress/job; all old media URLs and branding remain native",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "profile-old-avatar-pending-reduce",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native old media + GET-only identity override: identity.state=generating, part=avatar; no invented activity/progress/job; all old media URLs and branding remain native",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "template-native-card-menu-and-images-route",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "native templates/prompts and original channel defaults; no PATCH",
+      "status": "unproven",
+      "screenshots": [
+        "1440-template-native-card.png",
+        "1440-template-native-menu.png",
+        "1440-template-images-route.png",
+        "1440-template-native-card-menu-and-images-route-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "defaultTemplateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+      "cardArtwork": {
+        "x": 293,
+        "y": 417.734375,
+        "width": 128,
+        "height": 72
+      },
+      "artworkProvenance": {
+        "templateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+        "promptId": "builtin:scene",
+        "sampleUrl": null,
+        "claim": "Associated prompt sample illustration, NOT a generated template preview"
+      },
+      "artwork": "UNPROVEN: current default has no genuine associated sample; honest fallback only",
+      "trigger": {
+        "before": {
+          "x": 293,
+          "y": 608.921875,
+          "width": 159.8125,
+          "height": 44
+        },
+        "after": {
+          "x": 293,
+          "y": 608.921875,
+          "width": 159.8125,
+          "height": 44
+        }
+      },
+      "options": [
+        {
+          "id": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+          "description": "Truyện kể đêm\nTheo nhận diện kênh · 1 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": null
+        },
+        {
+          "id": "5fa15b48-ed8b-4614-ab75-897009d958a2",
+          "description": "Kiểm thử QA · chọn prompt trong viewer\nẢnh mẫu QA tự tạo · 1 · 0 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image"
+        },
+        {
+          "id": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+          "description": "Mẫu chuẩn · Tách nền\nTheo nhận diện kênh · 2 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": null
+        }
+      ],
+      "reason": "Card/menu geometry and images route exercised; native default lacks associated sample, so populated artwork state not proved"
+    },
+    {
+      "name": "sources-native-layout-and-blank-follow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native GET / no writes",
+      "status": "unproven",
+      "screenshots": [
+        "390-sources-native-invalid.png",
+        "390-sources-native-layout-and-blank-follow-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "reason": "Grid/validation measured, but native 34px populated rival/two-row state absent"
+    },
+    {
+      "name": "sources-picker-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native shared-rival data",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "sources-picker-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native shared-rival data",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "create-native-blank-follow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native GET / local validation only",
+      "status": "pass",
+      "screenshots": [
+        "390-create-native-invalid.png"
+      ],
+      "boundary": "No rival selected; never clicked Create channel"
+    },
+    {
+      "name": "brief-dirty-pending-400",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "synthetic PATCH rejection; native ready identity",
+      "status": "pass",
+      "screenshots": [
+        "390-brief-dirty-400.png",
+        "390-brief-pending-400.png",
+        "390-brief-error-400.png"
+      ],
+      "fixture": null,
+      "requestProof": [
+        {
+          "scope": "brief-dirty-pending-400",
+          "method": "PATCH",
+          "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "queryKeys": [],
+          "action": "SYNTHETIC_400",
+          "bodyKeys": [
+            "brief"
+          ],
+          "draftLength": 57
+        }
+      ],
+      "boundary": "Error/draft/locks only, NOT real backend save or successful persistence"
+    },
+    {
+      "name": "brief-dirty-pending-network",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "synthetic PATCH rejection; native ready identity",
+      "status": "pass",
+      "screenshots": [
+        "390-brief-dirty-network.png",
+        "390-brief-pending-network.png",
+        "390-brief-error-network.png"
+      ],
+      "fixture": null,
+      "requestProof": [
+        {
+          "scope": "brief-dirty-pending-network",
+          "method": "PATCH",
+          "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "queryKeys": [],
+          "action": "SYNTHETIC_NETWORK_FAILURE",
+          "bodyKeys": [
+            "brief"
+          ],
+          "draftLength": 61
+        }
+      ],
+      "boundary": "Error/draft/locks only, NOT real backend save or successful persistence"
+    },
+    {
+      "name": "profile-native-layout-safe-area",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native identity/media GET; no writes",
+      "status": "unproven",
+      "screenshots": [
+        "390-profile-native-layout.png",
+        "390-profile-native-layout-safe-area-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "actions": {
+        "banner": {
+          "x": 29,
+          "y": 744.6875,
+          "width": 332,
+          "height": 44
+        },
+        "avatar": {
+          "x": 29,
+          "y": 796.6875,
+          "width": 162,
+          "height": 57.1875
+        },
+        "rename": {
+          "x": 199,
+          "y": 796.6875,
+          "width": 162,
+          "height": 57.1875
+        }
+      },
+      "reason": "Native real same-origin banner unavailable; safe-area pixel proof unsupported"
+    },
+    {
+      "name": "profile-old-avatar-pending-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native old media + GET-only identity override: identity.state=generating, part=avatar; no invented activity/progress/job; all old media URLs and branding remain native",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "profile-old-avatar-pending-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native old media + GET-only identity override: identity.state=generating, part=avatar; no invented activity/progress/job; all old media URLs and branding remain native",
+      "status": "unproven",
+      "screenshots": [],
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "template-native-card-menu-and-images-route",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "native templates/prompts and original channel defaults; no PATCH",
+      "status": "unproven",
+      "screenshots": [
+        "390-template-native-card.png",
+        "390-template-native-menu.png",
+        "390-template-images-route.png",
+        "390-template-native-card-menu-and-images-route-unproven.png"
+      ],
+      "channelId": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "defaultTemplateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+      "cardArtwork": {
+        "x": 31,
+        "y": 448.4375,
+        "width": 112,
+        "height": 63
+      },
+      "artworkProvenance": {
+        "templateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+        "promptId": "builtin:scene",
+        "sampleUrl": null,
+        "claim": "Associated prompt sample illustration, NOT a generated template preview"
+      },
+      "artwork": "UNPROVEN: current default has no genuine associated sample; honest fallback only",
+      "trigger": {
+        "before": {
+          "x": 31,
+          "y": 580.4375,
+          "width": 159.8125,
+          "height": 44
+        },
+        "after": {
+          "x": 31,
+          "y": 580.4375,
+          "width": 159.8125,
+          "height": 44
+        }
+      },
+      "options": [
+        {
+          "id": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+          "description": "Truyện kể đêm\nTheo nhận diện kênh · 1 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": null
+        },
+        {
+          "id": "5fa15b48-ed8b-4614-ab75-897009d958a2",
+          "description": "Kiểm thử QA · chọn prompt trong viewer\nẢnh mẫu QA tự tạo · 1 · 0 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image"
+        },
+        {
+          "id": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+          "description": "Mẫu chuẩn · Tách nền\nTheo nhận diện kênh · 2 kênh đang dùng",
+          "thumbs": [
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            },
+            {
+              "width": 48,
+              "height": 27,
+              "hasArtwork": true
+            }
+          ],
+          "sampleUrl": null
+        }
+      ],
+      "reason": "Card/menu geometry and images route exercised; native default lacks associated sample, so populated artwork state not proved"
+    }
+  ],
+  "requests": [
+    {
+      "scope": "brief-dirty-pending-400",
+      "method": "PATCH",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_400",
+      "bodyKeys": [
+        "brief"
+      ],
+      "draftLength": 57
+    },
+    {
+      "scope": "brief-dirty-pending-network",
+      "method": "PATCH",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_NETWORK_FAILURE",
+      "bodyKeys": [
+        "brief"
+      ],
+      "draftLength": 61
+    },
+    {
+      "scope": "brief-dirty-pending-400",
+      "method": "PATCH",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_400",
+      "bodyKeys": [
+        "brief"
+      ],
+      "draftLength": 57
+    },
+    {
+      "scope": "brief-dirty-pending-network",
+      "method": "PATCH",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_NETWORK_FAILURE",
+      "bodyKeys": [
+        "brief"
+      ],
+      "draftLength": 61
+    }
+  ],
+  "fixtures": [],
+  "unsupported": [
+    {
+      "name": "sources-native-layout-and-blank-follow",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Grid/validation measured, but native 34px populated rival/two-row state absent"
+    },
+    {
+      "name": "sources-picker-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "profile-native-layout-safe-area",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Native real same-origin banner unavailable; safe-area pixel proof unsupported"
+    },
+    {
+      "name": "profile-old-avatar-pending-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "profile-old-avatar-pending-reduce",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "template-native-card-menu-and-images-route",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reason": "Card/menu geometry and images route exercised; native default lacks associated sample, so populated artwork state not proved"
+    },
+    {
+      "name": "sources-native-layout-and-blank-follow",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Grid/validation measured, but native 34px populated rival/two-row state absent"
+    },
+    {
+      "name": "sources-picker-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "sources-picker-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Need two original channels and two genuine followed rivals for shared eligibility state"
+    },
+    {
+      "name": "profile-native-layout-safe-area",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Native real same-origin banner unavailable; safe-area pixel proof unsupported"
+    },
+    {
+      "name": "profile-old-avatar-pending-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "profile-old-avatar-pending-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Need native old same-origin avatar; external/missing media is not a rendered-avatar pass"
+    },
+    {
+      "name": "template-native-card-menu-and-images-route",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reason": "Card/menu geometry and images route exercised; native default lacks associated sample, so populated artwork state not proved"
+    }
+  ],
+  "limits": [
+    "No actual writes, generation, AI/provider admission, preview building, discovery/follow or downloads are permitted.",
+    "Native GET data is separate from GET-only association/identity overrides and synthetic PATCH failures.",
+    "Successful persistence, reload after a real save, successful link/create/default-template changes, paid identity transitions and all other unexercised states remain UNPROVEN.",
+    "External requests are aborted, including remote avatars. A blocked/missing image is not proof of a genuine rendered artwork.",
+    "Request absence is scoped to the completed UI actions, finite-animation/font settlement and two animation frames; no arbitrary timeout is used as proof."
+  ],
+  "nativeInventory": {
+    "originalChannels": [
+      {
+        "id": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "sources": [],
+        "identityState": "ready",
+        "defaultTemplateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+        "hasAvatar": false,
+        "hasBanner": false
+      },
+      {
+        "id": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "sources": [],
+        "identityState": "ready",
+        "defaultTemplateId": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+        "hasAvatar": false,
+        "hasBanner": false
+      },
+      {
+        "id": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "sources": [],
+        "identityState": "ready",
+        "defaultTemplateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "hasAvatar": false,
+        "hasBanner": false
+      }
+    ],
+    "templates": 3,
+    "prompts": 9,
+    "promptsWithSamples": 2,
+    "templateSampleBindings": [
+      {
+        "templateId": "5fa15b48-ed8b-4614-ab75-897009d958a2",
+        "promptId": "11d073f4-c756-4f6d-a5ab-8e73a7e02ac5"
+      }
+    ]
+  },
+  "safety": {
+    "allActualWritesBlocked": true,
+    "actualWriteRequestsContinued": 0,
+    "unexpectedEvents": [],
+    "requestFence": "browser route handles every non-GET before continue; APIRequestContext is restricted to four literal GET inventory endpoints"
+  },
+  "finishedAt": "2026-11-05T05:57:43.361Z"
+}

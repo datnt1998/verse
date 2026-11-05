@@ -1,0 +1,60 @@
+Status: DONE_WITH_CONCERNS
+
+Deliverable
+ui-acceptance.cjs — standalone CommonJS Playwright controller. Does not build or start the native server. This worker has not launched a browser, native process, test, formatter, or syntax checker. Parent subsequently executed attempt 1; its evidence and the harness-only revision are recorded below.
+
+Exact run command (parent only, after serving source-current assets)
+node '/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v38-acceptance-xxkx9151/parallel-acceptance-20261104/ui-acceptance/ui-acceptance.cjs'
+
+Defaults
+- App origin: http://127.0.0.1:8043 (existing server required).
+- Chromium: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome.
+- Playwright: existing @playwright/test resolved using /Users/dat/Projects/verse/package.json.
+- Cookie file path: extracted from the existing channel-native-qa/channel-qa.cjs COOKIES declaration. File is read into memory, never copied or printed. Its contents were not read during controller authoring.
+- Optional environment variables: VIDERSE_QA_BASE, VIDERSE_QA_CHROME, VIDERSE_QA_COOKIES. BASE must remain loopback. No credentials belong in the command line.
+- Output: ui-acceptance-results.json beside the controller; exit code 1 on any failed check, unexpected mutation attempt, page error, or controller prerequisite failure. No screenshots, traces, storage-state exports, console/page text, response bodies, URLs, or cookie material are saved.
+
+Implemented acceptance matrix (all runtime-unproven until parent executes)
+Each of 1440x900 normal, 390x844 normal, 1440x900 reduced motion, 390x844 reduced motion:
+1. GET-only authenticated discovery of an existing owner channel, without emitting names/IDs or creating fixtures.
+2. Library: all four labels visible simultaneously, ancestor/viewport clipping and text truncation checked before each selection; four selections and query-string route/ARIA state checked. Mobile library uses radiogroup/radio, desktop tablist/tab. Mobile font-ready pill geometry checked after each selection.
+3. Channel: Sources, Template, and Profile run as independent checks so a panel failure cannot skip the other panels. Three tab labels, tabpanel association, and form-control geometry checked. Mobile gates a 44x44 hit area, desktop records dimensions without incorrectly imposing mobile sizing. No profile fields, language selection, tags, switches, template defaults, or live stepper values are changed.
+4. Hit-target measurements require >=44px extent in each dimension from the real border box or a generated, pointer-enabled pseudo halo (computed content/padding/border dimensions). They additionally require actual document.elementFromPoint ownership over a central disk of radius 21.5px and its four cardinal extremes, sampled on a 2px grid. This half-pixel interior tolerance avoids fractional-boundary rounding; every chosen sample must hit. Circular/rounded targets need not own all four corners of their enclosing square. Controls are instantly centered in their scrollport and measured after two animation frames. Smaller border boxes can pass only with both real halo extent and actual hit ownership. Disabled controls are recorded but not gated. Coordinates, viewport, corner radius and missed-hit target tag/role/ID are recorded for diagnosing clipping/occlusion; no click is dispatched.
+5. Profile language segmented pill: waits for document.fonts.ready and finite animations; compares x/y/width/height against the selected button, each <=2px. Language options are never clicked because they autosave.
+6. Mobile Profile action 'Dặn trợ lý về kênh này': opens the QuickInputSheet UX. Current source implements this with the shared Sheet component, not a component literally named QuickInputSheet. Exactly one visible overlay, textarea form, four inline recipients, and no combobox/nested listbox are required. Each recipient click immediately updates selection/placeholder; settled pill geometry is <=2px; temporary local drafts survive switching recipients. All composer controls audited for 44px. Focus wraps forward/backward and remains inside the sheet. Escape and an uncovered, hit-tested scrim point each dismiss and restore focus to the Profile trigger. No Gửi/save action is clicked.
+7. Desktop composer: four recipient options in a viewport-contained single listbox. After each click one DOM snapshot, without settling/polling/blur, checks that the popup closed and prefix/placeholder already reflect the chosen recipient. Temporary local draft restoration checked. Escape/focus restoration and non-actionable outside-click dismissal checked. No save/send action clicked.
+8. Context closes in finally per surface; browser closes in outer finally, including failed setup/check paths.
+
+Safety controls
+- Request routing installed before page creation, on all origins/paths. Every method other than GET/HEAD/OPTIONS is aborted and recorded only as surface+method; any attempt fails the overall run.
+- No APIRequestContext requests (they would bypass browser-context routing). Discovery uses page fetch, inside the fence.
+- Service workers blocked; WebSockets blocked before pages (requires Playwright routeWebSocket support); downloads disallowed/cancelled; popups closed; external reads and action-like download/export/generate/run/OAuth paths blocked.
+- No paid AI/provider/image-generation or user-download action is invoked. Passive same-origin GET configuration/assets needed to render the UI remain allowed.
+- Composer input fills are transient local state only; Profile autosave fields remain untouched. Existing source confirms recipient switching has no API write; Gửi invokes patchChannel and is never clicked.
+
+Checked during authoring (source-only)
+- ChannelScreen.tsx: three responsive labels; shared desktop/mobile recipient state; four recipient IDs/examples; mobile shared Sheet; local draft behavior and mutation boundary.
+- SettingsTab.tsx and channel i18n: exact Profile action name, language autosave risk, profile field IDs, accessible composer labels.
+- LibraryScreen.tsx, MLibraryScreen.tsx, library/shared i18n: four labels and desktop-tab/mobile-radio semantics.
+- platform/ui Tabs.tsx: .kit-seg-thumb measured against actual selected button, font-ready remeasure; Sheet.tsx: scrim, Escape, focus trap/restore, delayed unmount.
+- ResponsiveSelect and Selects.tsx: desktop combobox/listbox/option roles.
+- router.ts: channel/library tabs use ?tab=... inside the hash, not /settings or /prompts path suffixes. Controller uses the current router contract rather than copying stale QA URL assumptions.
+- Both requested legacy QA controllers: existing Playwright resolution, cookie-file loading pattern, dimensions/motion conventions and mutation fences.
+
+Unproven / concerns
+- This worker has not executed the revised controller or a syntax checker. Parent should run node --check and then the exact command above; revised behavior remains unproven.
+- Parent reports attempt 1 used rebuilt native source including mobileSheet. This worker did not rebuild, launch, or independently verify served-asset freshness.
+- Attempt 1 established working browser/auth/fixtures/WebSocket-fence prerequisites for that run, with zero blocked mutation attempts and zero page errors. Future missing prerequisites still fail without fixture creation or auth fallback.
+- Parent attempt 1 observed the PASS groups listed below. Revised harness checks and previously failing groups are not yet observed. A FAIL group may stop before its remaining subassertions; result JSON PASS entries are the exercised checked list.
+- Persisted instructions, save/send/autosave outcomes, server mutations, provider calls, generation and downloads are intentionally unproven. Mobile 44px hit sampling is bounded evidence, not mathematical proof of every interior point.
+- External reads are intentionally blocked; third-party-hosted visuals may render placeholders. Physical mobile keyboard, real devices, other engines and screen-reader announcements are outside this controller.
+
+Parent attempt 1 and harness-only revision
+- Preserved exact original JSON as ui-acceptance-results-attempt1.json. Original ui-acceptance-results.json is unchanged by this revision and remains the controller's next-run output location.
+- Observed: 10 failed groups: library prompts selection on all four surfaces, plus Sources/Template/Profile hit-area groups on both mobile surfaces. No blocked mutation attempts; no page errors.
+- Observed PASS: authenticated discovery all four surfaces; all desktop channel panel audits; Profile font-ready pill all four surfaces; desktop immediate composer selection normal/reduced; mobile Profile QuickInputSheet normal/reduced.
+- Library root cause: the original harness incorrectly imposed a same-tick ARIA snapshot on hash-route-driven tabs. Only composer selection has an immediate-state acceptance requirement. Revision waits for the exact query-string tab route (15s timeout), then uses Playwright web-first toHaveAttribute(selected/checked=true, 15s). No click retry, force, fallback, assertion removal or swallowed timeout. Composer immediate snapshots remain unchanged.
+- Hit evidence: every recorded failing enabled control already had a >=44px border box. Examples: Template combobox 159.8125x44 with 23 missed samples; Profile switch 48x44 with 46; source stepper buttons 44x44 with 43. Profile identity controls 332x44 had 207/460/207 misses; a 324x82.421875 textarea had 23.
+- The old 23-by-23 near-boundary square grid made rounded 44px controls fail corner pixels; 23 or 46 misses also equal one or two full grid rows. On a 159.8px-wide button, the centered 44px square is far from the button's rounded side corners, so rounding/scrollport clipping or occlusion is a separate plausible cause, not proven merely by the count. The old JSON omitted coordinates and missed-hit owners, preventing a definitive attribution. Larger Profile miss counts are not dismissed as corner-only false positives.
+- Revised hit gate separates >=44px extent from rounded-interior hitability, retains all-hit enforcement on every selected disk/cardinal probe, and centers before measuring. Genuine undersized boxes without a >=44px generated halo still fail; central/cardinal occlusion still fails. New diagnostics distinguish any remaining clipping/overlay failures. This is not a blanket exemption for the attempt-1 failures.
+- No product source was edited. No browser/test/build/syntax run was performed by this worker after the revision.

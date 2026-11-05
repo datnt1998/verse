@@ -25,8 +25,8 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 | 1 | [0 · Kiểm kê và baseline](phase-01-inventory.md) | Tài liệu/state manifest/evidence | — | Completed · PR #1 merged |
 | 2 | [1 · Nền UI dùng chung](phase-02-shared-ui-foundation.md) | Kit tối thiểu + Viderse policy | PR0 merge | Completed · PR #2 merged |
 | 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | Completed · PR #3 merged `3e238b08` |
-| 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | In progress · [PR #4 nháp](https://github.com/datnt1998/verse/pull/4), [nghiệm thu](reports/pr-03/acceptance.md) |
-| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Chờ merge V37; design #86 đã chốt1–20 |
+| 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | Completed · [PR #4 merged](https://github.com/datnt1998/verse/pull/4) `277b902b`, [nghiệm thu](reports/pr-03/acceptance.md) |
+| 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | In progress · ba slice cô lập; design #86 chốt1–20 |
 | 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | Pending |
 | 7 | [6 · V40 Mobile và full-flow gate](phase-07-v40-mobile-parity.md) | §6.2 Đợt44 + desktop regression | PR5 merge | Pending |
 
@@ -44,7 +44,7 @@ Không merge PR có blocker chức năng/UI. Ngoại lệ thực thi được ng
 - [x] PR0: gửi inventory, hoàn tất state manifest/baseline/preflight rồi merge riêng.
 - [x] PR1: nền UI reuse đúng, shared-kit regression và [bằng chứng](reports/pr-01/foundation.md); PR #2 merged.
 - [x] PR2: viewer/action/data-key theo V36, PR #3 merged; giới hạn thiết bị và gate#83 vẫn giữ ở nghiệm thu cuối.
-- [ ] PR3: Main/progress/3proposal + backend obsolete theo V37.
+- [x] PR3: Main/progress/3proposal + backend obsolete theo V37; PR #4 merged.
 - [ ] PR4: default template/automation/library/create cùng schema, cả mobile contract.
 - [ ] PR5: Nhập nhanh/jobs API/dedup/front ordering/compact queue rules.
 - [ ] PR6: full mobile parity/motion/keyboard/prompt4parts và toàn gate cuối.

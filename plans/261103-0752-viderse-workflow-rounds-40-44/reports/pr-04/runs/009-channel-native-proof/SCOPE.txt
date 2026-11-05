@@ -1,0 +1,48 @@
+Status: DONE_WITH_CONCERNS — controller prepared; NOT EXECUTED
+
+Deliverables
+- channel-final-proof.cjs: standalone Node/Playwright controller for parent execution only.
+- SCOPE.txt: this scope, safety boundary and evidence interpretation.
+- Parent execution writes results.json and PNGs ONLY beside this controller. No product, artboard, index or commit changes.
+
+Exact parent run command
+node /var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v38-acceptance-xxkx9151/parallel-acceptance-20261104/channel-final-proof/channel-final-proof.cjs
+
+Prerequisites
+- Parent's integrated native binary/frontend is ready at http://127.0.0.1:8043 and workers/provider admission remain disabled.
+- Existing private browser-cookies.json at the supplied V36 private path is valid. Controller reads it without logging it.
+- Existing @playwright/test is resolved through createRequire('/Users/dat/Projects/verse/package.json'); Chrome executable is the supplied Google Chrome.app path.
+- Parent executes this sequentially after rebuild. This worker launched no browser, service, test, build, formatter, download or model call, and did not syntax-check/run the controller.
+
+Inspected source
+Primary apps/viderse/web/src/screens/channel/SourcesTab.tsx, CreateStep.tsx, SettingsTab.tsx, IdentityBlock.tsx, TemplatesTab.tsx (the actual plural filename), components/responsive-overlays.tsx, relevant channel/mobile styles, router, labels, request/channel/library/rival DTOs, TemplateArtwork.tsx, ActionButton.tsx and shared Sheet implementation.
+Private channel-identity-repair/REPORT.txt and channel-state-audit/REPORT.txt were read. channel-sources-repair contains integration.patch, baseline-hashes.json, previous-worktree.patch and baseline sources, but no REPORT file in its complete listing; its integration.patch was read for the source repair evidence. The requested sources repair report itself is unavailable, not silently claimed as read. The provided V36 smoke-channel-instructions.cjs path was absent; the existing V38 root/smoke-channel-instructions.cjs was read instead. Its mutation-permitting behavior is deliberately NOT reused.
+
+Safety
+- Browser-wide routing is installed before opening any app page. EVERY non-GET is blocked before network continuation. No POST/PATCH/DELETE/PUT or HEAD/OPTIONS are actually continued.
+- Only an armed exact original-channel PATCH containing solely {brief: string} may receive a synthetic 400 or synthetic network failure; it is never forwarded. A promise gate holds this rejection pending until the parent-run UI has been captured/asserted. Gates release in finally, contexts close in finally, browser closes in the top-level finally.
+- APIRequestContext bypasses browser routes; its only uses are four hardcoded same-origin GET inventory endpoints: owner-channels, templates, image-prompts, rivals, with redirects disabled. No API writes exist.
+- External network requests are aborted. Export/download paths and ?download queries are aborted. No download button, preview build, real follow, link-confirm, create-confirm, default-template option selection, paid generation or discovery action is activated.
+- Clicking locked regeneration controls is deliberate no-op/race proof under a write-abort fence. Any POST attempted is recorded and fails the bounded acceptance result; no model/provider request can escape.
+- Original channel IDs are the three explicitly authorized IDs only. The extra id='new' is never selected. Original-channel choice is by explicit IDs plus data requirements (sources/media/template association), not first display name or unknown list[0].
+- Native inventory contains no credentials. Cookie values and request headers are never written or printed.
+
+Cases at 1440x900 and 390x844
+1. Native Sources grid: measures desktop track ratio 1.3:1, native source count, 34x34 avatar wrappers and distinct full-width top-info/bottom-action rows. Empty native sources cannot pass the populated-row requirement.
+2. Native Sources follow form: blank, whitespace and Enter submit produce the exact inline alert, aria-invalid/description linkage and input focus, with no mutation attempt.
+3. Sources picker: native shared-rival state preferred; if insufficient, GET-only source associations are changed using actual rivals and two original owner channel IDs. JSON labels this fixture explicitly. Already-here stays checked/aria-disabled after activation; linked-elsewhere is enabled, says 'dùng chung được', can be locally selected, and enables Link 1 without submitting it.
+4. Mobile picker: shared .m-sheet primitive, one visible dialog/overlay/scrim, aria-modal, bounds/no horizontal overflow/body scroll lock, focus contained through complete forward/back Tab cycles, Escape and scrim dismissal, focus restoration. Mobile runs normal and reduced motion. Desktop picker Escape/focus is covered without claiming it is a modal Sheet.
+5. Native Create follow form: same blank/whitespace/Enter invalid/focus/no-request checks; never creates or follows a rival.
+6. Brief failure cases: native ready identity when available, otherwise explicit GET-only ready identity override preserving real branding/media. Dirty locks are checked; blur/click triggers an intercepted PATCH; promise gate exposes pending locks; synthetic field-specific 400 and network failure are exercised separately. Draft is retained, textarea invalid, visible error/retry, all four regeneration actions remain aria-disabled, and locked actions emit zero POST. No successful persistence/readback claim.
+7. Native Profile mobile: banner full-width row, avatar+rename equal two-column row, minimum 44px action heights and download full-width when present. No download activated.
+8. Safe area: real same-origin native banner required for pixel proof; exact centered 60.4% x 29.4% border-box geometry, transparent interior/exterior 9999px shadow and clipping are measured. Guide-on/off banner PNG crops are decoded with Node built-ins; interior sample pixels must remain unchanged while exterior samples darken. A missing/blocked real banner is UNPROVEN, not a pass. This is sampled actual-pixel evidence, not exhaustive image-diff/visual-parity certification.
+9. Pending avatar: actual old same-origin native avatar remains mounted and loaded under circular pending status; normal/reduced animation CSS differs. GET-only generating-avatar identity override is explicit if native state is insufficient; no fake activity/progress/job or media URL is introduced, and no transition/completion is claimed.
+10. Native Template default: default card wrapper 128x72 desktop/112x63 mobile; menu artwork wrapper 48x27; option scene/count/health descriptions remain present, trigger height does not grow; menu uses associated genuine prompt sample URLs when available. Provenance records template ID -> scene prompt ID -> sample URL. These are sample illustrations, NEVER claimed to be generated template previews. No previewUrl is invented or derived from projectId. Missing associated artwork is marked UNPROVEN. Sửa template navigates to that actual default's ?section=images and exposes Chỉ dẫn ảnh cảnh without a write.
+
+Evidence/result semantics
+- results.json carries per-case viewport, native/fixture proof distinction, pass/failed/unproven, measurements, screenshots, fixture descriptions, blocked/synthetic request events, limits and native inventory. Screenshot names are deterministic and contain no credentials.
+- Native template/prompt counts and sample binding counts are read from the actual APIs rather than asserted from the older 3/9/2/1 observation.
+- Unsupported prerequisites are 'unproven'; assertion regressions are 'failed'. Global status is FAIL on failed assertions, unexpected mutation/download/page errors; DONE_WITH_CONCERNS when cases are unsupported; otherwise PASS_BOUNDED_SCOPE only. Pre-run/setup failure produces BLOCKED.
+- A case combining several criteria may record successful submeasurements/screenshots but finish unproven if a later required populated-media prerequisite is absent. Do not promote its earlier geometry to whole-state acceptance.
+- Screenshots are captured after document.fonts.ready, all finite animations finish, and two animation frames settle. Assertions are web-first; no arbitrary sleeps. Screenshots disable animation to freeze shimmer. Normal/reduced shimmer checks inspect CSS before capture, not temporal shimmer travel.
+- The fence records prevented requests, not hypothetical future requests. No-request evidence is limited to exercised actions plus deterministic settlement. No successful link/save/create/default-template mutation or reload-persistence, AI output, exhaustive declared-tweak parity, matching activity progress, binary freshness or backend generation contract is proven by this controller.

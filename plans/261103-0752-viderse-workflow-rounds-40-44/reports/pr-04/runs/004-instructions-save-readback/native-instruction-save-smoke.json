@@ -1,0 +1,98 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "recipient": "scout",
+      "action": "save-merge-reload",
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "recipient": "director",
+      "action": "save-merge-reload",
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "recipient": "artist",
+      "action": "save-merge-reload",
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "recipient": "qa",
+      "action": "save-merge-reload",
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "recipient": "scout",
+      "action": "save-merge-reload",
+      "status": 200,
+      "singleLayer": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "recipient": "director",
+      "action": "save-merge-reload",
+      "status": 200,
+      "singleLayer": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "recipient": "artist",
+      "action": "save-merge-reload",
+      "status": 200,
+      "singleLayer": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "recipient": "qa",
+      "action": "save-merge-reload",
+      "status": 200,
+      "singleLayer": true
+    }
+  ],
+  "blocked": [],
+  "restored": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "restored-original-map"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "restored-original-map"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "runtime": "internal",
+  "agent": "task (default)",
+  "requestedModel": "openai-codex/gpt-6.1-sol",
+  "evidence": "Current live parent model; task interface exposes model selection. Default upstream Devin route failed quota previously; not reused.",
+  "isolation": "Private artifact directories; product read-only; prompt-level controls, not OS sandbox.",
+  "capability": "C2 testing",
+  "risk": "R1 private artifacts only",
+  "familyIndependence": "Not claimed",
+  "dispatch": "2 native task handles received",
+  "configuredTaskOverride": "openai-codex/gpt-6.1-sol",
+  "selection": "Session task override, omitted per-call model after override conflicts",
+  "userApproval": "Cho ph\u00e9p b\u1eadt",
+  "persisted": false
+}

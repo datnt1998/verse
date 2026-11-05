@@ -1,0 +1,113 @@
+*** Begin Patch
+[/Users/dat/Projects/verse/apps/viderse/web/src/screens/channel/SourcesTab.tsx#5919]
+PUT 7.=8:
++import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
++import { ActionSheet, Button, Checkbox, Icon, Sheet, confirm, toast, useAsyncAction, useEscapeLayer } from '@noverse/ui'
+PUT 24.=24:
++import { color, kit, line } from '@noverse/ui/tokens.stylex'
+PUT >50:
++  unlinkBody: {
++    display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'],
++    padding: 'var(--vv-s-6) var(--vv-s-16) var(--vv-s-16)',
++  },
++  unlinkTitle: { margin: 0, fontSize: 18, fontWeight: 600, lineHeight: 1.35, color: color['--color-fg'], overflowWrap: 'anywhere' },
++  unlinkText: { margin: 0, fontSize: typography['--vv-fs-title-small'], lineHeight: 1.55, color: color['--color-fg-2'], overflowWrap: 'anywhere' },
++  unlinkError: { margin: 0, fontSize: typography['--vv-fs-small'], color: kit['--kit-err-bright'], overflowWrap: 'anywhere' },
++  unlinkButtons: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: space['--vv-s-8'], marginTop: space['--vv-s-4'] },
+PUT >54:
++
++type UnlinkConfirmation = {
++  title: string
++  description: string
++  onConfirm: () => Promise<void>
++}
+PUT >65:
++  const [unlinkConfirmation, setUnlinkConfirmation] = useState<UnlinkConfirmation | null>(null)
+PUT >87:
++    const onConfirm = async () => {
++      const result = await unlinkSource(channel.id, rivalId)
++      void invalidate(keys.channels())
++      void invalidate(keys.channel(channel.id))
++      // `autoFetchPaused` thật từ server: báo thêm khi kênh hết nguồn.
++      toast.ok(result.autoFetchPaused ? tt.unlinkPaused : tt.unlinkDone(row.title))
++    }
++    if (phone) {
++      setUnlinkConfirmation({
++        title: tt.unlinkTitle(row.title, name),
++        description: `${tt.unlinkLead} ${bullets.join('. ')}.`,
++        onConfirm,
++      })
++      return
++    }
+PUT 100.=106:
++      cancelLabel: tt.unlinkCancel,
++      onConfirm,
+PUT 181.=195:
++  return (
++    <>
++      {phone ? (
++        <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
++          <AutomationCard channel={channel} rivals={rivals} mobile />
++          {rivalsCard}
++        </section>
++      ) : (
++        <section className={`vch-sources ${stylex.props(channelStyles.sources, sx.sources).className}`} aria-label={t.channels.page.tabs.sources}>
++          {rivalsCard}
++          <AutomationCard channel={channel} rivals={rivals} />
++        </section>
++      )}
++      {unlinkConfirmation && (
++        <MobileUnlinkConfirmation {...unlinkConfirmation} onExited={() => setUnlinkConfirmation(null)} />
++      )}
++    </>
++  )
+PUT >196:
++
++function MobileUnlinkConfirmation({ title, description, onConfirm, onExited }: UnlinkConfirmation & { onExited: () => void }) {
++  const tt = t.channels.sources
++  const descriptionId = useId()
++  const [open, setOpen] = useState(true)
++  const submitting = useRef(false)
++  const action = useAsyncAction(async () => {
++    submitting.current = true
++    try {
++      await onConfirm()
++      setOpen(false)
++    } finally {
++      submitting.current = false
++    }
++  })
++  const close = () => { if (!submitting.current && !action.busy) setOpen(false) }
++  const error = action.error instanceof Error && action.error.message ? action.error.message : tt.unlinkFailed
++
++  return (
++    <Sheet open={open} onClose={close} onExited={onExited} height="auto" size="md"
++      role="alertdialog" label={title} aria-describedby={descriptionId} grab={!action.busy}>
++      <div {...stylex.props(sx.unlinkBody)}>
++        <h3 {...stylex.props(sx.unlinkTitle)}>{title}</h3>
++        <p id={descriptionId} {...stylex.props(sx.unlinkText)}>{description}</p>
++        {action.error != null && <p role="alert" {...stylex.props(sx.unlinkError)}>{error}</p>}
++        <div {...stylex.props(sx.unlinkButtons)}>
++          <Button variant="ghost" size="lg" disabled={action.busy || !open} onClick={close}>{tt.unlinkCancel}</Button>
++          <Button variant="dsoft" size="lg" disabled={action.busy || !open} pending={action.pending} onClick={() => void action.run()}>{tt.unlinkOk}</Button>
++        </div>
++      </div>
++    </Sheet>
++  )
++}
+PUT 282.=284:
++            { label: tt.topVideos, description: tt.topVideosHint, icon: 'trend', onSelect: () => navigate(href.slice(1)) },
++            { label: tt.openExplore, icon: 'radar', onSelect: () => navigate(href.slice(1)) },
++            { label: tt.unlinkAction, description: tt.unlinkHint, icon: 'trash', destructive: true, onSelect: () => setPendingUnlink(true) },
+[/Users/dat/Projects/verse/apps/viderse/web/src/i18n/channels.ts#C5AF]
+PUT >141:
++    topVideosHint: 'Mở Khám phá ở đối thủ này, xếp theo nổi trội',
+PUT >143:
++    unlinkAction: 'Bỏ liên kết…',
++    unlinkHint: 'Hỏi xác nhận trước',
+PUT 149.=149:
++    unlinkRefNext: (name: string) => `${name} thành tham chiếu nhận diện (không vẽ lại gì)`,
+PUT >154:
++    unlinkCancel: 'Huỷ',
++    unlinkFailed: 'Chưa bỏ liên kết được. Thử lại.',
+*** End Patch

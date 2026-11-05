@@ -1,0 +1,879 @@
+{
+  "apiReads": 165,
+  "actions": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "library-load",
+      "action": "goto #/library",
+      "observed": "3 template cards; geo {\"w\":1440,\"sw\":1440}",
+      "status": "passed",
+      "screenshot": "native-1440-library-templates.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "tab-prompts",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-tab-prompts.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "tab-backdrops",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-tab-backdrops.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "tab-overlays",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-tab-overlays.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "tab-templates",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-tab-templates.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "prompts-filter+search",
+      "action": "scene filter + search \"QA\"",
+      "observed": "options: Tất cả 9 | Ảnh cảnh 3 | Ảnh bìa 6; GET /api/image-prompts?kind&q fired and grid updated",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "prompt-editor-open-close",
+      "action": "open \"Mở chỉ dẫn Theo nhận diện kênh\" → back",
+      "observed": "PromptEditor mounted inline; back returned to grid; no writes",
+      "status": "passed",
+      "screenshot": "native-1440-prompt-editor.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "overlay-play-toggle",
+      "action": "click play then pause",
+      "observed": "video paused=!false; remove buttons present=0 (all overlays built-in => 0 expected)",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "backdrops-addbar",
+      "action": "inspect add bar",
+      "observed": "submit disabled when empty=true, enabled after input=true; submit not clicked (POST /api/sources/parse is a mutation — unverified)",
+      "status": "passed",
+      "screenshot": "native-1440-backdrops.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "menu-delete-locked",
+      "action": "click locked Xoá",
+      "observed": "bounds={\"x\":447,\"y\":530.90625,\"width\":250,\"height\":184.390625} inside=true; aria-disabled=true reason=\"Đang là mẫu video mặc định của Midnight Tales, Quiet Hours. Đổi mẫu video mặc định ở Kênh \"; after click menuOpen=true noDialog=true",
+      "status": "passed",
+      "screenshot": "native-1440-menu-inuse.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "menu-esc-close",
+      "action": "Escape",
+      "observed": "menu closed, focus back on trigger",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "menu-outside-close",
+      "action": "click outside",
+      "observed": "menu closed on pointerdown outside",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "rename-dialog",
+      "action": "menu→Đổi tên→Huỷ",
+      "observed": "title ok=true; bounds inside=true; cancelled, no PATCH",
+      "status": "passed",
+      "screenshot": "native-1440-rename-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "attach-chooser",
+      "action": "menu→attach→Mở <channel>",
+      "observed": "navigated to #/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates; read-only (default set happens in Channel › Template)",
+      "status": "passed",
+      "screenshot": "native-1440-attach-chooser.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "delete-confirm",
+      "action": "menu→Xoá→Huỷ",
+      "observed": "alertdialog \"Xoá mẫu video “Kiểm thử QA · chọn prompt trong viewer”?Mẫu v\" inside=true; cancelled, no DELETE",
+      "status": "passed",
+      "screenshot": "native-1440-delete-confirm.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "create-dialog",
+      "action": "open, fill, Huỷ",
+      "observed": "dialog opened, name filled, cancelled — no POST /api/templates",
+      "status": "passed",
+      "screenshot": "native-1440-create-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "import-dialog",
+      "action": "open→Esc",
+      "observed": "import dialog rendered; closed on Esc; no file/upload attempted",
+      "status": "passed",
+      "screenshot": "native-1440-import-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-open",
+      "action": "card name link",
+      "observed": "navigated to #/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142",
+      "status": "passed",
+      "screenshot": "native-1440-template.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-section-cover",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-section-backdrop",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-section-output",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-section-images",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-options-menu",
+      "action": "open+Esc",
+      "observed": "items=[Xuất tệp, Nhân bản, Về Thư viện, XoáĐang là mẫu video mặc định của Midnight Tales, Quiet Hours. Đổi mẫu video mặc định ở Kênh › Template trước rồi xoá.] deleteLocked=true; inside=true",
+      "status": "passed",
+      "screenshot": "native-1440-template-options.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "preview-source-popover",
+      "action": "open select→Esc",
+      "observed": "floating listbox with 1 option(s); bounds={\"x\":1092,\"y\":457.375,\"width\":300,\"height\":34} inside=true; no build started",
+      "status": "passed",
+      "screenshot": "native-1440-preview-source-popover.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": false,
+      "control": "template-back-nav",
+      "action": "nav back link",
+      "observed": "returned to #/library",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mlibrary-load",
+      "action": "goto #/library",
+      "observed": "rendered; scrollW=390 innerW=390",
+      "status": "passed",
+      "screenshot": "native-390-mlibrary-templates.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mlibrary-tabs",
+      "action": "measure + tap 4 tabs",
+      "observed": "4 tabs widths=[108,119,106,98] heights=[40,40,40,40] all>=44:false",
+      "status": "failed",
+      "screenshot": "native-390-mlibrary-tabs.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "add-sheet",
+      "action": "open",
+      "observed": "bottom sheet bounds={\"x\":0,\"y\":542.703125,\"width\":390,\"height\":301.296875} inside=true; 4 actions: Mẫu video mớiBắt đầu từ Mẫu chuẩn, sửa từng mục sau | Nhập mẫu videoTệp .ytf-template.zip · chọn nhiều tệp được | Chỉ dẫn ảnh mới | Kênh hoặc video nền",
+      "status": "passed",
+      "screenshot": "native-390-sheet-add.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "sheet-prompt-editor",
+      "action": "add-sheet→Chỉ dẫn ảnh mới→Esc",
+      "observed": "PromptEditor sheet inside=true",
+      "status": "passed",
+      "screenshot": "native-390-prompt-editor-sheet.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "sheet-new-template",
+      "action": "add-sheet→Mẫu video mới→Huỷ",
+      "observed": "naming dialog opened and cancelled — no POST",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "sheet-import",
+      "action": "add-sheet→Nhập mẫu video→Esc",
+      "observed": "import dialog inside=true; no upload attempted",
+      "status": "passed",
+      "screenshot": "native-390-import-sheet.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "sheet-add-backdrop",
+      "action": "add-sheet→Kênh hoặc video nền→Esc",
+      "observed": "height-auto link sheet bounds={\"x\":0,\"y\":642.203125,\"width\":390,\"height\":201.796875} inside=true",
+      "status": "passed",
+      "screenshot": "native-390-backdrop-link-sheet.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "template-sheet-inuse",
+      "action": "open, inspect delete, Esc",
+      "observed": "delete disabled=true aria-disabled=true w/ reason; inside=true",
+      "status": "passed",
+      "screenshot": "native-390-sheet-actions-inuse.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "template-sheet-rename",
+      "action": "sheet→Đổi tên→Huỷ",
+      "observed": "rename dialog inside=true; cancelled, no PATCH",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "attach-chooser",
+      "action": "sheet→attach→Mở <channel>",
+      "observed": "navigated to #/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+      "status": "passed",
+      "screenshot": "native-390-attach-chooser.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "template-delete-confirm",
+      "action": "sheet→Xoá→Huỷ",
+      "observed": "ConfirmSheet bounds={\"x\":0,\"y\":204,\"width\":390,\"height\":640} inside=true; cancelled, no DELETE",
+      "status": "passed",
+      "screenshot": "native-390-confirm-delete.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mtemplate-list",
+      "action": "open template",
+      "observed": "4 section rows: Ảnh cảnhTách nền · Theo nhận diện kênh · 6 ảnh | Ảnh bìaẢnh sạch | Nền & hiệu ứngChưa gắn video nền | Xuất & kênhNén · mặc định của 2 kênh",
+      "status": "passed",
+      "screenshot": "native-390-mtemplate-list.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mtemplate-more-sheet",
+      "action": "open+Esc",
+      "observed": "items=Đổi tên, Nhân bản, Xuất tệp mẫu video, Xoá mẫu videoĐang là mặc định của Midnight Tales, Quiet Hours · đổi ở Kênh trước; inside=true",
+      "status": "passed",
+      "screenshot": "native-390-mtemplate-more.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mtemplate-preview-sheet",
+      "action": "Dựng lại→source sheet→Esc",
+      "observed": "source picker sheet inside=true; cancelled — no preview build",
+      "status": "passed",
+      "screenshot": "native-390-preview-source-sheet.png"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "mtemplate-section-nav",
+      "action": "images→back",
+      "observed": "section screen + return worked",
+      "status": "passed",
+      "screenshot": "native-390-mtemplate-images.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "library-load",
+      "action": "goto #/library",
+      "observed": "3 template cards; geo {\"w\":1440,\"sw\":1440}",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-library-templates.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "tab-prompts",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-tab-prompts.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "tab-backdrops",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-tab-backdrops.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "tab-overlays",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-tab-overlays.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "tab-templates",
+      "action": "click tab",
+      "observed": "panel rendered; horizontal overflow=none",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-tab-templates.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "menu-delete-locked",
+      "action": "click locked Xoá",
+      "observed": "bounds={\"x\":447,\"y\":530.90625,\"width\":250,\"height\":184.390625} inside=true; aria-disabled=true reason=\"Đang là mẫu video mặc định của Midnight Tales, Quiet Hours. Đổi mẫu video mặc định ở Kênh \"; after click menuOpen=true noDialog=true",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-menu-inuse.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "menu-esc-close",
+      "action": "Escape",
+      "observed": "menu closed, focus back on trigger",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "menu-outside-close",
+      "action": "click outside",
+      "observed": "menu closed on pointerdown outside",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "rename-dialog",
+      "action": "menu→Đổi tên→Huỷ",
+      "observed": "title ok=true; bounds inside=true; cancelled, no PATCH",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-rename-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "attach-chooser",
+      "action": "menu→attach→Mở <channel>",
+      "observed": "navigated to #/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates; read-only (default set happens in Channel › Template)",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-attach-chooser.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "delete-confirm",
+      "action": "menu→Xoá→Huỷ",
+      "observed": "alertdialog \"Xoá mẫu video “Kiểm thử QA · chọn prompt trong viewer”?Mẫu v\" inside=true; cancelled, no DELETE",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-delete-confirm.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "create-dialog",
+      "action": "open, fill, Huỷ",
+      "observed": "dialog opened, name filled, cancelled — no POST /api/templates",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-create-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "import-dialog",
+      "action": "open→Esc",
+      "observed": "import dialog rendered; closed on Esc; no file/upload attempted",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-import-dialog.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-open",
+      "action": "card name link",
+      "observed": "navigated to #/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-template.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-section-cover",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-section-backdrop",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-section-output",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-section-images",
+      "action": "section nav",
+      "observed": "mounted",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-options-menu",
+      "action": "open+Esc",
+      "observed": "items=[Xuất tệp, Nhân bản, Về Thư viện, XoáĐang là mẫu video mặc định của Midnight Tales, Quiet Hours. Đổi mẫu video mặc định ở Kênh › Template trước rồi xoá.] deleteLocked=true; inside=true",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-template-options.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "preview-source-popover",
+      "action": "open select→Esc",
+      "observed": "floating listbox with 1 option(s); bounds={\"x\":1092,\"y\":457.375,\"width\":300,\"height\":34} inside=true; no build started",
+      "status": "passed",
+      "screenshot": "native-1440-reduced-preview-source-popover.png"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "reducedMotion": true,
+      "control": "template-back-nav",
+      "action": "nav back link",
+      "observed": "returned to #/library",
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "touch-audit-templates",
+      "action": "measure interactive controls",
+      "observed": "12 controls; 6 under 44px: Mẫu video3(108x40); Chỉ dẫn ảnh9(119x40); Video nền0(106x40); Lớp phủ12(98x40); Kiểm thử QA · chọn prompt trong viewer(284x39); Mẫu chuẩn · Tách nền(284x20)",
+      "status": "partial",
+      "smallCount": 6,
+      "small": [
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Mẫu video3",
+          "w": 108,
+          "h": 40,
+          "x": 20,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Chỉ dẫn ảnh9",
+          "w": 119,
+          "h": 40,
+          "x": 131,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Video nền0",
+          "w": 106,
+          "h": 40,
+          "x": 253,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Lớp phủ12",
+          "w": 98,
+          "h": 40,
+          "x": 362,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "a",
+          "role": "a",
+          "label": "Kiểm thử QA · chọn prompt trong viewer",
+          "w": 284,
+          "h": 39,
+          "x": 31,
+          "y": 351,
+          "disabled": false
+        },
+        {
+          "tag": "a",
+          "role": "a",
+          "label": "Mẫu chuẩn · Tách nền",
+          "w": 284,
+          "h": 20,
+          "x": 31,
+          "y": 684,
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "reducedMotion": false,
+      "control": "touch-audit-prompts",
+      "action": "measure interactive controls",
+      "observed": "19 controls; 7 under 44px: Mẫu video3(108x40); Chỉ dẫn ảnh9(119x40); Video nền0(106x40); Lớp phủ12(98x40); Tất cả(63x26); Ảnh cảnh(79x26); Ảnh bìa(68x26)",
+      "status": "partial",
+      "smallCount": 7,
+      "small": [
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Mẫu video3",
+          "w": 108,
+          "h": 40,
+          "x": 20,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Chỉ dẫn ảnh9",
+          "w": 119,
+          "h": 40,
+          "x": 131,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Video nền0",
+          "w": 106,
+          "h": 40,
+          "x": 253,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Lớp phủ12",
+          "w": 98,
+          "h": 40,
+          "x": 362,
+          "y": 64,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Tất cả",
+          "w": 63,
+          "h": 26,
+          "x": 20,
+          "y": 122,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Ảnh cảnh",
+          "w": 79,
+          "h": 26,
+          "x": 86,
+          "y": 122,
+          "disabled": false
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "label": "Ảnh bìa",
+          "w": 68,
+          "h": 26,
+          "x": 167,
+          "y": 122,
+          "disabled": false
+        }
+      ]
+    }
+  ],
+  "blockedMutations": [],
+  "failures": []
+}

@@ -1,0 +1,15 @@
+{
+  "schema": 38,
+  "source": "Owned loopback QA only; no production writes",
+  "restoredAppDatabase": "verse_workflow_qa_v38_230140",
+  "restoredIdentityDatabase": "verse_workflow_qa_v38_identity_230140",
+  "appBackupBytes": 319423,
+  "appBackupSHA256": "691033576108b845185141ecc081270853589f9ca9d6ff0407798dd866688326",
+  "identityBackupBytes": 175067,
+  "identityBackupSHA256": "42197e743754ce684dcd29a43d0444848e718e423946385595f1626d3fa36f0d",
+  "media": "Separate file copies, not hardlinks",
+  "providerCredentialPresent": false,
+  "workerGuardService": "viderse-v38-worker-guard",
+  "workerGuardPID": 94751,
+  "productionRollback": "Not authorized by this QA restore; requires quiesced maintenance until acceptance"
+}

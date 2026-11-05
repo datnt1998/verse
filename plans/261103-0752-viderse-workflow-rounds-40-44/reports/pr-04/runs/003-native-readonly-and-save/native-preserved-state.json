@@ -1,0 +1,19 @@
+{
+  "jobs": {
+    "before": 3,
+    "after": 3,
+    "unchanged": true
+  },
+  "steps": {
+    "before": 27,
+    "after": 27,
+    "unchanged": true
+  },
+  "receipts": {
+    "before": 2,
+    "after": 2,
+    "unchanged": true
+  },
+  "provider_source_unchanged": true,
+  "user_model_unchanged": true
+}

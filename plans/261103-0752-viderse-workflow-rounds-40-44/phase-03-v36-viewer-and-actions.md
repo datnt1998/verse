@@ -1,7 +1,7 @@
 ---
 phase: 3
 title: "Bước 2 · V36 Trình xem ảnh và nối nút"
-status: in-progress
+status: completed
 priority: P1
 dependencies: [2]
 ---
@@ -85,13 +85,14 @@ Viewer chung dùng cùng mutation/cache owner, không mở subscription trùng. 
 - **Team sửa hai lỗi cuối đã tìm thấy:** source `a704a2a236cc6af8a526c4b824dc954958b6d25f` gắn tick theo ID và giữ đầy đủ nhãn bộ chọn tham chiếu. [Receipt](reports/pr-02/review-team-integration.json): full3756qua/4skip, typecheck/build/native build qua; native92 có50capture và kiểm approval identity/label geometry/keyboard/slider≤2px, raw/draft/refs/cutout/batch/confirm; source/replay giữ nguyên,0provider. Template93 qua2/2. Comparison `Review.prompt.edit` đã dùng draft thật, rail từ đầu. Đang review34comparison và bổ sung ledger control, chưa đóng checklist hoặc merge.
 - **Model/bàn phím/tham chiếu:** source `098742e1af49505838bce0eea73979e1c8a7ccd9`, full3764qua/4skip và build nhúng qua; Review37/37 có hai hồi quy lỗi-trước/qua-sau cho thêm→gỡ và thêm trùng. Native1072/2 kiểm draft trả về0thay đổi/0API; native1088/8 Review/Settings ở cả viewport/motion, không ghi ngoài quyền. Native109 UseVersion HTTP200 + inverse có job/steps/intents/artifacts/bindings khôi phục, source/project gốc giữ nguyên và image_receipts0→0. Lượt111 tiếp tục bắt race địa chỉ sau duyệt; focused50/50 qua sau sửa cả desktop/mobile nhưng full/build/native xác nhận còn chạy, chưa đánh dấu phase đạt.
 - **Nghiệm thu nguồn `11f1cd36`:** full3766qua/4skip, typechecks/build nhúng qua; native138model autosave2/2, Review14052capture/50observation, safe controls1418/8 PC/mobile vàrefs2/2, Review actions14212/12, Main dùng bản1452/2 vàviewer1462/2. [Receipt](reports/pr-02/integrated-acceptance.json), [xử lý đối chiếu](reports/pr-02/visual-review-disposition.md). Người dùng đã chốt **#85A giữ thẻ nguồn vẽ đầy đủ**. Không gọi0dead toàn app, không gọi provider hoàn tất từ queue/cancel, không triển khai mobile45; fallback thành công cần credential nguồn thứ hai. PR3–PR6 và hai release gate#83 còn mở.
+- **Đã merge PR2:** [#3](https://github.com/datnt1998/verse/pull/3), commit `3e238b0834194f014922280258ae925b6d659c31`, ngày04/11/2026. GitHub Actions tắt và danh sách post-merge run rỗng đã kiểm; không gọi hosted CI xanh. PR3 bắt đầu trên branch riêng, không deploy giữa các bước.
 
 
 ## Checklist
 - [x] Chốt references, typed contexts và mọi desktop image entrypoint.
 - [x] Hoàn thành viewer/actions/confirmation và bỏ data-key cả hai bố cục.
 - [x] Qua focused tests + build/typecheck + actual UI/state/tweak gates trong phạm vi V36; giới hạn và owner các phần sau được ghi rõ trong report.
-- [ ] Gửi comparison/control/motion report, gap V36; merge PR2 trước PR3.
+- [x] Gửi comparison/control/motion report, gap V36; PR2 đã merge trước PR3.
 
 ## Thực hiện bổ sung #84 · đúng bản đang xem
 

@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Bước 1 · Nền UI dùng chung"
-status: in-progress
+status: completed
 priority: P1
 dependencies: [1]
 ---
@@ -63,4 +63,4 @@ Rollback bằng revert PR trước PR kế tiếp; không reset dữ liệu hay 
 - [x] Chốt lại source map và adapter cần dùng, không tái tạo primitive đã đạt.
 - [x] Hoàn thành responsive overlay/confirmation và policy toast 4 giây.
 - [x] Qua focused checks, browser smoke hai app và toàn bộ gate liên quan; [bằng chứng và giới hạn](reports/pr-01/foundation.md).
-- [ ] Gửi báo cáo ảnh, control ledger, gap; merge PR nền trước V36.
+- [x] Gửi [báo cáo ảnh/control/motion](reports/pr-01/foundation.md), gap với commit thật; [PR #2](https://github.com/datnt1998/verse/pull/2) merge `a7341d37db67e7cfafdb8035818f700820a11594` ngày 03/11/2026. Actions tắt, không có hosted check; chưa deploy.

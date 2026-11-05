@@ -1,0 +1,25 @@
+{
+  "kind": "UI response-override fixture, not a real model or backend scoring run",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "warningVisible": true,
+      "contained": true,
+      "fixture": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "warningVisible": true,
+      "contained": true,
+      "fixture": true
+    }
+  ],
+  "blocked": [],
+  "status": "passed"
+}

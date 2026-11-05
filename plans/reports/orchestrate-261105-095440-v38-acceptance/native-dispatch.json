@@ -1,0 +1,12 @@
+{
+  "jobs": [
+    "V38ParallelUIAcceptance",
+    "V38ParallelQAContracts"
+  ],
+  "runtime": "internal",
+  "agent": "task",
+  "configuredModel": "openai-codex/gpt-6.1-sol",
+  "state": "running",
+  "configPersistence": "session-only; awaiting user preference",
+  "ownership": "private artifact dirs only; product read-only"
+}
