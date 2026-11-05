@@ -25,6 +25,7 @@ import (
 type JobRepository interface {
 	GetJob(context.Context, string) (*domain.CloneJob, error)
 	ListSteps(context.Context, string) ([]domain.CloneStepRecord, error)
+	ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error)
 }
 type Service struct {
 	Store         *Store
@@ -120,6 +121,10 @@ func (s *Service) Inputs(ctx context.Context, jobID string) (domain.CloneJob, ma
 	if projectID == "" {
 		return *job, upstream, "", nil, renderError(domain.CloneErrInvalidRequest, "Video chưa có bản dựng — chạy bước dựng trước")
 	}
+	artifacts, err := s.Jobs.ListArtifacts(ctx, jobID)
+	if err != nil {
+		return *job, upstream, projectID, nil, err
+	}
 	var resources editor.Repository
 	if s.Editor != nil {
 		resources = s.Editor.Repository
@@ -127,7 +132,7 @@ func (s *Service) Inputs(ctx context.Context, jobID string) (domain.CloneJob, ma
 			resources = s.Editor.Store.Repository
 		}
 	}
-	return *job, upstream, projectID, artifactMedia{Base: s.Media, JobID: jobID, Upstream: upstream, Resources: resources}, nil
+	return *job, upstream, projectID, artifactMedia{Base: s.Media, JobID: jobID, Upstream: upstream, Resources: resources, Artifacts: artifacts}, nil
 }
 
 type artifactMedia struct {
@@ -135,6 +140,7 @@ type artifactMedia struct {
 	JobID     string
 	Upstream  map[domain.CloneStep]domain.CloneStepOutput
 	Resources editor.Repository
+	Artifacts []domain.CloneArtifact
 }
 
 func (m artifactMedia) Acquire(ctx context.Context, path string) (*media.Handle, error) {
@@ -154,6 +160,23 @@ func (m artifactMedia) Acquire(ctx context.Context, path string) (*media.Handle,
 	}
 	if strings.HasPrefix(path, "clone/") && !strings.HasPrefix(path, "clone/"+m.JobID+"/") {
 		return nil, pipeline.ErrNotFound
+	}
+	for _, artifact := range m.Artifacts {
+		rest, own := strings.CutPrefix(artifact.Path, "clone/"+m.JobID+"/")
+		if !own {
+			continue
+		}
+		digest, relative, found := strings.Cut(rest, "/")
+		if !found || digest == "" || relative == "" || relative != path {
+			continue
+		}
+		if logical != "" && logical != artifact.Path {
+			return nil, fmt.Errorf("ambiguous artifact %s", path)
+		}
+		logical = artifact.Path
+	}
+	if logical != "" {
+		return m.Base.Acquire(ctx, logical)
 	}
 	if m.Resources != nil && strings.HasPrefix(path, "editor/media/") && strings.HasSuffix(path, "/metadata.json") {
 		parts := strings.Split(path, "/")
