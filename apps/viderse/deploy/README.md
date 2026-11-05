@@ -94,6 +94,19 @@ migration. Sau rollout phải chứng minh request thật nhận claim, upload v
 đo qua checkpoint, không chỉ `/readyz`. Retry dùng thao tác repository/API hiện
 có và giữ nguyên checkpoint các bước AI đã thành công.
 
+Nếu Thành phẩm báo mất file dù bước xuất thành công, kiểm metadata editor và
+blob trước khi dựng lại. Output mới có `data.projectId`/`exportId`, không nhất
+thiết có artifact MP4. PC và điện thoại phải dùng URL editor cùng origin, giữ
+`removedAt` để không phát bản đã xoá. `durationMs` của bước xuất là thời gian xử lý,
+không phải độ dài video; lấy độ dài từ metadata media hoặc nguồn.
+
+Hotfix playback UI khi workflow mới chưa nghiệm thu: chỉ backport resolver/caller
+vào đúng revision production, cài dependency theo lockfile và build assets riêng.
+Ghi SHA binary/index/chunk, giữ binary trước để rollback; đây không phải phát hành
+toàn bộ UI đang giữ gate. Public HTML có thể được Cloudflare chèn script động;
+đối chiếu asset URL và byte của chunk với build, không coi hash HTML công khai
+khác nhau là bằng chứng đang phục vụ bundle cũ.
+
 Không xem SHA của file đang cài là bằng chứng process đang dùng file đó. Với
 launchd tự khởi động lại, SIGTERM trước khi thay file có thể mở lại inode cũ.
 Thứ tự hotfix không đổi schema: **cài → `launchctl kickstart -k` → kiểm inode

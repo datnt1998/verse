@@ -1,0 +1,79 @@
+{
+  "jobId": "22b0b3c8-9821-426f-96fa-2f75aa74b054",
+  "rootCause": "Production product views selected video/mp4 artifacts only; successful editor export publishes output.data with no artifact",
+  "productionExport": {
+    "status": "succeeded",
+    "attempt": 1,
+    "exportId": "e98d843c-05c1-49ba-ae5e-cb15f3ff0d82",
+    "bytes": 432805526,
+    "sha256": "87f94172b4da3b52f95cd661006bcc7da39e51721eb22a9f3415849162597384",
+    "fileVerified": true,
+    "ffprobe": {
+      "video": "h264",
+      "audio": "aac",
+      "width": 1920,
+      "height": 1080,
+      "durationSec": 3380.7
+    },
+    "AIRepeated": false,
+    "renderRepeated": false
+  },
+  "release": {
+    "source": "9d440603fdb56fe3cad4bc8f28ccebbdb8f917d8",
+    "binarySHA256": "d4d86907f2dd59fd85711b1b96358090774be989022d02d23ac0a95a25298606",
+    "indexSHA256": "ddc73d77a7bc2d30e86b2441d1bc0bdd99d5a555892d3d052adffe4914fea59e",
+    "mappedPid": 47165,
+    "mappedInode": 2830537,
+    "publicReadiness": 200,
+    "publicPCMobileChunks": {
+      "WorkbenchDesktop-BCcfzata.js": "d1d16f9cd8b0971df0fe35de528abd78fb5c016b09028766675ee6470c8d9af7",
+      "MobileWorkbenchDetail-DvYrLNm8.js": "c95424c4e0f92a37756b68aa68d28f9264b2ae67d9c7d063cea29beb33c0d5bd"
+    },
+    "publicAssetRefsMatchBuild": true,
+    "publicHTMLQualifier": "Cloudflare injects dynamic script; raw public HTML hash intentionally not used as deployment identity",
+    "fullWorkflowUIDeployed": false
+  },
+  "checks": {
+    "isolatedProduction": {
+      "focusedTests": 43,
+      "typecheck": "PASS",
+      "viteBuild": "PASS",
+      "nativeBinaryBuild": "PASS"
+    },
+    "integration": {
+      "focusedTests": 36,
+      "obsoleteElapsedDurationAssertion": "Deleted, not repinned"
+    },
+    "browser": {
+      "transport": "Loopback read-response fixture with actual byte-identical production MP4; not authenticated production-session or physical Safari proof",
+      "desktop": {
+        "src": "/api/editor/projects/clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1/exports/e98d843c-05c1-49ba-ae5e-cb15f3ff0d82",
+        "readyState": 4,
+        "duration": 3380.7,
+        "videoWidth": 1920,
+        "videoHeight": 1080,
+        "error": null
+      },
+      "mobile": {
+        "src": "/api/editor/projects/clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1/exports/e98d843c-05c1-49ba-ae5e-cb15f3ff0d82",
+        "duration": 3380.7,
+        "width": 1920,
+        "height": 1080,
+        "played": 0.107512,
+        "seek": 1800,
+        "error": null,
+        "openFile": "/api/editor/projects/clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1/exports/e98d843c-05c1-49ba-ae5e-cb15f3ff0d82",
+        "overflow": false
+      },
+      "desktopPlay": {
+        "timeAdvanced": true,
+        "seekSec": 1800
+      },
+      "mediaRangeStatus": 206,
+      "consoleQualifier": "Fixture SSE intentionally disconnects; media request ERR_ABORTED during seeking/reload retained, no video decoding error",
+      "pageErrors": []
+    },
+    "authenticatedProduction": "Not exercised; chrome-profile unavailable and live relay timed out. Unauthenticated production HEAD401 preserved; no session minted or auth bypassed."
+  },
+  "designGate": "PR7 Draft; physical Safari#93 KEEP; no full UI-parity/release claim"
+}

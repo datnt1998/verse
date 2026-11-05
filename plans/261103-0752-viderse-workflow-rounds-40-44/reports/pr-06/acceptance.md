@@ -1,6 +1,6 @@
 # V40 — Bàn dựng, Duyệt và Cài đặt điện thoại
 
-Trạng thái UI: đã kiểm tới `24bf453d`; forward-port backend ở `776195e6` có Go checks qua, không thay UI assets. #91/#92 đã chốt A và triển khai. Gói UI V40 chưa ký đầy đủ/chưa merge/chưa deploy; giữ Safari iPhone thật#93. V39 merge PR#6 (`9ad1effc`). Hotfix backend riêng: [PR#9](https://github.com/datnt1998/verse/pull/9) sửa scoped-loopback, [PR#10](https://github.com/datnt1998/verse/pull/10) sửa tra cứu artifact ảnh; không mở gate UI.
+Trạng thái UI: đã kiểm tới `24bf453d`; backend forward-port `776195e6` có Go checks qua, sau đó helper duration ở `bbfab83c` có36focusedtests qua. #91/#92 đã chốt A và triển khai. Gói UI V40 chưa ký đầy đủ/chưa merge/chưa deploy; giữ Safari iPhone thật#93. V39 merge PR#6 (`9ad1effc`). Hotfix production riêng: PR#9 scoped-loopback, PR#10 catalog ảnh, PR#11 sửa semantics duration; source playback backport riêng `9d440603`, không mở gate UI.
 
 ## Bảng màn → đã sửa / còn lệch
 
@@ -37,10 +37,17 @@ Trạng thái UI: đã kiểm tới `24bf453d`; forward-port backend ở `776195
 - Ledger QA cuối vẫn3job/27step/2receipt; không gọi provider hoặc sinh ảnh mới.
 
 ## Hotfix production độc lập với V40
-- Bản chạy production `401d1b45` giữ Chrome headless và preflight HTTP loopback; chỉ nhánh token-scoped render/measure nhận exact origin đã bind từ raw loopback peer, không proxy metadata. PUBLIC_URL/SSO/editor policy giữ nguyên. UI production byte-identical; không migrate hoặc triển khai UI V40.
+- Hotfix backend `401d1b45` trước bản vá playback giữ Chrome headless và preflight HTTP loopback; chỉ nhánh token-scoped render/measure nhận exact origin đã bind từ raw loopback peer, không proxy metadata. PUBLIC_URL/SSO/editor policy giữ nguyên. Bản backend-only giữ UI cũ; bản playback tối thiểu sau đó ghi ở dưới.
 - [Provenance](source-provenance.json) ghi SHA binary/assets và bằng chứng vnode đang chạy khớp file đã cài. Không dùng file SHA hoặc ready xanh để suy ra process đã đổi image.
 - [Trạng thái kiểm](verification-state.json) sở hữu kết quả recovery; không lấy claim/PCM đang chạy làm bằng chứng score/export đã hoàn tất.
 - Public-origin workaround đã claim nhưng attempt10 timeout ở426.240.000B. Cùng9.216.000B PCM: public36.327,88ms, loopback53,479ms. Không tăng timeout hoặc chạy lại bước AI. Scoped regression trước sửa403/sau sửa qua; full web/cmd và scoped race qua. Production render suite gặp test15ms sai loại hang khi chạy song song; exact isolated test qua, không nới test.
 - Tuyến phục hồi và rollback thuộc [deployment guide](../../../../apps/viderse/deploy/README.md), không mở origin/token toàn app hay bỏ kiểm workspace. Rollout cuối đã xác minh PID38806/inode2809657 trùng binary mới; local/public ready200 và SHA UI cũ khớp.
 - Bước đo thật hoàn tất1.298.188.800B trong khoảng20giây. Lỗi75/100 sau đó là thiếu catalog artifact trung gian, không mất ảnh: render.Inputs nay đọc catalog đúngjob, output hiện hành ưu tiên, relative path khớp hoàn toàn, ambiguity lỗi và vẫn hash bytes. Regression Inputs→filesystem→ComputeScore/tamper/isolation/precedence + race qua; full production/integration render/web/cmd qua.
-- Recovery cuối score attempt12 đạt100/100, không override (`accepted=false`), reuse measurement hợp lệ; export attempt1 đã claim/render thật2223/101421frames. [Receipt](production-video-recovery.json). Đây là bằng chứng gỡ kẹt, **không phải file MP4 đã xuất xong**. Không lặp các bước AI đã thành công.
+- Nghiệm thu backend ban đầu: score attempt12 đạt100/100, không override (`accepted=false`), reuse measurement hợp lệ; export attempt1 lúc đó đã render2223/101421frames, chưa nhận hoàn tất. [Receipt](production-video-recovery.json). Sau đó MP4 đã hoàn tất; kiểm file và bản vá playback ghi ở mục tiếp theo. Không lặp các bước AI đã thành công.
+
+## Thành phẩm báo mất file dù export thành công
+- File production432.805.526B còn nguyên, SHA khớp; ffprobe H264/AAC1920×1080,3380,7s. Export attempt1 đã thành công; không dựng lại hoặc gọi AI. Screenshot lỗi do UI cũ chỉ chọn artifact MP4, trong khi output editor có projectId/exportId và artifacts rỗng.
+- Source production `9d440603` chỉ backport resolver và PC/mobile caller lên UI cũ; `removedAt` vẫn chặn bản đã xoá, legacy artifact giữ nguyên. `durationMs` là thời gian xử lý, không dùng làm độ dài media. Production43focusedtests/typecheck/Vite/native build qua; integrated36tests qua.
+- [Receipt và giới hạn](playback-hotfix/receipt.json), [PC](playback-hotfix/desktop-real-mp4.webp), [điện thoại](playback-hotfix/mobile-real-mp4.webp): built UI + read-response fixture + đúng MP4 production phát và seek1800s thật; metadata3380,7s, mobile direct-open URL đúng, không tràn ngang. Banner mất kết nối là SSE fixture kết thúc; không nhận đây là authenticated prod hoặc Safari physical proof.
+- Rollout PID47165/inode2830537/SHA khớp; public ready200, chunk PC/mobile công khai byte-identical với build đã smoke. Public HTML có Cloudflare chèn script động, không dùng raw HTML hash làm version. Không có chrome-profile/live relay để vào phiên người dùng; HEAD không đăng nhập401 đúng chính sách. Không mint session hoặc mở auth để vượt kiểm.
+- Chỉ hotfix phát Thành phẩm được deploy; toàn bộ UI/workflow V40 và gate Safari#93 vẫn giữ.

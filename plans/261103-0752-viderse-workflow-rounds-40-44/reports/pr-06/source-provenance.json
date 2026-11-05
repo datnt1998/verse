@@ -1,5 +1,5 @@
 {
-  "sourceCommit": "776195e651fe1c00befbc4ed87827c2ba064a6bc",
+  "sourceCommit": "bbfab83c5c6d1ea0b38d91f5c158d0d5bbdecc53",
   "nativeBinarySHA256": "44ead0f6fd33b4c48cc85269a5b68ea16aa3529abd5496d0d6cd1916d1b6c7b3",
   "nativeBinaryQualifier": "UI acceptance binary from24bf453d, before backend incident patches; final production backend binary recorded separately below",
   "files": {
@@ -50,7 +50,9 @@
     "apps/viderse/internal/render/service.go": "96e375e4d68af9dfa937f085583c00bc75f114582b44c035b4bb4eb715a6568c",
     "apps/viderse/internal/web/gateway.go": "54a6a355dc13316d1b80aa2d3b440595b375a0c2e47f742de954b05cb6dc13fd",
     "apps/viderse/internal/web/render.go": "a5c27e8b57059838d0337ac728fcdf6f54134f0513118c237a35c85367bf0719",
-    "apps/viderse/internal/web/render_loopback_origin_test.go": "32d4d085569914febdb8126d69c524551076a514d77b67390fc298b551b0b7ea"
+    "apps/viderse/internal/web/render_loopback_origin_test.go": "32d4d085569914febdb8126d69c524551076a514d77b67390fc298b551b0b7ea",
+    "apps/viderse/web/src/screens/workbench/workbench-logic.ts": "c2a6b199843d97e981bda4b7579c51a9f986824ff65d829d964fb5e37df218de",
+    "apps/viderse/web/src/screens/workbench/LiveStudio.test.tsx": "9a975846a004ac21900d18589efc0e419fd8606ee0259095b061c49dcbf798c9"
   },
   "removed": [
     "apps/viderse/web/src/components/reason/ReasonPopover.tsx"
@@ -75,5 +77,13 @@
       "installedInode": 2794178
     },
     "scope": "Separate production origin incident; PR7 UI not released"
+  },
+  "productionPlaybackHotfix": {
+    "commit": "9d440603fdb56fe3cad4bc8f28ccebbdb8f917d8",
+    "binarySHA256": "d4d86907f2dd59fd85711b1b96358090774be989022d02d23ac0a95a25298606",
+    "UIIndexSHA256": "ddc73d77a7bc2d30e86b2441d1bc0bdd99d5a555892d3d052adffe4914fea59e",
+    "mappedExecutable": {"pidAtVerification": 47165, "inode": 2830537, "matchesInstalled": true},
+    "receipt": "playback-hotfix/receipt.json",
+    "scope": "Minimal playback resolver/caller backport on old production UI; supersedes backend-only binary above. Not V40 release."
   }
 }

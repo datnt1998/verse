@@ -25,7 +25,7 @@
   },
   "openDecisions": [],
   "deploy": "NOT_DEPLOYED",
-  "finalSourceCommit": "776195e651fe1c00befbc4ed87827c2ba064a6bc",
+  "finalSourceCommit": "bbfab83c5c6d1ea0b38d91f5c158d0d5bbdecc53",
   "finalFocusedTests": {
     "files": 3,
     "passed": 37
@@ -112,12 +112,23 @@
     "readiness": "Loopback/public HTTP200; workspace assertion unchanged",
     "browserOrigin": "Launcher-bound direct HTTP loopback; scoped render/measure only; no proxy metadata",
     "launchdImage": "PID38806 inode2809657 matches installed binary after install then kickstart -k",
-    "actualRecovery": "Score attempt12 succeeded100/100, accepted=false, no blockers, reused valid completed measurement. Export attempt1 running, actual2223/101421frames observed; not complete.",
+    "actualRecovery": "Score attempt12 succeeded100/100, accepted=false; export attempt1 now succeeded,432805526B MP4 verified SHA and ffprobe3380.7s. Playback UI subsequently patched separately below.",
     "publicWorkaround": "Attempt10 claimed, uploaded426240000bytes, failed existing10minute deadline",
     "transportBenchmark": {"bytes": 9216000, "publicMs": 36327.88, "loopbackMs": 53.479},
     "upstreamAI": "All preceding succeeded attempts preserved; no broad invalidation/retry",
     "artifactLookup": "Approved images persisted in job catalog but absent from step output. Exact own-job relative catalog resolution restored; retained upstream precedence and hash checks.",
     "tests": "Before claim regression403; after scoped origin race PASS. Final exact production and actual integration web/render/cmd suites PASS; catalog Inputs-to-ComputeScore and tamper/isolation/ambiguity/precedence regression PASS; catalog race PASS. Earlier unchanged15ms hang test failed under concurrent load, isolated and final serial suites PASS. No hosted CI claim.",
     "receipt": "production-video-recovery.json"
+  },
+  "productionPlaybackHotfix": {
+    "sourceCommit": "9d440603fdb56fe3cad4bc8f28ccebbdb8f917d8",
+    "deployed": true,
+    "fullWorkflowUIDeployed": false,
+    "rootCause": "Production PC/mobile only selected MP4 artifacts; current editor export output has data.projectId/exportId and empty artifacts.",
+    "tests": "Isolated production43tests/typecheck/Vite/native build PASS; integrated36tests PASS.",
+    "realMP4Browser": "Built UI desktop/mobile fixture loaded actual production MP43380.7s1920x1080, played and sought1800s; mobile canonical direct-open and no horizontal overflow.",
+    "productionProof": "Mapped PID47165/inode2830537; public readiness200; public PC/mobile chunks byte-identical to smoke build. Unauthenticated export HEAD401 retained.",
+    "limits": "No authenticated production browser proof: chrome-profile unavailable, live relay timed out. Fixture is not physical Safari; no auth bypass/session minted.",
+    "receipt": "playback-hotfix/receipt.json"
   }
 }
