@@ -227,6 +227,7 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 					return err
 				}
 				w.Header().Set("ETag", strconv.Quote(revision))
+				w.Header().Set("X-Editor-Revision", revision)
 				editorJSON(w, 200, data)
 				return nil
 			case http.MethodPut:
@@ -256,6 +257,7 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 					return err
 				}
 				w.Header().Set("ETag", strconv.Quote(revision))
+				w.Header().Set("X-Editor-Revision", revision)
 				editorJSON(w, 200, p)
 				return nil
 			case http.MethodPut:
@@ -338,6 +340,7 @@ func (h editorHTTP) route(w http.ResponseWriter, r *http.Request) error {
 					return err
 				}
 				w.Header().Set("ETag", strconv.Quote(revision))
+				w.Header().Set("X-Editor-Revision", revision)
 				editorJSON(w, 200, data)
 				return nil
 			case http.MethodPut:

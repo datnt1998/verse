@@ -78,7 +78,7 @@ export class HttpEditorStorage implements EditorStorage {
     if (response.ok) return response
     const body: Record<string, unknown> = await response.json().catch(() => ({}))
     const message = typeof body.error === 'string' ? body.error : `Lỗi lưu trữ (${response.status})`
-    if (response.status === 409) {
+    if (response.status === 409 && body.code === 'revision_conflict') {
       throw new StorageConflictError(message, typeof body.revision === 'string' ? body.revision : null, body)
     }
     throw new StorageClientError((typeof body.code === 'string' ? body.code : 'internal_error') as StorageErrorCode, message, response.status, body)
@@ -87,7 +87,12 @@ export class HttpEditorStorage implements EditorStorage {
     return (await this.response(path, init)).json() as Promise<T>
   }
   private jsonWrite(method: string, data: unknown, revision?: string): RequestInit {
-    return { method, headers: { 'content-type': 'application/json', ...(revision && { 'if-match': revision }) }, body: JSON.stringify(data) }
+    return { method, headers: { 'content-type': 'application/json', ...(revision !== undefined && { 'if-match': `"${revision}"` }) }, body: JSON.stringify(data) }
+  }
+  private revision(response: Response): string {
+    const revision = response.headers.get('X-Editor-Revision')
+    if (!revision) throw new StorageClientError('internal_error', 'Không thể xác định phiên bản dữ liệu từ máy chủ. Hãy tải lại trang; nếu vẫn lỗi, liên hệ hỗ trợ.', response.status)
+    return revision
   }
   private upload(body: UploadBody, options: UploadOptions = {}): RequestInit {
     // Fetch streams directly from OPFS File.stream(); never buffers a large export.
@@ -121,7 +126,7 @@ export class HttpEditorStorage implements EditorStorage {
     if (!response.ok) {
       const error: Record<string, unknown> = await response.json().catch(() => ({}))
       const message = typeof error.error === 'string' ? error.error : `Lỗi tải lên (${response.status})`
-      if (response.status === 409) throw new StorageConflictError(message, typeof error.revision === 'string' ? error.revision : null, error)
+      if (response.status === 409 && error.code === 'revision_conflict') throw new StorageConflictError(message, typeof error.revision === 'string' ? error.revision : null, error)
       throw new StorageClientError((typeof error.code === 'string' ? error.code : 'internal_error') as StorageErrorCode, message, response.status, error)
     }
     options.onProgress?.(body.size, body.size)
@@ -138,7 +143,7 @@ export class HttpEditorStorage implements EditorStorage {
   }
   async loadProject(id: string): Promise<Revisioned<Project>> {
     const response = await this.response(`/projects/${component(id)}`)
-    return { data: await response.json() as Project, revision: response.headers.get('etag')?.replace(/^"|"$/g, '') ?? '' }
+    return { data: await response.json() as Project, revision: this.revision(response) }
   }
   async saveProject(project: Project, baseRevision: string): Promise<string> { return (await this.json<{ revision: string }>(`/projects/${component(project.id)}`, this.jsonWrite('PUT', project, baseRevision))).revision }
   async renameProject(id: string, name: string, baseRevision: string): Promise<string> { return (await this.json<{ revision: string }>(`/projects/${component(id)}`, this.jsonWrite('PATCH', { name }, baseRevision))).revision }
@@ -149,12 +154,12 @@ export class HttpEditorStorage implements EditorStorage {
   async deleteProject(id: string): Promise<void> { await this.response(`/projects/${component(id)}`, { method: 'DELETE' }) }
   async loadSidecar<T>(projectId: string, name: SidecarName): Promise<Revisioned<T>> {
     const response = await this.response(`/projects/${component(projectId)}/sidecars/${name}`)
-    return { data: await response.json() as T, revision: response.headers.get('etag')?.replace(/^"|"$/g, '') ?? 'empty' }
+    return { data: await response.json() as T, revision: this.revision(response) }
   }
   async saveSidecar(projectId: string, name: SidecarName, data: unknown, baseRevision: string): Promise<string> { return (await this.json<{ revision: string }>(`/projects/${component(projectId)}/sidecars/${name}`, this.jsonWrite('PUT', data, baseRevision))).revision }
   async loadWorkspaceEffectPresets<T>(): Promise<Revisioned<T>> {
     const response = await this.response('/workspace/effect-presets')
-    return { data: await response.json() as T, revision: response.headers.get('etag')?.replace(/^"|"$/g, '') ?? 'empty' }
+    return { data: await response.json() as T, revision: this.revision(response) }
   }
   async saveWorkspaceEffectPresets(data: unknown, baseRevision: string): Promise<string> {
     return (await this.json<{ revision: string }>('/workspace/effect-presets', this.jsonWrite('PUT', data, baseRevision))).revision
