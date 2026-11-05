@@ -1,0 +1,64 @@
+{
+  "proof": "ACTUAL_NATIVE_UI_SKIP_UNDO_GET_READBACK_WORKER_FENCED",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "routeChangedBeforeUndo": true,
+      "authoritativeReadback": true,
+      "restoredStatus": "approved",
+      "restoredVersion": 1,
+      "undoBounds": {
+        "x": 720.8927612304688,
+        "y": 847.2372436523438,
+        "width": 99.6790771484375,
+        "height": 28.0679931640625
+      },
+      "touchPass": true
+    },
+    {
+      "width": 390,
+      "status": "PASS",
+      "routeChangedBeforeUndo": false,
+      "authoritativeReadback": true,
+      "restoredStatus": "approved",
+      "restoredVersion": 1,
+      "undoBounds": {
+        "x": 195.846435546875,
+        "y": 719.5831909179688,
+        "width": 94.50262451171875,
+        "height": 26.61041259765625
+      },
+      "touchPass": false
+    }
+  ],
+  "writes": [
+    {
+      "width": 1440,
+      "path": "/api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/sc-01",
+      "op": "skip",
+      "revision": 29
+    },
+    {
+      "width": 1440,
+      "path": "/api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/sc-01",
+      "op": "unskip",
+      "revision": 30
+    },
+    {
+      "width": 390,
+      "path": "/api/clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/images/sc-01",
+      "op": "skip",
+      "revision": 25
+    },
+    {
+      "width": 390,
+      "path": "/api/clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/images/sc-01",
+      "op": "unskip",
+      "revision": 26
+    }
+  ],
+  "pageErrors": [],
+  "status": "FAIL_TOUCH_TARGET",
+  "browserClosed": true
+}

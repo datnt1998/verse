@@ -1,0 +1,39 @@
+{
+  "proof": "ACTUAL_NATIVE_HTTP_AND_POSTGRES_FENCED_NO_PROVIDER_CALLS",
+  "cases": [
+    {
+      "name": "select-valid-older-version",
+      "status": "PASS",
+      "selected": 1,
+      "latest": 2,
+      "revision": 26
+    },
+    {
+      "name": "skip-persisted-unskip-restores-older-selection",
+      "status": "PASS",
+      "selected": 1,
+      "statusRestored": "approved",
+      "revision": 28,
+      "skipHTTPStatus": 202,
+      "unskipHTTPStatus": 202
+    },
+    {
+      "name": "stale-repeat-rejected-without-rewrite",
+      "status": "PASS",
+      "httpStatus": 409
+    },
+    {
+      "name": "restore-original-QA-selection",
+      "status": "PASS",
+      "version": 2
+    }
+  ],
+  "originalSelection": {
+    "id": "sc-04",
+    "status": "approved",
+    "currentVersion": 2,
+    "reviewVersion": null
+  },
+  "ledger": "3|27|2",
+  "newImageGeneration": false
+}

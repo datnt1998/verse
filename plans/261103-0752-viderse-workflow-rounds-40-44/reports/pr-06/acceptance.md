@@ -1,6 +1,6 @@
 # V40 — Bàn dựng, Duyệt và Cài đặt điện thoại
 
-Trạng thái: phần source đã kiểm tới `4da829e8`; chưa ký đầy đủ, chưa merge hoặc deploy. V39 đã merge PR#6 (`9ad1effc`).
+Trạng thái: source đã kiểm tới `24bf453d`; #91/#92 đã được người dùng chốt A và triển khai. Chưa ký đầy đủ, chưa merge hoặc deploy; giữ gate Safari iPhone thật theo#93. V39 đã merge PR#6 (`9ad1effc`).
 
 ## Bảng màn → đã sửa / còn lệch
 
@@ -11,13 +11,13 @@ Trạng thái: phần source đã kiểm tới `4da829e8`; chưa ký đầy đ�
 | Kết nối AI PC/mobile | PC inline, phone một Sheet nhập key/address; secret toggle44px; Cancel/Escape/scrim/drag; remove đợi editor unmount mới confirm; old save không đóng draft mới; lỗi thô upstream được map trước confirm | [Settings](settings-acceptance/report.md), [SVG desktop](settings-acceptance/desktop-visual-receipt.md), normal/reduced và deferred/error fixtures qua. Không gọi provider/đăng xuất thật. |
 | Logout / UIKit demo | Bỏ fallback hardcode khỏi helper/callers/test/DevKit; nói đúng dùng chung máy, lượt mới, ảnh đã gửi có thể hoàn tất; fallback chỉ khi bật và dùng được | Source + native confirm fixture/cancel; không chứng nhận logout hoặc chuyển provider thật từ fixture. |
 | Shell / dock | Giữ5tab và avatar→Cài đặt theo Workflow, không tạo More/Theme phantom; source shared viewport fix giữ nguyên | Chrome scroll/resize/Escape/dock coverage; không chứng nhận Safari thiết bị thật. |
-| Công cụ mobile | Chưa thêm layout khác artboard | Câu hỏi#91: vị trí Kiểm tra lại. |
-| Hoàn tác Bỏ ảnh | Không dùng approve hoặc restore giả làm undo | Câu hỏi#92: API unskip giữ đúng trạng thái/bản, không duyệt hoặc vẽ lại. |
+| Công cụ mobile | Kiểm tra lại ngay dưới mô tả theo#91A; dùng cùng probe/readback PC, toast kết quả | [Native PC/mobile2/2](native-tools.json), không install; mobile44px sau sửa flex ép nút từ42,42px. |
+| Hoàn tác Bỏ ảnh | Snapshot bền vững, unskip giữ đúng trạng thái/phiên bản; toast toàn app giữ callback khi chuyển route | [Native API4ca](native-unskip-api.json), [UI PC/mobile2/2](native-ui-undo.json); PostgreSQL persistence và race qua. Không duyệt/vẽ lại hoặc thêm quota. |
 
 ## Kiểm tra
 
-- Full frontend441file:3667qua/4skip trước các sửa cuối geometry/handoff. Source cuối: focused28qua, typecheck/Vite/native build qua và native focused30/30; không gán full-run cũ cho source cuối.
-- Size entry142,5/150KiB; cold phone179,4/200KiB; CSS33,7/40KiB. Không nâng budget.
+- Full frontend442file:3677qua/4skip cho source unskip/tools/Toast. Sau đó chỉ sửa `Button lg.minHeight`: shared33test, typecheck/Vite/native embed và native PC/mobile qua; không gán full-run trước sửa minHeight cho source cuối.
+- Size entry142,6/150KiB; cold phone179,4/200KiB; CSS33,8/40KiB. Không nâng budget.
 - Native settings: desktop/mobile × normal/reduced,44px buttons, one modal, local response-only PATCH/DELETE, six mutation responses fulfilled locally.12/12 dismissal supplement; desktop SVG capture bổ sung. Không actual credential/provider writes.
 - Native mobile:51actions/81checks/24captures, response-only; clipboard thật qua readback; legacy desktop/mobile raw và modern4parts. Initial geometry failures và transition overlap được giữ làm failing-before, không xoá hoặc gọi là pass.
 - Hai review source cùng họ model; concrete findings đã sửa trong phạm vi. Không tuyên bố independent-family review.
@@ -27,4 +27,11 @@ Trạng thái: phần source đã kiểm tới `4da829e8`; chưa ký đầy đ�
 
 ## Release còn mở
 
-Cần chốt#91/#92 và thực hiện đủ acceptance sau đó. Safari thiết bị thật chưa có proof: cả workstation và Mac mini không có route `xcrun devicectl` dùng được; không suy ra rằng không có thiết bị vật lý. Gate latency/cold-size#83 đã qua bằng receipt cuối. Không merge hoặc deploy chỉ vì unit tests xanh. Không sửa artboard, không thêm viewer45, không tạo ảnh mới hoặc đổi provider production. Git dùng private index; normal index thay đổi ngoài các lệnh private-index trong lúc làm và được để nguyên, không reset. models.go/auth giữ SHA; build dùng overlay SQLC model.
+#91/#92 đã chốt và có native readback; không còn câu hỏi sản phẩm cho hai phần này. Gate Safari iPhone thật#93 vẫn giữ theo quyết định người dùng: [URL QA, phạm vi và checklist](physical-safari-handoff.md). LAN preview dùng UI đã build với dữ liệu mẫu riêng, không có credential/API production; Chromium3flow qua chỉ chứng minh route dùng được, không thay bằng proof Safari. Gate latency/cold-size#83 đã qua. Không merge/deploy chỉ vì unit tests xanh. Không sửa artboard, không thêm viewer45, không tạo ảnh mới hoặc đổi provider production. Git dùng private index, normal index của người dùng để nguyên; models.go/auth giữ SHA, build dùng overlay SQLC model.
+
+## Kiểm bổ sung #91/#92 và vùng chạm
+- Backend3package ảnh/model/web qua; real PostgreSQL publication/readback và race skip/unskip qua. Legacy skipped thiếu snapshot không thể suy ra trạng thái cũ; stale/busy trả409, không ép ghi đè.
+- Hook/mobileReview/tools37test qua; shared UI33test qua. Task-role review giới hạn phần unskip/tools/touch không có blocker cụ thể; không nhận là review độc lập họ model.
+- Native Undo: desktop chuyển route trước Hoàn tác vẫn khôi phục; mobile action44px. [Ảnh PC](native-undo-1440.png), [ảnh mobile](native-undo-390.png).
+- Native Tools: POST probe và GET readback thật trên PC/mobile, toast kết quả; không cài/tải công cụ. [Ảnh PC](native-tools-1440.png), [ảnh mobile](native-tools-390.png).
+- Ledger QA cuối vẫn3job/27step/2receipt; không gọi provider hoặc sinh ảnh mới.

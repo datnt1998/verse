@@ -669,23 +669,17 @@ Mẫu:
 
 ## #91. V40 — Điểm vào Kiểm tra lại công cụ trên điện thoại
 
-- Trạng thái: **Chờ chốt vị trí, chưa tự thêm UI**.
-- Workflow yêu cầu nối Kiểm tra lại và §6.2 yêu cầu chức năng PC/mobile tương đương. `MSettings.dc.html` có header Quay lại/tiêu đề, các hành động cài/cập nhật từng công cụ và disclosure thông tin, nhưng không có điểm vào kiểm tra lại toàn bộ. PC hiện gọi thật `POST /api/tools/check`.
-- A (đề xuất): thêm hàng hành động **Kiểm tra lại** ngay dưới mô tả đầu trang Công cụ trên máy của mobile; gọi cùng API probe/readback, không cài hoặc tải công cụ.
-- B: đặt **Kiểm tra lại** trong phần Nâng cao của trang Công cụ. Ít thay bố cục chính nhưng khó tìm hơn PC.
-- Không bỏ chức năng mobile hoặc tự sửa artboard. Phần khác tiếp tục độc lập.
+- Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai**.
+- **Kiểm tra lại** nằm ngay dưới mô tả đầu trang Công cụ trên máy của mobile, không giấu trong Nâng cao. Dùng chung probe/readback với PC, không cài hoặc tải công cụ.
+- Nguồn thực thi: [ToolsSection.tsx](../../../web/src/screens/settings/tools/ToolsSection.tsx) (`RecheckButton`). Không sửa artboard; đây không phải bằng chứng khớp 1:1 toàn bộ giao diện.
 
 ## #92. V40 — Hoàn tác Bỏ ảnh không được ngầm duyệt hoặc vẽ lại
 
-- Trạng thái: **Chờ quyền backend tối thiểu hoặc điều chỉnh tương tác thiết kế**.
-- `useReview.ts` có skip/approve nhưng không có unskip không duyệt. `internal/pipeline/steps/images/model.go` approve/select khôi phục phiên bản **và đặt approved**; restore chuyển pending để vẽ lại. Dùng một trong hai làm Hoàn tác sẽ đổi quyết định của người dùng hoặc tốn lượt ảnh.
-- A (đề xuất): cho phép bổ sung thao tác unskip tối thiểu, khôi phục đúng phiên bản và trạng thái trước Bỏ; không duyệt, không vẽ, không thêm quota. Cần regression/readback, không mở rộng viewer đợt45.
-- B: đợt này xác nhận rõ trước Bỏ và không hiện Hoàn tác; Design chấp thuận lệch tương tác. Không dựng nút Hoàn tác chỉ hiện toast hoặc dùng approve/restore giả.
-- Hiện giữ kết quả Bỏ và toast trung thực; chưa ký nghiệm thu đầy đủ gói V40.
+- Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai unskip tối thiểu**.
+- Hoàn tác phải trả đúng trạng thái và phiên bản trước Bỏ từ snapshot bền vững `beforeSkip`; không ngầm duyệt, không vẽ lại, không thêm quota. Không dùng `approve` hoặc `restore` thay thế; không mở rộng viewer đợt 45.
+- Hợp đồng `unskip`/`expectedRevision`, xử lý bận/revision cũ và giới hạn ảnh skipped cũ không có snapshot: [07-data-contract.md §14](07-data-contract.md#prompt-override). Nút Hoàn tác dùng revision của lần Bỏ thành công và đọc lại kết quả thật trong [useReview.ts](../../../web/src/screens/review/useReview.ts).
 
 ## #93. Gate Safari thiết bị thật trước deploy
 
-- Trạng thái: **Chưa có proof; chờ giữ gate/cấp route thiết bị hoặc chấp nhận rủi ro rõ ràng**.
-- Source/smoke Chromium đã kiểm focus, resize/scroll/dismiss và dock; không thay bằng tuyên bố đã kiểm Safari iPhone. Workstation và Mac mini đều báo không có utility `xcrun devicectl`; chưa thiết lập được route điều khiển Safari thiết bị thật. Không suy ra rằng người dùng không có thiết bị.
-- A (đề xuất): giữ gate, cung cấp/điều phối thiết bị QA hoặc người vận hành kiểm trên iPhone với URL QA và checklist riêng; chưa deploy tới khi có bằng chứng keyboard/URL bar/rotate/dock.
-- B: người dùng chấp nhận bỏ gate Safari vật lý cho đợt này và rủi ro bottom nav/bàn phím iOS còn chưa kiểm thiết bị; mọi gate/chức năng khác vẫn phải qua. Không tự chọn B hoặc diễn giải Chromium là Safari.
+- Quyết định (người dùng, 05/11/2026): **KEEP — giữ gate Safari trên iPhone thật trước deploy**. Không miễn gate hoặc diễn giải kiểm Chromium là kiểm Safari.
+- Trạng thái: **Chờ bằng chứng thiết bị thật; chưa deploy**. Cần người vận hành/QA kiểm keyboard, URL bar, xoay màn hình và dock trên Safari iPhone; chưa có proof đáp ứng gate này.

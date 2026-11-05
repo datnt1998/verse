@@ -5,37 +5,34 @@
     "mergeCommit": "9ad1effc6ac8cd14b537d47c6056942a67cf2bd6"
   },
   "frontendSuite": {
-    "files": 441,
-    "passed": 3667,
+    "files": 442,
+    "passed": 3677,
     "skipped": 4,
-    "qualifier": "before last missing-template fallback copy-only edit; focused recheck and final embed still required"
+    "qualifier": "Final unskip/tools/Toast source; subsequent Button lg minHeight-only fix covered by shared33 checks, typecheck/build and actual native PC/mobile smoke"
   },
-  "typecheck": "PASS before final copy-only edit",
-  "build": "PASS before final copy-only edit",
-  "native": "V40 QA process ready; acceptance in progress",
+  "typecheck": "PASS",
+  "build": "PASS",
+  "native": "PASS actual HTTP + authoritative GET, worker fenced",
   "sizeKiBGzip": {
-    "entry": 142.5,
+    "entry": 142.6,
     "phoneInitial": 179.4,
-    "css": 33.7
+    "css": 33.8
   },
   "budgetsKiB": {
     "entry": 150,
     "phoneInitial": 200,
     "css": 40
   },
-  "openDecisions": [
-    91,
-    92
-  ],
+  "openDecisions": [],
   "deploy": "NOT_DEPLOYED",
-  "finalSourceCommit": "4da829e8c7eb7d4a2784a0c408b0d0f1a936adec",
+  "finalSourceCommit": "24bf453d757d56c1353d3f533c5da066a40cbe53",
   "finalFocusedTests": {
-    "files": 2,
-    "passed": 28
+    "files": 3,
+    "passed": 37
   },
   "finalTypecheck": "PASS",
   "finalViteBuild": "PASS",
-  "finalNativeBuild": "PASS after disk headroom recovered",
+  "finalNativeBuild": "PASS final embedded assets",
   "finalNativeFocusedSmoke": {
     "actions": 10,
     "checks": 30,
@@ -72,11 +69,39 @@
     "productionDBMutation": false
   },
   "physicalSafari": {
-    "status": "UNVERIFIED",
+    "status": "AWAITING_PHYSICAL_IPHONE_OPERATOR",
     "attempts": [
       "local xcrun devicectl list devices: utility unavailable",
       "Mac mini xcrun devicectl list devices: utility unavailable"
     ],
-    "qualification": "No operable physical Safari-device route established; not evidence that no device exists. Chromium not substituted."
-  }
+    "qualification": "No operable physical Safari-device route established; not evidence that no device exists. Chromium not substituted.",
+    "decision": "User explicitly KEEP gate #93",
+    "previewURL": "http://192.168.1.13:8045/qa",
+    "previewType": "Real compiled UI with explicit synthetic fixture data; not native/provider or physical-device proof",
+    "LANChromiumSmoke": "PASS 3 scoped flows; unsupported auxiliary fixture endpoints return404, retained in receipt"
+  },
+  "sharedFocusedTests": {
+    "files": 3,
+    "passed": 33
+  },
+  "backendUnskip": {
+    "affectedPackages": "PASS 3",
+    "postgresPersistence": "PASS",
+    "race": "PASS",
+    "nativeApiCases": 4,
+    "nativeUICases": 2,
+    "noNewImages": true,
+    "ledger": {
+      "jobs": 3,
+      "steps": 27,
+      "receipts": 2
+    }
+  },
+  "nativeTools": {
+    "cases": 2,
+    "mobileHeightPx": 44,
+    "actualProbeAndReadback": true,
+    "installs": 0
+  },
+  "review": "task-role bounded review: no concrete blockers; no independent-family claim"
 }
