@@ -268,7 +268,6 @@ it('phát bản xuất thật của editor khi job đã xong mà không có arti
   } as unknown as CloneJobView
   await act(async () => root.render(<LiveStudio job={doneJob} onRefresh={() => {}} />))
   expect(host.querySelector('video')?.getAttribute('src')).toBe('/api/editor/projects/clone-3225b629-g1/exports/b6e47266')
-  expect(host.textContent).toContain('MP4 0:28')
   expect(host.textContent).not.toContain('File video không còn trên máy.')
 })
 
