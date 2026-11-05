@@ -26,7 +26,7 @@ import { useReviewKeys } from './useReviewKeys'
 import { ScoreBadge, ScoreBanner, ScorePanel } from '../../components/autonomy/ScoreParts'
 import { isLow, summarizeScores } from '../../components/autonomy/scoreSummary'
 import { scoreStyles } from '../../components/autonomy/score.stylex'
-import { readChannelAutonomy, readImageScore } from '../../api/autonomy'
+import { APPROVE_DEFAULT, readImageScore } from '../../api/autonomy'
 import { MReviewScreen } from './mobile/MReviewScreen'
 import { ImageRail, type RefCandidate } from './ImageRail'
 import { toReviewItems, defaultVersion, stageWidthVar, providerName, resetAtLabel, type ReviewItemView } from './imageView'
@@ -108,8 +108,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
     navigate(paths.review({ channel: channelFilter, video: job.id, img: items[0]?.id }), true)
   }, [job?.id, images, address?.img, requestedIndex, channelFilter, items])
   const channel = channels.data?.channels.find(c => c.id === job?.channelId)
-  const autonomy = channel ? readChannelAutonomy(channel)?.autonomy : undefined
-  const scores = autonomy ? summarizeScores(legacyItems.map((candidate, i) => ({ id: candidate.id, label: label(candidate, i), drawing: drawing(candidate), score: candidate.score })), autonomy) : null
+  const scores = channel ? summarizeScores(legacyItems.map((candidate, i) => ({ id: candidate.id, label: label(candidate, i), drawing: drawing(candidate), score: candidate.score })), channel.autoApprove) : null
   const neighbour = [...legacyItems.slice(0, selected)].reverse().find(candidate => candidate.kind === 'scene' && candidate.status !== 'skipped') ?? legacyItems.find((candidate, i) => i > selected && candidate.kind === 'scene' && candidate.status !== 'skipped')
   const pipelineBusy = !!job && !!review.pending[job.id]
 
@@ -457,7 +456,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
               )}
             </div>
           </div>
-          {scores && autonomy && <ScoreBanner summary={scores} autonomy={autonomy} channelName={channel?.name ?? ''} onJump={(id) => { const at = items.findIndex(candidate => candidate.id === id); if (at >= 0) { setIndex(at); setView('full') } }} />}
+          {scores && channel && <ScoreBanner summary={scores} autoApprove={channel.autoApprove} channelName={channel.name} onJump={(id) => { const at = items.findIndex(candidate => candidate.id === id); if (at >= 0) { setIndex(at); setView('full') } }} />}
           <div role="listbox" aria-label="Ảnh của video" {...stylex.props(sx.strip)}>
             {items.map((img, i) => {
               const imgDrawing = img.versions.some(candidate => candidate.state === 'drawing')
@@ -561,7 +560,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
           candidates={candidates}
           onUpload={upload}
           uploading={uploading}
-          score={scores ? <ScorePanel imageId={item.id} rawScore={item.score} min={scores.min} /> : undefined}
+          score={scores || shownVersion?.scoreIssue ? <ScorePanel imageId={`${item.id}:${shownVersion?.n}`} rawScore={shownVersion?.score} min={scores?.min ?? APPROVE_DEFAULT} issue={shownVersion?.scoreIssue} /> : undefined}
         />
       ))} />
     </>}

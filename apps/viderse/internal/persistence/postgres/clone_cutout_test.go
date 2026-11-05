@@ -19,9 +19,7 @@ import (
 func TestCloneCutoutRetiredAfterLastJob(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	a := cloneTestJob(t, store, "cutout-a")
 	b := cloneTestJob(t, store, "cutout-b")

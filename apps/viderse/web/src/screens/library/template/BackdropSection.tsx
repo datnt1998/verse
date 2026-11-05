@@ -247,7 +247,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Lấy nền từ */}
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fromLabel}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant={mobile ? 'ghost' : 'primary'} onClick={() => setPicker({})}>{copy.attach}</Button>
@@ -275,7 +275,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 
       {/* Nền của một video + Cách cắt clip */}
       {(backdrop.channels.length > 0 || backdrop.fixedVideoIds.length > 0) && (
-        <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+        <div className={`vt-card ${stylex.props(sx.card).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.mixLabel} · {copy.mixExample}</span>
           <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []}
             onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />
@@ -318,7 +318,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       )}
 
       {/* Chỉnh nền */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard, hideTitle && sx.mobileAdvanced).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.card, hideTitle && sx.mobileAdvanced).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.adjustTitle}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" onClick={() => void onSave({ appearance: { ...APPEARANCE_DEFAULT } })}>{copy.adjustReset}</Button>
@@ -348,7 +348,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Lớp hiệu ứng */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.card).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.overlayTitle}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" disabled={overlayCandidates.length === 0}
@@ -411,9 +411,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 
       {/* Hộp gắn kênh/video */}
       {picker && (
-        <div className={`vbd-dlg-backdrop ${stylex.props(sx.dlgBackdrop).className}`} onClick={(event) => { if (event.target === event.currentTarget) setPicker(null) }}>
-          <BackdropPicker template={template} onSave={onSave} onClose={() => setPicker(null)} initial={picker.edit} key={picker.edit ?? 'new'} />
-        </div>
+        <BackdropPicker template={template} onSave={onSave} onClose={() => setPicker(null)} initial={picker.edit} key={picker.edit ?? 'new'} />
       )}
     </section>
   )
@@ -422,21 +420,6 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 const sx = stylex.create({
   mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
   mobileAdvanced: { order: { default: null, '@media (max-width: 767px)': 1 } },
-  mobileCard: {
-    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
-    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
-    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
-    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
-  },
   mobileSource: {
     paddingRight: { default: null, '@media (max-width: 767px)': 0 },
     paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
@@ -474,11 +457,11 @@ const sx = stylex.create({
   mixlegend: { display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)" },
   mixleg: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-5)", columnGap: "var(--vv-s-5)", fontSize: libraryVars.microFontSize, color: color["--color-fg-3"] },
   vbdMixlegI: { width: "var(--vv-s-9)", height: "var(--vv-s-9)", borderTopLeftRadius: "var(--vv-r-3)", borderTopRightRadius: "var(--vv-r-3)", borderBottomRightRadius: "var(--vv-r-3)", borderBottomLeftRadius: "var(--vv-r-3)", fontStyle: "normal" },
-  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
-  secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
+  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
+  secHead: { display: "flex", flexDirection: { default: 'row', '@media (max-width: 767px)': 'column' }, alignItems: 'baseline', rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-12)" },
   vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
-  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
+  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
   label: {
     fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
@@ -496,7 +479,6 @@ const sx = stylex.create({
   cutrows: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
   cutline2: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
   touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  cardPart: { borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], paddingTop: "var(--vv-s-14)", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
   partHead: { display: "flex", alignItems: "center", justifyContent: "space-between" },
   adjust: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
   flips: { display: "flex", rowGap: "var(--vv-s-24)", columnGap: "var(--vv-s-24)" },
@@ -510,5 +492,4 @@ const sx = stylex.create({
   ovname: { fontSize: "var(--vv-s-12)", fontWeight: libraryVars.labelWeight, whiteSpace: "nowrap", overflowX: "hidden", overflowY: "hidden", textOverflow: "ellipsis" },
   ovsub: { fontSize: "var(--vv-s-10)", color: color["--color-fg-3"] },
   ovrow2: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", width: libraryVars.fullExtent, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-10)", borderTopRightRadius: "var(--vv-r-10)", borderBottomRightRadius: "var(--vv-r-10)", borderBottomLeftRadius: "var(--vv-r-10)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-8)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-8)", backgroundColor: color["--color-bg"], backgroundImage: "none", fontFamily: "inherit", color: color["--color-fg"], textAlign: "left", minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  dlgBackdrop: { position: "fixed", top: 0, right: 0, bottom: 0, left: 0, zIndex: "var(--vv-z-overlay)", backgroundColor: "var(--vv-scrim-60)", backgroundImage: "none", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "var(--vv-s-24)", paddingRight: "var(--vv-s-24)", paddingBottom: "var(--vv-s-24)", paddingLeft: "var(--vv-s-24)" },
 })

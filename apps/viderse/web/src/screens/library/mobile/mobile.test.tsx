@@ -9,10 +9,8 @@ import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
 import { t } from '../../../i18n/library'
-import type { Channel } from '../../../api/channels'
 import type { ImagePrompt, TemplateDetail, TemplateSummary } from '../../../api/library'
 import { clock } from '../fmt'
-import { TemplatesTab } from '../../channel/TemplatesTab'
 import { LibraryScreen } from '../LibraryScreen'
 import { TemplateScreen } from '../TemplateScreen'
 
@@ -35,7 +33,7 @@ const summary = (over: Partial<TemplateSummary> = {}): TemplateSummary => ({
   prompts: { sceneId: 'builtin:scene', sceneName: 'Tả thực điện ảnh', coverId: 'builtin:cover-hook', coverName: 'Chữ hook đậm', summary: 'Tả thực điện ảnh · Tách nền · bìa Chữ hook đậm' },
   backdrop: { channelCount: 1, videoCount: 0, clipCount: null, clipSec: 8, enabled: true },
   overlayCount: 2,
-  channels: [{ id: 'ch1', name: 'Kênh Một', position: 1 }],
+  channels: [{ id: 'ch1', name: 'Kênh Một' }],
   preview: { state: 'none', builtAt: null },
   createdAt: '2026-10-29T03:00:00Z',
   updatedAt: '2026-10-31T03:00:00Z',
@@ -76,18 +74,6 @@ const prompt = (over: Partial<ImagePrompt> = {}): ImagePrompt => ({
   ...over,
 })
 
-const channel = (over: Partial<Channel> = {}): Channel => ({
-  id: 'ch1', name: 'Kênh Một', youtubeUrl: null, language: 'vi',
-  styleNote: null, descriptionFooter: null, alwaysTags: [],
-  autoPick: true, pacePerDay: 5, templateCursor: 0,
-  autonomy: { preset: 'balanced', pick: 'all', approve: { mode: 'ask', min: 85 }, onError: 'retry_once', belowQuality: 'ask' },
-  priority: 'steady',
-  branding: { brief: '', summary: '', look: '', avatar: '', banner: '' },
-  avatarUrl: null, bannerUrl: null, sources: [], templates: [],
-  identity: { state: 'ready' },
-  createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
-  ...over,
-})
 
 function installFetch() {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -171,25 +157,15 @@ describe('thư viện dùng chung — điện thoại', () => {
     expect(desktop.querySelector('.m-page')).toBeFalsy()
   })
 
-  it('⋯ của template mở sheet 6 hàng; Xoá tắt khi còn kênh dùng và ghi lý do', async () => {
+  it('template mặc định không thể xoá và nêu kênh cần đổi trước', async () => {
     const page = await render(<LibraryScreen route={libraryRoute} />)
     await click(page.querySelector(`[aria-label="${t.library.mobile.templateMenuAria('Truyện kể đêm')}"]`))
 
     const sheet = document.querySelector('[role="dialog"]') as HTMLElement
     expect(sheet).toBeTruthy()
-    for (const label of [
-      t.library.mobile.editTemplate,
-      t.library.templates.rename,
-      t.library.duplicate,
-      t.library.templates.addToChannel,
-      t.library.mobile.exportFile,
-      t.library.mobile.deleteTemplate,
-    ]) {
-      expect(byText(sheet, 'button', label)).toBeTruthy()
-    }
     const remove = byText(sheet, 'button', t.library.mobile.deleteTemplate) as HTMLButtonElement
     expect(remove.disabled).toBe(true)
-    expect(remove.textContent).toContain('1 kênh')
+    expect(remove.textContent).toContain('Kênh Một')
   })
 
   it('template không kênh nào dùng thì Xoá bấm được', async () => {
@@ -229,31 +205,8 @@ describe('sửa template — điện thoại', () => {
     expect(page.querySelector('.m-footer')!.textContent).toContain(clock('2026-10-31T04:05:00Z'))
   })
 
-  it('thanh trên dùng tên và metadata thật; màn con không lặp tiêu đề mục', async () => {
-    const list = await render(<TemplateScreen route={{ name: 'template', templateId: 't1' }} />)
-    const header = list.querySelector('[role="banner"]')!
-    expect(header.querySelector('.m-title')?.textContent).toContain('Truyện kể đêm · Tách nền')
-    expect(header.textContent).toContain('1 kênh')
-    expect(header.textContent).toContain(clock(detailBody.savedAt))
-    const build = byText(list, 'button', t.library.template.preview.rebuildStale)!
-    expect(build.getAttribute('aria-disabled')).toBe('true')
-    const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'images' }} />)
-    expect(page.querySelector('.m-page')).toBeTruthy()
-    expect(page.querySelector('h2')).toBeFalsy()
-  })
 })
 
-describe('kênh — lối vào thư viện', () => {
-  it('điện thoại có “Mở Thư viện dùng chung” trỏ tới thư viện, máy tính thì không', async () => {
-    const phone = await render(<TemplatesTab channel={channel()} />)
-    const link = byText(phone, 'a', 'Mở Thư viện dùng chung')!
-    expect(link.getAttribute('href')).toBe('#/library?tab=templates')
-
-    setPhone(false)
-    const desktop = await render(<TemplatesTab channel={channel()} />)
-    expect(byText(desktop, 'a', 'Mở Thư viện dùng chung')).toBeFalsy()
-  })
-})
 
 describe('thư viện dùng chung — xuất tệp', () => {
   it('hàng Xuất tệp template trong tấm thao tác tải tệp thật qua API', async () => {

@@ -1,6 +1,6 @@
 -- Đọc/ghi cho mảng Thư viện: template, prompt ảnh, lớp phủ. Truy vấn chéo
--- mảng chỉ ĐỌC bảng của mảng khác (owner_channel_templates để đếm kênh dùng
--- template; backdrop_* để kiểm kênh/video nền còn tồn tại).
+-- mảng chỉ ĐỌC bảng của mảng khác (owner_channels.default_template_id để đếm
+-- kênh dùng template; backdrop_* để kiểm kênh/video nền còn tồn tại).
 
 -- ── template ───────────────────────────────────────────────────────────────
 
@@ -11,11 +11,10 @@ SELECT t.id, t.name, t.recipe, t.revision, t.preview_revision, t.preview_built_a
        COALESCE(ch.channels, '[]'::jsonb) AS channels
 FROM templates t
 LEFT JOIN LATERAL (
-    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'position', oct.position)
+    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name)
                      ORDER BY c.name, c.id) AS channels
-    FROM owner_channel_templates oct
-    JOIN owner_channels c ON c.id = oct.owner_channel_id
-    WHERE oct.template_id = t.id
+    FROM owner_channels c
+    WHERE c.default_template_id = t.id
 ) ch ON true
 ORDER BY t.updated_at DESC, t.id;
 
@@ -25,11 +24,10 @@ SELECT t.id, t.name, t.recipe, t.revision, t.preview_revision, t.preview_built_a
        COALESCE(ch.channels, '[]'::jsonb) AS channels
 FROM templates t
 LEFT JOIN LATERAL (
-    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'position', oct.position)
+    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name)
                      ORDER BY c.name, c.id) AS channels
-    FROM owner_channel_templates oct
-    JOIN owner_channels c ON c.id = oct.owner_channel_id
-    WHERE oct.template_id = t.id
+    FROM owner_channels c
+    WHERE c.default_template_id = t.id
 ) ch ON true
 WHERE t.id = sqlc.arg(id);
 
@@ -62,20 +60,20 @@ RETURNING revision;
 UPDATE templates t
 SET name = sqlc.arg(name), updated_at = now()
 WHERE t.name = sqlc.arg(plain_name)
-  AND EXISTS (SELECT 1 FROM owner_channel_templates oct
-              WHERE oct.template_id = t.id AND oct.owner_channel_id = sqlc.arg(channel_id))
-  AND NOT EXISTS (SELECT 1 FROM owner_channel_templates oct
-                  WHERE oct.template_id = t.id AND oct.owner_channel_id <> sqlc.arg(channel_id))
+  AND EXISTS (SELECT 1 FROM owner_channels c
+              WHERE c.default_template_id = t.id AND c.id = sqlc.arg(channel_id)::uuid)
+  AND NOT EXISTS (SELECT 1 FROM owner_channels c
+                  WHERE c.default_template_id = t.id AND c.id <> sqlc.arg(channel_id)::uuid)
 RETURNING t.id;
 
 -- name: DeleteTemplate :execrows
 DELETE FROM templates WHERE id = sqlc.arg(id);
 
 -- name: TemplateChannels :many
-SELECT c.id, c.name, oct.position
-FROM owner_channel_templates oct
-JOIN owner_channels c ON c.id = oct.owner_channel_id
-WHERE oct.template_id = sqlc.arg(template_id)
+-- Kênh đang dùng template làm mặc định ("Mặc định của …" và guard xoá).
+SELECT c.id, c.name
+FROM owner_channels c
+WHERE c.default_template_id = sqlc.arg(template_id)::uuid
 ORDER BY c.name, c.id;
 
 -- name: TemplatesUsingPrompt :many

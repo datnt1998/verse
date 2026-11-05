@@ -1,4 +1,4 @@
--- Kênh của bạn: kênh + đối thủ liên kết + danh sách template luân phiên +
+-- Kênh của bạn: kênh + đối thủ liên kết + template mặc định trong Thư viện +
 -- bộ nhận diện (lease một run mỗi kênh). Ghi nhiều dòng nguyên tử nằm trong
 -- transaction của store; mỗi câu ở đây là một bước đơn vị.
 
@@ -20,8 +20,8 @@ SELECT EXISTS(SELECT 1 FROM rival_channels WHERE id = $1)::bool AS exists;
 SELECT EXISTS(SELECT 1 FROM templates WHERE id = $1)::bool AS exists;
 
 -- name: InsertOwnerChannel :exec
-INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day, autonomy, priority)
-VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8);
+INSERT INTO owner_channels (id, name, youtube_url, language, auto_fetch, per_day, auto_approve, default_template_id, agent_instructions)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb);
 
 -- name: UnlinkSource :execrows
 DELETE FROM owner_channel_sources
@@ -51,57 +51,72 @@ ORDER BY s.owner_channel_id, s.linked_at, s.rival_id;
 UPDATE owner_channel_sources SET min_duration_sec = sqlc.narg(min_duration_sec)::int
 WHERE owner_channel_id = sqlc.arg(owner_channel_id)::uuid AND rival_id = sqlc.arg(rival_id)::text;
 
--- name: ListChannelTemplates :many
--- Template luân phiên của nhiều kênh trong một truy vấn, theo position.
-SELECT t.owner_channel_id, t.template_id, t.position, tp.name
-FROM owner_channel_templates t
-JOIN templates tp ON tp.id = t.template_id
-WHERE t.owner_channel_id = ANY($1::uuid[])
-ORDER BY t.owner_channel_id, t.position;
+-- name: ListChannelDefaults :many
+-- Template mặc định của nhiều kênh trong một truy vấn (bỏ kênh không có).
+SELECT c.id AS owner_channel_id, t.id AS template_id, t.name
+FROM owner_channels c
+JOIN templates t ON t.id = c.default_template_id
+WHERE c.id = ANY(sqlc.arg(ids)::uuid[])
+ORDER BY c.id;
 
--- name: ListChannelTemplateIDs :many
--- Danh sách position của một kênh, để chèn cuối/xếp lại trong tx.
-SELECT template_id, position FROM owner_channel_templates
-WHERE owner_channel_id = $1
-ORDER BY position;
+-- name: DefaultTemplate :one
+-- Template mặc định hiện tại của một kênh.
+SELECT t.id, t.name
+FROM owner_channels c
+JOIN templates t ON t.id = c.default_template_id
+WHERE c.id = sqlc.arg(channel_id)::uuid;
 
--- name: InsertChannelTemplate :execrows
-INSERT INTO owner_channel_templates (owner_channel_id, template_id, position)
-VALUES ($1, $2, $3)
-ON CONFLICT (owner_channel_id, template_id) DO NOTHING;
+-- name: TemplateNames :many
+-- Tên template theo id (cho override của hàng chờ và job đang chạy).
+SELECT id, name FROM templates WHERE id = ANY(sqlc.arg(ids)::uuid[]) ORDER BY id;
 
--- name: DeleteChannelTemplate :execrows
-DELETE FROM owner_channel_templates
-WHERE owner_channel_id = $1 AND template_id = $2;
+-- name: LockChannelForAdmission :one
+-- Khoá hàng kênh trong transaction admission và trả template mặc định + chỉ
+-- dẫn "Dặn trợ lý về kênh" đang có hiệu lực tại thời điểm commit. Cùng một
+-- khoá với PATCH kênh nên không thể chốt nửa mặc định/nửa chỉ dẫn.
+SELECT default_template_id, agent_instructions FROM owner_channels WHERE id = sqlc.arg(id)::uuid FOR UPDATE;
 
--- name: SetChannelTemplatePosition :exec
-UPDATE owner_channel_templates
-SET position = $3
-WHERE owner_channel_id = $1 AND template_id = $2;
+-- name: TemplateRevisionForShare :one
+-- Fence revision của template: job chỉ được persist đúng revision đã build
+-- snapshot. SHARE chặn sửa revision và xoá cho tới khi admission commit.
+SELECT revision FROM templates WHERE id = sqlc.arg(id)::uuid FOR SHARE;
+
+-- name: ChannelAutoApprove :one
+-- Cờ Tự duyệt tại thời điểm xét (đọc lại trước khi duyệt để toggle tắt giữa
+-- lượt poll không bị bỏ qua).
+SELECT auto_approve FROM owner_channels WHERE id = sqlc.arg(id)::uuid;
 
 -- name: PatchChannel :execrows
 -- Cập nhật đúng các trường được đưa (mỗi trường một cờ *_set); branding chỉ
--- đổi khi cần sửa brief của nhận diện.
+-- đổi khi cần sửa brief của nhận diện. default_template_id là NOT NULL nên
+-- null/"" bị chặn ở tầng service trước khi tới đây.
 WITH reset_auto_baselines AS (
     UPDATE owner_channel_sources SET auto_baseline_at = NULL
     WHERE owner_channel_id = sqlc.arg(id)::uuid
-      AND sqlc.arg(auto_pick_set)::bool AND NOT sqlc.arg(auto_pick)::bool
+      AND sqlc.arg(auto_fetch_set)::bool AND NOT sqlc.arg(auto_fetch)::bool
 )
 UPDATE owner_channels SET
-    name               = CASE WHEN sqlc.arg(name_set)::bool        THEN sqlc.narg(name)::text        ELSE name END,
-    youtube_url        = CASE WHEN sqlc.arg(youtube_url_set)::bool THEN sqlc.narg(youtube_url)::text ELSE youtube_url END,
-    language           = CASE WHEN sqlc.arg(language_set)::bool    THEN sqlc.arg(language)::text     ELSE language END,
-    style_note         = CASE WHEN sqlc.arg(style_note_set)::bool  THEN sqlc.narg(style_note)::text  ELSE style_note END,
-    description_footer = CASE WHEN sqlc.arg(footer_set)::bool      THEN sqlc.narg(footer)::text      ELSE description_footer END,
-    always_tags        = CASE WHEN sqlc.arg(tags_set)::bool        THEN sqlc.arg(tags)::text[]       ELSE always_tags END,
-    auto_pick          = CASE WHEN sqlc.arg(auto_pick_set)::bool   THEN sqlc.arg(auto_pick)::bool    ELSE auto_pick END,
-    pace_per_day       = CASE WHEN sqlc.arg(pace_set)::bool        THEN sqlc.arg(pace)::int          ELSE pace_per_day END,
-    autonomy           = CASE WHEN sqlc.arg(autonomy_set)::bool    THEN sqlc.arg(autonomy)::jsonb    ELSE autonomy END,
-    priority           = CASE WHEN sqlc.arg(priority_set)::bool    THEN sqlc.arg(priority)::text     ELSE priority END,
-    branding           = CASE WHEN sqlc.arg(branding_set)::bool
-                              THEN jsonb_set(branding, '{brief}', to_jsonb(sqlc.arg(brief)::text), true)
-                              ELSE branding END,
-    updated_at         = clock_timestamp()
+    name                = CASE WHEN sqlc.arg(name_set)::bool           THEN sqlc.narg(name)::text          ELSE name END,
+    youtube_url         = CASE WHEN sqlc.arg(youtube_url_set)::bool    THEN sqlc.narg(youtube_url)::text   ELSE youtube_url END,
+    language            = CASE WHEN sqlc.arg(language_set)::bool       THEN sqlc.arg(language)::text       ELSE language END,
+    style_note          = CASE WHEN sqlc.arg(style_note_set)::bool     THEN sqlc.narg(style_note)::text    ELSE style_note END,
+    description_footer  = CASE WHEN sqlc.arg(footer_set)::bool         THEN sqlc.narg(footer)::text        ELSE description_footer END,
+    always_tags         = CASE WHEN sqlc.arg(tags_set)::bool           THEN sqlc.arg(tags)::text[]         ELSE always_tags END,
+    auto_fetch          = CASE WHEN sqlc.arg(auto_fetch_set)::bool     THEN sqlc.arg(auto_fetch)::bool     ELSE auto_fetch END,
+    auto_approve        = CASE WHEN sqlc.arg(auto_approve_set)::bool   THEN sqlc.arg(auto_approve)::bool   ELSE auto_approve END,
+    per_day             = CASE WHEN sqlc.arg(per_day_set)::bool        THEN sqlc.arg(per_day)::int          ELSE per_day END,
+    default_template_id = CASE WHEN sqlc.arg(default_template_set)::bool THEN sqlc.arg(default_template_id)::uuid ELSE default_template_id END,
+    -- Chỉ dẫn "Dặn trợ lý về kênh": gộp đúng một trợ lý (giữ các trợ lý khác);
+    -- giá trị rỗng xoá khoá. Cả câu lệnh là một UPDATE nên nguyên tử.
+    agent_instructions  = CASE WHEN sqlc.arg(agent_set)::bool
+                               THEN CASE WHEN COALESCE(sqlc.narg(agent_value)::text, '') = ''
+                                         THEN agent_instructions - sqlc.arg(agent_key)::text
+                                         ELSE agent_instructions || jsonb_build_object(sqlc.arg(agent_key)::text, sqlc.narg(agent_value)::text) END
+                               ELSE agent_instructions END,
+    branding            = CASE WHEN sqlc.arg(branding_set)::bool
+                               THEN jsonb_set(branding, '{brief}', to_jsonb(sqlc.arg(brief)::text), true)
+                               ELSE branding END,
+    updated_at          = clock_timestamp()
 WHERE id = sqlc.arg(id)::uuid;
 
 -- name: DeleteChannel :execrows
@@ -112,17 +127,17 @@ DELETE FROM owner_channels WHERE id = $1;
 -- serialize hai thao tác đồng thời trên cùng kênh.
 SELECT id FROM owner_channels WHERE id = $1 FOR UPDATE;
 
--- name: SetAutoPick :execrows
+-- name: SetAutoFetch :execrows
 -- Bật/tắt Tự lấy; tắt khi bỏ liên kết đối thủ cuối cùng.
 WITH reset_auto_baselines AS (
     UPDATE owner_channel_sources SET auto_baseline_at = NULL
-    WHERE owner_channel_id = sqlc.arg(id)::uuid AND NOT sqlc.arg(auto_pick)::bool
+    WHERE owner_channel_id = sqlc.arg(id)::uuid AND NOT sqlc.arg(auto_fetch)::bool
 )
 UPDATE owner_channels
-SET auto_pick = sqlc.arg(auto_pick)::bool, updated_at = clock_timestamp()
+SET auto_fetch = sqlc.arg(auto_fetch)::bool, updated_at = clock_timestamp()
 WHERE id = sqlc.arg(id)::uuid;
 
--- name: SetAutoPickTouch :execrows
+-- name: SetAutoFetchTouch :execrows
 -- Bump updated_at sau một thay đổi link/template (mọi trang đọc lại theo mốc).
 UPDATE owner_channels
 SET updated_at = clock_timestamp()

@@ -69,7 +69,7 @@ function DesktopExploreScreen({ eroute }: { eroute: Extract<Route, { name: 'expl
       id: channel.id,
       name: channel.name || t.channels.page.noName,
       sources: channel.sources,
-      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
+      templateName: channel.defaultTemplateName,
     })),
     [channelList.data],
   )

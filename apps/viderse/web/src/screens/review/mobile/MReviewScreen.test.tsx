@@ -76,6 +76,26 @@ it('keeps next-video navigation while approval hides the previous video before r
   expect(location.hash).toBe('#/review?video=k')
 })
 
+it('shows the saved QA issue only while its historical image is being viewed', async () => {
+  const issue = 'Bản ảnh cũ chưa kiểm chứng được lời dặn.'
+  const first = image.versions[0] as typeof image.versions[0] & { scoreIssue?: string }
+  first.scoreIssue = issue
+  try {
+    const node = await render()
+    expect(node.textContent).not.toContain(issue)
+    await act(async () => button('So với bản 1')!.click())
+    expect(node.textContent).toContain(issue)
+    await act(async () => button('Đang xem bản 1')!.click())
+    expect(node.textContent).not.toContain(issue)
+    await act(async () => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
+    expect(node.textContent).toContain(issue)
+    await act(async () => node.querySelector<HTMLButtonElement>('[aria-label="Bản 2"]')!.click())
+    expect(node.textContent).not.toContain(issue)
+  } finally {
+    delete first.scoreIssue
+  }
+})
+
 describe('MReview — duyệt ảnh trên điện thoại', () => {
   it('keeps the preview and review open after a failed version change and prevents duplicate submissions', async () => {
     let reply!: (response: Response) => void

@@ -3,8 +3,8 @@ import { summarizeScores, type ScoreItem } from './scoreSummary'
 
 const score = (value: number) => ({ value, parts: { match: 90, artifacts: 90, identity: 90, duplicate: 90 }, reason: { agent: 'qa', text: 't', facts: [] } })
 const item = (id: string, value: number | null, drawing = false): ScoreItem => ({ id, label: `Cảnh ${id}`, drawing, score: value === null ? null : score(value) })
-const ask = { approve: { mode: 'ask' as const, min: 85 } }
-const byScore = { approve: { mode: 'score' as const, min: 85 } }
+const ask = false
+const byScore = true
 
 describe('summarizeScores', () => {
   it('không hiện khi chưa ảnh nào có điểm, kể cả kênh duyệt theo điểm', () => {
@@ -27,6 +27,7 @@ describe('summarizeScores', () => {
   })
 
   it('đúng ngưỡng là đạt', () => {
-    expect(summarizeScores([item('1', 85)], byScore)?.below).toEqual([])
+    const summary = summarizeScores([item('1', 85), item('2', 84)], byScore)
+    expect(summary).toMatchObject({ passed: 1, min: 85, below: [{ id: '2', label: 'Cảnh 2', value: 84 }] })
   })
 })

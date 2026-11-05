@@ -85,9 +85,8 @@ vi.mock('../../components', () => ({
     <div data-develop={effectState}>{children}{title}{detail}{onCancel && <button type="button" onClick={onCancel}>Huỷ lần vẽ</button>}</div>
   ),
 }))
-vi.mock('../../components/autonomy/ScoreParts', () => ({ ScoreBadge: () => null, ScoreBanner: () => null, ScorePanel: () => null }))
 vi.mock('../../data/status', () => ({ useOnline: () => true }))
-vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh' }] } }) : ({ data: undefined }) }))
+vi.mock('../../data/useResource', () => ({ useResource: (key: unknown[]) => key?.[0] === 'channels' ? ({ data: { channels: [{ id: 'c', name: 'Kênh', autoApprove: true }] } }) : ({ data: undefined }) }))
 
 beforeEach(() => { applyViderseLabels(); state.legacyStatus = 'review'; state.legacy = null; state.jobs = ['j']; state.building = 0; state.pending = {} })
 let root: Root | undefined
@@ -144,6 +143,23 @@ it('keeps next-video navigation while approval hides the previous video before r
   expect(location.hash, 'Pending approval is not a stale addressed video; do not overwrite the already chosen next route').toBe('#/review?video=k')
 })
 const key = async (init: KeyboardEventInit) => { await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init })) }) }
+
+it('shows the QA warning of the historical image instead of the current passing score', async () => {
+  const issue = 'Không kiểm chứng được lời dặn của bản ảnh cũ.'
+  const score = { value: 95, parts: { match: 95, artifacts: 95, identity: 95, duplicate: 95 }, reason: { agent: 'qa', text: 'Ảnh rõ.', facts: [] } }
+  state.legacy = [{ id: 'a', kind: 'scene', status: 'review', prompt: 'p', currentVersion: 2, reviewVersion: 2, versions: [], score }]
+  state.images.current = { images: [image('a', 1, [version(1, { scoreIssue: issue, score: null }), version(2, { score })])], quota: undefined }
+  const node = await render()
+  expect(node.textContent).not.toContain(issue)
+  await key({ key: 'v' })
+  expect(node.textContent).toContain(issue)
+  await key({ key: 'v' })
+  expect(node.textContent).not.toContain(issue)
+  await act(async () => node.querySelector<HTMLButtonElement>('[aria-label^="Bản 1 ·"]')!.click())
+  expect(node.textContent).toContain(issue)
+  await act(async () => node.querySelector<HTMLButtonElement>('[aria-label^="Bản 2 ·"]')!.click())
+  expect(node.textContent).not.toContain(issue)
+})
 
 it('keeps the addressed image selected across reordered polling data and browser navigation', async () => {
   history.replaceState(null, '', '/#/review?video=j&img=b')

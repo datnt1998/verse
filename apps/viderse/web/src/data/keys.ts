@@ -60,14 +60,12 @@ export const keys = {
   prompts: (kind: string, q: string) => ['library', 'prompts', kind, q] as const satisfies Key,
   /** GET /api/overlays — thư viện lớp phủ dùng chung. */
   overlays: () => ['library', 'overlays'] as const satisfies Key,
-  /** GET /api/owner-channels — tên kênh của bạn (cột trái Thư viện + gắn template vào kênh). */
+  /** GET /api/owner-channels — kênh dùng template làm mặc định và bộ chọn đích. */
   ownerChannels: () => ['channels', 'refs'] as const satisfies Key,
   /** GET /api/owner-channels — hình đầy đủ cho cột trái/Bộ đổi kênh và danh sách. */
   channels: () => ['channels', 'list'] as const satisfies Key,
   /** GET /api/owner-channels/:id — một kênh cho trang Kênh (tab, nhận diện, nguồn). */
   channel: (id: string) => ['channels', 'one', id] as const satisfies Key,
-  /** GET /api/channels/:id/performance — số liệu sau đăng + nhận xét của Trợ lý (Kênh › Video). */
-  channelPerformance: (id: string) => ['channels', 'performance', id] as const satisfies Key,
   /** GET /api/clone?channel=<id> — danh sách video của kênh (Kênh › Video: bảng, bộ lọc, số liệu đầu kênh). */
   channelJobs: (id: string) => ['channels', 'jobs', id] as const satisfies Key,
   /** GET /api/clone?channel=all — video đang chờ duyệt (màn Duyệt). Sự kiện
@@ -75,8 +73,6 @@ export const keys = {
   reviewJobs: () => ['review', 'jobs'] as const satisfies Key,
   /** GET /api/clone/:id/images — cùng cache cho ảnh đang xem và video được tải trước. */
   reviewImages: (id: string) => ['review', 'images', id] as const satisfies Key,
-  /** GET /api/rivals/:id/posting-slots gộp mọi đối thủ liên kết của kênh theo múi giờ. */
-  channelSchedule: (id: string, zone: string) => ['channels', 'schedule', id, zone] as const satisfies Key,
   /** GET /api/backdrop/channels — cột nguồn của tab Video nền + hộp chọn nguồn. */
   backdropChannels: () => ['backdrop', 'channels'] as const satisfies Key,
   /** GET /api/backdrop/channels/:id — trang một kênh nền. */

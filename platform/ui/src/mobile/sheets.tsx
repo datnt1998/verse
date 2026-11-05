@@ -124,7 +124,7 @@ export function ActionSheet({ open, onClose, title, description, actions, layout
   }
 
   return (
-    <Sheet open={open} onClose={close} size="md" title={title} subtitle={description}>
+    <Sheet open={open} onClose={close} size="md" height="auto" title={title} subtitle={description}>
       <div {...stylex.props(styles.list)}>
         {actions.map((action) => {
           const off = pending || action.disabled

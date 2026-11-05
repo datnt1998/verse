@@ -11,11 +11,12 @@ import { ActionButton } from '../../../components'
 import { ResponsiveSelect } from '../../../components/responsive-overlays'
 import { t } from '../../../i18n/library'
 import { clock } from '../fmt'
+import { duration } from '../backdrops/fmt'
 import type { TemplateDetail } from '../../../api/library'
 import { TemplatePreviewPlayer } from './TemplatePreviewPlayer'
 import { useTemplatePreview } from './useTemplatePreview'
 
-export function PreviewPane({ detail, dirty }: { detail: TemplateDetail; dirty: boolean }) {
+export function PreviewPane({ detail, dirty, editLockedReason }: { detail: TemplateDetail; dirty: boolean; editLockedReason: string | undefined }) {
   const copy = t.library.template.preview
   const preview = useTemplatePreview(detail.id, detail, dirty)
   const [pickedJob, setPickedJob] = useState<string | undefined>(undefined)
@@ -24,15 +25,16 @@ export function PreviewPane({ detail, dirty }: { detail: TemplateDetail; dirty: 
   const buildable = preview.sources.filter((source) => !source.disabled)
   const knownJob = preview.jobId && preview.sources.some((source) => source.jobId === preview.jobId && !source.disabled) ? preview.jobId : undefined
   const sourceJob = pickedJob ?? knownJob ?? buildable[0]?.jobId
-  const canBuild = buildable.length > 0 && !preview.busy
-  const lockedReason = canBuild ? undefined : (preview.sources[0]?.reason ?? copy.buildLocked)
+  const selectedSource = preview.sources.find(source => source.jobId === sourceJob)
+  const canBuild = !!selectedSource && !selectedSource.disabled && !preview.busy && !editLockedReason
+  const lockedReason = editLockedReason ?? (canBuild ? undefined : (selectedSource?.reason ?? copy.buildLocked))
   const builtAt = preview.builtAt ? clock(preview.builtAt) : null
   const state = preview.state
   const building = state === 'building'
   const progress = preview.task
     ? copy.progress(preview.task.phase || copy.badge.building, preview.task.done, preview.task.total)
     : copy.badge.building
-  const build = () => { void preview.start(sourceJob, preview.minutes) }
+  const build = () => { if (canBuild) void preview.start(sourceJob, preview.minutes) }
   const cancel = () => { void preview.cancel() }
 
   return (
@@ -76,13 +78,15 @@ export function PreviewPane({ detail, dirty }: { detail: TemplateDetail; dirty: 
             id="vt-preview-source"
             aria-label={copy.sourceAria}
             value={sourceJob ?? ''}
+            inlineDescription
             disabled={building || preview.busy}
             onChange={(value) => setPickedJob(value || undefined)}
             xstyle={sx.sourceField}
             options={preview.sources.map((source) => ({
               value: source.jobId,
               // Video không dựng được vẫn hiện kèm lý do, nhưng không chọn được.
-              label: `${copy.sourceOption(source.title, Math.max(1, Math.round(source.durationSec / 60)))}${source.disabled && source.reason ? ` — ${source.reason}` : ''}`,
+              label: source.title,
+              description: [source.channelName, source.durationSec > 0 && duration(source.durationSec), source.disabled && source.reason].filter(Boolean).join(' · '),
               disabled: source.disabled,
             }))}
           />

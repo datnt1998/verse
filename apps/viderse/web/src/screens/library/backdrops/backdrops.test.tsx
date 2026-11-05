@@ -187,15 +187,17 @@ describe('BackdropSection — hộp gắn + mix', () => {
     const attach = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.attach))!
     await act(async () => { attach.click() })
     await flush(10)
+    const dialog = document.querySelector('[role="dialog"]')!
+    expect(dialog).not.toBeNull()
     // Bật chế độ "Chỉ từ video tôi chọn" rồi tick một video
-    const pick = [...c.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes(t.backdrop.template.picker.modePick))!
+    const pick = [...dialog.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes(t.backdrop.template.picker.modePick))!
     await act(async () => { (pick as HTMLElement).click() })
     await flush(10)
-    const box = c.querySelector<HTMLElement>('[role=checkbox]')!
+    const box = dialog.querySelector<HTMLElement>('[role=checkbox]')!
     expect(box).toBeTruthy()
     await act(async () => { box.click() })
     await flush(10)
-    const go = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.picker.go))!
+    const go = [...dialog.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.picker.go))!
     await act(async () => { go.click() })
     await flush(10)
     const last = saves.at(-1) as { backdrop?: { channels: { channelId: string; pinned: string[] }[] } }

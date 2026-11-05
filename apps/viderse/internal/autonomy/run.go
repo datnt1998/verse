@@ -8,7 +8,7 @@ import (
 )
 
 // DispatchReviews chạy trong lượt poll của worker (sau khi lease attempt đã
-// nhả): xét điểm các video đang Chờ duyệt mà kênh cho phép Duyệt theo điểm.
+// nhả): xét điểm các video đang Chờ duyệt mà kênh bật Tự duyệt.
 // Toàn bộ ảnh ≥ ngưỡng → duyệt như nút "Duyệt hết" (cổng duyệt giữ nguyên) và
 // ghi thông báo "Tự duyệt theo điểm"; có ảnh dưới ngưỡng → cả video ở lại Chờ
 // duyệt kèm tóm tắt. Lỗi một video không chặn các video khác.
@@ -30,8 +30,7 @@ func (s *Service) DispatchReviews(ctx context.Context) error {
 }
 
 func (s *Service) reviewOne(ctx context.Context, p PendingReview) {
-	mode := p.Autonomy.Approve.Mode
-	if mode != domain.ApproveScore && mode != domain.ApproveAll {
+	if !p.AutoApprove {
 		return
 	}
 	state, err := s.Reviewer.ReviewState(ctx, p.JobID)
@@ -42,15 +41,26 @@ func (s *Service) reviewOne(ctx context.Context, p PendingReview) {
 	if !state.Ready || state.Revision != p.ImageRevision {
 		return // ảnh chưa đủ hoặc vừa đổi — lượt poll sau xét lại
 	}
-	verdict := Evaluate(p.Autonomy.Approve.Min, state.Items)
-	outcome := ReviewOutcome{JobID: p.JobID, Revision: state.Revision, Verdict: verdict, Autonomy: p.Autonomy, Title: p.Title}
-	if mode == domain.ApproveScore && !verdict.AllPass {
+	// Ngưỡng cố định 85: mọi ảnh không bỏ qua phải có điểm và ≥ 85.
+	verdict := Evaluate(domain.AutoApproveMin, state.Items)
+	outcome := ReviewOutcome{JobID: p.JobID, Revision: state.Revision, Verdict: verdict, AutoApprove: true, Title: p.Title}
+	if !verdict.AllPass {
 		outcome.Result, outcome.Summary = ResultBelow, verdict.Summary()
 		if err := s.Store.RecordReview(ctx, outcome); err != nil {
 			s.diag("tự duyệt %s: ghi kết quả: %v", p.JobID, err)
 			return
 		}
 		s.publishJob(p.JobID)
+		return
+	}
+	// Toggle có thể tắt giữa lượt poll: đọc lại trước khi duyệt; tắt → bỏ lượt
+	// này, không duyệt.
+	on, err := s.Store.ChannelAutoApprove(ctx, p.ChannelID)
+	if err != nil {
+		s.diag("tự duyệt %s: đọc cờ kênh: %v", p.JobID, err)
+		return
+	}
+	if !on {
 		return
 	}
 	if err := s.Reviewer.ApproveAll(ctx, p.JobID, state.Revision); err != nil {
@@ -77,23 +87,24 @@ func (s *Service) publishJob(jobID string) {
 // DefaultRetryDelay là khoảng nghỉ trước lần tự thử lại đầu tiên.
 const DefaultRetryDelay = 3 * time.Second
 
-// AutoFix được runner gọi khi một step vừa hỏng hẳn: theo Mức tự chủ của kênh
+// autoFixCode là chính sách tự sửa cố định sau V38 (07 §20): chỉ lỗi bước hỏng
+// hẳn đã phân loại mới tự sửa, đúng một lần cho mỗi job-generation. Video chưa
+// đạt Độ hoàn thiện (quality_gate) luôn hỏi nên không vào nhánh tự sửa; không
+// đọc cấu hình Mức tự chủ (đã bỏ).
+func autoFixCode(step domain.CloneStep, cerr *domain.CloneError) string {
+	code := domain.AutoFixCodeOf(step, cerr)
+	if code == "" || code == domain.AutoFixQuality {
+		return ""
+	}
+	return code
+}
+
+// AutoFix được runner gọi khi một step vừa hỏng hẳn: theo chính sách cố định,
 // thử lại đúng một lần với mã lỗi cho phép. Trả true khi step đã được đặt lại
 // pending (runner claim lại ngay); false thì lỗi ở lại cho chủ kênh.
 func (s *Service) AutoFix(ctx context.Context, jobID string, step domain.CloneStep, cerr *domain.CloneError) bool {
-	code := domain.AutoFixCodeOf(step, cerr)
+	code := autoFixCode(step, cerr)
 	if code == "" {
-		return false
-	}
-	a, found, err := s.Store.JobAutonomy(ctx, jobID)
-	if err != nil || !found {
-		return false
-	}
-	if code == domain.AutoFixQuality {
-		if a.BelowQuality != domain.BelowFixThenAsk {
-			return false
-		}
-	} else if a.OnError != domain.OnErrorRetryOnce {
 		return false
 	}
 	delay := s.RetryDelay

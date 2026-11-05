@@ -28,8 +28,8 @@ func (queuePromptCatalog) GetPrompt(_ context.Context, id string) (*domain.Image
 func TestQueuedPromptLifecyclePG(t *testing.T) {
 	pool, _ := provisionCLI(t)
 	ctx := context.Background()
-	_, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES ('11111111-1111-4111-8111-111111111111','Kênh');
- INSERT INTO templates(id,name,recipe) VALUES ('aaaaaaaa-1111-4111-8111-111111111111','Mẫu','{}');
+	_, err := pool.Exec(ctx, `INSERT INTO templates(id,name,recipe) VALUES ('aaaaaaaa-1111-4111-8111-111111111111','Mẫu','{}');
+ INSERT INTO owner_channels(id,name,default_template_id) VALUES ('11111111-1111-4111-8111-111111111111','Kênh','aaaaaaaa-1111-4111-8111-111111111111');
  INSERT INTO clone_queue(id,channel_id,source_video_id,source_key,source_snapshot,position) VALUES ('33333333-3333-4333-8333-333333333333','11111111-1111-4111-8111-111111111111','aaaaaaaaaaa','queued-override','{"title":"Video"}',1)`)
 	if err != nil {
 		t.Fatal(err)
@@ -53,8 +53,8 @@ func TestQueuedPromptLifecyclePG(t *testing.T) {
 		t.Fatalf("restart row=%+v err=%v", item, err)
 	}
 	cloneStore := postgres.NewCloneStore(pool)
-	runner := &pipeline.Service{Store: cloneStore, ResolveTemplate: func(context.Context, domain.CloneQueueItem) (string, json.RawMessage, json.RawMessage, error) {
-		return "aaaaaaaa-1111-4111-8111-111111111111", json.RawMessage(`{"imagePrompt":"template"}`), json.RawMessage(`{}`), nil
+	runner := &pipeline.Service{Store: cloneStore, ResolveTemplate: func(context.Context, domain.CloneQueueItem) (string, json.RawMessage, json.RawMessage, int64, error) {
+		return "aaaaaaaa-1111-4111-8111-111111111111", json.RawMessage(`{"imagePrompt":"template"}`), json.RawMessage(`{}`), 1, nil
 	}, ResolveQueuedImageOverrides: func(ctx context.Context, item domain.CloneQueueItem) (json.RawMessage, error) {
 		return queuedImageCheckpoint(ctx, catalog, item)
 	}}

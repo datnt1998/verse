@@ -12,7 +12,7 @@ export { SystemLoading, SystemNotFound, EmptyWorkbench } from './states'
 export {
   ConfirmDialog,
   confirmPause, confirmOverwrite, confirmProviderLogout, confirmDeleteVideo,
-  confirmDeleteChannel, confirmStopAll, confirmLeaveUnsaved, confirmAutonomy,
+  confirmDeleteChannel, confirmStopAll, confirmLeaveUnsaved,
 } from './confirm'
 export { ScreenEmpty } from './ScreenEmpty'
 export { DevelopEffect, type DevelopEffectProps, type DevelopEffectState } from './DevelopEffect'

@@ -1,11 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Button, Icon, Segmented, Switch, toast } from '@noverse/ui'
+import { Banner, Button, Icon, Segmented, Switch, toast } from '@noverse/ui'
 import { ActionButton, LensLogo, Orb, type Assistant } from '../../components'
 import { ResponsiveSelect } from '../../components/responsive-overlays'
 import { useResource } from '../../data/useResource'
 import { useStatus } from '../../data/status'
 import { keys } from '../../data/keys'
 import { listChannels } from '../../api/channels'
+import { listTemplates } from '../../api/library'
 import { listRivalVideos } from '../../api/rivals'
 import { enqueueClone, planClone, type ClonePlan } from '../../api/clone'
 import { t } from '../../i18n/newScreen'
@@ -51,6 +52,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
   const debounced = useDebounced(text, PLAN_DEBOUNCE_MS)
   const urls = useMemo(() => parseUrls(text), [text])
   const channelsRes = useResource(keys.channels(), ({ signal }) => listChannels(signal))
+  const templatesRes = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const status = useStatus()
   const channels = channelsRes.data?.channels ?? []
   const channel = channels.find((c) => c.id === channelId) ?? channels[0]
@@ -92,7 +94,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
   const onlyDuplicate = !!current && current.accepted.length === 0 && current.duplicates.length > 0
   // Kênh chưa đặt tên (để trống lúc tạo, nhận diện sẽ đặt) vẫn phải có nhãn — ô chọn cũ in ra chuỗi rỗng.
   const channelOptions = channels.map((c) => ({ value: c.id, label: c.name || t.channels.page.noName }))
-  const templateOptions = [{ value: '', label: `${tt.rotation}${current?.template?.name ? ` · ${current.template.name}` : ''}` }, ...(channel?.templates ?? []).map((tpl) => ({ value: tpl.id, label: tpl.name }))]
+  const templateOptions = [{ value: '', label: `${tt.defaultTemplate}${channel?.defaultTemplateName ? ` · ${channel.defaultTemplateName}` : ''}` }, ...(templatesRes.data?.items ?? []).map((tpl) => ({ value: tpl.id, label: tpl.name }))]
   const invalid = !!current && current.invalid.length > 0
   const disabled = !channel || !current || phase !== 'idle' || busy || current.accepted.length === 0 || !current.template.id
   const first = current?.accepted[0]
@@ -104,7 +106,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
     text: tt.plan.priorityHead(acceptedCount, current.etaStart ? new Date(current.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : null),
     detail: tt.plan.priorityReady(acceptedCount),
   } : mobile && multi && acceptedCount > 0 && current?.template.id && current.position === 'back' && channel ? {
-    text: tt.plan.mobileBatchTail(channel.pacePerDay, channel.name, current.paceLeftToday),
+    text: tt.plan.mobileBatchTail(channel.perDay, channel.name, current.paceLeftToday),
     detail: tt.plan.mobileBatchDetail(current.paceLeftToday, acceptedCount),
   } : plannedLine
   const state = urls.length === 0 ? 'empty' : multi ? 'multi' : onlyDuplicate ? 'duplicate' : invalid ? 'error' : 'pasted'
@@ -165,6 +167,7 @@ export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> })
             chevronSize={mobile ? 15 : 12} xstyle={styles.optionSelect} triggerStyle={styles.optionTrigger} />
           {mobile && multi && <div className={`nv-option nv-priority-row ${stylex.props(styles.option, styles.priorityRow).className}`}><Icon name="arrow-up" size={17} xstyle={styles.priorityIcon} /><span {...stylex.props(styles.priorityText)}><span>{tt.priority(acceptedCount)}</span><span {...stylex.props(styles.prioritySubtitle)} title={tt.priorityHint}>{tt.priorityHint}</span></span><Switch size={[44, 26]} checked={priority} onChange={setPriority} aria-label={tt.priority(acceptedCount)} /></div>}
         </div>
+        {!!templatesRes.error && <Banner tone="error" title={tt.templatesFailed} action={{ label: tt.retryTemplates, onClick: () => void templatesRes.refresh() }} />}
         <div ref={footerRef} className={`nv-plan ${stylex.props(styles.plan).className}`}>
           <span className={`nv-plantext ${stylex.props(styles.planText, state === 'empty' && styles.emptyHidden).className}`}><Icon xstyle={styles.noShrink} name="clock" size={15} /><span>{phase === 'failed' ? <button type="button" onClick={() => setRetry((v) => v + 1)}>{tt.plan.failed}</button> : phase === 'loading' ? tt.plan.fixing : line?.text || tt.empty.pickFirst}</span></span>
           {!mobile && multi && <span className={`nv-priority ${stylex.props(styles.priority).className}`}><Switch size={[26, 15]} checked={priority} onChange={setPriority} aria-label={tt.priority(acceptedCount)} />{tt.priority(acceptedCount)}</span>}

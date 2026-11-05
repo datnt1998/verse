@@ -10,7 +10,7 @@ export type Route =
   | { name: 'channel-new'; step?: ChannelNewStep }                     // '#/channels/new'
   | { name: 'explore'; rival?: string; video?: string }                // '#/explore'
   | { name: 'new'; channel?: string }                                  // '#/new?channel=<id>'
-  | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; nguon?: BackdropSource; kenh?: string } // '#/library'
+  | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; promptId?: string; nguon?: BackdropSource; kenh?: string } // '#/library'
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
   | { name: 'editor'; projectId: string; fix?: string; cue?: string }    // '#/editor/<projectId>'
   | { name: 'render'; requestId: string; token?: string }
@@ -20,7 +20,7 @@ export type Route =
   | { name: 'account' }                                                // '#/account'
   | { name: 'devkit'; board?: DevKitBoard; section?: string }          // '#/dev/kit' (chỉ dev)
 
-export const CHANNEL_TABS = ['videos', 'sources', 'templates', 'settings'] as const
+export const CHANNEL_TABS = ['sources', 'templates', 'settings'] as const
 export type ChannelTab = (typeof CHANNEL_TABS)[number]
 
 export const CHANNEL_NEW_STEPS = ['create', 'done'] as const
@@ -90,6 +90,7 @@ export function parseHash(hash: string): Parsed {
       name: 'library',
       tab: oneOf(search.get('tab'), LIBRARY_TABS),
       prompt: oneOf(search.get('prompt'), PROMPT_VIEWS),
+      promptId: text(search.get('promptId')),
       nguon: oneOf(search.get('nguon'), BACKDROP_SOURCES),
       kenh: text(search.get('kenh')),
     }
@@ -129,7 +130,7 @@ export function routePath(route: Route): string {
     case 'channel-new': return `/channels/new${q([['step', route.step]])}`
     case 'explore': return `/explore${q([['rival', route.rival], ['video', route.video]])}`
     case 'new': return `/new${q([['channel', route.channel]])}`
-    case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['nguon', route.nguon], ['kenh', route.kenh]])}`
+    case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['promptId', route.promptId], ['nguon', route.nguon], ['kenh', route.kenh]])}`
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
     case 'editor': return `/editor/${encodeURIComponent(route.projectId)}${q([['fix', route.fix], ['cue', route.cue]])}`
     case 'render': return `/render/${encodeURIComponent(route.requestId)}${q([['token', route.token]])}`
@@ -149,8 +150,8 @@ export const paths = {
   channelNew: (step?: ChannelNewStep) => routePath({ name: 'channel-new', step }),
   explore: (opts?: { rival?: string; video?: string }) => routePath({ name: 'explore', ...opts }),
   new: (channel?: string) => routePath({ name: 'new', channel }),
-  library: (tab?: LibraryTab, prompt?: PromptView, backdrop?: { nguon?: BackdropSource; kenh?: string }) =>
-    routePath({ name: 'library', tab, prompt, nguon: backdrop?.nguon, kenh: backdrop?.kenh }),
+  library: (tab?: LibraryTab, prompt?: PromptView, opts?: { nguon?: BackdropSource; kenh?: string; promptId?: string }) =>
+    routePath({ name: 'library', tab, prompt, promptId: opts?.promptId, nguon: opts?.nguon, kenh: opts?.kenh }),
   template: (templateId: string, section?: TemplateSection) => routePath({ name: 'template', templateId, section }),
   editor: (projectId: string) => routePath({ name: 'editor', projectId }),
   settings: (section?: SettingsSection) => routePath({ name: 'settings', section }),
@@ -162,12 +163,13 @@ export const paths = {
 /** Mục MainNav tô sáng cho route đang mở; null = trang ngoài nav (Hàng chờ,
  *  Cài đặt, Tài khoản, Editor) — không mục nào sáng (artboard Queue/Settings).
  */
-export type NavKey = 'workbench' | 'review' | 'channels' | 'explore' | 'new'
+export type NavKey = 'workbench' | 'review' | 'channels' | 'explore' | 'library' | 'new'
 export function navSection(route: Route): NavKey | null {
   switch (route.name) {
     case 'workbench': return 'workbench'
     case 'review': return 'review'
-    case 'channel': case 'channel-new': case 'template': case 'library': return 'channels'
+    case 'channel': case 'channel-new': return 'channels'
+    case 'template': case 'library': return 'library'
     case 'explore': return 'explore'
     case 'new': return 'new'
     default: return null

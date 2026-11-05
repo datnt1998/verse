@@ -10,8 +10,8 @@ import { keys } from '../../data/keys'
 import { useResource } from '../../data/useResource'
 
 export interface ReviewJob { id: string; channelId: string; stageGroup: string; subline: string; createdAt: string; activeStep?: string | null; source: { title: string; thumbnailUrl: string | null } }
-export interface ReviewVersion { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string; source?: string; width?: number; height?: number; createdAt?: string; prompt?: string; promptVersion?: number; score?: unknown }
-export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; promptVersion?: number; queuePosition?: number; currentVersion: number | null; reviewVersion: number | null; versions: ReviewVersion[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown }
+export interface ReviewVersion { version: number; cutout: unknown; originalUrl?: string; cutoutUrl?: string; source?: string; width?: number; height?: number; createdAt?: string; prompt?: string; promptVersion?: number; score?: unknown; scoreIssue?: string }
+export interface ReviewImage { id: string; kind: string; status: string; skipReason?: string; prompt: string; promptVersion?: number; queuePosition?: number; currentVersion: number | null; reviewVersion: number | null; versions: ReviewVersion[]; sceneId?: string; startSec?: number; endSec?: number; width?: number; height?: number; narration?: string; direction?: string; reference?: string; referenceUrl?: string; score?: unknown; scoreIssue?: string }
 /** Chỉ dẫn hiệu lực của bộ ảnh — cùng `manifest` endpoint trả về (tên thật, không phải câu mẫu). */
 export interface ReviewManifest { revision: number; scenePrompt?: { name: string } | null; coverPrompt?: { name: string } | null }
 export interface ReviewImages { manifest: ReviewManifest | null; items: ReviewImage[]; images?: JobImage[]; approved: boolean; approvedToday?: number | null; summary?: ReviewSummary | null }

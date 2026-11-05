@@ -41,7 +41,7 @@ export type ClonePlanDuplicate = {
   publishedAt?: string | null
 }
 export type ClonePlanInvalid = { url: string; reason: 'unreadable' | 'private' | 'not_youtube' | string }
-export type ClonePlanTemplate = { id: string; name: string; fromRotation: boolean }
+export type ClonePlanTemplate = { id: string; name: string }
 
 export type ClonePlan = {
   accepted: ClonePlanAccepted[]
@@ -95,12 +95,12 @@ export type QueueRunningItem = {
   pausedAt?: string | null
 }
 
-export type QueueSkipReason = 'pace_full' | 'no_template' | 'paused_channel' | 'workers_busy' | string
+export type QueueSkipReason = 'pace_full' | 'paused_channel' | 'workers_busy' | string
 export type QueueSkippedChannel = { channelId: string; reason: QueueSkipReason; until?: string | null }
 export type QueueRotation = { order: string[]; next: string | null; skipped: QueueSkippedChannel[] }
 
-/** waitReason do server soạn: queue_paused | workers_busy | rotation | paused_channel | pace_full | no_template */
-export type QueueWaitReason = 'queue_paused' | 'workers_busy' | 'rotation' | 'paused_channel' | 'pace_full' | 'no_template' | ''
+/** waitReason do server soạn: queue_paused | workers_busy | rotation | paused_channel | pace_full */
+export type QueueWaitReason = 'queue_paused' | 'workers_busy' | 'rotation' | 'paused_channel' | 'pace_full' | ''
 
 export type QueueQueuedItem = {
   /** id của queue item — đích của PATCH move/remove */

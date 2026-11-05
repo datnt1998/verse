@@ -197,11 +197,11 @@ func (t *Template) PreviewState() PreviewState {
 	}
 }
 
-// ChannelRef là một kênh đang dùng template (đọc chéo owner_channel_templates).
+// ChannelRef là một kênh đang dùng template làm mặc định (đọc chéo
+// owner_channels.default_template_id).
 type ChannelRef struct {
-	ID       string
-	Name     string
-	Position int
+	ID   string
+	Name string
 }
 
 // TemplateSummary là một dòng của GET /api/templates.

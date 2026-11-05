@@ -10,7 +10,7 @@ const plan = (over: Partial<ClonePlan> = {}): ClonePlan => ({
   etaStart: null,
   paceLeftToday: 2,
   overflowDays: 0,
-  template: { id: 't1', name: 'Mẫu chuẩn', fromRotation: false },
+  template: { id: 't1', name: 'Mẫu chuẩn' },
   imageCalls: 6,
   priceUSD: null,
   ...over,

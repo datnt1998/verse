@@ -18,7 +18,7 @@ import (
 )
 
 // LibraryStore hiện thực library.Store trên templates/image_prompts/overlays
-// qua code sqlc. Truy vấn chéo mảng chỉ đọc owner_channel_templates (kênh dùng
+// qua code sqlc. Truy vấn chéo mảng chỉ đọc owner_channels (kênh dùng
 // template) và backdrop_* (kiểm tham chiếu nền); mọi ghi nằm trong bảng của
 // Thư viện.
 type LibraryStore struct {
@@ -556,7 +556,7 @@ func (s *LibraryStore) NameChannelStandardTemplates(ctx context.Context, channel
 	if err != nil {
 		return nil, nil
 	}
-	rows, err := s.projectDB(ctx).Query(ctx, `UPDATE templates t SET name=$3, updated_at=now(), project=CASE WHEN project IS NULL THEN NULL ELSE jsonb_set(jsonb_set(project,'{name}',to_jsonb($3::text)),'{updatedAt}',to_jsonb((extract(epoch FROM now())*1000)::bigint)) END WHERE name=$2 AND EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id=$1) AND NOT EXISTS (SELECT 1 FROM owner_channel_templates c WHERE c.template_id=t.id AND c.owner_channel_id<>$1) RETURNING t.id`, uid, plain, name)
+	rows, err := s.projectDB(ctx).Query(ctx, `UPDATE templates t SET name=$3, updated_at=now(), project=CASE WHEN project IS NULL THEN NULL ELSE jsonb_set(jsonb_set(project,'{name}',to_jsonb($3::text)),'{updatedAt}',to_jsonb((extract(epoch FROM now())*1000)::bigint)) END WHERE name=$2 AND EXISTS (SELECT 1 FROM owner_channels c WHERE c.default_template_id=t.id AND c.id=$1) AND NOT EXISTS (SELECT 1 FROM owner_channels c WHERE c.default_template_id=t.id AND c.id<>$1) RETURNING t.id`, uid, plain, name)
 	if err != nil {
 		return nil, mapLibraryErr(err)
 	}
@@ -603,7 +603,7 @@ func (s *LibraryStore) TemplateChannels(ctx context.Context, templateID string) 
 	}
 	out := make(domain.ChannelRefList, 0, len(rows))
 	for _, row := range rows {
-		out = append(out, domain.ChannelRef{ID: libRowUUID(row.ID), Name: row.Name, Position: int(row.Position)})
+		out = append(out, domain.ChannelRef{ID: libRowUUID(row.ID), Name: row.Name})
 	}
 	return out, nil
 }
@@ -1011,16 +1011,15 @@ func decodeChannels(data []byte) (domain.ChannelRefList, error) {
 		return domain.ChannelRefList{}, nil
 	}
 	var raw []struct {
-		ID       string `json:"id"`
-		Name     string `json:"name"`
-		Position int    `json:"position"`
+		ID   string `json:"id"`
+		Name string `json:"name"`
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return nil, fmt.Errorf("cột kênh dùng của template hỏng: %w", err)
 	}
 	out := make(domain.ChannelRefList, 0, len(raw))
 	for _, item := range raw {
-		out = append(out, domain.ChannelRef{ID: item.ID, Name: item.Name, Position: item.Position})
+		out = append(out, domain.ChannelRef{ID: item.ID, Name: item.Name})
 	}
 	return out, nil
 }

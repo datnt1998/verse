@@ -231,19 +231,19 @@ func (s *RivalsStore) VideoUsage(ctx context.Context, videoIDs []string) ([]doma
 	return out, nil
 }
 
-// AutoPickBaselines đọc mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
-func (s *RivalsStore) AutoPickBaselines(ctx context.Context) ([]rivals.AutoPickBaseline, error) {
-	rows, err := s.q.ListAutoPickBaselines(ctx)
+// AutoFetchBaselines đọc mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
+func (s *RivalsStore) AutoFetchBaselines(ctx context.Context) ([]rivals.AutoFetchBaseline, error) {
+	rows, err := s.q.ListAutoFetchBaselines(ctx)
 	if err != nil {
 		return nil, err
 	}
-	out := make([]rivals.AutoPickBaseline, 0, len(rows))
+	out := make([]rivals.AutoFetchBaseline, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, rivals.AutoPickBaseline{
+		out = append(out, rivals.AutoFetchBaseline{
 			ChannelID:   uuidStr(r.OwnerChannelID),
 			ChannelName: r.Name,
 			RivalID:     r.RivalID,
-			AutoPick:    r.AutoPick,
+			AutoFetch:   r.AutoFetch,
 			BaselineAt:  r.AutoBaselineAt.Time,
 		})
 	}

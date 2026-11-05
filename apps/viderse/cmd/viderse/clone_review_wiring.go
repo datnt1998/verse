@@ -143,8 +143,9 @@ func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedi
 	}
 	images.Binder = binder
 	images.Cancels = cancels
-	// Mức tự chủ duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
-	images.Autonomy = autonomySvc.Store
+	autonomyStore := postgres.NewAutonomyStore(pool)
+	// Tự duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
+	images.AutoApprove = autonomyStore
 	autonomySvc.Reviewer = cloneimages.AutoReviewer{Service: images}
 	backdrops := &clonebackdrop.Service{Edits: edits, Deps: stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)}
 	bundles := &bundle.Service{Edits: edits, Exports: editorService, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, OwnerName: ownerName}

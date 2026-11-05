@@ -127,9 +127,7 @@ func TestCloneRebindConcurrentDifferentScenesPreservesBothBindings(t *testing.T)
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	channel, job, pid := "00000000-0000-4000-8000-0000000000e1", "00000000-0000-4000-8000-0000000000e2", "rebind-concurrent"
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES($1,'Owner')`, channel); err != nil {
-		t.Fatal(err)
-	}
+	seedEditorCloneChannel(t, pool, channel)
 	if _, err := pool.Exec(ctx, `INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,generation) VALUES($1,$2,'rebind-concurrent','{}',1)`, job, channel); err != nil {
 		t.Fatal(err)
 	}

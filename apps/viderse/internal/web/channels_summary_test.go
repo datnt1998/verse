@@ -51,7 +51,7 @@ func TestChannelSummaryRoute(t *testing.T) {
 func TestChannelSummaryMatchesBoardPG(t *testing.T) {
 	_, pool := planFixture(t)
 	ctx := context.Background()
-	_, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,pace_per_day,auto_pick) VALUES ('22222222-2222-4222-8222-222222222222','Hai',3,false);
+	_, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,per_day,auto_fetch,default_template_id) VALUES ('22222222-2222-4222-8222-222222222222','Hai',3,false,'aaaaaaaa-1111-4111-8111-111111111111');
  INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,status,stage_group,paused_at) VALUES
  ('33333333-3333-4333-8333-333333333333','11111111-1111-4111-8111-111111111111','one','{}','failed','working',NULL),
  ('44444444-4444-4444-8444-444444444444','22222222-2222-4222-8222-222222222222','two','{}','pending','working',now()),

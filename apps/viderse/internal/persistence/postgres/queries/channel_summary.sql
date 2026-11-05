@@ -4,8 +4,8 @@ SELECT c.id, (SELECT count(*) FROM clone_queue q WHERE q.channel_id=c.id AND q.s
 FROM owner_channels c;
 
 -- name: ChannelSummaryTemplateIssues :many
-SELECT oct.owner_channel_id, t.id, t.name
-FROM owner_channel_templates oct JOIN templates t ON t.id=oct.template_id
+SELECT c.id AS owner_channel_id, t.id, t.name
+FROM owner_channels c JOIN templates t ON t.id=c.default_template_id
 WHERE t.recipe->'backdrop' IS NOT NULL AND t.recipe->'backdrop' <> 'null'::jsonb
 AND NOT EXISTS (
  SELECT 1 FROM jsonb_array_elements_text(COALESCE(NULLIF(t.recipe->'backdrop'->'fixedVideoIds','null'::jsonb),'[]'::jsonb)) AS f(id)
@@ -17,4 +17,4 @@ AND NOT EXISTS (
  WHERE (jsonb_array_length(COALESCE(NULLIF(l.link->'kinds','null'::jsonb),'[]'::jsonb))=0 OR l.link->'kinds' ? v.kind)
  AND (jsonb_array_length(COALESCE(NULLIF(l.link->'pinned','null'::jsonb),'[]'::jsonb))=0 OR l.link->'pinned' ? v.video_id)
 )
-ORDER BY oct.owner_channel_id, oct.position;
+ORDER BY c.id;

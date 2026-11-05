@@ -1,18 +1,12 @@
 import * as stylex from '@stylexjs/stylex'
 import { text } from '../../styles/shared.stylex'
 import { channelStyles } from './channel.stylex'
-// Tab Nguồn & tự động (artboard Channel › tab=sources): danh sách đối thủ đã
-// liên kết (avatar, huy hiệu "Tham chiếu nhận diện"), dòng phụ đúng artboard
-// (`1,24 Tr người theo dõi · 3 video/tuần · đang quét lịch sử 1.284/2.000` +
-// chip "Đang quét lịch sử"), hộp chọn đối thủ là popover neo dưới nút như
-// artboard (role=dialog, role=checkbox rows, Esc đóng, focus trả về nút mở),
-// ô theo dõi đối thủ mới rồi liên kết luôn, công tắc Tự lấy + nhịp 1–50 lưu
-// ngay khi đổi. Bỏ liên kết hỏi xác nhận cam nhạt (copy sheet MChannel); bỏ
-// đối thủ cuối → khối nhịp hiện lý do tạm dừng.
-// Mức tự chủ + Ưu tiên kênh (§20) thay công tắc Tự lấy: AutonomyCard.
+// Nguồn & tự động (Channel / MChannel): cùng lựa chọn và request thật;
+// desktop neo popover, điện thoại dùng Sheet chung. Một đối thủ có thể làm
+// nguồn cho nhiều kênh; chỉ khoá hàng đã liên kết với kênh đang mở.
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ActionSheet, Button, Checkbox, Icon, confirm, toast, useEscapeLayer } from '@noverse/ui'
-import { invalidate, setData } from '@noverse/ui/data'
+import { ActionSheet, Button, Checkbox, Icon, Sheet, confirm, toast, useEscapeLayer } from '@noverse/ui'
+import { invalidate } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/channels'
 import { navigate, paths } from '../../router'
@@ -20,20 +14,41 @@ import { keys } from '../../data/keys'
 import { listRivals, getRivalScan, getPostingSlots, addRival, type Rival } from '../../api/rivals'
 import { useResource } from '../../data/useResource'
 import { useMediaQuery } from '../../lib/useMediaQuery'
-import { linkSource, patchChannel, unlinkSource, type Channel, type ChannelSource } from '../../api/channels'
+import { linkSource, unlinkSource, type Channel, type ChannelSource } from '../../api/channels'
 import { addRivalError } from '../explore/AddRivalForm'
 import { channelTint } from '../../lib/channelTint'
-import { PaceStepper } from './PaceStepper'
+import { AutomationCard } from './AutomationCard'
 import { makeLatestRivalVideo } from './latest'
-import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
-import { Orb } from '../../components/Orb'
-import { TodayRow } from '../../components/autonomy/TodayRow'
-import { AutonomyCard, PrioritySeg } from '../../components/autonomy/AutonomyCard'
-import { ScheduleCard } from './ScheduleCard'
-import { AutonomyCardMobile, PrioritySegMobile } from './mobile/AutonomyMobile'
 import { mch } from './mobile/mchannel.stylex'
-import { ASIDE_HIDDEN } from './breakpoint'
 import { fmtAge, fmtSubs } from '../explore/fmt'
+import { line } from '@noverse/ui/tokens.stylex'
+import { space, typography } from '../../styles/viderse.stylex'
+
+const sx = stylex.create({
+  sources: {
+    gridTemplateColumns: {
+      default: 'minmax(0, 1.3fr) minmax(0, 1fr)',
+      '@media (max-width: 1100px)': 'minmax(0, 1fr)',
+    },
+  },
+  card: { gap: 0 },
+  rival: {
+    display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'],
+    padding: 'var(--vv-s-12) var(--vv-s-14)',
+    borderTopWidth: space['--vv-s-1'], borderTopStyle: 'solid', borderTopColor: line['--line-1'],
+  },
+  info: { display: 'flex', alignItems: 'center', gap: space['--vv-s-10'], minWidth: 0 },
+  name: { fontSize: typography['--vv-fs-body'] },
+  status: { flexShrink: 0 },
+  actions: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: space['--vv-s-6'] },
+  unlink: { marginInlineStart: 'auto' },
+  sheetBody: { display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' },
+  sheetList: { padding: 'var(--vv-s-4) var(--vv-s-8)' },
+  sheetRow: { minHeight: space['--vv-s-56'] },
+  sheetSub: { whiteSpace: 'normal', overflowWrap: 'anywhere' },
+  sheetFoot: { padding: 'var(--vv-s-8) var(--vv-s-16)' },
+  sheetMore: { minHeight: space['--vv-s-44'] },
+})
 
 const num = new Intl.NumberFormat('vi-VN')
 const perWeekText = (n: number) => num.format(Math.round(n * 10) / 10)
@@ -44,26 +59,11 @@ export function SourcesTab({ channel, channels }: {
   channels: Channel[]
 }) {
   const tt = t.channels.sources
-  // Cột phải ẩn dưới 1181 px → khối Lịch đăng nằm trong tab này thay vì cột phải.
-  const narrow = useMediaQuery(ASIDE_HIDDEN)
   const phone = useMediaQuery('(max-width: 767px)')
-  const ta = t.autonomy
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = rivalsRes.data?.rivals ?? []
   const [pickerOpen, setPickerOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
-
-  const save = async (patch: Parameters<typeof patchChannel>[1]) => {
-    setError(null)
-    try {
-      const next = await patchChannel(channel.id, patch)
-      setData(keys.channel(channel.id), next)
-      void invalidate(keys.channels())
-    } catch (err) {
-      setError(err instanceof Error ? err.message : tt.saveError)
-    }
-  }
 
   const rivalOf = (id: string): Rival | undefined => rivals.find((rival) => rival.id === id)
 
@@ -76,21 +76,33 @@ export function SourcesTab({ channel, channels }: {
   const askUnlink = (rivalId: string) => {
     const row = channel.sources.find((source) => source.rivalId === rivalId)
     if (!row) return
+    const name = channel.name || t.channels.page.noName
     const nextRef = channel.sources.find((source) => source.rivalId !== rivalId)
+    const bullets = [
+      tt.unlinkKeep,
+      row.reference
+        ? (nextRef ? tt.unlinkRefNext(nextRef.title) : tt.unlinkRefNone)
+        : tt.unlinkSameIdentity,
+      tt.unlinkExplore(row.title),
+    ]
     void confirm({
       tone: 'dsoft',
-      title: tt.unlinkTitle(row.title),
+      title: tt.unlinkTitle(row.title, name),
       body: (
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--color-fg-3)', lineHeight: 1.55 }}>
-          {tt.unlinkBody}
-          {row.reference && nextRef ? tt.unlinkRef(nextRef.title) : ''}
-        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 13, color: 'var(--color-fg-3)', lineHeight: 1.55 }}>
+          <p style={{ margin: 0 }}>{tt.unlinkLead}</p>
+          <ul style={{ margin: 0, paddingInlineStart: 18, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {bullets.map((line) => <li key={line}>{line}</li>)}
+          </ul>
+        </div>
       ),
       confirmLabel: tt.unlinkOk,
-      successMessage: tt.unlinkDone,
       onConfirm: async () => {
-        await unlinkSource(channel.id, rivalId)
+        const result = await unlinkSource(channel.id, rivalId)
         void invalidate(keys.channels())
+        void invalidate(keys.channel(channel.id))
+        // `autoFetchPaused` thật từ server: báo thêm khi kênh hết nguồn.
+        toast.ok(result.autoFetchPaused ? tt.unlinkPaused : tt.unlinkDone(row.title))
       },
     })
   }
@@ -98,155 +110,87 @@ export function SourcesTab({ channel, channels }: {
   const linkedElsewhere = (rivalId: string) =>
     channels.filter((other) => other.id !== channel.id && other.sources.some((source) => source.rivalId === rivalId))
 
-  if (phone) {
-    return (
-      <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
-        <section {...stylex.props(mch.card16)} aria-label={ta.pacing.title}>
-          <div {...stylex.props(mch.headRow)}>
-            <span {...stylex.props(mch.orbs)} aria-hidden="true"><Orb of="scout" size={22} /></span>
-            <div {...stylex.props(mch.headText)}>
-              <h2 {...stylex.props(mch.cardTitle)}>{ta.pacing.title}</h2>
-              <span {...stylex.props(mch.cardSub)}>{ta.pacing.hint}</span>
-              {channel.sources.length === 0 && <span {...stylex.props(mch.hint, mch.footNoteBlocked)}>{ta.pacing.paused}</span>}
-            </div>
-          </div>
-          <div {...stylex.props(mch.paceBox)}>
-            <span {...stylex.props(mch.paceLabel)}>{tt.pace}</span>
-            <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
-          </div>
-          <span {...stylex.props(mch.hint)}>{ta.pacing.note}</span>
-          <PrioritySegMobile channel={channel} />
-          <TodayRow channel={channel} rivals={rivals} />
-          {error && <p role="alert" {...stylex.props(mch.error)}>{error}</p>}
-        </section>
-
-        <AutonomyCardMobile channel={channel} />
-
-        <section {...stylex.props(mch.card16)} aria-label={tt.rivalsTitle}>
-          <div {...stylex.props(mch.rivalHead)}>
+  const rivalsCard = (
+    <section {...stylex.props(phone ? mch.card16 : [channelStyles.card, channelStyles.cardFlush, sx.card])} aria-label={tt.rivalsTitle}>
+      <div {...stylex.props(phone ? mch.rivalHead : channelStyles.cardhead)}>
+        {!phone && <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="radar" size={16} />{tt.rivalsTitle} <span className={`num ${stylex.props(channelStyles.rowCount).className}`}>{channel.sources.length}</span></h2>}
+        {phone && (
+          <>
             <span {...stylex.props(mch.rivalHeadTitle)}>{tt.rivalsTitle}</span>
             <span className={`num ${stylex.props(mch.rivalCount).className}`}>{channel.sources.length}</span>
             <span {...stylex.props(mch.spacer)} />
-            <Button variant="quiet" size="lg" ref={triggerRef}
-              aria-haspopup="dialog"
-              aria-expanded={pickerOpen}
-              onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
-            >
-              <Icon name="add" size={14} />
-              {tt.linkBtn}
-            </Button>
-            {pickerOpen && (
-              <LinkPickerPopover
-                channel={channel}
-                rivals={rivals}
-                linkedElsewhere={linkedElsewhere}
-                anchor={triggerRef}
-                onClose={closePicker}
-              />
-            )}
-          </div>
-          {channel.sources.length === 0 ? (
-            <div role="status" {...stylex.props(mch.emptyBox)}>
-              <div {...stylex.props(mch.emptyText)}>
-                <b {...stylex.props(mch.emptyTitle)}>{tt.emptyTitle}</b>
-                <span {...stylex.props(mch.emptyBody)}>{tt.emptyBody}</span>
-              </div>
-            </div>
-          ) : channel.sources.map((source) => (
-            <SourceRow
-              key={source.rivalId}
-              channelId={channel.id}
-              variant="mobile"
-              source={source}
-              rival={rivalOf(source.rivalId)}
-              onUnlink={() => askUnlink(source.rivalId)}
+          </>
+        )}
+        <div className={`vch-linkslot ${stylex.props(channelStyles.linkslot).className}`}>
+          <Button variant="quiet" size={phone ? 'lg' : 'sm'} ref={triggerRef}
+            aria-haspopup="dialog"
+            aria-expanded={pickerOpen}
+            onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
+          >
+            <Icon name="add" size={14} />
+            {tt.linkBtn}
+          </Button>
+          {pickerOpen && (
+            <LinkPickerPopover
+              channel={channel}
+              rivals={rivals}
+              linkedElsewhere={linkedElsewhere}
+              mobile={phone}
+              anchor={triggerRef}
+              onClose={closePicker}
             />
-          ))}
-          <AddRivalRow
-            mobile
-            channelId={channel.id}
-            onLinked={() => { void invalidate(keys.channels()); void invalidate(keys.rivals()) }}
-          />
-          <p {...stylex.props(mch.footNote)}>{t.channels.sources.linkHint}</p>
-        </section>
+          )}
+        </div>
+      </div>
+      {channel.sources.length === 0 ? (
+        <div role="status" {...stylex.props(phone ? mch.emptyBox : channelStyles.empty)} style={phone ? undefined : { margin: '0 var(--vv-s-14) var(--vv-s-12)' }}>
+          {phone ? (
+            <div {...stylex.props(mch.emptyText)}>
+              <b {...stylex.props(mch.emptyTitle)}>{tt.emptyTitle}</b>
+              <span {...stylex.props(mch.emptyBody)}>{tt.emptyBody}</span>
+            </div>
+          ) : (
+            <>
+              <b {...stylex.props(channelStyles.emptyTitle)}>{tt.emptyTitle}</b>
+              <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.emptyBody}</span>
+              <ActionButton size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
+            </>
+          )}
+        </div>
+      ) : channel.sources.map((source) => (
+        <SourceRow
+          key={source.rivalId}
+          channelId={channel.id}
+          variant={phone ? 'mobile' : 'desktop'}
+          source={source}
+          rival={rivalOf(source.rivalId)}
+          onUnlink={() => askUnlink(source.rivalId)}
+        />
+      ))}
+      <div style={phone ? undefined : { padding: 'var(--vv-s-8) var(--vv-s-14) var(--vv-s-12)' }}>
+        <AddRivalRow
+          mobile={phone}
+          channelId={channel.id}
+          onLinked={() => { void invalidate(keys.channels()); void invalidate(keys.rivals()) }}
+        />
+      </div>
+      {phone && <p {...stylex.props(mch.footNote)}>{tt.linkHint}</p>}
+    </section>
+  )
 
-        <ScheduleCard channel={channel} variant="mobile" />
+  if (phone) {
+    return (
+      <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
+        <AutomationCard channel={channel} rivals={rivals} mobile />
+        {rivalsCard}
       </section>
     )
   }
 
   return (
-    <section className={`vch-sources ${stylex.props(channelStyles.sources).className}`} aria-label={t.channels.page.tabs.sources}>
-      <div className={`vch-card vch-card--flush ${stylex.props(channelStyles.card, channelStyles.cardFlush).className}`}>
-        <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`}>
-          <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="radar" size={16} />{tt.rivalsTitle} <span className={`vch-row__count num ${stylex.props(channelStyles.rowCount).className}`}>{channel.sources.length}</span></h2>
-          <div className={`vch-linkslot ${stylex.props(channelStyles.linkslot).className}`}>
-            <Button variant="quiet" size="sm" ref={triggerRef}
-              aria-haspopup="dialog"
-              aria-expanded={pickerOpen}
-              onClick={() => (pickerOpen ? closePicker() : setPickerOpen(true))}
-            >
-              <Icon name="add" size={14} />
-              {tt.linkBtn}
-            </Button>
-            {pickerOpen && (
-              <LinkPickerPopover
-                channel={channel}
-                rivals={rivals}
-                linkedElsewhere={linkedElsewhere}
-                anchor={triggerRef}
-                onClose={closePicker}
-              />
-            )}
-          </div>
-        </div>
-        {channel.sources.length === 0 ? (
-          <div className={`vch-empty ${stylex.props(channelStyles.empty).className}`} style={{ margin: '0 var(--vv-s-14) var(--vv-s-12)' }} role="status">
-            <b {...stylex.props(channelStyles.emptyTitle)}>{tt.emptyTitle}</b>
-            <span className={`vch-hint ${stylex.props(channelStyles.hint).className}`}>{tt.emptyBody}</span>
-            <ActionButton size="sm" onClick={() => setPickerOpen(true)}>{tt.linkBtn}</ActionButton>
-          </div>
-        ) : channel.sources.map((source) => (
-          <SourceRow
-            key={source.rivalId}
-            channelId={channel.id}
-            source={source}
-            rival={rivalOf(source.rivalId)}
-            onUnlink={() => askUnlink(source.rivalId)}
-          />
-        ))}
-        <div style={{ padding: 'var(--vv-s-8) var(--vv-s-14) var(--vv-s-12)' }}>
-          <AddRivalRow
-            channelId={channel.id}
-            onLinked={() => { void invalidate(keys.channels()); void invalidate(keys.rivals()) }}
-          />
-        </div>
-      </div>
-
-      <div {...stylex.props(autonomyStyles.rightCol)}>
-        <section {...stylex.props(channelStyles.card, autonomyStyles.paceCard)} aria-label={ta.pacing.title}>
-          <div {...stylex.props(autonomyStyles.head)}>
-            <span {...stylex.props(autonomyStyles.orbs)} aria-hidden="true"><Orb of="scout" size={22} /></span>
-            <div {...stylex.props(autonomyStyles.headText)}>
-              <h2 {...stylex.props(autonomyStyles.title)}>{ta.pacing.title}</h2>
-              <span {...stylex.props(autonomyStyles.sub)}>{ta.pacing.hint}</span>
-              {channel.sources.length === 0 && <span {...stylex.props(autonomyStyles.paused)}>{ta.pacing.paused}</span>}
-            </div>
-          </div>
-          <div {...stylex.props(autonomyStyles.paceBlock)}>
-            <span {...stylex.props(autonomyStyles.paceLabel)}>{tt.pace}</span>
-            <PaceStepper value={channel.pacePerDay} onSave={(pacePerDay) => void save({ pacePerDay })} />
-            <span {...stylex.props(autonomyStyles.paceUnit)}>{tt.paceUnit}</span>
-            <span {...stylex.props(autonomyStyles.paceNote)}>{ta.pacing.note}</span>
-          </div>
-          <PrioritySeg channel={channel} />
-          <TodayRow channel={channel} rivals={rivals} />
-          {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert">{error}</p>}
-        </section>
-        <AutonomyCard channel={channel} />
-      </div>
-
-      {narrow && <ScheduleCard channel={channel} variant="tab" />}
+    <section className={`vch-sources ${stylex.props(channelStyles.sources, sx.sources).className}`} aria-label={t.channels.page.tabs.sources}>
+      {rivalsCard}
+      <AutomationCard channel={channel} rivals={rivals} />
     </section>
   )
 }
@@ -264,18 +208,20 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
   const [making, setMaking] = useState(false)
   const scan = useResource(keys.rivalScan(source.rivalId), ({ signal }) => getRivalScan(source.rivalId, signal))
   const posting = useResource(keys.rivalPosting(source.rivalId, 'vn'), ({ signal }) => getPostingSlots(source.rivalId, 'vn', signal))
-  // Dữ liệu quét có thể lỗi/không đúng hình (404 trong test, máy chưa quét) → chỉ
-  // tin khi có `history`; thiếu thì rơi về số video đã lập chỉ mục của danh sách.
+  // Chỉ hiển thị số quét/lịch đăng khi API có dữ liệu, không thay dữ liệu thiếu bằng 0.
   const history = scan.data?.history
-  const scanning = history?.state === 'queued' || history?.state === 'running'
-  const indexed = scan.data?.indexedVideos ?? rival?.videoCount ?? 0
+  const scanState = history?.state ?? rival?.scan.state
+  const scanning = scanState === 'queued' || scanState === 'running'
+  const indexed = scan.data?.indexedVideos ?? rival?.videoCount
+  const seenAt = scan.data?.discovery.checkedAt ?? rival?.scannedAt
+  const status = scanning ? tt.scanChip : seenAt ? tt.seen(fmtAge(seenAt)) : indexed != null ? tt.scanned(num.format(indexed)) : ''
   const meta = [
     rival?.subscriberCount != null ? `${fmtSubs(rival.subscriberCount)} người theo dõi` : rival?.handle ?? source.handle,
     posting.data?.perWeek != null ? tt.perWeek(perWeekText(posting.data.perWeek)) : '',
-    scanning && history
-      ? tt.scanningHistory(indexed, scan.data?.historyCap ?? 0)
-      : tt.scanned(num.format(indexed)),
-    rival?.scannedAt ? tt.seen(fmtAge(rival.scannedAt)) : '',
+    scanning && indexed != null && scan.data?.historyCap != null
+      ? tt.scanningHistory(indexed, scan.data.historyCap)
+      : indexed != null ? tt.scanned(num.format(indexed)) : '',
+    variant === 'mobile' && seenAt ? tt.seen(fmtAge(seenAt)) : '',
   ].filter(Boolean).join(' · ')
 
   const makeLatest = async () => {
@@ -341,31 +287,33 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
   }
 
   return (
-    <div className={`vch-rival ${stylex.props(channelStyles.rival).className}`}>
-      <ChannelAvatar
-        name={source.title}
-        src={rival?.avatarUrl ?? undefined}
-        color={{ bg: channelTint(source.rivalId) }}
-        size={32}
-        style={{ fontSize: 11, fontWeight: 700 }}
-      />
-      <div className={`vch-rival__text ${stylex.props(channelStyles.rivalText).className}`}>
-        <span className={`vch-rival__name ${stylex.props(channelStyles.rivalName).className}`}>
-          {source.title}
-          {source.reference && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge).className}`}>{tt.linkedBadge}</span>}
-          {scanning && <span className={`vch-chip vch-chip--warn ${stylex.props(channelStyles.chip, channelStyles.chipWarn).className}`}>{tt.scanChip}</span>}
-        </span>
-        <span className={`vch-rival__meta ${stylex.props(channelStyles.rivalMeta).className}`}>{meta}</span>
-        <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
-          <ActionButton size="sm" pending={making} onClick={() => void makeLatest()} icon={<Icon name="video-add" size={14} />}>
-            {tt.makeLatest}
-          </ActionButton>
-          <a href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`} {...stylex.props(channelStyles.appliedLink)}>{tt.topVideos}</a>
-          <a href={`#${paths.explore({ rival: rival?.handle ?? source.rivalId })}`} {...stylex.props(channelStyles.appliedLink)}>{tt.openExplore}</a>
+    <div className={`vch-rival ${stylex.props(sx.rival).className}`}>
+      <div {...stylex.props(sx.info)}>
+        <ChannelAvatar
+          name={source.title}
+          src={rival?.avatarUrl ?? undefined}
+          color={{ bg: channelTint(source.rivalId) }}
+          size={34}
+          fontSize={11.5}
+        />
+        <div className={`vch-rival__text ${stylex.props(channelStyles.rivalText).className}`}>
+          <span className={`vch-rival__name ${stylex.props(channelStyles.rivalName, sx.name).className}`}>
+            {source.title}
+            {source.reference && <span className={`vch-refbadge ${stylex.props(channelStyles.refbadge).className}`} title={tt.linkedBadgeTitle}>{tt.linkedBadge}</span>}
+          </span>
+          <span className={`vch-rival__meta ${stylex.props(channelStyles.rivalMeta).className}`}>{meta}</span>
         </div>
+        {status && <span className={`vch-chip ${stylex.props(channelStyles.chip, scanning && channelStyles.chipWarn, sx.status).className}`}>{status}</span>}
       </div>
-      <div className={`vch-rival__actions ${stylex.props(channelStyles.rivalActions).className}`}>
-        <Button variant="quiet" size="sm" title={tt.unlinkTip} onClick={onUnlink}>{tt.unlink}</Button>
+      <div className={`vch-rival__actions ${stylex.props(sx.actions).className}`}>
+        <ActionButton size="sm" pending={making} onClick={() => void makeLatest()} icon={<Icon name="video-add" size={14} />}>
+          {tt.makeLatest}
+        </ActionButton>
+        <ActionButton size="sm" icon={<Icon name="chart" size={14} />} onClick={() => navigate(paths.explore({ rival: rival?.handle ?? source.rivalId }))}>{tt.topVideos}</ActionButton>
+        <ActionButton variant="quiet" size="sm" onClick={() => navigate(paths.explore({ rival: rival?.handle ?? source.rivalId }))}>
+          {tt.openExplore}<Icon name="arrow-r" size={13} />
+        </ActionButton>
+        <Button variant="quiet" size="sm" xstyle={sx.unlink} title={tt.unlinkTip} onClick={onUnlink}>{tt.unlink}</Button>
       </div>
     </div>
   )
@@ -377,10 +325,16 @@ function AddRivalRow({ channelId, onLinked, mobile = false }: { channelId: strin
   const [value, setValue] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const submit = async () => {
     const input = value.trim()
-    if (!input || pending) return
+    if (pending) return
+    if (!input) {
+      setError('Dán @handle hoặc link kênh YouTube của đối thủ trước')
+      inputRef.current?.focus()
+      return
+    }
     setPending(true)
     setError(null)
     try {
@@ -405,29 +359,30 @@ function AddRivalRow({ channelId, onLinked, mobile = false }: { channelId: strin
       <span {...stylex.props(text.srOnly)}><label htmlFor="vch-add-rival">{tt.label}</label></span>
       <input
         id="vch-add-rival"
+        ref={inputRef}
+        aria-invalid={!!error || undefined}
+        aria-describedby={error ? 'vch-add-rival-error' : undefined}
+        style={error ? { borderColor: 'var(--color-err)' } : undefined}
         className={`vch-taginput ${stylex.props(mobile ? mch.input44 : channelStyles.taginput, mch.rivalInput, mobile && mch.rivalInputMobile).className}`}
         value={value}
         placeholder={tt.placeholder}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) => { setValue(event.target.value); setError(null) }}
       />
-      <ActionButton size={mobile ? 'lg' : 'sm'} block={mobile} type="submit" disabled={pending || !value.trim()} pending={pending}>
+      <ActionButton size={mobile ? 'lg' : 'sm'} block={mobile} type="submit" disabled={pending} pending={pending}>
         {tt.submit}
       </ActionButton>
-      {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
+      {error && <span id="vch-add-rival-error" className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )
 }
 
-/**
- * Popover chọn đối thủ neo dưới nút "Liên kết đối thủ" (artboard Channel
- * `linkOpen`): role=dialog, hàng role=checkbox, Esc đóng (lớp escape của kit),
- * bấm ngoài đóng, focus trả về nút mở ở `closePicker()` của cha.
- */
-function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }: {
+/** Cùng lựa chọn: popover desktop và Sheet modal trên điện thoại. */
+function LinkPickerPopover({ channel, rivals, linkedElsewhere, mobile, anchor, onClose }: {
   channel: Channel
   rivals: Rival[]
   linkedElsewhere: (rivalId: string) => Channel[]
-  /** nút mở popover — đo chỗ trống để neo xuống hoặc lật lên, không bị thanh tab che */
+  mobile: boolean
+  /** Nút mở popover — đo chỗ trống để neo xuống hoặc lật lên. */
   anchor: React.RefObject<HTMLButtonElement | null>
   onClose: () => void
 }) {
@@ -435,21 +390,23 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
   const [picked, setPicked] = useState<Set<string>>(new Set())
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(true)
   const panel = useRef<HTMLDivElement>(null)
-  // Chỗ trống dưới nút (trừ thanh tab điện thoại) không đủ cho hộp thì lật lên
-  // trên; luôn giới hạn chiều cao để nút "Liên kết" còn bấm được.
+  // Desktop giới hạn chiều cao để danh sách cuộn và nút liên kết luôn hiện.
   const [placement, setPlacement] = useState<{ up: boolean; maxHeight: number }>({ up: false, maxHeight: 560 })
   const inChannel = new Set(channel.sources.map((source) => source.rivalId))
+  const selected = [...picked].filter((id) => !inChannel.has(id))
+  const close = () => { if (mobile) setSheetOpen(false); else onClose() }
 
-  useEscapeLayer(true, onClose)
+  useEscapeLayer(!mobile, onClose)
 
   useLayoutEffect(() => {
+    if (mobile) return
     const trigger = anchor.current
     if (!trigger) return
     const measure = () => {
       const rect = trigger.getBoundingClientRect()
-      const nav = window.matchMedia('(max-width: 767px)').matches ? 64 : 0
-      const below = window.innerHeight - rect.bottom - nav - 16
+      const below = window.innerHeight - rect.bottom - 16
       const above = rect.top - 16
       const up = below < 320 && above > below
       setPlacement({ up, maxHeight: Math.max(240, Math.min(560, up ? above : below)) })
@@ -457,22 +414,24 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [anchor])
+  }, [anchor, mobile])
 
   useEffect(() => {
+    if (mobile) return
     // Mở ra là đặt tiêu điểm vào hàng chọn được đầu tiên (bàn phím đi tiếp bằng Tab).
     panel.current?.querySelector<HTMLElement>('[role="checkbox"]:not([aria-disabled="true"])')?.focus()
-  }, [])
+  }, [mobile])
 
   useEffect(() => {
+    if (mobile) return
     const outside = (event: PointerEvent) => {
       const target = event.target as Node
-      if (panel.current?.contains(target)) return
+      if (panel.current?.contains(target) || anchor.current?.contains(target)) return
       onClose()
     }
     document.addEventListener('pointerdown', outside)
     return () => document.removeEventListener('pointerdown', outside)
-  }, [onClose])
+  }, [anchor, mobile, onClose])
 
   const toggle = (id: string) => setPicked((prev) => {
     const next = new Set(prev)
@@ -482,45 +441,41 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
   })
 
   const link = async () => {
-    if (picked.size === 0 || pending) return
+    if (selected.length === 0 || pending) return
     setPending(true)
     setError(null)
     try {
-      for (const rivalId of picked) await linkSource(channel.id, rivalId)
+      for (const rivalId of selected) await linkSource(channel.id, rivalId)
       void invalidate(keys.channels())
+      void invalidate(keys.channel(channel.id))
       toast.ok(tt.done)
-      onClose()
+      close()
     } catch (err) {
       setError(err instanceof Error ? err.message : t.channels.sources.saveError)
       setPending(false)
     }
   }
 
-  return (
-    <div
-      className={`vch-linkpop ${stylex.props(channelStyles.linkpop).className}`}
-      role="dialog"
-      aria-label={tt.title(channel.name || t.channels.page.noName)}
-      ref={panel}
-      style={{ maxHeight: placement.maxHeight, ...(placement.up ? { top: 'auto', bottom: 'calc(100% + var(--vv-s-6))' } : null) }}
-    >
-      <div className={`vch-linkpop__head ${stylex.props(channelStyles.linkpopHead).className}`}>
+  const content = (
+    <>
+      {!mobile && <div className={`vch-linkpop__head ${stylex.props(channelStyles.linkpopHead).className}`}>
         <span className={`vch-linkpop__title ${stylex.props(channelStyles.linkpopTitle).className}`}>{tt.title(channel.name || t.channels.page.noName)}</span>
         <span className={`vch-linkpop__hint ${stylex.props(channelStyles.linkpopHint).className}`}>{t.channels.sources.linkHint}</span>
-      </div>
+      </div>}
       {rivals.length === 0 ? (
         <p className={`vch-hint ${stylex.props(channelStyles.hint).className}`} style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{tt.empty}</p>
       ) : (
-        <div role="group" aria-label={t.channels.sources.rivalsTitle} className={`vch-pickerlist ${stylex.props(channelStyles.pickerlist).className}`}>
+        <div role="group" aria-label={t.channels.sources.rivalsTitle} className={`vch-pickerlist ${stylex.props(channelStyles.pickerlist, mobile && sx.sheetList).className}`}>
           {rivals.map((rival) => {
             const linked = inChannel.has(rival.id)
             const others = linkedElsewhere(rival.id)
-            const blocked = linked || others.length > 0
-            const reason = linked ? tt.alreadyLinked : others.length > 0 ? tt.linkedElsewhere(others[0].name || t.channels.page.noName) : ''
+            const reason = linked ? tt.alreadyLinked : others.length > 0
+              ? `${tt.linkedElsewhere(others.map((other) => other.name || t.channels.page.noName).join(', '))} · dùng chung được`
+              : ''
             return (
               <Checkbox key={rival.id} checked={picked.has(rival.id) || linked}
-                aria-disabled={blocked || undefined} title={reason || undefined}
-                xstyle={channelStyles.pickerrow} onChange={() => { if (!blocked) toggle(rival.id) }}
+                aria-disabled={linked || undefined} title={reason || undefined}
+                xstyle={[channelStyles.pickerrow, mobile && sx.sheetRow]} onChange={() => { if (!linked) toggle(rival.id) }}
                 label={<>
                 <ChannelAvatar
                   name={rival.title}
@@ -531,7 +486,7 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
                 />
                 <span className={`vch-pickerrow__text ${stylex.props(channelStyles.pickerrowText).className}`}>
                   <span className={`vch-pickerrow__name ${stylex.props(channelStyles.pickerrowName).className}`}>{rival.title}</span>
-                  <span className={`vch-pickerrow__sub ${stylex.props(channelStyles.pickerrowSub).className}`}>
+                  <span className={`vch-pickerrow__sub ${stylex.props(channelStyles.pickerrowSub, mobile && sx.sheetSub).className}`}>
                     {reason || (rival.subscriberCount != null
                       ? `${fmtSubs(rival.subscriberCount)} người theo dõi`
                       : rival.handle ?? '')}
@@ -543,21 +498,44 @@ function LinkPickerPopover({ channel, rivals, linkedElsewhere, anchor, onClose }
         </div>
       )}
       {error && <p className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ padding: '0 var(--vv-s-10) var(--vv-s-6)' }}>{error}</p>}
-      <div className={`vch-linkpop__foot ${stylex.props(channelStyles.linkpopFoot).className}`}>
-        <a href={`#${paths.explore()}`} className={`vch-linkpop__more ${stylex.props(channelStyles.linkpopMore).className}`}>
+      <div className={`vch-linkpop__foot ${stylex.props(channelStyles.linkpopFoot, mobile && sx.sheetFoot).className}`}>
+        <a href={`#${paths.explore()}`} className={`vch-linkpop__more ${stylex.props(channelStyles.linkpopMore, mobile && sx.sheetMore).className}`}>
           <Icon name="radar" size={13} />
           {tt.followNew}
         </a>
         <ActionButton
           variant="primary"
-          size="sm"
-          disabled={picked.size === 0}
+          size={mobile ? 'lg' : 'sm'}
+          disabled={selected.length === 0}
           pending={pending}
           onClick={() => void link()}
         >
-          {picked.size === 0 ? tt.none : tt.selected(picked.size)}
+          {selected.length === 0 ? tt.none : tt.selected(selected.length)}
         </ActionButton>
       </div>
+    </>
+  )
+
+  if (mobile) {
+    return (
+      <Sheet open={sheetOpen} onClose={close} onExited={onClose}
+        title={tt.title(channel.name || t.channels.page.noName)}
+        subtitle={t.channels.sources.linkHint} size="md" height="auto" homeIndicator bodyStyle={sx.sheetBody}
+      >
+        {content}
+      </Sheet>
+    )
+  }
+
+  return (
+    <div
+      className={`vch-linkpop ${stylex.props(channelStyles.linkpop).className}`}
+      role="dialog"
+      aria-label={tt.title(channel.name || t.channels.page.noName)}
+      ref={panel}
+      style={{ maxHeight: placement.maxHeight, ...(placement.up ? { top: 'auto', bottom: 'calc(100% + var(--vv-s-6))' } : null) }}
+    >
+      {content}
     </div>
   )
 }

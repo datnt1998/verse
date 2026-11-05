@@ -29,9 +29,7 @@ func newCloneDeleteFixture(t *testing.T) *cloneDeleteFixture {
 	t.Helper()
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	root := t.TempDir()
 	blobs := postgres.NewBlobRepository(pool)
 	if _, err := blobs.Initialize(ctx, media.Descriptor{ID: "clone-delete", Config: blobstore.Config{Driver: "local", LocalRoot: root}}); err != nil {

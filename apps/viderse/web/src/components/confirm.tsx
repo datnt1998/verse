@@ -206,31 +206,3 @@ export function confirmLeaveUnsaved(args: {
   })
 }
 
-/** autonomy — Chuyển kênh sang Tự chạy (Dialogs · dialog=autonomy) hoặc Tự duyệt hết ảnh. */
-export function confirmAutonomy(args: {
-  channel: string
-  /** 'auto' = mức Tự chạy (mặc định); 'all' = dòng Duyệt ảnh → Tự duyệt hết */
-  kind?: 'auto' | 'all'
-  /** ngưỡng điểm đang đặt (mặc định 85) */
-  min?: number
-  /** số video đang chờ duyệt, để câu "Áp dụng từ bây giờ" nói đúng */
-  waiting?: number
-  onConfirm: () => void | Promise<void>
-}): Promise<boolean> {
-  const c = t.confirm.autonomy
-  const min = args.min ?? 85
-  const kind = c[args.kind ?? 'auto']
-  const first = typeof kind.first === 'function' ? kind.first(min) : kind.first
-  // Hộp Tự chạy chỉ mở khi bấm: nạp mã của nó lúc đó để chunk đầu nhẹ hơn.
-  return import('./autonomy/AutonomyDialog').then(({ openAutonomyDialog }) => openAutonomyDialog({
-    title: kind.title(args.channel),
-    lead: typeof kind.body === 'function' ? kind.body(min) : kind.body,
-    items: [
-      { icon: 'flag', tone: 'warn', text: first },
-      { icon: 'clock', tone: 'note', text: c.fromNow(args.waiting ?? 0) },
-      { icon: 'setting', tone: 'note', text: c.never },
-    ],
-    confirmLabel: kind.ok,
-    onConfirm: args.onConfirm,
-  }))
-}

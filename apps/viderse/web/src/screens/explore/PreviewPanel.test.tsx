@@ -22,7 +22,7 @@ beforeEach(() => {
       const preview: VideoPreview = { videoId: decodeURIComponent(path.split('/')[5] ?? ''), source: 'youtube', state: 'ready', chapters: [] }
       return new Response(JSON.stringify(preview))
     }
-    const plan: ClonePlan = { accepted: duplicate ? [] : [{ url: 'https://youtu.be/one', videoId: 'one', title: 'one', durationSec: 60, outlier: null, hasCaptions: false }], duplicates: duplicate ? [{ url: 'https://youtu.be/one', jobId: null, state: 'queued' }] : [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 5, overflowDays: 0, template: { id: 't', name: 'Mẫu', fromRotation: true }, imageCalls: 0, priceUSD: null }
+    const plan: ClonePlan = { accepted: duplicate ? [] : [{ url: 'https://youtu.be/one', videoId: 'one', title: 'one', durationSec: 60, outlier: null, hasCaptions: false }], duplicates: duplicate ? [{ url: 'https://youtu.be/one', jobId: null, state: 'queued' }] : [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 5, overflowDays: 0, template: { id: 't', name: 'Mẫu' }, imageCalls: 0, priceUSD: null }
     return new Response(JSON.stringify(plan))
   }))
   el = document.createElement('div'); document.body.append(el); root = createRoot(el)

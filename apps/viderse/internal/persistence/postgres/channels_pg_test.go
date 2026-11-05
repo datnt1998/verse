@@ -1,5 +1,5 @@
 // Ca test Postgres của mảng Kênh của bạn: CRUD, liên kết + tham chiếu, danh
-// sách template luân phiên, đoán ngôn ngữ từ đối thủ tham chiếu, và lease
+// template mặc định, đoán ngôn ngữ từ đối thủ tham chiếu, và lease
 // nhận diện (một run mỗi kênh, fence theo token + tên).
 //
 // Chạy trên Postgres thật (pgtest + migration nhúng); bỏ qua khi thiếu
@@ -63,17 +63,18 @@ func TestChannelCreateListAndDelete(t *testing.T) {
 	seedChannelRival(t, pool, rivalA, "Chuyện Ma", nil)
 	seedChannelRival(t, pool, rivalB, "Kinh Dị", nil)
 	seedChannelTemplate(t, pool, tplA, "Mẫu chuẩn")
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh A", Language: domain.LangVI, AutoPick: true,
-		PacePerDay: 5, CompetitorIDs: []string{rivalA, rivalB}, TemplateID: tplA,
+		ID: chOne, Name: "Kênh A", Language: domain.LangVI, AutoFetch: true,
+		PerDay: 5, CompetitorIDs: []string{rivalA, rivalB}, DefaultTemplateID: tplA,
 	}); err != nil {
 		t.Fatalf("CreateChannel: %v", err)
 	}
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chTwo, Name: "", Language: domain.LangAuto, AutoPick: true,
-		PacePerDay: 5,
+		ID: chTwo, Name: "", Language: domain.LangAuto, AutoFetch: true,
+		PerDay: 5, DefaultTemplateID: tplA,
 	}); err != nil {
 		t.Fatalf("CreateChannel 2: %v", err)
 	}
@@ -92,23 +93,24 @@ func TestChannelCreateListAndDelete(t *testing.T) {
 	if one.Sources[0].Title != "Chuyện Ma" {
 		t.Errorf("title = %q", one.Sources[0].Title)
 	}
-	if len(one.Templates) != 1 || one.Templates[0].ID != tplA || one.Templates[0].Position != 0 {
-		t.Fatalf("templates = %+v", one.Templates)
+	if one.DefaultTemplate == nil || one.DefaultTemplate.ID != tplA || one.DefaultTemplateID != tplA {
+		t.Fatalf("default = %+v", one.DefaultTemplate)
 	}
 
 	// Xoá kênh xoá link + template theo (cascade), không để gì treo.
 	if ok, err := store.DeleteChannel(ctx, chOne); err != nil || !ok {
 		t.Fatalf("DeleteChannel = %v %v", ok, err)
 	}
-	var links, rows int
+	var links int
 	if err := pool.QueryRow(ctx, `SELECT count(*) FROM owner_channel_sources WHERE owner_channel_id = $1`, chOne).Scan(&links); err != nil {
 		t.Fatal(err)
 	}
-	if err := pool.QueryRow(ctx, `SELECT count(*) FROM owner_channel_templates WHERE owner_channel_id = $1`, chOne).Scan(&rows); err != nil {
-		t.Fatal(err)
+	if links != 0 {
+		t.Fatalf("dangling source links=%d", links)
 	}
-	if links != 0 || rows != 0 {
-		t.Fatalf("còn treo: links=%d templates=%d", links, rows)
+	var exists bool
+	if err := pool.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM templates WHERE id=$1)`, tplA).Scan(&exists); err != nil || !exists {
+		t.Fatalf("deleting a channel must preserve its library template: %v", err)
 	}
 	if _, found, err := store.GetChannel(ctx, chOne); err != nil || found {
 		t.Fatalf("Get sau xoá = found=%v err=%v", found, err)
@@ -118,10 +120,11 @@ func TestChannelCreateListAndDelete(t *testing.T) {
 func TestChannelCreateUntrackedCompetitorFails(t *testing.T) {
 	pool := provision(t)
 	seedChannelTemplate(t, pool, tplA, "Mẫu chuẩn")
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	_, err := store.CreateChannel(context.Background(), channels.CreateInput{
-		ID: chOne, Language: domain.LangAuto, AutoPick: true, PacePerDay: 5,
-		CompetitorIDs: []string{"UCzzzzzzzzzzzzzzzzzzzzzz"}, TemplateID: tplA,
+		ID: chOne, Language: domain.LangAuto, AutoFetch: true, PerDay: 5, DefaultTemplateID: tplA,
+		CompetitorIDs: []string{"UCzzzzzzzzzzzzzzzzzzzzzz"},
 	})
 	if channels.CodeOf(err) != channels.CodeNotFound {
 		t.Fatalf("code = %q, muốn not_found", channels.CodeOf(err))
@@ -136,9 +139,10 @@ func TestChannelUnlinkLastPausesAndReferenceMoves(t *testing.T) {
 	ctx := context.Background()
 	seedChannelRival(t, pool, rivalA, "A", nil)
 	seedChannelRival(t, pool, rivalB, "B", nil)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh", Language: domain.LangVI, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "Kênh", Language: domain.LangVI, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 		CompetitorIDs: []string{rivalA, rivalB},
 	}); err != nil {
 		t.Fatal(err)
@@ -161,35 +165,8 @@ func TestChannelUnlinkLastPausesAndReferenceMoves(t *testing.T) {
 		t.Fatalf("unlink cuối = %v %v %v", removed, paused, err)
 	}
 	view, _, _ = store.GetChannel(ctx, chOne)
-	if view.AutoPick {
+	if view.AutoFetch {
 		t.Fatal("bỏ đối thủ cuối phải tắt Tự lấy")
-	}
-}
-
-func TestChannelSetTemplatesRenumbers(t *testing.T) {
-	pool := provision(t)
-	ctx := context.Background()
-	seedChannelTemplate(t, pool, tplA, "A")
-	seedChannelTemplate(t, pool, tplB, "B")
-	store := postgres.NewChannelStore(pool)
-	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh", Language: domain.LangAuto, AutoPick: true, PacePerDay: 5,
-		TemplateID: tplA,
-	}); err != nil {
-		t.Fatal(err)
-	}
-	if err := store.UpdateTemplates(ctx, chOne, func(_ []string) []string {
-		return []string{tplB, tplA}
-	}); err != nil {
-		t.Fatalf("UpdateTemplates: %v", err)
-	}
-	view, _, err := store.GetChannel(ctx, chOne)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(view.Templates) != 2 || view.Templates[0].ID != tplB || view.Templates[0].Position != 0 ||
-		view.Templates[1].ID != tplA || view.Templates[1].Position != 1 {
-		t.Fatalf("templates = %+v, muốn B@0 A@1", view.Templates)
 	}
 }
 
@@ -201,9 +178,10 @@ func TestChannelLanguageSampleUsesReference(t *testing.T) {
 	seedChannelRival(t, pool, rivalB, "English Stories", nil)
 	seedChannelVideo(t, pool, "vid00000001", rivalA, "Đêm đầu tiên ở nhà hoang", 0)
 	seedChannelVideo(t, pool, "vid00000002", rivalA, "Tiếng gọi lúc nửa đêm", 1)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh", Language: domain.LangAuto, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "Kênh", Language: domain.LangAuto, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 		CompetitorIDs: []string{rivalA, rivalB},
 	}); err != nil {
 		t.Fatal(err)
@@ -225,9 +203,10 @@ func TestChannelIdentityLeaseAndPublishFence(t *testing.T) {
 	pool := provision(t)
 	ctx := context.Background()
 	seedChannelRival(t, pool, rivalA, "A", nil)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Tên Chủ", Language: domain.LangVI, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "Tên Chủ", Language: domain.LangVI, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 		CompetitorIDs: []string{rivalA},
 	}); err != nil {
 		t.Fatal(err)
@@ -286,9 +265,10 @@ func TestChannelIdentityLeaseAndPublishFence(t *testing.T) {
 func TestChannelIdentityFailAndInterruptedRecovery(t *testing.T) {
 	pool := provision(t)
 	ctx := context.Background()
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "", Language: domain.LangAuto, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "", Language: domain.LangAuto, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -345,9 +325,10 @@ func TestChannelIdentityFailAndInterruptedRecovery(t *testing.T) {
 func TestChannelPatchFieldsAndBrief(t *testing.T) {
 	pool := provision(t)
 	ctx := context.Background()
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Tên Cũ", Language: domain.LangAuto, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "Tên Cũ", Language: domain.LangAuto, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -361,8 +342,8 @@ func TestChannelPatchFieldsAndBrief(t *testing.T) {
 		StyleNote:         channels.Field[*string]{Set: true, Value: &style},
 		DescriptionFooter: channels.Field[*string]{Set: true, Value: &footer},
 		AlwaysTags:        channels.Field[[]string]{Set: true, Value: []string{"ma", "kinh dị"}},
-		AutoPick:          channels.Field[bool]{Set: true, Value: false},
-		PacePerDay:        channels.Field[int]{Set: true, Value: 9},
+		AutoFetch:         channels.Field[bool]{Set: true, Value: false},
+		PerDay:            channels.Field[int]{Set: true, Value: 9},
 		Brief:             channels.Field[string]{Set: true, Value: "mô tả nhận diện"},
 	})
 	if err != nil || !ok {
@@ -373,7 +354,7 @@ func TestChannelPatchFieldsAndBrief(t *testing.T) {
 		t.Fatal(err)
 	}
 	c := view.Channel
-	if c.Name != "Tên Mới" || c.Language != domain.LangVI || c.AutoPick || c.PacePerDay != 9 {
+	if c.Name != "Tên Mới" || c.Language != domain.LangVI || c.AutoFetch || c.PerDay != 9 {
 		t.Fatalf("trường cơ bản = %+v", c)
 	}
 	if c.YoutubeURL == nil || *c.YoutubeURL != url || c.StyleNote == nil || *c.StyleNote != style ||
@@ -407,9 +388,10 @@ func TestChannelConcurrentUnlinkPausesOnce(t *testing.T) {
 	pool := provision(t)
 	ctx := context.Background()
 	seedChannelRival(t, pool, rivalA, "A", nil)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewChannelStore(pool)
 	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh", Language: domain.LangVI, AutoPick: true, PacePerDay: 5,
+		ID: chOne, Name: "Kênh", Language: domain.LangVI, AutoFetch: true, PerDay: 5, DefaultTemplateID: fixtureTemplate,
 		CompetitorIDs: []string{rivalA},
 	}); err != nil {
 		t.Fatal(err)
@@ -432,63 +414,7 @@ func TestChannelConcurrentUnlinkPausesOnce(t *testing.T) {
 		t.Fatalf("paused = %v %v, muốn đúng một lệnh true", pausedA, pausedB)
 	}
 	view, _, _ := store.GetChannel(ctx, chOne)
-	if view.AutoPick || len(view.Sources) != 0 {
-		t.Fatalf("sau đua: autopick=%v sources=%d", view.AutoPick, len(view.Sources))
-	}
-}
-
-// TestChannelConcurrentTemplateAddNoLostUpdate: hai add đồng thời không mất
-// cập nhật — apply của lệnh thứ hai chạy sau khi lệnh đầu commit (khoá hàng
-// kênh), nên thấy danh sách đã nối và tạo nối tiếp chứ không đè.
-func TestChannelConcurrentTemplateAddNoLostUpdate(t *testing.T) {
-	pool := provision(t)
-	ctx := context.Background()
-	seedChannelTemplate(t, pool, tplA, "A")
-	seedChannelTemplate(t, pool, tplB, "B")
-	store := postgres.NewChannelStore(pool)
-	if _, err := store.CreateChannel(ctx, channels.CreateInput{
-		ID: chOne, Name: "Kênh", Language: domain.LangVI, AutoPick: true, PacePerDay: 5,
-	}); err != nil {
-		t.Fatal(err)
-	}
-	inside := make(chan struct{})
-	release := make(chan struct{})
-	seen := make(chan int, 1)
-	errs := make(chan error, 2)
-	go func() {
-		errs <- store.UpdateTemplates(ctx, chOne, func(cur []string) []string {
-			close(inside)
-			<-release // giữ khoá hàng đủ lâu cho lệnh hai phải xếp sau
-			return append(cur, tplA)
-		})
-	}()
-	<-inside
-	go func() {
-		errs <- store.UpdateTemplates(ctx, chOne, func(cur []string) []string {
-			seen <- len(cur)
-			return append(cur, tplB)
-		})
-	}()
-	// Lệnh hai không được vào apply khi lệnh đầu còn giữ khoá.
-	select {
-	case n := <-seen:
-		t.Fatalf("lệnh hai vào apply với %d mục trước khi lệnh đầu commit", n)
-	case <-time.After(120 * time.Millisecond):
-	}
-	close(release)
-	for range 2 {
-		if err := <-errs; err != nil {
-			t.Fatal(err)
-		}
-	}
-	if n := <-seen; n != 1 {
-		t.Fatalf("lệnh hai thấy %d mục, muốn 1 (đã serialize)", n)
-	}
-	view, _, err := store.GetChannel(ctx, chOne)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(view.Templates) != 2 || view.Templates[0].ID != tplA || view.Templates[1].ID != tplB {
-		t.Fatalf("templates = %+v, muốn [A B]", view.Templates)
+	if view.AutoFetch || len(view.Sources) != 0 {
+		t.Fatalf("sau đua: autopick=%v sources=%d", view.AutoFetch, len(view.Sources))
 	}
 }

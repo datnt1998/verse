@@ -84,27 +84,24 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	if owner == nil {
 		return out, meta, notFound("Kênh không tồn tại")
 	}
-	templates, err := s.store.RotationTemplates(ctx, *owner)
-	if err != nil {
-		return out, meta, err
-	}
+	// Template của lần tạo này: explicit override (bất kỳ template nào trong
+	// Thư viện) hoặc default hiện tại của kênh. Đây chỉ là gợi ý cho UI; default
+	// thật được chốt lại trong admission transaction.
 	if in.TemplateID != nil {
-		for _, t := range templates {
-			if t.ID == *in.TemplateID {
-				out.Template = domain.ClonePlanTemplate{ID: t.ID, Name: t.Name}
-				break
-			}
+		found, err := s.store.TemplateInfo(ctx, *in.TemplateID)
+		if err != nil {
+			return out, meta, err
 		}
-		if out.Template.ID == "" {
-			return out, meta, invalid("Template không thuộc danh sách của kênh")
+		if found == nil {
+			return out, meta, invalid("Template không tồn tại")
 		}
-	} else if len(templates) > 0 {
-		idx := owner.TemplateCursor % len(templates)
-		if idx < 0 {
-			idx = 0
-		}
-		t := templates[idx]
-		out.Template = domain.ClonePlanTemplate{ID: t.ID, Name: t.Name, FromRotation: true}
+		out.Template = domain.ClonePlanTemplate{ID: found.ID, Name: found.Name}
+	} else if def, err := s.store.DefaultTemplate(ctx, owner.ID); err != nil {
+		return out, meta, err
+	} else if def != nil {
+		out.Template = domain.ClonePlanTemplate{ID: def.ID, Name: def.Name, FromDefault: true}
+	} else {
+		return out, meta, invalid("Kênh chưa có template mặc định")
 	}
 	var recipe *domain.Recipe
 	if out.Template.ID != "" {
@@ -264,7 +261,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 			out.ImageCalls += *calls
 		}
 	}
-	lanes, _, _, _, err := s.loadLanes(ctx)
+	lanes, _, _, _, _, err := s.loadLanes(ctx)
 	if err != nil {
 		return out, meta, err
 	}
@@ -272,7 +269,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	if err != nil {
 		return out, meta, err
 	}
-	out.PaceLeftToday = max(0, owner.PacePerDay-int(used[owner.ID]))
+	out.PaceLeftToday = max(0, owner.PerDay-int(used[owner.ID]))
 	if len(out.Accepted) == 0 {
 		return out, meta, nil
 	}
@@ -290,7 +287,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 		}
 	}
 	if target < 0 {
-		lanes = append(lanes, Lane{ChannelID: owner.ID, Pace: owner.PacePerDay, UsedToday: int(used[owner.ID]), TemplateOK: len(templates) > 0})
+		lanes = append(lanes, Lane{ChannelID: owner.ID, Pace: owner.PerDay, UsedToday: int(used[owner.ID])})
 		target = len(lanes) - 1
 	}
 	lane := &lanes[target]
@@ -340,7 +337,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	estimates := Estimate(lanes, EstimateInput{Now: s.d.Now(), Workers: rules.Workers, Basis: basis, Active: activeETA(active), Paused: rules.Paused})
 	out.ETAStart = estimates[firstID].Start
 	if priority == domain.CloneBatch {
-		out.OverflowDays = max(0, int(math.Ceil(float64(queuedBatch+len(out.Accepted)+int(used[owner.ID]))/float64(owner.PacePerDay)))-1)
+		out.OverflowDays = max(0, int(math.Ceil(float64(queuedBatch+len(out.Accepted)+int(used[owner.ID]))/float64(owner.PerDay)))-1)
 	}
 	return out, meta, nil
 }

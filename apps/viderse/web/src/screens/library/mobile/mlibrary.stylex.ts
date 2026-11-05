@@ -10,7 +10,7 @@ export const mlib = stylex.create({
     paddingInline: s['--vv-s-16'],
     paddingBottom: s['--vv-s-10'],
   },
-  /* Lọc prompt là nhóm nhỏ 32px của artboard (`.vv-seg--sm`), không dùng cỡ tab. */
+  /* Bộ lọc giữ nhịp chữ nhỏ; vùng bấm vẫn đủ 44px trên điện thoại. */
   filterWrap: {
     marginBottom: s['--vv-s-12'],
   },
@@ -21,17 +21,13 @@ export const mlib = stylex.create({
   },
   promptFilterButton: {
     fontSize: s['--vv-s-12'],
+    minHeight: s['--vv-s-44'],
   },
-  tabLabel: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: s['--vv-s-6'],
-    whiteSpace: 'nowrap',
-  },
-  tabCount: {
-    color: 'var(--vv-fg-note)',
-    fontSize: s['--vv-s-12'],
-    fontVariantNumeric: 'tabular-nums',
+  tabButton: {
+    minWidth: 0,
+    minHeight: s['--vv-s-44'],
+    paddingInline: s['--vv-s-2'],
+    fontSize: { default: s['--vv-s-14'], '@media (max-width: 359px)': s['--vv-s-12'] },
   },
 
   scroll: {
@@ -85,22 +81,6 @@ export const mlib = stylex.create({
     backgroundImage: libraryVars.templatesTabStripBackgroundImage,
     backgroundSize: 'cover',
   },
-  thumbBars: {
-    position: 'absolute',
-    inset: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: s['--vv-s-6'],
-  },
-  thumbBar: {
-    display: 'block',
-    width: s['--vv-s-34'],
-    height: s['--vv-s-3'],
-    borderRadius: corners['--vv-r-pill'],
-    backgroundColor: color['--color-fg-4'],
-    opacity: libraryVars.templatesTabStripBarOpacity,
-  },
   thumbTag: {
     position: 'absolute',
     left: s['--vv-s-10'],
@@ -132,6 +112,9 @@ export const mlib = stylex.create({
   name: {
     flex: 1,
     minWidth: 0,
+    minHeight: s['--vv-s-44'],
+    display: 'flex',
+    alignItems: 'center',
     color: color['--color-fg'],
     fontSize: s['--vv-s-15'],
     fontWeight: 600,
@@ -297,6 +280,15 @@ export const mlib = stylex.create({
     display: 'flex',
     alignItems: 'center',
     gap: s['--vv-s-12'],
+    width: '100%',
+    minHeight: s['--vv-s-44'],
+    paddingInline: 0,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    color: 'inherit',
+    textAlign: 'start',
+    cursor: 'pointer',
+    ':active': { backgroundColor: 'var(--vv-hover-row)' },
     paddingBlock: s['--vv-s-8'],
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
@@ -348,6 +340,13 @@ export const mlib = stylex.create({
     display: 'flex',
     flexDirection: 'column',
     gap: s['--vv-s-5'],
+    minWidth: 0,
+    minHeight: s['--vv-s-44'],
+    padding: 0,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
+    textAlign: 'start',
+    cursor: 'pointer',
   },
   overlayArt: {
     position: 'relative',
@@ -377,6 +376,54 @@ export const mlib = stylex.create({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+
+  overlayPlay: {
+    position: 'absolute',
+    inset: 0,
+    display: 'grid',
+    placeItems: 'center',
+    color: color['--color-fg'],
+    pointerEvents: 'none',
+  },
+  detail: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: s['--vv-s-12'],
+    paddingBottom: s['--vv-s-16'],
+  },
+  detailMedia: {
+    display: 'block',
+    width: '100%',
+    maxHeight: s['--vv-s-240'],
+    objectFit: 'contain',
+    borderRadius: corners['--vv-r-12'],
+    backgroundColor: color['--color-surface-4'],
+  },
+  detailText: {
+    margin: 0,
+    color: color['--color-fg-3'],
+    fontSize: s['--vv-s-13'],
+    lineHeight: 1.5,
+    overflowWrap: 'anywhere',
+  },
+  detailError: {
+    margin: 0,
+    color: color['--color-warn'],
+    fontSize: s['--vv-s-13'],
+    lineHeight: 1.5,
+    overflowWrap: 'anywhere',
+  },
+  detailLink: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: s['--vv-s-8'],
+    minHeight: s['--vv-s-44'],
+    color: color['--color-fg'],
+    fontSize: s['--vv-s-14'],
+    textDecoration: 'underline',
+    overflowWrap: 'anywhere',
   },
 
   // ── Trạng thái rỗng / đang đọc ──────────────────────────────────────────

@@ -8,12 +8,13 @@ import { libraryVars } from '../libraryTokens.stylex'
 // video, lưới ảo hoá để ghim; video lẻ: đoạn đã chọn + nút qua Thư viện.
 // Lưu = gọi onSave({backdrop}) với channels/fixedVideoIds mới.
 import { useMemo, useState, type FormEvent, type UIEvent } from 'react'
-import { Button, Icon, RadioCard, Spinner, TextField } from '@noverse/ui'
+import { Button, Dialog, Icon, RadioCard, Sheet, Spinner, TextField } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/library'
 import { keys } from '../../../data/keys'
 import { useResource } from '../../../data/useResource'
 import { useVirtualGrid } from '../../../lib/useVirtualGrid'
+import { useMediaQuery } from '../../../lib/useMediaQuery'
 import {
   addBackdropChannel, addBackdropVideo, backdropKindsOf, backdropVideoFileHref,
   listBackdropChannels, listBackdropVideos, parseSource,
@@ -225,13 +226,33 @@ function VideoDetail({ video, linked, onGo }: {
   )
 }
 
-export function BackdropPicker({ template, onSave, onClose, initial }: {
+type BackdropPickerProps = {
   template: TemplateDetail
   onSave: (patch: Partial<Recipe>) => Promise<void>
   onClose: () => void
-  /** nguồn mở sẵn (nút "Chọn video" trên hàng kênh đã gắn) */
+  /** Nguồn mở sẵn khi sửa video của kênh đã gắn. */
   initial?: string
-}) {
+}
+
+const dialogStyle = {
+  height: `min(${libraryVars.templateBackdropPickerDlgMaxHeight}, calc(100dvh - var(--vv-s-48)))`,
+  padding: 0, borderWidth: 0, background: 'transparent', boxShadow: 'none',
+}
+
+export function BackdropPicker(props: BackdropPickerProps) {
+  const phone = useMediaQuery('(max-width: 767px)')
+  // Giữ vỏ đang mở khi đổi breakpoint để không mất lựa chọn chưa gắn.
+  const [asSheet] = useState(phone)
+  const [open, setOpen] = useState(true)
+  const close = () => { if (asSheet) setOpen(false); else props.onClose() }
+  const content = <BackdropPickerContent {...props} onClose={close} hideHeader={asSheet} />
+  const title = t.backdrop.template.picker.title(props.template.name)
+  return asSheet
+    ? <Sheet open={open} onClose={close} onExited={props.onClose} title={title} subtitle={t.backdrop.template.picker.sub} size="lg" height="auto" bodyStyle={sx.sheetBody}>{content}</Sheet>
+    : <Dialog label={title} onClose={close} width={libraryVars.templateBackdropPickerDlgMaxWidth} padBody={false} style={dialogStyle}>{content}</Dialog>
+}
+
+function BackdropPickerContent({ template, onSave, onClose, initial, hideHeader }: BackdropPickerProps & { hideHeader: boolean }) {
   const copy = t.backdrop.template.picker
   const channels = useResource(keys.backdropChannels(), ({ signal }) => listBackdropChannels(signal))
   const videos = useResource(keys.backdropVideos(), ({ signal }) => listBackdropVideos(signal))
@@ -305,14 +326,14 @@ export function BackdropPicker({ template, onSave, onClose, initial }: {
   }
 
   return (
-    <div className={`vbd-dlg ${stylex.props(sx.dlg).className}`} role="dialog" aria-modal="true" aria-label={copy.title(template.name)}>
-      <div className={`vbd-dlg-head ${stylex.props(sx.dlgHead).className}`}>
+    <div className={`vbd-dlg ${stylex.props(sx.dlg, hideHeader && sx.mobileDlg).className}`}>
+      {!hideHeader && <div className={`vbd-dlg-head ${stylex.props(sx.dlgHead).className}`}>
         <div className={`vbd-dlg-titles ${stylex.props(sx.dlgTitles).className}`}>
           <h2 className={`vbd-dlg-title ${stylex.props(sx.dlgTitle).className}`}>{copy.title(template.name)}</h2>
           <p className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.sub}</p>
         </div>
         <Button xstyle={[sx.vbdModesRadioCard]} variant="icon" icon={<Icon name="close" size={16} />} onClick={onClose} aria-label={t.library.close} />
-      </div>
+      </div>}
       <div className={`vbd-dlg-body ${stylex.props(sx.dlgBody).className}`}>
         <div className={`vbd-dlg-rail ${stylex.props(sx.dlgRail).className}`}>
           <form className={`vbd-dlg-add ${stylex.props(sx.dlgAdd).className}`} onSubmit={(event) => void addByLink(event)}>
@@ -396,6 +417,8 @@ const sx = stylex.create({
   segboxLabel: { fontSize: "var(--vv-s-11)", fontWeight: libraryVars.headingWeight, color: color["--color-fg"] },
   segboxRange: { fontSize: "var(--vv-s-11)", color: color["--color-fg-3"] },
   dlg: { width: libraryVars.fullExtent, maxWidth: libraryVars.templateBackdropPickerDlgMaxWidth, height: libraryVars.fullExtent, maxHeight: libraryVars.templateBackdropPickerDlgMaxHeight, backgroundColor: color["--color-bg"], backgroundImage: "none", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-14)", borderTopRightRadius: "var(--vv-r-14)", borderBottomRightRadius: "var(--vv-r-14)", borderBottomLeftRadius: "var(--vv-r-14)", display: "flex", flexDirection: "column", overflowX: "hidden", overflowY: "hidden" },
+  sheetBody: { display: 'flex', minHeight: 0, overflow: 'hidden' },
+  mobileDlg: { borderWidth: 0, borderRadius: 0, height: libraryVars.templateBackdropPickerDlgMaxHeight, maxHeight: 'calc(100dvh - var(--vv-s-160))', minHeight: 0 },
   dlgHead: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", paddingTop: "var(--vv-s-16)", paddingRight: "var(--vv-s-18)", paddingBottom: "var(--vv-s-12)", paddingLeft: "var(--vv-s-18)", content: { default: null, "::after": "''" } },
   dlgTitles: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-3)", columnGap: "var(--vv-s-3)" },
   dlgTitle: { fontSize: "var(--vv-s-15)", fontWeight: libraryVars.headingWeight, marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0 },

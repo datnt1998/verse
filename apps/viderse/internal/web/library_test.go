@@ -257,7 +257,7 @@ func testTemplate() domain.Template {
 func testSummary() library.Summary {
 	tpl := testTemplate()
 	return library.Summary{
-		TemplateSummary: domain.TemplateSummary{Template: tpl, Channels: domain.ChannelRefList{{ID: "c1", Name: "Kênh Một", Position: 0}}},
+		TemplateSummary: domain.TemplateSummary{Template: tpl, Channels: domain.ChannelRefList{{ID: "c1", Name: "Kênh Một"}}},
 		ScenePromptName: "Theo nhận diện kênh", CoverPromptName: "Ảnh sạch",
 		ImageCount: 5, ImageCountKnown: true, OverlayCount: 1, BackdropChannels: 0,
 	}

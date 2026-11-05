@@ -1,8 +1,8 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from './libraryTokens.stylex'
-// “Thêm vào kênh…” — chọn kênh rồi mở tab Template của kênh (việc gắn template
-// thuộc danh sách luân phiên của kênh, không sửa từ Thư viện).
+// “Đặt làm mặc định cho kênh…” — chọn kênh rồi mở tab Template của kênh; việc
+// đặt mặc định thuộc Kênh (PATCH defaultTemplateId), không ghi từ Thư viện.
 import { Button, Dialog } from '@noverse/ui'
 import { t } from '../../i18n/library'
 import { navigate, paths } from '../../router'

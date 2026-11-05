@@ -15,11 +15,11 @@ SELECT * FROM clone_jobs WHERE source_key = $1 AND superseded_at IS NULL;
 INSERT INTO clone_jobs (
     id, channel_id, source_key, source_snapshot, template_id,
     template_snapshot, model_refs, no_images, generation, priority, origin,
-    status, stage_group, fence, version, created_at, updated_at
+    instructions, status, stage_group, fence, version, created_at, updated_at
 ) VALUES (
     $1, $2, $3, $4, $5,
     $6, $7, $8, $9, $10, $11,
-    'pending', 'working', 0, 1, $12::timestamptz, $12::timestamptz
+    $12, 'pending', 'working', 0, 1, $13::timestamptz, $13::timestamptz
 ) RETURNING *;
 
 -- name: SupersedeCloneJob :exec

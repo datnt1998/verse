@@ -22,13 +22,11 @@ type fakeChannelService struct {
 	jobID  string
 	paused bool
 	err    error
-	tmpls  []domain.ChannelTemplate
 	asset  string
 	name   string
 
 	createdIn        channels.CreateRequest
 	updatedIn        channels.UpdateRequest
-	templateIn       channels.TemplateRequest
 	identityIn       channels.IdentityInput
 	deletedID        string
 	minDurationRival string
@@ -71,11 +69,6 @@ func (f *fakeChannelService) SetSourceMinDuration(_ context.Context, _, rivalID 
 	return f.view, f.err
 }
 
-func (f *fakeChannelService) Templates(_ context.Context, _ string, req channels.TemplateRequest) ([]domain.ChannelTemplate, error) {
-	f.templateIn = req
-	return f.tmpls, f.err
-}
-
 func (f *fakeChannelService) GenerateIdentity(_ context.Context, _ string, in channels.IdentityInput) (string, error) {
 	f.identityIn = in
 	return f.jobID, f.err
@@ -109,7 +102,7 @@ func sampleChannelView() channels.ChannelView {
 	return channels.ChannelView{
 		Channel: domain.Channel{
 			ID: "ch-1", Name: "Chuyện Kể Đêm Mưa", Language: domain.LangVI,
-			AlwaysTags: []string{"ma"}, AutoPick: true, PacePerDay: 5,
+			AlwaysTags: []string{"ma"}, AutoFetch: true, PerDay: 5, DefaultTemplateID: "t-1",
 			Branding:          domain.Branding{Brief: "mô tả", Summary: "tông tối", Look: "look", Avatar: "a", Banner: "b"},
 			AvatarPath:        &avatar,
 			IdentityState:     domain.IdentityFailed,
@@ -119,7 +112,7 @@ func sampleChannelView() channels.ChannelView {
 		Sources: []domain.ChannelSource{{
 			RivalID: "UC1", Title: "Chuyện Ma", LinkedAt: created, Reference: true,
 		}},
-		Templates: []domain.ChannelTemplate{{ID: "t-1", Name: "Mẫu chuẩn", Position: 0}},
+		DefaultTemplate: &domain.ChannelTemplate{ID: "t-1", Name: "Mẫu chuẩn"},
 	}
 }
 
@@ -180,7 +173,7 @@ func TestChannelCreateReturnsJobID(t *testing.T) {
 	svc := &fakeChannelService{view: sampleChannelView(), jobID: "task-9"}
 	tg, cookie := channelFixture(t, svc)
 	w := tg.do(http.MethodPost, "/api/owner-channels", cookie,
-		`{"name":"Kênh A","competitorIds":["UC1"],"pacePerDay":7,"autoPick":false}`)
+		`{"name":"Kênh A","competitorIds":["UC1"],"perDay":7,"autoFetch":false}`)
 	if w.Code != http.StatusCreated {
 		t.Fatalf("status %d: %s", w.Code, w.Body.String())
 	}
@@ -188,7 +181,7 @@ func TestChannelCreateReturnsJobID(t *testing.T) {
 	if body["identityJobId"] != "task-9" {
 		t.Fatalf("identityJobId = %v", body["identityJobId"])
 	}
-	if svc.createdIn.PacePerDay == nil || *svc.createdIn.PacePerDay != 7 {
+	if svc.createdIn.PerDay == nil || *svc.createdIn.PerDay != 7 {
 		t.Fatalf("createdIn = %+v", svc.createdIn)
 	}
 }
@@ -220,8 +213,8 @@ func TestChannelUnlinkReportsPause(t *testing.T) {
 		t.Fatalf("status %d: %s", w.Code, w.Body.String())
 	}
 	body := decode(t, w)
-	if body["autoPickPaused"] != true || len(body) != 1 {
-		t.Fatalf("body = %s, muốn đúng {autoPickPaused}", w.Body.String())
+	if body["autoFetchPaused"] != true {
+		t.Fatalf("body = %s, thiếu trạng thái Tự lấy đã dừng", w.Body.String())
 	}
 }
 
@@ -240,23 +233,6 @@ func TestChannelPatchSourceMinDuration(t *testing.T) {
 	}
 	if w = tg.do(http.MethodPatch, "/api/owner-channels/ch-1/sources/UC1", cookie, `{"minDurationSec":null}`); w.Code != http.StatusOK || svc.minDuration != nil {
 		t.Fatalf("null phải bỏ lọc: %d %v", w.Code, svc.minDuration)
-	}
-}
-
-func TestChannelTemplateAction(t *testing.T) {
-	svc := &fakeChannelService{tmpls: []domain.ChannelTemplate{{ID: "t-1", Name: "A", Position: 0}, {ID: "t-2", Name: "B", Position: 1}}}
-	tg, cookie := channelFixture(t, svc)
-	w := tg.do(http.MethodPost, "/api/owner-channels/ch-1/templates", cookie,
-		`{"action":"move","templateId":"t-2","position":0}`)
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d: %s", w.Code, w.Body.String())
-	}
-	if svc.templateIn.Position == nil || *svc.templateIn.Position != 0 {
-		t.Fatalf("templateIn = %+v", svc.templateIn)
-	}
-	list := decode(t, w)["templates"].([]any)
-	if list[1].(map[string]any)["position"].(float64) != 1 {
-		t.Fatalf("templates = %v", list)
 	}
 }
 
@@ -361,7 +337,7 @@ func TestChannelWireEmptyCollections(t *testing.T) {
 	if err := json.Unmarshal(wire, &body); err != nil {
 		t.Fatal(err)
 	}
-	if body["sources"] == nil || body["templates"] == nil || body["alwaysTags"] == nil {
+	if body["sources"] == nil || body["alwaysTags"] == nil {
 		t.Fatalf("collection rỗng phải là []: %s", wire)
 	}
 	if body["identity"].(map[string]any)["state"] != "ready" {

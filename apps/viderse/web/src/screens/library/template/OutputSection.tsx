@@ -1,19 +1,17 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
-// Mục Xuất & kênh (Template.dc.html › lib=output): nén sau xuất, kênh đang
-// dùng template, bố cục (mở trong editor), xuất tệp .ytf-template.zip và xoá
-// template — xoá bị khoá kèm lý do khi kênh còn dùng (409 của máy chủ).
+// Mục Xuất & kênh (Template.dc.html › lib=output): nén sau xuất, kênh dùng mẫu
+// video này làm mặc định (Đổi ở Kênh mở tab Template của kênh — không gỡ từ
+// đây), bố cục (mở trong editor), xuất tệp .ytf-template.zip và xoá mẫu video —
+// xoá bị khoá kèm lý do nêu đúng kênh đang dùng (409 của máy chủ).
 import { confirm, RadioCard, Switch, Icon, toast } from '@noverse/ui'
 import { useState } from 'react'
-import { invalidate } from '@noverse/ui/data'
-import { keys } from '../../../data/keys'
-import { removeTemplateFromChannel } from '../../../api/library'
 import { ActionButton } from '../../../components'
 import { t } from '../../../i18n/library'
-import { initials, num } from '../fmt'
+import { initials } from '../fmt'
 import { downloadTemplate, type Recipe, type TemplateDetail } from '../../../api/library'
-import { paths } from '../../../router'
+import { navigate, paths } from '../../../router'
 
 export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach, hideTitle, editorLockedReason }: {
   detail: TemplateDetail
@@ -29,7 +27,6 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
   const channels = detail.channels
   const inUse = channels.length > 0
   const compressed = detail.recipe.output.compressExport
-  const [removing, setRemoving] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
   const exportFile = async () => {
     if (exporting) return
@@ -37,17 +34,6 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
     try { await downloadTemplate(detail.id); toast(t.library.templates.exported, 'ok') }
     catch (error) { toast(error instanceof Error ? error.message : t.library.templates.exportFail, 'err') }
     finally { setExporting(false) }
-  }
-
-  const detach = async (channelId: string) => {
-    setRemoving(channelId)
-    try {
-      await removeTemplateFromChannel(channelId, detail.id)
-      await Promise.all([invalidate(keys.template(detail.id)), invalidate(keys.templates())])
-      toast(copy.usersRemove, 'ok')
-    } catch {
-      toast(copy.usersRemoveFail, 'err')
-    } finally { setRemoving(null) }
   }
 
   const remove = async () => {
@@ -68,20 +54,20 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <div className={`vt-switch-row ${stylex.props(sx.switchRow).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.compressTitle}</span>
           <Switch xstyle={[sx.vtSwitchRowSwitch]} label={copy.compressTitle} checked={compressed}
             onChange={(on) => onSave({ output: { compressExport: on } })} />
         </div>
         <div role="radiogroup" aria-label={copy.compressTitle} className={`vt-export ${stylex.props(sx.export).className}`}>
-          <RadioCard xstyle={[sx.vtSwitchRowSwitch, hideTitle && sx.exportChoice]} dotStyle={hideTitle ? sx.mobileDot : undefined} checked={compressed} onChange={() => onSave({ output: { compressExport: true } })}
+          <RadioCard xstyle={[sx.vtSwitchRowSwitch, sx.exportChoice]} dotStyle={sx.exportDot} checked={compressed} onChange={() => onSave({ output: { compressExport: true } })}
             label={<span className={`vt-export-card ${stylex.props(sx.exportCard).className}`}>
               <span className={`vt-export-name ${stylex.props(sx.exportName).className}`}>{copy.compressed.title}</span>
               <span className={`vt-export-size num ${stylex.props(sx.exportSizeNum).className}`}>{copy.compressed.size}</span>
               <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.compressed.note}</span>
             </span>} />
-          <RadioCard xstyle={[sx.vtSwitchRowSwitch, hideTitle && sx.exportChoice]} dotStyle={hideTitle ? sx.mobileDot : undefined} checked={!compressed} onChange={() => onSave({ output: { compressExport: false } })}
+          <RadioCard xstyle={[sx.vtSwitchRowSwitch, sx.exportChoice]} dotStyle={sx.exportDot} checked={!compressed} onChange={() => onSave({ output: { compressExport: false } })}
             label={<span className={`vt-export-card ${stylex.props(sx.exportCard).className}`}>
               <span className={`vt-export-name ${stylex.props(sx.exportName).className}`}>{copy.original.title}</span>
               <span className={`vt-export-size num ${stylex.props(sx.exportSizeNum).className}`}>{copy.original.size}</span>
@@ -90,10 +76,10 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
         </div>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.usersTitle}</span>
-          <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="quiet" icon={<Icon name="add" size={16} />} onClick={onAttach}>{copy.usersAdd}</ActionButton>
+          <ActionButton xstyle={[sx.vtSwitchRowSwitch, sx.attachButton]} variant="quiet" icon={<Icon name="add" size={16} />} onClick={onAttach}>{hideTitle ? copy.usersAddMobile : copy.usersAdd}</ActionButton>
         </div>
         {inUse ? (
           <ul className={`vt-users ${stylex.props(sx.users).className}`}>
@@ -102,12 +88,10 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
                 <span className={`vt-avatar vt-avatar--sm ${stylex.props(sx.avatarAvatarSm).className}`} aria-hidden="true">{initials(channel.name)}</span>
                 <span className={`vt-user-main ${stylex.props(sx.userMain).className}`}>
                   <span className={`vt-user-name ${stylex.props(sx.userName).className}`}>{channel.name}</span>
-                  {channel.position !== undefined && (
-                    <span className={`vt-hint ${stylex.props(sx.hint2).className}`}>{copy.usersPosition(num(channel.position + 1))}</span>
-                  )}
+                  <span className={`vt-hint ${stylex.props(sx.hint2).className}`}>{copy.usersDefaultRow}</span>
                 </span>
-                <ActionButton xstyle={[sx.vtUserActionButton]} variant="quiet" pending={removing === channel.id} onClick={() => void detach(channel.id)}>
-                  {copy.usersRemove}
+                <ActionButton xstyle={[sx.vtUserActionButton]} variant="quiet" onClick={() => navigate(paths.channel(channel.id, 'templates'))}>
+                  {copy.usersGo}
                 </ActionButton>
               </li>
             ))}
@@ -116,7 +100,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.usersNote}</p>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.layoutTitle}</span>
         <div className={`vt-chips ${stylex.props(sx.chips).className}`}>
           {copy.layoutChips.map((chip) => <span key={chip} className={`vt-chip ${stylex.props(sx.chip).className}`}>{chip}</span>)}
@@ -125,11 +109,11 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
         <a {...stylex.props(sx.exportLink)} href={editorLockedReason ? undefined : `#${paths.editor(detail.id)}`} role="link" aria-disabled={!!editorLockedReason} title={editorLockedReason} onClick={event => { if (editorLockedReason) { event.preventDefault(); toast(editorLockedReason, 'err') } }}>{copy.layoutEdit}</a>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fileTitle}</span>
         <div className={`vt-row ${stylex.props(sx.row).className}`}>
-          <ActionButton xstyle={sx.exportLink} pending={exporting} disabled={exporting} onClick={() => void exportFile()} icon={<Icon name="export" size={16} />}>{copy.exportFile}</ActionButton>
-          <ActionButton xstyle={[sx.vtSwitchRowSwitch]} variant="outline" icon={<Icon name="copy" size={16} />} onClick={onDuplicate}>{t.library.duplicate}</ActionButton>
+          <ActionButton xstyle={[sx.exportLink, sx.fileAction]} pending={exporting} disabled={exporting} onClick={() => void exportFile()} icon={<Icon name="export" size={16} />}>{copy.exportFile}</ActionButton>
+          <ActionButton xstyle={[sx.vtSwitchRowSwitch, sx.fileAction]} variant="outline" icon={<Icon name="copy" size={16} />} onClick={onDuplicate}>{t.library.duplicate}</ActionButton>
         </div>
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.exportHelp}</p>
       </div>
@@ -142,7 +126,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
             variant="danger-soft"
             icon={<Icon name="trash" size={16} />}
             onClick={inUse ? undefined : () => void remove()}
-            lockedReason={inUse ? copy.deleteLocked : undefined}
+            lockedReason={inUse ? copy.deleteReason(channels.map((channel) => channel.name)) : undefined}
           >{t.library.delete}</ActionButton>
         </div>
       </div>
@@ -153,25 +137,10 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
 const sx = stylex.create({
   mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
   mobileIntroHidden: { display: { default: null, '@media (max-width: 767px)': 'none' } },
-  mobileCard: {
-    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
-    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
-    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
-    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
-  },
-  mobileDot: { display: { default: null, '@media (max-width: 767px)': 'none' } },
+  exportDot: { display: 'none' },
   exportChoice: {
     minWidth: 0,
-    padding: { default: null, '@media (max-width: 767px)': 'var(--vv-s-10) var(--vv-s-12)' },
+    padding: 'var(--vv-s-10) var(--vv-s-12)',
   },
   mobileUser: {
     paddingTop: { default: null, '@media (max-width: 767px)': 'var(--vv-s-8)' },
@@ -186,11 +155,11 @@ const sx = stylex.create({
     borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
     borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
   },
-  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
-  secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
+  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
+  secHead: { display: "flex", flexDirection: 'row', alignItems: 'baseline', rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-12)" },
   vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
-  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
+  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   switchRow: { display: "flex", alignItems: "center", justifyContent: "space-between", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", flexWrap: "wrap" },
   label: {
     fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
@@ -206,10 +175,12 @@ const sx = stylex.create({
   exportName: { fontSize: "var(--vv-s-13)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
   exportSizeNum: { fontSize: { default: "var(--vv-s-20)", '@media (max-width: 767px)': 'var(--vv-s-17)' }, fontWeight: libraryVars.headingWeight, color: color["--color-fg"] },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
-  cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
+  cardHead: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--vv-s-6)", minWidth: 0 },
+  attachButton: { flexShrink: 0, fontSize: 'var(--vv-s-12)', paddingInline: 'var(--vv-s-8)' },
+  fileAction: { flexGrow: { default: 0, '@media (max-width: 767px)': 1 }, flexBasis: { default: 'auto', '@media (max-width: 767px)': 0 }, minHeight: { default: null, '@media (max-width: 767px)': 'var(--vv-s-44)' } },
   users: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, listStyle: "none", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
   user: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-5)", paddingRight: "var(--vv-s-8)", paddingBottom: "var(--vv-s-5)", paddingLeft: "var(--vv-s-8)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", fontSize: libraryVars.bodySmallFontSize },
-  avatarAvatarSm: { display: "inline-flex", alignItems: "center", justifyContent: "center", flexGrow: 0, flexShrink: 0, flexBasis: "auto", width: "var(--vv-s-22)", height: "var(--vv-s-22)", borderTopLeftRadius: "50%", borderTopRightRadius: "50%", borderBottomRightRadius: "50%", borderBottomLeftRadius: "50%", backgroundColor: color["--color-surface-6"], backgroundImage: "none", color: color["--color-fg-2"], fontSize: "var(--vv-s-9)", fontWeight: libraryVars.headingWeight },
+  avatarAvatarSm: { display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: { default: 'var(--vv-s-34)', '@media (max-width: 767px)': 'var(--vv-s-40)' }, height: { default: 'var(--vv-s-34)', '@media (max-width: 767px)': 'var(--vv-s-40)' }, borderRadius: "50%", backgroundColor: color["--color-surface-6"], color: color["--color-fg-2"], fontSize: "var(--vv-s-12)", fontWeight: libraryVars.headingWeight },
   userMain: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-1)", columnGap: "var(--vv-s-1)", minWidth: 0, flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto" },
   userName: { color: color["--color-fg"] },
   hint2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },

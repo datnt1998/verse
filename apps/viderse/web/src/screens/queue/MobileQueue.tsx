@@ -153,7 +153,7 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
                 <QueueAvatar queue={queue} channelId={item.channelId} size={16} />
                 <span {...stylex.props(sx.ellipsis)}>{item.priority === 'pick' ? `${tt.priority} · ` : ''}{item.templateName} · {fmtDuration(item.durationSec)}</span>
               </span>
-              <span title={waitLine(item, view.paused)} {...stylex.props(sx.small, sx.ellipsis, item.waitReason === 'no_template' && sx.warning)}>
+              <span title={waitLine(item, view.paused)} {...stylex.props(sx.small, sx.ellipsis)}>
                 {!view.paused && item.etaStart ? `${fmtEta(item.etaStart)} · ` : ''}{waitLine(item, view.paused)}
               </span>
             </span>

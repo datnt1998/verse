@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/channels"
@@ -16,9 +17,9 @@ import (
 )
 
 // ChannelStore là kho của Kênh của bạn trên owner_channels /
-// owner_channel_sources / owner_channel_templates. Mọi ghi nhiều dòng đi qua
-// một transaction; đọc bảng rival_channels/templates/rival_videos chỉ để dựng
-// bối cảnh (đối thủ tham chiếu, tên template) — không ghi bảng của mảng khác.
+// owner_channel_sources. Mọi ghi nhiều dòng đi qua một transaction; đọc bảng
+// rival_channels/templates/rival_videos chỉ để dựng bối cảnh (đối thủ tham
+// chiếu, template mặc định) — không ghi bảng của mảng khác.
 type ChannelStore struct {
 	q  *gen.Queries
 	db DBTXer
@@ -98,6 +99,10 @@ func ownerChannelFromRow(r gen.OwnerChannel) domain.Channel {
 		tags = []string{}
 	}
 	id, _ := r.ID.Value()
+	var instructions domain.AgentInstructions
+	if len(r.AgentInstructions) > 0 {
+		_ = json.Unmarshal(r.AgentInstructions, &instructions)
+	}
 	return domain.Channel{
 		ID:                 fmt.Sprint(id),
 		Name:               r.Name,
@@ -106,11 +111,11 @@ func ownerChannelFromRow(r gen.OwnerChannel) domain.Channel {
 		StyleNote:          strPtr(r.StyleNote),
 		DescriptionFooter:  strPtr(r.DescriptionFooter),
 		AlwaysTags:         tags,
-		AutoPick:           r.AutoPick,
-		Autonomy:           domain.ParseAutonomy(r.Autonomy),
-		Priority:           r.Priority,
-		PacePerDay:         int(r.PacePerDay),
-		TemplateCursor:     int(r.TemplateCursor),
+		DefaultTemplateID:  rowUUID(r.DefaultTemplateID),
+		AutoFetch:          r.AutoFetch,
+		AutoApprove:        r.AutoApprove,
+		PerDay:             int(r.PerDay),
+		AgentInstructions:  domain.NormalizeAgentInstructions(instructions),
 		Branding:           branding,
 		AvatarPath:         strPtr(r.AvatarPath),
 		BannerPath:         strPtr(r.BannerPath),
@@ -127,6 +132,27 @@ func ownerChannelFromRow(r gen.OwnerChannel) domain.Channel {
 	}
 }
 
+// agentInstructionsJSON marshal chỉ dẫn kênh; nil → {} để cột NOT NULL đọc ra
+// object rỗng.
+func agentInstructionsJSON(a domain.AgentInstructions) []byte {
+	if a == nil {
+		a = domain.NewAgentInstructions()
+	}
+	raw, err := json.Marshal(a)
+	if err != nil {
+		return []byte("{}")
+	}
+	return raw
+}
+
+// agentInstructionValue đặt giá trị chỉ dẫn; rỗng → nil để SQL rơi nhánh xoá.
+func agentInstructionValue(v string) pgtype.Text {
+	if v == "" {
+		return pgtype.Text{}
+	}
+	return pgtype.Text{String: v, Valid: true}
+}
+
 func rowUUID(u pgtype.UUID) string {
 	if !u.Valid {
 		return ""
@@ -138,7 +164,7 @@ func rowUUID(u pgtype.UUID) string {
 // ── đọc ────────────────────────────────────────────────────────────────────
 
 // ListChannels đọc mọi kênh kèm đối thủ (thứ tự liên kết, dòng đầu là tham
-// chiếu) và template theo position trong ba truy vấn.
+// chiếu) và template mặc định trong ba truy vấn.
 func (s *ChannelStore) ListChannels(ctx context.Context) ([]channels.ChannelView, error) {
 	rows, err := s.q.ListOwnerChannels(ctx)
 	if err != nil {
@@ -179,21 +205,20 @@ func (s *ChannelStore) GetChannel(ctx context.Context, id string) (channels.Chan
 	return views[0], true, nil
 }
 
-// attachLinks điền đối thủ và template cho các view đã đọc (một truy vấn mỗi
-// loại cho cả lô).
+// attachLinks điền đối thủ và template mặc định cho các view đã đọc (một
+// truy vấn mỗi loại cho cả lô).
 func (s *ChannelStore) attachLinks(ctx context.Context, q *gen.Queries, views []channels.ChannelView, ids []pgtype.UUID) error {
 	sources, err := q.ListChannelSources(ctx, ids)
 	if err != nil {
 		return err
 	}
-	templates, err := q.ListChannelTemplates(ctx, ids)
+	defaults, err := q.ListChannelDefaults(ctx, ids)
 	if err != nil {
 		return err
 	}
 	byID := make(map[string]*channels.ChannelView, len(views))
 	for i := range views {
 		views[i].Sources = []domain.ChannelSource{}
-		views[i].Templates = []domain.ChannelTemplate{}
 		byID[views[i].ID] = &views[i]
 	}
 	// Đối thủ tham chiếu = link đầu tiên của MỖI kênh (thứ tự linked_at); seen
@@ -214,16 +239,12 @@ func (s *ChannelStore) attachLinks(ctx context.Context, q *gen.Queries, views []
 		})
 		seen[v.ID] = true
 	}
-	for _, r := range templates {
+	for _, r := range defaults {
 		v := byID[rowUUID(r.OwnerChannelID)]
 		if v == nil {
 			continue
 		}
-		v.Templates = append(v.Templates, domain.ChannelTemplate{
-			ID:       rowUUID(r.TemplateID),
-			Name:     r.Name,
-			Position: int(r.Position),
-		})
+		v.DefaultTemplate = &domain.ChannelTemplate{ID: rowUUID(r.TemplateID), Name: r.Name}
 	}
 	return nil
 }
@@ -277,33 +298,28 @@ func (s *ChannelStore) CreateChannel(ctx context.Context, in channels.CreateInpu
 				}
 			}
 		}
-		if err := q.InsertOwnerChannel(ctx, gen.InsertOwnerChannelParams{
-			ID:         uid,
-			Name:       in.Name,
-			YoutubeUrl: textArg(in.YoutubeURL),
-			Language:   in.Language,
-			AutoPick:   in.AutoPick,
-			PacePerDay: int32(in.PacePerDay),
-			Column7:    autonomyJSON(in.Autonomy),
-			Priority:   orPriority(in.Priority),
-		}); err != nil {
+		// Template mặc định đã tồn tại (client chọn hoặc Mẫu chuẩn vừa tạo
+		// trước transaction); ghi thẳng cùng dòng kênh để không có kênh nào
+		// tồn tại mà thiếu default.
+		tu, err := uuidArg(in.DefaultTemplateID)
+		if err != nil {
 			return err
+		}
+		if err := q.InsertOwnerChannel(ctx, gen.InsertOwnerChannelParams{
+			ID:                uid,
+			Name:              in.Name,
+			YoutubeUrl:        textArg(in.YoutubeURL),
+			Language:          in.Language,
+			AutoFetch:         in.AutoFetch,
+			PerDay:            int32(in.PerDay),
+			AutoApprove:       in.AutoApprove,
+			DefaultTemplateID: tu,
+			Column9:           agentInstructionsJSON(in.AgentInstructions),
+		}); err != nil {
+			return mapChannelFK(err)
 		}
 		for _, rivalID := range in.CompetitorIDs {
 			if _, err := q.LinkSource(ctx, gen.LinkSourceParams{OwnerChannelID: uid, RivalID: rivalID}); err != nil {
-				return err
-			}
-		}
-		// Template Mẫu chuẩn đã tạo trước transaction; gắn vào danh sách luân
-		// phiên ngay trong tx để kênh không bao giờ tồn tại mà thiếu template.
-		if in.TemplateID != "" {
-			tu, err := uuidArg(in.TemplateID)
-			if err != nil {
-				return err
-			}
-			if _, err := q.InsertChannelTemplate(ctx, gen.InsertChannelTemplateParams{
-				OwnerChannelID: uid, TemplateID: tu, Position: 0,
-			}); err != nil {
 				return err
 			}
 		}
@@ -325,35 +341,57 @@ func (s *ChannelStore) PatchChannel(ctx context.Context, id string, p channels.P
 	if p.Name.Set {
 		nameText = &p.Name.Value
 	}
+	var defaultTemplate pgtype.UUID
+	if p.DefaultTemplateID.Set {
+		defaultTemplate, err = uuidArg(p.DefaultTemplateID.Value)
+		if err != nil {
+			return false, err
+		}
+	}
 	n, err := s.q.PatchChannel(ctx, gen.PatchChannelParams{
-		NameSet:       p.Name.Set,
-		Name:          textArg(nameText),
-		YoutubeUrlSet: p.YoutubeURL.Set,
-		YoutubeUrl:    textArg(p.YoutubeURL.Value),
-		LanguageSet:   p.Language.Set,
-		Language:      p.Language.Value,
-		StyleNoteSet:  p.StyleNote.Set,
-		StyleNote:     textArg(p.StyleNote.Value),
-		FooterSet:     p.DescriptionFooter.Set,
-		Footer:        textArg(p.DescriptionFooter.Value),
-		TagsSet:       p.AlwaysTags.Set,
-		Tags:          p.AlwaysTags.Value,
-		AutoPickSet:   p.AutoPick.Set,
-		AutoPick:      p.AutoPick.Value,
-		PaceSet:       p.PacePerDay.Set,
-		Pace:          int32(p.PacePerDay.Value),
-		AutonomySet:   p.Autonomy.Set,
-		Autonomy:      autonomyJSON(p.Autonomy.Value),
-		PrioritySet:   p.Priority.Set,
-		Priority:      orPriority(p.Priority.Value),
-		BrandingSet:   p.Brief.Set,
-		Brief:         p.Brief.Value,
-		ID:            uid,
+		NameSet:            p.Name.Set,
+		Name:               textArg(nameText),
+		YoutubeUrlSet:      p.YoutubeURL.Set,
+		YoutubeUrl:         textArg(p.YoutubeURL.Value),
+		LanguageSet:        p.Language.Set,
+		Language:           p.Language.Value,
+		StyleNoteSet:       p.StyleNote.Set,
+		StyleNote:          textArg(p.StyleNote.Value),
+		FooterSet:          p.DescriptionFooter.Set,
+		Footer:             textArg(p.DescriptionFooter.Value),
+		TagsSet:            p.AlwaysTags.Set,
+		Tags:               p.AlwaysTags.Value,
+		AutoFetchSet:       p.AutoFetch.Set,
+		AutoFetch:          p.AutoFetch.Value,
+		AutoApproveSet:     p.AutoApprove.Set,
+		AutoApprove:        p.AutoApprove.Value,
+		PerDaySet:          p.PerDay.Set,
+		PerDay:             int32(p.PerDay.Value),
+		DefaultTemplateSet: p.DefaultTemplateID.Set,
+		DefaultTemplateID:  defaultTemplate,
+		AgentSet:           p.AgentInstructions.Set,
+		AgentKey:           p.AgentInstructions.Key,
+		AgentValue:         agentInstructionValue(p.AgentInstructions.Value),
+		BrandingSet:        p.Brief.Set,
+		Brief:              p.Brief.Value,
+		ID:                 uid,
 	})
 	if err != nil {
-		return false, err
+		return false, mapChannelFK(err)
 	}
 	return n > 0, nil
+}
+
+// mapChannelFK đổi lỗi khoá ngoại khi template default vừa bị xoá thành 409
+// thân thiện thay vì 500. FK là backstop cho pre-check ở service.
+func mapChannelFK(err error) error {
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+		return &channels.Error{Code: channels.CodeConflict,
+			Message:  "Template vừa bị xoá hoặc đổi, tải lại rồi chọn lại mặc định.",
+			Recovery: "Tải lại trang Hồ sơ kênh."}
+	}
+	return err
 }
 
 // DeleteChannel xoá kênh; link + template xoá theo (ON DELETE CASCADE).
@@ -389,16 +427,16 @@ func (s *ChannelStore) LinkSource(ctx context.Context, id, rivalID string) (inse
 			return nil
 		}
 		// Đối thủ đầu tiên (kênh vừa bỏ hết nguồn nên đã tạm dừng Tự lấy) bật lại
-		// Tự lấy: cách lấy video do Mức tự chủ quyết định, không còn công tắc riêng.
+		// Tự lấy: cờ bật/tắt Tự lấy của kênh.
 		count, err := q.CountSources(ctx, uid)
 		if err != nil {
 			return err
 		}
 		if count == 1 {
-			_, err = q.SetAutoPick(ctx, gen.SetAutoPickParams{ID: uid, AutoPick: true})
+			_, err = q.SetAutoFetch(ctx, gen.SetAutoFetchParams{ID: uid, AutoFetch: true})
 			return err
 		}
-		_, err = q.SetAutoPickTouch(ctx, uid)
+		_, err = q.SetAutoFetchTouch(ctx, uid)
 		return err
 	})
 	return inserted, err
@@ -430,13 +468,13 @@ func (s *ChannelStore) UnlinkSource(ctx context.Context, id, rivalID string) (re
 			return err
 		}
 		if left == 0 {
-			if _, err := q.SetAutoPick(ctx, gen.SetAutoPickParams{ID: uid, AutoPick: false}); err != nil {
+			if _, err := q.SetAutoFetch(ctx, gen.SetAutoFetchParams{ID: uid, AutoFetch: false}); err != nil {
 				return err
 			}
 			paused = true
 			return nil
 		}
-		_, err = q.SetAutoPickTouch(ctx, uid)
+		_, err = q.SetAutoFetchTouch(ctx, uid)
 		return err
 	})
 	return removed, paused, err
@@ -464,71 +502,10 @@ func (s *ChannelStore) SetSourceMinDuration(ctx context.Context, id, rivalID str
 		if found = n > 0; !found {
 			return nil
 		}
-		_, err = q.SetAutoPickTouch(ctx, uid)
+		_, err = q.SetAutoFetchTouch(ctx, uid)
 		return err
 	})
 	return found, err
-}
-
-// ── template luân phiên ────────────────────────────────────────────────────
-
-// UpdateTemplates khoá hàng kênh rồi đọc-đổi-ghi danh sách trong MỘT
-// transaction: hai thao tác add/move/remove đồng thời được serialize, không
-// mất thao tác và position luôn liền mạch. apply trả danh sách id mới.
-func (s *ChannelStore) UpdateTemplates(ctx context.Context, id string, apply func([]string) []string) error {
-	uid, err := uuidArg(id)
-	if err != nil {
-		return err
-	}
-	return s.withTx(ctx, func(q *gen.Queries) error {
-		if _, err := q.LockOwnerChannel(ctx, uid); err != nil {
-			return err
-		}
-		rows, err := q.ListChannelTemplateIDs(ctx, uid)
-		if err != nil {
-			return err
-		}
-		current := make([]string, 0, len(rows))
-		for _, r := range rows {
-			current = append(current, rowUUID(r.TemplateID))
-		}
-		templateIDs := apply(current)
-		uids := make([]pgtype.UUID, 0, len(templateIDs))
-		for _, t := range templateIDs {
-			tu, err := uuidArg(t)
-			if err != nil {
-				return err
-			}
-			uids = append(uids, tu)
-		}
-		keep := make(map[string]bool, len(uids))
-		for _, tu := range uids {
-			keep[rowUUID(tu)] = true
-		}
-		for _, r := range rows {
-			if !keep[rowUUID(r.TemplateID)] {
-				if _, err := q.DeleteChannelTemplate(ctx, gen.DeleteChannelTemplateParams{
-					OwnerChannelID: uid, TemplateID: r.TemplateID,
-				}); err != nil {
-					return err
-				}
-			}
-		}
-		for position, tu := range uids {
-			if _, err := q.InsertChannelTemplate(ctx, gen.InsertChannelTemplateParams{
-				OwnerChannelID: uid, TemplateID: tu, Position: int32(position),
-			}); err != nil {
-				return err
-			}
-			if err := q.SetChannelTemplatePosition(ctx, gen.SetChannelTemplatePositionParams{
-				OwnerChannelID: uid, TemplateID: tu, Position: int32(position),
-			}); err != nil {
-				return err
-			}
-		}
-		_, err = q.SetAutoPickTouch(ctx, uid)
-		return err
-	})
 }
 
 // ── nhận diện ──────────────────────────────────────────────────────────────

@@ -236,6 +236,10 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 				source = "codex"
 			}
 			version := VersionView{Score: v.Score, Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, Prompt: v.Prompt, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version.ScoreIssue = v.ScoreIssue
+			if version.ScoreIssue != "" {
+				version.Score = nil
+			}
 			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
 			version.CutoutState = "unavailable"
 			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
@@ -272,8 +276,11 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		item.Direction = i.Direction
 		scored = append(scored, autonomy.ItemScore{ID: i.ID, Kind: i.Kind, Label: autonomy.ItemLabel(i.Kind, sceneNumber), Skipped: i.Status == "skipped"})
 		if v := model.Displayed(i); v != nil {
-			item.Score = v.Score
-			scored[len(scored)-1].Score = v.Score
+			item.ScoreIssue = v.ScoreIssue
+			if v.ScoreIssue == "" {
+				item.Score = v.Score
+				scored[len(scored)-1].Score = v.Score
+			}
 			hash := v.SHA256
 			if m.Style == "cutout" && i.Kind == "scene" && v.Cutout != nil {
 				hash = v.Cutout.SHA256
@@ -284,20 +291,24 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		}
 		out.Items = append(out.Items, item)
 	}
-	if s.Autonomy != nil {
-		a, found, err := s.Autonomy.JobAutonomy(ctx, id)
+	if s.AutoApprove != nil {
+		auto, found, err := s.AutoApprove.JobAutoApprove(ctx, id)
 		if err != nil {
 			return View{}, err
 		}
 		if found {
-			v := autonomy.Evaluate(a.Approve.Min, scored)
+			v := autonomy.Evaluate(domain.AutoApproveMin, scored)
 			pending := 0
 			for _, i := range m.Items {
 				if i.Status == "pending" || i.Status == "running" || i.InFlight != nil {
 					pending++
 				}
 			}
-			out.Autonomy = &AutonomyView{Mode: a.Approve.Mode, Min: v.Min, Total: v.Total, Passed: v.Passed, Pending: pending, Below: v.Below, Summary: v.Summary()}
+			mode := "ask"
+			if auto {
+				mode = "score"
+			}
+			out.Autonomy = &AutonomyView{Mode: mode, Min: v.Min, Total: v.Total, Passed: v.Passed, Pending: pending, Below: v.Below, Summary: v.Summary()}
 		}
 	}
 	return out, nil

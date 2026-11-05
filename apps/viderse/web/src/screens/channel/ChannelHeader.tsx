@@ -1,8 +1,9 @@
 import * as stylex from '@stylexjs/stylex'
 import { channelStyles } from './channel.stylex'
-// Đầu trang Kênh (artboard Channel › .center đầu): avatar 64 (ảnh nhận diện
-// hoặc chữ cái), chip ngôn ngữ, tên, dòng phụ (YouTube/ngày tạo/số đối thủ),
-// "Mở YouTube" và "Video mới cho kênh" (mở màn Video mới đã chọn sẵn kênh này).
+// Đầu trang Kênh (artboard Channel/MChannel › head): avatar nhận diện, chip
+// Tự lấy (xanh khi bật, xám khi tắt), chip Tự duyệt ảnh ≥ 85 khi bật, chip
+// ngôn ngữ, tên kênh, dòng phụ (YouTube/ngày tạo/số đối thủ), "Mở YouTube"
+// và "Video mới cho kênh" (mở màn Video mới đã chọn sẵn kênh này).
 import { Button, Icon } from '@noverse/ui'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { ActionButton, ChannelAvatar } from '../../components'
@@ -11,8 +12,6 @@ import { navigate, paths } from '../../router'
 import type { Channel } from '../../api/channels'
 import { fmtDay } from './fmt'
 import { channelTint } from '../../lib/channelTint'
-import { readChannelAutonomy } from '../../api/autonomy'
-import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
 import { mch } from './mobile/mchannel.stylex'
 
 export function ChannelHeader({ channel }: { channel: Channel }) {
@@ -21,9 +20,6 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
   const name = channel.name || tt.page.noName
   const lang = tt.page.language[channel.language]
   const ytFull = channel.youtubeUrl?.replace(/^https?:\/\/(www\.)?/, '')
-  // Artboard: dòng phụ ghi tay kênh (@midnighttales.stories), tooltip ghi cả youtube.com/@…
-  const autonomy = readChannelAutonomy(channel)
-  const chip = narrow ? mch.headChip : channelStyles.chip
   const createdToday = channel.createdAt
     && new Date(channel.createdAt).toDateString() === new Date().toDateString()
   const parts = [
@@ -31,6 +27,11 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
     createdToday ? tt.page.createdToday : tt.page.created(fmtDay(channel.createdAt)),
     narrow ? tt.page.linkedRivalsShort(channel.sources.length) : tt.page.linkedRivals(channel.sources.length),
   ]
+  const fetchChip = narrow
+    ? (channel.autoFetch ? mch.headChip : mch.headChipPlain)
+    : [channelStyles.chip, channel.autoFetch && channelStyles.chipAuto]
+  const approveChip = narrow ? mch.headChip : [channelStyles.chip, channelStyles.chipAuto]
+  const langChip = narrow ? mch.headChipPlain : channelStyles.chip
   return (
     <div className={`vch-head ${stylex.props(channelStyles.head).className}`}>
       <ChannelAvatar
@@ -42,14 +43,17 @@ export function ChannelHeader({ channel }: { channel: Channel }) {
       />
       <div className={`vch-head__text ${stylex.props(channelStyles.headText).className}`}>
         <div className={`vch-head__chips ${stylex.props(channelStyles.headChips).className}`}>
-          {autonomy && (
-            <span className={`vch-chip vch-chip--auto ${stylex.props(chip, autonomyStyles.headChip, autonomyStyles.headChipOk).className}`}>
-              <Icon name="refresh" size={13} />
-              <span>{t.autonomy.headChip}</span>
-              <span>{autonomy.autonomy.preset === 'custom' ? t.autonomy.custom : t.autonomy.presets[autonomy.autonomy.preset]}</span>
+          <span className={`vch-chip ${stylex.props(fetchChip).className}`}>
+            {channel.autoFetch && <Icon name="refresh" size={13} />}
+            {channel.autoFetch ? tt.page.fetchChip(channel.perDay) : tt.page.fetchChipOff}
+          </span>
+          {channel.autoApprove && (
+            <span className={`vch-chip ${stylex.props(approveChip).className}`}>
+              <Icon name="tick" size={13} />
+              {tt.page.approveChip}
             </span>
           )}
-          <span className={`vch-chip ${stylex.props(chip, autonomyStyles.headChip).className}`}>{lang}</span>
+          <span className={`vch-chip ${stylex.props(langChip).className}`}>{lang}</span>
         </div>
         <h1 className={`vch-title ${stylex.props(channelStyles.title).className}`}>{name}</h1>
         <span className={`vch-sub ${stylex.props(channelStyles.sub).className}`} title={[ytFull ?? tt.page.noYouTube, ...parts.slice(1)].join(' · ')}>{parts.join(' · ')}</span>

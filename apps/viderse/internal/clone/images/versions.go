@@ -51,6 +51,9 @@ func (s *Service) imagesView(ctx context.Context, l loaded, refLimit int) []Imag
 			used = *i.CurrentVersion
 		}
 		image := ImageView{ID: i.ID, Kind: kind, Index: index, Label: label, UsedVersion: used, NeedsReview: i.NeedsReview, Status: i.Status, RefLimit: refLimit, Versions: make([]ImageVersionView, 0, len(i.Versions))}
+		if displayed := model.Displayed(i); displayed != nil {
+			image.ScoreIssue = displayed.ScoreIssue
+		}
 		if i.InFlight != nil {
 			image.Status = "running"
 		}
@@ -111,11 +114,16 @@ func (s *Service) versionView(ctx context.Context, l loaded, item model.Item, v 
 	if started == "" {
 		started = v.CreatedAt
 	}
+	score := v.Score
+	if v.ScoreIssue != "" {
+		score = nil
+	}
 	return ImageVersionView{
 		N: v.Version, State: state, URL: url, PreviewURL: nil, Width: v.Width, Height: v.Height,
 		Parts: parts, Wrapper: v.Wrapper, SentText: v.Prompt, Refs: refs, Provider: provider, Model: modelName, Params: params,
 		Feedback: v.Feedback, DiffFromPrev: v.DiffFromPrev, StartedAt: started, FinishedAt: v.FinishedAt,
 		DurationSec: v.DurationSec, CostImages: v.CostImages, Error: v.VersionError, PartsLegacy: legacy,
+		ScoreIssue: v.ScoreIssue, Score: score,
 	}
 }
 

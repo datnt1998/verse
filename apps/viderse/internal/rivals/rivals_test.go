@@ -29,7 +29,7 @@ type fakeStore struct {
 
 	owners       map[string]bool
 	usage        []domain.VideoUsage
-	baselines    []AutoPickBaseline
+	baselines    []AutoFetchBaseline
 	videoChan    map[string]string
 	infoPaths    map[string]string
 	lastUsageIDs []string
@@ -75,7 +75,7 @@ func (f *fakeStore) VideoUsage(_ context.Context, ids []string) ([]domain.VideoU
 	return f.usage, f.err
 }
 
-func (f *fakeStore) AutoPickBaselines(context.Context) ([]AutoPickBaseline, error) {
+func (f *fakeStore) AutoFetchBaselines(context.Context) ([]AutoFetchBaseline, error) {
 	return f.baselines, f.err
 }
 

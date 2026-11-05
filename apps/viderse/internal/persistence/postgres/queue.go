@@ -708,16 +708,14 @@ func (s *QueueStore) Owner(ctx context.Context, id string) (*domain.Channel, err
 	return &v, nil
 }
 
+// Templates trả tên mặc định của kênh dưới dạng lát một phần tử — giữ chữ ký
+// cho caller cũ; dùng DefaultsForChannels/DefaultTemplate cho luồng mới.
 func (s *QueueStore) Templates(ctx context.Context, channelID string) ([]domain.ChannelTemplate, error) {
-	rows, err := s.q.ListChannelTemplates(ctx, []pgtype.UUID{queueUUID(channelID)})
-	if err != nil {
-		return nil, err
+	def, err := s.DefaultTemplate(ctx, channelID)
+	if err != nil || def == nil {
+		return []domain.ChannelTemplate{}, err
 	}
-	out := make([]domain.ChannelTemplate, len(rows))
-	for i, row := range rows {
-		out[i] = domain.ChannelTemplate{ID: uuidString(row.TemplateID), Name: row.Name, Position: int(row.Position)}
-	}
-	return out, nil
+	return []domain.ChannelTemplate{*def}, nil
 }
 
 func (s *QueueStore) TemplateRecipe(ctx context.Context, id string) (json.RawMessage, error) {

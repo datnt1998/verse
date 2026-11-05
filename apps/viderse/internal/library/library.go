@@ -736,8 +736,8 @@ func inUseByChannels(channels domain.ChannelRefList) *Error {
 	}
 	return &Error{
 		Code:     CodeConflict,
-		Message:  fmt.Sprintf("Đang dùng ở %d kênh. Bỏ khỏi kênh trước rồi xoá.", len(channels)),
-		Recovery: "Mở kênh đang dùng, bỏ mẫu video khỏi danh sách luân phiên rồi xoá lại",
+		Message:  fmt.Sprintf("Đang là mặc định của %d kênh. Đổi mặc định trước rồi xoá.", len(channels)),
+		Recovery: "Mở kênh đang dùng, đổi template mặc định sang mẫu khác rồi xoá lại",
 		Channels: names,
 	}
 }

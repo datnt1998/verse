@@ -35,9 +35,10 @@ type Service struct {
 	Cancels *model.CancelRegistry
 	Ffmpeg  FfmpegResolver
 	Runner  tools.Runner
-	// Autonomy đọc Mức tự chủ của kênh để tóm tắt điểm; nil → không tóm tắt.
-	Autonomy interface {
-		JobAutonomy(ctx context.Context, jobID string) (domain.Autonomy, bool, error)
+	// AutoApprove đọc cờ Tự duyệt của kênh để tóm tắt điểm theo ngưỡng cố định
+	// 85; nil → không tóm tắt. Không còn cấu hình Mức tự chủ.
+	AutoApprove interface {
+		JobAutoApprove(ctx context.Context, jobID string) (bool, bool, error)
 	}
 }
 type RevisionInput struct {
@@ -125,7 +126,8 @@ type VersionView struct {
 	CutoutURL         string          `json:"cutoutUrl,omitempty"`
 	CutoutState       string          `json:"cutoutState"`
 	// Score là điểm Kiểm định của version này (nil khi chưa chấm được).
-	Score *domain.ImageScore `json:"score"`
+	Score      *domain.ImageScore `json:"score"`
+	ScoreIssue string             `json:"scoreIssue,omitempty"`
 }
 type ItemView struct {
 	ID             string        `json:"id"`
@@ -152,11 +154,14 @@ type ItemView struct {
 	Direction      string        `json:"direction,omitempty"`
 	MediaID        string        `json:"mediaId,omitempty"`
 	// Score là điểm của ảnh đang hiển thị (đề cử đang xét hoặc ảnh đã chọn).
-	Score *domain.ImageScore `json:"score"`
+	Score      *domain.ImageScore `json:"score"`
+	ScoreIssue string             `json:"scoreIssue,omitempty"`
 }
 
-// AutonomyView tóm tắt điểm so với ngưỡng Duyệt theo điểm của kênh — dòng
-// "cảnh 4 được 72" của Chờ duyệt. Luôn có khi video có ảnh.
+// AutonomyView tóm tắt điểm so với ngưỡng tự duyệt — dòng "cảnh 4 được 72"
+// của Chờ duyệt. Giữ nguyên khoá wire `autonomy` để client cũ đọc được: Mode
+// suy ra từ cờ Tự duyệt ("score" khi bật, "ask" khi tắt) và Min cố định 85;
+// không còn cấu hình người dùng đứng sau hai trường này.
 type AutonomyView struct {
 	Mode    string               `json:"mode"`
 	Min     int                  `json:"min"`
@@ -177,6 +182,7 @@ type ImageView struct {
 	UsedVersion int                `json:"usedVersion"`
 	NeedsReview bool               `json:"needsReview"`
 	Status      string             `json:"status"`
+	ScoreIssue  string             `json:"scoreIssue,omitempty"`
 	RefLimit    int                `json:"refLimit"`
 	Versions    []ImageVersionView `json:"versions"`
 }
@@ -206,6 +212,8 @@ type ImageVersionView struct {
 	FinishedAt   *string             `json:"finishedAt"`
 	DurationSec  *float64            `json:"durationSec"`
 	CostImages   int                 `json:"costImages"`
+	ScoreIssue   string              `json:"scoreIssue,omitempty"`
+	Score        *domain.ImageScore  `json:"score"`
 	Error        *model.VersionError `json:"error"`
 	// PartsLegacy: bản cũ chưa tách phần — giao diện hiện sentText như một phần.
 	PartsLegacy bool `json:"partsLegacy,omitempty"`

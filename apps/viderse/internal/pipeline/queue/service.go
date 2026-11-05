@@ -13,6 +13,7 @@ import (
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline"
+	"github.com/datnt1998/verse/core/llmretry"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -37,8 +38,14 @@ type Options struct {
 	Scan         func(context.Context, string) error
 	Probe        func(context.Context, string) (VideoMetadata, error)
 	ImageSources func(context.Context) ([]domain.QueueImageQuota, error)
-	Notify       func(string)
-	Diag         func(error)
+	// ScoutModel resolves the configured Director text chain used to interpret
+	// the owner's Trinh sát note into source-selection filters. Called at most
+	// once per owner per discovery cycle and only when a non-empty note meets
+	// eligible candidates; nil means a note cannot be honored and fails the
+	// cycle instead of being silently ignored.
+	ScoutModel func(context.Context) (llmretry.Generator, error)
+	Notify     func(string)
+	Diag       func(error)
 }
 
 type Service struct {
@@ -234,37 +241,29 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 	return view, nil
 }
 
-func (s *Service) loadLanes(ctx context.Context) ([]Lane, map[string]domain.CloneQueueItem, map[string]domain.Channel, map[string][]domain.ChannelTemplate, error) {
+func (s *Service) loadLanes(ctx context.Context) ([]Lane, map[string]domain.CloneQueueItem, map[string]domain.Channel, map[string]string, map[string]domain.ChannelTemplate, error) {
 	items, err := s.store.ListQueuedItems(ctx)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	owners, err := s.store.Owners(ctx)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	starts, err := s.store.LaneLastStarts(ctx)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	used, err := s.store.PaceUsedToday(ctx, LocalMidnight(s.d.Now()))
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 	byOwner := map[string]domain.Channel{}
-	templates := map[string][]domain.ChannelTemplate{}
 	laneMap := map[string]*Lane{}
 	for _, o := range owners {
 		byOwner[o.ID] = o
-		t, e := s.store.RotationTemplates(ctx, o)
-		if e != nil {
-			return nil, nil, nil, nil, e
-		}
-		templates[o.ID] = t
-		l := &Lane{ChannelID: o.ID, Pace: o.PacePerDay, UsedToday: int(used[o.ID]), TemplateOK: len(t) > 0}
-		if l.Pace < 1 {
-			l.Pace = DefaultPace
-		}
+		// Nhịp đến từ DB có CHECK 1..20 nên không clamp ở đây.
+		l := &Lane{ChannelID: o.ID, Pace: o.PerDay, UsedToday: int(used[o.ID])}
 		if last := starts[o.ID]; last.LastStart != nil {
 			l.LastStart = *last.LastStart
 			if last.LastSequence != nil {
@@ -289,7 +288,39 @@ func (s *Service) loadLanes(ctx context.Context) ([]Lane, map[string]domain.Clon
 		}
 	}
 	sort.Slice(lanes, func(i, j int) bool { return laneOrder(lanes[i], lanes[j]) < 0 })
-	return lanes, byID, byOwner, templates, nil
+	// Tên template cho job đang chạy và mục chờ: mặc định theo kênh (cho mục
+	// không override) + tên theo id (cho override và job đang chạy).
+	ownerIDs := make([]string, 0, len(laneMap))
+	for id := range laneMap {
+		ownerIDs = append(ownerIDs, id)
+	}
+	defaults, err := s.store.DefaultsForChannels(ctx, ownerIDs)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	needed := map[string]struct{}{}
+	for _, t := range defaults {
+		needed[t.ID] = struct{}{}
+	}
+	for _, item := range byID {
+		if item.TemplateID != nil {
+			needed[*item.TemplateID] = struct{}{}
+		}
+	}
+	ids := make([]string, 0, len(needed))
+	for id := range needed {
+		ids = append(ids, id)
+	}
+	names, err := s.store.TemplateNames(ctx, ids)
+	if err != nil {
+		return nil, nil, nil, nil, nil, err
+	}
+	for _, d := range defaults {
+		if _, ok := names[d.ID]; !ok {
+			names[d.ID] = d.Name
+		}
+	}
+	return lanes, byID, byOwner, names, defaults, nil
 }
 func itemForSchedule(item domain.CloneQueueItem) Item {
 	seconds := int64(0)
@@ -449,7 +480,7 @@ func (s *Service) Drain(ctx context.Context) (int, error) {
 	if free <= 0 {
 		return 0, nil
 	}
-	lanes, byID, owners, _, err := s.loadLanes(ctx)
+	lanes, byID, owners, _, _, err := s.loadLanes(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -467,10 +498,10 @@ func (s *Service) Drain(ctx context.Context) (int, error) {
 				break
 			}
 		}
-		if lane == nil || !lane.TemplateOK {
+		if lane == nil {
 			continue
 		}
-		if row.Priority == domain.CloneBatch && row.Origin == domain.OriginAuto && !owner.AutoPick {
+		if row.Priority == domain.CloneBatch && row.Origin == domain.OriginAuto && !owner.AutoFetch {
 			continue
 		}
 		if row.Priority == domain.CloneBatch && lane.UsedToday >= lane.Pace {

@@ -94,6 +94,8 @@ export type KitSelectProps = {
   error?: string
   /** Model picker: keep the full name, truncate only its secondary description. */
   inlineDescription?: boolean
+  /** Show secondary text in options without adding it to the closed trigger. */
+  optionDescriptions?: boolean
   footer?: ReactNode
   defaultOpen?: boolean
   /** Biểu tượng nhỏ đứng trước giá trị ở ô chọn đơn (kit: language-square cho “Ngôn ngữ truyện”). */
@@ -517,7 +519,7 @@ function FooterAction({ icon, tone, children, onClick, action }: { icon: string;
   return <button type="button" {...stylex.props(sx.opt)} data-select-action={action || undefined} onMouseDown={(event) => event.preventDefault()} onClick={onClick}><Icon name={icon} size={15} style={{ color: tone }} /><span {...stylex.props(sx.footerLabel)}>{children}</span></button>
 }
 
-function SelectList({ rich = false, inlineDescription, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant, xstyle, triggerStyle, chevronSize, prefix, popWidth, valueStyle, pressScale }: RichSelectProps & { rich?: boolean }) {
+function SelectList({ rich = false, inlineDescription, optionDescriptions, options, value, onChange, id: suppliedId, name, label, 'aria-label': ariaLabel, placeholder, disabled, error, style, className, onPreview, playing, footer, onManage, defaultOpen, compact, height, autoFocus, icon, variant, xstyle, triggerStyle, chevronSize, prefix, popWidth, valueStyle, pressScale }: RichSelectProps & { rich?: boolean }) {
   const generatedId = useId()
   const id = suppliedId ?? generatedId
   const L = getKitLabels().selects
@@ -615,7 +617,7 @@ function SelectList({ rich = false, inlineDescription, options, value, onChange,
               {!rich && option.icon && <span aria-hidden="true" style={{ display: 'flex', flexShrink: 0, marginTop: variant === 'project-role' ? 7 : 0 }}>{option.icon}</span>}
               <span {...stylex.props(sx.valueCol, rich && sx.valueRich, !rich && sx.optLabelPlain, variant === 'project-role' && sx.roleLabel)}>
                 <span {...stylex.props(sx.valueLabel, inlineDescription && sx.modelOptionName)}>{option.label}</span>
-                {(rich || inlineDescription || variant === 'project-role') && option.description && <span {...stylex.props(sx.desc, sx.valueLabel, inlineDescription && sx.modelOptionDesc, variant === 'project-role' && sx.roleDescription)}>{option.description}</span>}
+                {(rich || inlineDescription || optionDescriptions || variant === 'project-role') && option.description && <span {...stylex.props(sx.desc, sx.valueLabel, inlineDescription && sx.modelOptionDesc, variant === 'project-role' && sx.roleDescription)}>{option.description}</span>}
               </span>
               {option.code && <span className={`mono ${stylex.props(sx.meta).className}`}>{option.code}</span>}
               {option.meta}

@@ -339,10 +339,10 @@ WHERE v.id = ANY(sqlc.arg(video_ids)::text[])
       AND j2.status <> 'cancelled')
 ORDER BY video_id, channel_name;
 
--- name: ListAutoPickBaselines :many
+-- name: ListAutoFetchBaselines :many
 -- Mốc bật Tự lấy của từng cặp (kênh của bạn, đối thủ) — dùng cho dòng giải
 -- thích "Tự lấy chưa lấy video này" khi video đăng trước mốc.
-SELECT s.owner_channel_id, c.name, c.auto_pick, s.rival_id, s.auto_baseline_at
+SELECT s.owner_channel_id, c.name, c.auto_fetch, s.rival_id, s.auto_baseline_at
 FROM owner_channel_sources s
 JOIN owner_channels c ON c.id = s.owner_channel_id
 WHERE s.auto_baseline_at IS NOT NULL

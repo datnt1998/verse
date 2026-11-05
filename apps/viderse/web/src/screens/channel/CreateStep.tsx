@@ -1,16 +1,15 @@
 import * as stylex from '@stylexjs/stylex'
 import { text } from '../../styles/shared.stylex'
 import { channelStyles, channelRootMarker } from './channel.stylex'
-// Bước Tạo kênh (artboard CreateChannel/Onboard › step=create): chọn ≥ 1 đối
-// thủ đang theo dõi làm nguồn (bắt buộc), theo dõi & chọn đối thủ mới ngay tại
-// đây, tên/link YouTube tuỳ chọn, ngôn ngữ đoán từ đối thủ tham chiếu, thẻ
-// "Cách kênh chạy" (Mẫu chuẩn, mức tự chủ và nhịp). Nút Tạo kênh khoá
+// "Cách kênh chạy" đúng 3 hàng: Template mặc định (chọn từ Thư viện, để
+// "Mẫu chuẩn · gợi ý" thì máy tự dựng), Tự duyệt ảnh, Video mỗi ngày 1–20 —
+// đều gửi ngay trong POST tạo kênh (r44 · V38). Nút Tạo kênh khoá
 // (aria-disabled + lý do) tới khi chọn được một đối thủ.
-import { useState } from 'react'
-import { Button, Checkbox, Field, Icon, MobilePage, Segmented as KitSegmented, toast } from '@noverse/ui'
-import { Segmented } from '../../components/Segmented'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Checkbox, Field, Icon, MobilePage, Spinner, Switch, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
-import { ActionButton, ChannelAvatar, Orb } from '../../components'
+import { ActionButton, ChannelAvatar } from '../../components'
+import { ResponsiveSelect } from '../../components/responsive-overlays'
 import { t } from '../../i18n/channels'
 import { navigate, paths } from '../../router'
 import { keys } from '../../data/keys'
@@ -18,13 +17,12 @@ import { useResource } from '../../data/useResource'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { addRival, listRivals, type Rival } from '../../api/rivals'
 import { createChannel } from '../../api/channels'
-import { DEFAULT_AUTONOMY, applyPreset, presetIds, type PresetId } from '../../api/autonomy'
-import { listTemplates } from '../../api/library'
+import { listTemplates, type TemplateSummary } from '../../api/library'
 import { addRivalError } from '../explore/AddRivalForm'
 import { fmtSubs } from '../explore/fmt'
 import { channelTint } from '../../lib/channelTint'
 import { PaceStepper } from './PaceStepper'
-import { autonomyStyles } from '../../components/autonomy/autonomy.stylex'
+import { templateLine } from './templateLine'
 import { mch } from './mobile/mchannel.stylex'
 
 const num = new Intl.NumberFormat('vi-VN')
@@ -35,15 +33,16 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
   onCreated: (channelId: string) => void
 }) {
   const tt = t.channels.create
-  const ta = t.autonomy
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
-  const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
+  const tplRes = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const rivals = rivalsRes.data?.rivals ?? []
   const [picked, setPicked] = useState<string[]>([])
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
-  const [pace, setPace] = useState(5)
-  const [aut, setAut] = useState<PresetId>('balanced')
+  const [perDay, setPerDay] = useState(5)
+  const [autoApprove, setAutoApprove] = useState(false)
+  /** template mặc định chọn trước; `null` = để "Mẫu chuẩn · gợi ý" */
+  const [templateId, setTemplateId] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,8 +63,9 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
         name: name.trim() ? name.trim() : undefined,
         youtubeUrl: url.trim() ? url.trim() : undefined,
         competitorIds: picked,
-        pacePerDay: pace,
-        autonomy: applyPreset(DEFAULT_AUTONOMY, aut),
+        perDay,
+        autoApprove,
+        ...(templateId ? { defaultTemplateId: templateId } : {}),
       })
       void invalidate(keys.channels())
       void invalidate(keys.rivals())
@@ -201,41 +201,17 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
 
           <section {...stylex.props(mch.runCard)} aria-label={tt.runTitle}>
             <div {...stylex.props(mch.runTitle)}>{tt.runTitle}</div>
-            <div {...stylex.props(mch.runRow)}>
-              <span {...stylex.props(mch.runText)}>
-                <span {...stylex.props(mch.runLabel)}>{tt.template}</span>
-                <span {...stylex.props(mch.runSub)}>{tt.templateSub}</span>
-              </span>
-              <a href={`#${paths.library('templates')}`} {...stylex.props(mch.templateLink)}>
-                {templates.data?.items.find((template) => template.name.toLowerCase().includes('mẫu chuẩn'))?.name ?? tt.template}
-              </a>
-            </div>
-            <div {...stylex.props(mch.runCol)}>
-              <div {...stylex.props(mch.row8)}>
-                <span aria-hidden="true" {...stylex.props(mch.inlineOrbs)}>
-                  <Orb of="qa" size={14} />
-                  <Orb of="artist" size={14} className={stylex.props(mch.orbOverlap).className} />
-                </span>
-                <span {...stylex.props(mch.runLabel)}>{ta.title}</span>
-              </div>
-              <KitSegmented
-                label={ta.title}
-                value={aut}
-                size="xl"
-                radius={10}
-                fit="fill"
-                options={presetIds.map((id) => ({ id, label: ta.presets[id] }))}
-                onChange={(id) => setAut(id as PresetId)}
-              />
-              <span {...stylex.props(mch.help)}>{ta.createSub[aut]}</span>
-            </div>
-            <div {...stylex.props(mch.runRow)}>
-              <span {...stylex.props(mch.runText)}>
-                <span {...stylex.props(mch.runLabel)}>{tt.pace}</span>
-                <span {...stylex.props(mch.runSub)}>{tt.paceSub}</span>
-              </span>
-              <PaceStepper value={pace} onSave={setPace} label={tt.pace} />
-            </div>
+            <RunRows
+              templates={tplRes.data?.items ?? []}
+              loading={tplRes.initialLoading}
+              templateId={templateId}
+              onTemplateId={setTemplateId}
+              autoApprove={autoApprove}
+              onAutoApprove={setAutoApprove}
+              perDay={perDay}
+              onPerDay={setPerDay}
+              mobile
+            />
           </section>
 
           {error && <p role="alert" {...stylex.props(mch.error)}>{error}</p>}
@@ -354,44 +330,16 @@ export function CreateStep({ firstRun, onCancel, onCreated }: {
             <div className={`vch-cardhead ${stylex.props(channelStyles.cardhead).className}`} style={{ padding: 0 }}>
               <h2 {...stylex.props(channelStyles.cardHeading)}><Icon name="layer" size={16} />{tt.runTitle}</h2>
             </div>
-            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
-              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
-                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{tt.template}</span>
-                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{tt.templateSub}</span>
-              </span>
-              <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`} title={tt.templateTitle}>
-                {templates.data?.items.find((template) => template.name.toLowerCase().includes('mẫu chuẩn'))?.name ?? tt.template}
-              </span>
-            </div>
-            <div className={`vch-runrow ${stylex.props(channelStyles.runrow).className}`}>
-              <a className={`vch-chip ${stylex.props(channelStyles.chip).className}`} href={`#${paths.library('templates')}`}>{tt.chooseTemplate}</a>
-            </div>
-            <div className={`vch-runrow ${stylex.props(channelStyles.runrow, autonomyStyles.autRow).className}`}>
-              <span {...stylex.props(autonomyStyles.orbsSm)} aria-hidden="true">
-                <Orb of="qa" size={11} className={stylex.props(autonomyStyles.orbQa).className} />
-                <Orb of="artist" size={11} className={stylex.props(autonomyStyles.orbArtist).className} />
-              </span>
-              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
-                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{ta.title}</span>
-                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{ta.createSub[aut]}</span>
-              </span>
-              <Segmented
-                size="sm"
-               
-                label={ta.title}
-                value={aut}
-                fit="content"
-                options={presetIds.map((id) => ({ id, label: ta.presets[id] }))}
-                onChange={(id) => setAut(id as PresetId)}
-              />
-            </div>
-            <div className={`vch-runrow ${stylex.props(channelStyles.runrow, aut === 'careful' && autonomyStyles.dim).className}`}>
-              <span className={`vch-runrow__text ${stylex.props(channelStyles.runrowText).className}`}>
-                <span className={`vch-runrow__label ${stylex.props(channelStyles.runrowLabel).className}`}>{tt.pace}</span>
-                <span className={`vch-runrow__sub ${stylex.props(channelStyles.runrowSub).className}`}>{tt.paceSub}</span>
-              </span>
-              <PaceStepper value={pace} onSave={setPace} label={tt.pace} />
-            </div>
+            <RunRows
+              templates={tplRes.data?.items ?? []}
+              loading={tplRes.initialLoading}
+              templateId={templateId}
+              onTemplateId={setTemplateId}
+              autoApprove={autoApprove}
+              onAutoApprove={setAutoApprove}
+              perDay={perDay}
+              onPerDay={setPerDay}
+            />
           </section>
         </div>
 
@@ -433,10 +381,16 @@ function AddRivalPicked({ onAdded, mobile = false }: { onAdded: (rival: Rival) =
   const [value, setValue] = useState('')
   const [pending, setPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const submit = async () => {
     const input = value.trim()
-    if (!input || pending) return
+    if (pending) return
+    if (!input) {
+      setError('Dán @handle hoặc link kênh YouTube của đối thủ trước')
+      inputRef.current?.focus()
+      return
+    }
     setPending(true)
     setError(null)
     try {
@@ -460,15 +414,83 @@ function AddRivalPicked({ onAdded, mobile = false }: { onAdded: (rival: Rival) =
       <span {...stylex.props(text.srOnly)}><label htmlFor="vch-new-rival">{tt.addLabel}</label></span>
       <input
         id="vch-new-rival"
+        ref={inputRef}
+        aria-invalid={!!error || undefined}
+        aria-describedby={error ? 'vch-new-rival-error' : undefined}
+        style={error ? { borderColor: 'var(--color-err)' } : undefined}
         className={`vch-taginput ${stylex.props(mobile ? [mch.input44, mch.rivalInputRow] : [channelStyles.taginput, mch.rivalInput]).className}`}
         value={value}
         placeholder={tt.addPlaceholder}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) => { setValue(event.target.value); setError(null) }}
       />
-      <ActionButton size={mobile ? 'lg' : 'sm'} type="submit" disabled={pending || !value.trim()} pending={pending}>
+      <ActionButton size={mobile ? 'lg' : 'sm'} type="submit" disabled={pending} pending={pending}>
         {mobile ? tt.addSubmitM : tt.addSubmit}
       </ActionButton>
-      {error && <span className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
+      {error && <span id="vch-new-rival-error" className={`vch-field__error ${stylex.props(channelStyles.fieldError).className}`} role="alert" style={{ flexBasis: '100%' }}>{error}</span>}
     </form>
   )
 }
+
+/** Ba hàng "Cách kênh chạy" của bước Tạo kênh (artboard CreateChannel/MCreate
+ *  › run card): Template chọn từ Thư viện (máy tính nổi dưới nút chọn, điện
+ *  thoại mở Sheet; chọn "Mẫu chuẩn · gợi ý" = để máy tự dựng), công tắc Tự
+ *  duyệt ảnh, stepper Video mỗi ngày 1–20. */
+function RunRows({ templates, loading, templateId, onTemplateId, autoApprove, onAutoApprove, perDay, onPerDay, mobile = false }: {
+  templates: TemplateSummary[]
+  loading: boolean
+  templateId: string | null
+  onTemplateId: (id: string | null) => void
+  autoApprove: boolean
+  onAutoApprove: (on: boolean) => void
+  perDay: number
+  onPerDay: (pace: number) => void
+  mobile?: boolean
+}) {
+  const tt = t.channels.create
+  const options = [
+    { value: '', label: tt.templateStandard, description: tt.templateStandardSub },
+    ...templates.map((template) => ({ value: template.id, label: template.name, description: templateLine(template) })),
+  ]
+  const row = mobile ? mch.autoRow : channelStyles.runrow
+  const textStyle = mobile ? mch.runText : channelStyles.runrowText
+  const labelStyle = mobile ? mch.runLabel : channelStyles.runrowLabel
+  const subStyle = mobile ? mch.runSub : channelStyles.runrowSub
+
+  return (
+    <>
+      <div {...stylex.props(row)}>
+        <span {...stylex.props(textStyle)}>
+          <span {...stylex.props(labelStyle)}>{tt.template}</span>
+          <span {...stylex.props(subStyle)}>{tt.templateSub}</span>
+        </span>
+        <span {...stylex.props(channelStyles.tplRowPick)}>
+          <ResponsiveSelect
+            aria-label={tt.chooseTpl}
+            value={templateId ?? ''}
+            options={options}
+            onChange={(id) => onTemplateId(id || null)}
+            triggerStyle={mobile ? mch.tplSelectM : channelStyles.tplRowSelect}
+            popWidth={360}
+            inlineDescription
+          />
+          {loading && <Spinner size={12} />}
+        </span>
+      </div>
+      <div {...stylex.props(row)}>
+        <span {...stylex.props(textStyle)}>
+          <span {...stylex.props(labelStyle)}>{tt.approve}</span>
+          <span {...stylex.props(subStyle)}>{autoApprove ? tt.approveSubOn : tt.approveSubOff}</span>
+        </span>
+        <Switch checked={autoApprove} onChange={onAutoApprove} aria-label={tt.approve} />
+      </div>
+      <div {...stylex.props(row)}>
+        <span {...stylex.props(textStyle)}>
+          <span {...stylex.props(labelStyle)}>{tt.perDay}</span>
+          <span {...stylex.props(subStyle)}>{tt.perDaySub(perDay)}</span>
+        </span>
+        <PaceStepper value={perDay} onSave={onPerDay} label={tt.perDay} />
+      </div>
+    </>
+  )
+}
+

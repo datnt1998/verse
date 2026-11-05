@@ -25,9 +25,7 @@ import (
 func TestCommitBuildMediaConcurrentIdenticalPublicationUnderRedrawLease(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES($1,'Clone fixture','en',false)`, autonomyChannel); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	repo := postgres.NewBlobRepository(pool)
 	if _, err := repo.Initialize(ctx, media.Descriptor{ID: "image-rebind-test", Config: blobstore.Config{Driver: "local", LocalRoot: t.TempDir()}}); err != nil {
@@ -230,9 +228,7 @@ func TestCommitBuildMediaConcurrentIdenticalPublicationUnderRedrawLease(t *testi
 func TestCommitBuildMediaUnchangedCheckpointRejectsLostManifest(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES($1,'Clone fixture','en',false)`, autonomyChannel); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	repo := postgres.NewBlobRepository(pool)
 	if _, err := repo.Initialize(ctx, media.Descriptor{ID: "unchanged-checkpoint", Config: blobstore.Config{Driver: "local", LocalRoot: t.TempDir()}}); err != nil {

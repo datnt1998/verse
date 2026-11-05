@@ -4,7 +4,7 @@
 // Mọi thao tác gọi đúng API duyệt ảnh đang có; không có nhánh giả lập.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, InitialsAvatar, Segmented, Sheet, Spinner, TextArea, toast, useAsyncAction, useMobileScroll } from '@noverse/ui'
+import { Banner, Button, Icon, InitialsAvatar, Segmented, Sheet, Spinner, TextArea, toast, useAsyncAction, useMobileScroll } from '@noverse/ui'
 import { ActionButton } from '../../../components/ActionButton'
 import { listChannels } from '../../../api/channels'
 import { readImageScore } from '../../../api/autonomy'
@@ -18,6 +18,7 @@ import { DevelopEffect, Orb } from '../../../components'
 import { ReasonPopover } from '../../../components/reason/ReasonPopover'
 import { isLow } from '../../../components/autonomy/scoreSummary'
 import { screenReview } from '../../../i18n/screens'
+import { t as autonomyText } from '../../../i18n/autonomy'
 import {
   imageURL, isBlocked, isDrawing, latestVersion, reviewLabel, useReview, usedVersion, versionURL,
   type ReviewImage,
@@ -121,7 +122,6 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const fallback = item && isBlocked(item) ? neighbour : undefined
   const shown = fallback ?? item
   const shownIndex = shown ? items.indexOf(shown) : 0
-  const score = readImageScore(shown?.score)
 
   // Cùng GET có `JobImage[]` hiện đại; dữ liệu cũ có thể không mang `state`, nên
   // chỉ bản ghi rõ 'cancelled' mới bị loại khỏi lựa chọn mặc định/nguồn vẽ lại.
@@ -165,6 +165,8 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       ? `${Math.floor(shown.startSec / 60)}:${String(Math.floor(shown.startSec % 60)).padStart(2, '0')}–${Math.floor(shown.endSec / 60)}:${String(Math.floor(shown.endSec % 60)).padStart(2, '0')}`
       : ''
   const shownVersion = shown?.versions.find(v => v.version === (shown ? chosen(shown) : 0))
+  const scoreVersion = shown?.versions.find(v => v.version === shownVersionNumber)
+  const score = scoreVersion?.scoreIssue ? null : readImageScore(scoreVersion?.score)
   const versionTime = clock(shownVersion?.createdAt)
   const metaLine = [shownVersion?.source, shown?.width && shown?.height ? `${shown.width}×${shown.height}` : '', versionTime].filter(Boolean).join(' · ')
   const sheetSubtitle = item ? (sheetSourceVersion > 0 ? copy.sheetSubtitle(reviewLabel(item, selected), sheetSourceVersion) : reviewLabel(item, selected)) : ''
@@ -360,6 +362,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       </div>
 
       {fallback && <div role="status" {...stylex.props(ms.scoreBanner)}><span {...stylex.props(ms.scoreBannerIcon)}><Icon name="info" size={14} /></span><span>{copy.blocked}</span></div>}
+      {scoreVersion?.scoreIssue && <Banner tone="warning" title={autonomyText.autonomy.score.instructionIssue}>{scoreVersion.scoreIssue}</Banner>}
       {summary && <div role="status" {...stylex.props(ms.scoreBanner)}>
         <Orb of="qa" size={16} />
         <span {...stylex.props(ms.scoreBannerText)}>{summary.text || copy.scoreFallback(summary.passed, summary.total)} · {summary.mode === 'score' ? copy.scoreAuto : copy.scoreAsk}</span>
