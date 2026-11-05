@@ -135,7 +135,7 @@ export function stepPercent(step: { status: string; progress: { unitsDone: numbe
 /** Bản MP4 của video đã xong: đường dẫn phát được + số đo thật của file. */
 export type FinishedVideo = {
   url: string
-  /** Thời lượng thật của bản xuất (máy chủ ghi `durationMs`); null khi chỉ còn artifact cũ. */
+  /** Null until the player reads media metadata; output.durationMs is render elapsed time. */
   durationSec: number | null
   /** Dung lượng file máy chủ ghi; null khi chưa có. */
   bytes: number | null
@@ -163,9 +163,8 @@ export function finishedVideo(job: FinishedJob): FinishedVideo | null {
   // `removedAt` chỉ được ghi sau khi máy chủ xoá file; `accepted` là dấu "Vẫn xuất"
   // của chủ (07-data-contract), không phải dấu file tồn tại.
   if (nonEmpty(data?.removedAt)) return null
-  const durationMs = positive(data?.durationMs)
   const size = positive(data?.size)
-  const measured = { durationSec: durationMs === null ? null : durationMs / 1000, bytes: size }
+  const measured = { durationSec: null, bytes: size }
   const artifact = step.output.artifacts?.find(item => item.contentType === 'video/mp4')
   if (artifact) return { url: `/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(artifact.id)}`, ...measured }
   if (step.status !== 'succeeded') return null
