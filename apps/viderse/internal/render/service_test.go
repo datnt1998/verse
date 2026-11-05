@@ -17,8 +17,9 @@ import (
 )
 
 type renderJobRepo struct {
-	job     domain.CloneJob
-	records []domain.CloneStepRecord
+	job       domain.CloneJob
+	records   []domain.CloneStepRecord
+	artifacts []domain.CloneArtifact
 }
 
 func (f renderJobRepo) GetJob(context.Context, string) (*domain.CloneJob, error) {
@@ -27,6 +28,9 @@ func (f renderJobRepo) GetJob(context.Context, string) (*domain.CloneJob, error)
 }
 func (f renderJobRepo) ListSteps(context.Context, string) ([]domain.CloneStepRecord, error) {
 	return f.records, nil
+}
+func (f renderJobRepo) ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error) {
+	return f.artifacts, nil
 }
 func gateAdapterFixture(t *testing.T) (*Service, *stepstest.FakeMedia, string) {
 	t.Helper()

@@ -325,6 +325,9 @@ func (r renderHTTPJobRepository) GetJob(_ context.Context, id string) (*domain.C
 func (r renderHTTPJobRepository) ListSteps(context.Context, string) ([]domain.CloneStepRecord, error) {
 	return r.records, nil
 }
+func (r renderHTTPJobRepository) ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error) {
+	return nil, nil
+}
 
 func testRenderTokenExportAcceptance(t *testing.T) {
 	project, err := editor.New("project", "Export fixture", 1920, 1080, 30, time.Unix(0, 0))

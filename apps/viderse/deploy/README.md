@@ -80,6 +80,12 @@ Token/nonce/fence/binding/project scope vẫn bắt buộc; không mở allowlis
 SSO hoặc API editor/tài khoản. Nếu request còn queued, xem lỗi origin trước retry;
 nếu đã upload nhưng chậm, đo đường truyền và storage thay vì chạy lại bước AI.
 
+Nếu đo đã hoàn tất nhưng báo thiếu ảnh/thumbnail sai hash, đối chiếu manifest ảnh
+đã duyệt với catalog artifact **của đúng job** trước khi vẽ lại. Version ảnh là
+artifact trung gian, không nhất thiết có trong output bước ảnh. Render phải đọc
+catalog qua repository, ưu tiên output hiện hành và từ chối đường dẫn mơ hồ;
+không chọn bản cuối theo thứ tự DB hoặc bỏ kiểm hash để qua chất lượng.
+
 Khi hotfix backend trong lúc UI mới chưa nghiệm thu, không chạy script lấy toàn bộ
 `origin/main`: dựng từ đúng revision production với patch tối thiểu, giữ nguyên
 assets đang phục vụ và kiểm SHA. Giữ binary/marker trước đó để rollback, kiểm
