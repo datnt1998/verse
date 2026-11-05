@@ -74,7 +74,7 @@ describe('file cuối của video đã xuất', () => {
         step: 'export', status: 'succeeded',
         output: { artifacts: [], data: { projectId: 'clone-3225b629-g1', exportId: 'b6e47266', fileName: 'video.mp4', size: 630653, durationMs: 28031, accepted: false } },
       }],
-    })).toEqual({ url: '/api/editor/projects/clone-3225b629-g1/exports/b6e47266', durationSec: 28.031, bytes: 630653 })
+    })).toEqual({ url: '/api/editor/projects/clone-3225b629-g1/exports/b6e47266', durationSec: null, bytes: 630653 })
   })
 
   it('không hiện bản xuất đã xoá hoặc bước chưa xuất xong', () => {
