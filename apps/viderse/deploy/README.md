@@ -69,8 +69,11 @@ nội bộ khiến Lima trước đó báo SSH forwarding exit255.
 ### Trang đo/xuất không nhận việc trên hosted
 
 Chrome headless phải mở cùng origin HTTPS đã được `PUBLIC_URL` xác thực;
-desktop không có `PUBLIC_URL` mới dùng loopback. Nguồn wiring là
-[`serve.go`](../cmd/viderse/serve.go); guard scoped request vẫn kiểm origin và token.
+desktop không có `PUBLIC_URL` mới dùng loopback. **Preflight kiểm workspace vẫn
+phải dùng HTTP loopback**, không dùng chung biến public origin với URL của Chrome.
+Nguồn wiring là [`serve.go`](../cmd/viderse/serve.go) →
+[`render_wiring.go`](../cmd/viderse/render_wiring.go); guard scoped request vẫn
+kiểm origin và token.
 Nếu đo timeout nhưng request còn queued, đối chiếu lỗi trang headless trước khi
 bấm retry: lỗi origin xảy ra trước claim nên tăng timeout hoặc vẽ lại ảnh không sửa
 được. Không nới allowlist toàn app hoặc bỏ CSRF để cho request nội bộ đi qua.
@@ -82,6 +85,16 @@ writer trước thay tệp tại đường dẫn ổn định. Nếu không đ�
 migration. Sau rollout phải chứng minh request thật nhận claim, upload và hoàn tất
 đo qua checkpoint, không chỉ `/readyz`. Retry dùng thao tác repository/API hiện
 có và giữ nguyên checkpoint các bước AI đã thành công.
+
+Không xem SHA của file đang cài là bằng chứng process đang dùng file đó. Với
+launchd tự khởi động lại, SIGTERM trước khi thay file có thể mở lại inode cũ.
+Thứ tự hotfix không đổi schema: **cài → `launchctl kickstart -k` → kiểm inode
+process → health → chạy tiếp việc đủ điều kiện**. Lấy PID từ
+`launchctl list com.dat.viderse`, đối chiếu dòng executable `txt` của
+`lsof -nP -a -p <PID> -d txt` với
+`stat -f 'device=%d inode=%i' ~/server/apps/viderse/bin/viderse`.
+Nếu cần dừng writer hoàn toàn, phải ngăn auto-restart trước khi thay tệp;
+không coi SIGTERM hoặc khoảng trống listener ngắn là đã quiesce.
 
 
 
