@@ -38,7 +38,7 @@ function ChannelDetail({ channel, link, onGo, onClose }: {
 
   const platformKinds = backdropKindsOf(channel.platform)
   const [mode, setMode] = useState<'random' | 'pick'>(link && link.pinned.length > 0 ? 'pick' : 'random')
-  const [kinds, setKinds] = useState<string[]>(link?.kinds ?? platformKinds)
+  const [kinds, setKinds] = useState<string[]>(() => link?.kinds ?? (channel.listedAt === null ? platformKinds : platformKinds.filter(kind => (channel.counts[kind] ?? 0) > 0)))
   const [pinned, setPinned] = useState<ReadonlySet<string>>(() => new Set(link?.pinned ?? []))
   // Lưới hiện mọi loại (mục loại đang tắt bị mờ, không chọn được); nạp không
   // lọc kind để video của kind đang tắt vẫn xem/ghim lại được.
@@ -112,10 +112,10 @@ function ChannelDetail({ channel, link, onGo, onClose }: {
               const on = kinds.includes(kind)
               const n = channel.counts[kind] ?? 0
               const last = on && kinds.length === 1
-              const dis = (listed && n === 0) || last
+              const dis = (listed && n === 0 && !on) || last
               return (
                 <button key={kind} type="button" className={`vbd-kindchip ${stylex.props(sx.kindchip, (Boolean((on))) && sx.kindchipDataOn, (Boolean((dis))) && sx.kindchipAriaDisabled).className}`} data-on={on || undefined}
-                  aria-pressed={on} aria-disabled={dis || undefined} disabled={listed && n === 0 && !on}
+                  aria-pressed={on} aria-disabled={dis || undefined} disabled={dis}
                   onClick={() => toggleKind(kind)}>
                   {on && <Icon name="tick" size={12} />}
                   {kindName(kind)} <span className="num">{num(n)}</span>

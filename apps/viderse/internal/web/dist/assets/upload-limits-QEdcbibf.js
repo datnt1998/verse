@@ -1,1 +1,0 @@
-import{i as u}from"./index-BUN76P2E.js";let n=null;function o(){return n??=u("/api/upload-limits").catch(t=>{throw n=null,t}),n}async function l(t,a){const i=await o().catch(()=>null);if(!i?.hosted)return null;const r=i.limits[t];return!r||a<=r?null:i.message}function s(t){return t.startsWith("video/")?"video":t.startsWith("audio/")?"audio":"image"}export{s as a,l as u};

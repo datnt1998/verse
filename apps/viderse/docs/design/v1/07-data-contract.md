@@ -645,6 +645,7 @@ GET /api/backdrop/channels/:id/videos?kind=clip|highlight|vod|video&sort=newest&
 GET /api/backdrop/channels/:id → { …BackdropChannel, usedBy: { templateId, name, mode: "random" | "pick", kinds: Kind[], chosenCount?: number }[] }
 ```
 - **Nguồn nền của template** giữ đúng dạng code (`templateBackdropSchema`): `channels: { channelId, kinds, pinned: videoId[] }[]` — `pinned` rỗng = **Ngẫu nhiên từ mọi video**, có phần tử = **Chỉ từ video tôi chọn**; `clipCount?` (bỏ trống = tự phủ kín), `clipSec`. Video lẻ là `fixedVideoIds`.
+- **Mặc định loại video khi gắn nguồn:** kênh đã đọc danh sách chỉ bật sẵn các loại có số lượng lớn hơn0; kênh chưa đọc danh sách giữ các loại nền tảng hỗ trợ. Khi sửa nguồn đã gắn, giữ nguyên `kinds` trong recipe, kể cả loại hiện rỗng, cho người dùng bỏ chọn nếu còn loại khác. Loại cuối đang bật không thể tắt; loại rỗng chưa bật không thể bật. Không âm thầm sửa recipe cũ theo lần cập nhật số lượng.
 - **Ước lượng cho thanh Nền của một video:** `GET /api/templates/:id/backdrop/mix?lengthSec=2520` → `{ fixedSec, perChannel: { channelId, clips, freshVideos, repeats: boolean }[], loopSec, need, capped }` — dùng cùng hàm chia của `pickBackdropSources` (vòng tròn, kênh hết video nhường kênh khác, tối đa 40 clip) để số trên thanh khớp video làm ra.
 - `BackdropChannel.platform` và `BackdropVideo.platform` dùng cùng `PlatformId`; chip lọc nền tảng ở Thư viện sinh từ `GET /api/platforms` (chỉ các nền tảng có `uses` chứa `backdrop`).
 
