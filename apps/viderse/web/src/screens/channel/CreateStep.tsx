@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, Checkbox, Field, Icon, MobilePage, Spinner, Switch, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
-import { ResponsiveSelect } from '../../components/responsive-overlays'
+import { ResponsiveActionMenu, ResponsiveSelect } from '../../components/responsive-overlays'
 import { t } from '../../i18n/channels'
 import { navigate, paths } from '../../router'
 import { keys } from '../../data/keys'
@@ -451,6 +451,7 @@ function RunRows({ templates, loading, templateId, onTemplateId, autoApprove, on
     { value: '', label: tt.templateStandard, description: tt.templateStandardSub },
     ...templates.map((template) => ({ value: template.id, label: template.name, description: templateLine(template) })),
   ]
+  const selectedTemplate = options.find((option) => option.value === (templateId ?? ''))
   const row = mobile ? mch.autoRow : channelStyles.runrow
   const textStyle = mobile ? mch.runText : channelStyles.runrowText
   const labelStyle = mobile ? mch.runLabel : channelStyles.runrowLabel
@@ -458,6 +459,31 @@ function RunRows({ templates, loading, templateId, onTemplateId, autoApprove, on
 
   return (
     <>
+      {mobile ? (
+        <div {...stylex.props(mch.runCol)}>
+          <ResponsiveActionMenu
+            label={tt.chooseTpl}
+            triggerStyle={mch.tplSelectM}
+            trigger={<>
+              <Icon name="layer" xstyle={mch.tplLeadIconM} />
+              <span {...stylex.props(mch.runText)}>
+                <span {...stylex.props(mch.runLabel)}>{tt.template}</span>
+                <span {...stylex.props(mch.tplSelectedM)}>{selectedTemplate?.label ?? tt.chooseTpl}</span>
+                {selectedTemplate?.description && <span {...stylex.props(mch.runSub, mch.tplWrapM)}>{selectedTemplate.description}</span>}
+              </span>
+              {loading && <Spinner size={12} />}
+              <Icon name="arrow-r" xstyle={mch.tplChevronM} />
+            </>}
+            items={options.map((option) => ({
+              id: option.value,
+              label: option.label,
+              description: option.description,
+              selected: option.value === (templateId ?? ''),
+              onSelect: () => onTemplateId(option.value || null),
+            }))}
+          />
+        </div>
+      ) : (
       <div {...stylex.props(row)}>
         <span {...stylex.props(textStyle)}>
           <span {...stylex.props(labelStyle)}>{tt.template}</span>
@@ -469,13 +495,14 @@ function RunRows({ templates, loading, templateId, onTemplateId, autoApprove, on
             value={templateId ?? ''}
             options={options}
             onChange={(id) => onTemplateId(id || null)}
-            triggerStyle={mobile ? mch.tplSelectM : channelStyles.tplRowSelect}
+            triggerStyle={channelStyles.tplRowSelect}
             popWidth={360}
             inlineDescription
           />
           {loading && <Spinner size={12} />}
         </span>
       </div>
+      )}
       <div {...stylex.props(row)}>
         <span {...stylex.props(textStyle)}>
           <span {...stylex.props(labelStyle)}>{tt.approve}</span>

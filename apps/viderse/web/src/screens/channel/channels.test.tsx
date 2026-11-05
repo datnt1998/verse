@@ -216,6 +216,46 @@ describe('Nguồn & tự động', () => {
     // chờ hộp xác nhận của kit tự đóng + gỡ root trước khi dọn DOM của test
     await until(() => document.querySelector('[role="alertdialog"]') === null)
   })
+
+  it('mobile unlink keeps pending/error confirmation open and allows a successful retry', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      media: query, matches: query.includes('max-width: 767px'), onchange: null,
+      addEventListener: vi.fn(), removeEventListener: vi.fn(),
+      addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: () => true,
+    }))
+    const pending = Promise.withResolvers<Response>()
+    let attempts = 0
+    stubFetch({
+      '/api/rivals': (_init, url) => url === '/api/rivals'
+        ? respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList)
+        : respond({ error: 'not found' }, 404),
+      '/api/owner-channels/c-mobile/sources/r1': () => ++attempts === 1 ? pending.promise : respond({ autoFetchPaused: true }),
+    })
+    const item = channel({ id: 'c-mobile' })
+    const el = await mount(<SourcesTab channel={item} channels={[item]} />)
+    const openConfirmation = async () => {
+      await click(el.querySelector('button[aria-label="Bỏ liên kết: Một Phim"]'))
+      await until(() => Boolean(byText(document, '[role="dialog"] button', tt.sources.unlinkAction)))
+      await click(byText(document, '[role="dialog"] button', tt.sources.unlinkAction))
+      await until(() => document.querySelector('[role="alertdialog"]') !== null)
+    }
+    await openConfirmation()
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkCancel))
+    await until(() => document.querySelector('[role="alertdialog"]') === null)
+    expect(attempts).toBe(0)
+    await openConfirmation()
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkOk))
+    expect(attempts).toBe(1)
+    expect([...document.querySelectorAll('[role="alertdialog"] button')].every(button => (button as HTMLButtonElement).disabled)).toBe(true)
+    await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
+    await act(async () => { pending.resolve(await respond({ error: 'private_internal_marker' }, 503)) })
+    await until(() => document.querySelector('[role="alertdialog"] [role="alert"]') !== null)
+    expect(document.querySelector('[role="alertdialog"]')?.textContent).not.toContain('private_internal_marker')
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkOk))
+    await until(() => document.querySelector('[role="alertdialog"]') === null)
+    expect(attempts).toBe(2)
+  })
 })
 
 describe('Nguồn: dòng phụ và popover liên kết', () => {

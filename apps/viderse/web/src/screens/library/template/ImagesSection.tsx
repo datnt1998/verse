@@ -212,8 +212,8 @@ const sx = stylex.create({
   desktopHint: { display: { default: null, '@media (max-width: 767px)': 'none' } },
   mobileHint: { display: { default: 'none', '@media (max-width: 767px)': 'inline' } },
   sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
-  secHead: { display: "flex", alignItems: 'baseline', rowGap: "var(--vv-s-4)", columnGap: 'var(--vv-s-12)' },
-  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
+  secHead: { display: "flex", flexDirection: 'column', alignItems: 'flex-start', rowGap: "var(--vv-s-4)", paddingBottom: 'var(--vv-s-6)' },
+  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-18)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
   card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   label: {

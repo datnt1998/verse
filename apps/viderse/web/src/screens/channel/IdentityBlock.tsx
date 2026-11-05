@@ -213,13 +213,6 @@ export function IdentityBlock({ channel, brief }: { channel: Channel; brief: Bri
             <div {...stylex.props(channelStyles.bannerEmpty)}>{tt.bannerCaption}</div>
           )}
           {safeArea && <span {...stylex.props(channelStyles.bannerSafe)} aria-hidden="true" />}
-          <span {...stylex.props(channelStyles.bannerChip)}>{tt.bannerCaption}</span>
-          {!phone && (
-            <div {...stylex.props(channelStyles.bannerSafeToggle)}>
-              <Switch checked={safeArea} onChange={setSafeArea} label={tt.safeArea} size="sm" />
-              {tt.safeArea}
-            </div>
-          )}
           {generating && (
             <div {...stylex.props(channelStyles.skelOverlay)} role="status">
               <Orb of="artist" size={26} live />
@@ -233,6 +226,13 @@ export function IdentityBlock({ channel, brief }: { channel: Channel; brief: Bri
                   </span>
                 </span>
               )}
+            </div>
+          )}
+          <span {...stylex.props(channelStyles.bannerChip)}>{tt.bannerCaption}</span>
+          {!phone && (
+            <div {...stylex.props(channelStyles.bannerSafeToggle)}>
+              <Switch checked={safeArea} onChange={setSafeArea} label={tt.safeArea} size="sm" />
+              {tt.safeArea}
             </div>
           )}
         </div>

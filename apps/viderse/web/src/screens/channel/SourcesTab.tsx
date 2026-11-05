@@ -4,8 +4,8 @@ import { channelStyles } from './channel.stylex'
 // Nguồn & tự động (Channel / MChannel): cùng lựa chọn và request thật;
 // desktop neo popover, điện thoại dùng Sheet chung. Một đối thủ có thể làm
 // nguồn cho nhiều kênh; chỉ khoá hàng đã liên kết với kênh đang mở.
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { ActionSheet, Button, Checkbox, Icon, Sheet, confirm, toast, useEscapeLayer } from '@noverse/ui'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { ActionSheet, Button, Checkbox, Icon, Sheet, confirm, toast, useAsyncAction, useEscapeLayer } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar } from '../../components'
 import { t } from '../../i18n/channels'
@@ -21,7 +21,7 @@ import { AutomationCard } from './AutomationCard'
 import { makeLatestRivalVideo } from './latest'
 import { mch } from './mobile/mchannel.stylex'
 import { fmtAge, fmtSubs } from '../explore/fmt'
-import { line } from '@noverse/ui/tokens.stylex'
+import { color, kit, line } from '@noverse/ui/tokens.stylex'
 import { space, typography } from '../../styles/viderse.stylex'
 
 const sx = stylex.create({
@@ -48,10 +48,21 @@ const sx = stylex.create({
   sheetSub: { whiteSpace: 'normal', overflowWrap: 'anywhere' },
   sheetFoot: { padding: 'var(--vv-s-8) var(--vv-s-16)' },
   sheetMore: { minHeight: space['--vv-s-44'] },
+  unlinkBody: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-10'], padding: 'var(--vv-s-6) var(--vv-s-16) var(--vv-s-16)' },
+  unlinkTitle: { margin: 0, fontSize: space['--vv-s-18'], fontWeight: 600, lineHeight: 1.35, color: color['--color-fg'], overflowWrap: 'anywhere' },
+  unlinkText: { margin: 0, fontSize: typography['--vv-fs-title-small'], lineHeight: 1.55, color: color['--color-fg-2'], overflowWrap: 'anywhere' },
+  unlinkError: { margin: 0, fontSize: typography['--vv-fs-small'], color: kit['--kit-err-bright'], overflowWrap: 'anywhere' },
+  unlinkButtons: { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: space['--vv-s-8'], marginTop: space['--vv-s-4'] },
 })
 
 const num = new Intl.NumberFormat('vi-VN')
 const perWeekText = (n: number) => num.format(Math.round(n * 10) / 10)
+
+type UnlinkConfirmation = {
+  title: string
+  description: string
+  onConfirm: () => Promise<void>
+}
 
 export function SourcesTab({ channel, channels }: {
   channel: Channel
@@ -63,6 +74,7 @@ export function SourcesTab({ channel, channels }: {
   const rivalsRes = useResource(keys.rivals(), ({ signal }) => listRivals(signal))
   const rivals = rivalsRes.data?.rivals ?? []
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [unlinkConfirmation, setUnlinkConfirmation] = useState<UnlinkConfirmation | null>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
   const rivalOf = (id: string): Rival | undefined => rivals.find((rival) => rival.id === id)
@@ -85,6 +97,20 @@ export function SourcesTab({ channel, channels }: {
         : tt.unlinkSameIdentity,
       tt.unlinkExplore(row.title),
     ]
+    const onConfirm = async () => {
+      const result = await unlinkSource(channel.id, rivalId)
+      void invalidate(keys.channels())
+      void invalidate(keys.channel(channel.id))
+      toast.ok(result.autoFetchPaused ? tt.unlinkPaused : tt.unlinkDone(row.title))
+    }
+    if (phone) {
+      setUnlinkConfirmation({
+        title: tt.unlinkTitle(row.title, name),
+        description: `${tt.unlinkLead} ${bullets.join('. ')}.`,
+        onConfirm,
+      })
+      return
+    }
     void confirm({
       tone: 'dsoft',
       title: tt.unlinkTitle(row.title, name),
@@ -97,13 +123,8 @@ export function SourcesTab({ channel, channels }: {
         </div>
       ),
       confirmLabel: tt.unlinkOk,
-      onConfirm: async () => {
-        const result = await unlinkSource(channel.id, rivalId)
-        void invalidate(keys.channels())
-        void invalidate(keys.channel(channel.id))
-        // `autoFetchPaused` thật từ server: báo thêm khi kênh hết nguồn.
-        toast.ok(result.autoFetchPaused ? tt.unlinkPaused : tt.unlinkDone(row.title))
-      },
+      cancelLabel: tt.unlinkCancel,
+      onConfirm,
     })
   }
 
@@ -178,20 +199,52 @@ export function SourcesTab({ channel, channels }: {
     </section>
   )
 
-  if (phone) {
-    return (
-      <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
-        <AutomationCard channel={channel} rivals={rivals} mobile />
-        {rivalsCard}
-      </section>
-    )
-  }
-
   return (
-    <section className={`vch-sources ${stylex.props(channelStyles.sources, sx.sources).className}`} aria-label={t.channels.page.tabs.sources}>
-      {rivalsCard}
-      <AutomationCard channel={channel} rivals={rivals} />
-    </section>
+    <>
+      {phone ? (
+        <section {...stylex.props(mch.sources)} aria-label={t.channels.page.tabs.sources}>
+          <AutomationCard channel={channel} rivals={rivals} mobile />
+          {rivalsCard}
+        </section>
+      ) : (
+        <section className={`vch-sources ${stylex.props(channelStyles.sources, sx.sources).className}`} aria-label={t.channels.page.tabs.sources}>
+          {rivalsCard}
+          <AutomationCard channel={channel} rivals={rivals} />
+        </section>
+      )}
+      {unlinkConfirmation && <MobileUnlinkConfirmation {...unlinkConfirmation} onExited={() => setUnlinkConfirmation(null)} />}
+    </>
+  )
+}
+
+function MobileUnlinkConfirmation({ title, description, onConfirm, onExited }: UnlinkConfirmation & { onExited: () => void }) {
+  const tt = t.channels.sources
+  const descriptionId = useId()
+  const [open, setOpen] = useState(true)
+  const submitting = useRef(false)
+  const action = useAsyncAction(async () => {
+    submitting.current = true
+    try {
+      await onConfirm()
+      setOpen(false)
+    } finally {
+      submitting.current = false
+    }
+  })
+  const close = () => { if (!submitting.current && !action.busy) setOpen(false) }
+  return (
+    <Sheet open={open} onClose={close} onExited={onExited} height="auto" size="md"
+      role="alertdialog" label={title} aria-describedby={descriptionId} grab={!action.busy}>
+      <div {...stylex.props(sx.unlinkBody)}>
+        <h3 {...stylex.props(sx.unlinkTitle)}>{title}</h3>
+        <p id={descriptionId} {...stylex.props(sx.unlinkText)}>{description}</p>
+        {action.error != null && <p role="alert" {...stylex.props(sx.unlinkError)}>{tt.unlinkFailed}</p>}
+        <div {...stylex.props(sx.unlinkButtons)}>
+          <Button variant="ghost" size="lg" disabled={action.busy || !open} onClick={close}>{tt.unlinkCancel}</Button>
+          <Button variant="dsoft" size="lg" disabled={action.busy || !open} pending={action.pending} onClick={() => void action.run()}>{tt.unlinkOk}</Button>
+        </div>
+      </div>
+    </Sheet>
   )
 }
 
@@ -279,9 +332,9 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
           onExited={() => { if (pendingUnlink) { setPendingUnlink(false); onUnlink() } }}
           title={source.title}
           actions={[
-            { label: tt.topVideos, icon: 'chart', onSelect: () => navigate(href.slice(1)) },
-            { label: tt.openExplore, icon: 'global', onSelect: () => navigate(href.slice(1)) },
-            { label: tt.unlink, icon: 'link', destructive: true, onSelect: () => setPendingUnlink(true) },
+            { label: tt.topVideos, description: tt.topVideosHint, icon: 'trend', onSelect: () => navigate(href.slice(1)) },
+            { label: tt.openExplore, icon: 'radar', onSelect: () => navigate(href.slice(1)) },
+            { label: tt.unlinkAction, description: tt.unlinkHint, icon: 'trash', destructive: true, onSelect: () => setPendingUnlink(true) },
           ]}
         />
       </div>

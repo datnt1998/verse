@@ -548,6 +548,7 @@ export const libraryCopy = {
       layoutTitle: 'Bố cục',
       layoutChips: ['Phụ đề karaoke', 'Sóng giọng', 'Subscribe đầu và cuối', 'Chuyển cảnh mờ', 'Âm lượng −14 LUFS'] as const,
       layoutHelp: 'Biên tập chỉ dùng để chỉnh vị trí, cỡ chữ và lớp. Mọi cài đặt khác nằm ở trang này.',
+      layoutHelpMobile: 'Chỉnh vị trí, cỡ chữ trong Biên tập trên máy tính.',
       layoutEdit: 'Mở trong Biên tập',
       fileTitle: 'Tệp mẫu video',
       exportFile: 'Xuất tệp',

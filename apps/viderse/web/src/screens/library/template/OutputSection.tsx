@@ -101,12 +101,14 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
       </div>
 
       <div className={`vt-card ${stylex.props(sx.card).className}`}>
-        <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.layoutTitle}</span>
+        <div {...stylex.props(sx.cardHead)}>
+          <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.layoutTitle}</span>
+          {!hideTitle && <a {...stylex.props(sx.exportLink)} href={editorLockedReason ? undefined : `#${paths.editor(detail.id)}`} role="link" aria-disabled={!!editorLockedReason} title={editorLockedReason} onClick={event => { if (editorLockedReason) { event.preventDefault(); toast(editorLockedReason, 'err') } }}>{copy.layoutEdit}</a>}
+        </div>
         <div className={`vt-chips ${stylex.props(sx.chips).className}`}>
           {copy.layoutChips.map((chip) => <span key={chip} className={`vt-chip ${stylex.props(sx.chip).className}`}>{chip}</span>)}
         </div>
-        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.layoutHelp}</p>
-        <a {...stylex.props(sx.exportLink)} href={editorLockedReason ? undefined : `#${paths.editor(detail.id)}`} role="link" aria-disabled={!!editorLockedReason} title={editorLockedReason} onClick={event => { if (editorLockedReason) { event.preventDefault(); toast(editorLockedReason, 'err') } }}>{copy.layoutEdit}</a>
+        <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{hideTitle ? copy.layoutHelpMobile : copy.layoutHelp}</p>
       </div>
 
       <div className={`vt-card ${stylex.props(sx.card).className}`}>
@@ -140,7 +142,7 @@ const sx = stylex.create({
   exportDot: { display: 'none' },
   exportChoice: {
     minWidth: 0,
-    padding: 'var(--vv-s-10) var(--vv-s-12)',
+    padding: 'var(--vv-s-12) var(--vv-s-14)',
   },
   mobileUser: {
     paddingTop: { default: null, '@media (max-width: 767px)': 'var(--vv-s-8)' },
@@ -156,8 +158,8 @@ const sx = stylex.create({
     borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
   },
   sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
-  secHead: { display: "flex", flexDirection: 'row', alignItems: 'baseline', rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-12)" },
-  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
+  secHead: { display: "flex", flexDirection: 'column', alignItems: 'flex-start', rowGap: "var(--vv-s-4)", paddingBottom: 'var(--vv-s-6)' },
+  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-18)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
   card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   switchRow: { display: "flex", alignItems: "center", justifyContent: "space-between", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", flexWrap: "wrap" },
@@ -173,7 +175,7 @@ const sx = stylex.create({
   export: { display: "grid", gridTemplateColumns: { default: libraryVars.templateCoverSectionSourcesGridTemplateColumns, '@media (max-width: 767px)': 'repeat(2, minmax(0, 1fr))' }, rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   exportCard: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-2)", columnGap: "var(--vv-s-2)" },
   exportName: { fontSize: "var(--vv-s-13)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
-  exportSizeNum: { fontSize: { default: "var(--vv-s-20)", '@media (max-width: 767px)': 'var(--vv-s-17)' }, fontWeight: libraryVars.headingWeight, color: color["--color-fg"] },
+  exportSizeNum: { fontSize: { default: "var(--vv-s-20)", '@media (max-width: 767px)': 'var(--vv-s-18)' }, fontWeight: libraryVars.headingWeight, color: color["--color-fg"] },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
   cardHead: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--vv-s-6)", minWidth: 0 },
   attachButton: { flexShrink: 0, fontSize: 'var(--vv-s-12)', paddingInline: 'var(--vv-s-8)' },

@@ -1,5 +1,5 @@
 import * as stylex from '@stylexjs/stylex'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { color } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
 import { Icon } from '@noverse/ui'
 import { useState } from 'react'
@@ -125,9 +125,9 @@ export function PreviewPane({ detail, dirty, editLockedReason }: { detail: Templ
 }
 
 const sx = stylex.create({
-  preview: { display: 'flex', flexDirection: 'column', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)', paddingTop: 'var(--vv-s-12)', paddingRight: 'var(--vv-s-12)', paddingBottom: 'var(--vv-s-12)', paddingLeft: 'var(--vv-s-12)', borderTopWidth: 'var(--vv-s-1)', borderTopStyle: 'solid', borderTopColor: line['--line-2'], borderRightWidth: 'var(--vv-s-1)', borderRightStyle: 'solid', borderRightColor: line['--line-2'], borderBottomWidth: 'var(--vv-s-1)', borderBottomStyle: 'solid', borderBottomColor: line['--line-2'], borderLeftWidth: 'var(--vv-s-1)', borderLeftStyle: 'solid', borderLeftColor: line['--line-2'], borderTopLeftRadius: 'var(--vv-r-12)', borderTopRightRadius: 'var(--vv-r-12)', borderBottomRightRadius: 'var(--vv-r-12)', borderBottomLeftRadius: 'var(--vv-r-12)', backgroundColor: color['--color-surface-2'], backgroundImage: 'none' },
+  preview: { display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-8)', minWidth: 0 },
   previewHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', rowGap: 'var(--vv-s-8)', columnGap: 'var(--vv-s-8)' },
-  vtPreviewHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: 'var(--vv-s-13)', fontWeight: libraryVars.headingWeight },
+  vtPreviewHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: 'var(--vv-s-14)', fontWeight: libraryVars.headingWeight },
   badge: { paddingTop: 'var(--vv-s-2)', paddingRight: 'var(--vv-s-7)', paddingBottom: 'var(--vv-s-2)', paddingLeft: 'var(--vv-s-7)', borderTopLeftRadius: 'var(--vv-r-pill)', borderTopRightRadius: 'var(--vv-r-pill)', borderBottomRightRadius: 'var(--vv-r-pill)', borderBottomLeftRadius: 'var(--vv-r-pill)', backgroundColor: color['--color-surface-6'], backgroundImage: 'none', color: color['--color-fg-2'], fontSize: libraryVars.microFontSize },
   badgeDataStateFresh: { color: color['--color-ok'], backgroundColor: 'var(--vv-ok-10)', backgroundImage: 'none' },
   badgeDataStateStale: { color: color['--color-warn'], backgroundColor: 'var(--vv-warn-bg)', backgroundImage: 'none' },

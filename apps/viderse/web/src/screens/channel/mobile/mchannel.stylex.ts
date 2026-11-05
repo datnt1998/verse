@@ -3,7 +3,7 @@
 // tab 40, thẻ bán kính 16, sheet hàng 52.
 import * as stylex from '@stylexjs/stylex'
 import { color, line, surface } from '@noverse/ui/tokens.stylex'
-import { corners, space as s } from '../../../styles/viderse.stylex'
+import { corners, space as s, typography } from '../../../styles/viderse.stylex'
 
 const cardBg = surface['--card-bg']
 const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
@@ -641,7 +641,11 @@ export const mch = stylex.create({
   autoSub: { fontSize: 12.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 },
   todayLine: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
   lookBtn: { minHeight: s['--vv-s-44'] },
-  tplSelectM: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-8'], padding: `0 ${s['--vv-s-10']}`, height: s['--vv-s-44'], borderRadius: 10, borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: color['--color-surface-5'], color: color['--color-fg'], cursor: 'pointer', maxWidth: '60%' },
+  tplSelectM: { display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: s['--vv-s-12'], width: '100%', minWidth: 0, height: 'auto', minHeight: s['--vv-s-48'], padding: 0, borderRadius: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' },
+  tplLeadIconM: { width: s['--vv-s-18'], height: s['--vv-s-18'], color: 'var(--vv-fg-note)' },
+  tplSelectedM: { fontSize: typography['--vv-fs-detail'], color: color['--color-fg-2'], lineHeight: 1.4, whiteSpace: 'normal', overflowWrap: 'anywhere' },
+  tplWrapM: { whiteSpace: 'normal', overflowWrap: 'anywhere' },
+  tplChevronM: { width: s['--vv-s-16'], height: s['--vv-s-16'], color: 'var(--vv-fg-note)' },
   tplScreen: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-14'], paddingTop: s['--vv-s-6'] },
   tplCard: { gap: s['--vv-s-12'], alignItems: 'flex-start' },
   tplImg: { width: s['--vv-s-112'], aspectRatio: '16 / 9', boxSizing: 'border-box', borderRadius: corners['--vv-r-10'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], objectFit: 'cover', flex: '0 0 auto' },

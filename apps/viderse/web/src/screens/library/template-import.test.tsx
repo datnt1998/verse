@@ -59,12 +59,14 @@ describe('TemplateImportDialog', () => {
   it('một tệp lỗi → một phần: mỗi tệp đúng một yêu cầu, tổng kết đúng', async () => {
     mode = async (name) => name === 'b.zip'
       ? Response.json({ items: [item(name, false, 'tệp hỏng')], imported: 0, failed: 1 })
-      : Response.json({ items: [item(name)], imported: 1, failed: 0 })
+      : Response.json({ items: [{ ...item(name), name: 'Tên mẫu video đã nhập' }], imported: 1, failed: 0 })
     await mount()
     await choose(['a.zip', 'b.zip'])
     await vi.waitFor(() => expect(document.body.textContent).toContain(t.library.templates.importSummary(1, 1)))
     expect(imported).toEqual(['a.zip', 'b.zip'])
     expect(document.body.textContent).toContain('tệp hỏng')
+    expect(document.body.textContent).toContain('Tên mẫu video đã nhập')
+    expect(document.body.textContent).toContain('b.zip')
   })
 
   it('huỷ phần chưa nhập: tệp đang chạy vẫn xong, tệp sau không gửi', async () => {

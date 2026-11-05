@@ -254,6 +254,7 @@ export const channelLayout = stylex.defineVars({
   idFailedBody: "rgba(255,154,92,.06)",
   idFailedLine: "rgba(255,154,92,.3)",
   idFailedBtnLine: "rgba(255,154,92,.45)",
+  tplSectionMaxWidth: "860px",
 })
 
 export const setupLayout = stylex.defineVars({

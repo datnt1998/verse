@@ -134,6 +134,7 @@
 | Nguồn đã gắn thực sự không có trong danh mục đã đọc xong | “Kênh nền không còn trong kho” / “Video nền không còn trong kho”; không dùng ID thay tên | Chọn video · Bỏ nguồn |
 | Lớp phủ đã gắn không có trong danh mục đã đọc xong | “Lớp phủ không còn trong kho” · “Không tìm thấy lớp phủ đã gắn trong Thư viện.”; không dùng ID thay tên hoặc lời báo mất video nền | Bỏ hiệu ứng |
 | Chưa tính được cách chia nền | “Chưa tính được nền cho video. Thử lại.”; các nguồn và chỉnh sửa vẫn giữ nguyên | Thử lại |
+| Kênh · bỏ liên kết chưa thành công | “Chưa bỏ liên kết được. Thử lại.”; giữ xác nhận và lựa chọn, không lộ nguyên văn lỗi nội bộ | Bỏ liên kết · Huỷ |
 
 
 ## Khám phá <a id="copy-explore"></a> <!-- r28-explore -->

@@ -205,6 +205,12 @@ describe('sửa template — điện thoại', () => {
     expect(page.querySelector('.m-footer')!.textContent).toContain(clock('2026-10-31T04:05:00Z'))
   })
 
+  it.each([true, false])('keeps editor navigation desktop-only in template output (phone=%s)', async (phone) => {
+    setPhone(phone)
+    const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1', section: 'output' }} />)
+    expect(page.querySelectorAll('.vt-sec a[href="#/editor/t1"]').length).toBe(phone ? 0 : 1)
+  })
+
 })
 
 
