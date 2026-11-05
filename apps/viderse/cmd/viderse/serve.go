@@ -215,7 +215,13 @@ func runServe(args []string) error {
 	suggestRT.Mount(gateway)
 	scanSvc.SetNotifier(suggestRT.OnRivals(bg, web.Notifier(hub, "rivals")))
 	go suggestRT.Run(bg)
-	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, fmt.Sprintf("http://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port), suggestRT)
+	loopbackOrigin := fmt.Sprintf("http://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port)
+	headlessOrigin := loopbackOrigin
+	if proxyCfg.PublicURL != nil {
+		// Browser claims must use the same configured origin as the hosted guard.
+		headlessOrigin = proxyCfg.PublicURL.Scheme + "://" + proxyCfg.PublicURL.Host
+	}
+	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, loopbackOrigin, headlessOrigin, suggestRT)
 	if err != nil {
 		return err
 	}
