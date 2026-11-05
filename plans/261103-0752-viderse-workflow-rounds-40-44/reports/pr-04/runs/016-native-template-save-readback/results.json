@@ -1,0 +1,48 @@
+{
+  "proof": "NATIVE_UI_PATCH_GET_RELOAD_RESTORE",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PASS",
+      "savedRevision": 4,
+      "value": false,
+      "reloaded": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PASS",
+      "savedRevision": 5,
+      "value": true,
+      "reloaded": true
+    }
+  ],
+  "patches": [
+    {
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "revision": 3,
+      "recipeHash": "daaf9c27f9240b59327960acd78e5ffaa19954be989b8b8e1c9e3d0fc63209f6"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "revision": 4,
+      "recipeHash": "2eeeb2cd23235876f57f153136073b21181b302fd05cdee222e2c506eaeb0ea0"
+    }
+  ],
+  "blocked": [],
+  "pageErrors": [],
+  "restored": true,
+  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+  "originalRecipeHash": "2eeeb2cd23235876f57f153136073b21181b302fd05cdee222e2c506eaeb0ea0",
+  "status": "PASS",
+  "restoredRecipeHash": "2eeeb2cd23235876f57f153136073b21181b302fd05cdee222e2c506eaeb0ea0",
+  "finalRevision": 5,
+  "browserClosed": true
+}

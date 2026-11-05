@@ -1,0 +1,999 @@
+{
+  "actions": [
+    {
+      "name": "390 rules summary observed",
+      "status": "OBSERVED",
+      "provenance": "UI_FIXTURE",
+      "feedback": "Quy tắc chạy\n2 luồng · 3 ảnh · đối thủ mỗi 1 giờ"
+    },
+    {
+      "name": "390 row scrim cancels without mutation",
+      "status": "OBSERVED",
+      "provenance": "UI_FIXTURE",
+      "feedback": "Sheet dismissed and no PATCH sent."
+    },
+    {
+      "name": "390 rules deep-link close preserves queue item context",
+      "status": "OBSERVED",
+      "provenance": "UI_FIXTURE",
+      "feedback": {
+        "hash": "#/queue?item=UI_FIXTURE_QUEUE_C"
+      }
+    }
+  ],
+  "captures": [
+    {
+      "name": "1440-filtered-queue-position",
+      "file": "1440-filtered-queue-position.png",
+      "fullFile": "1440-filtered-queue-position.full.png",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "url": "#/queue",
+      "layout": {
+        "documentWidth": 1440,
+        "viewportWidth": 1440,
+        "bodyWidth": 1440,
+        "fonts": "loaded"
+      },
+      "dialogs": [],
+      "overflow": false,
+      "controls": [
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Tạm dừng hàng chờ",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 891.6875,
+            "y": 100.015625,
+            "width": 180.3125,
+            "height": 36
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Mở Bàn dựng",
+          "href": "#/?video=UI_FIXTURE_RUNNING_IMAGE",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 439.109375,
+            "y": 328.15625,
+            "width": 89.890625,
+            "height": 19.59375
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Mở Bàn dựng",
+          "href": "#/?video=UI_FIXTURE_RUNNING_TEXT",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 967.109375,
+            "y": 328.15625,
+            "width": 89.890625,
+            "height": 19.59375
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Tất cả 4",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 101.328125,
+            "y": 535.671875,
+            "width": 76.09375,
+            "height": 28
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Chuyện Lạ Đêm Khuya 2",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 180.421875,
+            "y": 535.671875,
+            "width": 172.078125,
+            "height": 28
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Midnight Tales 1",
+          "href": null,
+          "disabled": false,
+          "checked": "true",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 355.5,
+            "y": 535.671875,
+            "width": 119.625,
+            "height": 28
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Quiet Hours 1",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 478.125,
+            "y": 535.671875,
+            "width": 103.140625,
+            "height": 28
+          }
+        },
+        {
+          "tag": "span",
+          "role": "button",
+          "name": "Kéo để đổi vị trí UI fixture · video B",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 79,
+            "y": 637.296875,
+            "width": 10,
+            "height": 16
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Đưa lên đầu hàng: UI fixture · video B",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 993,
+            "y": 627.296875,
+            "width": 32,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thêm thao tác cho UI fixture · video B",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": "false",
+          "visible": true,
+          "box": {
+            "x": 1027,
+            "y": 627.296875,
+            "width": 30,
+            "height": 30
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Số luồng chạy cùng lúc giảm",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 1295,
+            "y": 121.8125,
+            "width": 36,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Số luồng chạy cùng lúc tăng",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 1373,
+            "y": 121.8125,
+            "width": 36,
+            "height": 36
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Sửa ở trang kênh",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 1311.515625,
+            "y": 269.09375,
+            "width": 97.484375,
+            "height": 18.59375
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Cài đặt",
+          "href": "#/settings",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 1364.765625,
+            "y": 499.203125,
+            "width": 44.234375,
+            "height": 18.59375
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · cần duyệt · không có media\nChờ duyệt",
+          "href": "#/?video=UI_FIXTURE_REVIEW_NO_MEDIA",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 1115,
+            "y": 705.28125,
+            "width": 311,
+            "height": 31.375
+          }
+        }
+      ]
+    },
+    {
+      "name": "390-filtered-queue-position",
+      "file": "390-filtered-queue-position.png",
+      "fullFile": "390-filtered-queue-position.full.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "#/queue",
+      "layout": {
+        "documentWidth": 390,
+        "viewportWidth": 390,
+        "bodyWidth": 390,
+        "fonts": "loaded"
+      },
+      "dialogs": [],
+      "overflow": false,
+      "controls": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Quay lại Bàn dựng",
+          "href": "#/",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 4,
+            "y": 14,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Tạm dừng",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 256.109375,
+            "y": 14,
+            "width": 125.890625,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · video đang ở bước vẽ ảnh\nHoạ sĩ · UI fixture · chờ hoặc đang vẽ ảnh\n~8 phút\nCL\nTruyện kể đêm · 1:00\nBước 6/9 · Vẽ ảnh",
+          "href": "#/?video=UI_FIXTURE_RUNNING_IMAGE",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 94,
+            "width": 358,
+            "height": 106.75
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · video đang làm phụ đề\nĐạo diễn · UI fixture · làm phụ đề\n~12 phút\nMT\nTruyện kể đêm · 1:30\nBước 3/9 · Phụ đề",
+          "href": "#/?video=UI_FIXTURE_RUNNING_TEXT",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 208.75,
+            "width": 358,
+            "height": 106.75
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Tất cả 4",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 0,
+            "y": 390.25,
+            "width": 75.75,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Chuyện Lạ Đêm Khuya 2",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 78.75,
+            "y": 390.25,
+            "width": 171.75,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Midnight Tales 1",
+          "href": null,
+          "disabled": false,
+          "checked": "true",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 253.5,
+            "y": 390.25,
+            "width": 119.4375,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Quiet Hours 1",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 375.9375,
+            "y": 390.25,
+            "width": 102.953125,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thao tác với UI fixture · video B",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 330,
+            "y": 453.375,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Quy tắc chạy",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 531.5,
+            "width": 358,
+            "height": 56
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Cài đặt",
+          "href": "#/settings?section=agents",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 312.9375,
+            "y": 609,
+            "width": 46.0625,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Sửa ở trang kênh",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 257.453125,
+            "y": 808,
+            "width": 101.546875,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "CL\nChuyện Lạ Đêm Khuya\n0/5",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 850.5,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "MT\nMidnight Tales\n1/5",
+          "href": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 891.5,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "QH\nQuiet Hours\n2/5",
+          "href": "#/channels/98ae68b2-813e-427a-8238-8eb0e86de231?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 932.5,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · cần duyệt · không có media\nChờ duyệt",
+          "href": "#/?video=UI_FIXTURE_REVIEW_NO_MEDIA",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 1050.5,
+            "width": 358,
+            "height": 48
+          }
+        }
+      ]
+    },
+    {
+      "name": "390-rules-summary",
+      "file": "390-rules-summary.png",
+      "fullFile": "390-rules-summary.full.png",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "#/queue",
+      "layout": {
+        "documentWidth": 390,
+        "viewportWidth": 390,
+        "bodyWidth": 390,
+        "fonts": "loaded"
+      },
+      "dialogs": [],
+      "overflow": false,
+      "controls": [
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Quay lại Bàn dựng",
+          "href": "#/",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 4,
+            "y": 14,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Tạm dừng",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 256.109375,
+            "y": 14,
+            "width": 125.890625,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · video đang ở bước vẽ ảnh\nHoạ sĩ · UI fixture · chờ hoặc đang vẽ ảnh\n~8 phút\nCL\nTruyện kể đêm · 1:00\nBước 6/9 · Vẽ ảnh",
+          "href": "#/?video=UI_FIXTURE_RUNNING_IMAGE",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 94,
+            "width": 358,
+            "height": 106.75
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · video đang làm phụ đề\nĐạo diễn · UI fixture · làm phụ đề\n~12 phút\nMT\nTruyện kể đêm · 1:30\nBước 3/9 · Phụ đề",
+          "href": "#/?video=UI_FIXTURE_RUNNING_TEXT",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 208.75,
+            "width": 358,
+            "height": 106.75
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Tất cả 4",
+          "href": null,
+          "disabled": false,
+          "checked": "true",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 17,
+            "y": 390.25,
+            "width": 75.75,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Chuyện Lạ Đêm Khuya 2",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 95.75,
+            "y": 390.25,
+            "width": 171.75,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Midnight Tales 1",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 270.5,
+            "y": 390.25,
+            "width": 119.4375,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": "radio",
+          "name": "Quiet Hours 1",
+          "href": null,
+          "disabled": false,
+          "checked": "false",
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 392.9375,
+            "y": 390.25,
+            "width": 102.953125,
+            "height": 36
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thao tác với UI fixture · video A",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 330,
+            "y": 453.375,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thao tác với UI fixture · video B",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 330,
+            "y": 528.625,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thao tác với UI fixture · video C",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 330,
+            "y": 603.875,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Thao tác với UI fixture · video D",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 330,
+            "y": 679.125,
+            "width": 44,
+            "height": 44
+          }
+        },
+        {
+          "tag": "button",
+          "role": null,
+          "name": "Quy tắc chạy",
+          "href": null,
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 757.25,
+            "width": 358,
+            "height": 56
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Cài đặt",
+          "href": "#/settings?section=agents",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 312.9375,
+            "y": 834.75,
+            "width": 46.0625,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "Sửa ở trang kênh",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 257.453125,
+            "y": 1033.75,
+            "width": 101.546875,
+            "height": 44
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "CL\nChuyện Lạ Đêm Khuya\n0/5",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 1076.25,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "MT\nMidnight Tales\n1/5",
+          "href": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 1117.25,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "QH\nQuiet Hours\n2/5",
+          "href": "#/channels/98ae68b2-813e-427a-8238-8eb0e86de231?tab=sources",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 31,
+            "y": 1158.25,
+            "width": 328,
+            "height": 21
+          }
+        },
+        {
+          "tag": "a",
+          "role": null,
+          "name": "UI fixture · cần duyệt · không có media\nChờ duyệt",
+          "href": "#/?video=UI_FIXTURE_REVIEW_NO_MEDIA",
+          "disabled": false,
+          "checked": null,
+          "selected": null,
+          "expanded": null,
+          "visible": true,
+          "box": {
+            "x": 16,
+            "y": 1276.25,
+            "width": 358,
+            "height": 48
+          }
+        }
+      ]
+    }
+  ],
+  "parity": [
+    {
+      "width": 1440,
+      "title": "UI fixture · video B",
+      "displayedPosition": "1",
+      "globalPosition": 2
+    },
+    {
+      "width": 390,
+      "title": "UI fixture · video B",
+      "displayedPosition": "2",
+      "globalPosition": 2
+    }
+  ],
+  "bugs": [
+    {
+      "id": "QUEUE-PARITY-01",
+      "severity": "medium",
+      "title": "Filtered desktop queue displays local index while mobile preserves global queue position",
+      "provenance": "UI_FIXTURE + SOURCE_VERIFIED",
+      "repro": "Same four-item fixture, select Midnight Tales. Video B is global position 2; desktop displays 1, mobile displays 2.",
+      "observed": [
+        {
+          "width": 1440,
+          "title": "UI fixture · video B",
+          "displayedPosition": "1",
+          "globalPosition": 2
+        },
+        {
+          "width": 390,
+          "title": "UI fixture · video B",
+          "displayedPosition": "2",
+          "globalPosition": 2
+        }
+      ],
+      "source": [
+        "apps/viderse/web/src/screens/queue/QueueScreen.tsx:356 shown.map((item, i) => qrow(item, i + 1))",
+        "apps/viderse/web/src/screens/queue/MobileQueue.tsx:146 items.indexOf(item) + 1"
+      ],
+      "evidence": [
+        "1440-filtered-queue-position.png",
+        "390-filtered-queue-position.png"
+      ],
+      "effect": "Displayed queue rank differs across PC/mobile and desktop does not reflect actual global start order while filtered."
+    },
+    {
+      "id": "QUEUE-COPY-02",
+      "severity": "low",
+      "title": "Mobile rules summary retains removed image/rescan setting reads instead of workers plus channel cadence",
+      "provenance": "UI_FIXTURE + SOURCE_VERIFIED",
+      "repro": "Open mobile Queue and scroll to Quy tắc chạy. Current summary reads 2 luồng · 3 ảnh · đối thủ mỗi 1 giờ; canonical MQueue reads 2 luồng · nhịp theo từng kênh.",
+      "source": [
+        "apps/viderse/web/src/screens/queue/MobileQueue.tsx:169 rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)",
+        "apps/viderse/web/src/i18n/newScreen.ts:166 rulesSummary(workers, images, hours)",
+        "apps/viderse/docs/design/v1/artboards/MQueue.dc.html:1150 rulesSum: W + luồng · nhịp theo từng kênh"
+      ],
+      "evidence": [
+        "390-rules-summary.png",
+        "390-rules-summary.full.png"
+      ],
+      "effect": "Readonly summary still consumes legacy fields removed from editable V39 rules; workers is the only editable setting, so this is copy/source-cutover mismatch, not an extra writable control."
+    }
+  ]
+}

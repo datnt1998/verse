@@ -4,7 +4,7 @@
 import type { Key } from '@noverse/ui/data'
 import { keys } from './keys'
 
-export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage', 'rivals', 'channels', 'library.templates', 'library.prompts', 'library.overlays', 'backdrop', 'clone.job.created', 'clone.job.updated', 'clone.job.deleted', 'clone.step.progress', 'queue.updated', 'suggestions', 'learned.rules', 'image.progress'] as const
+export const SERVER_EVENT_TYPES = ['hello', 'reset', 'status', 'ai', 'platforms', 'tools', 'activity', 'storage', 'rivals', 'channels', 'library.templates', 'library.prompts', 'library.overlays', 'backdrop', 'clone.job.created', 'clone.job.updated', 'clone.job.deleted', 'clone.step.progress', 'queue.updated', 'suggestions', 'image.progress'] as const
 export type ServerEventType = (typeof SERVER_EVENT_TYPES)[number]
 
 export type ServerEvent = { type: ServerEventType; data: unknown; id: string }
@@ -35,9 +35,8 @@ export function keysForEvent(event: { type: string; data: unknown }): EventKeys 
   // Video nền: `backdrop` {rev, ref=channelId|videoId|''} → mọi khoá dưới
   // ['backdrop'] (danh sách kênh/video, trang kênh, trang danh mục, mix).
   if (event.type === 'backdrop') return [['backdrop'], ['platforms']]
-  // Đề xuất (Bàn dựng, Bản tin, Kênh) và Quy tắc đã học (Kênh › Cài đặt, Thư viện › Prompt ảnh).
-  if (event.type === 'suggestions') return [['suggestions'], ['workbench', 'recap']]
-  if (event.type === 'learned.rules') return [['learned-rules']]
+  // Ba loại đề xuất cùng cập nhật các dòng Chờ bạn trong Bàn dựng.
+  if (event.type === 'suggestions') return [['suggestions']]
   // Tiến độ vẽ ghép ngay vào ảnh đang hiện. Cache của video cũng được đánh dấu
   // cũ để tab đang ẩn bắt kịp khi mở lại; không tự GET theo từng gói tiến độ.
   if (event.type === 'image.progress') {

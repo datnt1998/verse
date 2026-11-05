@@ -76,9 +76,10 @@ const sx = stylex.create({
 
 export type TabItem = { id: string; label: ReactNode; icon?: ReactNode; dot?: ReactNode; disabled?: boolean }
 
-export function Tabs({ items, value, onChange, label, style, columns, variant = 'panel', tabs }: {
+export function Tabs({ items, value, onChange, label, style, buttonStyle, columns, variant = 'panel', tabs }: {
   items: TabItem[]; value: string; onChange: (id: string) => void
   label: string; style?: CSSProperties; columns?: number
+  buttonStyle?: stylex.StyleXStyles
   /** 'panel' = tablist lưới 30 px của Main/Reader; 'bar' = thanh nhóm của Kit (32 px, bo 11, icon tím khi chọn); 'underline' = `.vv-tabs` gạch chân 40 px (Library, Settings). */
   variant?: 'panel' | 'bar' | 'underline'
   /** id tab + id panel để `aria-controls`/`aria-labelledby` trỏ đúng cặp (dùng với 'underline'). */
@@ -100,7 +101,7 @@ export function Tabs({ items, value, onChange, label, style, columns, variant = 
         const on = item.id === value
         const btn = stylex.props(
           underline ? [sx.underlineBtn, on ? sx.underlineOn : sx.underlineOff, item.disabled && sx.underlineDisabled]
-            : bar ? [sx.barBtn, on ? sx.barOn : sx.barOff] : [sx.panelBtn, on ? sx.panelOn : sx.panelOff],
+            : bar ? [sx.barBtn, on ? sx.barOn : sx.barOff] : [sx.panelBtn, on ? sx.panelOn : sx.panelOff], buttonStyle,
         )
         return (
           <button key={item.id} type="button" role="tab" aria-selected={on} tabIndex={on ? 0 : -1} disabled={item.disabled}

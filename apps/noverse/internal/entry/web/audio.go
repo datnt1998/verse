@@ -155,6 +155,17 @@ func (g *Gateway) pgAudioService(st library.Story) (*audio.PGService, error) {
 		Project: st.Project, Story: st.Story,
 		Engine: g.pgAudio.Engine, Model: g.pgAudio.Model,
 		RemoteVoices: g.remoteVoices,
+		// Old-segment ETAs use the worker's measured RTF, exactly like the
+		// file backend uses the local engine's. A dead/revoked worker
+		// contributes no estimate.
+		RemoteRTF: func(ctx context.Context) *float64 {
+			snap := g.workerSnapshot(ctx)
+			if !snap.Found || snap.Revoked || snap.offline(time.Now()) || snap.State.RTF <= 0 {
+				return nil
+			}
+			rtf := snap.State.RTF
+			return &rtf
+		},
 	})
 	svc.SetBasePath(audioBasePath(st))
 	// A queued needsScript row starts composing immediately instead of waiting

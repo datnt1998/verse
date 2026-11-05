@@ -20,7 +20,7 @@
 //   DELETE /api/overlays/:id                   → 204 (tombstone)
 //   GET    /api/overlays/:id/file              → tệp (Range, Cache-Control riêng)
 // Recipe là một JSONB: PATCH thay cả khối, trường vắng lấy giá trị hiện tại.
-import { ApiError, mutate, request, upload } from './request'
+import { ApiError, downloadFile, mutate, request, upload } from './request'
 
 export type ThumbnailStyle = 'clean' | 'hook' | 'circle-arrow' | 'hook-arrow' | 'split' | 'closeup'
 export type PromptKind = 'scene' | 'cover'
@@ -140,7 +140,8 @@ export type PreviewStatus = {
   sources: PreviewSource[]
 }
 
-export type ChannelRef = { id: string; name: string; position?: number }
+/** Kênh dùng một template làm mặc định (không còn thứ tự luân phiên). */
+export type ChannelRef = { id: string; name: string }
 
 export type TemplateSummary = {
   id: string
@@ -152,6 +153,7 @@ export type TemplateSummary = {
   prompts: TemplatePrompts
   backdrop: TemplateBackdrop
   overlayCount: number
+  /** Kênh đang lấy mẫu video này làm **mặc định** (không còn thứ tự luân phiên). */
   channels: ChannelRef[]
   preview: TemplatePreview
   createdAt: string
@@ -282,18 +284,25 @@ export function startTemplatePreview(id: string, input: { jobId?: string; minute
 export const cancelTemplatePreview = (id: string): Promise<void> =>
   mutate<void>('DELETE', `/api/templates/${encodeURIComponent(id)}/preview`)
 
-/** Tệp xuất là zip có `Content-Disposition: attachment` — tải thẳng bằng thẻ <a>. */
+/** Đường xuất tệp template — tải qua fetch để biết thành công/thất bại thật. */
 export const templateExportHref = (id: string) => `/api/templates/${encodeURIComponent(id)}/export`
 
-/** Tải tệp template ngay trong trang (dùng cho mục menu không phải thẻ <a>). */
-export function downloadTemplate(id: string) {
-  const anchor = document.createElement('a')
-  anchor.href = templateExportHref(id)
-  anchor.download = ''
-  anchor.rel = 'noopener'
-  document.body.appendChild(anchor)
-  anchor.click()
-  anchor.remove()
+/** Tải tệp template thật rồi mới trả về — lỗi mạng/403/404 ném để caller báo. */
+export async function downloadTemplate(id: string): Promise<void> {
+  const { blob, filename } = await downloadFile(templateExportHref(id))
+  const url = URL.createObjectURL(blob)
+  try {
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = filename ?? `template-${id}.ytf-template.zip`
+    if (blob.type) anchor.type = blob.type
+    anchor.rel = 'noopener'
+    document.body.appendChild(anchor)
+    anchor.click()
+    anchor.remove()
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+  }
 }
 
 // ─── Prompt ảnh ──────────────────────────────────────────────────────────────
@@ -367,12 +376,7 @@ export function addOverlay(file: File, name?: string): Promise<Overlay> {
 export const removeOverlay = (id: string): Promise<void> =>
   mutate<void>('DELETE', `/api/overlays/${encodeURIComponent(id)}`)
 
-/** Bỏ template khỏi danh sách luân phiên của một kênh (POST action=remove). */
-export function removeTemplateFromChannel(channelId: string, templateId: string): Promise<{ templates: { id: string; name: string; position: number }[] }> {
-  return mutate('POST', `/api/owner-channels/${encodeURIComponent(channelId)}/templates`, { action: 'remove', templateId })
-}
-
-// ─── Kênh của bạn (chọn kênh để gắn template) ────────────────────────────────
+// ─── Kênh của bạn (chọn kênh để đặt template làm mặc định) ───────────────────
 
 export function listOwnerChannels(signal?: AbortSignal): Promise<{ channels: OwnerChannelRef[] }> {
   return request<{ channels: { id: string; name: string; avatarUrl?: string | null }[] }>('/api/owner-channels', { signal })

@@ -19,7 +19,7 @@ const styles = stylex.create({
   head: { display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)', fontSize: '12px', color: 'var(--vv-scout-ink)', fontWeight: 600 },
   text: { color: color['--color-fg'], fontSize: '13.5px' },
   facts: { display: 'flex', flexDirection: 'column', borderTopWidth: '1px', borderTopStyle: 'solid', borderTopColor: line['--line-1'] },
-  fact: { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: 'var(--vv-s-2) var(--vv-s-10)', padding: 'var(--vv-s-7) 0', borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: line['--line-1'] },
-  value: { fontWeight: 600, color: color['--color-fg'], fontVariantNumeric: 'tabular-nums', textAlign: 'right' },
+  fact: { display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'var(--vv-s-2) var(--vv-s-10)', padding: 'var(--vv-s-7) 0', borderBottomWidth: '1px', borderBottomStyle: 'solid', borderBottomColor: line['--line-1'], overflowWrap: 'anywhere' },
+  value: { minWidth: 0, fontWeight: 600, color: color['--color-fg'], fontVariantNumeric: 'tabular-nums', textAlign: 'right' },
   source: { gridColumn: '1 / -1', fontSize: '11.5px', color: 'var(--vv-fg-note)' },
 })

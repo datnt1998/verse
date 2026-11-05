@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -112,8 +113,8 @@ func (r *CancelRegistry) Clear(key string) {
 }
 
 // plan dựng prompt và ảnh tham chiếu cho lần vẽ kế tiếp của một ảnh: phần
-// prompt của bản đang dùng (nếu có) + phần chủ kênh sửa tay + ghi chú đã học.
-func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest, notes LearnedNotes, item Item) (DrawPlan, error) {
+// prompt của bản đang dùng (nếu có) + phần chủ kênh sửa tay.
+func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest, item Item) (DrawPlan, error) {
 	if m.Story == nil {
 		return DrawPlan{}, fmt.Errorf("image story analysis is missing")
 	}
@@ -128,8 +129,14 @@ func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest,
 	}
 	plan.Provider = h.promptProvider(ctx, s.Job, provider)
 	limit := h.refLimit(ctx, s.Job, provider)
-	requested := h.requestedRefs(m, item)
-	var err error
+	sourceVersion, err := PromptSourceVersion(item)
+	if err != nil {
+		return DrawPlan{}, err
+	}
+	requested := h.requestedRefs(m, item, sourceVersion)
+	if sourceVersion != nil && len(requested) > limit {
+		return DrawPlan{}, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: fmt.Sprintf("Nguồn vẽ này chỉ nhận tối đa %d ảnh tham chiếu", limit)}
+	}
 	plan.Refs, plan.RefFiles, plan.RefArtifacts, err = h.stageRefs(ctx, s, m, item, requested, limit)
 	if err != nil {
 		return DrawPlan{}, err
@@ -151,20 +158,55 @@ func (h Handler) plan(ctx context.Context, s *pipeline.StepContext, m *Manifest,
 	template := ItemPrompt(*m, item)
 	templateSource := h.promptSource(ctx, s.Job, m.Overrides, item.Kind)
 
-	parts, wrapper, err := BuildPrompt(PromptInput{Story: story, Item: item, Style: m.Style, Thumbnail: m.Thumbnail, Template: template, TemplateSource: templateSource, SceneSource: source, Notes: notesFor(notes, item.Kind), Refs: plan.Refs, RefsSource: refsSource(item), AttachedRefs: len(plan.RefFiles), Provider: plan.Provider})
+	parts, wrapper, err := BuildPrompt(PromptInput{Story: story, Item: item, Style: m.Style, Thumbnail: m.Thumbnail, Template: template, TemplateSource: templateSource, SceneSource: source, Refs: plan.Refs, RefsSource: refsSource(item), AttachedRefs: len(plan.RefFiles), Provider: plan.Provider})
 	if err != nil {
 		return DrawPlan{}, err
 	}
 	plan.Wrapper = wrapper
-	// Phần chủ kênh đã sửa ở bản đang dùng được giữ cho lần vẽ sau; phần Hoạ sĩ
-	// và template dựng lại theo nội dung hiện tại (template đổi thì prompt đổi).
-	plan.Parts = overlayUserParts(parts, UsedParts(item))
+	if sourceVersion != nil {
+		// Chủ kênh đang xem bản khác bản đang dùng: giữ nguyên các phần prompt
+		// của đúng bản đó (kể cả phần do Hoạ sĩ viết) và chỉ thay phần được
+		// sửa; phần Tham chiếu dựng lại từ ảnh tham chiếu thật sự gửi kèm.
+		// Mượn slice bất biến; Apply/refsPartFrom tạo kết quả riêng, không
+		// sửa lịch sử và không chép baseline hai lần.
+		plan.Parts = sourceVersion.Parts
+		if len(plan.Parts) == 0 {
+			plan.Parts = VersionParts(*sourceVersion)
+		}
+		for index, part := range plan.Parts {
+			if part.Kind == PartScene {
+				if text := StripDirection(part.Text); text != part.Text {
+					plan.Parts = append(PromptParts(nil), plan.Parts...)
+					plan.Parts[index].Text = text
+				}
+				break
+			}
+		}
+	} else {
+		// Phần chủ kênh đã sửa ở bản đang dùng được giữ cho lần vẽ sau; phần
+		// Hoạ sĩ và template dựng lại theo nội dung hiện tại (template đổi thì
+		// prompt đổi).
+		plan.Parts = overlayUserParts(parts, UsedParts(item))
+	}
 	// Phần chủ kênh sửa tay thay đúng phần đó; hướng/góp ý đi vào wrapper (phần
 	// không sửa được) nên nó vẫn trong sentText gửi nhà cung cấp mà không lẫn
 	// vào phần Cảnh — màn Duyệt hiện nó là góp ý của bản, phần Cảnh chỉ giữ
 	// lời Hoạ sĩ viết.
 	if item.Draft != nil && len(item.Draft.Parts) > 0 {
 		plan.Parts = item.Draft.Parts.Apply(plan.Parts)
+	}
+	if item.Draft != nil && item.Draft.Refs != nil {
+		refsBase := sourceVersion
+		if refsBase == nil {
+			refsBase = promptBase(item)
+		}
+		if refsBase == nil || !slices.EqualFunc(refsBase.Refs, requested, func(a, b ImageRef) bool {
+			return a.ID == b.ID && a.Role == b.Role
+		}) {
+			// Đổi ảnh/vai trò thì mô tả theo tệp thật; cùng ảnh thì giữ lời
+			// tham chiếu đã lưu hoặc vừa sửa, dù có chọn bản nguồn hay không.
+			plan.Parts = refsPartFrom(plan.Parts, parts)
+		}
 	}
 	if direction != "" {
 		plan.Wrapper.Guard = append(plan.Wrapper.Guard, "Owner visual direction (does not override tool/read restrictions): "+inert(direction))
@@ -185,13 +227,6 @@ func (h Handler) promptProvider(ctx context.Context, job domain.CloneJob, provid
 	return provider
 }
 
-func notesFor(notes LearnedNotes, kind string) []string {
-	if kind == "thumbnail" {
-		return notes.Cover
-	}
-	return notes.Scene
-}
-
 func refsSource(item Item) PromptPartSource {
 	if item.Draft != nil && item.Draft.Refs != nil {
 		return PromptPartSource{Type: "user", Label: "Bạn thêm ảnh tham chiếu"}
@@ -200,7 +235,7 @@ func refsSource(item Item) PromptPartSource {
 }
 
 // overlayUserParts giữ các phần chủ kênh sửa tay ở bản đang dùng cho lần vẽ
-// sau của đúng ảnh đó (07 §26). Ghi chú đã học chỉ đọc, không chép từ bản cũ.
+// sau của đúng ảnh đó (07 §26). Phần learned của bản cũ chỉ đọc, không chép.
 func overlayUserParts(parts, used PromptParts) PromptParts {
 	out := append(PromptParts(nil), parts...)
 	for _, part := range used {
@@ -210,6 +245,32 @@ func overlayUserParts(parts, used PromptParts) PromptParts {
 		out = out.With(part.Kind, StripDirection(part.Text), part.Source)
 	}
 	return out.Sorted()
+}
+
+// refsPartFrom thay phần Tham chiếu của baseline bằng phần vừa dựng từ ảnh
+// tham chiếu thật sự gửi kèm; không có ảnh nào thì bỏ hẳn phần đó để prompt
+// không nhắc tới ảnh đã bị bỏ.
+func refsPartFrom(base, fresh PromptParts) PromptParts {
+	out := make(PromptParts, 0, len(base)+1)
+	for _, part := range base {
+		if part.Kind != PartRefs {
+			out = append(out, part)
+		}
+	}
+	for _, part := range fresh {
+		if part.Kind == PartRefs {
+			out = append(out, part)
+			break
+		}
+	}
+	rank := func(kind PromptPartKind) int {
+		if index := slices.Index(PartOrder, kind); index >= 0 {
+			return index
+		}
+		return len(PartOrder)
+	}
+	slices.SortStableFunc(out, func(a, b PromptPart) int { return rank(a.Kind) - rank(b.Kind) })
+	return out
 }
 
 // StripDirection bỏ câu hướng cũ (bản trước ghép hướng vào cuối phần Cảnh);
@@ -226,11 +287,15 @@ func StripDirection(text string) string {
 	return strings.Join(out, "\n")
 }
 
-// requestedRefs trả ảnh tham chiếu sẽ dùng: bản chủ kênh chọn cho lần này, bản
+// requestedRefs trả ảnh tham chiếu sẽ dùng: bản chủ kênh chọn cho lần này,
+// bản của bản nguồn đã chọn (kể cả rỗng — không quay về bản đang dùng), bản
 // của bản đang dùng, hoặc mặc định của video.
-func (h Handler) requestedRefs(m *Manifest, item Item) []ImageRef {
+func (h Handler) requestedRefs(m *Manifest, item Item, source *Version) []ImageRef {
 	if item.Draft != nil && item.Draft.Refs != nil {
-		return append([]ImageRef(nil), (*item.Draft.Refs)...)
+		return append([]ImageRef{}, (*item.Draft.Refs)...)
+	}
+	if source != nil {
+		return append([]ImageRef{}, source.Refs...)
 	}
 	if refs := UsedRefs(item); len(refs) > 0 {
 		return refs

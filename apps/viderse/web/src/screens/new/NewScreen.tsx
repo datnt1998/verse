@@ -1,282 +1,242 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Button, Icon, KitSelect, Segmented, Switch, toast } from '@noverse/ui'
-import { ActionButton, LensLogo, Orb, type Assistant } from '../../components'
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { Button, Dialog, Icon, KitSelect, Sheet, toast } from '@noverse/ui'
+import * as stylex from '@stylexjs/stylex'
+import { color, font, kit, line, radius } from '@noverse/ui/tokens.stylex'
+import { pipeline, space as s, typography } from '../../styles/viderse.stylex'
 import { useResource } from '../../data/useResource'
-import { useStatus } from '../../data/status'
 import { keys } from '../../data/keys'
 import { listChannels } from '../../api/channels'
-import { listRivalVideos } from '../../api/rivals'
-import { enqueueClone, planClone, type ClonePlan } from '../../api/clone'
-import { t } from '../../i18n/newScreen'
-import { navigate, paths, type Route } from '../../router'
+import { listTemplates } from '../../api/library'
+import { enqueueClone, planClone, cloneTarget, type ClonePlan, type CloneEnqueueResult } from '../../api/clone'
+import { navigate, paths } from '../../router'
 import { useDebounced } from '../../lib/useDebounced'
 import { useMediaQuery } from '../../lib/useMediaQuery'
+import { parseUrls, PLAN_DEBOUNCE_MS } from './plan'
+import type { QuickCreateRequest } from './quickCreate'
 import { fmtDuration, fmtScore, videoMeta } from '../explore/fmt'
-import { PLAN_DEBOUNCE_MS, parseUrls, pickPriority, planLine } from './plan'
-import * as stylex from '@stylexjs/stylex'
-import { text as textStyles } from '../../styles/shared.stylex'
-import { color, line, radius, font } from '@noverse/ui/tokens.stylex'
-import { space as s, corners as r, pipeline } from '../../styles/viderse.stylex'
 
-const tt = t.screens.new
-const agents: Assistant[] = ['scout', 'director', 'artist', 'qa']
+const invalidLabel = (reason: string) => reason === 'not_youtube' ? 'Link không phải video YouTube' : reason === 'private' ? 'Video riêng tư hoặc không truy cập được' : 'Không đọc được video'
 
-export function NewScreen({ route }: { route: Extract<Route, { name: 'new' }> }) {
-  const [text, setText] = useState('')
-  const [mode, setMode] = useState<'single' | 'multi'>('single')
-  const [channelId, setChannelId] = useState(route.channel ?? '')
+/** Mounted once per opening by AppShell, not a routed page. */
+export function NewVideoDialog({ request, onClose }: { request: QuickCreateRequest; onClose: () => void }) {
+  const mobile = useMediaQuery('(max-width: 767px)')
+  const [text, setText] = useState((request.urls ?? []).join('\n'))
+  const [channelId, setChannelId] = useState(request.channelId ?? '')
   const [templateId, setTemplateId] = useState('')
-  const [priority, setPriority] = useState(false)
   const [plan, setPlan] = useState<ClonePlan | null>(null)
   const [planKey, setPlanKey] = useState('')
   const [phase, setPhase] = useState<'idle' | 'loading' | 'failed'>('idle')
   const [retry, setRetry] = useState(0)
+  const [result, setResult] = useState<CloneEnqueueResult | null>(null)
   const [busy, setBusy] = useState(false)
-  const mobile = useMediaQuery('(max-width: 767px)')
-  const scrollRef = useRef<HTMLElement>(null)
-  const footerRef = useRef<HTMLDivElement>(null)
-  useLayoutEffect(() => {
-    if (!mobile || !scrollRef.current || !footerRef.current) return
-    const scroll = scrollRef.current
-    const footer = footerRef.current
-    // Plan text wraps with width/data; its real height bounds the phone
-    // scrollport above the sticky bar and keyboard.
-    const measure = () => scroll.style.setProperty('--nv-footer-height', `${footer.getBoundingClientRect().height}px`)
-    measure()
-    const observer = new ResizeObserver(measure)
-    observer.observe(footer)
-    return () => { observer.disconnect(); scroll.style.removeProperty('--nv-footer-height') }
-  }, [mobile])
+  const submitting = useRef(false)
+  const [open, setOpen] = useState(true)
+  const [picker, setPicker] = useState<'channel' | 'template' | null>(null)
+  const handoff = useRef<(() => void) | null>(null)
+  const selected = !!request.fromSelection
   const debounced = useDebounced(text, PLAN_DEBOUNCE_MS)
   const urls = useMemo(() => parseUrls(text), [text])
-  const channelsRes = useResource(keys.channels(), ({ signal }) => listChannels(signal))
-  const status = useStatus()
-  const channels = channelsRes.data?.channels ?? []
+  const channelList = useResource(keys.channels(), ({ signal }) => listChannels(signal))
+  useEffect(() => { if (!mobile && !open) onClose() }, [mobile, open, onClose])
+  const templateList = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
+  const channels = channelList.data?.channels ?? []
   const channel = channels.find((c) => c.id === channelId) ?? channels[0]
-  const multi = mode === 'multi'
-  const inputPriority = priority ? 'pick' : pickPriority(urls)
-  // Chọn chế độ là nguồn sự thật: "Một link" giữ link đầu, "Nhiều link" giữ
-  // nguyên văn. Dán nhiều link khi đang ở chế độ một link thì tự chuyển sang
-  // nhiều link — nút chọn và ô nhập không bao giờ lệch trạng thái.
-  const pickMode = (next: 'single' | 'multi') => {
-    if (next === mode) return
-    setMode(next)
-    setPlan(null)
-    if (next === 'single') setText((value) => parseUrls(value)[0] ?? '')
-  }
-  const applyText = (next: string) => {
-    setText(next)
-    if (mode === 'single' && parseUrls(next).length > 1) setMode('multi')
-  }
-  const suggestions = useResource(
-    ['new', 'picks', channel?.id ?? '', retry],
-    ({ signal }) => listRivalVideos(channel?.sources[0]?.rivalId ?? 'all', { sort: 'outlier', limit: 3, notMadeFor: channel?.id }, signal),
-    { enabled: !!channel },
-  )
-
+  const resolvedTemplate = templateId || channel?.defaultTemplateId || ''
+  const key = JSON.stringify([channel?.id, urls, resolvedTemplate])
   useEffect(() => {
     const pending = parseUrls(debounced)
-    if (!channel || pending.length === 0) { setPlan(null); setPhase('idle'); return }
+    if (!channel || !pending.length) { setPlan(null); setPhase('idle'); return }
     const ctrl = new AbortController()
     setPhase('loading')
-    planClone({ channelId: channel.id, urls: pending, priority: priority ? 'pick' : pickPriority(pending), ...(templateId ? { templateId } : {}) }, ctrl.signal)
-      .then((result) => { if (!ctrl.signal.aborted) { setPlan(result); setPlanKey(JSON.stringify([channel.id, pending, priority ? 'pick' : pickPriority(pending), templateId])); setPhase('idle') } })
+    planClone({ channelId: channel.id, urls: pending, ...(templateId ? { templateId } : {}) }, ctrl.signal)
+      .then((next) => { if (!ctrl.signal.aborted) { setPlan(next); setPlanKey(JSON.stringify([channel.id, pending, resolvedTemplate])); setPhase('idle') } })
       .catch(() => { if (!ctrl.signal.aborted) { setPlan(null); setPhase('failed') } })
     return () => ctrl.abort()
-  }, [debounced, channel?.id, priority, templateId, retry])
-
-  // A result belongs only to the exact current input, never the previous paste.
-  const current = text === debounced && phase === 'idle' && planKey === JSON.stringify([channel?.id, urls, inputPriority, templateId]) ? plan : null
-  const duplicate = current?.duplicates[0]
-  const onlyDuplicate = !!current && current.accepted.length === 0 && current.duplicates.length > 0
-  // Kênh chưa đặt tên (để trống lúc tạo, nhận diện sẽ đặt) vẫn phải có nhãn — ô chọn cũ in ra chuỗi rỗng.
-  const channelOptions = channels.map((c) => ({ value: c.id, label: c.name || t.channels.page.noName }))
-  const templateOptions = [{ value: '', label: `${tt.rotation}${current?.template?.name ? ` · ${current.template.name}` : ''}` }, ...(channel?.templates ?? []).map((tpl) => ({ value: tpl.id, label: tpl.name }))]
-  const invalid = !!current && current.invalid.length > 0
-  const disabled = !channel || !current || phase !== 'idle' || busy || current.accepted.length === 0 || !current.template.id
-  const first = current?.accepted[0]
-  const preview = first ?? (onlyDuplicate ? duplicate : undefined)
-  const plannedLine = planLine(current, { urls, running: status.data?.running ?? 0, channelName: channel?.name ?? null })
-  const acceptedCount = current?.accepted.length ?? 0
-  const prioritizedBatch = multi && priority && acceptedCount > 0 && !!current?.template.id && current.position === 'front'
-  const line = prioritizedBatch ? {
-    text: tt.plan.priorityHead(acceptedCount, current.etaStart ? new Date(current.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : null),
-    detail: tt.plan.priorityReady(acceptedCount),
-  } : mobile && multi && acceptedCount > 0 && current?.template.id && current.position === 'back' && channel ? {
-    text: tt.plan.mobileBatchTail(channel.pacePerDay, channel.name, current.paceLeftToday),
-    detail: tt.plan.mobileBatchDetail(current.paceLeftToday, acceptedCount),
-  } : plannedLine
-  const state = urls.length === 0 ? 'empty' : multi ? 'multi' : onlyDuplicate ? 'duplicate' : invalid ? 'error' : 'pasted'
-
-  const submit = async (event: FormEvent) => {
-    event.preventDefault()
-    if (disabled || !channel || !current) return
-    setBusy(true)
-    try {
-      await enqueueClone({ channelId: channel.id, urls: current.accepted.map((a) => a.url), priority: inputPriority, ...(templateId ? { templateId } : {}) })
-      toast(tt.toasts.made, 'ok', { label: tt.toasts.openQueue, onClick: () => navigate(paths.queue()) })
-      setText(''); setPlan(null)
-    } catch { toast.err(tt.toasts.failed) }
-    finally { setBusy(false) }
+  }, [debounced, channel?.id, resolvedTemplate, templateId, retry])
+  const current = text === debounced && phase === 'idle' && planKey === key ? plan : null
+  const channelOptions = channels.map((c) => ({ value: c.id, label: c.name || 'Kênh chưa đặt tên', description: c.defaultTemplateName || 'Chưa có template mặc định' }))
+  const templateOptions = [{ value: '', label: channel?.defaultTemplateName || 'Chưa đặt template', description: 'Mặc định kênh' }, ...(templateList.data?.items ?? []).filter((template) => template.id !== channel?.defaultTemplateId).map((template) => ({ value: template.id, label: template.name, description: 'Chỉ video này' }))]
+  const changeChannel = (id: string) => { setChannelId(id); setTemplateId(''); setResult(null) }
+  const close = () => { if (!submitting.current) setOpen(false) }
+  const exited = () => {
+    const next = handoff.current
+    handoff.current = null
+    if (next) next()
+    else onClose()
   }
-
-  return (
-    <main ref={scrollRef} className={`nv ${stylex.props(styles.root, state === 'empty' && styles.emptyRoot).className}`} data-input={state}>
-      <div className={`nv-hero ${stylex.props(styles.hero).className}`}>
-        <div className={`nv-orbs ${stylex.props(styles.orbs).className}`} aria-hidden="true">
-          {/* Artboard NewVideo: ống kính xoay 9s, 4 orb trôi lên xuống 4px lệch nhịp 1,5s (MNew đứng yên). */}
-          <Orb of="scout" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float0).className} /><Orb of="director" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float1).className} /><span className={`nv-lens ${stylex.props(styles.lens).className}`}><LensLogo size={76} spinning /></span><Orb of="artist" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float2).className} /><Orb of="qa" size={mobile ? 18 : 34} className={stylex.props(styles.float, styles.float3).className} />
+  const pick = (kind: 'channel' | 'template') => {
+    handoff.current = () => { setPicker(kind); setOpen(true) }
+    setOpen(false)
+  }
+  const finishPick = (value?: string) => {
+    handoff.current = () => {
+      if (value !== undefined) { if (picker === 'channel') changeChannel(value); else { setTemplateId(value); setResult(null) } }
+      setPicker(null); setOpen(true)
+    }
+    setOpen(false)
+  }
+  const submit = async (event?: FormEvent) => {
+    event?.preventDefault()
+    if (submitting.current || !channel || !current?.accepted.length || !current.template.id) return
+    submitting.current = true; setBusy(true)
+    try {
+      const next = await enqueueClone({ channelId: channel.id, urls, ...(templateId ? { templateId } : {}) })
+      setResult(next)
+      if (next.items.length) {
+        toast(`Đã thêm ${next.items.length} video vào đầu hàng chờ của ${channel.name || 'kênh'}${templateId ? ` · ${current.template.name}` : ''}.`, 'ok', { label: 'Việc nền', onClick: () => navigate(paths.queue()) })
+        const existing = next.duplicates?.find((item) => cloneTarget(item))
+        if (existing) toast(`${next.duplicates?.length} video đã có cho kênh này.`, 'warn', { label: 'Mở ở Bàn dựng', onClick: () => navigate(cloneTarget(existing)!) })
+        // Invalid lines remain editable; successful selections close back to their underlay.
+        if (!next.invalid?.length) setOpen(false)
+        else setRetry((v) => v + 1)
+      } else if (!next.duplicates?.length && !next.invalid?.length) toast.err('Chưa thêm được video. Hãy thử lại.')
+    } catch { toast.err('Không thêm được video. Nội dung của bạn vẫn được giữ lại để thử lại.') }
+    finally { submitting.current = false; setBusy(false) }
+  }
+  const singlePreview = urls.length === 1 && current?.accepted.length === 1
+  const subtitle = selected ? `Mang ${urls.length} video đã chọn ở Khám phá` : 'Dán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.'
+  const clear = () => { setText(''); setResult(null) }
+  const paste = async () => {
+    try { setText(await navigator.clipboard.readText()); setResult(null) }
+    catch { toast.err('Không đọc được bộ nhớ tạm. Bạn có thể dán link vào ô nhập.') }
+  }
+  const planText = current?.accepted.length
+    ? `${current.etaStart ? `Lên đầu hàng chờ · bắt đầu khoảng ${new Date(current.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}, khi có luồng trống.` : 'Lên đầu hàng chờ, máy sẽ làm khi có luồng trống.'} Không tính vào nhịp tự lấy của kênh.`
+    : phase === 'loading' ? 'Đang đọc thông tin video…' : 'Không có video mới để làm cho kênh này.'
+  const header = <header {...stylex.props(sx.header, mobile && sx.mobileHeader)}>
+    {mobile ? <Button type="button" size="lg" variant="quiet" aria-label="Đóng" disabled={busy} onClick={close}><Icon name="close" size={16} /></Button> : <span {...stylex.props(sx.headerIcon)}><Icon name="video-add" size={20} /></span>}
+    <span {...stylex.props(sx.headerText)}><h2 {...stylex.props(sx.title)}>Làm video</h2><span {...stylex.props(sx.subtitle, mobile && sx.mobileSubtitle)}>{mobile && !selected ? 'Kênh và template điền sẵn, đổi được' : subtitle}</span></span>
+    {!mobile && <Button type="button" variant="quiet" aria-label="Đóng" disabled={busy} onClick={close}><Icon name="close" size={16} /></Button>}
+  </header>
+  const options = <div {...stylex.props(sx.options, mobile && sx.mobileOptions)}>
+    {mobile ? <>
+      <button type="button" aria-label="Kênh" aria-haspopup="dialog" disabled={busy} {...stylex.props(sx.mobileOption)} onClick={() => pick('channel')}><Icon name="channel" size={18} /><span {...stylex.props(sx.optionLabel)}>Kênh</span><span {...stylex.props(sx.optionValue)}>{channel?.name || 'Chọn kênh'}</span><Icon name="arrow-d" size={16} /></button>
+      <button type="button" aria-label="Template" aria-haspopup="dialog" disabled={busy} {...stylex.props(sx.mobileOption, sx.optionDivider)} onClick={() => pick('template')}><Icon name="layer" size={18} /><span {...stylex.props(sx.optionLabel)}>Template</span><span {...stylex.props(sx.optionValue)}>{templateId ? templateOptions.find((o) => o.value === templateId)?.label : current?.template.name || templateList.data?.items.find((item) => item.id === channel?.defaultTemplateId)?.name || 'Mặc định kênh'}</span><Icon name="arrow-d" size={16} /></button>
+    </> : <>
+      <KitSelect aria-label="Kênh" prefix={<span {...stylex.props(sx.optionLabel)}>Kênh</span>} value={channel?.id ?? ''} options={channelOptions} onChange={changeChannel} disabled={busy} xstyle={sx.channelOption} triggerStyle={sx.selectTrigger} />
+      <span {...stylex.props(sx.templateOption)}><KitSelect aria-label="Template" prefix={<span {...stylex.props(sx.optionLabel)}>Template</span>} value={templateId} options={templateOptions} optionDescriptions onChange={(id) => { setTemplateId(id); setResult(null) }} disabled={busy} xstyle={sx.selectFill} triggerStyle={sx.selectTrigger} valueStyle={sx.templateValue} /><span aria-hidden="true" {...stylex.props(sx.templateTag)}>{templateId ? 'chỉ video này' : 'mặc định'}</span></span>
+    </>}
+  </div>
+  const body = <div {...stylex.props(sx.body, mobile && sx.mobileBody)}>
+    {!selected && <div {...stylex.props(sx.inputGroup)}><label htmlFor="quick-create-urls" {...stylex.props(sx.srOnly)}>Dán link video · mỗi dòng một link</label><div className={`kit-frame ${stylex.props(sx.field, mobile && sx.mobileField).className}`}>
+      <textarea id="quick-create-urls" autoFocus rows={urls.length > 1 ? Math.min(urls.length, 4) : 1} value={text} disabled={busy} {...stylex.props(sx.input, mobile && sx.mobileInput)} placeholder={mobile ? 'Dán link YouTube · mỗi dòng một link' : 'Dán link YouTube của đối thủ · nhiều link thì mỗi dòng một link'} onChange={(event) => { setText(event.target.value); setResult(null) }} />
+      {text ? <Button type="button" size={mobile ? 'lg' : 'md'} variant="quiet" aria-label="Xoá link" disabled={busy} onClick={clear}><Icon name="close" size={16} /></Button> : mobile ? <Button type="button" size="lg" disabled={busy} onClick={() => void paste()}>Dán</Button> : null}
+    </div>{!urls.length && <a {...stylex.props(sx.exploreLink, mobile && sx.mobileExploreLink)} href={`#${paths.explore()}`} onClick={close}>Chưa có link? Chọn video nổi trội ở Khám phá<Icon name="arrow-r" size={16} /></a>}</div>}
+    {!!urls.length && <div aria-live="polite" {...stylex.props(sx.lines, urls.length > 1 && sx.list)}>
+      {!singlePreview && urls.length > 1 && <span {...stylex.props(sx.listHead)}>Đã chọn {urls.length} video · {current?.accepted.length ?? 0} video mới</span>}
+      {urls.map((url, index) => {
+        const accepted = current?.accepted.find((item) => item.url === url)
+        const duplicate = current?.duplicates.find((item) => item.url === url)
+        const invalid = current?.invalid.find((item) => item.url === url)
+        const preview = accepted ?? duplicate
+        if (urls.length === 1 && (invalid || duplicate)) return <div key={url} role={invalid ? 'alert' : 'status'} {...stylex.props(sx.warning)}>
+          <Icon name="info-circle" size={20} />
+          <div {...stylex.props(sx.grow)}>
+            <b>{invalid ? 'Không đọc được link này' : `${channel?.name || 'Kênh này'} đã có video từ link này`}</b>
+            <span>{invalid ? invalidLabel(invalid.reason) : duplicate?.title || url}</span>
+            {duplicate && cloneTarget(duplicate) && <a {...stylex.props(sx.link)} href={`#${cloneTarget(duplicate)}`} onClick={close}>Mở ở Bàn dựng</a>}
+          </div>
         </div>
-        <h1 {...stylex.props(styles.heading)}>{tt.hero}</h1><p {...stylex.props(styles.lede)}>{tt.heroSub}</p>
-      </div>
-      <Segmented label={tt.modesLabel} value={mode} onChange={(id) => pickMode(id === 'multi' ? 'multi' : 'single')}
-        size={mobile ? 'xl' : 'md'} fit={mobile ? 'fill' : 'content'} xstyle={styles.segmented}
-        options={[
-          { id: 'single', label: mobile ? tt.mobileSingle : tt.single, icon: <Icon name="link" size={mobile ? 16 : 15} /> },
-          { id: 'multi', label: mobile ? tt.mobileMulti : tt.multi, icon: <Icon name="video-add" size={mobile ? 16 : 15} /> },
-        ]} />
-      <form className={`nv-card ${stylex.props(styles.liquidCard, styles.card, state === 'error' && styles.cardError).className}`} onSubmit={submit}>
-        <label htmlFor="nv-url" {...stylex.props(textStyles.srOnly)}>{tt.textarea}</label>
-        <div className={`nv-entry ${stylex.props(styles.entry, multi && styles.entryMulti).className}`}>
-          {!multi && <Icon name="link" size={18} xstyle={styles.entryIcon} />}
-          {multi ? <textarea {...stylex.props(styles.input, styles.multiInput)} id="nv-url" rows={4} value={text} aria-label={tt.textarea}
-            placeholder={tt.multiPlaceholder} onChange={(e) => applyText(e.target.value)} />
-            : <input {...stylex.props(styles.input)} id="nv-url" type="url" inputMode="url" value={text} aria-label={tt.textarea}
-              placeholder={mobile ? tt.singlePlaceholder : tt.desktopPlaceholder}
-              onChange={(e) => applyText(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void submit(e) } }} />}
-          {text ? <Button type="button" variant="icon-only" size="lg" xstyle={[styles.clear, multi && styles.clearMulti]} aria-label={tt.clearInput} onClick={() => { applyText(''); setPlan(null) }}><Icon name="close" size={16} /></Button>
-            : mobile && <Button type="button" variant="primary" size="lg" xstyle={styles.paste} onClick={async () => { try { applyText(await navigator.clipboard.readText()) } catch { document.getElementById('nv-url')?.focus() } }}>{tt.paste}</Button>}
+        return <div key={`${index}-${url}`} {...stylex.props(sx.row, singlePreview && sx.singleRow, singlePreview && mobile && sx.mobileSingleRow)}>
+          <PreviewThumbnail url={preview?.thumbnailUrl} single={singlePreview} mobile={mobile}>{singlePreview && preview && <>{preview.outlier != null && <span {...stylex.props(sx.score)}>{fmtScore(preview.outlier)}</span>}<span {...stylex.props(sx.duration)}>{fmtDuration(preview.durationSec)}</span></>}</PreviewThumbnail>
+          <span {...stylex.props(sx.grow)}><b {...stylex.props(sx.previewTitle, singlePreview && sx.singleTitle)}>{preview?.title || url}</b><span {...stylex.props(sx.note, sx.ellipsis)}>{invalid ? invalidLabel(invalid.reason) : duplicate ? 'Video đã có cho kênh này' : preview ? `${preview.sourceChannelTitle || ''} · ${videoMeta(preview.viewCount ?? null, preview.publishedAt ?? null)}` : phase === 'failed' ? 'Không tải được thông tin' : 'Đang đọc thông tin video…'}</span>{preview?.hasCaptions && <span {...stylex.props(sx.caption)}><Icon name="subtitle" size={14} />Có phụ đề do kênh đăng</span>}{accepted?.rivalLinked && !mobile && <span {...stylex.props(sx.note)}>Đối thủ đã liên kết với kênh</span>}</span>
+          {duplicate && cloneTarget(duplicate) && <a {...stylex.props(sx.link)} href={`#${cloneTarget(duplicate)}`} onClick={close}>Mở ở Bàn dựng</a>}
+          {!singlePreview && <Button type="button" size={mobile ? 'lg' : 'md'} variant="quiet" aria-label={`Bỏ ${preview?.title || url}`} disabled={busy} onClick={() => { setText(urls.filter((_, itemIndex) => itemIndex !== index).join('\n')); setResult(null) }}><Icon name="close" size={14} /></Button>}
         </div>
-        {preview && !multi && <div className={`nv-preview ${stylex.props(styles.preview).className}`}>
-          <div className={`nv-pimg ${stylex.props(styles.previewImage).className}`}>{preview.thumbnailUrl && <img {...stylex.props(styles.image)} src={preview.thumbnailUrl} alt="" />}<span className={`nv-score num ${stylex.props(styles.score, styles.previewScore, onlyDuplicate && styles.duplicateScore).className}`}>{fmtScore(preview.outlier ?? null)}</span><span className={`nv-dur mono ${stylex.props(styles.duration).className}`}>{fmtDuration(preview.durationSec)}</span></div>
-          <div className={`nv-preview-body ${stylex.props(styles.previewBody).className}`}><b {...stylex.props(styles.previewTitle)}>{preview.title}</b><span className={`nv-meta ${stylex.props(styles.meta).className}`}>{[preview.sourceChannelTitle, videoMeta(preview.viewCount ?? null, preview.publishedAt ?? null)].filter(Boolean).join(' · ')}</span><div className={`nv-preview-badges ${stylex.props(styles.previewBadges).className}`}>{preview.hasCaptions && <span className={`nv-captions ${stylex.props(styles.captions).className}`}><Icon name="subtitle" size={13} />{t.screens.explore.hasSubs}</span>}{first?.rivalLinked && <span className={`nv-linked ${stylex.props(styles.linked).className}`}>{tt.linkedSource}</span>}</div></div>
-        </div>}
-        {onlyDuplicate && !multi && <div className={`nv-banner nv-banner--duplicate ${stylex.props(styles.banner, styles.bannerDuplicate).className}`} role="status"><Icon name="flag" size={16} /><span {...stylex.props(styles.bannerText, styles.duplicateText)}>{tt.dup.banner(duplicate?.title ?? duplicate?.url ?? '')}{tt.dup.bannerState[duplicate?.state ?? ''] ?? '.'}</span><a {...stylex.props(styles.duplicateLink)} href={`#${duplicate?.jobId ? paths.workbench({ video: duplicate.jobId }) : paths.queue()}`}>{tt.dup.open}</a></div>}
-        {invalid && !multi && <div className={`nv-banner ${stylex.props(styles.banner).className}`} role="alert"><Icon name="danger" size={16} /><span {...stylex.props(styles.bannerText)}>{tt.invalid}</span></div>}
-        {multi && current && <div className={`nv-summary ${stylex.props(styles.summary).className}`}><span className={`nv-chip nv-chip--ok ${stylex.props(styles.chip, styles.chipOk).className}`}><Icon xstyle={styles.summaryIcon} name="tick-b" size={15} />{tt.accepted(current.accepted.length)}</span>{current.duplicates.length > 0 && <span className={`nv-chip nv-chip--warn ${stylex.props(styles.chip, styles.chipWarn).className}`}><Icon xstyle={styles.summaryIcon} name="flag" size={15} />{tt.plan.skipDup(current.duplicates.length)}</span>}{current.invalid.length > 0 && <span className={`nv-chip ${stylex.props(styles.chip, styles.chipPlain).className}`}>{tt.plan.skipInvalid(current.invalid.length)}</span>}{line?.detail && <span className={`nv-chip ${stylex.props(styles.chip, styles.chipPlain).className}`}>{line.detail}</span>}</div>}
-        <div className={`nv-options ${stylex.props(styles.options, state === 'empty' && styles.emptyHidden).className}`}>
-          <KitSelect aria-label={tt.channel} value={channel?.id ?? ''} options={channelOptions} onChange={(id) => { setChannelId(id); setTemplateId('') }}
-            icon={<Icon name="channel" size={mobile ? 17 : 14} />} prefix={<span {...stylex.props(styles.optionLabel)}>{tt.channel}</span>}
-            chevronSize={mobile ? 15 : 12} xstyle={styles.optionSelect} triggerStyle={styles.optionTrigger} />
-          <KitSelect aria-label={tt.template} value={templateId} options={templateOptions} onChange={setTemplateId}
-            icon={<Icon name="layer" size={mobile ? 17 : 14} />} prefix={<span {...stylex.props(styles.optionLabel)}>{tt.template}</span>}
-            chevronSize={mobile ? 15 : 12} xstyle={styles.optionSelect} triggerStyle={styles.optionTrigger} />
-          {mobile && multi && <div className={`nv-option nv-priority-row ${stylex.props(styles.option, styles.priorityRow).className}`}><Icon name="arrow-up" size={17} xstyle={styles.priorityIcon} /><span {...stylex.props(styles.priorityText)}><span>{tt.priority(acceptedCount)}</span><span {...stylex.props(styles.prioritySubtitle)} title={tt.priorityHint}>{tt.priorityHint}</span></span><Switch size={[44, 26]} checked={priority} onChange={setPriority} aria-label={tt.priority(acceptedCount)} /></div>}
-        </div>
-        <div ref={footerRef} className={`nv-plan ${stylex.props(styles.plan).className}`}>
-          <span className={`nv-plantext ${stylex.props(styles.planText, state === 'empty' && styles.emptyHidden).className}`}><Icon xstyle={styles.noShrink} name="clock" size={15} /><span>{phase === 'failed' ? <button type="button" onClick={() => setRetry((v) => v + 1)}>{tt.plan.failed}</button> : phase === 'loading' ? tt.plan.fixing : line?.text || tt.empty.pickFirst}</span></span>
-          {!mobile && multi && <span className={`nv-priority ${stylex.props(styles.priority).className}`}><Switch size={[26, 15]} checked={priority} onChange={setPriority} aria-label={tt.priority(acceptedCount)} />{tt.priority(acceptedCount)}</span>}
-          <ActionButton type="submit" variant="primary" className="nv-submit" xstyle={[styles.submit, disabled && styles.submitLocked]} disabled={busy} lockedReason={disabled ? !channel ? tt.noChannel : current && !current.template.id ? tt.plan.blockedNoTemplate : tt.needLink : undefined}><span {...stylex.props(styles.submitLabel)}>{multi && current?.accepted.length ? tt.makeMany(current.accepted.length) : tt.makeVideo}<span className={`nv-key ${stylex.props(styles.key).className}`}>Enter</span></span></ActionButton>
-        </div>
-      </form>
-      <section className={`nv-picks ${stylex.props(styles.picks, state !== 'empty' && styles.picksHidden).className}`}>
-        <div className={`nv-pickhead ${stylex.props(styles.pickHead).className}`}><span {...stylex.props(styles.pickLabel)}>{mobile ? tt.mobileSuggestions : tt.suggestions}</span><a {...stylex.props(styles.pickLink)} href={`#${paths.explore()}`}>{tt.openExplore}<Icon name="arrow-r" size={13} /></a></div>
-        <div className={`nv-ideas ${stylex.props(styles.ideas).className}`}>{(suggestions.data?.videos ?? []).map((v) => <button key={v.id} type="button" className={`nv-idea ${stylex.props(styles.idea).className}`} onClick={() => applyText(v.url)}><span className={`nv-ideaimg ${stylex.props(styles.ideaImage).className}`}><img {...stylex.props(styles.image)} src={v.thumbnailUrl} alt="" /><span className={`nv-score num ${stylex.props(styles.score).className}`}>{fmtScore(v.score)}</span><span className={`nv-dur mono ${stylex.props(styles.duration).className}`}>{fmtDuration(v.durationSec)}</span></span><b {...stylex.props(styles.ideaTitle)}>{v.title}</b><span {...stylex.props(styles.ideaMeta)}>{videoMeta(v.viewCount, v.publishedAt)}</span></button>)}</div>
-      </section>
-      <div className={`nv-workflow ${stylex.props(styles.workflow).className}`}><span {...stylex.props(styles.workflowLabel)}>{tt.whatNext}</span>{agents.map((a, i) => <span className={`nv-workchip ${stylex.props(styles.workChip).className}`} key={a}><Orb of={a} size={14} />{tt.steps[i]}</span>)}</div>
-      <div className={`nv-alts ${stylex.props(styles.alts).className}`}>{tt.alts.map((a, i) => <a {...stylex.props(styles.alt)} key={a.title} href={`#${i === 0 ? paths.explore() : i === 1 ? channel ? paths.channel(channel.id) : paths.channelNew() : paths.library()}`}><Icon xstyle={styles.altIcon} name={i === 0 ? 'radar' : i === 1 ? 'refresh' : 'layer'} size={17} /><span {...stylex.props(styles.altText)}><b {...stylex.props(styles.altTitle)}>{a.title}</b><span {...stylex.props(styles.altBody)}>{a.body}</span></span></a>)}</div>
-      {!mobile && <div className={`nv-shortcuts ${stylex.props(styles.shortcuts).className}`}><span {...stylex.props(styles.shortcut)}><kbd {...stylex.props(styles.shortcutKey)}>Tab</kbd>{tt.modeHint}</span><span {...stylex.props(styles.shortcut)}><kbd {...stylex.props(styles.shortcutKey)}>Enter</kbd>{tt.submitHint}</span></div>}
-    </main>
-  )
+      })}
+    </div>}
+    {options}
+    {templateId && <span {...stylex.props(sx.note)}>Chỉ video này · không đổi template mặc định kênh.</span>}
+    {!!(channelList.error || templateList.error) && <Button size="lg" onClick={() => { void channelList.refresh(); void templateList.refresh() }}>Không tải được danh sách · Thử lại</Button>}
+    {!channel && !channelList.initialLoading && <a {...stylex.props(sx.link)} href={`#${paths.channelNew()}`} onClick={close}>Tạo kênh để làm video</a>}
+    {phase === 'failed' && <Button size="lg" onClick={() => setRetry((value) => value + 1)}>Thử đọc lại thông tin</Button>}
+    {result && <div role="status" {...stylex.props(sx.lines)}><b>Đã thêm {result.items.length} video</b>{result.items.map((item) => <a key={item.id} {...stylex.props(sx.link)} href={`#${cloneTarget({ jobId: item.jobId, queueItemId: item.id })}`} onClick={close}>Mở video vừa thêm ở Bàn dựng</a>)}{result.duplicates?.map((item, index) => cloneTarget(item) ? <a key={`${item.url}-${index}`} {...stylex.props(sx.link)} href={`#${cloneTarget(item)}`} onClick={close}>Đã có: {item.title || item.url} · Mở ở Bàn dựng</a> : <span key={`${item.url}-${index}`}>Đã có: {item.title || item.url}</span>)}{result.invalid?.map((item, index) => <span key={`${item.url}-${index}`}>{item.url} · {invalidLabel(item.reason)}</span>)}</div>}
+  </div>
+  const footer = <footer {...stylex.props(sx.footer, mobile && sx.mobileFooter)}>
+    <span {...stylex.props(sx.plan)}><Icon name="clock" size={16} /><span>{planText}{current?.accepted.length ? <span {...stylex.props(sx.price)}>{current.priceUSD == null ? 'Chưa ước lượng được chi phí' : `Ước tính $${current.priceUSD.toFixed(2)} · ${current.imageCalls} lượt vẽ ảnh`}{!current.template.id && ' · Kênh chưa có template mặc định'}</span> : null}</span></span>
+    <span {...stylex.props(sx.actions, mobile && sx.mobileActions)}>
+      {!mobile && <><span {...stylex.props(sx.keyboardHint)}><kbd {...stylex.props(sx.kbd)}>Esc</kbd> đóng</span><Button type="button" disabled={busy} onClick={close}>Huỷ</Button></>}
+      <Button type="submit" size={mobile ? 'lg' : 'md'} variant="primary" pending={busy} disabled={busy || !current?.accepted.length || !current.template.id} xstyle={mobile && sx.mobileSubmit}>{(current?.accepted.length ?? 0) > 1 ? `Làm ${current?.accepted.length} video` : 'Làm video'}</Button>
+    </span>
+  </footer>
+  const form = <form id="quick-create" onSubmit={submit} {...stylex.props(sx.form, mobile && sx.mobileForm)}>{header}{body}{footer}</form>
+  if (mobile) return <Sheet open={open} onClose={() => picker ? finishPick() : close()} onExited={exited} title={picker === 'channel' ? 'Chọn kênh' : picker === 'template' ? 'Template · chỉ video này' : undefined} label="Làm video" size="md" height={picker ? 'auto' : '100dvh'} grab={!!picker} xstyle={!picker && sx.fullSheet} bodyStyle={!picker && sx.sheetBody} homeIndicator>
+    {picker ? <div {...stylex.props(sx.picker)}>{(picker === 'channel' ? channelOptions : templateOptions).map((option) => <Button key={option.value} size="lg" onClick={() => finishPick(option.value)}>{option.label}</Button>)}<Button size="lg" onClick={() => finishPick()}>Quay lại</Button></div> : form}
+  </Sheet>
+  return open ? <Dialog label="Làm video" width={pipeline.quickDialogWidth} onClose={close} padBody={false} style={{ alignSelf: 'flex-start', marginTop: `calc(${s['--vv-s-76']} - max(${s['--vv-s-16']}, var(--m-safe-top, 0px)))`, maxHeight: `calc(100dvh - ${s['--vv-s-76']} - ${s['--vv-s-20']})`, overflow: 'hidden' }}>{form}</Dialog> : null
 }
 
-const MOBILE = '@media (max-width: 767px)'
-const orbFloat = stylex.keyframes({ '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-4px)' } })
-const styles = stylex.create({
-  liquidCard: { backgroundColor: "var(--card-bg)", borderWidth: "1px", borderStyle: "solid", borderColor: "var(--line-2)", boxShadow: 'var(--card-shadow)' },
-  root: { flex: { default: 1, [MOBILE]: 'none' }, overflowY: 'auto', width: '100%', maxWidth: 820, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'stretch', padding: { default: `${s['--vv-s-32']} ${s['--vv-s-20']} ${s['--vv-s-28']}`, [MOBILE]: `${s['--vv-s-4']} ${s['--vv-s-16']} ${s['--vv-s-16']}` }, gap: { default: s['--vv-s-22'], [MOBILE]: s['--vv-s-16'] }, minHeight: { default: null, [MOBILE]: 0 }, height: { default: null, [MOBILE]: 'max(0px, calc(100dvh - var(--m-top) - 52px - var(--nv-footer-height, 93.75px) - max(26px, var(--m-safe-bottom)) - var(--kb, 0px)))' }, marginBottom: { default: null, [MOBILE]: 'calc(var(--nv-footer-height, 93.75px) + max(26px, var(--m-safe-bottom)) + var(--kb, 0px))' }, lineHeight: { default: null, [MOBILE]: 1.5 } },
-  emptyRoot: { '--nv-footer-height': pipeline.newEmptyFooterClearance },
-  // Nhóm chọn chế độ không được co trong cột cuộn (kit-seg có overflow:auto nên min-size = 0).
-  segmented: { flexShrink: 0, alignSelf: 'center', width: { default: null, [MOBILE]: '100%' }, margin: { default: null, [MOBILE]: 0 } },
-  hero: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: { default: s['--vv-s-12'], [MOBILE]: s['--vv-s-10'] }, textAlign: 'center', paddingTop: { default: null, [MOBILE]: s['--vv-s-4'] } },
-  orbs: { display: 'flex', alignItems: 'center', gap: { default: s['--vv-s-10'], [MOBILE]: s['--vv-s-6'] }, padding: { default: null, [MOBILE]: 0 } },
-  lens: { display: { default: 'flex', [MOBILE]: 'none' }, margin: `0 ${s['--vv-s-6']}` },
-  float: { animationName: { default: orbFloat, [MOBILE]: 'none' }, animationDuration: '6s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' },
-  float0: { animationDelay: '0s' },
-  float1: { animationDelay: '-1.5s' },
-  float2: { animationDelay: '-3s' },
-  float3: { animationDelay: '-4.5s' },
-  heading: { margin: 0, fontSize: { default: 30, [MOBILE]: 22 }, fontWeight: 600, letterSpacing: '-.02em', lineHeight: { default: 1.2, [MOBILE]: 1.5 } },
-  lede: { margin: 0, maxWidth: 640, color: color['--color-fg-3'], fontSize: 14, textWrap: 'pretty', display: { default: null, [MOBILE]: 'none' } },
-  card: { width: '100%', borderRadius: radius['--radius-dock'], padding: `${s['--vv-s-16']} ${s['--vv-s-16']} ${s['--vv-s-14']} ${s['--vv-s-18']}`, display: { default: 'flex', [MOBILE]: 'contents' }, flexDirection: 'column', gap: s['--vv-s-14'], backgroundColor: "var(--vv-clone-card-bg)", borderColor: line['--line-3'] },
-  cardError: { borderColor: `color-mix(in srgb, ${color['--color-err']} 35%, transparent)` },
-  entry: { display: 'flex', alignItems: 'center', gap: { default: s['--vv-s-10'], [MOBILE]: s['--vv-s-8'] }, color: 'var(--vv-fg-note)', width: { default: null, [MOBILE]: '100%' }, height: { default: null, [MOBILE]: 58 }, minHeight: { default: null, [MOBILE]: 58 }, padding: { default: null, [MOBILE]: `${s['--vv-s-4']} ${s['--vv-s-4']} ${s['--vv-s-4']} ${s['--vv-s-14']}` }, borderWidth: { default: null, [MOBILE]: "1px" }, borderStyle: { default: null, [MOBILE]: "solid" }, borderColor: { default: null, [MOBILE]: line['--line-2'] }, borderRadius: { default: null, [MOBILE]: radius['--radius-card'] }, backgroundColor: { default: null, [MOBILE]: "var(--vv-clone-card-bg)" }, backgroundImage: { default: null } },
-  entryMulti: { height: { default: null, [MOBILE]: 'auto' }, minHeight: { default: null, [MOBILE]: 0 }, flexShrink: { default: null, [MOBILE]: 0 }, display: { default: null, [MOBILE]: 'block' } },
-  entryIcon: { display: { default: null, [MOBILE]: 'none' } },
-  input: { flex: 1, width: '100%', minWidth: 0, height: { default: 40, [MOBILE]: 48 }, resize: 'none', padding: `${s['--vv-s-1']} ${s['--vv-s-2']}`, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", outlineWidth: 0, outlineStyle: "none", outlineColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", color: { default: color['--color-fg'], "::placeholder": 'var(--vv-fg-note)' }, fontFamily: 'inherit', fontSize: 15, lineHeight: { default: 1.55, [MOBILE]: 1.5 } },
-  multiInput: { height: { default: 100, [MOBILE]: 'auto' }, padding: { default: s['--vv-s-2'], [MOBILE]: `${s['--vv-s-10']} ${s['--vv-s-10']} ${s['--vv-s-10']} 0` }, lineHeight: { default: '24px', [MOBILE]: 1.6 }, fontSize: { default: 15, [MOBILE]: 14 } },
-  // Nút xoá dùng Button icon-only của kit (44px trên điện thoại); chỉ đổi hình tròn + mực phụ.
-  clear: { width: 44, borderRadius: '50%', color: 'var(--vv-fg-note)' },
-  clearMulti: { display: 'none' },
-  // Button primary cỡ lg của kit (44px) — không tự dựng nút Dán.
-  paste: { flexShrink: 0 },
-  preview: { display: 'flex', gap: { default: s['--vv-s-14'], [MOBILE]: s['--vv-s-12'] }, padding: { default: s['--vv-s-10'], [MOBILE]: 0 }, borderRadius: { default: radius['--radius-tile'], [MOBILE]: 0 }, backgroundColor: { default: color['--color-surface-0'], [MOBILE]: "transparent" }, borderWidth: { default: "1px", [MOBILE]: 0 }, borderStyle: { default: "solid", [MOBILE]: "none" }, borderColor: { default: line['--line-1'], [MOBILE]: "currentColor" }, width: { default: null, [MOBILE]: '100%' }, alignItems: { default: null, [MOBILE]: 'flex-start' } },
-  previewImage: { position: 'relative', width: { default: 168, [MOBILE]: 132 }, aspectRatio: '16/9', borderRadius: { default: radius['--radius-button'], [MOBILE]: radius['--radius-row'] }, backgroundColor: color['--color-surface-3'], flexShrink: 0, overflow: 'hidden' },
-  image: { display: 'block', width: '100%', height: '100%', objectFit: 'cover' },
-  score: { position: 'absolute', left: s['--vv-s-6'], bottom: s['--vv-s-5'], height: 18, padding: `0 ${s['--vv-s-6']}`, display: 'flex', alignItems: 'center', borderRadius: r['--vv-r-5'], color: color['--color-bg'], backgroundColor: color['--color-warn'], fontSize: 11, fontWeight: 600 },
-  previewScore: { backgroundColor: `color-mix(in srgb, ${color['--color-bg']} 82%, transparent)`, color: 'var(--vv-note-ink)' },
-  duplicateScore: { backgroundColor: color['--color-warn'], color: color['--color-bg'] },
-  duration: { position: 'absolute', right: s['--vv-s-6'], bottom: s['--vv-s-5'], padding: `0 ${s['--vv-s-5']}`, borderRadius: r['--vv-r-4'], backgroundColor: "var(--vv-thumb-veil)", fontSize: 10.5 },
-  previewBody: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: { default: s['--vv-s-6'], [MOBILE]: s['--vv-s-4'] } },
-  previewTitle: { fontSize: { default: 14.5, [MOBILE]: 14 }, fontWeight: { default: 500, [MOBILE]: 600 }, lineHeight: { default: 1.4, [MOBILE]: 1.35 }, display: { default: null, [MOBILE]: '-webkit-box' }, WebkitLineClamp: { default: null, [MOBILE]: 2 }, WebkitBoxOrient: { default: null, [MOBILE]: 'vertical' }, overflow: { default: null, [MOBILE]: 'hidden' } },
-  meta: { fontSize: { default: 12.5, [MOBILE]: 12 }, color: 'var(--vv-fg-note)', whiteSpace: { default: null, [MOBILE]: 'nowrap' }, overflow: { default: null, [MOBILE]: 'hidden' }, textOverflow: { default: null, [MOBILE]: 'ellipsis' } },
-  captions: { alignSelf: 'flex-start', height: { default: 22, [MOBILE]: 'auto' }, padding: { default: `0 ${s['--vv-s-8']}`, [MOBILE]: 0 }, borderRadius: radius['--radius-chip'], backgroundColor: { default: `color-mix(in srgb, ${color['--color-ok']} 8%, transparent)`, [MOBILE]: "transparent" }, backgroundImage: { [MOBILE]: "none" }, display: 'flex', alignItems: 'center', gap: s['--vv-s-5'], color: color['--color-ok'], fontSize: { default: 11.5, [MOBILE]: 12 }, lineHeight: { default: null, [MOBILE]: 1.5 } },
-  previewBadges: { display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], flexWrap: 'wrap', margin: { default: null, [MOBILE]: 0 } },
-  linked: { height: 22, display: { default: 'flex', [MOBILE]: 'none' }, alignItems: 'center', padding: `0 ${s['--vv-s-8']}`, borderRadius: radius['--radius-chip'], backgroundColor: "var(--vv-wash-5)", fontSize: 11.5, color: color['--color-fg-2'] },
-  options: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: { default: s['--vv-s-8'], [MOBILE]: 0 }, flexDirection: { default: null, [MOBILE]: 'column' }, width: { default: null, [MOBILE]: '100%' }, borderWidth: { default: null, [MOBILE]: "1px" }, borderStyle: { default: null, [MOBILE]: "solid" }, borderColor: { default: null, [MOBILE]: line['--line-2'] }, borderRadius: { default: null, [MOBILE]: radius['--radius-card'] }, backgroundColor: { default: null, [MOBILE]: "transparent" }, backgroundImage: { default: null } },
-  emptyHidden: { display: { default: 'flex', [MOBILE]: 'none' } },
-  option: { display: 'flex', alignItems: 'center', gap: { default: s['--vv-s-6'], [MOBILE]: s['--vv-s-12'] }, height: 30, borderWidth: { default: "1px", [MOBILE]: 0 }, borderStyle: { default: "solid", [MOBILE]: "none" }, borderColor: { default: `color-mix(in srgb, ${line['--line-3']}, ${line['--line-4']})`, [MOBILE]: "currentColor" }, borderBottomWidth: { default: null, [MOBILE]: "1px" }, borderBottomStyle: { default: null, [MOBILE]: "solid" }, borderBottomColor: { default: null, [MOBILE]: line['--line-2'] }, borderRadius: { default: radius['--radius-control'], [MOBILE]: 0 }, padding: { default: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-8']}`, [MOBILE]: `0 ${s['--vv-s-14']}` }, fontSize: { default: 12.5, [MOBILE]: 14 }, color: color['--color-fg-3'], width: { default: null, [MOBILE]: '100%' }, minHeight: { default: null, [MOBILE]: 52 } },
-  optionLabel: { color: { default: 'var(--vv-fg-note)', [MOBILE]: color['--color-fg-3'] }, fontWeight: 400 },
-  // NewVideo.dc.html › chip: 30px, viền 1px, chữ 12.5, giá trị đậm 500; MNew.dc.html › hàng 52px
-  // trong thẻ, không viền, kẻ dưới 1px, nhãn bên trái, giá trị dồn phải.
-  optionSelect: { width: { default: 'auto', [MOBILE]: '100%' } },
-  optionTrigger: { height: 30, minHeight: { default: null, [MOBILE]: 52 }, paddingLeft: { default: s['--vv-s-8'], [MOBILE]: s['--vv-s-14'] }, paddingRight: { default: s['--vv-s-10'], [MOBILE]: s['--vv-s-14'] }, gap: { default: s['--vv-s-6'], [MOBILE]: s['--vv-s-12'] }, borderRadius: { default: radius['--radius-control'], [MOBILE]: 0 }, borderWidth: { default: "1px", [MOBILE]: 0 }, borderBottomWidth: { default: null, [MOBILE]: "1px" }, borderBottomStyle: { default: null, [MOBILE]: "solid" }, borderBottomColor: { default: null, [MOBILE]: line['--line-1'] }, backgroundColor: "transparent", color: color['--color-fg'], fontSize: { default: 12.5, [MOBILE]: 14 }, fontWeight: { default: 500, [MOBILE]: 400 }, whiteSpace: 'nowrap', maxWidth: { default: s['--vv-s-250'], [MOBILE]: 'none' }, textAlign: { default: null, [MOBILE]: 'right' } },
-  plan: { display: 'flex', flexWrap: 'wrap', alignItems: { default: 'center', [MOBILE]: 'stretch' }, gap: { default: `${s['--vv-s-8']} ${s['--vv-s-12']}`, [MOBILE]: s['--vv-s-8'] }, marginTop: { default: `calc(-1 * ${s['--vv-s-2']})`, [MOBILE]: 0 }, position: { default: null, [MOBILE]: 'fixed' }, zIndex: { default: null, [MOBILE]: 20 }, left: { default: null, [MOBILE]: 0 }, right: { default: null, [MOBILE]: 0 }, bottom: { default: null, [MOBILE]: 'calc(max(26px, var(--m-safe-bottom)) + var(--kb))' }, width: { default: null, [MOBILE]: '100%' }, flexDirection: { default: null, [MOBILE]: 'column' }, padding: { default: null, [MOBILE]: `${s['--vv-s-10']} ${s['--vv-s-16']} ${s['--vv-s-4']}` }, borderTopWidth: { default: null, [MOBILE]: "1px" }, borderTopStyle: { default: null, [MOBILE]: "solid" }, borderTopColor: { default: null, [MOBILE]: line['--line-1'] }, backgroundColor: { default: null, [MOBILE]: `color-mix(in srgb, ${color['--color-bg']}, ${color['--color-surface-0']})` }, backgroundImage: { default: null } },
-  planText: { flex: { default: '1 1 320px', [MOBILE]: '0 0 auto' }, minWidth: 0, display: 'flex', gap: s['--vv-s-8'], alignItems: { default: 'center', [MOBILE]: 'flex-start' }, fontSize: 12.5, color: color['--color-fg-3'], lineHeight: 1.5, padding: { default: null, [MOBILE]: `0 ${s['--vv-s-2']} ${s['--vv-s-4']}` } },
-  noShrink: { flexShrink: 0 },
-  submit: { flex: '0 0 auto', height: { default: 36, [MOBILE]: 48 }, minWidth: 0, paddingBlock: 0, paddingInlineStart: { default: s['--vv-s-14'], [MOBILE]: s['--vv-s-16'] }, paddingInlineEnd: { default: s['--vv-s-12'], [MOBILE]: s['--vv-s-16'] }, borderWidth: 0, borderStyle: "none", borderColor: "currentColor", borderRadius: { default: radius['--radius-button'], [MOBILE]: pipeline.newSubmitRadius }, fontSize: { default: 13.5, [MOBILE]: 15 }, gap: s['--vv-s-8'], width: { default: null, [MOBILE]: '100%' }, lineHeight: { default: null, [MOBILE]: 1.5 } },
-  submitLabel: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-8'] },
-  submitLocked: { opacity: 1, backgroundColor: color['--color-surface-7'], color: 'var(--vv-fg-note)' },
-  key: { fontFamily: font['--font-mono'], fontSize: 11, padding: `${s['--vv-s-1']} ${s['--vv-s-5']}`, borderWidth: "1px", borderStyle: "solid", borderColor: "var(--vv-kbd-line)", borderRadius: r['--vv-r-4'], backgroundColor: "var(--vv-kbd-bg)", lineHeight: 1.55, display: { default: null, [MOBILE]: 'none' } },
-  priority: { height: 30, padding: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-8']}`, display: 'flex', alignItems: 'center', gap: s['--vv-s-6'], borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-3'], borderRadius: radius['--radius-control'], backgroundColor: "transparent", backgroundImage: "none", color: color['--color-fg-3'], fontSize: 12.5 },
-  banner: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: s['--vv-s-10'], borderWidth: "1px", borderStyle: "solid", borderColor: `color-mix(in srgb, ${color['--color-err']} 30%, transparent)`, borderRadius: radius['--radius-tile'], backgroundColor: `color-mix(in srgb, ${color['--color-err']} 6%, transparent)`, padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, color: color['--color-err'], fontSize: 13, lineHeight: 1.55 },
-  bannerText: { flex: '1 1 280px', minWidth: 0, color: 'var(--vv-warn-ink)' },
-  bannerDuplicate: { borderColor: `color-mix(in srgb, ${color['--color-warn']} 30%, transparent)`, backgroundColor: `color-mix(in srgb, ${color['--color-warn']} 7%, transparent)`, color: color['--color-warn'] },
-  duplicateText: { color: 'var(--vv-note-ink)' },
-  duplicateLink: { height: 30, padding: `0 ${s['--vv-s-10']}`, display: 'flex', alignItems: 'center', borderRadius: radius['--radius-control'], borderWidth: "1px", borderStyle: "solid", borderColor: `color-mix(in srgb, ${line['--line-3']}, ${line['--line-5']})`, color: color['--color-fg'], fontSize: 12.5, whiteSpace: 'nowrap' },
-  summary: { display: 'flex', flexWrap: { default: 'wrap', [MOBILE]: 'nowrap' }, gap: s['--vv-s-6'], fontSize: { default: 12.5, [MOBILE]: 13 }, flexDirection: { default: null, [MOBILE]: 'column' } },
-  chip: { height: { default: 24, [MOBILE]: 'auto' }, padding: { default: `0 ${s['--vv-s-8']}`, [MOBILE]: 0 }, display: 'flex', alignItems: 'center', borderRadius: { default: radius['--radius-chip'], [MOBILE]: 0 }, gap: { default: null, [MOBILE]: s['--vv-s-8'] } },
-  chipOk: { color: color['--color-ok'], backgroundColor: { default: `color-mix(in srgb, ${color['--color-ok']} 8%, transparent)`, [MOBILE]: "transparent" }, backgroundImage: { [MOBILE]: "none" } },
-  chipWarn: { color: color['--color-warn'], backgroundColor: { default: `color-mix(in srgb, ${color['--color-warn']} 8%, transparent)`, [MOBILE]: "transparent" }, backgroundImage: { [MOBILE]: "none" } },
-  chipPlain: { color: { default: null, [MOBILE]: 'var(--vv-fg-note)' }, lineHeight: { default: null, [MOBILE]: 1.5 }, backgroundColor: { default: null, [MOBILE]: "transparent" }, backgroundImage: { default: null, [MOBILE]: "none" } },
-  summaryIcon: { display: { default: 'none', [MOBILE]: 'inline-flex' } },
-  picks: { width: '100%', display: 'flex', flexDirection: 'column', gap: s['--vv-s-10'], margin: { default: null, [MOBILE]: 0 } },
-  picksHidden: { display: { default: 'flex', [MOBILE]: 'none' } },
-  pickHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: { default: `0 ${s['--vv-s-4']}`, [MOBILE]: 0 }, color: color['--color-fg-3'] },
-  pickLabel: { flex: 1, fontSize: 13 },
-  pickLink: { display: { default: 'flex', [MOBILE]: 'none' }, alignItems: 'center', gap: s['--vv-s-4'], color: color['--color-fg-3'], fontSize: 12.5, textDecoration: 'none', whiteSpace: 'nowrap' },
-  ideas: { display: { default: 'grid', [MOBILE]: 'flex' }, gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: s['--vv-s-10'], flexDirection: { default: null, [MOBILE]: 'column' } },
-  idea: { minWidth: 0, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-2'], borderRadius: r['--vv-r-14'], backgroundColor: color['--color-card'], color: color['--color-fg'], padding: { default: s['--vv-s-10'], [MOBILE]: s['--vv-s-8'] }, display: { default: 'flex', [MOBILE]: 'grid' }, flexDirection: 'column', gap: s['--vv-s-8'], columnGap: { default: null, [MOBILE]: s['--vv-s-12'] }, rowGap: { default: null, [MOBILE]: s['--vv-s-3'] }, textAlign: 'left', cursor: 'pointer', whiteSpace: 'normal', gridTemplateColumns: { default: null, [MOBILE]: '104px 1fr' } },
-  ideaImage: { position: 'relative', width: '100%', aspectRatio: '16/9', borderRadius: radius['--radius-button'], overflow: 'hidden', backgroundColor: color['--color-surface-2'], gridRow: { default: null, [MOBILE]: 'span 2' }, height: { default: null, [MOBILE]: 58 } },
-  ideaTitle: { fontSize: 13.5, lineHeight: { default: 1.4, [MOBILE]: 1.35 }, fontWeight: 500, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
-  ideaMeta: { fontSize: 12, color: 'var(--vv-fg-note)' },
-  workflow: { width: '100%', display: { default: 'flex', [MOBILE]: 'none' }, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: `${s['--vv-s-8']} ${s['--vv-s-10']}` },
-  workflowLabel: { fontSize: 12.5, color: 'var(--vv-fg-note)' },
-  workChip: { display: 'flex', alignItems: 'center', gap: s['--vv-s-7'], height: 28, padding: `0 ${s['--vv-s-10']} 0 ${s['--vv-s-6']}`, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-3'], borderRadius: r['--vv-r-pill'], color: color['--color-fg-2'], fontSize: 12.5 },
-  alts: { width: '100%', display: { default: 'grid', [MOBILE]: 'none' }, gridTemplateColumns: 'repeat(auto-fit, minmax(min(220px, 100%), 1fr))', gap: s['--vv-s-10'] },
-  alt: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], padding: `${s['--vv-s-12']} ${s['--vv-s-14']}`, color: color['--color-fg'], textDecoration: 'none', borderWidth: "1px", borderStyle: "dashed", borderColor: `color-mix(in srgb, ${line['--line-3']}, ${line['--line-5']})`, borderRadius: r['--vv-r-14'] },
-  altText: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-2'] },
-  altIcon: { marginTop: s['--vv-s-2'], color: color['--color-fg-3'], flexShrink: 0 },
-  altTitle: { fontSize: 13.5, fontWeight: 500 },
-  altBody: { fontSize: 12, lineHeight: 1.45, color: 'var(--vv-fg-note)' },
-  shortcuts: { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: `${s['--vv-s-4']} ${s['--vv-s-16']}`, fontSize: 12, color: 'var(--vv-fg-note)' },
-  shortcut: { display: 'flex', gap: s['--vv-s-6'], alignItems: 'center' },
-  shortcutKey: { padding: `${s['--vv-s-1']} ${s['--vv-s-5']}`, borderWidth: "1px", borderStyle: "solid", borderColor: line['--line-4'], borderRadius: r['--vv-r-4'], backgroundColor: "var(--vv-wash-5)", fontFamily: font['--font-mono'], fontSize: "11px", fontWeight: "normal", lineHeight: "1.55", fontStyle: "normal", fontVariant: "normal", fontStretch: "normal" },
-  priorityRow: { backgroundColor: "transparent", backgroundImage: "none", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", color: color['--color-fg'], fontSize: 14, textAlign: 'left', height: { default: null, [MOBILE]: 'auto' }, minHeight: { default: null, [MOBILE]: 52 }, padding: { default: null, [MOBILE]: `0 ${s['--vv-s-14']}` }, gap: { default: null, [MOBILE]: s['--vv-s-12'] } },
-  priorityIcon: { flexShrink: 0, color: 'var(--vv-fg-note)' },
-  priorityText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' },
-  prioritySubtitle: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-})
+function PreviewThumbnail({ url, single, mobile, children }: { url?: string | null; single: boolean; mobile: boolean; children?: ReactNode }) {
+  const [failedUrl, setFailedUrl] = useState<string>()
+  return <span aria-hidden="true" {...stylex.props(sx.thumb, single && sx.singleThumb, single && mobile && sx.mobileThumb)}>
+    {url && failedUrl !== url ? <img src={url} alt="" {...stylex.props(sx.thumbImage)} onError={() => setFailedUrl(url)} /> : <Icon name="gallery" size={20} />}
+    {children}
+  </span>
+}
 
+const sx = stylex.create({
+  form: { display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: 'inherit', padding: s['--vv-s-20'], gap: s['--vv-s-16'] },
+  mobileForm: { flex: 1, padding: 0, gap: 0, overflow: 'hidden' },
+  header: { display: 'flex', gap: s['--vv-s-12'], alignItems: 'flex-start', minWidth: 0 },
+  mobileHeader: { minHeight: pipeline.quickHeaderHeight, flexShrink: 0, alignItems: 'center', paddingInline: s['--vv-s-6'], gap: s['--vv-s-2'] },
+  headerIcon: { width: s['--vv-s-42'], height: s['--vv-s-42'], display: 'grid', placeItems: 'center', flexShrink: 0, color: color['--color-accent'], backgroundColor: kit['--kit-acc-10'], borderRadius: radius['--radius-tile'] },
+  headerText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
+  title: { margin: 0, fontSize: s['--vv-s-16'], fontWeight: 600 },
+  subtitle: { color: color['--color-fg-3'], fontSize: typography['--vv-fs-ui'], lineHeight: 1.5 },
+  mobileSubtitle: { fontSize: typography['--vv-fs-meta'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  body: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'], minWidth: 0, minHeight: 0, overflowY: 'auto' },
+  mobileBody: { flex: 1, gap: s['--vv-s-14'], paddingTop: s['--vv-s-4'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-16'] },
+  inputGroup: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'] },
+  field: { display: 'flex', alignItems: 'flex-start', minHeight: s['--vv-s-42'], padding: s['--vv-s-4'], paddingLeft: s['--vv-s-12'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-3'], borderRadius: radius['--radius-tile'], backgroundColor: color['--color-surface-0'], ':focus-within': { outlineWidth: s['--vv-s-2'], outlineStyle: 'solid', outlineColor: color['--color-accent'], outlineOffset: `calc(-1 * ${s['--vv-s-2']})` } },
+  mobileField: { borderRadius: radius['--radius-card'], paddingLeft: s['--vv-s-14'] },
+  input: { flex: 1, width: '100%', minWidth: 0, paddingBlock: s['--vv-s-6'], paddingInline: 0, border: 0, outline: 'none', backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: font['--font-mono'], fontSize: typography['--vv-fs-detail'], lineHeight: 1.6, resize: 'none' },
+  mobileInput: { paddingBlock: s['--vv-s-11'], fontSize: typography['--vv-fs-ui'] },
+  options: { display: 'flex', gap: s['--vv-s-8'], minWidth: 0 },
+  channelOption: { flex: 1, minWidth: 0 },
+  templateOption: { position: 'relative', flex: 1.5, minWidth: 0 },
+  selectFill: { width: '100%', minWidth: 0 },
+  selectTrigger: { backgroundColor: color['--color-surface-0'], fontSize: typography['--vv-fs-ui'] },
+  templateValue: { marginRight: s['--vv-s-60'] },
+  templateTag: { position: 'absolute', right: s['--vv-s-30'], top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', paddingInline: s['--vv-s-6'], paddingBlock: s['--vv-s-1'], color: color['--color-fg-3'], backgroundColor: kit['--kit-wash-4'], fontSize: typography['--vv-fs-small'], borderRadius: radius['--radius-chip'] },
+  optionLabel: { color: color['--color-fg-3'], fontSize: typography['--vv-fs-meta'], flexShrink: 0 },
+  mobileOptions: { flexDirection: 'column', gap: 0, borderRadius: radius['--radius-card'], backgroundColor: color['--color-surface-2'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], overflow: 'hidden', flexShrink: 0 },
+  mobileOption: { display: 'flex', alignItems: 'center', gap: s['--vv-s-12'], width: '100%', minHeight: pipeline.quickSelectorHeight, paddingInline: s['--vv-s-14'], backgroundColor: 'transparent', color: color['--color-fg-3'], border: 0, font: 'inherit', textAlign: 'left', cursor: 'pointer', ':hover': { backgroundColor: kit['--kit-wash-4'] } },
+  optionDivider: { borderTopWidth: s['--vv-s-1'], borderTopStyle: 'solid', borderTopColor: line['--line-2'] },
+  optionValue: { flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', textAlign: 'right', fontSize: typography['--vv-fs-body'], fontWeight: 500, color: color['--color-fg'] },
+  lines: { display: 'flex', flexDirection: 'column', minWidth: 0 },
+  list: { borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: radius['--radius-tile'], overflow: 'hidden', flexShrink: 0 },
+  warning: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-10'], padding: s['--vv-s-12'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: kit['--kit-warn-20'], borderRadius: radius['--radius-tile'], backgroundColor: kit['--kit-warn-6'], color: color['--color-warn'], fontSize: typography['--vv-fs-ui'], lineHeight: 1.5 },
+  listHead: { paddingBlock: s['--vv-s-8'], paddingInline: s['--vv-s-12'], backgroundColor: pipeline.quickPreviewWash, fontSize: typography['--vv-fs-detail'], color: color['--color-fg-3'] },
+  row: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], paddingBlock: s['--vv-s-8'], paddingInline: s['--vv-s-12'], minWidth: 0, borderBottomWidth: s['--vv-s-1'], borderBottomStyle: 'solid', borderBottomColor: line['--line-2'] },
+  singleRow: { alignItems: 'flex-start', gap: s['--vv-s-12'], padding: s['--vv-s-10'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: radius['--radius-tile'], backgroundColor: pipeline.quickPreviewWash },
+  mobileSingleRow: { padding: 0, borderWidth: 0, borderRadius: 0, backgroundColor: 'transparent' },
+  grow: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
+  previewTitle: { fontSize: typography['--vv-fs-ui'], fontWeight: 500, lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  singleTitle: { fontSize: typography['--vv-fs-body'], fontWeight: 600, whiteSpace: 'normal', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' },
+  ellipsis: { overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
+  thumb: { width: s['--vv-s-64'], position: 'relative', display: 'grid', placeItems: 'center', flexShrink: 0, aspectRatio: '16/9', overflow: 'hidden', borderRadius: radius['--radius-chip'], backgroundColor: color['--color-surface-1'], color: color['--color-fg-4'] },
+  singleThumb: { width: pipeline.quickPreviewWidth, borderRadius: radius['--radius-button'] },
+  mobileThumb: { width: s['--vv-s-128'] },
+  thumbImage: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' },
+  score: { position: 'absolute', left: s['--vv-s-4'], bottom: s['--vv-s-4'], paddingInline: s['--vv-s-5'], backgroundColor: color['--color-surface-0'], color: color['--color-warn'], borderRadius: radius['--radius-chip'], fontSize: typography['--vv-fs-badge'], fontWeight: 600 },
+  duration: { position: 'absolute', right: s['--vv-s-4'], bottom: s['--vv-s-4'], paddingInline: s['--vv-s-5'], backgroundColor: color['--color-surface-0'], color: color['--color-fg'], borderRadius: radius['--radius-chip'], fontSize: typography['--vv-fs-badge'], fontFamily: font['--font-mono'] },
+  note: { color: color['--color-fg-3'], fontSize: typography['--vv-fs-meta'], lineHeight: 1.5 },
+  caption: { display: 'flex', alignItems: 'center', gap: s['--vv-s-5'], color: color['--color-ok'], fontSize: typography['--vv-fs-meta'] },
+  link: { minHeight: s['--vv-s-44'], display: 'inline-flex', alignItems: 'center', color: color['--color-fg-2'], overflowWrap: 'anywhere' },
+  exploreLink: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-8'], fontSize: typography['--vv-fs-detail'], color: color['--color-fg-3'] },
+  mobileExploreLink: { minHeight: s['--vv-s-44'], fontSize: typography['--vv-fs-title-small'] },
+  footer: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'], flexShrink: 0 },
+  mobileFooter: { paddingTop: s['--vv-s-10'], paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-4'], gap: s['--vv-s-8'], borderTopWidth: s['--vv-s-1'], borderTopStyle: 'solid', borderTopColor: line['--line-2'], backgroundColor: 'var(--vv-composer-mobile-bg)' },
+  plan: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-8'], color: color['--color-fg-3'], fontSize: typography['--vv-fs-detail'], lineHeight: 1.5 },
+  price: { display: 'block', fontSize: typography['--vv-fs-small'] },
+  actions: { display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: s['--vv-s-8'] },
+  mobileActions: { width: '100%' },
+  mobileSubmit: { width: '100%' },
+  keyboardHint: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-6'], color: color['--color-fg-3'], fontSize: typography['--vv-fs-small'] },
+  kbd: { paddingBlock: s['--vv-s-1'], paddingInline: s['--vv-s-5'], borderWidth: s['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], borderRadius: s['--vv-s-4'], fontFamily: font['--font-mono'], fontSize: typography['--vv-fs-group'] },
+  fullSheet: { '--m-sheet-max-height': '100dvh', borderRadius: 0, backgroundColor: color['--color-bg'], paddingTop: 'var(--m-safe-top, 0px)' },
+  sheetBody: { display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', padding: 0 },
+  picker: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-8'], padding: s['--vv-s-16'] },
+  srOnly: { position: 'absolute', width: s['--vv-s-1'], height: s['--vv-s-1'], overflow: 'hidden', clipPath: 'inset(50%)', whiteSpace: 'nowrap' },
+})
 

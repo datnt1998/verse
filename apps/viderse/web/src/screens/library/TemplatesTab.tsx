@@ -1,22 +1,24 @@
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from './libraryTokens.stylex'
-// Tab Template của Thư viện (Library.dc.html › tweak tabs=templates): lưới thẻ
-// template gồm sức khoẻ, prompt đang chọn, nền/overlay đang dùng, kênh dùng, và
-// menu Đổi tên / Thêm vào kênh / Xoá (khoá kèm lý do khi kênh còn dùng).
+// Tab Mẫu video của Thư viện (Library.dc.html › tweak tabs=templates): lưới thẻ
+// mẫu video gồm sức khoẻ, prompt đang chọn, nền/overlay đang dùng, kênh dùng làm
+// mặc định, và menu Đổi tên / Đặt làm mặc định cho kênh… / Xoá (khoá kèm lý do
+// nêu đúng kênh đang dùng).
 import { useState } from 'react'
-import { ActionMenu, Banner, Button, Dialog, Icon, TextField, confirm } from '@noverse/ui'
+import { ActionMenu, Banner, Button, Dialog, Icon, TextField, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
 import { navigate, paths } from '../../router'
 import { useResource } from '../../data/useResource'
 import { keys } from '../../data/keys'
 import {
-  downloadTemplate, duplicateTemplate, listTemplates, patchTemplate, removeTemplate,
-  type OwnerChannelRef, type TemplateSummary,
+  downloadTemplate, duplicateTemplate, listPrompts, listTemplates, patchTemplate, removeTemplate,
+  type ImagePrompt, type OwnerChannelRef, type TemplateSummary,
 } from '../../api/library'
 import { AttachChannelDialog } from './AttachChannelDialog'
 import { editedLabel, initials, num } from './fmt'
+import { TemplateArtwork } from './TemplateArtwork'
 
 export const styleOf = (template: TemplateSummary) => template.style === 'full'
   ? t.library.templates.style.full
@@ -28,8 +30,9 @@ export const imagesText = (template: TemplateSummary) => template.images.mode ==
     ? t.library.templates.imagesPerMinutes(num(template.images.minutes))
     : t.library.templates.imagesFixed(num(template.images.count))
 
-function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
+function TemplateCard({ template, prompts, channels, onRename, onAttach, onDeleted }: {
   template: TemplateSummary
+  prompts?: readonly ImagePrompt[]
   channels: OwnerChannelRef[]
   onRename: () => void
   onAttach: () => void
@@ -60,10 +63,20 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
     }
   }
 
+  const exportFile = async () => {
+    try {
+      await downloadTemplate(template.id)
+      toast(copy.exported, 'ok')
+    } catch (err) {
+      onDeleted(err instanceof Error ? err.message : copy.exportFail)
+    }
+  }
+
   const duplicate = async () => {
     try {
       await duplicateTemplate(template.id)
       await invalidate(keys.templates())
+      toast(copy.duplicated, 'ok')
     } catch (err) {
       onDeleted(err instanceof Error ? err.message : String(err))
     }
@@ -72,7 +85,7 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
   return (
     <article className={`vlb-card ${stylex.props(sx.card).className}`}>
       <div className={`vlb-strip ${stylex.props(sx.strip).className}`} data-style={template.framing === 'close' ? 'close' : template.style} aria-hidden="true">
-        <span className={`vlb-strip-bar ${stylex.props(sx.stripBar).className}`} /><span className={`vlb-strip-bar ${stylex.props(sx.stripBar, template.framing === 'close' && sx.stripBarClose, template.framing !== 'close' && template.style === 'cutout' && sx.stripBarCutout).className}`} /><span className={`vlb-strip-bar ${stylex.props(sx.stripBar).className}`} />
+        <TemplateArtwork template={template} prompts={prompts} xstyle={sx.stripArtwork} />
         <span className={`vlb-strip-chip vlb-strip-chip--health ${stylex.props(sx.stripChipStripChipHealth, ((broken ? 'warn' : 'ok') === "ok") && sx.stripChipStripChipHealthDataToneOk, ((broken ? 'warn' : 'ok') === "warn") && sx.stripChipStripChipHealthDataToneWarn).className}`} data-tone={broken ? 'warn' : 'ok'}>{broken ? copy.healthFix : copy.healthOk}</span>
         <span className={`vlb-strip-chip vlb-strip-chip--style ${stylex.props(sx.stripChipStripChipStyle).className}`}>{styleOf(template)}</span>
       </div>
@@ -109,15 +122,11 @@ function TemplateCard({ template, channels, onRename, onAttach, onDeleted }: {
             onClick={() => void duplicate()}><Icon name="copy" size={14} />{t.library.duplicate}</Button>
           <span className={`vlb-card-end ${stylex.props(sx.cardEnd).className}`}>
             <Button xstyle={[sx.vlbCardActionsButton]} size="sm" variant="icon" aria-label={copy.exportAria(template.name)} title={copy.exportAria(template.name)}
-              onClick={() => downloadTemplate(template.id)}><Icon name="export" size={15} /></Button>
-            <ActionMenu triggerStyle={sx.touchTarget}
+              onClick={() => void exportFile()}><Icon name="export" size={15} /></Button>
+            <ActionMenu alwaysVisible triggerStyle={sx.touchTarget}
               label={copy.menuAria(template.name)}
               items={[
                 { id: 'rename', label: copy.rename, icon: <Icon name="edit" size={16} />, onSelect: onRename },
-                {
-                  id: 'export', label: t.library.template.output.exportFile, icon: <Icon name="export" size={16} />,
-                  onSelect: () => downloadTemplate(template.id),
-                },
                 {
                   id: 'channel', label: copy.addToChannel, icon: <Icon name="channel" size={16} />,
                   ...(channels.length ? { onSelect: onAttach } : { lockedReason: copy.noChannelsReason }),
@@ -172,6 +181,7 @@ export function TemplatesTab({ channels, onImport }: {
 }) {
   const copy = t.library.templates
   const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
+  const prompts = useResource(keys.prompts('', ''), ({ signal }) => listPrompts({}, signal))
   const [renaming, setRenaming] = useState<TemplateSummary | null>(null)
   const [renameName, setRenameName] = useState('')
   const [renameError, setRenameError] = useState<string | null>(null)
@@ -200,18 +210,20 @@ export function TemplatesTab({ channels, onImport }: {
     <div className={`vlb-scroll ${stylex.props(sx.scroll).className}`}>
       <p className={`vlb-intro ${stylex.props(sx.intro).className}`}>{copy.intro}</p>
       {actionError && <Banner tone="error" title={actionError} />}
-      {items.length === 0 && !templates.initialLoading && (
+      {Boolean(templates.error) && <Banner tone="error" title={t.library.loadFail}><Button size="sm" onClick={() => void templates.refresh()}>{t.library.retry}</Button></Banner>}
+      {items.length === 0 && !templates.initialLoading && !templates.error && (
         <div className={`vlb-empty ${stylex.props(sx.empty).className}`}>
           <p className={`vlb-empty-title ${stylex.props(sx.emptyTitle).className}`}>{copy.emptyTitle}</p>
           <p className={`vlb-hint ${stylex.props(sx.hint).className}`}>{copy.emptyHint}</p>
         </div>
       )}
-      {!templates.initialLoading && (
+      {!templates.initialLoading && (!templates.error || items.length > 0) && (
         <div className={`vlb-grid ${stylex.props(sx.grid).className}`}>
           {items.map((template) => (
             <TemplateCard
               key={template.id}
               template={template}
+              prompts={prompts.data?.items}
               channels={channels}
               onRename={() => openRename(template)}
               onAttach={() => setAttach(true)}
@@ -245,7 +257,7 @@ export function TemplatesTab({ channels, onImport }: {
 const sx = stylex.create({
   card: { display: "flex", flexDirection: "column", minWidth: 0, backgroundColor: "transparent", backgroundImage: libraryVars.promptEditorCardCardFlatBackgroundImage, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: { default: line["--line-2"], ":hover": line["--line-3"] }, borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: { default: line["--line-2"], ":hover": line["--line-3"] }, borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: { default: line["--line-2"], ":hover": line["--line-3"] }, borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: { default: line["--line-2"], ":hover": line["--line-3"] }, borderTopLeftRadius: "var(--vv-r-14)", borderTopRightRadius: "var(--vv-r-14)", borderBottomRightRadius: "var(--vv-r-14)", borderBottomLeftRadius: "var(--vv-r-14)", overflowX: "hidden", overflowY: "hidden" },
   strip: { display: "flex", alignItems: "flex-end", justifyContent: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", height: libraryVars.templatesTabStripHeight, paddingTop: "var(--vv-s-10)", paddingRight: "var(--vv-s-10)", paddingBottom: "var(--vv-s-10)", paddingLeft: "var(--vv-s-10)", backgroundColor: "transparent", backgroundImage: libraryVars.templatesTabStripBackgroundImage, position: "relative", overflowX: "hidden", overflowY: "hidden" },
-  stripBar: { display: "block", flexGrow: 0, flexShrink: 0, flexBasis: "var(--vv-s-34)", height: "var(--vv-s-3)", borderTopLeftRadius: "var(--vv-r-pill)", borderTopRightRadius: "var(--vv-r-pill)", borderBottomRightRadius: "var(--vv-r-pill)", borderBottomLeftRadius: "var(--vv-r-pill)", backgroundColor: color["--color-fg-4"], backgroundImage: "none", opacity: libraryVars.templatesTabStripBarOpacity },
+  stripArtwork: { position: 'absolute', inset: 0 },
   stripChipStripChipHealth: { position: "absolute", zIndex: libraryVars.fillRatio, paddingTop: "var(--vv-s-2)", paddingRight: "var(--vv-s-7)", paddingBottom: "var(--vv-s-2)", paddingLeft: "var(--vv-s-7)", borderTopLeftRadius: "var(--vv-r-pill)", borderTopRightRadius: "var(--vv-r-pill)", borderBottomRightRadius: "var(--vv-r-pill)", borderBottomLeftRadius: "var(--vv-r-pill)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], backgroundColor: "var(--vv-glass)", backgroundImage: "none", backdropFilter: libraryVars.overlaysTabOartPlayBackdropFilter, fontSize: libraryVars.microFontSize, color: color["--color-fg-2"], whiteSpace: "nowrap", top: "var(--vv-s-8)", left: "var(--vv-s-8)" },
   stripChipStripChipHealthDataToneOk: { color: color["--color-ok"], borderTopColor: "var(--vv-ok-20)", borderRightColor: "var(--vv-ok-20)", borderBottomColor: "var(--vv-ok-20)", borderLeftColor: "var(--vv-ok-20)" },
   stripChipStripChipHealthDataToneWarn: { color: color["--color-warn"], borderTopColor: "var(--vv-warn-bd)", borderRightColor: "var(--vv-warn-bd)", borderBottomColor: "var(--vv-warn-bd)", borderLeftColor: "var(--vv-warn-bd)" },
@@ -265,7 +277,7 @@ const sx = stylex.create({
   vlbCardActionsButton: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   cardEnd: { position: "relative", display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-2)", columnGap: "var(--vv-s-2)", marginLeft: "auto" },
   scroll: { flexGrow: libraryVars.fillRatio, flexShrink: libraryVars.fillRatio, flexBasis: "auto", minHeight: 0, minWidth: 0, overflowY: "auto", overscrollBehavior: "contain", paddingTop: { default: "var(--vv-s-4)", "@media (max-width: 767px)": "var(--vv-s-4)" }, paddingRight: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, paddingBottom: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-24)" }, paddingLeft: { default: "var(--vv-s-28)", "@media (max-width: 767px)": "var(--vv-s-16)" }, display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)" },
-  intro: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, maxWidth: libraryVars.promptsTabIntroMaxWidth, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight },
+  intro: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight },
   empty: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", paddingTop: "var(--vv-s-28)", paddingRight: 0, paddingBottom: "var(--vv-s-28)", paddingLeft: 0 },
   emptyTitle: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-14)", fontWeight: libraryVars.labelWeight, color: color["--color-fg-2"] },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
@@ -276,8 +288,6 @@ const sx = stylex.create({
   droptileOver: { borderTopColor: color["--color-accent"], borderRightColor: color["--color-accent"], borderBottomColor: color["--color-accent"], borderLeftColor: color["--color-accent"], backgroundColor: "var(--vv-accent-6)", backgroundImage: "none" },
   droptileTitle: { fontSize: "var(--vv-s-13)", fontWeight: libraryVars.labelWeight, color: color["--color-fg"] },
   droptileHint: { maxWidth: libraryVars.promptsTabIntroMaxWidth, fontSize: "var(--vv-s-12)", color: color["--color-fg-4"], lineHeight: libraryVars.helpLineHeight },
-  stripBarClose: { width: libraryVars.closeSubjectWidth, backgroundColor: color["--color-surface-6"], backgroundImage: "none" },
-  stripBarCutout: { width: libraryVars.cutoutSubjectWidth, backgroundColor: color["--color-surface-6"], backgroundImage: "none" },
   avatarOverlap: { marginLeft: libraryVars.avatarOverlap },
   touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
 })

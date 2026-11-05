@@ -1,0 +1,465 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "settings-control-ledger-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--grep",
+      "agent model autosave: real ChatGPT gpt-5.5 is visible before the PUT resolves and persists after reload",
+      "--reporter=json"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "settings-control-ledger-audit.pw.ts",
+      "file": "settings-control-ledger-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "agent model autosave: real ChatGPT gpt-5.5 is visible before the PUT resolves and persists after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5652,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T10:19:42.183Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-ledger-evidence.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiYmFzZVVSTCI6ICJodHRwOi8vMTI3LjAuMC4xOjgwNDMiLAogICJzb3VyY2VSZXZpc2lvbiI6ICIxMWYxY2QzNmUzOTUyMDVmMDFlOTkwMDg1NmUyNGFjN2UzMmYwN2ViIiwKICAiZXhhY3RSb3dzIjogWwogICAgIlNldHRpbmdzLnNlY3Rpb24udG9vbHMiLAogICAgIlNldHRpbmdzLnNlY3Rpb24uY29ubmVjdCIsCiAgICAiU2V0dGluZ3Muc2VjdGlvbi5hZ2VudHMiLAogICAgIlNldHRpbmdzLnNlY3Rpb24uYWNjb3VudHMiLAogICAgIlNldHRpbmdzLnNlY3Rpb24uc3RvcmFnZSIsCiAgICAiU2V0dGluZ3Muc2VjdGlvbi5sb2dzIiwKICAgICJTZXR0aW5ncy5jb25uLmxpc3QiLAogICAgIlNldHRpbmdzLmNvbm4uYWRkIiwKICAgICJTZXR0aW5ncy5jb25uLmFkZGVkIiwKICAgICJTZXR0aW5ncy5jb25uLm1vZGVscyIsCiAgICAiU2V0dGluZ3MuY29ubi5tYW51YWwiLAogICAgIlNldHRpbmdzLmNvbm4uZmFpbGVkIgogIF0sCiAgImNhdGFsb2dPbmx5TWFudWFsIjogbnVsbCwKICAiYWdlbnRTZWxlY3Rpb24iOiB7CiAgICAidGFyZ2V0IjogImdwdC01LjUiCiAgfQp9"
+                    },
+                    {
+                      "name": "settings-control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5jYXRhbG9nLXNlbGVjdGVkIiwKICAgICJuYW1lIjogIkNoYXRHUFQgY2jhu41uIGdwdC01LjUiLAogICAgInJvbGUiOiAicHJvdmlkZXIgY2F0YWxvZyBjaGVja2JveCArIEzGsHUiLAogICAgInN0YXRlIjogInNhdmVkIHRocm91Z2ggbmF0aXZlIFVJIiwKICAgICJlbmFibGVkIjogdHJ1ZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6IG51bGwsCiAgICAiYWN0aW9uIjogInRpY2sgcmVhbCBjYXRhbG9nIG1vZGVsLCBwcmVzcyBMxrB1LCByZWxvYWQgYW5kIHJlLXJlYWQgdGhlIGNhdGFsb2ciLAogICAgImV4cGVjdGVkIjogIlBBVENIIHNlbGVjdGVkIDIwMDsgR0VUL3JlbG9hZCBrZWVwIHRoZSBuZXcgaWQgc2VsZWN0ZWQiLAogICAgIm9ic2VydmVkIjogIlBBVENIIDIwMCBzZWxlY3RlZD1ncHQtNi4xLXNvbCxncHQtaW1hZ2UtMixncHQtNS41OyByZWxvYWQgY2hlY2tib3ggY2hlY2tlZCIsCiAgICAiYXBpIjogIlBBVENIIC9hcGkvYWkvcHJvdmlkZXJzL2NoYXRncHQgMjAwOyBHRVQgL2FwaS9haS9wcm92aWRlcnMgMjAwIiwKICAgICJwcm9vZiI6ICJuYXRpdmUiCiAgfSwKICB7CiAgICAiaWQiOiAiY29udHJvbC5hZ2VudHMuZGlyZWN0b3ItYXV0b3NhdmUiLAogICAgIm5hbWUiOiAiTW9kZWwgxJDhuqFvIGRp4buFbiIsCiAgICAicm9sZSI6ICJtb2RlbCBjb21ib2JveCBhdXRvc2F2ZSIsCiAgICAic3RhdGUiOiAibmF0aXZlIHBpY2sgKyBoZWxkIHJlYWwgUFVUICsgcmVsb2FkIiwKICAgICJlbmFibGVkIjogdHJ1ZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6IG51bGwsCiAgICAiYWN0aW9uIjogImNob29zZSBncHQtNS41IHdoaWxlIHRoZSByZWFsIFBVVCBpcyBoZWxkLCByZWxlYXNlLCB0aGVuIHJlbG9hZCIsCiAgICAiZXhwZWN0ZWQiOiAiY2xvc2VkIHRyaWdnZXIgc2hvd3MgZ3B0LTUuNSBiZWZvcmUgdGhlIHJlc3BvbnNlOyBQVVQgMjAwOyBHRVQvcmVsb2FkIGtlZXAgaXQiLAogICAgIm9ic2VydmVkIjogImhlbGQgUFVUIGJvZHkgZGlyZWN0b3I9Z3B0LTUuNTsgcHJlLXJlc3BvbnNlIGxhYmVsIHZpc2libGU7IDIwMDsgR0VUL3JlbG9hZD1ncHQtNS41IiwKICAgICJhcGkiOiAiUFVUIC9hcGkvYWkvYWdlbnRzIDIwMDsgR0VUIC9hcGkvYWkvYWdlbnRzIDIwMCIsCiAgICAicHJvb2YiOiAibmF0aXZlIgogIH0sCiAgewogICAgImlkIjogImNvbnRyb2wuYWdlbnRzLmVmZm9ydC1hdXRvc2F2ZSIsCiAgICAibmFtZSI6ICJN4bupYyBzdXkgbmdoxKkiLAogICAgInJvbGUiOiAic2VnbWVudGVkIHJhZGlvZ3JvdXAgYXV0b3NhdmUiLAogICAgInN0YXRlIjogImFsbCBlbmFibGVkIGNob2ljZXMgZXhlcmNpc2VkIHdpdGggcmVhbCBQVVQiLAogICAgImVuYWJsZWQiOiB0cnVlLAogICAgImRpc2FibGVkUmVhc29uIjogbnVsbCwKICAgICJhY3Rpb24iOiAiY2xpY2sgVGjhuqVwLCBW4burYSwgQ2FvIGFuZCByZWFkIGJhY2siLAogICAgImV4cGVjdGVkIjogImVhY2ggZW5hYmxlZCBjaG9pY2UgYXV0b3NhdmVzIGltbWVkaWF0ZWx5IHdpdGggbm8gU2F2ZSBidXR0b24iLAogICAgIm9ic2VydmVkIjogIlBVVC9HRVQgZWZmb3J0PWhpZ2g7IG9wdGlvbnMgYXV0by9sb3cvbWVkaXVtL2hpZ2giLAogICAgImFwaSI6ICJQVVQgL2FwaS9haS9hZ2VudHMgMjAwIMOXIGNob2ljZTsgR0VUIDIwMCIsCiAgICAicHJvb2YiOiAibmF0aXZlIgogIH0sCiAgewogICAgImlkIjogImNvbnRyb2wuYWdlbnRzLnByb21wdC1hdXRvc2F2ZSIsCiAgICAibmFtZSI6ICJNb2RlbCB2aeG6v3QgbcO0IHThuqMg4bqjbmgiLAogICAgInJvbGUiOiAidmlzaW9uIG1vZGVsIGNvbWJvYm94IGF1dG9zYXZlIiwKICAgICJzdGF0ZSI6ICJuYXRpdmUgcGljayB3aXRoIHJlYWwgUFVUIiwKICAgICJlbmFibGVkIjogdHJ1ZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6IG51bGwsCiAgICAiYWN0aW9uIjogImNob29zZSBncHQtNS41IGluIHRoZSBhcnRpc3QgcHJvbXB0IHBpY2tlciIsCiAgICAiZXhwZWN0ZWQiOiAiZ3B0LTUuNSBlbmFibGVkIGJlY2F1c2UgdGhlIHJlYWwgY2F0YWxvZyByb3cgaGFzIHRleHQrdmlzaW9uIiwKICAgICJvYnNlcnZlZCI6ICJQVVQvR0VUIGFydGlzdC5wcm9tcHRNb2RlbD1ncHQtNS41IiwKICAgICJhcGkiOiAiUFVUIC9hcGkvYWkvYWdlbnRzIDIwMDsgR0VUIDIwMCIsCiAgICAicHJvb2YiOiAibmF0aXZlIgogIH0sCiAgewogICAgImlkIjogImNvbnRyb2wuYWdlbnRzLmZhbGxiYWNrLWF1dG9zYXZlIiwKICAgICJuYW1lIjogIlbhur0gbOG6oWkgYuG6sW5nIG5ndeG7k24ga2jDoWMga2hpIGzhu5dpIiwKICAgICJyb2xlIjogInN3aXRjaCBhdXRvc2F2ZSIsCiAgICAic3RhdGUiOiAiYmxvY2tlZCBpbiBjdXJyZW50IGZpeHR1cmUiLAogICAgImVuYWJsZWQiOiB0cnVlLAogICAgImRpc2FibGVkUmVhc29uIjogbnVsbCwKICAgICJhY3Rpb24iOiAibm90IGV4ZXJjaXNlZCB3aXRob3V0IGEgc2Vjb25kIHNlbGVjdGVkIGltYWdlIHNvdXJjZSIsCiAgICAiZXhwZWN0ZWQiOiAiQSBzdWNjZXNzZnVsIGZhbGxiYWNrIGFzc2lnbm1lbnQgcmVxdWlyZXMgYSBzZWNvbmQgcmVhbCBzZWxlY3RlZCBpbWFnZSBtb2RlbCIsCiAgICAib2JzZXJ2ZWQiOiAiQSBmYWxsYmFjayBzb3VyY2UgbmVlZHMgYSByZWFsIHJlYWR5IHByb3ZpZGVyIGFuZCBzZWxlY3RlZCBpbWFnZSBtb2RlbDsgc3VjY2Vzc2Z1bCBmYWxsYmFjayBzYXZlIGlzIG5vdCBjbGFpbWVkIHdpdGhvdXQgYm90aCIsCiAgICAiYXBpIjogIk5vIGZhbGxiYWNrIFBVVCBpbiB0aGlzIHJ1biIsCiAgICAicHJvb2YiOiAiYmxvY2tlZCIKICB9LAogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5kcmF3LWFsdGVybmF0aXZlIiwKICAgICJuYW1lIjogIk5ndeG7k24gduG6vSBraMOhYyIsCiAgICAicm9sZSI6ICJkcmF3IHNvdXJjZSByYWRpb2dyb3VwIiwKICAgICJzdGF0ZSI6ICJibG9ja2VkIGluIGN1cnJlbnQgZml4dHVyZSIsCiAgICAiZW5hYmxlZCI6IGZhbHNlLAogICAgImRpc2FibGVkUmVhc29uIjogIm9ubHkgY2hhdGdwdCBleHBvc2VzIGEgc2VsZWN0ZWQgaW1hZ2UgbW9kZWw7IHRoZXJlIGlzIG5vIHNlY29uZCBmaXhlZCBzb3VyY2UgdG8gc3dpdGNoIHRvIiwKICAgICJhY3Rpb24iOiAibm9uZSIsCiAgICAiZXhwZWN0ZWQiOiAiTm90IGNsYWltZWQgd2l0aG91dCBhIHJlYWwgc2Vjb25kIGltYWdlIHNvdXJjZSIsCiAgICAib2JzZXJ2ZWQiOiAiaW1hZ2UgcHJvdmlkZXJzPWNoYXRncHQiLAogICAgImFwaSI6ICJHRVQgL2FwaS9haS9wcm92aWRlcnMgKyBHRVQgL21vZGVscz9maWx0ZXI9c2VsZWN0ZWQiLAogICAgInByb29mIjogImJsb2NrZWQiCiAgfQpd"
+                    },
+                    {
+                      "name": "settings-control-gaps.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJhZ2VudHMuZHJhdy1hbHRlcm5hdGl2ZSIsCiAgICAicmVhc29uIjogIk9ubHkgb25lIHByb3ZpZGVyIGhhcyBhIHNlbGVjdGVkIGltYWdlIG1vZGVsIGluIHRoaXMgZml4dHVyZSwgc28gc3dpdGNoaW5nIFwiVuG6vSDhuqNuaCBi4bqxbmdcIiB0byBhbm90aGVyIHByb3ZpZGVyIGNhbm5vdCBiZSBleGVyY2lzZWQgbmF0aXZlbHkiLAogICAgIm5lZWRlZCI6ICJBIHNlY29uZCByZWFsIGltYWdlLWNhcGFibGUgcHJvdmlkZXIgc2VsZWN0ZWQgaW4gS+G6v3QgbuG7kWkgQUkgKGZvciBleGFtcGxlIGEgcmVhbCBHcm9rIGxvZ2luKTsgbm8gZmFrZSBtb2RlbCBvciBhbHRlcm5hdGl2ZSBpcyBpbnZlbnRlZCIsCiAgICAib3duZXIiOiAicHJlcmVxdWlzaXRlIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-write-audit.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJhbGxvd2VkIjogWwogICAgewogICAgICAia2V5IjogIlBPU1QgL2FwaS90b29scy9jaGVjayIsCiAgICAgICJwdXJwb3NlIjogInRvb2xzdmMgZnJlc2ggbG9jYWwgcHJvYmU7IG5vIHByb3ZpZGVyL21vZGVsIG9yIGluZmVyZW5jZSBjYWxsIgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJQT1NUIC9hcGkvc3RvcmFnZS9jbGVhbnVwL3ByZXZpZXciLAogICAgICAicHVycG9zZSI6ICJyZXRlbnRpb24gY2FuZGlkYXRlIGxpc3Qgb25seTsgY2xlYW51cC9ydW4gaXMgYmxvY2tlZCBhbmQgbmV2ZXIgcHJlc3NlZCIKICAgIH0KICBdLAogICJyZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQQVRDSCIsCiAgICAgICJwYXRoIjogIi9hcGkvYWkvcHJvdmlkZXJzL2NoYXRncHQiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogb3duZWQgQ2hhdEdQVCBzZWxlY3RlZCBkcmFmdCBvbmx5OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUFVUIiwKICAgICAgInBhdGgiOiAiL2FwaS9haS9hZ2VudHMiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogY29tcGxldGUgUFVUIC9hcGkvYWkvYWdlbnRzIGRvY3VtZW50OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUFVUIiwKICAgICAgInBhdGgiOiAiL2FwaS9haS9hZ2VudHMiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogY29tcGxldGUgUFVUIC9hcGkvYWkvYWdlbnRzIGRvY3VtZW50OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUFVUIiwKICAgICAgInBhdGgiOiAiL2FwaS9haS9hZ2VudHMiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogY29tcGxldGUgUFVUIC9hcGkvYWkvYWdlbnRzIGRvY3VtZW50OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUFVUIiwKICAgICAgInBhdGgiOiAiL2FwaS9haS9hZ2VudHMiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogY29tcGxldGUgUFVUIC9hcGkvYWkvYWdlbnRzIGRvY3VtZW50OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUFVUIiwKICAgICAgInBhdGgiOiAiL2FwaS9haS9hZ2VudHMiLAogICAgICAiYWxsb3dlZCI6IHRydWUsCiAgICAgICJwdXJwb3NlIjogIk9wdC1pbiBhZ2VudC1zZWxlY3Rpb24gZml4dHVyZTogY29tcGxldGUgUFVUIC9hcGkvYWkvYWdlbnRzIGRvY3VtZW50OyB0aGUgY29udHJvbGxlciByZXN0b3JlcyBpdCIKICAgIH0KICBdCn0="
+                    },
+                    {
+                      "name": "settings-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser/settings-control-ledger-au-9714d-s-and-persists-after-reload-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daba3640acb3c152367d-74645d832e957dd1715b",
+          "file": "settings-control-ledger-audit.pw.ts",
+          "line": 1597,
+          "column": 5
+        },
+        {
+          "title": "agent model autosave: real ChatGPT gpt-5.5 is visible before the PUT resolves and persists after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3799,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T10:19:50.083Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-ledger-evidence.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJiYXNlVVJMIjogImh0dHA6Ly8xMjcuMC4wLjE6ODA0MyIsCiAgInNvdXJjZVJldmlzaW9uIjogIjExZjFjZDM2ZTM5NTIwNWYwMWU5OTAwODU2ZTI0YWM3ZTMyZjA3ZWIiLAogICJleGFjdFJvd3MiOiBbCiAgICAiU2V0dGluZ3Muc2VjdGlvbi50b29scyIsCiAgICAiU2V0dGluZ3Muc2VjdGlvbi5jb25uZWN0IiwKICAgICJTZXR0aW5ncy5zZWN0aW9uLmFnZW50cyIsCiAgICAiU2V0dGluZ3Muc2VjdGlvbi5hY2NvdW50cyIsCiAgICAiU2V0dGluZ3Muc2VjdGlvbi5zdG9yYWdlIiwKICAgICJTZXR0aW5ncy5zZWN0aW9uLmxvZ3MiLAogICAgIlNldHRpbmdzLmNvbm4ubGlzdCIsCiAgICAiU2V0dGluZ3MuY29ubi5hZGQiLAogICAgIlNldHRpbmdzLmNvbm4uYWRkZWQiLAogICAgIlNldHRpbmdzLmNvbm4ubW9kZWxzIiwKICAgICJTZXR0aW5ncy5jb25uLm1hbnVhbCIsCiAgICAiU2V0dGluZ3MuY29ubi5mYWlsZWQiCiAgXSwKICAiY2F0YWxvZ09ubHlNYW51YWwiOiBudWxsLAogICJhZ2VudFNlbGVjdGlvbiI6IHsKICAgICJ0YXJnZXQiOiAiZ3B0LTUuNSIKICB9Cn0="
+                    },
+                    {
+                      "name": "settings-control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5jYXRhbG9nLXNlbGVjdGVkIiwKICAgICJuYW1lIjogIkNoYXRHUFQgY2jhu41uIGdwdC01LjUiLAogICAgInJvbGUiOiAicHJvdmlkZXIgY2F0YWxvZyBjaGVja2JveCIsCiAgICAic3RhdGUiOiAiYWxyZWFkeSBzZWxlY3RlZCBieSB0aGUgc2libGluZyBkZXNrdG9wIHByb2plY3QgaW4gdGhpcyBzYW1lIGd1YXJkZWQgcnVuIiwKICAgICJlbmFibGVkIjogdHJ1ZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6IG51bGwsCiAgICAiYWN0aW9uIjogIm9wZW4gY2F0YWxvZyBhbmQgcmVhZCB0aGUgcGVyc2lzdGVkIHNlbGVjdGVkIHN0YXRlIiwKICAgICJleHBlY3RlZCI6ICJ0YXJnZXQgcmVtYWlucyBzZWxlY3RlZCBmcm9tIHNlcnZlciBzdGF0ZSIsCiAgICAib2JzZXJ2ZWQiOiAic2VsZWN0ZWQ9Z3B0LTYuMS1zb2wsZ3B0LWltYWdlLTIsZ3B0LTUuNSIsCiAgICAiYXBpIjogIkdFVCAvYXBpL2FpL3Byb3ZpZGVycyAyMDAiLAogICAgInByb29mIjogIm5hdGl2ZSIKICB9LAogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5kaXJlY3Rvci1hdXRvc2F2ZSIsCiAgICAibmFtZSI6ICJNb2RlbCDEkOG6oW8gZGnhu4VuIiwKICAgICJyb2xlIjogIm1vZGVsIGNvbWJvYm94IGF1dG9zYXZlIiwKICAgICJzdGF0ZSI6ICJuYXRpdmUgcGljayArIGhlbGQgcmVhbCBQVVQgKyByZWxvYWQiLAogICAgImVuYWJsZWQiOiB0cnVlLAogICAgImRpc2FibGVkUmVhc29uIjogbnVsbCwKICAgICJhY3Rpb24iOiAiY2hvb3NlIGdwdC02LjEtc29sIHdoaWxlIHRoZSByZWFsIFBVVCBpcyBoZWxkLCByZWxlYXNlLCB0aGVuIHJlbG9hZCIsCiAgICAiZXhwZWN0ZWQiOiAiY2xvc2VkIHRyaWdnZXIgc2hvd3MgZ3B0LTYuMS1zb2wgYmVmb3JlIHRoZSByZXNwb25zZTsgUFVUIDIwMDsgR0VUL3JlbG9hZCBrZWVwIGl0IiwKICAgICJvYnNlcnZlZCI6ICJoZWxkIFBVVCBib2R5IGRpcmVjdG9yPWdwdC02LjEtc29sOyBwcmUtcmVzcG9uc2UgbGFiZWwgdmlzaWJsZTsgMjAwOyBHRVQvcmVsb2FkPWdwdC01LjUiLAogICAgImFwaSI6ICJQVVQgL2FwaS9haS9hZ2VudHMgMjAwOyBHRVQgL2FwaS9haS9hZ2VudHMgMjAwIiwKICAgICJwcm9vZiI6ICJuYXRpdmUiCiAgfSwKICB7CiAgICAiaWQiOiAiY29udHJvbC5hZ2VudHMuZWZmb3J0LWF1dG9zYXZlIiwKICAgICJuYW1lIjogIk3hu6ljIHN1eSBuZ2jEqSIsCiAgICAicm9sZSI6ICJzZWdtZW50ZWQgcmFkaW9ncm91cCBhdXRvc2F2ZSIsCiAgICAic3RhdGUiOiAiYWxsIGVuYWJsZWQgY2hvaWNlcyBleGVyY2lzZWQgd2l0aCByZWFsIFBVVCIsCiAgICAiZW5hYmxlZCI6IHRydWUsCiAgICAiZGlzYWJsZWRSZWFzb24iOiBudWxsLAogICAgImFjdGlvbiI6ICJjbGljayBU4buxIMSR4buZbmcsIFRo4bqlcCwgVuG7q2EgYW5kIHJlYWQgYmFjayIsCiAgICAiZXhwZWN0ZWQiOiAiZWFjaCBlbmFibGVkIGNob2ljZSBhdXRvc2F2ZXMgaW1tZWRpYXRlbHkgd2l0aCBubyBTYXZlIGJ1dHRvbiIsCiAgICAib2JzZXJ2ZWQiOiAiUFVUL0dFVCBlZmZvcnQ9bWVkaXVtOyBvcHRpb25zIGF1dG8vbG93L21lZGl1bS9oaWdoIiwKICAgICJhcGkiOiAiUFVUIC9hcGkvYWkvYWdlbnRzIDIwMCDDlyBjaG9pY2U7IEdFVCAyMDAiLAogICAgInByb29mIjogIm5hdGl2ZSIKICB9LAogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5wcm9tcHQtYXV0b3NhdmUiLAogICAgIm5hbWUiOiAiTW9kZWwgdmnhur90IG3DtCB04bqjIOG6o25oIiwKICAgICJyb2xlIjogInZpc2lvbiBtb2RlbCBjb21ib2JveCBhdXRvc2F2ZSIsCiAgICAic3RhdGUiOiAibmF0aXZlIHBpY2sgd2l0aCByZWFsIFBVVCIsCiAgICAiZW5hYmxlZCI6IHRydWUsCiAgICAiZGlzYWJsZWRSZWFzb24iOiBudWxsLAogICAgImFjdGlvbiI6ICJjaG9vc2UgZ3B0LTUuNSBpbiB0aGUgYXJ0aXN0IHByb21wdCBwaWNrZXIiLAogICAgImV4cGVjdGVkIjogImdwdC01LjUgZW5hYmxlZCBiZWNhdXNlIHRoZSByZWFsIGNhdGFsb2cgcm93IGhhcyB0ZXh0K3Zpc2lvbiIsCiAgICAib2JzZXJ2ZWQiOiAiUFVUL0dFVCBhcnRpc3QucHJvbXB0TW9kZWw9Z3B0LTUuNSIsCiAgICAiYXBpIjogIlBVVCAvYXBpL2FpL2FnZW50cyAyMDA7IEdFVCAyMDAiLAogICAgInByb29mIjogIm5hdGl2ZSIKICB9LAogIHsKICAgICJpZCI6ICJjb250cm9sLmFnZW50cy5mYWxsYmFjay1hdXRvc2F2ZSIsCiAgICAibmFtZSI6ICJW4bq9IGzhuqFpIGLhurFuZyBuZ3Xhu5NuIGtow6FjIGtoaSBs4buXaSIsCiAgICAicm9sZSI6ICJzd2l0Y2ggYXV0b3NhdmUiLAogICAgInN0YXRlIjogImJsb2NrZWQgaW4gY3VycmVudCBmaXh0dXJlIiwKICAgICJlbmFibGVkIjogdHJ1ZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6IG51bGwsCiAgICAiYWN0aW9uIjogIm5vdCBleGVyY2lzZWQgd2l0aG91dCBhIHNlY29uZCBzZWxlY3RlZCBpbWFnZSBzb3VyY2UiLAogICAgImV4cGVjdGVkIjogIkEgc3VjY2Vzc2Z1bCBmYWxsYmFjayBhc3NpZ25tZW50IHJlcXVpcmVzIGEgc2Vjb25kIHJlYWwgc2VsZWN0ZWQgaW1hZ2UgbW9kZWwiLAogICAgIm9ic2VydmVkIjogIkEgZmFsbGJhY2sgc291cmNlIG5lZWRzIGEgcmVhbCByZWFkeSBwcm92aWRlciBhbmQgc2VsZWN0ZWQgaW1hZ2UgbW9kZWw7IHN1Y2Nlc3NmdWwgZmFsbGJhY2sgc2F2ZSBpcyBub3QgY2xhaW1lZCB3aXRob3V0IGJvdGgiLAogICAgImFwaSI6ICJObyBmYWxsYmFjayBQVVQgaW4gdGhpcyBydW4iLAogICAgInByb29mIjogImJsb2NrZWQiCiAgfSwKICB7CiAgICAiaWQiOiAiY29udHJvbC5hZ2VudHMuZHJhdy1hbHRlcm5hdGl2ZSIsCiAgICAibmFtZSI6ICJOZ3Xhu5NuIHbhur0ga2jDoWMiLAogICAgInJvbGUiOiAiZHJhdyBzb3VyY2UgcmFkaW9ncm91cCIsCiAgICAic3RhdGUiOiAiYmxvY2tlZCBpbiBjdXJyZW50IGZpeHR1cmUiLAogICAgImVuYWJsZWQiOiBmYWxzZSwKICAgICJkaXNhYmxlZFJlYXNvbiI6ICJvbmx5IGNoYXRncHQgZXhwb3NlcyBhIHNlbGVjdGVkIGltYWdlIG1vZGVsOyB0aGVyZSBpcyBubyBzZWNvbmQgZml4ZWQgc291cmNlIHRvIHN3aXRjaCB0byIsCiAgICAiYWN0aW9uIjogIm5vbmUiLAogICAgImV4cGVjdGVkIjogIk5vdCBjbGFpbWVkIHdpdGhvdXQgYSByZWFsIHNlY29uZCBpbWFnZSBzb3VyY2UiLAogICAgIm9ic2VydmVkIjogImltYWdlIHByb3ZpZGVycz1jaGF0Z3B0IiwKICAgICJhcGkiOiAiR0VUIC9hcGkvYWkvcHJvdmlkZXJzICsgR0VUIC9tb2RlbHM/ZmlsdGVyPXNlbGVjdGVkIiwKICAgICJwcm9vZiI6ICJibG9ja2VkIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-control-gaps.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJpZCI6ICJhZ2VudHMuZHJhdy1hbHRlcm5hdGl2ZSIsCiAgICAicmVhc29uIjogIk9ubHkgb25lIHByb3ZpZGVyIGhhcyBhIHNlbGVjdGVkIGltYWdlIG1vZGVsIGluIHRoaXMgZml4dHVyZSwgc28gc3dpdGNoaW5nIFwiVuG6vSDhuqNuaCBi4bqxbmdcIiB0byBhbm90aGVyIHByb3ZpZGVyIGNhbm5vdCBiZSBleGVyY2lzZWQgbmF0aXZlbHkiLAogICAgIm5lZWRlZCI6ICJBIHNlY29uZCByZWFsIGltYWdlLWNhcGFibGUgcHJvdmlkZXIgc2VsZWN0ZWQgaW4gS+G6v3QgbuG7kWkgQUkgKGZvciBleGFtcGxlIGEgcmVhbCBHcm9rIGxvZ2luKTsgbm8gZmFrZSBtb2RlbCBvciBhbHRlcm5hdGl2ZSBpcyBpbnZlbnRlZCIsCiAgICAib3duZXIiOiAicHJlcmVxdWlzaXRlIgogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-write-audit.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJhbGxvd2VkIjogWwogICAgewogICAgICAia2V5IjogIlBPU1QgL2FwaS90b29scy9jaGVjayIsCiAgICAgICJwdXJwb3NlIjogInRvb2xzdmMgZnJlc2ggbG9jYWwgcHJvYmU7IG5vIHByb3ZpZGVyL21vZGVsIG9yIGluZmVyZW5jZSBjYWxsIgogICAgfSwKICAgIHsKICAgICAgImtleSI6ICJQT1NUIC9hcGkvc3RvcmFnZS9jbGVhbnVwL3ByZXZpZXciLAogICAgICAicHVycG9zZSI6ICJyZXRlbnRpb24gY2FuZGlkYXRlIGxpc3Qgb25seTsgY2xlYW51cC9ydW4gaXMgYmxvY2tlZCBhbmQgbmV2ZXIgcHJlc3NlZCIKICAgIH0KICBdLAogICJyZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQVVQiLAogICAgICAicGF0aCI6ICIvYXBpL2FpL2FnZW50cyIsCiAgICAgICJhbGxvd2VkIjogdHJ1ZSwKICAgICAgInB1cnBvc2UiOiAiT3B0LWluIGFnZW50LXNlbGVjdGlvbiBmaXh0dXJlOiBjb21wbGV0ZSBQVVQgL2FwaS9haS9hZ2VudHMgZG9jdW1lbnQ7IHRoZSBjb250cm9sbGVyIHJlc3RvcmVzIGl0IgogICAgfQogIF0KfQ=="
+                    },
+                    {
+                      "name": "settings-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/browser/settings-control-ledger-au-9714d-s-and-persists-after-reload-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daba3640acb3c152367d-8222bde3e99c01067ff5",
+          "file": "settings-control-ledger-audit.pw.ts",
+          "line": 1597,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T10:19:41.661Z",
+    "duration": 13278.487,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

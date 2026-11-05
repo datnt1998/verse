@@ -1,0 +1,87 @@
+{
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "sourceBuiltBeforeCommit": true,
+  "frontend": {
+    "command": "npm test -w apps/viderse/web && npm run build -w apps/viderse/web && go -C apps/viderse build -overlay=/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/selected-source-owned-overlay.json -o /var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/viderse-v36-integrated-acceptance ./cmd/viderse",
+    "testFilesPassed": 453,
+    "testsPassed": 3766,
+    "testsSkipped": 4,
+    "testsFailed": 0,
+    "unitOutput": "artifact://90621",
+    "buildPassed": true,
+    "nativeBuildPassed": true,
+    "warnings": [
+      "Existing React act/test logging",
+      "Vite large-chunk warning"
+    ]
+  },
+  "browserAuditTypes": {
+    "passed": true,
+    "target": "ES2024",
+    "libs": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "native": {
+    "agentAutosave": {
+      "receipt": "runs/138-integrated-agent-autosave-ready-sources/owned-agent-selection-restoration.json",
+      "passed": 2,
+      "skipped": 0,
+      "realWrites": true,
+      "restored": true
+    },
+    "reviewStates": {
+      "receipt": "runs/140-integrated-review-visual-states/review-state-replay-results.json",
+      "captures": 52,
+      "observations": 50,
+      "restored": true
+    },
+    "safeControls": {
+      "receipt": "runs/141-integrated-safe-controls/controls/interaction-results.json",
+      "passed": 8,
+      "skipped": 0
+    },
+    "referenceAddRemove": {
+      "receipt": "runs/141-integrated-safe-controls/references/interaction-results.json",
+      "passed": 2,
+      "skipped": 0
+    },
+    "persistedReviewActions": {
+      "receipt": "runs/142-integrated-real-action-matrix/mutation-matrix-results.json",
+      "passed": 12,
+      "skipped": 0,
+      "scope": "Real queue/cancel/use/skip/approve, not provider completion"
+    },
+    "persistedMainVersion": {
+      "receipts": [
+        "runs/145-integrated-main-use-version-restoration/desktop/owned-replay-mutation-restoration.json",
+        "runs/145-integrated-main-use-version-restoration/desktop-reduced/owned-replay-mutation-restoration.json"
+      ],
+      "passed": 2,
+      "skipped": 0,
+      "restored": true
+    },
+    "mainViewer": {
+      "receipt": "runs/146-integrated-main-default-state/owned-main-replay-restoration.json",
+      "passed": 2,
+      "skipped": 0,
+      "restored": true
+    }
+  },
+  "design85": {
+    "decision": "A - full provider cards",
+    "source": "User selected Giữ thẻ đầy đủ in this conversation; 11-hoi-dap.md #85",
+    "artboardsModified": false
+  },
+  "limitations": [
+    "No additional paid inference authorized: 2/2 images consumed before these runs",
+    "Successful fallback/source switching is not claimed without a second credential-ready image executor",
+    "No physical Safari/iPhone evidence",
+    "V37-V40 remain separate sequential phases",
+    "Cold phone <=200KiB and RivalVideos p95<=400ms remain final release gates under approved #83"
+  ],
+  "temporaryQAAccessRemoved": true,
+  "deployed": false
+}

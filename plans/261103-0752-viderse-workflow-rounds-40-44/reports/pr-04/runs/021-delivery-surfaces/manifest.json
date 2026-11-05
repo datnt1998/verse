@@ -1,0 +1,333 @@
+{
+  "sourceCommit": "4292b33ff3ba248c1e49310777fc7d7c0a3dd3ba",
+  "status": "DELIVERY_SURFACES_NOT_BLANKET_PARITY",
+  "nativeCount": 36,
+  "comparisons": [
+    {
+      "referenceId": "Channel.tab.sources",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "native": "1440-channel-MT-sources.png",
+      "comparison": "Channel.tab.sources-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Channel.tab.templates",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "native": "1440-channel-MT-templates.png",
+      "comparison": "Channel.tab.templates-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Channel.tab.settings",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "native": "1440-channel-MT-settings.png",
+      "comparison": "Channel.tab.settings-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Library.tab.templates",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "native": "1440-library-templates.png",
+      "comparison": "Library.tab.templates-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Library.tab.prompts",
+      "props": {
+        "tab": "prompts",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "native": "1440-library-prompts.png",
+      "comparison": "Library.tab.prompts-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Library.tab.backdrops",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "native": "1440-library-backdrops.png",
+      "comparison": "Library.tab.backdrops-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Library.tab.overlays",
+      "props": {
+        "tab": "overlays",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "native": "1440-library-overlays.png",
+      "comparison": "Library.tab.overlays-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "CreateChannel.step.create",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "native": "1440-create-channel.png",
+      "comparison": "CreateChannel.step.create-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Template.section.images",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "native": "1440-template-images.png",
+      "comparison": "Template.section.images-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Template.section.cover",
+      "props": {
+        "section": "cover",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "native": "1440-template-cover.png",
+      "comparison": "Template.section.cover-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Template.section.backdrop",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "native": "1440-template-backdrop.png",
+      "comparison": "Template.section.backdrop-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "Template.section.output",
+      "props": {
+        "section": "output",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "native": "1440-template-output.png",
+      "comparison": "Template.section.output-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MChannel.tab.sources",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "native": "390-channel-MT-sources.png",
+      "comparison": "MChannel.tab.sources-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MChannel.tab.templates",
+      "props": {
+        "tab": "templates",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "native": "390-channel-MT-templates.png",
+      "comparison": "MChannel.tab.templates-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MChannel.tab.settings",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "native": "390-channel-MT-settings.png",
+      "comparison": "MChannel.tab.settings-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MLibrary.tab.templates",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "native": "390-library-templates.png",
+      "comparison": "MLibrary.tab.templates-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MLibrary.tab.prompts",
+      "props": {
+        "tab": "prompts",
+        "sheet": "none",
+        "empty": false
+      },
+      "native": "390-library-prompts.png",
+      "comparison": "MLibrary.tab.prompts-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MLibrary.tab.backdrops",
+      "props": {
+        "tab": "backdrops",
+        "sheet": "none",
+        "empty": false
+      },
+      "native": "390-library-backdrops.png",
+      "comparison": "MLibrary.tab.backdrops-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MLibrary.tab.overlays",
+      "props": {
+        "tab": "overlays",
+        "sheet": "none",
+        "empty": false
+      },
+      "native": "390-library-overlays.png",
+      "comparison": "MLibrary.tab.overlays-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MCreate.step.create",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "native": "390-create-channel.png",
+      "comparison": "MCreate.step.create-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MTemplate.screen.images",
+      "props": {
+        "screen": "images",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "native": "390-template-images.png",
+      "comparison": "MTemplate.screen.images-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MTemplate.screen.cover",
+      "props": {
+        "screen": "cover",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "native": "390-template-cover.png",
+      "comparison": "MTemplate.screen.cover-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MTemplate.screen.backdrop",
+      "props": {
+        "screen": "backdrop",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "native": "390-template-backdrop.png",
+      "comparison": "MTemplate.screen.backdrop-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    },
+    {
+      "referenceId": "MTemplate.screen.output",
+      "props": {
+        "screen": "output",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "native": "390-template-output.png",
+      "comparison": "MTemplate.screen.output-pair.png",
+      "order": "current authenticated canonical left; native current source right",
+      "status": "REVIEW_NOT_PIXEL_METRIC"
+    }
+  ],
+  "limits": [
+    "Mock/native data differences remain explicit",
+    "Final mobile layout/tweaks/motion belong to V40; contract cutover is in V38",
+    "No physical Safari/release83 claim"
+  ]
+}

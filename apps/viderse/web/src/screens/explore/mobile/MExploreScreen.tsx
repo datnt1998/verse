@@ -5,8 +5,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Button, Checkbox, ChipSelect, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
+  ActionSheet, Button, Checkbox, ConfirmSheet, Icon, RadioCard, Segmented, Sheet, TextField, toast, useMobilePaneActive, useTabMode,
 } from '@noverse/ui'
+import { ResponsiveChipSelect } from '../../../components/responsive-overlays'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../../i18n/explore'
 import type { Route } from '../../../router'
@@ -22,15 +23,15 @@ import {
 } from '../../../api/rivals'
 import { linkSource, listChannels } from '../../../api/channels'
 import { addRival } from '../../../api/rivals'
-import { enqueueClone } from '../../../api/clone'
+import { openQuickCreate } from '../../new/quickCreate'
 import { scanProgress, scanningRival, exploreListState } from '../listState'
 import { ListStateBlock, ScanBanner, SkeletonTiles } from '../ListStates'
 import { ScanCard } from '../ScanCard'
 import { PostingCard } from '../PostingCard'
 import { WITHIN, type StatusFilter } from '../FilterBar'
-import { bulkEnqueueOutcome } from '../bulk'
 import { addRivalError, type AddError } from '../AddRivalForm'
 import { fmtDuration, fmtScore, fmtSubs, videoMeta } from '../fmt'
+import { copyText } from '../media'
 import { hideBrokenImage } from '../VideoGrid'
 import { stageColor, stageLabel, usageHref } from '../status'
 import { scopeOf, type Scope } from '../scope'
@@ -55,9 +56,9 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     () => (channelList.data?.channels ?? []).map((channel) => ({
       id: channel.id,
       name: channel.name || t.channels.page.noName,
-      pacePerDay: channel.pacePerDay,
+      perDay: channel.perDay,
       sources: channel.sources,
-      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
+      templateName: channel.defaultTemplateName,
     })),
     [channelList.data],
   )
@@ -144,41 +145,10 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
   const selectTop = useCallback((n: number) => {
     setCheckedIds(new Set(items.slice(0, n).map((v) => v.id)))
   }, [items])
-  const [bulkBusy, setBulkBusy] = useState(false)
-  const [bulkPickerOpen, setBulkPickerOpen] = useState(false)
-  const bulkEnqueue = useCallback(async (channelId: string) => {
-    if (bulkBusy || !channels.some((channel) => channel.id === channelId) || selectedVideos.length === 0) return
-    setBulkBusy(true)
-    try {
-      const result = await enqueueClone({ channelId, urls: selectedVideos.map((v) => v.url), priority: 'batch' })
-      const outcome = bulkEnqueueOutcome(result, selectedVideos)
-      // Toàn bộ đã có sẵn: không báo thành công, giữ nguyên lựa chọn và mở job có sẵn.
-      if (outcome.added === 0 && outcome.duplicateCount > 0) {
-        toast(tt.bulkAllDuplicate(String(outcome.duplicateCount)), 'warn', {
-          label: outcome.duplicateJobId ? tt.queuePlanOpen : t.screens.new.toasts.openQueue,
-          onClick: () => navigate(outcome.duplicateJobId ? paths.workbench({ video: outcome.duplicateJobId }) : paths.queue()),
-        })
-        return
-      }
-      if (outcome.added === 0) {
-        toast.err(t.screens.new.toasts.failed)
-        return
-      }
-      if (outcome.duplicateCount > 0) {
-        // Chỉ đếm video thật sự vào hàng chờ; giữ lựa chọn đúng nhóm trùng để chọn kênh khác.
-        setCheckedIds(new Set(outcome.duplicateVideoIds))
-        toast(tt.bulkMadePartial(String(outcome.added), String(selectedVideos.length), String(outcome.duplicateCount)), 'ok', {
-          label: t.screens.new.toasts.openQueue,
-          onClick: () => navigate(paths.queue()),
-        })
-        return
-      }
-      toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
-      exitSelect()
-    } catch {
-      toast.err(t.screens.new.toasts.failed)
-    } finally { setBulkBusy(false) }
-  }, [bulkBusy, channels, selectedVideos, exitSelect, tt.bulkAllDuplicate, tt.bulkMadePartial, tt.queuePlanOpen])
+  const bulkBusy = false
+  const openSelection = () => {
+    if (selectedVideos.length) openQuickCreate({ urls: selectedVideos.map((video) => video.url), fromSelection: true })
+  }
 
   // ── tấm thông tin / thêm đối thủ ─────────────────────────────────────────
   const [infoOpen, setInfoOpen] = useState(false)
@@ -199,7 +169,6 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     setInfoMenuOpen(false)
     setInfoLinkOpen(false)
     setUnfollowOpen(false)
-    setBulkPickerOpen(false)
   }, [paneActive])
 
   const infoScan = useResource(
@@ -273,12 +242,9 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     navigate(paths.explore({ rival: handleOf(scope, rivals), video: video.id }))
   }, [scope, rivals])
   const copy = useCallback(async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url)
-      toast.ok(tt.copied)
-    } catch {
-      toast.err(tt.copyFailed)
-    }
+    const ok = await copyText(url)
+    if (ok) toast.ok(tt.copied)
+    else toast.err(tt.copyFailed)
   }, [tt.copied, tt.copyFailed])
 
   const countLine = listState === 'firstScan' && scanning
@@ -297,7 +263,6 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
           )
 
   const empty = !list.initialLoading && rivals.length === 0 && list.error == null
-  const firstChannel = channels[0]
 
   return (
     <div {...stylex.props(mStyles.root, empty && mStyles.rootEmpty, selectMode && mStyles.selectionPad)}>
@@ -379,17 +344,18 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
                 { id: 'views', label: tt.sorts.views },
               ]}
             />
-            <Button
-              variant="ghost"
-              size="lg"
-              aria-pressed={long}
-              active={long}
+            <ResponsiveChipSelect
+              label="Độ dài"
+              size="m"
+              options={[{ value: 'all', label: 'Mọi độ dài' }, { value: 'long', label: 'Từ 8 phút' }]}
+              value={long ? 'long' : 'all'}
+              onChange={(value) => setLong(value === 'long')}
+              aria-label="Độ dài video"
               icon={<Icon name="clock" size={15} />}
-              onClick={() => setLong(!long)}
-            >
-              {tt.filterLong} <b>{tt.filterLongValue}</b>
-            </Button>
-            <ChipSelect
+              prefix={tt.filterLong}
+              custom={long}
+            />
+            <ResponsiveChipSelect
               label={tt.withinLabel}
               size="m"
               options={WITHIN.map((w) => ({ value: String(w.value), label: w.label }))}
@@ -400,7 +366,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
               prefix={tt.filterWithin}
               custom={within !== 30}
             />
-            <ChipSelect
+            <ResponsiveChipSelect
               label={tt.statusLabel}
               size="m"
               options={[
@@ -558,14 +524,14 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
             size="xl"
             block
             icon={<Icon name="video-add" size={18} />}
-            disabled={selectedVideos.length === 0 || channels.length === 0 || bulkBusy}
+            disabled={selectedVideos.length === 0 || bulkBusy}
             pending={bulkBusy}
-            onClick={() => setBulkPickerOpen(true)}
+            onClick={openSelection}
           >
-            {tt.bulkMakeFor(selectedVideos.length, firstChannel?.name ?? tt.notLinked)}
+            {`Làm ${selectedVideos.length} video`}
           </Button>
           <span {...stylex.props(mStyles.barHint)}>
-            {firstChannel ? tt.selectBarHint(firstChannel.pacePerDay) : tt.selectBarHintNoChannel}
+            Mở Làm video để chọn kênh và template.
           </span>
         </div>
       )}
@@ -736,20 +702,6 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
         </div>
       </Sheet>
 
-      <ActionSheet
-        open={bulkPickerOpen}
-        onClose={() => setBulkPickerOpen(false)}
-        title={tt.pickerTitle}
-        actions={channels.length === 0
-          ? [{ key: 'empty', label: tt.pickerEmpty, disabled: true, onSelect: () => {} }]
-          : channels.map((channel) => ({
-            key: channel.id,
-            label: channel.name,
-            description: channel.templateName ? tt.pickerNext(channel.templateName) : tt.pickerNoTemplate,
-            icon: 'channel' as const,
-            onSelect: () => bulkEnqueue(channel.id),
-          }))}
-      />
     </div>
   )
 }

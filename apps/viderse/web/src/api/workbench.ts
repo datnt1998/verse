@@ -1,11 +1,10 @@
-// Kiểu wire của Bàn dựng (GET /api/clone…, /api/recap) — hợp đồng 07-data-contract §7/§22.
+// Kiểu wire của Bàn dựng (GET /api/clone…) — hợp đồng 07-data-contract §7.
 //
 // Đọc bằng guard tay (./guard) chứ không bằng zod: đây là đường đọc của màn đầu
 // điện thoại (Bàn dựng) và của pane giữ-alive, nên không được kéo cả thư viện
 // schema vào entry.
 import { bool, list, maybe, num, oneOf, record, str } from './guard'
 import { mutate, request } from './request'
-import { readOp, readReason, readSuggestion, type Suggestion, type SuggestionReason, type UndoOp } from './suggestions'
 
 export type JobSource = {
   id: string
@@ -194,7 +193,9 @@ export const readWorkbenchList = (value: unknown): WorkbenchList => {
 
 export const getWorkbench = async (channel: string, signal?: AbortSignal) => readWorkbenchList(await request<unknown>(`/api/clone?channel=${encodeURIComponent(channel)}`, { signal }))
 export const getWorkbenchJob = async (id: string, signal?: AbortSignal) => readCloneJob(await request<unknown>(`/api/clone/${encodeURIComponent(id)}`, { signal }), 'job')
-export const jobAction = (id: string, action: 'pause' | 'resume' | 'cancel' | 'run' | 'delete') => mutate('POST', `/api/clone/${encodeURIComponent(id)}`, { action })
+export const jobAction = (id: string, action: 'pause' | 'resume' | 'cancel' | 'run') => mutate('POST', `/api/clone/${encodeURIComponent(id)}`, { action })
+/** Xoá video bằng HTTP DELETE — action switch của máy chủ không nhận `delete`. */
+export const deleteJob = (id: string) => mutate<void>('DELETE', `/api/clone/${encodeURIComponent(id)}`)
 
 export type RestartPreview = { template: { id: string; name: string }; imageEstimate: number | null; position: 'front'; etaStart: string | null }
 
@@ -336,83 +337,3 @@ export async function uploadCover(id: string, revision: number, file: File) {
 export type PromptChoice = { scenePromptId?: string | null; coverPromptId?: string | null; noImages?: boolean }
 export const planPrompt = async (id: string, choice: PromptChoice) => readPromptPlan(await mutate('POST', `/api/clone/${encodeURIComponent(id)}/prompts/plan`, choice))
 export const applyPrompt = (id: string, choice: PromptChoice, expectedRevision: number, confirmCount: number) => mutate('PATCH', `/api/clone/${encodeURIComponent(id)}/prompts`, { ...choice, expectedRevision, confirmCount })
-
-export type RecapAutoItem = {
-  kind: string
-  text: string
-  count: number
-  href: string
-  undo?: UndoOp
-  reason?: SuggestionReason
-}
-
-export type RecapData = {
-  from: string
-  to: string
-  summary: string
-  hasNew: boolean
-  needsYou: { jobId: string; label: string; state: string }[] | null
-  auto: RecapAutoItem[] | null
-  suggestions: Suggestion[] | null
-  today: {
-    queued: number
-    expectedDone: number | null
-    byTime: string | null
-    imagesLeft: number | null
-    imagesTotal: number | null
-    paidLeft?: number
-  }
-  channels: { channelId: string; done: number; cap: number; waiting: number; ready: number }[] | null
-}
-
-const readRecapAuto = (value: unknown, path: string): RecapAutoItem => {
-  const o = record(value, path)
-  const undo = maybe(o.undo, readOp, `${path}.undo`)
-  const reason = maybe(o.reason, readReason, `${path}.reason`)
-  return {
-    kind: str(o.kind, `${path}.kind`),
-    text: str(o.text, `${path}.text`),
-    count: num(o.count, `${path}.count`),
-    href: str(o.href, `${path}.href`),
-    ...(undo === undefined ? {} : { undo }),
-    ...(reason === undefined ? {} : { reason }),
-  }
-}
-
-const readRecap = (value: unknown): RecapData => {
-  const o = record(value, 'recap')
-  const today = record(o.today, 'recap.today')
-  return {
-    from: str(o.from, 'recap.from'),
-    to: str(o.to, 'recap.to'),
-    summary: str(o.summary, 'recap.summary'),
-    hasNew: bool(o.hasNew, 'recap.hasNew'),
-    needsYou: o.needsYou == null ? null : list(o.needsYou, (entry, at) => {
-      const item = record(entry, at)
-      return { jobId: str(item.jobId, `${at}.jobId`), label: str(item.label, `${at}.label`), state: str(item.state, `${at}.state`) }
-    }, 'recap.needsYou'),
-    auto: o.auto == null ? null : list(o.auto, readRecapAuto, 'recap.auto'),
-    suggestions: o.suggestions == null ? null : list(o.suggestions, readSuggestion, 'recap.suggestions'),
-    today: {
-      queued: num(today.queued, 'recap.today.queued'),
-      expectedDone: today.expectedDone === null ? null : num(today.expectedDone, 'recap.today.expectedDone'),
-      byTime: nullableStr(today.byTime, 'recap.today.byTime'),
-      imagesLeft: today.imagesLeft === null ? null : num(today.imagesLeft, 'recap.today.imagesLeft'),
-      imagesTotal: today.imagesTotal === null ? null : num(today.imagesTotal, 'recap.today.imagesTotal'),
-      ...(today.paidLeft == null ? {} : { paidLeft: num(today.paidLeft, 'recap.today.paidLeft') }),
-    },
-    channels: o.channels == null ? null : list(o.channels, (entry, at) => {
-      const channel = record(entry, at)
-      return {
-        channelId: str(channel.channelId, `${at}.channelId`),
-        done: num(channel.done, `${at}.done`),
-        cap: num(channel.cap, `${at}.cap`),
-        waiting: num(channel.waiting, `${at}.waiting`),
-        ready: num(channel.ready, `${at}.ready`),
-      }
-    }, 'recap.channels'),
-  }
-}
-
-export const getRecap = async (signal?: AbortSignal) => readRecap(await request<unknown>('/api/recap', { signal }))
-export const markRecapSeen = () => mutate('POST', '/api/recap/seen', {})

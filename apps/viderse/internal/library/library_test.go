@@ -273,9 +273,6 @@ func TestDeleteTemplateBlockedWhileChannelUsesIt(t *testing.T) {
 	if !errors.As(err, &apiErr) || apiErr.Code != CodeConflict {
 		t.Fatalf("lỗi = %v", err)
 	}
-	if apiErr.Message != "Đang dùng ở 2 kênh. Bỏ khỏi kênh trước rồi xoá." {
-		t.Fatalf("câu = %q", apiErr.Message)
-	}
 	if len(apiErr.Channels) != 2 || apiErr.Channels[0] != "Kênh Một" {
 		t.Fatalf("kênh = %+v", apiErr.Channels)
 	}

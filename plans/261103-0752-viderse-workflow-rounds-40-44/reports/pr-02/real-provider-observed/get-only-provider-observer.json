@@ -1,0 +1,32 @@
+{
+  "mode": "GET-only observer after correcting QA reference and captured model prerequisites",
+  "newImageRequests": 0,
+  "browserProcesses": 0,
+  "states": [
+    {
+      "state": "pending",
+      "observedAt": "2026-11-03T18:37:41Z"
+    },
+    {
+      "state": "drawing",
+      "observedAt": "2026-11-03T18:37:49Z"
+    },
+    {
+      "state": "ready",
+      "observedAt": "2026-11-03T18:38:54Z"
+    }
+  ],
+  "terminal": {
+    "n": 2,
+    "state": "ready",
+    "provider": "chatgpt",
+    "model": "gpt-image-2",
+    "width": 1920,
+    "height": 1080,
+    "costImages": 1,
+    "error": null
+  },
+  "imageReadStatus": 200,
+  "imageBytes": 44740,
+  "imageContentType": "image/webp"
+}

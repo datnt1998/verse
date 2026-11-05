@@ -49,9 +49,13 @@ func (s workerSnapshot) offline(now time.Time) bool {
 	return now.Sub(*s.LastSeen) > postgres.DefaultLease+2*postgres.DefaultHeartbeat
 }
 
-// previewSupported: máy đọc tự báo có nhận nghe thử theo yêu cầu hay không.
-func (s workerSnapshot) previewSupported() bool {
-	return s.Found && !s.Revoked && s.State.Capabilities != nil && s.State.Capabilities.Preview
+// previewSupported: máy đọc tự báo có nhận nghe thử theo yêu cầu hay không, và
+// lúc này thật sự đọc được — một máy đang ngủ hoặc đang chuẩn bị bộ đọc không
+// nhận được yêu cầu nào, nên UI phải ẩn nút thay vì hứa.
+func (s workerSnapshot) previewSupported(now time.Time) bool {
+	return s.Found && !s.Revoked && !s.offline(now) &&
+		s.State.State == voice.ProvisionStateReady &&
+		s.State.Capabilities != nil && s.State.Capabilities.Preview
 }
 
 // installedStates là các trạng thái nghĩa là "bộ đọc đã có trên máy".
@@ -225,7 +229,7 @@ func (g *Gateway) hostedTTSStatus(ctx context.Context, user identity.User) ttsSt
 		resp.LogTail = workerLogTail(snap.State.Error, 6)
 	}
 	resp.LastSeenAt = snap.LastSeen
-	resp.Capabilities = ttsCapabilities{Preview: snap.previewSupported()}
+	resp.Capabilities = ttsCapabilities{Preview: snap.previewSupported(now)}
 	resp.Version = snap.State.Version
 	resp.Model = snap.State.Model
 	resp.DiskBytes = snap.State.DiskBytes
@@ -356,9 +360,10 @@ func workerLines(s string) []string {
 }
 
 // hostedPreviewSupported: máy đọc báo nhận nghe thử thì endpoint mới đi tiếp
-// (đường đọc vẫn là engine đã cấu hình, không phải một kênh riêng).
+// (đường đọc là kênh pull của máy đọc, không phải engine cục bộ không có trong
+// container).
 func (g *Gateway) hostedPreviewSupported(ctx context.Context) bool {
-	return g.workerSnapshot(ctx).previewSupported()
+	return g.workerSnapshot(ctx).previewSupported(time.Now())
 }
 
 // queuedVoiceChapters đếm số chương tạo giọng đang xếp hàng trên toàn máy chủ:

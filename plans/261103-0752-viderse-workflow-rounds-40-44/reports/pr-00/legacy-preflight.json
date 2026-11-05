@@ -1,0 +1,37 @@
+{
+  "observedAt": "2026-11-03T09:10:37.445538+00:00",
+  "environment": "production",
+  "method": "GET only; existing approved authenticated session; no secrets or object IDs retained",
+  "checks": {
+    "channels": {
+      "status": 200,
+      "count": 1,
+      "perDayOutside1To20": 0,
+      "emptyTemplateRotation": 0,
+      "danglingTemplateReferences": 0,
+      "autoPickDisabled": 0,
+      "autoPickAndPickAll": 1,
+      "approveAskAt85": 1
+    },
+    "templates": {
+      "status": 200,
+      "count": 2
+    },
+    "notificationPreferences": {
+      "status": 200,
+      "suggestionsOffEntries": 0,
+      "perChannelEntries": 0
+    },
+    "queue": {
+      "status": 200,
+      "queuedItems": 0,
+      "runningItems": 0,
+      "explicitTemplateReferenceCheck": "vacuous: no queued items exposed by GET /api/queue"
+    }
+  },
+  "notVerified": [
+    "persisted job snapshots via database",
+    "effective inherited autonomy at admission"
+  ],
+  "writesPerformed": false
+}

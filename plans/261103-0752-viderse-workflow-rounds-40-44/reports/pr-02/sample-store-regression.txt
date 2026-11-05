@@ -1,0 +1,6 @@
+=== RUN   TestDeletePromptCommitsSamplesAndMediaRefsTogether
+--- PASS: TestDeletePromptCommitsSamplesAndMediaRefsTogether (2.88s)
+=== RUN   TestDeletePromptRollsBackSamplesWhenTransactionFails
+--- PASS: TestDeletePromptRollsBackSamplesWhenTransactionFails (0.56s)
+PASS
+ok  	github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres	5.791s

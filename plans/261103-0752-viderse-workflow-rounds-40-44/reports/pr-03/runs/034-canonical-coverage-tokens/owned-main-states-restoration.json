@@ -1,0 +1,65 @@
+{
+  "sourceJob": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "policy": "Owned saved-state replay: real steps/artifacts + real already-published media bytes; no provider call, no renderer, no invented quality/provenance/output. Queue pause is exercised and restored by the test.",
+  "ownedJobIds": {
+    "done": "ba7fed09-9ce1-446e-9805-3619c819ff16",
+    "review": "6a1e7bb4-7c6b-4a00-a69d-96e67cd357eb",
+    "issue": "940631f1-0ed9-4bb0-bc9f-412d4196a001",
+    "quality": "c2259ceb-5b98-46ec-8b8c-fe2fd3ac720a",
+    "paused": "a7e66245-69cf-437e-bd6a-76f8fb475126",
+    "metaPending": "18c3ed7e-bc9e-40f6-9c66-b168f7632be1",
+    "metaWriting": "754db782-2fe4-4c96-9787-b14a2e86773c",
+    "metaFailed": "f9c0fc67-75a5-4a4e-9318-b73e6c7e44f6",
+    "metaEdited": "e844ba7e-9641-415c-889b-389984147632",
+    "covered": "f00de686-9f49-47d5-89ed-f8e430b2a694",
+    "images": "e47b2f66-0cd4-48c2-9420-5ae5ee34cf0e",
+    "imagesReduced": "e5214958-f71e-454c-9192-fdb78ed27ba8",
+    "render": "1c8485a8-0b12-4b3f-8780-5baffc4acdb9"
+  },
+  "phases": {
+    "static": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T15:04:12.849Z",
+        "duration": 39888.388000000006,
+        "expected": 10,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "working": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T15:04:53.447Z",
+        "duration": 41243.364,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "uniqueSourceMediaObjects": 80,
+  "sourceArtifactsBytes": 6507174,
+  "sourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "imageReceiptsUnchanged": true,
+  "originalMediaBindingsUnchanged": true,
+  "backdropLibraryUnchanged": true,
+  "queuePauseRestored": true,
+  "noOwnedRowsOrFiles": true,
+  "allOtherCloneRowsRestored": true,
+  "remnants": {
+    "jobs": 0,
+    "artifacts": 0,
+    "steps": 0,
+    "media": 0,
+    "files": 0
+  },
+  "playwrightProjects": [
+    "desktop",
+    "desktop-reduced"
+  ],
+  "errors": []
+}

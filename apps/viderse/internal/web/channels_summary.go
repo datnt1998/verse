@@ -63,8 +63,8 @@ func MountChannelSummary(g *Gateway, channels ChannelService, stats channelSumma
 		out := make([]channelSummary, 0, len(views))
 		for _, view := range views {
 			c := view.Channel
-			v := channelSummary{ChannelID: c.ID, Name: c.Name, Initials: summaryInitials(c.Name), Color: summaryColor(c.ID), AutoFetch: c.AutoPick, PostedThisWeek: counts[c.ID][1]}
-			v.Today.Done, v.Today.Cap = counts[c.ID][0], c.PacePerDay
+			v := channelSummary{ChannelID: c.ID, Name: c.Name, Initials: summaryInitials(c.Name), Color: summaryColor(c.ID), AutoFetch: c.AutoFetch, PostedThisWeek: counts[c.ID][1]}
+			v.Today.Done, v.Today.Cap = counts[c.ID][0], c.PerDay
 			if c.AvatarPath != nil {
 				url := brandingURL(c.ID, *c.AvatarPath)
 				v.AvatarURL = &url

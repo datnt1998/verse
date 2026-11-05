@@ -3,11 +3,10 @@ package domain
 import "time"
 
 type CloneEnqueueRequest struct {
-	ChannelID  string        `json:"channelId"`
-	URLs       []string      `json:"urls"`
-	Priority   ClonePriority `json:"priority,omitempty"`
-	NoImages   bool          `json:"noImages,omitempty"`
-	TemplateID *string       `json:"templateId,omitempty"`
+	ChannelID  string   `json:"channelId"`
+	URLs       []string `json:"urls"`
+	NoImages   bool     `json:"noImages,omitempty"`
+	TemplateID *string  `json:"templateId,omitempty"`
 }
 type ClonePlanAccepted struct {
 	URL                string     `json:"url"`
@@ -35,6 +34,7 @@ type ClonePlanDuplicate struct {
 	// JobID là job đang hoạt động của video này; null khi video mới chỉ nằm
 	// trong hàng chờ (state "queued").
 	JobID              *string    `json:"jobId"`
+	QueueItemID        *string    `json:"queueItemId,omitempty"`
 	State              string     `json:"state"`
 	Title              string     `json:"title,omitempty"`
 	ThumbnailURL       *string    `json:"thumbnailUrl"`
@@ -51,9 +51,11 @@ type ClonePlanInvalid struct {
 	Reason string `json:"reason"`
 }
 type ClonePlanTemplate struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	FromRotation bool   `json:"fromRotation"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// FromDefault: template này là default hiện tại của kênh (không phải client
+	// chỉ định). Default thật vẫn được chốt lại trong admission transaction.
+	FromDefault bool `json:"fromDefault"`
 }
 type ClonePlan struct {
 	Accepted      []ClonePlanAccepted  `json:"accepted"`
@@ -70,4 +72,5 @@ type ClonePlan struct {
 type CloneEnqueueResult struct {
 	Items      []CloneQueueItem     `json:"items"`
 	Duplicates []ClonePlanDuplicate `json:"duplicates"`
+	Invalid    []ClonePlanInvalid   `json:"invalid"`
 }

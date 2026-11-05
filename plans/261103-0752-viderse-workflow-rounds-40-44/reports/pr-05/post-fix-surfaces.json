@@ -1,0 +1,37 @@
+{
+  "provenance": "UI_FIXTURE; NO_NATIVE_MUTATIONS",
+  "cases": [
+    {
+      "name": "1440 filtered position",
+      "status": "PASS",
+      "globalPosition": 2,
+      "provenance": "UI_FIXTURE"
+    },
+    {
+      "name": "390 filtered position",
+      "status": "PASS",
+      "globalPosition": 2,
+      "provenance": "UI_FIXTURE"
+    },
+    {
+      "name": "phone workers/cadence summary",
+      "status": "PASS",
+      "provenance": "UI_FIXTURE"
+    },
+    {
+      "name": "phone length Sheet commit and cancel",
+      "status": "PASS",
+      "box": {
+        "x": 0,
+        "y": 650.703125,
+        "width": 390,
+        "height": 193.296875
+      },
+      "provenance": "UI_FIXTURE",
+      "noNativeMutations": true
+    }
+  ],
+  "captures": [],
+  "browserClosed": true,
+  "status": "PASS"
+}

@@ -1,9 +1,6 @@
-// Copy của Đề xuất và Quy tắc đã học (Main agent=suggest|learn, Review state=learn,
-// Channel › Cài đặt, Library › Prompt ảnh, Activity › Trợ lý chủ động).
-// Chữ có trên artboard giữ nguyên; chữ không vẽ (trạng thái, xác nhận, nhãn loại)
-// ghi ở hỏi đáp #75 chờ design xác nhận.
+// Chữ còn sống của Đề xuất (V37): dòng trong nhóm Chờ bạn, ba loại việc.
+// Quy tắc đã học, Vì sao?, Bản tin, "Đừng đề xuất kiểu này" và cài đặt theo loại đã bỏ.
 import type { Assistant } from '../components/agents'
-import type { SuggestionKind } from '../api/suggestions'
 import { base } from './vi'
 
 const agentNames: Record<Assistant, string> = { scout: 'Trinh sát', director: 'Đạo diễn', artist: 'Hoạ sĩ', qa: 'Kiểm định' }
@@ -11,17 +8,7 @@ const agentNames: Record<Assistant, string> = { scout: 'Trinh sát', director: '
 export const learnCopy = {
   suggest: {
     who: (agent: Assistant) => `${agentNames[agent]} đề xuất`,
-    why: 'Vì sao?',
-    autoTag: 'Tự làm',
-    view: 'Xem',
-    recapButton: 'Bản tin',
     dismiss: 'Bỏ qua',
-    more: 'Thêm: Đừng đề xuất kiểu này',
-    never: 'Đừng đề xuất kiểu này',
-    button: 'Đề xuất',
-    group: 'Đề xuất',
-    seeAll: (total: number) => `Xem cả ${total} trong Bản tin ›`,
-    recapGroup: (shown: number, total: number) => `Đề xuất · ${shown} trong ${total}`,
     region: 'Đề xuất của trợ lý',
     loading: 'Đang tải đề xuất…',
     empty: 'Chưa có đề xuất. Trợ lý sẽ báo ở đây khi thấy việc đáng làm.',
@@ -30,8 +17,6 @@ export const learnCopy = {
     offline: 'Mất kết nối · đề xuất cập nhật lại khi có kết nối',
     offlineAction: 'Mất kết nối máy chủ — chưa nhận được đề xuất này.',
     gone: 'Đề xuất này không còn nữa.',
-    undo: 'Hoàn tác',
-    undoFailed: 'Không hoàn tác được nữa.',
     failed: 'Không thực hiện được đề xuất này.',
     confirm: {
       cost: (images: number) => `Tốn ${images} ảnh.`,
@@ -41,70 +26,7 @@ export const learnCopy = {
       cancel: 'Huỷ',
     },
   },
-  learn: {
-    save: 'Lưu quy tắc',
-    no: 'Không',
-    examples: (count: number) => `Xem ${count} lần sửa`,
-    hideExamples: 'Ẩn ví dụ',
-    before: 'Trước',
-    after: 'Sau',
-    savedChannel: 'Đã lưu vào Hồ sơ kênh › Quy tắc đã học. Áp dụng từ video viết tiếp theo.',
-    savedPrompt: (promptName: string) => `Đã thêm vào Thư viện › Chỉ dẫn ảnh › ${promptName} › Ghi chú đã học. Áp dụng từ ảnh vẽ tiếp theo, cho mọi mẫu video dùng chỉ dẫn này.`,
-    undo: 'Hoàn tác',
-    saveFailed: 'Không lưu được quy tắc.',
-    offline: 'Mất kết nối máy chủ — chưa lưu được quy tắc.',
-  },
-  rules: {
-    title: 'Quy tắc đã học',
-    help: 'Đạo diễn học từ việc bạn sửa; chỉ có hiệu lực khi bạn bấm Lưu.',
-    counter: (count: number, limit: number) => `${count} / ${limit}`,
-    actionsTitle: 'Quy tắc',
-    more: (text: string) => `Thêm cho quy tắc ${text}`,
-    examplesHint: 'Những lần bạn sửa mà Đạo diễn học từ đó',
-    viewExample: 'Xem ví dụ',
-    hideExample: 'Ẩn ví dụ',
-    remove: (text: string) => `Xoá quy tắc ${text}`,
-    off: 'đang tắt',
-    empty: 'Chưa có quy tắc nào. Khi bạn sửa tiêu đề, mô tả hay tag giống nhau 3 lần, Đạo diễn sẽ hỏi có nên lưu thành quy tắc.',
-    loading: 'Đang tải quy tắc…',
-    error: 'Không tải được quy tắc đã học.',
-    retry: 'Thử lại',
-    offline: 'Mất kết nối · mọi nút của danh sách này tắt cho tới khi kết nối lại',
-    toggleFailed: 'Không đổi được quy tắc này.',
-    removeTitle: (text: string) => `Xoá quy tắc “${text}”?`,
-    removeBody: 'Đạo diễn không áp dụng quy tắc này cho video viết sau. Video đã viết giữ nguyên.',
-    removeOk: 'Xoá',
-    removeFailed: 'Không xoá được quy tắc.',
-  },
-  notes: {
-    title: 'Ghi chú đã học',
-    help: 'Hoạ sĩ học từ góp ý vẽ lại; áp dụng cho mọi mẫu video dùng chỉ dẫn này.',
-    empty: 'Chưa có ghi chú nào. Khi bạn góp ý vẽ lại giống nhau 2 lần với chỉ dẫn này, Hoạ sĩ sẽ hỏi có nên ghi lại.',
-    error: 'Không tải được ghi chú đã học.',
-  },
-  settings: {
-    group: 'Trợ lý chủ động',
-    row: 'Đề xuất của trợ lý',
-    choose: 'Chọn loại',
-    done: 'Xong',
-    summary: (on: number, total: number, off: string[]) => `Bật ${on}/${total} loại${off.length ? ` · đã tắt ${off.join('; ')}` : ''}. Đề xuất chỉ hiện ở Bàn dựng, Bản tin, Kênh.`,
-    offOne: (kind: string, where: string) => `“${kind}” ở ${where}`,
-    everyChannel: 'mọi kênh',
-    turnOn: 'Bật lại',
-    kinds: {
-      hot_video: 'Đưa video nổi lên đầu hàng',
-      template_failing: 'Mẫu video hay chưa đạt điểm',
-      learn_rule: 'Lưu quy tắc từ việc bạn sửa',
-      raise_autonomy: 'Bật Duyệt theo điểm',
-      pace: 'Đổi nhịp đăng',
-      perf_insight: 'Áp dụng điều rút ra từ số liệu',
-      cleanup: 'Dọn MP4 đã đăng',
-    } satisfies Record<SuggestionKind, string>,
-    kindSwitch: (kind: string) => `Đề xuất “${kind}”`,
-    saveFailed: 'Không lưu được cài đặt đề xuất.',
-    loadFailed: 'Không tải được cài đặt đề xuất.',
-  },
 }
 
-/** `t` của đề xuất/quy tắc đã học: chữ khung app + chữ mảng học. */
+/** `t` của đề xuất: chữ khung app + chữ mảng đề xuất. */
 export const t = { ...base, learn: learnCopy } as const

@@ -6,7 +6,7 @@ import { libraryVars } from './libraryTokens.stylex'
 // (mỗi cụm kết thúc bằng tile "Prompt mới"), prompt có sẵn trước prompt của
 // bạn, rồi khung sửa. Tìm/lọc một loại thì vẽ một lưới duy nhất (có ảo hoá).
 import { useEffect, useRef, useState } from 'react'
-import { Icon, TextField } from '@noverse/ui'
+import { Banner, Button, Icon, TextField, toast } from '@noverse/ui'
 import { Segmented } from '../../components/Segmented'
 import { invalidate } from '@noverse/ui/data'
 import { t } from '../../i18n/library'
@@ -82,12 +82,14 @@ function NewTile({ onClick }: { onClick: () => void }) {
   )
 }
 
-export function PromptsTab({ view, all, allLoading, onView }: {
+export function PromptsTab({ view, promptId, all, allLoading, allError, onView }: {
   view: PromptView | undefined
+  promptId?: string
   all: ImagePrompt[]
-  /** true khi danh sách toàn cục chưa tải xong — không được chọn prompt mở */
+  /** Chưa mở editor khi danh sách chỉ dẫn chưa được xác nhận. */
   allLoading: boolean
-  onView: (view: PromptView | undefined) => void
+  allError?: unknown
+  onView: (view: PromptView | undefined, promptId?: string) => void
 }) {
   const copy = t.library.prompts
   const [filter, setFilter] = useState<Filter>('all')
@@ -99,18 +101,27 @@ export function PromptsTab({ view, all, allLoading, onView }: {
   )
   const [editing, setEditing] = useState<{ mode: 'new' } | { mode: 'edit'; prompt: ImagePrompt } | null>(null)
   const lastView = useRef<PromptView | undefined>(undefined)
+  const lastPromptId = useRef<string | undefined>(undefined)
+  const [openError, setOpenError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (view === lastView.current) return
-    if ((view === 'mine' || view === 'builtin') && allLoading) return
+    if (view === lastView.current && promptId === lastPromptId.current) return
+    if ((view === 'mine' || view === 'builtin') && (allLoading || allError)) return
     lastView.current = view
+    lastPromptId.current = promptId
+    setOpenError(null)
     if (!view || view === 'list') { setEditing(null); return }
     if (view === 'new') { setEditing({ mode: 'new' }); return }
-    const pick = all.find((prompt) => (view === 'builtin' ? prompt.builtIn : !prompt.builtIn))
-    setEditing(pick ? { mode: 'edit', prompt: pick } : { mode: 'new' })
-  }, [view, allLoading, all])
+    const pick = all.find((prompt) => prompt.id === promptId)
+    setEditing(pick ? { mode: 'edit', prompt: pick } : null)
+    if (promptId && !pick) setOpenError(copy.notFound)
+  }, [view, promptId, allLoading, allError, all, copy.notFound])
 
   const closeEditor = () => { setEditing(null); onView(undefined) }
+  const openPrompt = (prompt: ImagePrompt) => {
+    setEditing({ mode: 'edit', prompt })
+    onView(prompt.builtIn ? 'builtin' : 'mine', prompt.id)
+  }
 
   const items = ordered(list.data?.items ?? EMPTY)
   const sceneCount = all.filter((prompt) => prompt.kind === 'scene').length
@@ -123,13 +134,14 @@ export function PromptsTab({ view, all, allLoading, onView }: {
     try {
       const copyOf = await createPrompt({ name: copy.copyName(prompt.name), kind: prompt.kind, prompt: prompt.prompt, fromId: prompt.id })
       await Promise.all([invalidate(keys.prompts('', '')), invalidate(keys.prompts('scene', '')), invalidate(keys.prompts('cover', ''))])
-      setEditing({ mode: 'edit', prompt: copyOf })
-    } catch {
-      // lỗi hiện trong khung sửa; ở đây bỏ qua để không chặn lưới
+      openPrompt(copyOf)
+      toast(copy.editor.duplicated, 'ok')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : copy.editor.duplicateFail, 'err')
     }
   }
 
-  const openNew = () => setEditing({ mode: 'new' })
+  const openNew = () => { setEditing({ mode: 'new' }); onView('new') }
 
   if (editing) {
     return (
@@ -137,7 +149,7 @@ export function PromptsTab({ view, all, allLoading, onView }: {
         key={editing.mode === 'new' ? 'new' : editing.prompt.id}
         prompt={editing.mode === 'new' ? null : editing.prompt}
         onClose={closeEditor}
-        onSaved={(saved) => { setEditing({ mode: 'edit', prompt: saved }); onView(saved.builtIn ? 'builtin' : 'mine') }}
+        onSaved={openPrompt}
         onDeleted={closeEditor}
         onDuplicate={editing.mode === 'edit' ? () => void duplicate(editing.prompt) : undefined}
       />
@@ -148,7 +160,7 @@ export function PromptsTab({ view, all, allLoading, onView }: {
     <div className={`vlb-grid vlb-grid--prompts ${stylex.props(sx.gridGridPrompts).className}`}>
       {subset.map((prompt) => (
         <PromptCard key={prompt.id} prompt={prompt}
-          onOpen={() => setEditing({ mode: 'edit', prompt })}
+          onOpen={() => openPrompt(prompt)}
           onDuplicate={() => void duplicate(prompt)} />
       ))}
       {groupEnd && <NewTile onClick={openNew} />}
@@ -158,6 +170,8 @@ export function PromptsTab({ view, all, allLoading, onView }: {
   return (
     <div className={`vlb-scroll ${stylex.props(sx.scroll).className}`} ref={grid.ref} onScroll={grid.onScroll}>
       <p className={`vlb-intro ${stylex.props(sx.intro).className}`}>{copy.intro}</p>
+      {openError && <Banner tone="error" title={openError} />}
+      {Boolean(allError || list.error) && <Banner tone="error" title={t.library.loadFail}><Button size="sm" onClick={() => void list.refresh()}>{t.library.retry}</Button></Banner>}
       <div className={`vlb-toolbar ${stylex.props(sx.toolbar).className}`}>
         <Segmented buttonStyle={sx.touchTarget}
           label={copy.filterAria}
@@ -177,7 +191,7 @@ export function PromptsTab({ view, all, allLoading, onView }: {
         </div>
       </div>
 
-      {items.length === 0 && !list.initialLoading && (
+      {items.length === 0 && !list.initialLoading && !allError && !list.error && (
         <p className={`vlb-empty-title ${stylex.props(sx.emptyTitle).className}`}>{copy.emptyFiltered}</p>
       )}
 
@@ -209,7 +223,7 @@ export function PromptsTab({ view, all, allLoading, onView }: {
           <div className={`vlb-grid vlb-grid--prompts ${stylex.props(sx.gridGridPrompts).className}`} style={{ paddingTop: grid.padTop, paddingBottom: grid.padBottom }}>
             {items.slice(grid.itemStart, grid.itemEnd).map((prompt) => (
               <PromptCard key={prompt.id} prompt={prompt}
-                onOpen={() => setEditing({ mode: 'edit', prompt })}
+                onOpen={() => openPrompt(prompt)}
                 onDuplicate={() => void duplicate(prompt)} />
             ))}
             {grid.itemEnd >= cells && <NewTile onClick={openNew} />}

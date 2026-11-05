@@ -28,18 +28,14 @@ type autonomyFixture struct {
 	svc   *autonomy.Service
 }
 
-func newAutonomyFixture(t *testing.T, preset string) autonomyFixture {
+func newAutonomyFixture(t *testing.T, autoApprove bool) autonomyFixture {
 	t.Helper()
 	pool := provision(t)
-	if _, err := pool.Exec(context.Background(), `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES($1,'Clone fixture','en',false)`, autonomyChannel); err != nil {
+	seedCloneChannel(t, pool)
+	if _, err := pool.Exec(context.Background(), `UPDATE owner_channels SET auto_approve=$1 WHERE id=$2`, autoApprove, autonomyChannel); err != nil {
 		t.Fatal(err)
 	}
 	clone := postgres.NewCloneStore(pool)
-	a, _ := domain.PresetAutonomy(preset)
-	raw, _ := json.Marshal(a)
-	if _, err := pool.Exec(context.Background(), `UPDATE owner_channels SET autonomy=$1::jsonb WHERE id=$2`, raw, autonomyChannel); err != nil {
-		t.Fatal(err)
-	}
 	store := postgres.NewAutonomyStore(pool)
 	repo := postgres.NewBlobRepository(pool)
 	if _, err := repo.Initialize(context.Background(), media.Descriptor{ID: "autonomy-test", Config: blobstore.Config{Driver: "local", LocalRoot: t.TempDir()}}); err != nil {
@@ -47,7 +43,7 @@ func newAutonomyFixture(t *testing.T, preset string) autonomyFixture {
 	}
 	files := media.New(repo, nil, func(d media.Descriptor) (blobstore.BlobStore, error) { return blobstore.NewLocal(d.Config.LocalRoot) })
 	edits := &jobedit.Service{Store: clone, Media: files}
-	imageSvc := &cloneimages.Service{Edits: edits, Autonomy: store}
+	imageSvc := &cloneimages.Service{Edits: edits, AutoApprove: store}
 	svc := &autonomy.Service{Diag: func(m string) { t.Log(m) }, Store: store, Reviewer: cloneimages.AutoReviewer{Service: imageSvc}, RetryDelay: -1}
 	return autonomyFixture{pool: pool, clone: clone, svc: svc}
 }
@@ -76,7 +72,11 @@ func (f autonomyFixture) reviewJob(t *testing.T, key string, scores []int) *doma
 				}
 				m.Items = append(m.Items, images.Item{ID: id, Kind: kind, Status: "review", ReviewVersion: &n})
 				item := &m.Items[len(m.Items)-1]
-				item.Versions = []images.Version{{Version: 1, SourceFingerprint: images.SourceFingerprint(*item), Score: &domain.ImageScore{Value: s, Reason: domain.ScoreReason{Agent: "qa", Text: "test"}}}}
+				item.Versions = []images.Version{{Version: 1, SourceFingerprint: images.SourceFingerprint(*item)}}
+				// Negative fixture value represents an image not yet scored.
+				if s >= 0 {
+					item.Versions[0].Score = &domain.ImageScore{Value: s, Reason: domain.ScoreReason{Agent: "qa", Text: "test"}}
+				}
 			}
 			raw, _ := json.Marshal(m)
 			if err := f.clone.WriteStepCheckpoint(ctx, job.ID, claim.Step.Step, claim.Fence, claim.Step.Attempt, raw); err != nil {
@@ -112,7 +112,7 @@ func (f autonomyFixture) count(t *testing.T, query string, args ...any) int {
 }
 
 func TestAutonomyAutoApprovesWhenEveryImageMeetsThreshold(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetAuto)
+	f := newAutonomyFixture(t, true)
 	job := f.reviewJob(t, "all-pass", []int{91, 88, 90, 86, 92, 85, 89, 95}) // 7 cảnh + bìa
 	if got := f.count(t, `SELECT count(*) FROM notifications WHERE kind='review_ready'`); got != 0 {
 		t.Fatalf("review_ready notices = %d, want 0 (máy duyệt ngay)", got)
@@ -147,8 +147,8 @@ func TestAutonomyAutoApprovesWhenEveryImageMeetsThreshold(t *testing.T) {
 }
 
 func TestAutonomyKeepsWholeVideoInReviewWhenOneImageIsBelow(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetAuto)
-	job := f.reviewJob(t, "one-below", []int{91, 88, 90, 72, 92, 85, 89, 95})
+	f := newAutonomyFixture(t, true)
+	job := f.reviewJob(t, "one-below", []int{91, 88, 90, 84, 92, 85, 89, 95})
 	if got := f.count(t, `SELECT count(*) FROM notifications WHERE kind='review_ready'`); got != 1 {
 		t.Fatalf("review_ready notices = %d, want 1", got)
 	}
@@ -159,7 +159,7 @@ func TestAutonomyKeepsWholeVideoInReviewWhenOneImageIsBelow(t *testing.T) {
 		t.Fatal("video có ảnh dưới ngưỡng không được tự duyệt")
 	}
 	var summary string
-	if err := f.pool.QueryRow(context.Background(), `SELECT auto_review->>'summary' FROM clone_jobs WHERE id=$1`, job.ID).Scan(&summary); err != nil || summary != "cảnh 4 được 72" {
+	if err := f.pool.QueryRow(context.Background(), `SELECT auto_review->>'summary' FROM clone_jobs WHERE id=$1`, job.ID).Scan(&summary); err != nil || summary != "cảnh 4 được 84" {
 		t.Fatalf("summary = %q, %v", summary, err)
 	}
 	var group string
@@ -168,19 +168,19 @@ func TestAutonomyKeepsWholeVideoInReviewWhenOneImageIsBelow(t *testing.T) {
 	}
 }
 
-func TestAutonomyBalancedNeverAutoApproves(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetBalanced)
+func TestAutonomyToggleOffNeverAutoApproves(t *testing.T) {
+	f := newAutonomyFixture(t, false)
 	job := f.reviewJob(t, "balanced", []int{99, 99, 99})
 	if err := f.svc.DispatchReviews(context.Background()); err != nil {
 		t.Fatal(err)
 	}
 	if f.count(t, `SELECT count(*) FROM clone_bulk_review_intents WHERE job_id=$1`, job.ID) != 0 {
-		t.Fatal("Cân bằng phải luôn hỏi")
+		t.Fatal("autoApprove=false must ask")
 	}
 }
 
 func TestAutonomyRetriesSourceDownloadOnceThenNeedsAttention(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetBalanced)
+	f := newAutonomyFixture(t, false)
 	ctx := context.Background()
 	job := cloneTestJob(t, f.clone, "download-error")
 	if _, err := f.clone.ClaimJobLease(ctx, job.ID, "worker", time.Minute); err != nil {
@@ -231,22 +231,6 @@ func TestAutonomyRetriesSourceDownloadOnceThenNeedsAttention(t *testing.T) {
 	}
 }
 
-func TestAutonomyCarefulDoesNotRetry(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetCareful)
-	ctx := context.Background()
-	job := cloneTestJob(t, f.clone, "careful-error")
-	if _, err := f.clone.ClaimJobLease(ctx, job.ID, "worker", time.Minute); err != nil {
-		t.Fatal(err)
-	}
-	claim, err := f.clone.ClaimNextStep(ctx, job.ID, "worker")
-	if err != nil || claim == nil {
-		t.Fatalf("claim: %v %v", claim, err)
-	}
-	if f.svc.AutoFix(ctx, job.ID, claim.Step.Step, &domain.CloneError{Code: domain.CloneErrSourceUnavailable}) {
-		t.Fatal("Cẩn thận không tự thử lại")
-	}
-}
-
 func TestAutonomyNeverRetriesHumanErrors(t *testing.T) {
 	for _, code := range []string{domain.CloneErrToolMissing, domain.CloneErrTemplateChanged, domain.CloneErrInvalidRequest, domain.CloneErrStale} {
 		if got := domain.AutoFixCodeOf(domain.CloneDownload, &domain.CloneError{Code: code}); got != "" {
@@ -255,38 +239,4 @@ func TestAutonomyNeverRetriesHumanErrors(t *testing.T) {
 	}
 }
 
-func TestAutonomyServiceSetAndRestore(t *testing.T) {
-	f := newAutonomyFixture(t, domain.PresetBalanced)
-	ctx := context.Background()
-	prev, err := f.svc.SetApprove(ctx, autonomyChannel, domain.ApproveScore, 90)
-	if err != nil || prev.Approve.Mode != domain.ApproveAsk {
-		t.Fatalf("prev=%+v err=%v", prev, err)
-	}
-	cur, _ := f.svc.GetAutonomy(ctx, autonomyChannel)
-	if cur.Approve.Mode != domain.ApproveScore || cur.Approve.Min != 90 || cur.Preset != domain.PresetAuto {
-		// Tự duyệt theo điểm + Cân bằng khác Tự chạy ở belowQuality → Tuỳ chỉnh.
-		if cur.Preset != domain.PresetCustom {
-			t.Fatalf("cur=%+v", cur)
-		}
-	}
-	if _, err := f.svc.SetApprove(ctx, autonomyChannel, domain.ApproveAll, 0); err == nil {
-		t.Fatal("Tự duyệt hết cần xác nhận rõ")
-	}
-	if err := f.svc.Restore(ctx, autonomyChannel, prev); err != nil {
-		t.Fatal(err)
-	}
-	cur, _ = f.svc.GetAutonomy(ctx, autonomyChannel)
-	if cur.Preset != domain.PresetBalanced {
-		t.Fatalf("restore: %+v", cur)
-	}
-	if err := f.svc.ApplyPreset(ctx, autonomyChannel, "custom"); err == nil {
-		t.Fatal("ApplyPreset không nhận custom")
-	}
-	if err := f.svc.ApplyPreset(ctx, autonomyChannel, domain.PresetAuto); err != nil {
-		t.Fatal(err)
-	}
-	if p, _ := f.svc.Preset(ctx, autonomyChannel); p != domain.PresetAuto {
-		t.Fatalf("preset=%s", p)
-	}
-	var _ pipeline.AutoFixer = f.svc
-}
+var _ pipeline.AutoFixer = (*autonomy.Service)(nil)

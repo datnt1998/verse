@@ -5,17 +5,17 @@
 //   PATCH  /api/owner-channels/:id                → Channel (null = xoá giá trị)
 //   DELETE /api/owner-channels/:id                → 204
 //   POST   /api/owner-channels/:id/sources        → Channel (idempotent)
-//   DELETE /api/owner-channels/:id/sources/:rid   → { autoPickPaused }
-//   POST   /api/owner-channels/:id/templates      → { templates }
+//   DELETE /api/owner-channels/:id/sources/:rid   → { autoFetchPaused }
 //   POST   /api/owner-channels/:id/branding       → 202 { channel, identityJobId }
 //   GET    /api/owner-channels/:id/branding/:file → ảnh (?download=1 để tải về)
 // Lỗi luôn có vỏ {error, code, recovery?, retryAt?}.
-import type { Autonomy, Priority } from './autonomy'
 import { ApiError, mutate, request } from './request'
 
 export type ChannelLanguage = 'en' | 'vi' | 'auto'
 export type IdentityState = 'ready' | 'generating' | 'failed'
 export type IdentityPart = 'all' | 'name' | 'avatar' | 'banner'
+export type ChannelAgent = 'scout' | 'director' | 'artist' | 'qa'
+export type AgentInstructions = Partial<Record<ChannelAgent, string>>
 
 export type Branding = { brief: string; summary: string; look: string; avatar: string; banner: string }
 
@@ -28,7 +28,6 @@ export type ChannelSource = {
   reference: boolean
 }
 
-export type ChannelTemplate = { id: string; name: string; position: number }
 
 export type ChannelIdentity = {
   state: IdentityState
@@ -49,18 +48,17 @@ export type Channel = {
   styleNote: string | null
   descriptionFooter: string | null
   alwaysTags: string[]
-  autoPick: boolean
-  /** 1..50 */
-  pacePerDay: number
-  templateCursor: number
+  autoFetch: boolean
+  autoApprove: boolean
+  /** 1..20 */
+  perDay: number
+  defaultTemplateId: string
+  defaultTemplateName: string
+  agentInstructions: AgentInstructions
   branding: Branding
-  /** Mức tự chủ (§20); server suy `preset` từ bốn dòng. */
-  autonomy: Autonomy
-  priority: Priority
   avatarUrl: string | null
   bannerUrl: string | null
   sources: ChannelSource[]
-  templates: ChannelTemplate[]
   identity: ChannelIdentity
   createdAt: string
   updatedAt: string
@@ -73,9 +71,11 @@ export type CreateChannelInput = {
   youtubeUrl?: string
   /** bắt buộc ≥ 1 — server trả 400 khi rỗng */
   competitorIds: string[]
-  /** Tạo kênh: Tự chạy không cần xác nhận; approve 'all' bị từ chối. */
-  autonomy?: Autonomy
-  pacePerDay?: number
+  autoFetch?: boolean
+  autoApprove?: boolean
+  perDay?: number
+  /** Bỏ trống để tạo template chuẩn cùng kênh. */
+  defaultTemplateId?: string
   language?: ChannelLanguage
 }
 
@@ -87,15 +87,15 @@ export type ChannelPatch = {
   styleNote?: string | null
   descriptionFooter?: string | null
   alwaysTags?: string[]
-  pacePerDay?: number
+  autoFetch?: boolean
+  autoApprove?: boolean
+  perDay?: number
+  defaultTemplateId?: string
+  /** Cập nhật các trợ lý có mặt trong bản vá, giữ nguyên các trợ lý khác. */
+  agentInstructions?: AgentInstructions
   brief?: string
 }
 
-export type ChannelTemplateAction =
-  | { action: 'add'; templateId: string }
-  | { action: 'remove'; templateId: string }
-  | { action: 'move'; templateId: string; position: number }
-  | { action: 'standard' }
 
 export type BrandingRequest = { part?: IdentityPart; brief?: string; direction?: string }
 
@@ -152,13 +152,11 @@ export const linkSource = (id: string, rivalId: string) =>
   mutate<Channel>('POST', `/api/owner-channels/${encodeURIComponent(id)}/sources`, { rivalId })
 
 export const unlinkSource = (id: string, rivalId: string) =>
-  mutate<{ autoPickPaused: boolean }>(
+  mutate<{ autoFetchPaused: boolean }>(
     'DELETE',
     `/api/owner-channels/${encodeURIComponent(id)}/sources/${encodeURIComponent(rivalId)}`,
   )
 
-export const setChannelTemplates = (id: string, action: ChannelTemplateAction) =>
-  mutate<{ templates: ChannelTemplate[] }>('POST', `/api/owner-channels/${encodeURIComponent(id)}/templates`, action)
 
 export const generateBranding = (id: string, input: BrandingRequest = {}) =>
   mutate<{ channel: Channel; identityJobId: string }>(

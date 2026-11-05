@@ -7,7 +7,7 @@ import (
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 )
 
-// AutoReviewer cho Mức tự chủ đọc điểm ảnh và duyệt qua đúng đường "Duyệt hết"
+// AutoReviewer cho phần tự duyệt đọc điểm ảnh và duyệt qua đúng đường "Duyệt hết"
 // của chủ kênh: cùng cổng ImagesReady/mutable và cùng đường chủ duyệt
 // (CommitOwnerApproval khi còn ảnh chờ, StageDraftApproval khi bản dựng đã đỗ).
 type AutoReviewer struct{ Service *Service }
@@ -27,7 +27,7 @@ func (r AutoReviewer) ReviewState(ctx context.Context, jobID string) (autonomy.R
 			scene++
 		}
 		item := autonomy.ItemScore{ID: i.ID, Kind: i.Kind, Label: autonomy.ItemLabel(i.Kind, scene), Skipped: i.Status == "skipped"}
-		if v := model.Displayed(i); v != nil {
+		if v := model.Displayed(i); v != nil && v.ScoreIssue == "" {
 			item.Score = v.Score
 		}
 		state.Items = append(state.Items, item)

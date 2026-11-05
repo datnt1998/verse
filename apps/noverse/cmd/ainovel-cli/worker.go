@@ -68,6 +68,9 @@ func runWorkerCommand(args []string, out, errw io.Writer) int {
 		Engine:  engine,
 		Project: *project,
 		Lease:   *lease,
+		// Máy này đọc được một câu ngắn bằng chính bộ đọc của nó, nên nó nhận
+		// nghe thử theo yêu cầu; máy chủ vẫn chỉ bật nút khi máy đang sẵn sàng.
+		Preview: true,
 	}
 	// Durable per-credential state (the operator command sequence this machine
 	// already ran) lives beside the rest of the app config. Without it a

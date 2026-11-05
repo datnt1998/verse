@@ -32,7 +32,7 @@ function ChannelVideoCard({ item }: { item: ChannelVideoItem }) {
   return (
     <article role="listitem" className={`vbd-vcard ${stylex.props(sx.vcard).className}`} data-off={off ? '' : undefined}>
       <div className={`vbd-thumb ${stylex.props(sx.thumb).className}`}>
-        {item.thumbnailUrl && <img className={`vbd-thumb-img ${stylex.props(sx.thumbImg, (Boolean((off ? '' : undefined))) && sx.thumbImgDataOff).className}`} src={item.thumbnailUrl} alt="" loading="lazy" />}
+        {item.thumbnailUrl && <img className={`vbd-thumb-img ${stylex.props(sx.thumbImg, off && sx.thumbImgDataOff).className}`} src={item.thumbnailUrl} alt="" loading="lazy" />}
         <span className={`vbd-kind ${stylex.props(sx.kind).className}`}>{kindName(item.kind)}</span>
         {item.durationSec !== null && !off && <span className={`vbd-dur ${stylex.props(sx.dur).className}`}>{timeRange(item.durationSec)}</span>}
         {chosen.length > 0 && (

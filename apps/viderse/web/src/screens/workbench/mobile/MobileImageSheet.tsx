@@ -11,7 +11,7 @@ import { mw } from './mworkbench.stylex'
 const c = screenWorkbench.mobile
 const sheet = c.imageSheet
 
-export function MobileImageSheet({ open, jobId, initialId, images, loading, error, onClose, onChangePrompt, onRetry }: {
+export function MobileImageSheet({ open, jobId, initialId, images, loading, error, onClose, onRetry }: {
   open: boolean
   jobId: string
   initialId?: string
@@ -19,20 +19,18 @@ export function MobileImageSheet({ open, jobId, initialId, images, loading, erro
   loading: boolean
   error: unknown
   onClose: () => void
-  onChangePrompt: () => void
   onRetry: () => void
 }) {
-  return open ? <OpenImageSheet jobId={jobId} initialId={initialId} images={images} loading={loading} error={error} onClose={onClose} onChangePrompt={onChangePrompt} onRetry={onRetry} /> : null
+  return open ? <OpenImageSheet jobId={jobId} initialId={initialId} images={images} loading={loading} error={error} onClose={onClose} onRetry={onRetry} /> : null
 }
 
-function OpenImageSheet({ jobId, initialId, images, loading, error, onClose, onChangePrompt, onRetry }: {
+function OpenImageSheet({ jobId, initialId, images, loading, error, onClose, onRetry }: {
   jobId: string
   initialId?: string
   images: JobImageList | undefined
   loading: boolean
   error: unknown
   onClose: () => void
-  onChangePrompt: () => void
   onRetry: () => void
 }) {
   const items = images?.items ?? []
@@ -72,12 +70,11 @@ function OpenImageSheet({ jobId, initialId, images, loading, error, onClose, onC
           <p {...stylex.props(mw.promptText)}>{usedPrompt ?? c.imagePromptUnknown}</p>
         </div>
         <div {...stylex.props(mw.promptLine)}>
-          {manifest && <>{c.promptScene(manifest.scenePrompt.name)}{manifest.scenePrompt.overridden && <span {...stylex.props(mw.promptTag)}> · {c.promptOverride}</span>}<br />{c.promptCover(manifest.coverPrompt.name)}{manifest.coverPrompt.overridden && <span {...stylex.props(mw.promptTag)}> · {c.promptOverride}</span>}</>}
+          {manifest && <>{c.promptScene(manifest.scenePrompt.name)}<br />{c.promptCover(manifest.coverPrompt.name)}</>}
           {!manifest && 'Chưa có chỉ dẫn hiệu lực cho video này.'}
         </div>
       </>}
-      <div {...stylex.props(mw.planFooter)}>
-        <Button variant="ghost" size="lg" onClick={onChangePrompt}>{sheet.changePrompt}</Button>
+      <div {...stylex.props(mw.sheetFooter)}>
         <a {...stylex.props(mw.moreLink)} href={`#/review?video=${encodeURIComponent(jobId)}`}>{sheet.review} ›</a>
       </div>
       <Button variant="quiet" size="sm" onClick={onClose}>{sheet.close}</Button>

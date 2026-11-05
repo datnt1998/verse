@@ -131,6 +131,17 @@ func (s *PGService) Cast(ref CharacterRef) (*Cast, error) {
 		return cast, nil
 	}
 	fresh := DefaultCast(ref.Characters, ref.Support)
+	// A one-voice selection may have been saved before the first panel open
+	// (the config row exists without speakers). Filling in the speaker roster
+	// must not discard the narration voice or the mode the user chose.
+	if cast.Mode != "" {
+		fresh.Mode = cast.Mode
+	}
+	fresh.VoiceMode = cast.VoiceMode
+	fresh.NarratorCharacterID = cast.NarratorCharacterID
+	if cast.Single.VoiceID != "" {
+		fresh.Single = cast.Single
+	}
 	saved, err := s.saveCast(ctx, &fresh)
 	if err != nil {
 		return nil, err
@@ -210,7 +221,8 @@ func (s *PGService) castForRender(ctx context.Context) (*Cast, error) {
 	return cast, nil
 }
 
-// CastOldSegments counts stale segments per speaker (the "cần đọc lại" badge).
+// CastOldSegments counts stale segments per speaker (the "cần đọc lại" badge)
+// and estimates their re-synthesis time from the worker's measured RTF.
 func (s *PGService) CastOldSegments(c *Cast) error {
 	ctx := context.Background()
 	scope, err := s.resolve(ctx)
@@ -223,7 +235,10 @@ func (s *PGService) CastOldSegments(c *Cast) error {
 		return err
 	}
 	voiceMap := VoiceMap(voices)
+	engine, model := s.engineIdent()
+	rtf := s.remoteRTF(ctx)
 	counts := map[string]int{}
+	etas := map[string]float64{}
 	chapters, err := s.chapterList(ctx, scope)
 	if err != nil {
 		return err
@@ -240,60 +255,100 @@ func (s *PGService) CastOldSegments(c *Cast) error {
 			if seg.Rendered == nil {
 				continue
 			}
-			engine, model := s.engineIdent()
 			want := pgSegmentKey(seg, c, voiceMap, settings, engine, model)
 			if seg.Rendered.Key != want.Hash() {
 				counts[seg.Speaker]++
+				if rtf != nil {
+					etas[seg.Speaker] += seg.Rendered.DurationSec * *rtf
+				}
 			}
 		}
 	}
 	for i := range c.Speakers {
 		c.Speakers[i].OldSegments = counts[c.Speakers[i].ID]
+		c.Speakers[i].OldETASec = etas[c.Speakers[i].ID]
 	}
 	return nil
+}
+
+// remoteRTF is the connected worker's measured real-time factor; nil when no
+// live worker reported one, so the mobile confirmation keeps its "chưa đủ dữ
+// liệu ước tính" state instead of showing an invented number.
+func (s *PGService) remoteRTF(ctx context.Context) *float64 {
+	if s.deps.RemoteRTF == nil {
+		return nil
+	}
+	rtf := s.deps.RemoteRTF(ctx)
+	if rtf == nil || *rtf <= 0 {
+		return nil
+	}
+	return rtf
 }
 
 // ApplyPackVoice is a no-op on the hosted backend: pack assets are a
 // story-directory concern and no pack voice source exists in the tables.
 func (s *PGService) ApplyPackVoice(c *Cast) error { return nil }
 
-// ChangeRoleVoice switches one speaker's voice and enqueues update jobs for
-// chapters that still reference the old audio. It returns the number of
-// stale segments queued for re-synthesis.
+// ChangeRoleVoice switches one speaker's voice — or, for role "single", the
+// shared narration voice — and enqueues update jobs for chapters that still
+// reference the old audio. It returns the number of stale segments queued for
+// re-synthesis.
 func (s *PGService) ChangeRoleVoice(ctx context.Context, role, voiceID, sameAs string, rerenderOld bool) (*Cast, int, error) {
 	cast, _, err := s.loadCast(ctx)
 	if err != nil {
 		return nil, 0, err
 	}
+	voices, err := s.Voices(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	if _, ok := VoiceMap(voices)[voiceID]; !ok {
+		return nil, 0, conflict("Giọng đã chọn không còn có sẵn. Hãy chọn lại.")
+	}
+	// "single" is the one-voice mode, not a speaker: it lives in
+	// Cast.Single.VoiceID and must never create a fake cast row.
+	single := role == ModeSingle
 	idx := -1
-	for i := range cast.Speakers {
-		if cast.Speakers[i].ID == role || strings.EqualFold(cast.Speakers[i].Name, role) {
-			idx = i
-			break
-		}
-	}
-	if idx < 0 {
-		return nil, 0, conflict("Không có vai %q trong phân vai.", role)
-	}
-	sameAs = strings.TrimSpace(sameAs)
-	if sameAs != "" {
-		found := false
-		for _, sp := range cast.Speakers {
-			if sp.ID == sameAs {
-				found = true
+	if !single {
+		for i := range cast.Speakers {
+			if cast.Speakers[i].ID == role || strings.EqualFold(cast.Speakers[i].Name, role) {
+				idx = i
 				break
 			}
 		}
-		if !found {
-			return nil, 0, conflict("Không tìm thấy vai %q.", sameAs)
+		if idx < 0 {
+			return nil, 0, conflict("Không có vai %q trong phân vai.", role)
+		}
+		role = cast.Speakers[idx].ID
+		// A role that was borrowing the narrator's voice takes over the
+		// narration identity when it gets its own voice, so the pair can never
+		// point at each other (sameAs cycle).
+		for i := range cast.Speakers {
+			if cast.Speakers[i].ID == NarratorID && cast.Speakers[i].SameAs == role {
+				cast.NarratorCharacterID = role
+				cast.Speakers[i].SameAs = ""
+			}
 		}
 	}
-	cast.Speakers[idx].SameAs = sameAs
-	if voiceID == "" {
-		cast.Speakers[idx].VoiceID = nil
+	sameAs = strings.TrimSpace(sameAs)
+	// "single" is not a speaker, so it can never borrow another role's voice.
+	// Reject the request instead of saving a voice while silently dropping the
+	// share, which would leave the client's view and the cast document apart.
+	if single && sameAs != "" {
+		return nil, 0, conflict("Không dùng chung giọng này được.")
+	}
+	if single {
+		cast.Single.VoiceID = voiceID
 	} else {
+		if sameAs != "" && (sameAs != NarratorID || role == NarratorID) {
+			return nil, 0, conflict("Không dùng chung giọng này được.")
+		}
 		id := voiceID
 		cast.Speakers[idx].VoiceID = &id
+		cast.Speakers[idx].SameAs = sameAs
+	}
+	if cast.VoiceMode == "" {
+		cast.VoiceMode = cast.Mode
 	}
 	saved, err := s.saveCast(ctx, cast)
 	if err != nil {
@@ -311,12 +366,24 @@ func (s *PGService) ChangeRoleVoice(ctx context.Context, role, voiceID, sameAs s
 
 // enqueueRoleUpdates queues "update" jobs for chapters where the role still
 // has selected renders keyed to the old parameters, and returns the count of
-// stale segments across those chapters.
+// stale segments across those chapters. role "single" changes the narration
+// voice of every segment, so it has no speaker filter.
 func (s *PGService) enqueueRoleUpdates(ctx context.Context, role string) (int, error) {
 	scope, err := s.resolve(ctx)
 	if err != nil {
 		return 0, pgErr(err)
 	}
+	cast, err := s.castForRender(ctx)
+	if err != nil {
+		return 0, err
+	}
+	voices, err := s.Voices(ctx)
+	if err != nil {
+		return 0, err
+	}
+	voiceMap := VoiceMap(voices)
+	settings := s.Settings()
+	engine, model := s.engineIdent()
 	chapters, err := s.chapterList(ctx, scope)
 	if err != nil {
 		return 0, err
@@ -330,26 +397,33 @@ func (s *PGService) enqueueRoleUpdates(ctx context.Context, role string) (int, e
 		if script == nil || script.Status != StatusLocked {
 			continue
 		}
-		stale := false
+		stale := 0
 		for _, seg := range script.Segments {
-			if seg.Speaker != role {
+			if seg.Rendered == nil {
 				continue
 			}
-			if seg.Rendered != nil {
-				stale = true
-				queued++
+			if role != ModeSingle && seg.Speaker != role {
+				continue
+			}
+			want := pgSegmentKey(seg, cast, voiceMap, settings, engine, model)
+			if seg.Rendered.Key != want.Hash() {
+				stale++
 			}
 		}
-		if !stale {
+		if stale == 0 {
 			continue
 		}
 		text, err := s.deps.Nar.ChapterText(ctx, scope, ch)
 		if err != nil {
 			return 0, pgErr(err)
 		}
-		if _, err := s.Enqueue(ctx, script.Volume, ch, SourceHash(text)); err != nil && !isNoopEnqueue(err) {
+		if _, err := s.Enqueue(ctx, script.Volume, ch, SourceHash(text)); err != nil {
+			if isNoopEnqueue(err) {
+				continue
+			}
 			return 0, err
 		}
+		queued += stale
 	}
 	return queued, nil
 }

@@ -189,7 +189,7 @@ export function Dialog({ title, label, icon, meta, onClose, footer, children, wi
   return createPortal(
     <div ref={overlayRef} {...stylex.props(sx.overlay)}>
       <div aria-hidden="true" className={`kit-dlg-scrim ${scrimStyle.className}`} onClick={onClose} style={scrimStyle.style} />
-      <div {...stylex.props(sx.center)}>
+      <div {...stylex.props(sx.center)} onClick={event => { if (event.target === event.currentTarget) onCloseRef.current?.() }}>
         <div ref={ref} className={['dlg', 'kit-dlg', dlg.className].join(' ')} role={alertDialog ? 'alertdialog' : 'dialog'} aria-modal="true" aria-label={title === undefined ? label : undefined} aria-labelledby={title !== undefined ? titleId : undefined}
           style={{ ...dlg.style, width: `min(${typeof width === 'number' ? `${width}px` : width}, 100%)`, ...style }}>
           {title !== undefined && (

@@ -1,0 +1,66 @@
+{
+  "receipts": [
+    {
+      "project": "desktop",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/setup/start",
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "desktop-reduced",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/setup/start",
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "mobile",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    },
+    {
+      "project": "mobile-reduced",
+      "status": "passed",
+      "actualHttpStatus": 202,
+      "baseVersion": 2,
+      "usedVersionAfter": 1,
+      "pausedWorker": true,
+      "selectedReferencesPreserved": 2,
+      "snapshotPersisted": true,
+      "additionalProviderRequests": 0,
+      "writes": [
+        "POST /api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/redraw"
+      ]
+    }
+  ],
+  "originalSourceUnchanged": true,
+  "replayRestored": true,
+  "additionalProviderRequests": 0,
+  "proofLimit": "Actual HTTP/UI and checkpoint source persistence only; worker kept paused, no third image or provider output claimed. Worker plan preservation is covered by focused Go regressions."
+}

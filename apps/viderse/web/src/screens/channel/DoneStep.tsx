@@ -140,9 +140,7 @@ export function DoneStep({ channelId, onLeave }: {
     if (!reference || !video || making) return
     setMaking(true)
     try {
-      const result = await makeLatestRivalVideo(data.id, reference.rivalId)
-      onLeave()
-      navigate(result.jobId ? paths.workbench({ video: result.jobId }) : paths.queue())
+      await makeLatestRivalVideo(data.id, reference.rivalId)
     } catch (err) {
       toast.err(err instanceof Error ? err.message : t.channels.latestFailed)
     } finally {
@@ -196,7 +194,7 @@ export function DoneStep({ channelId, onLeave }: {
                     name: directorFailed ? tt.noName : (data.name || tt.noName),
                     rivals: data.sources.length,
                     language: t.channels.page.languageLower[data.language],
-                    pace: data.pacePerDay,
+                    perDay: data.perDay,
                   })
                   : tt.noName)
                 : directorFailed ? (
@@ -208,7 +206,7 @@ export function DoneStep({ channelId, onLeave }: {
                     {tt.subTail({
                       rivals: data.sources.length,
                       language: t.channels.page.languageLower[data.language],
-                      pace: data.pacePerDay,
+                      perDay: data.perDay,
                     })}
                   </>
                 )
@@ -218,7 +216,7 @@ export function DoneStep({ channelId, onLeave }: {
                       rival: reference.title,
                       rivals: data.sources.length,
                       language: t.channels.page.languageLower[data.language],
-                      pace: data.pacePerDay,
+                      perDay: data.perDay,
                     })
                     : tt.noName}
             </p>

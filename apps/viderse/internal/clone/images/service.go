@@ -194,7 +194,7 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	}
 	m := l.manifest
 	out := View{Manifest: &ManifestView{Revision: m.Revision, SceneRevision: m.SceneRevision, SceneGeneration: m.SceneGeneration, Waiting: m.Waiting}, Items: make([]ItemView, 0, len(m.Items)), Approved: model.ImagesApproved(m)}
-	out.Images = s.imagesView(ctx, l, s.refLimitFor(ctx, ""))
+	out.Images = s.imagesView(ctx, l, s.refLimitFor(ctx, "", m.Overrides))
 	out.Quota = s.quotaView(ctx)
 	out.ApprovedToday, err = s.approvedToday(ctx)
 	if err != nil {
@@ -206,9 +206,6 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 	}
 	out.Manifest.ScenePrompt, out.Manifest.CoverPrompt = scene, cover
 	out.Manifest.Overrides = m.Overrides
-	if s.Learner != nil {
-		out.Learn, _ = s.Learner.OpenFor(ctx, id)
-	}
 	if m.ImageMode != "" {
 		mode := m.ImageMode
 		out.Manifest.ImageMode = &mode
@@ -239,6 +236,10 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 				source = "codex"
 			}
 			version := VersionView{Score: v.Score, Version: v.Version, Path: v.Path, SHA256: v.SHA256, Width: v.Width, Height: v.Height, Bytes: v.Bytes, CreatedAt: v.CreatedAt, PromptVersion: v.PromptVersion, Prompt: v.Prompt, SourceFingerprint: v.SourceFingerprint, Source: source, Cutout: v.Cutout}
+			version.ScoreIssue = v.ScoreIssue
+			if version.ScoreIssue != "" {
+				version.Score = nil
+			}
 			version.OriginalURL = artifactURL(l.snapshot, v.Path, v.SHA256)
 			version.CutoutState = "unavailable"
 			if runtime.GOOS == "darwin" && s.Runner != nil && version.OriginalURL != "" {
@@ -275,8 +276,11 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		item.Direction = i.Direction
 		scored = append(scored, autonomy.ItemScore{ID: i.ID, Kind: i.Kind, Label: autonomy.ItemLabel(i.Kind, sceneNumber), Skipped: i.Status == "skipped"})
 		if v := model.Displayed(i); v != nil {
-			item.Score = v.Score
-			scored[len(scored)-1].Score = v.Score
+			item.ScoreIssue = v.ScoreIssue
+			if v.ScoreIssue == "" {
+				item.Score = v.Score
+				scored[len(scored)-1].Score = v.Score
+			}
 			hash := v.SHA256
 			if m.Style == "cutout" && i.Kind == "scene" && v.Cutout != nil {
 				hash = v.Cutout.SHA256
@@ -287,20 +291,24 @@ func (s *Service) Read(ctx context.Context, id string) (View, error) {
 		}
 		out.Items = append(out.Items, item)
 	}
-	if s.Autonomy != nil {
-		a, found, err := s.Autonomy.JobAutonomy(ctx, id)
+	if s.AutoApprove != nil {
+		auto, found, err := s.AutoApprove.JobAutoApprove(ctx, id)
 		if err != nil {
 			return View{}, err
 		}
 		if found {
-			v := autonomy.Evaluate(a.Approve.Min, scored)
+			v := autonomy.Evaluate(domain.AutoApproveMin, scored)
 			pending := 0
 			for _, i := range m.Items {
 				if i.Status == "pending" || i.Status == "running" || i.InFlight != nil {
 					pending++
 				}
 			}
-			out.Autonomy = &AutonomyView{Mode: a.Approve.Mode, Min: v.Min, Total: v.Total, Passed: v.Passed, Pending: pending, Below: v.Below, Summary: v.Summary()}
+			mode := "ask"
+			if auto {
+				mode = "score"
+			}
+			out.Autonomy = &AutonomyView{Mode: mode, Min: v.Min, Total: v.Total, Passed: v.Passed, Pending: pending, Below: v.Below, Summary: v.Summary()}
 		}
 	}
 	return out, nil
@@ -389,47 +397,10 @@ func (s *Service) Review(ctx context.Context, id string, input ReviewInput) (Rev
 	out.Manifest.Revision = l.manifest.Revision
 	if rerun {
 		out.Generation = &GenerateResult{Accepted: true, JobID: id, Pending: pending, Count: len(pending)}
-		out.Generation.Learn = s.observeFeedback(ctx, id, l, input.Actions)
 	}
 	return out, nil
 }
 
-// observeFeedback ghi các góp ý vẽ lại để Hoạ sĩ học. Mỗi (prompt, góp ý) tính
-// một lần dù áp cho nhiều ảnh trong cùng một lệnh. Lỗi không làm hỏng lần vẽ lại.
-func (s *Service) observeFeedback(ctx context.Context, id string, l loaded, actions []Action) any {
-	if s.Learner == nil {
-		return nil
-	}
-	scene, cover, err := s.effectivePrompts(ctx, l)
-	if err != nil {
-		return nil
-	}
-	kinds := map[string]string{}
-	for _, i := range l.manifest.Items {
-		kinds[i.ID] = i.Kind
-	}
-	type key struct{ prompt, text string }
-	seen := map[key]bool{}
-	var found any
-	for _, a := range actions {
-		if a.Op != "regenerate" || a.Prompt == nil || strings.TrimSpace(*a.Prompt) == "" {
-			continue
-		}
-		prompt := scene
-		if kinds[a.ID] == "thumbnail" && cover.ID != "" {
-			prompt = cover
-		}
-		if prompt.ID == "" || seen[key{prompt.ID, *a.Prompt}] {
-			continue
-		}
-		seen[key{prompt.ID, *a.Prompt}] = true
-		learn, err := s.Learner.ObserveRedraw(ctx, id, l.snapshot.Job.ChannelID, prompt.ID, prompt.Name, *a.Prompt)
-		if err == nil && learn != nil && found == nil {
-			found = learn
-		}
-	}
-	return found
-}
 func sameChoice(a, b *int) bool { return (a == nil && b == nil) || (a != nil && b != nil && *a == *b) }
 func firstReviewCompleted(snapshot jobedit.Snapshot, wasApproved bool, next model.Manifest) bool {
 	if wasApproved || !model.ImagesApproved(next) {

@@ -366,6 +366,7 @@ type Job struct {
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 	Version        int64              `json:"version"`
+	QueuePriority  int32              `json:"queue_priority"`
 }
 
 type JobEvent struct {

@@ -43,18 +43,23 @@ export function imageTime(image: { startSec?: number; endSec?: number }): string
 export type JobStage = 'images' | 'review' | 'render' | 'issue' | 'quality' | 'done' | 'paused' | 'queued'
 
 /**
- * Suy trạng thái hiển thị từ dữ liệu thật của job. `attention` chỉ là Độ hoàn thiện
- * khi Kiểm định đang dừng ở bước score; còn lại là sự cố. `working` chỉ là màn
- * dựng/xuất khi bước hiện tại là build/export.
+ * Suy trạng thái hiển thị từ dữ liệu thật của job. Lỗi quality_gate của bước
+ * score hoặc export còn nằm trong steps sau khi worker đã xoá activeStep; lỗi công cụ hay
+ * nguồn AI ở cùng bước vẫn là sự cố, không phải quyền bỏ qua kiểm định.
  */
-export function jobStage(job: { stageGroup: string; activeStep: string | null }): JobStage {
+export function jobStage(job: { stageGroup: string; activeStep: string | null; steps?: Pick<JobStep, 'step' | 'status' | 'error'>[] | null }): JobStage {
   switch (job.stageGroup) {
     case 'paused': return 'paused'
     case 'review': return 'review'
     case 'ready':
     case 'posted': return 'done'
     case 'queued': return 'queued'
-    case 'attention': return job.activeStep === 'score' ? 'quality' : 'issue'
+    case 'attention': {
+      const blocked = job.steps?.find(step => (step.status === 'failed' || step.status === 'waiting') && step.error)
+      return blocked
+        ? (blocked.step === 'score' || blocked.step === 'export') && blocked.error?.code === 'quality_gate' ? 'quality' : 'issue'
+        : job.activeStep === 'score' ? 'quality' : 'issue'
+    }
     case 'working': return job.activeStep === 'build' || job.activeStep === 'export' ? 'render' : 'images'
     default: return 'images'
   }
@@ -125,4 +130,49 @@ export function stepClock(iso: string | null): string {
 export function stepPercent(step: { status: string; progress: { unitsDone: number; unitsTotal: number | null } }): number | null {
   if (!step.progress.unitsTotal) return step.status === 'succeeded' ? 100 : null
   return Math.min(100, Math.round(step.progress.unitsDone / step.progress.unitsTotal * 100))
+}
+
+/** Bản MP4 của video đã xong: đường dẫn phát được + số đo thật của file. */
+export type FinishedVideo = {
+  url: string
+  /** Thời lượng thật của bản xuất (máy chủ ghi `durationMs`); null khi chỉ còn artifact cũ. */
+  durationSec: number | null
+  /** Dung lượng file máy chủ ghi; null khi chưa có. */
+  bytes: number | null
+}
+
+const nonEmpty = (value: unknown) => typeof value === 'string' && value !== '' ? value : ''
+const positive = (value: unknown) => typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null
+
+type FinishedJob = { id: string; steps?: Pick<JobStep, 'step' | 'status' | 'output'>[] | null }
+
+/**
+ * File cuối của video đã xuất xong theo đúng dữ liệu thật của job.
+ *
+ * Pipeline hiện tại công bố MP4 thành bản xuất của editor và chỉ để lại
+ * `output.data { projectId, exportId, fileName, size, durationMs, removedAt }`,
+ * không có artifact `video/mp4` — nên chỉ tìm artifact sẽ báo "file không còn"
+ * dù bản xuất vẫn nằm trên máy chủ. Job cũ có artifact thì nhánh đó giữ nguyên.
+ * Bản xuất đã xoá (`removedAt`) hoặc bước chưa xong không được hiện file.
+ */
+export function finishedVideo(job: FinishedJob): FinishedVideo | null {
+  const steps = job.steps ?? []
+  const step = steps.find(item => item.step === 'export')
+  const data = step?.output?.data
+  if (!step?.output) return null
+  // `removedAt` chỉ được ghi sau khi máy chủ xoá file; `accepted` là dấu "Vẫn xuất"
+  // của chủ (07-data-contract), không phải dấu file tồn tại.
+  if (nonEmpty(data?.removedAt)) return null
+  const durationMs = positive(data?.durationMs)
+  const size = positive(data?.size)
+  const measured = { durationSec: durationMs === null ? null : durationMs / 1000, bytes: size }
+  const artifact = step.output.artifacts?.find(item => item.contentType === 'video/mp4')
+  if (artifact) return { url: `/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(artifact.id)}`, ...measured }
+  if (step.status !== 'succeeded') return null
+  // Bản xuất thật do editor công bố: `projectId` của bước xuất, thiếu thì lấy của bước dựng.
+  const projectId = nonEmpty(data?.projectId) || nonEmpty(steps.find(item => item.step === 'build')?.output?.data?.projectId)
+  const exportId = nonEmpty(data?.exportId)
+  if (!projectId || !exportId) return null
+  // Cùng đường dẫn editor dùng để phát/tải bản xuất (storage-backend `exportUrl`).
+  return { url: `/api/editor/projects/${encodeURIComponent(projectId)}/exports/${encodeURIComponent(exportId)}`, ...measured }
 }

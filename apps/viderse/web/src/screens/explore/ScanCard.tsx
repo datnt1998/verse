@@ -5,7 +5,8 @@ import { exploreStyles } from './explore.stylex'
 // Tiếp tục · Quét lại · Quét lịch sử) và listbox Giới hạn (150 · 500 · 1.000 ·
 // 2.000 · 5.000 · 10.000 → PATCH scan).
 import { useState } from 'react'
-import { Button, ChipSelect, Icon, toast } from '@noverse/ui'
+import { Button, Icon, toast } from '@noverse/ui'
+import { ResponsiveChipSelect } from '../../components/responsive-overlays'
 import { setData } from '@noverse/ui/data'
 import { controlRivalScan, setRivalScanCap, type ScanStatus } from '../../api/rivals'
 import { t } from '../../i18n/explore'
@@ -63,7 +64,7 @@ export function ScanCard({ status, rivalId, mobile = false }: { status: ScanStat
             {view.button.label}
           </Button>
         )}
-        <ChipSelect label={tt.scanCapLabel} prefix={tt.scanCap} size={mobile ? 'm' : 'sm'} disabled={busy}
+        <ResponsiveChipSelect label={tt.scanCapLabel} prefix={tt.scanCap} size={mobile ? 'm' : 'sm'} disabled={busy}
           value={String(status.historyCap)} options={CAPS.map((cap) => ({ value: String(cap), label: num.format(cap) }))} onChange={setCap} />
       </div>
     </div>

@@ -1,23 +1,24 @@
 // Danh sách Bàn dựng điện thoại (artboard MMain › screen=list): một cột H1 +
-// tiến độ ngày, thẻ Bản tin, đề xuất ngang, dải kênh (chỉ ở Mọi kênh) và video
-// thật chia đúng nhóm Chờ bạn / Đang làm / Sẵn sàng đăng / Chờ lượt / Đã đăng.
+// tiến độ ngày, đề xuất dạng dòng, dải kênh (chỉ ở Mọi kênh) và video thật chia
+// đúng nhóm Chờ bạn / Đang làm / Sẵn sàng đăng / Chờ lượt / Đã đăng. Bản tin và
+// thẻ Kế hoạch đã bỏ ở V37; bố cục điện thoại đầy đủ thuộc đợt 44.
 import * as stylex from '@stylexjs/stylex'
 import { Button, Icon, Shimmer } from '@noverse/ui'
-import type { CloneJobView, RecapData } from '../../../api/workbench'
+import type { CloneJobView } from '../../../api/workbench'
 import type { ChannelSummary } from '../../../api/workbenchChannels'
 import { ChannelAvatar } from '../../../components/ChannelAvatar'
 import { Orb } from '../../../components/Orb'
-import { SuggestionCard } from '../../../components/suggestions/SuggestionCard'
+import { SuggestionRow } from '../../../components/suggestions/SuggestionRow'
 import { useSuggestions } from '../../../components/suggestions/useSuggestions'
 import { screenWorkbench } from '../../../i18n/screens'
 import { navigate, paths, routePath } from '../../../router'
 import { groupJobs } from '../workbench-logic'
-import { dayProgress, durationLabel, groupLabel, jobStatusLine, recapWindow, runningProgress, scopeName } from './mworkbench-logic'
+import { dayProgress, durationLabel, groupLabel, jobStatusLine, runningProgress, scopeName } from './mworkbench-logic'
 import { mw, mwList as l } from './mworkbench.stylex'
 
 const c = screenWorkbench.mobile
 
-export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channelsLoading, listLoading, listError, recap, recapLoading, recapError, onRetry, onPickScope, onOpenJob, onOpenRecap }: {
+export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channelsLoading, listLoading, listError, onRetry, onPickScope, onOpenJob }: {
   scope: string
   jobs: CloneJobView[]
   queuedTotal: number
@@ -25,22 +26,14 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
   channelsLoading: boolean
   listLoading: boolean
   listError: unknown
-  recap: RecapData | undefined
-  recapLoading: boolean
-  recapError: unknown
   onRetry: () => void
   onPickScope: (channel?: string) => void
   onOpenJob: (id: string) => void
-  onOpenRecap: () => void
 }) {
   const progress = dayProgress(channels, scope)
   const groups = groupJobs(jobs, scope === 'all')
   const suggestions = useSuggestions(scope)
-  const ready = channels.reduce((sum, channel) => sum + channel.ready, 0)
-  const waiting = channels.reduce((sum, channel) => sum + channel.waitingYou, 0)
   const channel = channels.find((item) => item.channelId === scope)
-  const autoDone = recap?.auto?.length ?? 0
-  const suggestionCount = recap?.suggestions?.length ?? suggestions.list.data?.total ?? 0
 
   if (listLoading) return <div role="status" {...stylex.props(mw.state)}>Đang tải Bàn dựng…</div>
   if (listError != null && jobs.length === 0) return <div role="alert" {...stylex.props(mw.state)}>
@@ -58,20 +51,6 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
       </div>
     </div>
 
-    <button type="button" {...stylex.props(l.recapCard)} onClick={onOpenRecap} aria-label="Mở Bản tin">
-      <span aria-hidden="true" {...stylex.props(l.recapOrbs)}>
-        <Orb of="scout" size={15} style={{ position: 'absolute', left: 0, top: 0 }} />
-        <Orb of="qa" size={13} style={{ position: 'absolute', right: 0, top: 4 }} />
-        <Orb of="director" size={12} style={{ position: 'absolute', left: 6, bottom: 0 }} />
-      </span>
-      <span {...stylex.props(l.recapBody)}>
-        <span {...stylex.props(l.recapKicker)}>{recap ? `Bản tin · ${recapWindow(recap.from, recap.to)}` : c.recapTitle}</span>
-        <span {...stylex.props(l.recapLead)}>{recapLoading ? 'Đang tải Bản tin…' : recap ? recap.summary || c.recapLead(ready, waiting) : recapError ? 'Không tải được Bản tin.' : c.recapEmpty}</span>
-        {(autoDone > 0 || suggestionCount > 0) && <span {...stylex.props(l.recapMeta)}>{autoDone > 0 ? `Máy đã tự làm ${autoDone} việc` : 'Chưa có việc tự làm'}{suggestionCount > 0 ? ` · ${suggestionCount} đề xuất` : ''}</span>}
-      </span>
-      <Icon name="arrow-r" size={16} xstyle={l.recapChevron} />
-    </button>
-
     <section aria-label={c.suggestions} {...stylex.props(mw.section)}>
       <div {...stylex.props(mw.sectionHead)}>
         <h2 {...stylex.props(mw.sectionTitle)}>{c.suggestions}</h2>
@@ -80,12 +59,10 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
       {suggestions.list.initialLoading ? <p role="status" {...stylex.props(mw.notice)}>Đang tải…</p>
         : suggestions.list.error != null && !suggestions.list.data ? <div role="alert" {...stylex.props(mw.notice)}>{c.suggestionsError} <Button size="sm" variant="quiet" onClick={() => void suggestions.list.refresh()}>{c.retry}</Button></div>
         : !suggestions.list.data?.suggestions.length ? <p {...stylex.props(mw.notice)}>{c.suggestionsEmpty}</p>
-        : <div {...stylex.props(mw.rail)}>
-          {suggestions.list.data.suggestions.slice(0, 5).map((suggestion) => <div key={suggestion.id} {...stylex.props(mw.railItem, mw.suggestCard)}>
-            <SuggestionCard suggestion={suggestion} busy={suggestions.busy === suggestion.id} offline={!suggestions.online}
-              notice={suggestions.notice?.id === suggestion.id ? suggestions.notice.text : undefined}
-              onAccept={() => void suggestions.accept(suggestion)} onDismiss={() => void suggestions.dismiss(suggestion)} />
-          </div>)}
+        : <div {...stylex.props(mw.jobList)}>
+          {suggestions.list.data.suggestions.slice(0, 3).map((suggestion) => <SuggestionRow key={suggestion.id} suggestion={suggestion} busy={suggestions.busy === suggestion.id} offline={!suggestions.online}
+            notice={suggestions.notice?.id === suggestion.id ? suggestions.notice.text : undefined}
+            onAccept={() => void suggestions.accept(suggestion)} onDismiss={() => void suggestions.dismiss(suggestion)} />)}
         </div>}
     </section>
 

@@ -2,9 +2,10 @@
 import { invalidate } from '@noverse/ui/data'
 import { keys } from '../data/keys'
 import { mutate, request } from './request'
+import { paths } from '../router'
 
 /** request body chung: đặt kênh đích (bắt buộc) + danh sách URL + tuỳ chọn. */
-export type CloneInput = { channelId: string; urls: string[]; priority?: 'pick' | 'batch'; templateId?: string }
+export type CloneInput = { channelId: string; urls: string[]; templateId?: string }
 
 export type ClonePlanAccepted = {
   url: string
@@ -30,6 +31,7 @@ export type ClonePlanAccepted = {
 export type ClonePlanDuplicate = {
   url: string
   jobId: string | null
+  queueItemId?: string
   state: string
   title?: string
   thumbnailUrl?: string | null
@@ -41,13 +43,13 @@ export type ClonePlanDuplicate = {
   publishedAt?: string | null
 }
 export type ClonePlanInvalid = { url: string; reason: 'unreadable' | 'private' | 'not_youtube' | string }
-export type ClonePlanTemplate = { id: string; name: string; fromRotation: boolean }
+export type ClonePlanTemplate = { id: string; name: string }
 
 export type ClonePlan = {
   accepted: ClonePlanAccepted[]
   duplicates: ClonePlanDuplicate[]
   invalid: ClonePlanInvalid[]
-  /** 'front' (pick) | 'back' (batch) — server tính theo số URL */
+  /** Manual additions enter the front of the pending queue. */
   position: string
   etaStart: string | null
   paceLeftToday: number
@@ -58,20 +60,28 @@ export type ClonePlan = {
   priceUSD: number | null
 }
 
-/** Trả của POST /api/clone/enqueue: các queue item mới + link đã trùng job. */
+/** Canonical POST /api/jobs result, including mixed-input feedback. */
 export type CloneEnqueueResult = {
   items: { id: string; jobId: string | null }[]
   duplicates?: ClonePlanDuplicate[]
+  invalid?: ClonePlanInvalid[]
 }
 
 export const planClone = (body: CloneInput, signal?: AbortSignal) =>
   request<ClonePlan>('/api/clone/plan', { body, signal })
 export const enqueueClone = async (body: CloneInput, signal?: AbortSignal) => {
-  const result = await request<CloneEnqueueResult>('/api/clone/enqueue', { body, signal })
+  const result = await request<CloneEnqueueResult>('/api/jobs', { body, signal })
   void invalidate(keys.queue())
   void invalidate(keys.status())
   return result
 }
+
+export const cloneTarget = (item: { jobId: string | null; queueItemId?: string }) =>
+  item.jobId ? paths.workbench({ video: item.jobId }) : item.queueItemId ? paths.workbench({ queueItem: item.queueItemId }) : null
+
+export type QueueItemTarget = { id: string; channelId: string; jobId: string | null; state: string }
+export const getQueueItem = (id: string, signal?: AbortSignal) =>
+  request<QueueItemTarget>(`/api/queue/items/${encodeURIComponent(id)}`, { signal })
 
 // ── Hàng chờ (§3 · internal/domain/clone_queue.go) ───────────────────────────
 
@@ -95,12 +105,12 @@ export type QueueRunningItem = {
   pausedAt?: string | null
 }
 
-export type QueueSkipReason = 'pace_full' | 'no_template' | 'paused_channel' | 'workers_busy' | string
+export type QueueSkipReason = 'pace_full' | 'paused_channel' | 'workers_busy' | string
 export type QueueSkippedChannel = { channelId: string; reason: QueueSkipReason; until?: string | null }
 export type QueueRotation = { order: string[]; next: string | null; skipped: QueueSkippedChannel[] }
 
-/** waitReason do server soạn: queue_paused | workers_busy | rotation | paused_channel | pace_full | no_template */
-export type QueueWaitReason = 'queue_paused' | 'workers_busy' | 'rotation' | 'paused_channel' | 'pace_full' | 'no_template' | ''
+/** waitReason do server soạn: queue_paused | workers_busy | rotation | paused_channel | pace_full */
+export type QueueWaitReason = 'queue_paused' | 'workers_busy' | 'rotation' | 'paused_channel' | 'pace_full' | ''
 
 export type QueueQueuedItem = {
   /** id của queue item — đích của PATCH move/remove */
@@ -161,7 +171,7 @@ export const getQueue = (signal?: AbortSignal) =>
  *  move theo `position` float midpoint, action "front"|"remove". */
 export type QueuePatch =
   | { paused: boolean }
-  | { workers?: number; imageWorkers?: number; rescanHours?: number }
+  | { workers: number }
   | { id: string; position: number }
   | { id: string; action: 'front' | 'remove' | 'restore' }
 

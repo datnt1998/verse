@@ -31,4 +31,5 @@ export const timelineTokens = stylex.defineVars({
   audioBorder: 'rgba(120,201,154,.85)',
   waveform: 'rgba(147,220,223,.9)',
   labelBackground: 'rgba(13,13,15,.82)',
+  keyframeHalo: 'rgba(11,11,13,.75)',
 })

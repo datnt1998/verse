@@ -12,10 +12,8 @@ import (
 func TestClaimRecordsAutomaticStepRetry(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	_, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','test')`)
-	if err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
+	var err error
 	store := postgres.NewCloneStore(pool)
 	start, err := store.StartJob(ctx, postgres.StartJobInput{ChannelID: "11111111-1111-4111-8111-111111111111", SourceKey: "retry", Source: domain.CloneSourceSnapshot{ID: "retry", Title: "retry"}, TemplateSnapshot: json.RawMessage(`{}`), ModelRefs: json.RawMessage(`{}`), Priority: domain.ClonePick, Origin: domain.OriginManual})
 	if err != nil {

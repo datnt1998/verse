@@ -7,10 +7,12 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { dismissConfirmations, dismissToasts } from '@noverse/ui'
 import { SessionProvider, useSession, type SessionState } from './session'
 import { request } from './request'
 import type { User } from './types'
 
+import { t } from '../i18n/vi'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
 const USER: User = { username: 'linh', name: 'Linh', role: 'member', grants: { noverse: 'member', viderse: 'member' }, createdAt: '2026-10-29T00:00:00Z' }
@@ -34,20 +36,29 @@ function Probe() {
 }
 
 const roots: Root[] = []
+const containers: HTMLElement[] = []
 async function mount() {
   const container = document.createElement('div')
   document.body.append(container)
   const root = createRoot(container)
+  containers.push(container)
   roots.push(root)
   await act(async () => { root.render(<SessionProvider><Probe /></SessionProvider>) })
   return container
 }
 
-beforeEach(() => { location.hash = '#/' })
+beforeEach(() => {
+  location.hash = '#/'
+  vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
+    matches: query.includes('prefers-reduced-motion'), media: query, onchange: null,
+    addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+  })))
+})
 
 afterEach(async () => {
+  await act(async () => { dismissConfirmations(); dismissToasts() })
   for (const root of roots.splice(0)) await act(() => root.unmount())
-  document.body.replaceChildren()
+  for (const container of containers.splice(0)) container.remove()
   vi.unstubAllGlobals()
 })
 
@@ -276,27 +287,48 @@ describe('refresh / signIn / signOut', () => {
     expect(latest.user?.username).toBe('linh')
   })
 
-  it('signOut gọi /api/logout rồi dọn phiên UI', async () => {
-    stubFetch((path) => {
+  it('signOut chỉ revoke và dọn phiên UI sau xác nhận', async () => {
+    const fetch = stubFetch((path) => {
       if (path === '/api/me') return respond({ user: USER })
       if (path === '/api/logout') return respond({ ok: true })
       throw new Error(`fetch lạ: ${path}`)
     })
     await mount()
-    await act(async () => { await latest.signOut() })
+    let completion: Promise<void> | undefined
+    await act(async () => { completion = latest.signOut() })
+    expect(fetch.mock.calls.some(([path]) => path === '/api/logout')).toBe(false)
+    expect(latest.user?.username).toBe('linh')
+    const confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    const primary = [...confirmation.querySelectorAll('button')].find(button => button.textContent === t.account.logout)!
+    await act(async () => { primary.click() })
+    await act(async () => { await completion })
+    expect(fetch.mock.calls.filter(([path]) => path === '/api/logout')).toHaveLength(1)
     expect(latest.user).toBeNull()
   })
 
-  it('signOut lỗi revoke (500) → ném lỗi, GIỮ phiên UI (không báo giả đã thoát)', async () => {
-    stubFetch((path) => {
+  it('revoke lỗi giữ phiên và hộp xác nhận; thử lại thành công mới thoát', async () => {
+    let failed = true
+    const fetch = stubFetch((path) => {
       if (path === '/api/me') return respond({ user: USER })
-      if (path === '/api/logout') return respond({ error: 'kho tài khoản tạm lỗi' }, 500)
+      if (path === '/api/logout') return failed ? respond({ error: 'internal_account_store_error' }, 500) : respond({ ok: true })
       throw new Error(`fetch lạ: ${path}`)
     })
     await mount()
-    let outcome: unknown
-    await act(async () => { outcome = await latest.signOut().then(() => 'ok', (e: { status: number }) => e.status) })
-    expect(outcome).toBe(500)
+    let completion: Promise<void> | undefined
+    await act(async () => { completion = latest.signOut() })
+    const confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    const primary = [...confirmation.querySelectorAll('button')].find(button => button.textContent === t.account.logout)!
+    await act(async () => { primary.click() })
     expect(latest.user?.username).toBe('linh')
+    expect(confirmation.querySelector('[role="alert"]')?.textContent).toBe(t.account.logoutFailed)
+    expect(confirmation.textContent).not.toContain('internal_account_store_error')
+    expect(document.querySelector('[role="alertdialog"]')).toBe(confirmation)
+    failed = false
+    await act(async () => { primary.click() })
+    await act(async () => { await completion })
+    expect(latest.user).toBeNull()
+    expect(fetch.mock.calls.filter(([path]) => path === '/api/logout')).toHaveLength(2)
   })
 })

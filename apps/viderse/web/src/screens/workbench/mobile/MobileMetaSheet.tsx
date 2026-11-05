@@ -1,16 +1,13 @@
 // Sheet "Nội dung đăng" của Bàn dựng điện thoại (artboard MMain › meta). Dùng
 // đúng API của cột phải máy tính: đọc/sửa metadata, viết lại theo phần, lịch sử
 // và dùng lại bản cũ. Không có dữ liệu tĩnh.
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Sheet, useEscapeLayer } from '@noverse/ui'
+import { Button, Sheet } from '@noverse/ui'
 import { getHistory, getMetadata, mutateMetadata, type History, type MetaResponse, type Metadata, type MetadataPartName } from '../../../api/workbenchPanels'
-import type { SuggestionReason } from '../../../api/suggestions'
-import { ReasonPopover } from '../../../components/reason/ReasonPopover'
 import { screenWorkbench } from '../../../i18n/screens'
 import { metadataDescriptionBody, metadataDescriptionWithFooter } from '../panels/panelLogic'
 import { mw } from './mworkbench.stylex'
-const LearnSlot = lazy(() => import('../../../components/learn/LearnSlot').then((module) => ({ default: module.LearnSlot })))
 
 const c = screenWorkbench.mobile.metaSheet
 const PARTS: MetadataPartName[] = ['title', 'description', 'tags']
@@ -171,8 +168,6 @@ function OpenMetaSheet({ jobId, initialView, onClose, onRefresh }: { jobId: stri
             <Button size="sm" variant="quiet" onClick={() => copy(draft.title)}>{c.copy}</Button>
           </span>
           <textarea aria-label={c.titleField} {...stylex.props(mw.input)} maxLength={100} value={draft.title} onChange={(event) => { dirty.current = true; setDraft((current) => ({ ...current, title: event.target.value })) }} />
-          <MetaReason reason={data.reason?.title} field={c.titleField} />
-          <Suspense fallback={null}><LearnSlot ownerKey={jobId} learn={meta.learn} /></Suspense>
         </div>
 
         <div {...stylex.props(mw.field)}>
@@ -181,7 +176,6 @@ function OpenMetaSheet({ jobId, initialView, onClose, onRefresh }: { jobId: stri
             <Button size="sm" variant="quiet" onClick={() => copy(draft.description)}>{c.copy}</Button>
           </span>
           <textarea aria-label={c.descriptionField} {...stylex.props(mw.input, mw.textarea)} maxLength={Math.max(0, 5000 - (meta.descriptionFooter?.length ?? 0) - (meta.descriptionFooter ? 2 : 0))} value={draft.description} onChange={(event) => { dirty.current = true; setDraft((current) => ({ ...current, description: event.target.value })) }} />
-          <MetaReason reason={data.reason?.description} field={c.descriptionField} />
           {meta.descriptionFooter && <div {...stylex.props(mw.card)}>
             <span {...stylex.props(mw.cardHint)}>{c.footerNote}</span>
             <p {...stylex.props(mw.promptLine)}>{meta.descriptionFooter}</p>
@@ -202,10 +196,9 @@ function OpenMetaSheet({ jobId, initialView, onClose, onRefresh }: { jobId: stri
           <form onSubmit={(event) => { event.preventDefault(); const next = tag.trim(); if (!next) return; dirty.current = true; setDraft((current) => ({ ...current, tags: current.tags.includes(next) ? current.tags : [...current.tags, next] })); setTag('') }}>
             <input {...stylex.props(mw.input)} aria-label={c.addTag} value={tag} onChange={(event) => setTag(event.target.value)} placeholder={c.addTag} />
           </form>
-          <MetaReason reason={data.reason?.tags} field={c.tagsField} />
         </div>
 
-        <div {...stylex.props(mw.planFooter)}>
+        <div {...stylex.props(mw.sheetFooter)}>
           <Button size="lg" variant="primary" block disabled={busy || !changed} onClick={save}>{c.save}</Button>
           <Button size="lg" variant="ghost" onClick={onClose}>{c.close}</Button>
         </div>
@@ -213,14 +206,4 @@ function OpenMetaSheet({ jobId, initialView, onClose, onRefresh }: { jobId: stri
       </>}
     </div>
   </Sheet>
-}
-
-function MetaReason({ reason, field }: { reason: SuggestionReason | undefined; field: string }) {
-  const [open, setOpen] = useState(false)
-  useEscapeLayer(open, () => setOpen(false))
-  if (!reason) return null
-  return <div {...stylex.props(mw.field)}>
-    <Button size="sm" variant="quiet" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? screenWorkbench.mobile.metaWhyClose : screenWorkbench.mobile.metaWhy}</Button>
-    {open && <ReasonPopover reason={reason} label={`${screenWorkbench.mobile.metaWhy} ${field}`} />}
-  </div>
 }

@@ -12,11 +12,12 @@ const state = vi.hoisted(() => ({
 vi.mock('../../../router', () => ({ useRoute: () => ({ route: { name: 'audio', project: 'p', story: 's' }, search: new URLSearchParams() }), navigate: vi.fn(), paths: { settings: () => '/settings' } }))
 vi.mock('../../../data', () => ({
   keys: { story: (...parts: unknown[]) => parts, config: (...parts: unknown[]) => ['config', ...parts], jobs: () => ['jobs'], tts: () => ['tts'] },
+  invalidate: vi.fn(),
   useConnection: () => ({ writable: true }),
   useResource: (key: readonly string[]) => ({ data: key.includes('status') ? state.tts : null, error: null }),
   useAction: () => ({ run: vi.fn() }),
 }))
-vi.mock('../../../mobile/primitives', () => ({ MobilePage: ({ children }: { children: ReactNode }) => <main>{children}</main>, BottomSheet: () => null, useMobileToast: () => vi.fn() }))
+vi.mock('../../../mobile/primitives', () => ({ MobilePage: ({ children }: { children: ReactNode }) => <main>{children}</main>, BottomSheet: () => null, ConfirmSheet: () => null, useMobileToast: () => vi.fn() }))
 vi.mock('../../../shell/jobs/useJobs', () => ({
   // Chạy đúng selector trên kho việc rỗng — index cần mảng, thẻ nổi cần undefined.
   useJobSelection: <T,>(select: (state: JobsState) => T): T => select({ jobs: [] } as unknown as JobsState),
@@ -110,4 +111,12 @@ it('vẫn cho nghe các chương đã có giọng khi máy đọc chưa sẵn s�
   const html = render()
   expect(html).toContain('Nghe chương 1')
   expect(html).toContain('Chương một')
+})
+
+it('hàng chương có nút ⋯ mở thao tác đúng chương, tách khỏi nút phát', () => {
+  state.playable = true
+  const html = render()
+  expect(html).toContain('ma-chapter-menu')
+  expect(html).toContain('aria-label="Thao tác chương 1"')
+  expect(html).toContain('aria-haspopup="dialog"')
 })

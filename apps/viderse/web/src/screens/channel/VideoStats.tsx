@@ -12,7 +12,7 @@ import { useMediaQuery } from '../../lib/useMediaQuery'
 import { channelStats } from './videosLogic'
 import { videoStyles as sx } from './videos.stylex'
 
-const labels = t.channels.videos.stats
+const labels = t.channels.stats
 
 export function VideoStats({ channel, jobs }: { channel: Channel; jobs: Resource<ChannelJobs> }) {
   const narrow = useMediaQuery('(max-width: 767px)')
@@ -20,7 +20,7 @@ export function VideoStats({ channel, jobs }: { channel: Channel; jobs: Resource
   const data = jobs.data
   const etas = (queue.data?.items ?? []).filter((item) => item.channelId === channel.id && item.etaStart).map((item) => item.etaStart as string).sort()
   const stats = data
-    ? channelStats(data.jobs, { createdAt: channel.createdAt, youtubeUrl: channel.youtubeUrl, autoPick: channel.autoPick, nextEta: etas[0] ?? null, now: Date.now() })
+    ? channelStats(data.jobs, { createdAt: channel.createdAt, youtubeUrl: channel.youtubeUrl, autoFetch: channel.autoFetch, nextEta: etas[0] ?? null, now: Date.now() })
     : null
   const placeholder = [labels.made, labels.posted, labels.waiting, labels.queued]
   return (

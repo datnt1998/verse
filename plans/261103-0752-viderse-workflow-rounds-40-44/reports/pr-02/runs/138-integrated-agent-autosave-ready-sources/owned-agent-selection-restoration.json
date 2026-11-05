@@ -1,0 +1,123 @@
+{
+  "schema": "viderse-owned-agent-selection-restoration/1",
+  "backgroundMetadataPolicy": "storage.serverOffline updated_at is independently rewritten by storage.SetServerStorageOffline; its value and every other field remain guarded and no heartbeat row is restored",
+  "generatedAt": "2026-11-04T10:19:55.875018+00:00",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "targetModel": "gpt-5.5",
+  "providerID": "chatgpt",
+  "expectedTestTitle": "agent model autosave: real ChatGPT gpt-5.5 is visible before the PUT resolves and persists after reload",
+  "childExitCode": 0,
+  "pwTestPassed": true,
+  "pwTestSkipped": false,
+  "pwReport": {
+    "passed": true,
+    "skipped": false,
+    "matchedSpecs": 2,
+    "matchedTests": 2,
+    "projects": [
+      "desktop",
+      "desktop-reduced"
+    ],
+    "stats": {
+      "startTime": "2026-11-04T10:19:41.661Z",
+      "duration": 13278.487,
+      "expected": 2,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "problems": [],
+    "reason": "exact test passed in 2 projects with no skips"
+  },
+  "pwReportPath": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/138-integrated-agent-autosave-ready-sources/playwright-report.json",
+  "baselinePath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-agent-selection-hhhx7r5k/owned-agent-selection-baseline.json",
+  "digests": {
+    "baseline": {
+      "settings": "f7ec84e3c2070ace02060be8ad6a80d48559c277d2909d1d8ea534c41f21b19d",
+      "agentsRow": "82ac756edb5e65c515c4b0b504567f631557c60126d723b314d171b7d9e1b3e8",
+      "providers": "6815e0f67a87fc6429f66e81365c5ef9709013aee6a11bd7c898084471b62f36",
+      "models": "585d5079b5ff36ff90cb05ca1f185750a3c4981d3c87c33b3aa97eb97c9e7402",
+      "source": "8267a87c38e1357806f9473d66fc9f960848c22a7b6d5c6585ea2729ec4a76c7",
+      "editor": "b913be339d8229b79247d10c84b79028c7dd9974dc122cff4e3868c724731d68",
+      "imageReceipts": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416",
+      "agentsGet": "8056e4e8de3c2d0f7768b9f2752e85ffb1df73f902f605abe93b22d59f1d7d15"
+    },
+    "afterChild": {
+      "settings": "b94e903841fd1664024855953c904cad98557f27ad382b38f98f352dfdbb6dd9",
+      "agentsRow": "63170447fc1e97963a3fc293e10a942542090a60d9cc14124dfb8ee348703c86",
+      "providers": "d19b6aaa35c3f9ff706b0e9bfc5f3f656f4a692a96c09b7e8858bcf762e88a68",
+      "models": "585d5079b5ff36ff90cb05ca1f185750a3c4981d3c87c33b3aa97eb97c9e7402",
+      "source": "8267a87c38e1357806f9473d66fc9f960848c22a7b6d5c6585ea2729ec4a76c7",
+      "editor": "b913be339d8229b79247d10c84b79028c7dd9974dc122cff4e3868c724731d68",
+      "imageReceipts": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416"
+    },
+    "afterCleanup": {
+      "settings": "f7ec84e3c2070ace02060be8ad6a80d48559c277d2909d1d8ea534c41f21b19d",
+      "providers": "6815e0f67a87fc6429f66e81365c5ef9709013aee6a11bd7c898084471b62f36",
+      "models": "585d5079b5ff36ff90cb05ca1f185750a3c4981d3c87c33b3aa97eb97c9e7402",
+      "source": "8267a87c38e1357806f9473d66fc9f960848c22a7b6d5c6585ea2729ec4a76c7",
+      "editor": "b913be339d8229b79247d10c84b79028c7dd9974dc122cff4e3868c724731d68",
+      "imageReceipts": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416"
+    }
+  },
+  "observed": {
+    "agentsRowFound": true,
+    "directorModel": {
+      "model": "gpt-5.5",
+      "provider": "chatgpt"
+    },
+    "promptModel": {
+      "model": "gpt-5.5",
+      "provider": "chatgpt"
+    },
+    "effort": "medium",
+    "fallbackOn": false,
+    "providerSelected": [
+      "gpt-6.1-sol",
+      "gpt-image-2",
+      "gpt-5.5"
+    ],
+    "providerSelectedExpected": [
+      "gpt-6.1-sol",
+      "gpt-image-2",
+      "gpt-5.5"
+    ],
+    "directorTarget": true,
+    "promptTarget": true,
+    "selectedTargetOnlyAdded": true,
+    "effortValid": true,
+    "fallbackBoolean": true
+  },
+  "positiveObserved": true,
+  "restoration": {
+    "agentsApiPutAttempted": true,
+    "providerApiPatchAttempted": true,
+    "settingsRowCasAttempted": true,
+    "providerRowCasAttempted": true,
+    "settingsRowRestored": true,
+    "providerRowRestored": true,
+    "agentsGetRestored": true,
+    "finalSettingsMatch": true,
+    "finalProvidersMatch": true,
+    "authPreexistingPreserved": true,
+    "otherSettingsUnchanged": true,
+    "modelsUnchanged": true,
+    "sourceUnchanged": true,
+    "editorUnchanged": true,
+    "imageReceiptsUnchanged": true
+  },
+  "imageReceiptsBefore": {
+    "count": 2,
+    "hash": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416"
+  },
+  "imageReceiptsAfterChild": {
+    "count": 2,
+    "hash": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416"
+  },
+  "imageReceiptsAfterCleanup": {
+    "count": 2,
+    "hash": "1ae16682eba71e8ba834b02d57e541cdd65be14dc4be479e7678837bc69f7416"
+  },
+  "providerCallProof": "image_receipts rows/hash equal before/after child: 0 new rows (2 rows)",
+  "errors": []
+}

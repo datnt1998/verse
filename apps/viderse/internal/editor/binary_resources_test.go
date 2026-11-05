@@ -413,9 +413,7 @@ func TestEditorAdoptionAcceptsContentAddressedMediaAcrossJobs(t *testing.T) {
 	channel := "00000000-0000-4000-8000-0000000000c1"
 	jobA := "00000000-0000-4000-8000-0000000000a1"
 	jobB := "00000000-0000-4000-8000-0000000000b1"
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES($1,'Owner')`, channel); err != nil {
-		t.Fatal(err)
-	}
+	seedEditorCloneChannel(t, pool, channel)
 	for _, job := range []string{jobA, jobB} {
 		if _, err := pool.Exec(ctx, `INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,generation) VALUES($1,$2,$3,'{}',1)`, job, channel, "source-"+job); err != nil {
 			t.Fatal(err)

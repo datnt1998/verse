@@ -1,0 +1,673 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "settings-state-audit.pw.ts",
+      "-g",
+      "settings frame: genuine",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "settings-state-audit.pw.ts",
+      "file": "settings-state-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5845,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T04:39:10.487Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-evidence-metadata.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiYmFzZVVSTCI6ICJodHRwOi8vMTI3LjAuMC4xOjgwNDMiLAogICJzb3VyY2VSZXZpc2lvbiI6ICI1MmQzODcxMjI1ZTRhNmM4ZGQwNzk5YzBlNWQxNTE2OTI0NjNkNjAwIgp9"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS50b29scyIsCiAgICAiZXhwZWN0ZWQiOiAiTmF0aXZlIHRvb2xzIHNlY3Rpb24gb3BlbnMgd2l0aCBpdHMgZGVza3RvcC9tb2JpbGUgdGl0bGUiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiZnJhbWUuY29ubmVjdCIsCiAgICAiZXhwZWN0ZWQiOiAiRGVza3RvcCBuYXYgb3BlbnMgS+G6v3QgbuG7kWkgQUkiLAogICAgIm9ic2VydmVkIjogIkvhur90IG7hu5FpIEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hY2NvdW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiRGVza3RvcCBuYXYgb3BlbnMgVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAib2JzZXJ2ZWQiOiAiVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiZnJhbWUudG9vbHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIEPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAib2JzZXJ2ZWQiOiAiQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5sb2dzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBCw6FvIGzhu5dpIiwKICAgICJvYnNlcnZlZCI6ICJCw6FvIGzhu5dpIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucXVvdGEiLAogICAgImV4cGVjdGVkIjogIkRyYXctc291cmNlIHF1b3RhIG1pcnJvcnMgcHJvdmlkZXIucXVvdGEgd2l0aG91dCBpbnZlbnRpbmcgYSBwbGFuIiwKICAgICJvYnNlcnZlZCI6ICIyLzIgZGF5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIkFnZW50IHJvbGVzIHJlbmRlciBhbmQgbmF2aWdhdGlvbiByZXR1cm5zIHRvIHRoZSBzZWxlY3RlZCBzZWN0aW9uIHdpdGhvdXQgY2hhbmdpbmcgY29uZmlndXJhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiZGlyZWN0b3IvYXJ0aXN0L3Njb3V0L3FhIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImFjY291bnRzLnJlYWRvbmx5IiwKICAgICJleHBlY3RlZCI6ICJQbGF0Zm9ybSBjYXJkcyByZW5kZXIgZ2VudWluZSBzdGF0dXMgYW5kIGxvZ2luIGNvbnRyb2xzIHdpdGhvdXQgYWN0aXZhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiMyBwbGF0Zm9ybSBjYXJkcywgc3RhdGVzIGFzc2VydGVkIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9Cl0="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-4f19c784dfb032383834",
+          "file": "settings-state-audit.pw.ts",
+          "line": 199,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4570,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T04:39:17.833Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-evidence-metadata.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJiYXNlVVJMIjogImh0dHA6Ly8xMjcuMC4wLjE6ODA0MyIsCiAgInNvdXJjZVJldmlzaW9uIjogIjUyZDM4NzEyMjVlNGE2YzhkZDA3OTljMGU1ZDE1MTY5MjQ2M2Q2MDAiCn0="
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJOYXRpdmUgdG9vbHMgc2VjdGlvbiBvcGVucyB3aXRoIGl0cyBkZXNrdG9wL21vYmlsZSB0aXRsZSIsCiAgICAib2JzZXJ2ZWQiOiAiQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIEvhur90IG7hu5FpIEFJIiwKICAgICJvYnNlcnZlZCI6ICJL4bq/dCBu4buRaSBBSSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmFjY291bnRzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBUw6BpIGtob+G6o24gbuG7gW4gdOG6o25nIiwKICAgICJvYnNlcnZlZCI6ICJUw6BpIGtob+G6o24gbuG7gW4gdOG6o25nIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJEZXNrdG9wIG5hdiBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMTQ0MMOXOTAwIiwKICAgICJjb250cm9sIjogImZyYW1lLmxvZ3MiLAogICAgImV4cGVjdGVkIjogIkRlc2t0b3AgbmF2IG9wZW5zIELDoW8gbOG7l2kiLAogICAgIm9ic2VydmVkIjogIkLDoW8gbOG7l2kiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiYWdlbnRzLnF1b3RhIiwKICAgICJleHBlY3RlZCI6ICJEcmF3LXNvdXJjZSBxdW90YSBtaXJyb3JzIHByb3ZpZGVyLnF1b3RhIHdpdGhvdXQgaW52ZW50aW5nIGEgcGxhbiIsCiAgICAib2JzZXJ2ZWQiOiAiMi8yIGRheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJkZXNrdG9wLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjE0NDDDlzkwMCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIkFnZW50IHJvbGVzIHJlbmRlciBhbmQgbmF2aWdhdGlvbiByZXR1cm5zIHRvIHRoZSBzZWxlY3RlZCBzZWN0aW9uIHdpdGhvdXQgY2hhbmdpbmcgY29uZmlndXJhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiZGlyZWN0b3IvYXJ0aXN0L3Njb3V0L3FhIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAiZGVza3RvcC1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIxNDQww5c5MDAiLAogICAgImNvbnRyb2wiOiAiYWNjb3VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIlBsYXRmb3JtIGNhcmRzIHJlbmRlciBnZW51aW5lIHN0YXR1cyBhbmQgbG9naW4gY29udHJvbHMgd2l0aG91dCBhY3RpdmF0aW9uIiwKICAgICJvYnNlcnZlZCI6ICIzIHBsYXRmb3JtIGNhcmRzLCBzdGF0ZXMgYXNzZXJ0ZWQiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-f27f99567d471e480098",
+          "file": "settings-state-audit.pw.ts",
+          "line": 199,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6515,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T04:39:23.970Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-evidence-metadata.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMzkwLAogICAgImhlaWdodCI6IDg0NAogIH0sCiAgImJhc2VVUkwiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDQzIiwKICAic291cmNlUmV2aXNpb24iOiAiNTJkMzg3MTIyNWU0YTZjOGRkMDc5OWMwZTVkMTUxNjkyNDYzZDYwMCIKfQ=="
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiZnJhbWUudG9vbHMiLAogICAgImV4cGVjdGVkIjogIk5hdGl2ZSB0b29scyBzZWN0aW9uIG9wZW5zIHdpdGggaXRzIGRlc2t0b3AvbW9iaWxlIHRpdGxlIiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5tb2JpbGUtbGlzdCIsCiAgICAiZXhwZWN0ZWQiOiAiTGlzdCB2YWx1ZXMgbWF0Y2ggbGl2ZSBwcm92aWRlcnMvcGxhdGZvcm1zL2FnZW50cy90b29scyByZXNvdXJjZXMiLAogICAgIm9ic2VydmVkIjogIjIgcHJvdmlkZXJzLCAzIHBsYXRmb3JtcyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBL4bq/dCBu4buRaSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiS+G6v3QgbuG7kWkgQUkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hZ2VudHMiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBUcuG7oyBsw70gQUkiLAogICAgIm9ic2VydmVkIjogIlRy4bujIGzDvSBBSSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmFjY291bnRzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAib2JzZXJ2ZWQiOiAiVMOgaSBraG/huqNuIG7hu4FuIHThuqNuZyIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5zdG9yYWdlIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgTMawdSB0cuG7ryIsCiAgICAib2JzZXJ2ZWQiOiAiTMawdSB0cuG7ryIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmxvZ3MiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsb2dzIGRlZXAgbGluayByZW5kZXJzOyBsaXN0IHJvdyBpcyB0aGUgbmF0aXZlIGV4cG9ydCBhY3Rpb24sIG5vdCBhIHNlY3Rpb24gcm93IiwKICAgICJvYnNlcnZlZCI6ICJsb2dzIHNjcmVlbiArIGV4cG9ydCBjYXJkIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucXVvdGEiLAogICAgImV4cGVjdGVkIjogIkRyYXctc291cmNlIHF1b3RhIG1pcnJvcnMgcHJvdmlkZXIucXVvdGEgd2l0aG91dCBpbnZlbnRpbmcgYSBwbGFuIiwKICAgICJvYnNlcnZlZCI6ICIyLzIgZGF5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiYWdlbnRzLnJlYWRvbmx5IiwKICAgICJleHBlY3RlZCI6ICJBZ2VudCByb2xlcyByZW5kZXIgYW5kIG5hdmlnYXRpb24gcmV0dXJucyB0byB0aGUgc2VsZWN0ZWQgc2VjdGlvbiB3aXRob3V0IGNoYW5naW5nIGNvbmZpZ3VyYXRpb24iLAogICAgIm9ic2VydmVkIjogImRpcmVjdG9yL2FydGlzdC9zY291dC9xYSB2aXNpYmxlIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiYWNjb3VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIlBsYXRmb3JtIGNhcmRzIHJlbmRlciBnZW51aW5lIHN0YXR1cyBhbmQgbG9naW4gY29udHJvbHMgd2l0aG91dCBhY3RpdmF0aW9uIiwKICAgICJvYnNlcnZlZCI6ICIzIHBsYXRmb3JtIGNhcmRzLCBzdGF0ZXMgYXNzZXJ0ZWQiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-e8b9c1854088b021ef04",
+          "file": "settings-state-audit.pw.ts",
+          "line": 199,
+          "column": 5
+        },
+        {
+          "title": "settings frame: genuine section values, desktop/mobile navigation and read-only agents/accounts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5059,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T04:39:31.697Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "settings-evidence-metadata.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAiYmFzZVVSTCI6ICJodHRwOi8vMTI3LjAuMC4xOjgwNDMiLAogICJzb3VyY2VSZXZpc2lvbiI6ICI1MmQzODcxMjI1ZTRhNmM4ZGQwNzk5YzBlNWQxNTE2OTI0NjNkNjAwIgp9"
+                    },
+                    {
+                      "name": "settings-controls.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS50b29scyIsCiAgICAiZXhwZWN0ZWQiOiAiTmF0aXZlIHRvb2xzIHNlY3Rpb24gb3BlbnMgd2l0aCBpdHMgZGVza3RvcC9tb2JpbGUgdGl0bGUiLAogICAgIm9ic2VydmVkIjogIkPDtG5nIGPhu6UgdHLDqm4gbcOheSIsCiAgICAidmVyaWZpZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicHJvamVjdCI6ICJtb2JpbGUtcmVkdWNlZCIsCiAgICAidmlld3BvcnQiOiAiMzkww5c4NDQiLAogICAgImNvbnRyb2wiOiAiZnJhbWUubW9iaWxlLWxpc3QiLAogICAgImV4cGVjdGVkIjogIkxpc3QgdmFsdWVzIG1hdGNoIGxpdmUgcHJvdmlkZXJzL3BsYXRmb3Jtcy9hZ2VudHMvdG9vbHMgcmVzb3VyY2VzIiwKICAgICJvYnNlcnZlZCI6ICIyIHByb3ZpZGVycywgMyBwbGF0Zm9ybXMiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmNvbm5lY3QiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBL4bq/dCBu4buRaSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiS+G6v3QgbuG7kWkgQUkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLmFnZW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9iaWxlIGxpc3Qgcm93IG9wZW5zIFRy4bujIGzDvSBBSSIsCiAgICAib2JzZXJ2ZWQiOiAiVHLhu6MgbMO9IEFJIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5hY2NvdW50cyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9iaWxlIGxpc3Qgcm93IG9wZW5zIFTDoGkga2hv4bqjbiBu4buBbiB04bqjbmciLAogICAgIm9ic2VydmVkIjogIlTDoGkga2hv4bqjbiBu4buBbiB04bqjbmciLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnRvb2xzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbGlzdCByb3cgb3BlbnMgQ8O0bmcgY+G7pSB0csOqbiBtw6F5IiwKICAgICJvYnNlcnZlZCI6ICJDw7RuZyBj4bulIHRyw6puIG3DoXkiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImZyYW1lLnN0b3JhZ2UiLAogICAgImV4cGVjdGVkIjogIk1vYmlsZSBsaXN0IHJvdyBvcGVucyBMxrB1IHRy4buvIiwKICAgICJvYnNlcnZlZCI6ICJMxrB1IHRy4buvIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJmcmFtZS5sb2dzIiwKICAgICJleHBlY3RlZCI6ICJNb2JpbGUgbG9ncyBkZWVwIGxpbmsgcmVuZGVyczsgbGlzdCByb3cgaXMgdGhlIG5hdGl2ZSBleHBvcnQgYWN0aW9uLCBub3QgYSBzZWN0aW9uIHJvdyIsCiAgICAib2JzZXJ2ZWQiOiAibG9ncyBzY3JlZW4gKyBleHBvcnQgY2FyZCB2aXNpYmxlIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucXVvdGEiLAogICAgImV4cGVjdGVkIjogIkRyYXctc291cmNlIHF1b3RhIG1pcnJvcnMgcHJvdmlkZXIucXVvdGEgd2l0aG91dCBpbnZlbnRpbmcgYSBwbGFuIiwKICAgICJvYnNlcnZlZCI6ICIyLzIgZGF5IiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9LAogIHsKICAgICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAgICJ2aWV3cG9ydCI6ICIzOTDDlzg0NCIsCiAgICAiY29udHJvbCI6ICJhZ2VudHMucmVhZG9ubHkiLAogICAgImV4cGVjdGVkIjogIkFnZW50IHJvbGVzIHJlbmRlciBhbmQgbmF2aWdhdGlvbiByZXR1cm5zIHRvIHRoZSBzZWxlY3RlZCBzZWN0aW9uIHdpdGhvdXQgY2hhbmdpbmcgY29uZmlndXJhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiZGlyZWN0b3IvYXJ0aXN0L3Njb3V0L3FhIHZpc2libGUiLAogICAgInZlcmlmaWVkIjogdHJ1ZQogIH0sCiAgewogICAgInByb2plY3QiOiAibW9iaWxlLXJlZHVjZWQiLAogICAgInZpZXdwb3J0IjogIjM5MMOXODQ0IiwKICAgICJjb250cm9sIjogImFjY291bnRzLnJlYWRvbmx5IiwKICAgICJleHBlY3RlZCI6ICJQbGF0Zm9ybSBjYXJkcyByZW5kZXIgZ2VudWluZSBzdGF0dXMgYW5kIGxvZ2luIGNvbnRyb2xzIHdpdGhvdXQgYWN0aXZhdGlvbiIsCiAgICAib2JzZXJ2ZWQiOiAiMyBwbGF0Zm9ybSBjYXJkcywgc3RhdGVzIGFzc2VydGVkIiwKICAgICJ2ZXJpZmllZCI6IHRydWUKICB9Cl0="
+                    },
+                    {
+                      "name": "settings-mutations.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/69-settled-settings-frame/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "390887a5fd392d1272c4-77de902e856342b4657f",
+          "file": "settings-state-audit.pw.ts",
+          "line": 199,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T04:39:10.038Z",
+    "duration": 27708.055,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

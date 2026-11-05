@@ -1,0 +1,23 @@
+{
+  "source": "apps/viderse/docs/design/v1/artboards/Main.dc.html",
+  "props": {
+    "stage": "done",
+    "backdropShort": false
+  },
+  "readback": {
+    "stage": "done",
+    "backdropShort": false
+  },
+  "viewport": {
+    "width": 1440,
+    "height": 900
+  },
+  "captureTarget": "Phủ kín video",
+  "geometry": {
+    "x": 1140,
+    "y": 492.484375,
+    "width": 84.453125,
+    "height": 20.140625
+  },
+  "artboardModified": false
+}

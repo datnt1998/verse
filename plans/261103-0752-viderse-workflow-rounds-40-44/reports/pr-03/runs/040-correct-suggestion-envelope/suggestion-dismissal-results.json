@@ -1,0 +1,57 @@
+{
+  "fixtureSource": "Explicitly marked QA input rows referencing existing saved video; no claim of producer recommendation or provider generation",
+  "results": [
+    {
+      "project": "desktop",
+      "kinds": [
+        "hot_video",
+        "template_failing",
+        "cleanup"
+      ],
+      "dismissed": 3,
+      "readbackAfterReload": true,
+      "forbidden": [],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/suggestions/eaf5e8fc-7c3c-4e48-b36b-1d51a845dfdc/dismiss"
+        },
+        {
+          "method": "POST",
+          "path": "/api/suggestions/af991ed1-2984-4b85-b3dd-995c6b78d6fd/dismiss"
+        },
+        {
+          "method": "POST",
+          "path": "/api/suggestions/32dd4250-f054-4311-bf7e-5ed2e9ea3822/dismiss"
+        }
+      ],
+      "status": "passed"
+    },
+    {
+      "project": "desktop-reduced",
+      "kinds": [
+        "hot_video",
+        "template_failing",
+        "cleanup"
+      ],
+      "dismissed": 3,
+      "readbackAfterReload": true,
+      "forbidden": [],
+      "mutations": [
+        {
+          "method": "POST",
+          "path": "/api/suggestions/989f0f24-00f3-4980-bb5b-683d32b55252/dismiss"
+        },
+        {
+          "method": "POST",
+          "path": "/api/suggestions/b0026681-af6b-4f52-87fb-43dcde1a2393/dismiss"
+        },
+        {
+          "method": "POST",
+          "path": "/api/suggestions/b10f909e-aec3-474d-b70f-4a54ae95bc71/dismiss"
+        }
+      ],
+      "status": "passed"
+    }
+  ]
+}

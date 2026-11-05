@@ -3,11 +3,12 @@
 // dẫn Cài đặt và có chấm đỏ khi có mục attention; ở màn Cài đặt bánh răng đang mở
 // (nền --color-surface-6) và chỗ bộ đổi kênh là nhãn “Cài đặt · máy này”.
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-header/.vv-gear).
+// The session-owned quick composer and N shortcut live in AppShell.
 import { Suspense, lazy, useRef, useState, type MouseEvent } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, type Route, navSection } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
-import { Icon } from '@noverse/ui'
+import { Icon, Kbd } from '@noverse/ui'
 import { ChannelSwitcher, type SwitcherChannel } from './ChannelSwitcher'
 import { ExploreCrumb } from './ExploreCrumb'
 import { JobsPill } from './JobsPill'
@@ -18,7 +19,7 @@ import { AccountMenu } from './AccountMenu'
 import { getActivity } from '../api/activity'
 import { keys } from '../data/keys'
 import * as stylex from '@stylexjs/stylex'
-import { color, line } from '@noverse/ui/tokens.stylex'
+import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import { shellChrome } from './shell.stylex'
 
 // Bảng Hoạt động chỉ mở khi bấm chuông: chunk riêng, không nằm trong lần tải đầu.
@@ -78,6 +79,26 @@ const sx = stylex.create({
     boxShadow: '0 0 0 2px var(--color-bg)',
   },
   activityAnchor: { position: 'relative', flex: '0 0 auto' },
+  newVideo: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 'var(--vv-s-7)',
+    height: 'var(--vv-s-32)',
+    flexShrink: 0,
+    paddingInline: 'var(--vv-s-10)',
+    borderRadius: 'var(--vv-r-8)',
+    borderWidth: 'var(--vv-s-1)',
+    borderStyle: 'solid',
+    borderColor: kit['--kit-wash-12'],
+    color: color['--color-fg'],
+    backgroundColor: { default: 'transparent', ':hover': line['--line-2'] },
+    fontSize: 'var(--vv-fs-meta)',
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+    transition: { default: 'background-color var(--vv-dur), transform var(--vv-dur-press)', '@media (prefers-reduced-motion: reduce)': 'none' },
+    transform: { ':active': 'scale(.98)' },
+    textDecoration: 'none',
+  },
 })
 
 export function AppHeader({ route, status, online, userName, channels, channelHref }: {
@@ -132,6 +153,9 @@ export function AppHeader({ route, status, online, userName, channels, channelHr
       </div>
       <MainNav route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />
       <div {...stylex.props(sx.zone, sx.zoneRight)}>
+        <a href={`#${paths.new(route.name === 'workbench' ? route.channel : undefined)}`} {...stylex.props(sx.newVideo)}>
+          <Icon name="video-add" size={13} />{t.shell.makeVideo}<Kbd>N</Kbd>
+        </a>
         <div ref={activityAnchor} {...stylex.props(sx.activityAnchor)}>
           <JobsPill status={status} online={online} unread={(activity.data?.unread ?? []).some((n) => n.kind === 'review_ready' || n.kind === 'needs_attention')} onOpen={toggleActivity} expanded={activityOpen} />
         </div>

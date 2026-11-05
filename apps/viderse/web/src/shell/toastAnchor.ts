@@ -1,7 +1,7 @@
 // Neo vị trí viên toast (V31 · r35): `[data-toast-anchor]` là thanh đáy màn
-// (ô Nhắn trợ lý của AssistantComposer). Viên nằm giữa cột nội dung, trên
-// thanh đó 12px, qua hai biến --vv-toast-left/--vv-toast-bottom trên <html>;
-// không có neo thì host dùng fallback giữa đáy màn (Editor, các màn cổng).
+// (nếu màn có thanh như vậy). Viên nằm giữa cột nội dung, trên thanh đó 12px,
+// qua hai biến --vv-toast-left/--vv-toast-bottom trên <html>; không có neo thì
+// host dùng fallback giữa đáy màn (Editor, các màn cổng).
 import { useEffect } from 'react'
 
 const SELECTOR = '[data-toast-anchor]'

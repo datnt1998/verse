@@ -1,0 +1,589 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "studio-state-audit.pw.ts",
+      "--grep",
+      "@main-working",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--reporter=json",
+      "--output",
+      "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts",
+          "studio-state-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "studio-state-audit.pw.ts",
+      "file": "studio-state-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "@main-working Main images and render stages plus the real pause→resume transition",
+          "ok": true,
+          "tags": [
+            "main-working"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2928,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T14:22:21.534Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-working-stage-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiaW1hZ2VzIjogewogICAgImluaXRpYWwiOiAid29ya2luZyIsCiAgICAiaXRlbXMiOiA3LAogICAgInBhdXNlZEF0IjogIjIwMjYtMTEtMDRUMjE6MjI6MjMuMzkyNDI4KzA3OjAwIiwKICAgICJyZXN1bWVkU3RhZ2UiOiAid29ya2luZyIKICB9LAogICJyZW5kZXIiOiB7CiAgICAiY2hpcCI6ICLEkGFuZyB4deG6pXQgdmlkZW8iLAogICAgImJ1aWxkIjogewogICAgICAic3RhdHVzIjogInJ1bm5pbmciLAogICAgICAidW5pdHNUb3RhbCI6IG51bGwKICAgIH0sCiAgICAiZXhwb3J0U3RlcFN0YXR1cyI6ICJwZW5kaW5nIgogIH0KfQ=="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQT1NUIC9hcGkvY2xvbmUvMDUyMGMzMDctNjhjMi00MGNkLWI1OTItNmExN2Q1MGVjZjBiIiwKICAgICJQT1NUIC9hcGkvY2xvbmUvMDUyMGMzMDctNjhjMi00MGNkLWI1OTItNmExN2Q1MGVjZjBiIgogIF0sCiAgImV4dGVybmFsQ291bnQiOiAwLAogICJleHRlcm5hbFNhbXBsZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working/studio-state-audit.pw.ts---a368a-eal-pause→resume-transition-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-78e0cdfa9daf7aa9b8bd",
+          "file": "studio-state-audit.pw.ts",
+          "line": 700,
+          "column": 5
+        },
+        {
+          "title": "@main-working Main jobs running, working menu and real offline reconnect",
+          "ok": true,
+          "tags": [
+            "main-working"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15224,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T14:22:24.847Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-jobs-offline-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AiLAogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAic3RhdHVzIjogewogICAgInJ1bm5pbmciOiA1LAogICAgInF1ZXVlZCI6IDAsCiAgICAicGF1c2VkIjogZmFsc2UsCiAgICAicmV2aWV3Q291bnQiOiAzLAogICAgImF0dGVudGlvbiI6IFsKICAgICAgewogICAgICAgICJraW5kIjogInF1b3RhX2xvdyIsCiAgICAgICAgInRleHQiOiAiQ2hhdEdQVCDEkcOjIGTDuW5nIGjhur90IDIg4bqjbmggdHLhuqMgcGjDrSBow7RtIG5heSIsCiAgICAgICAgImhyZWYiOiAiIy9zZXR0aW5ncz9zZWN0aW9uPWNvbm5lY3QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAia2luZCI6ICJsb2dpbl9leHBpcmVkIiwKICAgICAgICAidGV4dCI6ICJDaMawYSDEkcSDbmcgbmjhuq1wIEdyb2siLAogICAgICAgICJocmVmIjogIiMvc2V0dGluZ3M/c2VjdGlvbj1jb25uZWN0IgogICAgICB9LAogICAgICB7CiAgICAgICAgImtpbmQiOiAidG9vbF91cGRhdGUiLAogICAgICAgICJ0ZXh0IjogIkPDsyBi4bqjbiBt4bubaSBjaG8gVOG6o2kgdmlkZW8gdsOgIHBo4bulIMSR4buBIiwKICAgICAgICAiaHJlZiI6ICIjL3NldHRpbmdzP3NlY3Rpb249dG9vbHMiCiAgICAgIH0KICAgIF0KICB9LAogICJhcGlQaWQiOiA0NDU1NiwKICAiY29tbSI6ICIvdmFyL2ZvbGRlcnMvdjcvY2d5NmJ2X2oxeDE4enh4azVsN2RwaHc4MDAwMGduL1QvdmVyc2UtdjM2LW93bmVyLXNhZmUteXF6MGNwYV8vdmlkZXJzZS12MzctaW50ZWdyYXRlZCIsCiAgInJlY292ZXJlZCI6ICJydW5uaW5nIgp9"
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working/studio-state-audit.pw.ts---c91bf--and-real-offline-reconnect-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-cefc059f78a4f05f6a05",
+          "file": "studio-state-audit.pw.ts",
+          "line": 783,
+          "column": 5
+        },
+        {
+          "title": "@main-working Main images and render stages plus the real pause→resume transition",
+          "ok": true,
+          "tags": [
+            "main-working"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2536,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T14:22:40.919Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-working-stage-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJpbWFnZXMiOiB7CiAgICAiaW5pdGlhbCI6ICJ3b3JraW5nIiwKICAgICJpdGVtcyI6IDcsCiAgICAicGF1c2VkQXQiOiAiMjAyNi0xMS0wNFQyMToyMjo0Mi43NDE1MTQrMDc6MDAiLAogICAgInJlc3VtZWRTdGFnZSI6ICJ3b3JraW5nIgogIH0sCiAgInJlbmRlciI6IHsKICAgICJjaGlwIjogIsSQYW5nIHh14bqldCB2aWRlbyIsCiAgICAiYnVpbGQiOiB7CiAgICAgICJzdGF0dXMiOiAicnVubmluZyIsCiAgICAgICJ1bml0c1RvdGFsIjogbnVsbAogICAgfSwKICAgICJleHBvcnRTdGVwU3RhdHVzIjogInBlbmRpbmciCiAgfQp9"
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQT1NUIC9hcGkvY2xvbmUvZWQyNTNkNWEtZmFiOS00NzgzLTg1YmMtYjY5OTAzMjZlN2UyIiwKICAgICJQT1NUIC9hcGkvY2xvbmUvZWQyNTNkNWEtZmFiOS00NzgzLTg1YmMtYjY5OTAzMjZlN2UyIgogIF0sCiAgImV4dGVybmFsQ291bnQiOiAwLAogICJleHRlcm5hbFNhbXBsZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working/studio-state-audit.pw.ts---a368a-eal-pause→resume-transition-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-3ed64b5e464fa5ce4e93",
+          "file": "studio-state-audit.pw.ts",
+          "line": 700,
+          "column": 5
+        },
+        {
+          "title": "@main-working Main jobs running, working menu and real offline reconnect",
+          "ok": true,
+          "tags": [
+            "main-working"
+          ],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14551,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T14:22:43.871Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "main-jobs-offline-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogImRlc2t0b3AtcmVkdWNlZCIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMTQ0MCwKICAgICJoZWlnaHQiOiA5MDAKICB9LAogICJzdGF0dXMiOiB7CiAgICAicnVubmluZyI6IDQsCiAgICAicXVldWVkIjogMCwKICAgICJwYXVzZWQiOiBmYWxzZSwKICAgICJyZXZpZXdDb3VudCI6IDMsCiAgICAiYXR0ZW50aW9uIjogWwogICAgICB7CiAgICAgICAgImtpbmQiOiAicXVvdGFfbG93IiwKICAgICAgICAidGV4dCI6ICJDaGF0R1BUIMSRw6MgZMO5bmcgaOG6v3QgMiDhuqNuaCB0cuG6oyBwaMOtIGjDtG0gbmF5IiwKICAgICAgICAiaHJlZiI6ICIjL3NldHRpbmdzP3NlY3Rpb249Y29ubmVjdCIKICAgICAgfSwKICAgICAgewogICAgICAgICJraW5kIjogImxvZ2luX2V4cGlyZWQiLAogICAgICAgICJ0ZXh0IjogIkNoxrBhIMSRxINuZyBuaOG6rXAgR3JvayIsCiAgICAgICAgImhyZWYiOiAiIy9zZXR0aW5ncz9zZWN0aW9uPWNvbm5lY3QiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAia2luZCI6ICJ0b29sX3VwZGF0ZSIsCiAgICAgICAgInRleHQiOiAiQ8OzIGLhuqNuIG3hu5tpIGNobyBU4bqjaSB2aWRlbyB2w6AgcGjhu6UgxJHhu4EiLAogICAgICAgICJocmVmIjogIiMvc2V0dGluZ3M/c2VjdGlvbj10b29scyIKICAgICAgfQogICAgXQogIH0sCiAgImFwaVBpZCI6IDQ0NTU2LAogICJjb21tIjogIi92YXIvZm9sZGVycy92Ny9jZ3k2YnZfajF4MTh6eHhrNWw3ZHBodzgwMDAwZ24vVC92ZXJzZS12MzYtb3duZXItc2FmZS15cXowY3BhXy92aWRlcnNlLXYzNy1pbnRlZ3JhdGVkIiwKICAicmVjb3ZlcmVkIjogInJ1bm5pbmciCn0="
+                    },
+                    {
+                      "name": "main-state-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "main-state-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/028-rewrite-selection-boundaries/browser-working/studio-state-audit.pw.ts---c91bf--and-real-offline-reconnect-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8743701a3d892d69df68-56bd8d2006afcccdd8de",
+          "file": "studio-state-audit.pw.ts",
+          "line": 783,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T14:22:21.253Z",
+    "duration": 37743.51,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

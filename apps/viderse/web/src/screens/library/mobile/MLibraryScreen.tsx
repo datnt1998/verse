@@ -2,7 +2,7 @@
 // tweak tab=templates|prompts|backdrops|overlays, sheet=none|actions|new).
 // Dùng đúng dữ liệu/API của Thư viện máy tính (listTemplates, listPrompts,
 // listOverlays, listBackdrop*), không thêm endpoint nào.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
   ActionSheet, Button, ConfirmSheet, Dialog, Icon, InitialsAvatar, MobilePage,
@@ -16,18 +16,20 @@ import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import { channelTint } from '../../../lib/channelTint'
 import {
-  addBackdropChannel, addBackdropVideo, listBackdropChannels, listBackdropVideos, parseSource,
+  addBackdropChannel, addBackdropVideo, backdropVideoFileHref, listBackdropChannels, listBackdropVideos, parseSource,
+  refreshBackdropChannel, removeBackdropChannel, removeBackdropVideo,
   type BackdropChannel, type BackdropVideo,
 } from '../../../api/backdrop'
 import {
   addOverlay, createPrompt, createTemplate, downloadTemplate, duplicateTemplate, fieldErrors, listOverlays, listOwnerChannels,
-  listPrompts, listTemplates, patchTemplate, removeTemplate,
+  listPrompts, listTemplates, patchTemplate, removeOverlay, removeTemplate,
   type ImagePrompt, type Overlay, type PromptKind, type TemplateSummary,
 } from '../../../api/library'
 import { channelsHref } from '../../../lib/lastChannel'
 import { AttachChannelDialog } from '../AttachChannelDialog'
 import { TemplateImportDialog } from '../TemplateImportDialog'
 import { PromptEditor } from '../PromptEditor'
+import { TemplateArtwork } from '../TemplateArtwork'
 import { styleOf, imagesText } from '../TemplatesTab'
 import { editedLabel, initials } from '../fmt'
 import { kindName, platformName, segmentLabel } from '../backdrops/fmt'
@@ -36,6 +38,11 @@ import { mlib } from './mlibrary.stylex'
 type LibraryRoute = Extract<Route, { name: 'library' }>
 
 type PromptFilter = 'all' | PromptKind
+
+type LibraryAsset =
+  | { kind: 'channel'; value: BackdropChannel }
+  | { kind: 'video'; value: BackdropVideo }
+  | { kind: 'overlay'; value: Overlay }
 
 /** Mọi khoá prompt (lưới + hộp chọn ảnh cảnh/ảnh bìa của Sửa template). */
 const refreshPrompts = () => Promise.all([
@@ -66,6 +73,8 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   const [addingBackdropBusy, setAddingBackdropBusy] = useState(false)
   const [importing, setImporting] = useState(false)
   const overlayInput = useRef<HTMLInputElement>(null)
+  const [selectedAsset, setSelectedAsset] = useState<{ kind: LibraryAsset['kind']; id: string } | null>(null)
+  const [promptRouteError, setPromptRouteError] = useState<string | null>(null)
 
   const templates = useResource(keys.templates(), ({ signal }) => listTemplates(signal))
   const prompts = useResource(keys.prompts('', ''), ({ signal }) => listPrompts({}, signal))
@@ -82,8 +91,45 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   const sourceVideos = backdropVideos.data ?? []
   const visiblePrompts = promptFilter === 'all' ? promptItems : promptItems.filter((prompt) => prompt.kind === promptFilter)
   const templateCount = templateItems.length
+  const selectedChannel = selectedAsset?.kind === 'channel' ? sourceChannels.find((item) => item.id === selectedAsset.id) : undefined
+  const selectedVideo = selectedAsset?.kind === 'video' ? sourceVideos.find((item) => item.id === selectedAsset.id) : undefined
+  const selectedOverlay = selectedAsset?.kind === 'overlay' ? overlayItems.find((item) => item.id === selectedAsset.id) : undefined
+  const asset: LibraryAsset | null = selectedChannel ? { kind: 'channel', value: selectedChannel }
+    : selectedVideo ? { kind: 'video', value: selectedVideo }
+      : selectedOverlay ? { kind: 'overlay', value: selectedOverlay } : null
+
+  useEffect(() => { setSelectedAsset(null) }, [tab])
+
+  useEffect(() => {
+    setPromptRouteError(null)
+    setEditingPrompt(tab === 'prompts' && route.prompt === 'new' ? null : undefined)
+  }, [tab, route.prompt, route.promptId])
+
+  useEffect(() => {
+    if (tab !== 'prompts' || route.prompt === 'new' || !route.promptId) return
+    setPromptRouteError(null)
+    if (!prompts.data || prompts.error) {
+      setEditingPrompt(undefined)
+      return
+    }
+    const requested = prompts.data.items.find((prompt) => prompt.id === route.promptId)
+    setEditingPrompt(requested)
+    if (!requested) setPromptRouteError('Không tìm thấy chỉ dẫn ảnh này trong thư viện. Có thể chỉ dẫn đã bị xoá.')
+  }, [tab, route.prompt, route.promptId, prompts.data, prompts.error])
+
+  const closePrompt = () => {
+    setEditingPrompt(undefined)
+    navigate(paths.library('prompts'))
+  }
+
+  const openPrompt = (prompt: ImagePrompt | null) => {
+    setSheet(null)
+    navigate(paths.library('prompts', prompt ? (prompt.builtIn ? 'builtin' : 'mine') : 'new', prompt ? { promptId: prompt.id } : undefined))
+  }
 
   const openName = (template: TemplateSummary | null) => {
+    setActive(null)
+    setSheet(null)
     setNaming({ template })
     setNameDraft(template?.name ?? '')
     setNameError(null)
@@ -118,7 +164,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     try {
       const copyOf = await createPrompt({ name: t.library.prompts.copyName(prompt.name), kind: prompt.kind, prompt: prompt.prompt, fromId: prompt.id })
       await refreshPrompts()
-      setEditingPrompt(copyOf)
+      openPrompt(copyOf)
     } catch (err) {
       toast.err(err instanceof Error ? err.message : String(err))
     }
@@ -132,6 +178,15 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
       navigate(paths.template(created.id))
     } catch (err) {
       toast(err instanceof Error ? err.message : String(err), 'err')
+    }
+  }
+
+  const exportTemplate = async (template: TemplateSummary) => {
+    try {
+      await downloadTemplate(template.id)
+      toast(t.library.templates.exported, 'ok')
+    } catch (err) {
+      toast(err instanceof Error ? err.message : t.library.templates.exportFail, 'err')
     }
   }
 
@@ -196,8 +251,8 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     ownerChannels.length
       ? {
           key: 'attach', icon: 'channel', label: t.library.templates.addToChannel,
-          description: activeChannels.length ? copy.attachHint(activeChannels) : undefined,
-          onSelect: () => setAttaching(true),
+          description: activeChannels.length ? copy.attachHint(activeChannels) : copy.attachUnused,
+          onSelect: () => { setActive(null); setAttaching(true) },
         }
       : {
           key: 'attach', icon: 'channel', label: t.library.templates.addToChannel,
@@ -205,22 +260,22 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         },
     {
       key: 'export', icon: 'export', label: copy.exportFile,
-      onSelect: () => downloadTemplate(active.id),
+      onSelect: () => void exportTemplate(active),
     },
     {
       key: 'delete', icon: 'trash', label: copy.deleteTemplate,
       destructive: true,
       ...(activeChannels.length
-        ? { disabled: true, description: copy.deleteHintBusy(activeChannels.length), onSelect: () => undefined }
-        : { description: copy.deleteHintFree, onSelect: () => setDeleting(active) }),
+        ? { disabled: true, description: copy.deleteHintBusy(activeChannels), onSelect: () => undefined }
+        : { description: copy.deleteHintFree, onSelect: () => { setActive(null); setDeleting(active) } }),
     },
   ] : []
 
   const newItems: MobileSheetAction[] = [
     { key: 'template', icon: 'layer', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => openName(null) },
-    { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => setImporting(true) },
-    { key: 'prompt', icon: 'magicpen', label: copy.newPrompt, onSelect: () => setEditingPrompt(null) },
-    { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => setAddingBackdrop(true) },
+    { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => { setSheet(null); setImporting(true) } },
+    { key: 'prompt', icon: 'magicpen', label: copy.newPrompt, onSelect: () => openPrompt(null) },
+    { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => { setSheet(null); setAddingBackdrop(true) } },
   ]
 
   const subtitle = ownerChannels.length ? copy.subtitle(ownerChannels.length) : copy.subtitleEmpty
@@ -235,15 +290,17 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         <div className={stylex.props(mlib.tabsWrap).className}>
           <Segmented
             size="xl"
-            fit="content"
+            fit="equal"
+            columns={4}
+            buttonStyle={mlib.tabButton}
             label={t.library.tabAria}
             value={tab}
             onChange={(next) => navigate(paths.library(TABS.find((id) => id === next)))}
             options={[
-              { id: 'templates', label: <span {...stylex.props(mlib.tabLabel)}>{t.library.tabs.templates}<span {...stylex.props(mlib.tabCount)}>{templateCount}</span></span> },
-              { id: 'prompts', label: <span {...stylex.props(mlib.tabLabel)}>{t.library.tabs.prompts}<span {...stylex.props(mlib.tabCount)}>{promptItems.length}</span></span> },
-              { id: 'backdrops', label: <span {...stylex.props(mlib.tabLabel)}>{t.library.tabs.backdrops}<span {...stylex.props(mlib.tabCount)}>{sourceChannels.length + sourceVideos.length}</span></span> },
-              { id: 'overlays', label: <span {...stylex.props(mlib.tabLabel)}>{t.library.tabs.overlays}<span {...stylex.props(mlib.tabCount)}>{overlayItems.length}</span></span> },
+              { id: 'templates', label: t.library.tabs.templates },
+              { id: 'prompts', label: t.library.tabs.prompts },
+              { id: 'backdrops', label: t.library.tabs.backdrops },
+              { id: 'overlays', label: t.library.tabs.overlays },
             ]}
           />
         </div>
@@ -271,6 +328,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                       <TemplateCard
                         key={template.id}
                         template={template}
+                        prompts={prompts.data?.items}
                         onOpen={() => navigate(paths.template(template.id))}
                         onMenu={() => setActive(template)}
                       />
@@ -299,12 +357,13 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                 ]}
               />
             </div>
+            {promptRouteError && <p role="alert" {...stylex.props(mlib.detailError)}>{promptRouteError}</p>}
             {prompts.initialLoading ? <p {...stylex.props(mlib.loading)}>{t.library.loading}</p>
               : prompts.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
               <div className={stylex.props(mlib.grid2).className}>
                 {visiblePrompts.map((prompt) => (
                   <button key={prompt.id} type="button" className={stylex.props(mlib.prompt).className}
-                    onClick={() => setEditingPrompt(prompt)}>
+                    onClick={() => openPrompt(prompt)}>
                     <span {...stylex.props(mlib.promptArt, prompt.kind === 'cover' && mlib.promptArtCover)} aria-hidden="true">
                       {prompt.sampleUrls?.[0] && brokenSamples[prompt.id] !== prompt.sampleUrls[0] && (
                         <img {...stylex.props(mlib.promptImg)} src={prompt.sampleUrls?.[0]} alt="" loading="lazy"
@@ -316,7 +375,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                     <span {...stylex.props(mlib.promptSub)}>{copy.promptTag(t.library.prompts.kindName[prompt.kind], prompt.usedBy.length ? copy.usedAt(prompt.usedBy.map((ref) => ref.name)) : copy.unused)}</span>
                   </button>
                 ))}
-                <button type="button" className={stylex.props(mlib.promptNew).className} onClick={() => setEditingPrompt(null)}>
+                <button type="button" className={stylex.props(mlib.promptNew).className} onClick={() => openPrompt(null)}>
                   <Icon name="add" size={20} />{copy.newPrompt}
                 </button>
               </div>
@@ -331,10 +390,10 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
               : backdropChannels.error || backdropVideos.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
               <div className={stylex.props(mlib.sourceList).className}>
                 {sourceChannels.map((channel) => (
-                  <SourceChannelRow key={channel.id} channel={channel} />
+                  <SourceChannelRow key={channel.id} channel={channel} onOpen={() => setSelectedAsset({ kind: 'channel', id: channel.id })} />
                 ))}
                 {sourceVideos.map((video) => (
-                  <SourceVideoRow key={video.id} video={video} />
+                  <SourceVideoRow key={video.id} video={video} onOpen={() => setSelectedAsset({ kind: 'video', id: video.id })} />
                 ))}
                 {sourceChannels.length + sourceVideos.length === 0 && (
                   <p {...stylex.props(mlib.help)}>{t.backdrop.tab.emptyTitle}</p>
@@ -354,7 +413,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
               : overlays.error ? <p role="alert" {...stylex.props(mlib.loading)}>{t.library.loadFail}</p> : (
               <>
                 <div className={stylex.props(mlib.grid3).className}>
-                  {overlayItems.map((overlay) => <OverlayTile key={overlay.id} overlay={overlay} />)}
+                  {overlayItems.map((overlay) => <OverlayTile key={overlay.id} overlay={overlay} onOpen={() => setSelectedAsset({ kind: 'overlay', id: overlay.id })} />)}
                 </div>
                 <div className={stylex.props(mlib.addRow).className}>
                   <input ref={overlayInput} type="file" accept="video/mp4,video/webm" hidden
@@ -371,18 +430,18 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         )}
       </div>
 
-      <ActionSheet
-        open={active !== null}
+      {active && <ActionSheet
+        open
         onClose={() => setActive(null)}
-        title={active ? active.name : ''}
+        title={active.name}
         actions={actionItems}
-      />
-      <ActionSheet
-        open={sheet === 'new'}
+      />}
+      {sheet === 'new' && <ActionSheet
+        open
         onClose={() => setSheet(null)}
         title={copy.addSheetTitle}
         actions={newItems}
-      />
+      />}
 
       {naming && (
         <Dialog onClose={() => setNaming(null)}
@@ -422,18 +481,28 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
         <TemplateImportDialog onClose={() => { setImporting(false); void invalidate(keys.templates()) }} />
       )}
 
-      <Sheet open={editingPrompt !== undefined} onClose={() => setEditingPrompt(undefined)} size="md" height="92%">
+      <Sheet open={editingPrompt !== undefined} onClose={closePrompt} size="md" height="92%" label={t.library.tabs.prompts}>
         {editingPrompt !== undefined && (
           <PromptEditor
             key={editingPrompt?.id ?? 'new'}
             prompt={editingPrompt}
-            onClose={() => setEditingPrompt(undefined)}
-            onSaved={(saved) => { setEditingPrompt(saved); void refreshPrompts() }}
-            onDeleted={() => { setEditingPrompt(undefined); void refreshPrompts() }}
+            onClose={closePrompt}
+            onSaved={(saved) => { setEditingPrompt(saved); void refreshPrompts().then(() => openPrompt(saved)) }}
+            onDeleted={() => { closePrompt(); void refreshPrompts() }}
             onDuplicate={editingPrompt ? () => void duplicatePrompt(editingPrompt) : undefined}
           />
         )}
       </Sheet>
+
+      {asset && <AssetDetail
+        key={`${asset.kind}:${asset.value.id}`}
+        asset={asset}
+        templates={templateItems}
+        templatesLoading={templates.initialLoading}
+        templatesError={!!templates.error}
+        retryTemplates={() => void templates.refresh()}
+        onClose={() => setSelectedAsset(null)}
+      />}
 
       <Sheet open={addingBackdrop} onClose={() => setAddingBackdrop(false)} size="md" height="auto"
         title={t.backdrop.tab.linkLabel} subtitle={t.backdrop.tab.hint}>
@@ -446,8 +515,9 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   )
 }
 
-function TemplateCard({ template, onOpen, onMenu }: {
+function TemplateCard({ template, prompts, onOpen, onMenu }: {
   template: TemplateSummary
+  prompts?: readonly ImagePrompt[]
   onOpen: () => void
   onMenu: () => void
 }) {
@@ -458,9 +528,7 @@ function TemplateCard({ template, onOpen, onMenu }: {
   return (
     <article className={stylex.props(mlib.card).className}>
       <button type="button" className={stylex.props(mlib.thumb).className} onClick={onOpen} aria-label={mobile.openTemplateAria(template.name)}>
-        <span {...stylex.props(mlib.thumbBars)} aria-hidden="true">
-          <span {...stylex.props(mlib.thumbBar)} /><span {...stylex.props(mlib.thumbBar)} /><span {...stylex.props(mlib.thumbBar)} />
-        </span>
+        <TemplateArtwork template={template} prompts={prompts} xstyle={mlib.promptImg} />
         <span {...stylex.props(mlib.thumbTag)}>{styleOf(template)}</span>
       </button>
       <div className={stylex.props(mlib.body).className}>
@@ -491,12 +559,12 @@ function TemplateCard({ template, onOpen, onMenu }: {
   )
 }
 
-function SourceChannelRow({ channel }: { channel: BackdropChannel }) {
+function SourceChannelRow({ channel, onOpen }: { channel: BackdropChannel; onOpen: () => void }) {
   const counts = Object.entries(channel.counts).filter(([, count]) => (count ?? 0) > 0)
   const kinds = counts.length ? counts.map(([kind, count]) => `${kindName(kind)} ${count}`).join(', ') : t.backdrop.tab.channelReading
   const used = channel.usedBy.map((ref) => ref.name)
   return (
-    <div className={stylex.props(mlib.source).className}>
+    <button type="button" className={stylex.props(mlib.source).className} onClick={onOpen}>
       {channel.avatarUrl
         ? <img src={channel.avatarUrl} alt="" className={stylex.props(mlib.sourceAvatar).className} width={40} height={40} />
         : <InitialsAvatar name={channel.title ?? channel.handle} size={40} bg={channelTint(channel.id)} xstyle={mlib.sourceAvatar} />}
@@ -506,14 +574,14 @@ function SourceChannelRow({ channel }: { channel: BackdropChannel }) {
         {used.length > 0 && <span {...stylex.props(mlib.sourceUse)}>{t.library.mobile.usedAt(used)}</span>}
       </span>
       <span {...stylex.props(mlib.sourceChevron)} aria-hidden="true"><Icon name="arrow-r" size={16} /></span>
-    </div>
+    </button>
   )
 }
 
-function SourceVideoRow({ video }: { video: BackdropVideo }) {
+function SourceVideoRow({ video, onOpen }: { video: BackdropVideo; onOpen: () => void }) {
   const used = video.usedBy.map((ref) => ref.name)
   return (
-    <div className={stylex.props(mlib.source).className}>
+    <button type="button" className={stylex.props(mlib.source).className} onClick={onOpen}>
       <InitialsAvatar name={video.title} size={40} xstyle={mlib.sourceAvatar} />
       <span className={stylex.props(mlib.sourceMain).className}>
         <span {...stylex.props(mlib.sourceName)}>{video.title}</span>
@@ -521,18 +589,152 @@ function SourceVideoRow({ video }: { video: BackdropVideo }) {
         {used.length > 0 && <span {...stylex.props(mlib.sourceUse)}>{t.library.mobile.usedAt(used)}</span>}
       </span>
       <span {...stylex.props(mlib.sourceChevron)} aria-hidden="true"><Icon name="arrow-r" size={16} /></span>
-    </div>
+    </button>
   )
 }
 
-function OverlayTile({ overlay }: { overlay: Overlay }) {
+function OverlayTile({ overlay, onOpen }: { overlay: Overlay; onOpen: () => void }) {
   return (
-    <div className={stylex.props(mlib.overlay).className}>
+    <button type="button" className={stylex.props(mlib.overlay).className} onClick={onOpen}>
       <span className={stylex.props(mlib.overlayArt).className}>
-        <video className={stylex.props(mlib.overlayVideo).className} src={overlay.url} muted playsInline loop preload="metadata" aria-label={overlay.name} />
+        {overlay.mime.startsWith('image/')
+          ? <img className={stylex.props(mlib.overlayVideo).className} src={overlay.url} alt="" loading="lazy" />
+          : <video className={stylex.props(mlib.overlayVideo).className} src={overlay.url} muted playsInline preload="metadata" tabIndex={-1} aria-hidden="true" />}
+        <span {...stylex.props(mlib.overlayPlay)} aria-hidden="true"><Icon name="play" size={20} /></span>
       </span>
       <span {...stylex.props(mlib.overlayName)}>{overlay.name}</span>
       <span {...stylex.props(mlib.overlaySub)}>{overlay.usedBy.length ? t.library.mobile.usedAt(overlay.usedBy.map((ref) => ref.name)) : t.library.mobile.unused}</span>
-    </div>
+    </button>
+  )
+}
+
+/** Chi tiết dùng cùng nguồn dữ liệu với hàng đã mở; không giữ bản usage cũ. */
+function AssetDetail({ asset, templates, templatesLoading, templatesError, retryTemplates, onClose }: {
+  asset: LibraryAsset
+  templates: TemplateSummary[]
+  templatesLoading: boolean
+  templatesError: boolean
+  retryTemplates: () => void
+  onClose: () => void
+}) {
+  const [confirming, setConfirming] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [mediaError, setMediaError] = useState(false)
+  const channel = asset.kind === 'channel' ? asset.value : null
+  const video = asset.kind === 'video' ? asset.value : null
+  const overlay = asset.kind === 'overlay' ? asset.value : null
+  const name = channel ? channel.title ?? channel.handle : video?.title ?? overlay?.name ?? ''
+  const usages = asset.kind === 'overlay'
+    ? asset.value.usedBy
+    : asset.value.usedBy.map((ref) => ({ id: ref.templateId, name: ref.name }))
+  const usedNames = usages.map((ref) => ref.name)
+  const deleteLocked = overlay ? overlay.builtIn !== '' : usedNames.length > 0
+  const deleteHint = overlay?.builtIn
+    ? 'Hiệu ứng có sẵn không xoá được.'
+    : usedNames.length ? `Đang dùng ở ${usedNames.join(', ')} · bỏ khỏi mẫu video trước`
+      : 'Không mẫu video nào dùng'
+  const removeLabel = channel ? t.backdrop.tab.channel.removeAction : video ? t.backdrop.tab.videos.removeAction : t.library.delete
+
+  const refresh = async () => {
+    setBusy(true)
+    setError(null)
+    try {
+      if (channel) await refreshBackdropChannel(channel.id)
+      else if (video?.state === 'failed') await addBackdropVideo(video.url, video.segment)
+      await invalidate(['backdrop'])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const remove = async () => {
+    // Usage được đọc lại trong lúc xác nhận; máy chủ còn chặn xung đột đồng thời.
+    if (deleteLocked) throw new Error(deleteHint)
+    if (channel) await removeBackdropChannel(channel.id)
+    else if (video) await removeBackdropVideo(video.id)
+    else if (overlay) await removeOverlay(overlay.id)
+    await invalidate(overlay ? keys.overlays() : ['backdrop'])
+    onClose()
+  }
+
+  const openTemplate = (id: string) => {
+    onClose()
+    navigate(paths.template(id, 'backdrop'))
+  }
+
+  if (confirming) return (
+    <ConfirmSheet
+      open
+      onClose={() => setConfirming(false)}
+      title={channel ? t.backdrop.tab.channel.removeTitle(name) : video ? t.backdrop.tab.videos.removeTitle(name) : t.library.overlays.removeConfirmTitle(name)}
+      description={overlay ? t.library.overlays.removeConfirmBody : 'Nguồn sẽ bị bỏ khỏi thư viện. Có thể thêm lại bằng liên kết nguồn.'}
+      tone="danger"
+      action={{ label: removeLabel, destructive: true, onSelect: remove }}
+      cancel={t.library.cancel}
+    />
+  )
+
+  return (
+    <Sheet open onClose={onClose} title={name} size="md" height="auto"
+      subtitle={overlay ? t.library.overlays.background[overlay.background] : platformName((channel ?? video)!.platform)}>
+      <div {...stylex.props(mlib.detail)}>
+        {overlay && (overlay.mime.startsWith('image/')
+          ? <img src={overlay.url} alt={overlay.name} {...stylex.props(mlib.detailMedia)} onError={() => setMediaError(true)} />
+          : <video src={overlay.url} controls playsInline loop preload="metadata" tabIndex={0}
+              aria-label={t.library.overlays.play} {...stylex.props(mlib.detailMedia)} onError={() => setMediaError(true)} />)}
+        {video?.state === 'ready' && <video src={backdropVideoFileHref(video.id)} controls playsInline preload="metadata" tabIndex={0}
+          aria-label={video.title} {...stylex.props(mlib.detailMedia)} onError={() => setMediaError(true)} />}
+        {mediaError && <p role="alert" {...stylex.props(mlib.detailError)}>Không phát được tệp này. Kiểm tra kết nối rồi mở lại.</p>}
+        {channel && <>
+          <p {...stylex.props(mlib.detailText)}>{Object.entries(channel.counts).filter(([, count]) => (count ?? 0) > 0)
+            .map(([kind, count]) => `${kindName(kind)} ${count}`).join(' · ') || (channel.listedAt ? 'Chưa có video dùng được.' : t.backdrop.tab.channel.reading)}</p>
+          {channel.listError && <p role="alert" {...stylex.props(mlib.detailError)}>{channel.listError.message}</p>}
+          {channel.pausedUntil && <p {...stylex.props(mlib.detailText)}>
+            {t.backdrop.tab.channel.readNextAt(new Date(channel.pausedUntil).toLocaleString('vi-VN'))}
+          </p>}
+          <Button size="lg" variant="ghost" pending={busy} icon={<Icon name="refresh" size={16} />}
+            onClick={() => void refresh()}>{t.backdrop.tab.channel.refresh}</Button>
+        </>}
+        {video && <>
+          <p {...stylex.props(mlib.detailText)}>{segmentLabel(video.segment.fromSec, video.segment.toSec)}</p>
+          {video.state === 'downloading' && <p role="status" {...stylex.props(mlib.detailText)}>
+            {t.backdrop.tab.videos.downloading(String(Math.round((video.progress ?? 0) * 100)))}
+          </p>}
+          {video.state === 'failed' && <>
+            <p role="alert" {...stylex.props(mlib.detailError)}>{video.errorDetail?.message ?? t.backdrop.tab.videos.failedTitle}</p>
+            <Button size="lg" variant="ghost" pending={busy} onClick={() => void refresh()}>{t.backdrop.tab.videos.retry}</Button>
+          </>}
+        </>}
+        {(channel || video) && <a href={(channel ?? video)!.url} target="_blank" rel="noopener noreferrer" {...stylex.props(mlib.detailLink)}>
+          Mở nguồn trên {platformName((channel ?? video)!.platform)} <Icon name="arrow-r" size={16} />
+        </a>}
+        <p {...stylex.props(mlib.detailText)}>{usedNames.length ? t.library.mobile.usedAt(usedNames) : t.library.mobile.unused}</p>
+        {usages.map((ref) => <Button key={ref.id} size="lg" variant="ghost" icon={<Icon name="layer" size={16} />}
+          onClick={() => openTemplate(ref.id)}>{ref.name} · Nền &amp; hiệu ứng</Button>)}
+        {overlay && <>
+          <p {...stylex.props(mlib.detailText)}>{usages.length ? 'Mở mẫu video để chỉnh ở Nền & hiệu ứng.' : 'Bật cho một mẫu video · chọn ở Nền & hiệu ứng.'}</p>
+          {!usages.length && (templatesLoading ? <p role="status" {...stylex.props(mlib.detailText)}>{t.library.loading}</p>
+            : templatesError ? <>
+              <p role="alert" {...stylex.props(mlib.detailError)}>{t.library.loadFail}</p>
+              <Button size="lg" variant="ghost" onClick={retryTemplates}>{t.library.retry}</Button>
+            </> : templates.length ? templates.map((template) => <Button key={template.id} size="lg" variant="ghost"
+              icon={<Icon name="layer" size={16} />} onClick={() => openTemplate(template.id)}>{template.name}</Button>)
+              : <>
+                <p {...stylex.props(mlib.detailText)}>{t.library.templates.emptyTitle}</p>
+                <Button size="lg" variant="ghost" onClick={() => { onClose(); navigate(paths.library('templates')) }}>{t.library.tabs.templates}</Button>
+              </>)}
+        </>}
+        {error && <p role="alert" {...stylex.props(mlib.detailError)}>{error}</p>}
+        {!overlay || !overlay.builtIn ? <>
+          <Button size="lg" variant="danger" disabled={busy || deleteLocked} onClick={() => setConfirming(true)}
+            icon={<Icon name="trash" size={16} />}>{removeLabel}</Button>
+          {!overlay && <p {...stylex.props(mlib.detailText)}>{deleteHint}</p>}
+        </> : <p {...stylex.props(mlib.detailText)}>{deleteHint}</p>}
+        <Button size="lg" variant="quiet" onClick={onClose}>{t.library.close}</Button>
+      </div>
+    </Sheet>
   )
 }

@@ -1,0 +1,218 @@
+{
+  "provenance": "Explicit UI fixtures persisted in an owned recorded-source replay; no claim these failures were observed from the paid provider",
+  "additionalProviderRequests": 0,
+  "originalSourceUnchanged": true,
+  "replayRestored": true,
+  "results": [
+    {
+      "project": "desktop",
+      "state": "default",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "desktop",
+      "state": "native-prompt-refs-cutout-batch-confirm",
+      "status": "captured",
+      "provenance": "Actual saved versions and native draft/cancel actions only",
+      "additionalProviderRequests": 0
+    },
+    {
+      "project": "desktop",
+      "state": "editing",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "desktop",
+      "state": "drawing",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop",
+      "state": "reveal",
+      "status": "captured",
+      "provenance": "Real saved version2 ready response after native SSE reconnect; recorded UI lifecycle replay, not another provider call",
+      "grainDuringDrawing": 3,
+      "animations": [
+        {
+          "name": "x1x6yhzx-B",
+          "duration": 1000,
+          "iterations": 1
+        },
+        {
+          "name": "x1clt77r-B",
+          "duration": 1600,
+          "iterations": 1
+        }
+      ],
+      "writes": []
+    },
+    {
+      "project": "desktop",
+      "state": "failed",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop",
+      "state": "blocked",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "default",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "native-prompt-refs-cutout-batch-confirm",
+      "status": "captured",
+      "provenance": "Actual saved versions and native draft/cancel actions only",
+      "additionalProviderRequests": 0
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "editing",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "drawing",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "reveal",
+      "status": "captured",
+      "provenance": "Real saved version2 ready response after native SSE reconnect; recorded UI lifecycle replay, not another provider call",
+      "grainDuringDrawing": 0,
+      "animations": [],
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "failed",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "blocked",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "default",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "editing",
+      "status": "not-applicable-to-desktop-tweak",
+      "reason": "Existing phone layout is audited separately; no round45 viewer introduced"
+    },
+    {
+      "project": "mobile",
+      "state": "drawing",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "reveal",
+      "status": "captured",
+      "provenance": "Real saved version2 ready response after native SSE reconnect; recorded UI lifecycle replay, not another provider call",
+      "grainDuringDrawing": 1,
+      "animations": [
+        {
+          "name": "x1x6yhzx-B",
+          "duration": 1000,
+          "iterations": 1
+        },
+        {
+          "name": "x1clt77r-B",
+          "duration": 1600,
+          "iterations": 1
+        }
+      ],
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "failed",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "blocked",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "default",
+      "status": "captured",
+      "provenance": "actual saved image versions",
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "editing",
+      "status": "not-applicable-to-desktop-tweak",
+      "reason": "Existing phone layout is audited separately; no round45 viewer introduced"
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "drawing",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "reveal",
+      "status": "captured",
+      "provenance": "Real saved version2 ready response after native SSE reconnect; recorded UI lifecycle replay, not another provider call",
+      "grainDuringDrawing": 0,
+      "animations": [],
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "failed",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "blocked",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    }
+  ]
+}

@@ -256,4 +256,25 @@ describe('usePreviewAudio mở khoá trong cử chỉ', () => {
     expect(playMock.mock.instances[0]).toBe(playMock.mock.instances[1])
     expect(api.playingId).toBe('seg-1')
   })
+
+  it('URL trực tiếp: lượt phát thật nằm ngay trong cử chỉ, không chờ microtask', async () => {
+    let api!: PreviewAudio
+    let callsInGesture = -1
+    const { container } = await mount(<DirectPreview expose={(value) => { api = value }} onCalls={(n) => { callsInGesture = n }} />)
+    await tap(container.querySelector<HTMLElement>('#preview-direct')!, () => {})
+    // Mở khoá + phát thật đã được gọi trước khi handler trả về, nên iOS cho phép
+    // cả hai; nếu phải chờ (resolver/await) thì lượt thật rơi ra ngoài cử chỉ.
+    expect(callsInGesture).toBe(2)
+    expect(api.playingId).toBe('seg-1')
+  })
 })
+
+function DirectPreview({ expose, onCalls }: { expose: (api: PreviewAudio) => void; onCalls: (n: number) => void }) {
+  const preview = usePreviewAudio()
+  expose(preview)
+  return <button id="preview-direct" onClick={() => {
+    const started = preview.play('seg-1', '/api/seg.mp3')
+    onCalls(playMock.mock.calls.length)
+    void started.catch(() => {})
+  }}>Nghe thử</button>
+}

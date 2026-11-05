@@ -1,0 +1,9 @@
+Command: clean isolated QA test environment; go test -p 1 ./internal/persistence/postgres -run ^TestCloneBoardThousandJobsP95$ -count=1 -v
+Environment difference from failed full run: single package, no browser/build/unit suite running concurrently. Threshold and product code unchanged.
+=== RUN   TestCloneBoardThousandJobsP95
+    clone_pg_test.go:177: 1,000 jobs, board p95=37.855916ms
+--- PASS: TestCloneBoardThousandJobsP95 (5.59s)
+PASS
+ok github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres 6.962s
+
+The earlier concurrent full run still failed at 106.46ms >100ms; this controlled isolated result does not relabel that full run as passing. Scheduling contention is a possible explanation, not a proven cause.

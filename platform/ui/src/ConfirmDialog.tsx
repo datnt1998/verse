@@ -10,10 +10,27 @@ import { useEscapeLayer } from './Overlays'
 import { toast } from './Toast'
 import { useAsyncAction } from './useAsyncAction'
 import { getKitLabels } from './labels'
+import { Sheet } from './Sheet'
+import { getPhoneMax, phoneQuery } from './mobile/safeArea'
+import { confirmLayout, confirmationRememberKey as rememberKey } from './confirm-store'
 import './kit.css'
 
 const NO_MOTION = '@media (prefers-reduced-motion: reduce)'
 const MOBILE = '@media (max-width: 760px)'
+
+
+function useSheetConfirmation(inline: boolean | undefined) {
+  const [phone, setPhone] = useState(() => typeof matchMedia !== 'undefined' && matchMedia(phoneQuery(getPhoneMax())).matches)
+  useEffect(() => {
+    if (confirmLayout !== 'responsive') return
+    const media = matchMedia(phoneQuery(getPhoneMax()))
+    const change = () => setPhone(media.matches)
+    change()
+    media.addEventListener('change', change)
+    return () => media.removeEventListener('change', change)
+  }, [])
+  return !inline && confirmLayout === 'responsive' && phone
+}
 
 const sx = stylex.create({
   scrim: {
@@ -40,6 +57,11 @@ const sx = stylex.create({
   confirmClosing: {
     animationName: { default: 'kit-dialog-out', [NO_MOTION]: 'none' },
     animationDuration: '.18s', animationTimingFunction: 'cubic-bezier(.5,0,.75,0)', animationFillMode: 'both',
+  },
+  sheetForm: {
+    width: '100%', maxHeight: 'none', overflow: 'visible',
+    borderWidth: 0, borderRadius: 0, boxShadow: 'none', backgroundColor: 'transparent',
+    animationName: 'none',
   },
   row: { display: 'flex', gap: 14, alignItems: 'flex-start' },
   iconChip: {
@@ -166,13 +188,9 @@ const CHIP: Record<ConfirmTone, { bg: string; fg: string; icon: string }> = {
   dsoft: { bg: 'var(--kit-err-10)', fg: 'var(--kit-err-bright)', icon: 'danger' },
   danger: { bg: 'var(--kit-err-14)', fg: 'var(--kit-err-strong)', icon: 'danger' },
 }
-const rememberKey = (user: string, kind: string) => `ainovel.confirm.${encodeURIComponent(user)}.${encodeURIComponent(kind)}`
 export function scheduleConfirmationHold(onComplete: () => void) {
   const timer = globalThis.setTimeout(onComplete, HOLD_DURATION)
   return () => globalThis.clearTimeout(timer)
-}
-export function isConfirmationRemembered(user: string, kind: string) {
-  try { return localStorage.getItem(rememberKey(user, kind)) === '1' } catch { return false }
 }
 
 export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confirmLabel, cancelLabel, pendingLabel, choices, defaultChoice, compare, consequences, phrase, hold, disabledReason, remember, secondary, onConfirm, onClose, successMessage, undo, inline, size = 'md' }: ConfirmDialogProps) {
@@ -180,6 +198,10 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   const cancelText = cancelLabel ?? L.cancel
   const pendingText = pendingLabel ?? L.confirm.pendingGeneric
   const id = useId()
+  const mobileLayout = useSheetConfirmation(inline)
+  const closingAsSheet = useRef(false)
+  const acceptedClose = useRef(false)
+  const previousFocus = useRef(typeof document !== 'undefined' ? document.activeElement as HTMLElement | null : null)
   const dialog = useRef<HTMLDivElement>(null)
   const cancel = useRef<HTMLButtonElement>(null)
   const primary = useRef<HTMLButtonElement>(null)
@@ -194,6 +216,7 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   const [dontAsk, setDontAsk] = useState(false)
   const [error, setError] = useState('')
   const [closing, setClosing] = useState(false)
+  const sheet = closing ? closingAsSheet.current : mobileLayout
   const [shaking, setShaking] = useState(false)
   const [holding, setHolding] = useState(false)
   const [holdLeft, setHoldLeft] = useState(String(HOLD_DURATION / 1000))
@@ -217,27 +240,35 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
   const matched = !phrase || matchesConfirmation(typed, phrase)
   const stopHold = useCallback(() => { cancelHold.current?.(); cancelHold.current = undefined; setHolding(false) }, [])
   const close = useCallback((accepted = false) => {
+    if (dismissed.current || (!accepted && busyRef.current)) return
+    acceptedClose.current = accepted
+    closingAsSheet.current = sheet
     dismissed.current = true
     stopHold(); setClosing(true)
     window.clearTimeout(closeTimer.current)
-    closeTimer.current = window.setTimeout(() => onClose(accepted), 180)
-  }, [onClose, stopHold])
+    if (!sheet) {
+      const reduced = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
+      closeTimer.current = window.setTimeout(() => onClose(accepted), reduced ? 0 : 180)
+    }
+  }, [onClose, sheet, stopHold])
   // Esc = Huỷ, và chỉ lớp trên cùng nhận (hộp "gõ/giữ để xác nhận": Esc = Huỷ — 17-kit).
-  useEscapeLayer(!inline, () => close())
+  useEscapeLayer(!inline && !sheet, () => close())
   useEffect(() => {
     mounted.current = true
-    const previous = document.activeElement as HTMLElement | null
     const root = document.getElementById('root')
     const wasInert = root?.hasAttribute('inert')
+    const overflow = document.body.style.overflow
+    if (!inline && !sheet) document.body.style.overflow = 'hidden'
     if (!inline && root) root.setAttribute('inert', '')
-    if (!inline) (dangerous ? cancel.current : primary.current)?.focus()
+    if (!inline && !sheet) (dangerous ? cancel.current : primary.current)?.focus()
     return () => {
       mounted.current = false
       cancelHold.current?.(); window.clearTimeout(closeTimer.current); window.clearTimeout(shakeTimer.current)
       if (!inline && root && !wasInert) root.removeAttribute('inert')
-      previous?.focus()
+      if (!inline && !sheet) document.body.style.overflow = overflow
+      previousFocus.current?.focus()
     }
-  }, [dangerous, inline])
+  }, [dangerous, inline, sheet])
   useEffect(() => {
     const release = () => stopHold()
     window.addEventListener('pointerup', release); window.addEventListener('pointercancel', release); window.addEventListener('keyup', release); window.addEventListener('blur', release)
@@ -263,15 +294,14 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
     cancelHold.current = scheduleConfirmationHold(() => { cancelHold.current = undefined; void run() })
   }
   const scrim = stylex.props(sx.scrim, closing && sx.scrimClosing, inline && sx.scrimInline)
-  const dlg = stylex.props(sx.confirm, closing && sx.confirmClosing)
-  const content = <div className={scrim.className} style={scrim.style}>
-    <div ref={dialog} role="alertdialog" aria-modal={!inline} aria-labelledby={`${id}-title`} aria-describedby={`${id}-body`} className={dlg.className} style={dlg.style} onKeyDown={(event) => {
+  const dlg = stylex.props(sx.confirm, sheet && sx.sheetForm, !sheet && closing && sx.confirmClosing)
+  const content = <div ref={dialog} role={sheet ? undefined : 'alertdialog'} aria-modal={sheet ? undefined : !inline} aria-labelledby={`${id}-title`} aria-describedby={`${id}-body`} className={dlg.className} style={dlg.style} onKeyDown={(event) => {
       if (event.key === 'Enter' && !hold && !disabledReason) {
         if (phrase && !matched && event.target instanceof HTMLInputElement) { event.preventDefault(); shake(); return }
         if (dangerous && event.target === primary.current) { event.preventDefault(); return }
         if (!dangerous && event.target !== cancel.current && event.target instanceof HTMLElement && event.target.getAttribute('role') !== 'radio' && event.target !== dialog.current?.querySelector('[data-secondary]')) { event.preventDefault(); void run() }
       }
-      if (event.key === 'Tab') {
+      if (event.key === 'Tab' && !sheet) {
         const focusable = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), [href], [tabindex="0"]') ?? [])
         const first = focusable[0]; const last = focusable[focusable.length - 1]
         if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
@@ -293,19 +323,10 @@ export function ConfirmDialog({ title, body, tone = 'normal', icon, agent, confi
       {phrase && <div {...stylex.props(sx.phraseCol, shaking && sx.shaking)}><label htmlFor={`${id}-typed`} {...stylex.props(sx.phraseLabel)}>{L.confirm.typeToConfirmPre} <span className="mono" style={{ color: 'var(--color-fg)', background: 'var(--line-1)', padding: '1px 5px', borderRadius: 4 }}>{phrase}</span> {L.confirm.typeToConfirmPost}</label><div {...stylex.props(sx.typedWrap)}><input id={`${id}-typed`} className={`mono kit-frame ${stylex.props(sx.typed, typed.length > 0 && !phrase.startsWith(typed) ? sx.typedBad : sx.typedOk).className}`} value={typed} autoComplete="off" spellCheck={false} placeholder={phrase} aria-invalid={typed.length > 0 && !phrase.startsWith(typed)} onChange={(e) => setTyped(e.target.value)} />{matched && <Icon name="tick-circle" size={16} {...stylex.props(sx.tick)} />}</div><span id={`${id}-typed-hint`} {...stylex.props(sx.hint, matched ? sx.hintOk : sx.hintIdle)}>{matched ? L.confirm.typedHintOk : L.confirm.typedHintIdle}</span></div>}
       {disabledReason && <div {...stylex.props(sx.note)}><Icon name="warning-2" size={15} style={{ color: 'var(--color-warn)', flexShrink: 0 }} /><span>{disabledReason}</span></div>}
       {error && <div role="alert" {...stylex.props(sx.error)}><Icon name="warning-2" size={15} {...stylex.props(sx.errorIcon)} /><span>{error}</span></div>}
-      <div {...stylex.props(sx.footer)}>{remember && <Checkbox checked={dontAsk} onChange={setDontAsk} label={L.confirm.dontAskAgain} style={{ minHeight: 0, gap: 8, color: 'var(--color-fg-3)', fontSize: 12.5, whiteSpace: 'nowrap' }} />}<span {...stylex.props(sx.spacer)} /><Button ref={cancel} size={size} onClick={() => close()}>{cancelText}</Button>{secondary && <Button data-secondary size={size} variant={secondary.danger ? 'dsoft' : 'ghost'} disabled={busy} onClick={() => void run(secondary.onConfirm, secondary.successMessage ?? null)}>{secondary.label}</Button>}
-      <Button ref={primary} size={size} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || !!disabledReason || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
+      <div {...stylex.props(sx.footer)}>{remember && <Checkbox checked={dontAsk} onChange={setDontAsk} label={L.confirm.dontAskAgain} style={{ minHeight: 0, gap: 8, color: 'var(--color-fg-3)', fontSize: 12.5, whiteSpace: 'nowrap' }} />}<span {...stylex.props(sx.spacer)} /><Button ref={cancel} size={sheet ? 'lg' : size} disabled={busy} onClick={() => close()}>{cancelText}</Button>{secondary && <Button data-secondary size={sheet ? 'lg' : size} variant={secondary.danger ? 'dsoft' : 'ghost'} disabled={busy} onClick={() => void run(secondary.onConfirm, secondary.successMessage ?? null)}>{secondary.label}</Button>}
+      <Button ref={primary} size={sheet ? 'lg' : size} variant={hold ? 'dsoft' : tone === 'danger' ? 'danger' : tone === 'dsoft' ? 'dsoft' : 'primary'} disabled={!matched || !!disabledReason || closing || busy} pending={pending} pendingLabel={pendingText} aria-label={hold ? L.confirm.holdToConfirm : undefined} icon={hold ? <Icon name="logout" size={15} {...stylex.props(sx.holdIcon)} /> : undefined} onPointerDown={hold ? (e) => { if (e.button === 0) startHold() } : undefined} onPointerLeave={hold ? stopHold : undefined} onKeyDown={hold ? (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); if (!e.repeat) startHold() } } : undefined} onClick={hold ? (e) => e.preventDefault() : () => void run()} style={hold ? { overflow: 'hidden' } : undefined}>{hold && <i aria-hidden="true" {...stylex.props(sx.holdFill(holding ? '100%' : '0%', holding ? `width ${HOLD_DURATION}ms linear` : 'width .25s ease-out'))} />}<span {...stylex.props(sx.holdLabel)}>{error ? L.confirm.retry : hold ? (holding ? L.confirm.holdMore(holdLeft) : confirmLabel) : confirmLabel}</span></Button></div>
     </div>
-  </div>
-  return inline ? content : createPortal(content, document.body)
+  if (sheet) return <Sheet open={!closing} onClose={() => close()} onExited={() => onClose(acceptedClose.current)} height="auto" role="alertdialog" label={title} aria-describedby={`${id}-body`} size="md" grab={!busy}>{content}</Sheet>
+  return inline ? <div className={scrim.className} style={scrim.style}>{content}</div> : createPortal(<div className={scrim.className} style={scrim.style} onClick={(event) => { if (event.target === event.currentTarget) close() }}>{content}</div>, document.body)
 }
 
-export type ConfirmOptions = Omit<ConfirmDialogProps, 'onClose'>
-export function confirm(options: ConfirmOptions): Promise<boolean> {
-  if (options.remember && isConfirmationRemembered(options.remember.user, options.remember.kind)) return Promise.resolve().then(() => options.onConfirm(options.defaultChoice ?? options.choices?.[0]?.value ?? '')).then(() => true)
-  return import('react-dom/client').then(({ createRoot }) => new Promise<boolean>((resolve) => {
-    const container = document.createElement('div'); document.body.append(container)
-    const root = createRoot(container)
-    root.render(<ConfirmDialog {...options} onClose={(accepted) => { root.unmount(); container.remove(); resolve(accepted ?? false) }} />)
-  }))
-}

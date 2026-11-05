@@ -1,0 +1,33 @@
+Observed command: go test ./internal/persistence/postgres -run '^(TestDeleteJobRetiresOwnProjectAndKeepsSharedEditorMedia|TestDeleteJobRollsBackRetiredProjectHeads|TestCanonicalMediaDeleteRetiresLastOwnerHeadAndBinding|TestDeleteJobRejectsPausedVideo|TestCancelPausedVideoClearsPauseSoDeleteSucceeds|TestRestartPausedVideoRetiresPauseSoOldGenerationCanBeDeleted|TestProjectReadSurvivesSuccessiveHeadMoves|TestProjectReadStopsWhenHeadIsUnchanged|TestProjectReadUnknownIDOneAttempt|TestProjectReadKeepsNotFoundForDeletedProject)$' -count=1 -v
+Environment: isolated PostgreSQL test DSN; REQUIRE_POSTGRES_TEST set; no application blob-root env.
+Source: live workspace after clearing paused_at in SupersedeCloneJob and regenerating bindings with sqlc v1.31.1. Exact final commit/tree not yet assigned; do not bind this receipt to an older source tree.
+
+=== RUN   TestDeleteJobRetiresOwnProjectAndKeepsSharedEditorMedia
+--- PASS: TestDeleteJobRetiresOwnProjectAndKeepsSharedEditorMedia (0.65s)
+=== RUN   TestDeleteJobRollsBackRetiredProjectHeads
+--- PASS: TestDeleteJobRollsBackRetiredProjectHeads (0.42s)
+=== RUN   TestCanonicalMediaDeleteRetiresLastOwnerHeadAndBinding
+--- PASS: TestCanonicalMediaDeleteRetiresLastOwnerHeadAndBinding (0.58s)
+=== RUN   TestDeleteJobRejectsPausedVideo
+--- PASS: TestDeleteJobRejectsPausedVideo (0.43s)
+=== RUN   TestCancelPausedVideoClearsPauseSoDeleteSucceeds
+--- PASS: TestCancelPausedVideoClearsPauseSoDeleteSucceeds (0.37s)
+=== RUN   TestRestartPausedVideoRetiresPauseSoOldGenerationCanBeDeleted
+--- PASS: TestRestartPausedVideoRetiresPauseSoOldGenerationCanBeDeleted (0.36s)
+=== RUN   TestProjectReadSurvivesSuccessiveHeadMoves
+--- PASS: TestProjectReadSurvivesSuccessiveHeadMoves (0.45s)
+=== RUN   TestProjectReadStopsWhenHeadIsUnchanged
+--- PASS: TestProjectReadStopsWhenHeadIsUnchanged (0.62s)
+=== RUN   TestProjectReadUnknownIDOneAttempt
+--- PASS: TestProjectReadUnknownIDOneAttempt (0.58s)
+=== RUN   TestProjectReadKeepsNotFoundForDeletedProject
+--- PASS: TestProjectReadKeepsNotFoundForDeletedProject (0.47s)
+PASS
+ok   github.com/datnt1998/verse/apps/viderse/internal/persistence/postgres 5.743s
+
+Failing-before evidence for the new paused/superseded case:
+restarted generation still holds a pause: status=cancelled superseded=2026-11-04 03:38:34.279594 +0700 +07 paused=2026-11-04 03:38:34.278293 +0700 +07
+--- FAIL: TestRestartPausedVideoRetiresPauseSoOldGenerationCanBeDeleted (1.48s)
+
+Focused passing-after evidence:
+--- PASS: TestRestartPausedVideoRetiresPauseSoOldGenerationCanBeDeleted (0.75s)

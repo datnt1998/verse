@@ -585,3 +585,84 @@ Mẫu:
   - Chia đều chỉ khi nhóm chiếm hết bề rộng và nhãn ngắn ngang nhau: `.vv-seg--fill` (mới) hoặc `--m`; nhãn dài hơn phần chia vẫn giữ đủ chữ (`min-width: max-content`). Viên trượt `--vv-selected-2` đo theo mục thật.
   - Nhãn giữ đủ: Sắp xếp “Nổi trội · Mới nhất · Lượt xem”; Vùng giờ “VN · New York” (board có 2 vùng, không phải 3).
   - Đã sửa: `kit.css` (và khối kit nhúng trong mọi board), `Kit` › Ô nhập & nút › Nhóm chọn có ví dụ hai nhóm này; `Explore`/`MExplore` vốn vẽ co theo nhãn nên không đổi. Ghi ở 04-components › SegmentedTabs, 05-kit, 06-copy › Nhóm chọn: nhãn.
+
+### #81 · Ảnh mẫu trong tấm chỉnh prompt trên điện thoại — Đã chốt
+- Màn / artboard: `MLibrary` · chỉnh prompt / lịch sử ảnh mẫu; `MTemplate` · ảnh bìa. Gói V36, ngoại lệ Trình xem ảnh mobile đợt45 chưa có thiết kế.
+- Hiện trạng đã kiểm trên app thật ở390×844: nút ảnh mẫu mở `Dialog` bên dưới `Sheet` đang chỉnh (`z-index40` so với80). Người dùng không thấy ảnh, nhưng focus chuyển vào lớp ẩn. Chỉ nâng z-index sẽ tạo hai lớp modal và vi phạm quy tắc không chồng hộp thoại.
+- Hỏi design: **(A)** giữ chức năng xem ảnh mẫu hiện hữu nhưng hiển thị ngay trong cùng tấm đang mở, có Quay lại để trở về bản nháp được giữ nguyên; không thêm viewer đợt45 / không mở lớp thứ hai; hay **(B)** trước đợt45 chỉ hiển thị thumbnail tĩnh trên điện thoại, không dựng nút xem lớn chưa hoạt động? Nếu cần bố cục khác, bổ sung artboard trước khi dev triển khai.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — xem ngay trong cùng tấm**. Giữ chức năng xem ảnh lớn, có Quay lại và giữ nguyên bản nháp; chỉ một lớp, không triển khai viewer đợt45. Desktop giữ nguyên.
+- Bằng chứng: `plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/sample-acceptance.md` mục7/D1, ảnh và hit-test trong `sample-acceptance/`.
+
+### #82 · Ảnh tách nền từ lượt vẽ thật không cùng kích thước ảnh đã chuẩn hoá — Đã chốt
+- Nghiệm thu V36 bằng một ảnh QA thật phát hiện: WebP đã chuẩn hoá1920×1080, nhưng pipeline tách nền từ PNG gốc1672×941; bước dựng đòi PNG tách nền cùng1920×1080 nên dừng. PNG fixture tự dựng và bản xem tách nền sinh từ WebP đều đúng1920×1080.
+- Bằng chứng: `plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/real-cutout-normalization-blocker.json`. Diagnostic runtime đã ghi codec/kích thước, không sửa ngưỡng kiểm; dòng log tạm đã gỡ khỏi source.
+- Chủ sở hữu: `internal/pipeline/steps/images/handler.go` chuẩn hoá WebP rồi gọi tách nền với PNG gốc; `internal/clone/images/cutout.go` đã dùng ảnh WebP chuẩn hoá cho preview. Đây là lỗi backend ngoài danh sách backend V36 ban đầu.
+- Hỏi: **(A)** cho phép vá tối thiểu đường chuẩn hoá tách nền và xử lý derivative đã lưu từ chính ảnh hiện có, không thêm lượt AI/không nới validation; hay **(B)** giữ nguyên giới hạn backend, để nghiệm thu trial bìa và V36 bị chặn? Tối đa2 ảnh QA vẫn giữ nguyên; hiện dùng1.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — vá tối thiểu lỗi tách nền**. Chuẩn hoá đúng đường ảnh; xử lý derivative đã lưu từ ảnh hiện có, không thêm lượt AI/không nới validation.
+
+### #83 · Gate baseline toàn cục và thứ tự mở PR — Đã chốt
+- Build cuối hiện qua cold entry141,5KiB/150KiB; cold phone còn202,5KiB/200KiB (baseline đã merge202,5KiB). V37 sẽ bỏ các module Bản tin/Kế hoạch hiện đang nằm trong cold phone; chưa tuyên bố việc đó tự bảo đảm qua budget.
+- Full Go còn gate latency Khám phá lỗi (`all/outlier/deep` p95=1371,48ms/400ms) trong lúc có các suite/build khác; source query này không thuộc thay đổi V36. Chưa đo riêng khi không có tải kiểm tra khác, không nới threshold hoặc lấy lượt tốt nhất để che lỗi.
+- Hỏi: **(A)** cho phép giữ hai gate baseline này mở tới nghiệm thu cuối lộ trình, vẫn đủ nghiệm thu chức năng/UI gói trước khi merge và không deploy production khi gate chưa đạt; hay **(B)** giữ merge gate mọi gate phải xanh ngay PR2, cần xử lý trước khi mở V37? Không thay đổi phạm vi tính năng hoặc bỏ báo cáo lỗi.
+- Trả lời (người dùng, 03/11/2026): **Chọn A — giữ tới gate deploy cuối**. Chỉ hai gate dung lượng cold phone và độ trễ Khám phá được giữ mở tới nghiệm thu cuối; UI/chức năng từng gói vẫn phải đủ trước merge. Không deploy khi hai gate chưa đạt.
+
+### #84 · Sửa chỉ dẫn khi đang xem một bản ảnh chưa dùng (V36, đã chốt A)
+- **Trạng thái:** Người dùng chọn **“Sửa đúng bản đang xem”** ngày04/11/2026. Cho phép mở rộng tối thiểu backend/callers/worker để giữ đúng prompt và ảnh tham chiếu của phiên bản được chọn; không thêm tính năng khác.
+- **Bằng chứng thật:** Lượt50 native trên replay QA có bản1 đang dùng và bản2 đang xem. Cột phải hiển thị prompt và2 ảnh tham chiếu của bản2; bấm Sửa/Thêm lại khởi tạo draft từ bản1, nên hai ảnh tham chiếu biến mất. Sau thêm một ảnh mới, draft chỉ còn1 ảnh. Không gửi vẽ, không tốn thêm hạn mức; source và replay được khôi phục. Ảnh: [bản2/cutout](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-cutout.png), [draft sau thêm](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/50-review-native-focus-restored/desktop-refs-draft-visible.png).
+- **Nguyên nhân:** `ReviewScreen` hiển thị `version` đã chọn nhưng `useImageEditing` lấy `usedVersion`; backend `images/redraw` cũng dựng nền từ `UsedParts/UsedRefs`, chưa nhận phiên bản làm nền. Chỉ đổi draft FE sang bản2 chưa đủ: phần không sửa có thể lại lấy từ bản1 khi máy chủ vẽ.
+- **A — Giữ sửa đúng bản đang xem (đã chọn):** Mở rộng tối thiểu contract redraw với phiên bản nền và cập nhật caller/worker liên quan; giữ đúng prompt/tham chiếu đã thấy. Không đổi bản đang dùng khi mở/sửa/gửi; việc dùng ảnh mới tiếp tục theo luật worker/chọn bản hiện hành.
+- **B — Chỉ sửa bản đang dùng:** Không mở rộng backend; khi xem bản khác, phải bấm “Dùng bản N cho video” trước khi Sửa/Thêm. Cần chốt khác biệt tương tác với artboard và lời hướng dẫn, không tự khoá nút âm thầm.
+- **Giới hạn triển khai:** Chốt A không có nghĩa lỗi đã sửa. Thêm `baseVersion` cho một ảnh, giữ nền qua checkpoint/worker restart, không lấy nhầm bản đang dùng; bản không tồn tại/đang vẽ hoặc gán một nền cho nhiều ảnh phải bị từ chối trước khi ghi. Kiểm những phần không sửa và refs rỗng, đổi bản trong lúc xác nhận, desktop/mobile/Editor/Main. Không gọi thêm ảnh vượt2/2; không coi lượt50/55 control/focus là semantic pass.
+
+
+### #85 · Trợ lý AI: nguồn vẽ là thẻ đầy đủ hay thanh chọn gọn?
+- **Ngày phát hiện:** 04/11/2026.
+- **Trạng thái:** **Đã chốt A — người dùng chọn “Giữ thẻ đầy đủ” ngày04/11/2026.**
+- **Nguồn thật đang lệch ngay trong artboard:** `Settings.dc.html` dòng1143–1157 chứa radio có tên nhà cung cấp, model, gói, thanh hạn mức và giờ đặt lại; `.opt` dòng112 xếp theo cột. Nhưng quy tắc `.vv-seg > button` dòng459 giới hạn cao30px, làm ảnh artboard render thành ba ô thấp và cắt bớt nội dung. Nguồn artboard không đổi giữa capture và đối chiếu; không phải ảnh chuẩn cũ.
+- **Code hiện tại:** radio-card nhiều dòng giữ đủ tên/model/gói/hạn mức. Model và số nguồn khác artboard là dữ liệu thật, không phải lý do tự đổi bố cục.
+- **Bằng chứng:** [ảnh chuẩn bên trái / code thật bên phải](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/comparison-main-settings-current/Settings.section.agents.png). Không sửa file artboard trong task triển khai.
+- **Cần chốt một phương án:** (A) giữ radio-card đầy đủ và Design vá CSS artboard để phản ánh đúng; (B) theo thanh chọn gọn, Design xác định phần tên/gói/hạn mức nào giữ trên ô và phần nào chuyển ra dòng phụ, không triển khai bằng cách cố ý cắt chữ.
+- **Quyết định:** giữ radio-card đầy đủ tên nhà cung cấp, model, gói, hạn mức và giờ đặt lại. Không ép cao30px hoặc cắt nội dung để khớp lỗi render của artboard. Design cập nhật chiều cao artboard riêng; task triển khai không sửa file artboard.
+- **Ranh giới:** đây là câu hỏi bố cục nguồn vẽ, không đổi model, quota, suy luận, lưu tức thì hay nguồn dự phòng. Ô chọn model thiếu ngữ cảnh nhà cung cấp là lỗi riêng có thể sửa theo markup đã rõ, không chờ câu trả lời này.
+
+### #86 · V38: giới hạn Video mỗi ngày lệch giữa các artboard — Đã chốt A
+- **Ngày phát hiện:** 04/11/2026. Chưa đổi code hoặc dữ liệu theo một giới hạn mới.
+- **Bằng chứng:** `Channel.dc.html:1420` giới hạn 1–20 (cùng `08-dev-prompt.md` V38); `CreateChannel.dc.html:1271` và `MCreate.dc.html:1081` vẫn cho 1–50. Đây là handler của cùng trường Video mỗi ngày ở màn tạo và màn chỉnh kênh, không phải khác dữ liệu minh hoạ.
+- **Hệ quả:** không thể giữ cả hai giới hạn mà vẫn có cùng tuỳ chọn/hành vi. Kế hoạch hiện ghi 1–20; chưa được coi đây là quyền sửa ngầm board tạo kênh hoặc clamp dữ liệu cũ.
+- **Quyết định (người dùng, 04/11/2026): A — tối đa20 video/ngày**, đồng nhất1–20 trên Kênh và Tạo kênh PC/mobile. Design cập nhật màn tạo riêng; task triển khai không sửa artboard. Không tự hạ dữ liệu cũ; ngoài khoảng1–20 phải dừng preflight và báo rõ.
+- **Dữ liệu nghiệm thu (người dùng, cùng lượt):** cho tải một clip công khai thật chỉ vào QA để kiểm nền phủ kín; không gọi AI, không ghi production, giữ provenance và dọn dữ liệu kiểm thử sau nghiệm thu.
+
+### #87 · Dặn trợ lý về kênh: thiết kế giữ nhưng chưa có hợp đồng lưu/áp dụng — Đã chốt A
+- **Ngày phát hiện:** 04/11/2026, khi đối chiếu ảnh tham chiếu V38.
+- **Nguồn chuẩn:** `Workflow.dc.html:979` bỏ ô nhắn toàn cục/Bàn dựng nhưng giữ “Dặn trợ lý về kênh ở Kênh”; `01-ia-flows.md:497` yêu cầu chọn Trinh sát/Đạo diễn/Hoạ sĩ/Kiểm định, gửi có toast và áp dụng video tiếp theo. `Channel.dc.html` vẫn vẽ ô này dưới trang.
+- **Code và phạm vi:** `ChannelAside.tsx:6` ghi chưa dựng vì thiếu API; `styleNote` hiện chỉ là Giọng văn, không phải chỉ dẫn riêng cho bốn trợ lý. V37 đã bỏ đường kế hoạch/assistant toàn cục; không khôi phục nó để thay thế. Backend V38 chỉ liệt kê default-template/automation/retire legacy, chưa có hợp đồng lưu và tiêu thụ chỉ dẫn theo trợ lý.
+- **Không làm giả:** không thêm ô gửi chỉ hiện toast nhưng không được lưu/áp dụng, không tự ghi mọi chỉ dẫn vào Giọng văn.
+- **Quyết định (người dùng, 04/11/2026): A — giữ đúng thiết kế.** Cho phép bổ sung backend tối thiểu lưu chỉ dẫn riêng theo kênh/trợ lý và áp dụng từ lượt tiếp theo/video mới. Lưu phải có readback và consumer thật; không gọi model khi chỉ lưu chỉ dẫn, không thay đổi snapshot video đang chạy, không khôi phục chat/intent/kế hoạch nhiều bước đã bỏ. Các phần V38 còn lại tiếp tục độc lập; chỉ nghiệm thu toàn gói khi phần này có đủ bằng chứng.
+
+### #88 · Chỉ dẫn Kiểm định có bao gồm xử lý nhạc/giọng riêng? — Đã chốt A
+- **Ngày phát hiện:** 05/11/2026, khi nối consumer thật theo quyết định#87.
+- **Quyết định giữ nguyên:** ô Dặn trợ lý theo kênh, đủ bốn người nhận; lưu/readback không gọi model; áp dụng snapshot video mới. Không đưa chat/kế hoạch toàn cục trở lại.
+- **Bằng chứng mới:** ví dụ Kiểm định ở `Channel.dc.html:1468` yêu cầu nhạc nền nhỏ hơn giọng. Consumer Kiểm định hiện là `internal/autonomy/scorer.go:20–35,80–118`, chỉ nhận ảnh/khung tham chiếu và chấm bốn tiêu chí ảnh; không nghe/chỉnh âm thanh. `internal/pipeline/steps/build/audio.go:22–35` trích một track AAC từ nguồn; `build/handler.go:245–261,344,537` đưa chính track đó vào editor. Chưa có stem nhạc/giọng riêng để hạ một thành phần mà giữ nguyên thành phần còn lại. Hạ gain toàn track không đáp ứng ví dụ này.
+- **Ranh giới phạm vi:** #87 cho backend tối thiểu lưu/tiêu thụ chỉ dẫn, không xác định pipeline tách stem, model âm thanh, quota mới hay kiểm thử chất lượng tách giọng. Không tự thêm các phần đó và không nối chỉ dẫn âm thanh vào scorer ảnh rồi báo “đã áp dụng”.
+- **Phương án A:** giữ bố cục/bốn người nhận; Kiểm định áp dụng chỉ dẫn về ảnh theo khả năng thật, chỉ dẫn vượt khả năng phải báo rõ và không tự duyệt như thể đã đáp ứng. Design đổi ví dụ âm thanh sang kiểm ảnh; cần người dùng chấp thuận giới hạn này.
+- **Phương án B không chọn:** bổ sung pipeline tách/mix nhạc–giọng, hợp đồng dữ liệu, quota và nghiệm thu nghe thật; không thuộc đợt này.
+- **Quyết định (người dùng, 05/11/2026): A — Kiểm ảnh, báo rõ giới hạn.** Giữ đủ bốn người nhận và bố cục; Kiểm định tiêu thụ chỉ dẫn về ảnh. Chỉ dẫn ngoài khả năng phải báo rõ, không được tự duyệt như thể đã đáp ứng. Design đổi ví dụ âm thanh sang kiểm ảnh; không sửa artboard trong task triển khai. Không thêm xử lý/tách stem âm thanh.
+
+### #89 · Điểm vào Dặn trợ lý theo kênh trên điện thoại — Đã chốt A
+- **Ngày phát hiện:** 05/11/2026, khi kiểm chức năng tương đương PC/mobile.
+- **Bằng chứng:** PC `Channel.dc.html` giữ hộp Dặn trợ lý; `MChannel.dc.html` không có hộp hoặc điểm vào chỉ dẫn theo kênh. Thẻ “Trợ lý AI · chung mọi kênh” ở Hồ sơ dẫn tới cấu hình model chung, không phải chỉ dẫn riêng. `ChannelScreen.tsx` hiện chỉ render composer khi không phải điện thoại. Vì vậy không thể nhận đủ chức năng tương đương nếu giữ nguyên code này.
+- **Không thay đổi:** ba tab Kênh, bốn người nhận, lưu/readback không gọi model, snapshot lượt/video mới, giới hạn Kiểm định theo#88.
+- **A:** thêm một hàng “Dặn trợ lý về kênh” trong Hồ sơ điện thoại, mở Sheet Nhập nhanh dùng cùng form/bộ chọn người nhận của PC. Không thêm dock dính đáy cạnh bottom nav.
+- **B:** đặt cùng form ngay dưới nội dung ba tab trên điện thoại; luôn thấy nhưng trang dài hơn và cần xử lý bàn phím/đáy màn.
+- **Quyết định (người dùng, 05/11/2026): A — Hồ sơ → Sheet Nhập nhanh.** Thêm một hàng trong Hồ sơ, mở cùng form/bộ chọn bốn người nhận của PC; không thêm dock dính đáy. Lưu/readback và giới hạn Kiểm định theo#87/#88 giữ nguyên. Không bỏ chức năng trên điện thoại hoặc thay bằng cấu hình AI toàn app.
+
+## #90. Ảnh minh hoạ thẻ mẫu khi chưa có ảnh mẫu đã vẽ
+
+- Trạng thái: **Đã chốt A — Ảnh thật hoặc hình chờ**.
+- Đối chiếu: `Library.dc.html` dùng ảnh minh hoạ cố định trong TH, gắn theo chỉ dẫn của từng mẫu; `Channel.dc.html`/`MChannel.dc.html` cũng có khung ảnh. API hiện hành có `ImagePrompt.sampleUrls` là ảnh mẫu thật đã vẽ, không có poster của template trong `TemplateSummary`.
+- Bằng chứng QA: API native có 9 chỉ dẫn, 2 chỉ dẫn có ảnh mẫu thật; có một mẫu video đang dùng ảnh mẫu đó. Hai mẫu mặc định của ba kênh chưa có ảnh mẫu. Renderer đã nối ảnh thật theo đúng `sceneId`, không bịa preview URL hoặc tự vẽ thêm; đang giữ hình chờ trung tính khi thiếu/tải lỗi.
+- Câu hỏi: Khi chưa có ảnh mẫu, giữ hình chờ trung tính kèm nghĩa “Chưa có ảnh mẫu” hay dùng hình minh hoạ tĩnh từ thiết kế và ghi rõ đó không phải ảnh do template dựng ra?
+- Phương án A — Ảnh thật hoặc hình chờ: không thêm dữ liệu/asset giả và không tốn lượt vẽ. Có khác biệt nội dung ảnh với các ví dụ artboard khi tài khoản chưa vẽ mẫu; không dùng điều đó để tuyên bố khớp từng pixel.
+- Phương án B — Ảnh thật ưu tiên, thiếu thì minh hoạ thiết kế: dùng asset thiết kế như đồ hoạ sản phẩm, ghi rõ “Minh hoạ bố cục”, không lưu nó làm ảnh AI hay bản xem thử. Không gọi AI, nhưng cần duyệt chính sách dùng ảnh minh hoạ trong UI dữ liệu thật.
+- Không sửa artboard; không tạo thêm lượt suy luận/ảnh để lấp thiếu dữ liệu trong QA.
+- Quyết định người dùng: chọn **Ảnh thật hoặc hình chờ** qua câu hỏi#90. Có ảnh mẫu thì hiển thị đúng ảnh của chỉ dẫn đang gắn; thiếu/tải lỗi thì ô trung tính với nghĩa “Chưa có ảnh mẫu”. Không dùng ảnh thiết kế thay dữ liệu thật và không tốn thêm lượt vẽ.

@@ -1,0 +1,4273 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "proof": "LOCAL_FIXTURE_UI_CONSUMER_ONLY",
+  "nativeBackendProvenance": false,
+  "cases": [
+    {
+      "key": "fixture-1440-import-done",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.import.done"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-import-done.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "phase": "done",
+        "summary": "Đã nhập 3 mẫu video. Mẫu video mới nằm đầu danh sách, chưa là mặc định của kênh nào.",
+        "locallyFulfilledPosts": 3,
+        "sourceContract": "api/library.ts:344-361; TemplateImportDialog.tsx:82-114,157-223",
+        "archiveParsing": "UNPROVEN",
+        "backendPersistence": false
+      }
+    },
+    {
+      "key": "fixture-1440-import-partial",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.import.partial"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-import-partial.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "phase": "partial",
+        "summary": "Đã nhập 2 mẫu video, 1 tệp chưa nhập được.",
+        "locallyFulfilledPosts": 3,
+        "sourceContract": "api/library.ts:344-361; TemplateImportDialog.tsx:82-114,157-223",
+        "archiveParsing": "UNPROVEN",
+        "backendPersistence": false
+      }
+    },
+    {
+      "key": "fixture-390-import-done",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "referenceIds": [],
+      "comparisonTargetIds": [
+        "Library.import.done"
+      ],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-390-import-done.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "phase": "done",
+        "summary": "Đã nhập 3 mẫu video. Mẫu video mới nằm đầu danh sách, chưa là mặc định của kênh nào.",
+        "locallyFulfilledPosts": 3,
+        "sourceContract": "api/library.ts:344-361; TemplateImportDialog.tsx:82-114,157-223",
+        "archiveParsing": "UNPROVEN",
+        "backendPersistence": false,
+        "mobileExactCanonicalBoard": "ABSENT_FROM_MANIFEST"
+      }
+    },
+    {
+      "key": "fixture-390-import-partial",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "referenceIds": [],
+      "comparisonTargetIds": [
+        "Library.import.partial"
+      ],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-390-import-partial.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "phase": "partial",
+        "summary": "Đã nhập 2 mẫu video, 1 tệp chưa nhập được.",
+        "locallyFulfilledPosts": 3,
+        "sourceContract": "api/library.ts:344-361; TemplateImportDialog.tsx:82-114,157-223",
+        "archiveParsing": "UNPROVEN",
+        "backendPersistence": false,
+        "mobileExactCanonicalBoard": "ABSENT_FROM_MANIFEST"
+      }
+    },
+    {
+      "key": "fixture-1440-channel-slowroads",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.kenh.slowroads"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-channel-slowroads.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "canonicalIdentity": "slowroads",
+        "displayTitle": "slowroads · SYNTHETIC UI metadata",
+        "counts": {
+          "clip": 248,
+          "highlight": 64,
+          "vod": 0
+        },
+        "catalogueFixtureRows": 12,
+        "canonicalMetadataSource": "Library.dc.html:1533-1552",
+        "typedContract": "api/backdrop.ts:43-100",
+        "nativeRecord": false,
+        "thumbnails": null,
+        "syntheticPauseUntil": null,
+        "noDiscoveryOrDownload": true
+      }
+    },
+    {
+      "key": "fixture-1440-channel-nightdrivefm",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.kenh.nightdrivefm"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-channel-nightdrivefm.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "canonicalIdentity": "nightdrivefm",
+        "displayTitle": "nightdrivefm · SYNTHETIC UI metadata",
+        "counts": {
+          "clip": 186,
+          "highlight": 22,
+          "vod": 9
+        },
+        "catalogueFixtureRows": 12,
+        "canonicalMetadataSource": "Library.dc.html:1533-1552",
+        "typedContract": "api/backdrop.ts:43-100",
+        "nativeRecord": false,
+        "thumbnails": null,
+        "syntheticPauseUntil": null,
+        "noDiscoveryOrDownload": true
+      }
+    },
+    {
+      "key": "fixture-1440-channel-bilibili",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.kenh.bilibili"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-channel-bilibili.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "canonicalIdentity": "bilibili",
+        "displayTitle": "雨夜电台 · SYNTHETIC UI metadata",
+        "counts": {
+          "video": 300
+        },
+        "catalogueFixtureRows": 8,
+        "canonicalMetadataSource": "Library.dc.html:1533-1552",
+        "typedContract": "api/backdrop.ts:43-100",
+        "nativeRecord": false,
+        "thumbnails": null,
+        "syntheticPauseUntil": "2026-11-05T07:26:40.259Z",
+        "noDiscoveryOrDownload": true
+      }
+    },
+    {
+      "key": "fixture-1440-channel-lofilanes",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.kenh.lofilanes"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-channel-lofilanes.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "canonicalIdentity": "lofilanes",
+        "displayTitle": "lofilanes · SYNTHETIC UI metadata",
+        "counts": {
+          "clip": 41,
+          "highlight": 7,
+          "vod": 0
+        },
+        "catalogueFixtureRows": 8,
+        "canonicalMetadataSource": "Library.dc.html:1533-1552",
+        "typedContract": "api/backdrop.ts:43-100",
+        "nativeRecord": false,
+        "thumbnails": null,
+        "syntheticPauseUntil": null,
+        "noDiscoveryOrDownload": true
+      }
+    },
+    {
+      "key": "fixture-1440-library-addvideo",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.nguon.addvideo"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-library-addvideo.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "state": "downloading",
+        "progress": 0.62,
+        "metadataOnly": true,
+        "nativeDownload": false,
+        "sourceContract": "api/backdrop.ts:137-152; VideosPage.tsx:34-53",
+        "canonicalSource": "Library.dc.html:1556-1561",
+        "readyCompanionFiles": "OMITTED: no fabricated media paths"
+      }
+    },
+    {
+      "key": "fixture-390-library-backdrop-metadata-list",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "referenceIds": [
+        "MLibrary.tab.backdrops"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-390-library-backdrop-metadata-list.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "namedFixturesVisible": [
+          "slowroads · SYNTHETIC UI metadata",
+          "nightdrivefm · SYNTHETIC UI metadata",
+          "雨夜电台 · SYNTHETIC UI metadata",
+          "lofilanes · SYNTHETIC UI metadata"
+        ],
+        "canonicalScope": "MLibrary.tab.backdrops only",
+        "desktopNamedChannelAndDownloadDetailParity": "NOT_CLAIMED: mobile uses SourceChannelRow/SourceVideoRow instead of desktop ChannelPage/VideosPage",
+        "nativeBackend": false
+      }
+    },
+    {
+      "key": "fixture-1440-source-unsupported",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [
+        "Library.nguon.unsupported"
+      ],
+      "comparisonTargetIds": [],
+      "status": "PASS",
+      "screenshots": [
+        "fixture-1440-source-unsupported.png"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "observed": {
+        "parse": "locally fulfilled unsupported response",
+        "externalURLNeverResolved": true,
+        "backendSourceCreated": false
+      }
+    }
+  ],
+  "requests": [
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/document-download-hE_zonqP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/upload-limits",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-truyen-ke-dem.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-phim-tai-lieu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-hop-dem-cu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-done",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/document-download-hE_zonqP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/upload-limits",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-truyen-ke-dem.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/doc-dCZcr-Xn.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-phim-tai-lieu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-hop-dem-cu.ytf-template.zip",
+        "ok": false,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "method": "GET",
+      "path": "/assets/danger-B0Wn1yVs.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/document-download-hE_zonqP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/upload-limits",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-truyen-ke-dem.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-phim-tai-lieu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-hop-dem-cu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-done",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/document-download-hE_zonqP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/upload-limits",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-truyen-ke-dem.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-phim-tai-lieu.ytf-template.zip",
+        "ok": true,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "POST",
+      "path": "/api/templates/import",
+      "action": "LOCAL_FULFILL_IMPORT_ONLY",
+      "fixture": {
+        "file": "SYNTHETIC-hop-dem-cu.ytf-template.zip",
+        "ok": false,
+        "provenance": "SYNTHETIC_LOCAL_RESPONSE",
+        "backendPersistence": false
+      }
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "method": "GET",
+      "path": "/assets/danger-B0Wn1yVs.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-fixture-slowroads/videos",
+      "fixture": "BackdropVideoPage canonical visible subset; no further page fixture",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-fixture-nightdrivefm/videos",
+      "fixture": "BackdropVideoPage canonical visible subset; no further page fixture",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-fixture-bilibili/videos",
+      "fixture": "BackdropVideoPage canonical visible subset; no further page fixture",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-fixture-lofilanes/videos",
+      "fixture": "BackdropVideoPage canonical visible subset; no further page fixture",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/assets/scissor-CW9RFQvs.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "BLOCK_UNLISTED_API_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "fixture": "BackdropChannel[]",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "fixture": "BackdropVideo[] metadata only",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/platforms",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/templates",
+      "fixture": "TemplateSummary[] intentionally empty; no import persistence",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_SHELL_GET_ONLY"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-fixture-slowroads/videos",
+      "fixture": "BackdropVideoPage canonical visible subset; no further page fixture",
+      "action": "LOCAL_FULFILL_GET_FIXTURE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "POST",
+      "path": "/api/sources/parse",
+      "action": "LOCAL_FULFILL_UNSUPPORTED_PARSE"
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "method": "GET",
+      "path": "/assets/danger-B0Wn1yVs.svg",
+      "action": "SAME_ORIGIN_STATIC_GET"
+    }
+  ],
+  "screenshots": [
+    {
+      "case": "fixture-1440-import-done",
+      "file": "fixture-1440-import-done.png",
+      "referenceIds": [
+        "Library.import.done"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-1440-import-partial",
+      "file": "fixture-1440-import-partial.png",
+      "referenceIds": [
+        "Library.import.partial"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-390-import-done",
+      "file": "fixture-390-import-done.png",
+      "referenceIds": [],
+      "comparisonTargetIds": [
+        "Library.import.done"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "case": "fixture-390-import-partial",
+      "file": "fixture-390-import-partial.png",
+      "referenceIds": [],
+      "comparisonTargetIds": [
+        "Library.import.partial"
+      ],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "case": "fixture-1440-channel-slowroads",
+      "file": "fixture-1440-channel-slowroads.png",
+      "referenceIds": [
+        "Library.kenh.slowroads"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-1440-channel-nightdrivefm",
+      "file": "fixture-1440-channel-nightdrivefm.png",
+      "referenceIds": [
+        "Library.kenh.nightdrivefm"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-1440-channel-bilibili",
+      "file": "fixture-1440-channel-bilibili.png",
+      "referenceIds": [
+        "Library.kenh.bilibili"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-1440-channel-lofilanes",
+      "file": "fixture-1440-channel-lofilanes.png",
+      "referenceIds": [
+        "Library.kenh.lofilanes"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-1440-library-addvideo",
+      "file": "fixture-1440-library-addvideo.png",
+      "referenceIds": [
+        "Library.nguon.addvideo"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "fixture-390-library-backdrop-metadata-list",
+      "file": "fixture-390-library-backdrop-metadata-list.png",
+      "referenceIds": [
+        "MLibrary.tab.backdrops"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "case": "fixture-1440-source-unsupported",
+      "file": "fixture-1440-source-unsupported.png",
+      "referenceIds": [
+        "Library.nguon.unsupported"
+      ],
+      "comparisonTargetIds": [],
+      "provenance": {
+        "kind": "SYNTHETIC_LOCAL_FIXTURE_UI",
+        "nativeBackend": false,
+        "mediaFetched": false
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "Import POST is fulfilled locally with TemplateImportResult, never continued. Empty ZIP containers are fixture carriers, not valid Viderse exports. No archive parsing, media ingest or backend persistence is proven.",
+    "Named channel identities, usage, catalogue counts, pause and progress are explicitly labelled metadata fixtures. All avatar/thumbnail URLs are null; no provider discovery or media is fetched.",
+    "Canonical Library boards are desktop 1440x900. The manifest has no mobile import.done/partial, nguon.addvideo or kenh.* board. Mobile import captures are supplemental; mobile backdrop capture references only MLibrary.tab.backdrops.",
+    "Reference IDs identify comparison targets, not pixel-parity acceptance. Real artboard thumbnails, native records, native import success and actual downloads remain prerequisites for native/visual parity."
+  ],
+  "safety": {
+    "nonGETContinued": 0,
+    "externalContinued": 0,
+    "downloads": 0,
+    "websocketsBlocked": 0,
+    "routeErrors": []
+  },
+  "sources": {
+    "root": "/Users/dat/Projects/verse/apps/viderse/web/src",
+    "artboard": "/Users/dat/Projects/verse/apps/viderse/docs/design/v1/artboards/Library.dc.html",
+    "manifest": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v38-acceptance-xxkx9151/remaining-v38-state-manifest.json"
+  },
+  "browserClosed": true,
+  "finishedAt": "2026-11-05T06:26:46.913Z"
+}

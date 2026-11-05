@@ -3,196 +3,110 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
-import { NewScreen } from './NewScreen'
-import { readFileSync } from 'node:fs'
-import { URL as NodeURL } from 'node:url'
-const golden = JSON.parse(readFileSync(new NodeURL('../../../../internal/pipeline/testdata/clone-views.golden.json', import.meta.url), 'utf8'))
+import { NewVideoDialog } from './NewScreen'
+import type { ClonePlan, CloneEnqueueResult } from '../../api/clone'
+import { cloneTarget } from '../../api/clone'
+import { blocksQuickCreate, openQuickCreate, QUICK_CREATE_EVENT } from './quickCreate'
+import { parseHash, paths, routePath } from '../../router'
 
-let root: Root
-let el: HTMLDivElement
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+let root: Root, host: HTMLDivElement
 let calls: { path: string; body: Record<string, unknown> }[]
-let plan: Record<string, unknown>
-const response = (body: unknown) => new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' } })
-const tick = async (ms: number) => { await act(async () => { await vi.advanceTimersByTimeAsync(ms) }) }
+let plan: ClonePlan, result: CloneEnqueueResult
+let failJobs: boolean
+const close = vi.fn()
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
+const tick = async (ms = 0) => { await act(async () => { await vi.advanceTimersByTimeAsync(ms) }) }
 const input = async (value: string) => {
-  const field = el.querySelector('input,textarea') as HTMLInputElement | HTMLTextAreaElement
-  expect(field).not.toBeNull()
-  await act(async () => {
-    const proto = field.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype
-    Object.getOwnPropertyDescriptor(proto, 'value')!.set!.call(field, value)
-    field.dispatchEvent(new Event('input', { bubbles: true }))
-  })
+  const field = document.querySelector<HTMLTextAreaElement>('#quick-create-urls')!
+  await act(async () => { Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(field, value); field.dispatchEvent(new Event('input', { bubbles: true })) })
 }
+const submit = async () => { await act(async () => document.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))) }
 beforeEach(async () => {
-  vi.useFakeTimers()
-  cache.clear()
-  calls = []
-  plan = { accepted: [{ url: 'https://youtu.be/abcdefghijk', videoId: golden[1].source.id, title: golden[1].source.title, durationSec: 180, outlier: null, hasCaptions: true }], duplicates: [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 2, overflowDays: 0, template: { id: 'standard', name: 'Mẫu chuẩn', fromRotation: true } }
+  vi.useFakeTimers(); cache.clear(); close.mockClear(); calls = []; failJobs = false
+  plan = { accepted: [{ url: 'https://youtu.be/abcdefghijk', videoId: 'abcdefghijk', title: 'Video thật', durationSec: 180, outlier: null, hasCaptions: true, thumbnailUrl: '/source.jpg' }], duplicates: [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 2, overflowDays: 0, template: { id: 'standard', name: 'Mẫu chuẩn' }, imageCalls: 12, priceUSD: 0.24 }
+  result = { items: [{ id: 'real-queue-row', jobId: null }], duplicates: [], invalid: [] }
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })))
   vi.stubGlobal('fetch', vi.fn(async (path: string, init?: RequestInit) => {
-    if (path === '/api/owner-channels') return response({ channels: [
-      { id: 'mine', name: 'Kênh của tôi', pacePerDay: 5, templates: [{ id: 'standard', name: 'Mẫu chuẩn', position: 0 }], sources: [] },
-      // Kênh để trống tên lúc tạo: nhận diện sẽ đặt tên sau.
-      { id: 'other', name: '', pacePerDay: 3, templates: [{ id: 'doc', name: 'Phim tài liệu', position: 0 }], sources: [] },
-    ] })
-    if (path.includes('/videos')) return response({ videos: [], nextCursor: null, total: 0 })
-    if (path === '/api/clone/plan') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response(plan) }
-    if (path === '/api/clone/enqueue') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response({ items: [] }) }
-    return response({ rivals: [], totalVideos: 0, newOutliers: 0 })
+    if (path === '/api/owner-channels') return json({ channels: [{ id: 'mine', name: 'Kênh của tôi', defaultTemplateId: 'standard', defaultTemplateName: 'Mẫu chuẩn', sources: [] }, { id: 'other', name: 'Kênh khác', defaultTemplateId: 'doc', defaultTemplateName: 'Phim tài liệu', sources: [] }] })
+    if (path === '/api/templates') return json({ items: [{ id: 'standard', name: 'Mẫu chuẩn' }, { id: 'doc', name: 'Phim tài liệu' }] })
+    if (path === '/api/clone/plan' || path === '/api/jobs') {
+      calls.push({ path, body: JSON.parse(String(init?.body)) })
+      return path === '/api/jobs' ? json(failJobs ? { error: 'Lỗi mạng' } : result, failJobs ? 500 : 200) : json(plan)
+    }
+    return json({})
   }))
-  el = document.createElement('div'); document.body.append(el); root = createRoot(el)
-  await act(async () => { root.render(<NewScreen route={{ name: 'new' }} />) })
-  await tick(0)
+  host = document.createElement('div'); document.body.append(host); root = createRoot(host)
+  await act(async () => root.render(<NewVideoDialog request={{}} onClose={close} />)); await tick()
 })
-afterEach(async () => { await act(async () => root.unmount()); el.remove(); cache.clear(); vi.useRealTimers(); vi.unstubAllGlobals() })
-it('waits 300 ms and cancels the superseded plan request', async () => {
-  await input('https://youtu.be/abcdefghijk'); await tick(299)
-  expect(calls).toHaveLength(0)
-  await input('https://youtu.be/lmnopqrstuv'); await tick(299)
-  expect(calls).toHaveLength(0)
-  await tick(1)
-  expect(calls).toHaveLength(1)
-  expect(calls[0].body.urls).toEqual(['https://youtu.be/lmnopqrstuv'])
+afterEach(async () => { await act(async () => { root.unmount(); await vi.runOnlyPendingTimersAsync() }); host.remove(); cache.clear(); vi.useRealTimers(); vi.unstubAllGlobals() })
+it('debounces actual metadata and renders real price and title', async () => {
+  await input('https://youtu.be/abcdefghijk'); await tick(299); expect(calls).toHaveLength(0)
+  await tick(1); expect(document.body.textContent).toContain('Video thật'); expect(document.body.textContent).toContain('$0.24')
+  expect(document.querySelector('img')?.getAttribute('src')).toBe('/source.jpg')
 })
-it('prevents enqueue for a duplicate and opens the existing video', async () => {
-  plan = { ...plan, accepted: [], duplicates: [{ url: 'https://youtu.be/abcdefghijk', jobId: 'existing', state: 'working' }] }
+it('sends mixed input to canonical jobs without public priority', async () => {
+  plan.invalid = [{ url: 'bad-link', reason: 'not_youtube' }]
+  result.invalid = plan.invalid
+  await input('https://youtu.be/abcdefghijk\nbad-link'); await tick(300); await submit()
+  expect(calls.find((c) => c.path === '/api/jobs')?.body).toEqual({ channelId: 'mine', urls: ['https://youtu.be/abcdefghijk', 'bad-link'] })
+  expect(document.body.textContent).toContain('Link không phải video YouTube')
+  expect(document.querySelector('a[href="#/?queueItem=real-queue-row"]')).not.toBeNull()
+})
+it('keeps the draft on mutation failure', async () => {
+  failJobs = true; await input('https://youtu.be/abcdefghijk'); await tick(300); await submit()
+  expect(document.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('https://youtu.be/abcdefghijk'); expect(close).not.toHaveBeenCalled()
+})
+it('does not enqueue on cancel', async () => {
   await input('https://youtu.be/abcdefghijk'); await tick(300)
-  const link = [...el.querySelectorAll('a')].find(a => a.textContent === 'Mở video đang làm')
-  expect(link?.getAttribute('href')).toContain('existing')
-  expect(el.querySelector('button[type="submit"]')?.getAttribute('aria-disabled')).toBe('true')
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  expect(calls.filter(c => c.path.endsWith('enqueue'))).toHaveLength(0)
+  await act(async () => [...document.querySelectorAll('button')].find((button) => button.textContent === 'Huỷ')!.click())
+  expect(calls.filter((c) => c.path === '/api/jobs')).toHaveLength(0); expect(close).toHaveBeenCalled()
 })
-it('plans multiple links as batch and only enqueues accepted links', async () => {
-  const accepted = plan.accepted as object[]
-  plan = { ...plan, accepted: [...accepted, { ...accepted[0], url: 'https://youtu.be/lmnopqrstuv', videoId: 'lmnopqrstuv' }], duplicates: [{ url: 'https://youtu.be/duplicate00', jobId: 'old', state: 'ready' }], position: 'back', overflowDays: 1 }
-  await act(async () => (el.querySelectorAll<HTMLButtonElement>('[role="radio"]')[1]).click())
-  await input('https://youtu.be/abcdefghijk\nhttps://youtu.be/lmnopqrstuv\nhttps://youtu.be/duplicate00'); await tick(300)
-  expect(calls[0].body.priority).toBe('batch')
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  expect(calls.find(c => c.path.endsWith('enqueue'))?.body.urls).toEqual(['https://youtu.be/abcdefghijk', 'https://youtu.be/lmnopqrstuv'])
+it('links a duplicate pending row to its exact workbench target', async () => {
+  plan.accepted = []; plan.duplicates = [{ url: 'https://youtu.be/abcdefghijk', jobId: null, queueItemId: 'waiting', state: 'queued' }]
+  await input('https://youtu.be/abcdefghijk'); await tick(300); await submit()
+  expect(document.querySelector('a[href="#/?queueItem=waiting"]')).not.toBeNull(); expect(calls.filter((c) => c.path === '/api/jobs')).toHaveLength(0)
 })
-it('does not enqueue when the real plan has no template assigned', async () => {
-  plan = { ...plan, template: { id: '', name: '', fromRotation: false } }
-  await input('https://youtu.be/abcdefghijk'); await tick(300)
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  expect(calls.filter((call) => call.path.endsWith('enqueue'))).toHaveLength(0)
+it('opens selections without a URL input and keeps the source route', async () => {
+  history.replaceState(null, '', '#/explore?rival=source')
+  await act(async () => root.render(<NewVideoDialog key="selection" request={{ urls: ['https://youtu.be/abcdefghijk'], fromSelection: true }} onClose={close} />)); await tick(300)
+  expect(document.querySelector('textarea')).toBeNull(); expect(location.hash).toBe('#/explore?rival=source')
 })
-it('renders the source preview for an already queued video', async () => {
-  plan = { ...plan, accepted: [], duplicates: [{ url: 'https://youtu.be/abcdefghijk', jobId: null, state: 'queued', title: 'Nguồn đã xếp', thumbnailUrl: '/duplicate-source.jpg', durationSec: 120, outlier: 4.2, hasCaptions: true, sourceChannelTitle: 'Đối thủ', viewCount: 1000, publishedAt: null }] }
-  await input('https://youtu.be/abcdefghijk'); await tick(300)
-  expect(el.querySelector('.nv-preview img')?.getAttribute('src')).toBe('/duplicate-source.jpg')
+it('blocks N in nested contenteditable and form inputs', () => {
+  const editor = document.createElement('div'); editor.contentEditable = 'true'; editor.setAttribute('contenteditable', 'true'); const span = document.createElement('span'); editor.append(span)
+  expect(blocksQuickCreate(span)).toBe(true); expect(blocksQuickCreate(document.createElement('textarea'))).toBe(true)
 })
-it('shows the linked-source badge only when the plan confirms the relationship', async () => {
-  plan = { ...plan, accepted: [{ ...(plan.accepted as object[])[0], rivalLinked: true }] }
-  await input('https://youtu.be/abcdefghijk'); await tick(300)
-  expect(el.querySelector('.nv-linked')).not.toBeNull()
+it('opens through a shell event without changing location', () => {
+  const listener = vi.fn(); window.addEventListener(QUICK_CREATE_EVENT, listener)
+  const before = location.hash; openQuickCreate({ channelId: 'mine', urls: ['source'] })
+  expect(listener.mock.calls[0][0].detail).toEqual({ channelId: 'mine', urls: ['source'] }); expect(location.hash).toBe(before)
+  window.removeEventListener(QUICK_CREATE_EVENT, listener)
+})
+it('round trips a pending workbench selection, then prefers an admitted job', () => {
+  const path = paths.workbench({ queueItem: 'row / two' }); expect(routePath(parseHash(`#${path}`).route)).toBe(path)
+  expect(cloneTarget({ jobId: 'job', queueItemId: 'row' })).toBe('/?video=job')
 })
 
-const viewport = async (mobile: boolean) => {
-  vi.mocked(matchMedia).mockReturnValue({ matches: mobile, addEventListener() {}, removeEventListener() {} } as unknown as MediaQueryList)
-  await act(async () => { root.render(<NewScreen key={String(mobile)} route={{ name: 'new' }} />) })
-  await tick(0)
-}
-
-const multiInput = async (value: string) => {
-  await act(async () => el.querySelectorAll<HTMLButtonElement>('[role="radio"]')[1].click())
-  await input(value)
-}
-
-it.each([false, true])('uses the accepted count and priority plan before enqueueing (mobile=%s)', async (mobile) => {
-  await viewport(mobile)
-  plan = { ...plan, position: 'back', duplicates: [{ url: 'https://youtu.be/duplicate00', jobId: 'old', state: 'ready' }], invalid: [{ url: 'bad-link', reason: 'unreadable' }] }
-  await multiInput('https://youtu.be/abcdefghijk\nhttps://youtu.be/duplicate00\nbad-link')
-  await tick(300)
-  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!
-  expect(el.querySelector('.nv-priority-row, .nv-priority')?.textContent).toContain('Ưu tiên cả 1')
-  expect(toggle.getAttribute('aria-checked')).toBe('false')
-  expect(calls.at(-1)?.body.priority).toBe('batch')
-  plan = { ...plan, position: 'front', etaStart: '2026-11-01T00:40:00Z' }
-  await act(async () => toggle.click())
-  await tick(0)
-  expect(toggle.getAttribute('aria-checked')).toBe('true')
-  expect(calls.at(-1)?.body.priority).toBe('pick')
-  expect(el.querySelector('.nv-plantext')?.textContent).toContain('Cả 1 lên đầu hàng chờ, không theo nhịp kênh')
-  expect(el.querySelector('.nv-summary')?.textContent).toContain('Ưu tiên: cả 1 chạy ngay khi có luồng trống.')
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  expect(calls.find((call) => call.path.endsWith('enqueue'))?.body).toEqual({
-    channelId: 'mine', urls: ['https://youtu.be/abcdefghijk'], priority: 'pick',
+it('guards synchronous double submit before a second mutation can start', async () => {
+  await input('https://youtu.be/abcdefghijk'); await tick(300)
+  await act(async () => {
+    const form = document.querySelector('form')!
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
   })
+  expect(calls.filter((call) => call.path === '/api/jobs')).toHaveLength(1)
 })
 
-it.each([false, true])('keeps image choices in the selected template, not web plan/enqueue (mobile=%s)', async (mobile) => {
-  await viewport(mobile)
-  expect(el.querySelector('.nv-noimages')).toBeNull()
-  expect(el.querySelector('input[type="checkbox"]')).toBeNull()
-  await input('https://youtu.be/abcdefghijk')
-  await tick(300)
-  expect(calls[0].body).not.toHaveProperty('noImages')
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  const enqueued = calls.find((call) => call.path.endsWith('enqueue'))
-  expect(enqueued).toBeDefined()
-  expect(enqueued?.body).not.toHaveProperty('noImages')
-})
-
-it('returns to the batch plan when priority is unchecked and never counts rejected links', async () => {
-  await viewport(true)
-  plan = { ...plan, position: 'back' }
-  await multiInput('https://youtu.be/abcdefghijk\nbad-link')
-  await tick(300)
-  const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!
-  plan = { ...plan, position: 'front' }
-  await act(async () => toggle.click())
-  await tick(0)
-  plan = { ...plan, position: 'back', accepted: [], invalid: [{ url: 'bad-link', reason: 'unreadable' }] }
-  await act(async () => toggle.click())
-  await tick(0)
-  expect(toggle.getAttribute('aria-checked')).toBe('false')
-  expect(el.querySelector('.nv-priority-row, .nv-priority')?.textContent).toContain('Ưu tiên cả 0')
-  expect(calls.at(-1)?.body.priority).toBe('batch')
-  await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
-  expect(calls.some((call) => call.path.endsWith('enqueue'))).toBe(false)
-})
-
-it('uses daily pace separately from remaining turns without repeating skipped links on mobile', async () => {
-  await viewport(true)
-  const accepted = plan.accepted as object[]
-  plan = { ...plan, position: 'back', paceLeftToday: 2, accepted: [...accepted, { ...accepted[0], url: 'https://youtu.be/lmnopqrstuv' }, { ...accepted[0], url: 'https://youtu.be/another0000' }], duplicates: [{ url: 'https://youtu.be/duplicate00', jobId: 'old', state: 'ready' }] }
-  await multiInput('https://youtu.be/abcdefghijk\nhttps://youtu.be/lmnopqrstuv\nhttps://youtu.be/another0000\nhttps://youtu.be/duplicate00')
-  await tick(300)
-  expect(el.querySelector('.nv-plantext')?.textContent).toContain('theo nhịp 5 video/ngày của Kênh của tôi. Hôm nay còn 2 lượt.')
-  expect(el.querySelector('.nv-summary')?.textContent).toBe('3 link đọc được1 đã làm cho kênh này · sẽ bỏ quaHôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.')
-})
-
-// Ô chọn Kênh/Template là ô chọn của kit (nút mở danh sách), không phải <select> gốc.
-const picker = (label: string) => el.querySelector<HTMLButtonElement>(`button[role="combobox"][aria-label="${label}"]`)!
-const pick = async (label: string, option: string) => {
-  await act(async () => picker(label).click())
-  const target = [...el.querySelectorAll<HTMLElement>('[role="option"]')].find((node) => node.textContent === option)
-  expect(target, `lựa chọn “${option}” trong ${label}`).toBeDefined()
-  await act(async () => target!.click())
-}
-
-it.each([false, true])('plans with the picked template and returns to rotation when the channel changes (mobile=%s)', async (mobile) => {
-  await viewport(mobile)
+it('uses a video-only override and resets to the new channel default without PATCH', async () => {
   await input('https://youtu.be/abcdefghijk'); await tick(300)
-  expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
-  await pick('Template', 'Mẫu chuẩn')
-  await tick(300)
-  expect(calls.at(-1)?.body).toMatchObject({ channelId: 'mine', templateId: 'standard' })
-  expect(picker('Template').textContent).toContain('Mẫu chuẩn')
-  await pick('Kênh', 'Kênh chưa đặt tên')
-  await tick(300)
-  // Đổi kênh luôn trả template về luân phiên, kể cả khi kênh mới có template riêng.
-  expect(calls.at(-1)?.body).toMatchObject({ channelId: 'other' })
-  expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
-  expect(picker('Kênh').textContent).toContain('Kênh chưa đặt tên')
-  expect(picker('Template').textContent).toContain('Theo luân phiên')
+  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="Template"]')!.click())
+  await act(async () => [...document.querySelectorAll<HTMLElement>('[role="option"]')].find((option) => option.textContent?.includes('Phim tài liệu'))!.click())
+  await tick()
+  expect(calls.filter((call) => call.path === '/api/clone/plan').at(-1)?.body.templateId).toBe('doc')
+  expect(document.body.textContent).toContain('Chỉ video này')
+  await act(async () => document.querySelector<HTMLButtonElement>('[aria-label="Kênh"]')!.click())
+  await act(async () => [...document.querySelectorAll<HTMLElement>('[role="option"]')].find((option) => option.textContent?.includes('Kênh khác'))!.click())
+  await tick()
+  expect(calls.filter((call) => call.path === '/api/clone/plan').at(-1)?.body).toEqual({ channelId: 'other', urls: ['https://youtu.be/abcdefghijk'] })
+  expect(vi.mocked(fetch).mock.calls.some(([, init]) => init?.method === 'PATCH')).toBe(false)
 })
-
-it('names a channel that was created without a name instead of showing an empty value', async () => {
-  await act(async () => picker('Kênh').click())
-  expect([...el.querySelectorAll('[role="option"]')].map((node) => node.textContent)).toEqual(['Kênh của tôi', 'Kênh chưa đặt tên'])
-  expect(picker('Kênh').textContent).toContain('Kênh của tôi')
-})
-

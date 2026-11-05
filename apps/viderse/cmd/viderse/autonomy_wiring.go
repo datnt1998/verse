@@ -6,8 +6,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// newAutonomyService dựng Mức tự chủ của kênh. Reviewer được gắn khi dịch vụ
-// ảnh dựng xong (mountCloneOwnerOperations); trợ lý và Học dùng cùng instance.
+// newAutonomyService dựng phần máy tự làm: tự duyệt ảnh (ngưỡng cố định 85)
+// và tự sửa lỗi một lần. Reviewer được gắn khi dịch vụ ảnh dựng xong
+// (mountCloneOwnerOperations).
 func newAutonomyService(pool *pgxpool.Pool, publish func(string, any), diag func(string)) *autonomy.Service {
 	return &autonomy.Service{Store: postgres.NewAutonomyStore(pool), Publish: publish, Diag: diag}
 }

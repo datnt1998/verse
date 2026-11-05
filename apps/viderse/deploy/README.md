@@ -31,6 +31,61 @@ chỉ bằng env của lệnh, xác minh GitHub host key, không chép private k
 sau rollout.
 
 
+### Viderse không lên dù PostgreSQL trong Colima vẫn khỏe
+
+Dành cho người vận hành Mac mini đã có quyền SSH, trong phạm vi phục hồi dịch vụ
+hiện hành; không đồng nghĩa được deploy, đổi secret hoặc restart toàn bộ VM.
+Log ứng dụng: `~/server/logs/viderse.log`; trạng thái:
+`launchctl print gui/$(id -u)/com.dat.viderse`.
+
+Nếu log báo `127.0.0.1:5433 connection refused`, đối chiếu
+`docker exec noverse-postgres-1 pg_isready -h 127.0.0.1 -p 5432` với
+`nc -z -w 3 127.0.0.1 5433` trên macOS. Docker CLI cần PATH có
+`/opt/homebrew/bin`. Container khỏe nhưng host không mở cổng có thể là forwarding,
+không phải mất dữ liệu. Nguồn transport là cấu hình sinh bởi Lima:
+`~/.colima/_lima/colima/ssh.config`; log là `ha.stderr.log` cùng thư mục.
+
+Chỉ khi đã xác nhận đúng VM, đúng cấu hình và không có listener cạnh tranh,
+kiểm SSH master bằng
+`ssh -F "$HOME/.colima/_lima/colima/ssh.config" -O check lima-colima`,
+rồi nối lại cổng qua **master hiện có**, không tạo tunnel nền riêng:
+
+```sh
+ssh -F "$HOME/.colima/_lima/colima/ssh.config" -O forward \
+  -L 127.0.0.1:5433:127.0.0.1:5433 lima-colima
+ssh -F "$HOME/.colima/_lima/colima/ssh.config" -O forward \
+  -L 127.0.0.1:3900:127.0.0.1:3900 lima-colima
+```
+
+Cổng3900 là Garage; kiểm cả hai bằng `nc` trước khi
+`launchctl kickstart gui/$(id -u)/com.dat.viderse`. Sau đó kiểm `/readyz`
+ở loopback và origin công khai, cùng màn đăng nhập/assets thực. HTTP403 từ Garage
+không kèm chữ ký chỉ chứng minh endpoint tới được, không chứng minh đọc object
+có xác thực. Nếu master/cấu hình không còn hợp lệ, dừng và chẩn đoán transport;
+không tự sửa file sinh, đổi DSN hoặc restart database/VM để thử.
+Nối lại cổng phục hồi đường truy cập, không phải bằng chứng đã sửa nguyên nhân
+nội bộ khiến Lima trước đó báo SSH forwarding exit255.
+
+### Trang đo/xuất không nhận việc trên hosted
+
+Chrome headless phải mở cùng origin HTTPS đã được `PUBLIC_URL` xác thực;
+desktop không có `PUBLIC_URL` mới dùng loopback. Nguồn wiring là
+[`serve.go`](../cmd/viderse/serve.go); guard scoped request vẫn kiểm origin và token.
+Nếu đo timeout nhưng request còn queued, đối chiếu lỗi trang headless trước khi
+bấm retry: lỗi origin xảy ra trước claim nên tăng timeout hoặc vẽ lại ảnh không sửa
+được. Không nới allowlist toàn app hoặc bỏ CSRF để cho request nội bộ đi qua.
+
+Khi hotfix backend trong lúc UI mới chưa nghiệm thu, không chạy script lấy toàn bộ
+`origin/main`: dựng từ đúng revision production với patch tối thiểu, giữ nguyên
+assets đang phục vụ và kiểm SHA. Giữ binary/marker trước đó để rollback, kiểm
+writer trước thay tệp tại đường dẫn ổn định. Nếu không đổi schema thì không chạy
+migration. Sau rollout phải chứng minh request thật nhận claim, upload và hoàn tất
+đo qua checkpoint, không chỉ `/readyz`. Retry dùng thao tác repository/API hiện
+có và giữ nguyên checkpoint các bước AI đã thành công.
+
+
+
+
 ## Data DB
 
 1. Tạo hai role và DB (tham chiếu `apps/noverse/deploy/postgres-init/01-roles.sh` cho mô hình role; Viderse dùng cặp `viderse_migrate`/`viderse_app` như `pgtest.RoleSpec`):

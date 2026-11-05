@@ -1,0 +1,719 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "editor-template-audit.pw.ts",
+      "studio-feedback-audit.pw.ts",
+      "--project=mobile",
+      "--project=mobile-reduced",
+      "--grep",
+      "template video selects|notification suggestions|phone Main detail"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "editor-template-audit.pw.ts",
+      "file": "editor-template-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "template video selects float on desktop and open a Sheet on phone while the sample viewer only reads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:14.232Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "editor-template-template-phone.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDM5MCwKICAgICJoZWlnaHQiOiA4NDQKICB9LAogICJwcmV2aWV3IjogewogICAgInN0YXRlIjogIm5vbmUiLAogICAgInNvdXJjZUNvdW50IjogMSwKICAgICJidWlsZGFibGUiOiBbCiAgICAgICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIF0sCiAgICAic2hlZXRUaXRsZSI6ICJDaOG7jW4gdmlkZW8gxJHDoyBsw6BtIiwKICAgICJlc2NDbG9zZWQiOiB0cnVlLAogICAgInNjcmltQ2xvc2VkIjogdHJ1ZSwKICAgICJsYXlvdXRVbmNoYW5nZWQiOiB0cnVlCiAgfSwKICAiY292ZXIiOiB7CiAgICAic291cmNlQ291bnQiOiAxLAogICAgInNoZWV0VGl0bGUiOiAiQ2jhu41uIHZpZGVvIMSRw6MgbMOgbSB4b25nIMSR4buDIHbhur0gdGjhu60g4bqjbmggYsOsYSIsCiAgICAib3B0aW9uczQ0cHgiOiB0cnVlLAogICAgImVzY0Nsb3NlZCI6IHRydWUsCiAgICAiZm9jdXNSZXR1cm5lZCI6IHRydWUsCiAgICAibGF5b3V0VW5jaGFuZ2VkIjogdHJ1ZQogIH0sCiAgIndyaXRlcyI6IFtdLAogICJ2aWV3ZXJSb3VuZDQ1T3BlbmVkIjogZmFsc2UsCiAgInByb3ZpZGVyQ2FsbHMiOiAwCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/editor-template-audit.pw.t-39d91-he-sample-viewer-only-reads-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6d95ad035f6a6ede41a7-4a7521925dcdc4317d47",
+          "file": "editor-template-audit.pw.ts",
+          "line": 489,
+          "column": 5
+        },
+        {
+          "title": "template video selects float on desktop and open a Sheet on phone while the sample viewer only reads",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2146,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:27.716Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "editor-template-template-phone.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDM5MCwKICAgICJoZWlnaHQiOiA4NDQKICB9LAogICJwcmV2aWV3IjogewogICAgInN0YXRlIjogIm5vbmUiLAogICAgInNvdXJjZUNvdW50IjogMSwKICAgICJidWlsZGFibGUiOiBbCiAgICAgICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIKICAgIF0sCiAgICAic2hlZXRUaXRsZSI6ICJDaOG7jW4gdmlkZW8gxJHDoyBsw6BtIiwKICAgICJlc2NDbG9zZWQiOiB0cnVlLAogICAgInNjcmltQ2xvc2VkIjogdHJ1ZSwKICAgICJsYXlvdXRVbmNoYW5nZWQiOiB0cnVlCiAgfSwKICAiY292ZXIiOiB7CiAgICAic291cmNlQ291bnQiOiAxLAogICAgInNoZWV0VGl0bGUiOiAiQ2jhu41uIHZpZGVvIMSRw6MgbMOgbSB4b25nIMSR4buDIHbhur0gdGjhu60g4bqjbmggYsOsYSIsCiAgICAib3B0aW9uczQ0cHgiOiB0cnVlLAogICAgImVzY0Nsb3NlZCI6IHRydWUsCiAgICAiZm9jdXNSZXR1cm5lZCI6IHRydWUsCiAgICAibGF5b3V0VW5jaGFuZ2VkIjogdHJ1ZQogIH0sCiAgIndyaXRlcyI6IFtdLAogICJ2aWV3ZXJSb3VuZDQ1T3BlbmVkIjogZmFsc2UsCiAgInByb3ZpZGVyQ2FsbHMiOiAwCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/editor-template-audit.pw.t-39d91-he-sample-viewer-only-reads-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6d95ad035f6a6ede41a7-6bea0fafa5998e6d9636",
+          "file": "editor-template-audit.pw.ts",
+          "line": 489,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "studio-feedback-audit.pw.ts",
+      "file": "studio-feedback-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "notification suggestions is one boolean that saves, reads back, survives reload and restores exactly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2539,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:18.559Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "notification-suggestions-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMzkwLAogICAgImhlaWdodCI6IDg0NAogIH0sCiAgImJlZm9yZSI6IHRydWUsCiAgInNhdmVkIjogZmFsc2UsCiAgInJlbG9hZGVkIjogZmFsc2UsCiAgInJlc3RvcmVkIjogdHJ1ZSwKICAid3JpdGVzIjogWwogICAgIlBVVCAvYXBpL25vdGlmaWNhdGlvbnMvc2V0dGluZ3MiCiAgXSwKICAidW5yZWxhdGVkUHJlZmVyZW5jZXNQcmVzZXJ2ZWQiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "studio-feedback-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQVVQgL2FwaS9ub3RpZmljYXRpb25zL3NldHRpbmdzIgogIF0sCiAgImV4dGVybmFsQ291bnQiOiAwLAogICJleHRlcm5hbFNhbXBsZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "studio-feedback-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/studio-feedback-audit.pw.t-5c122-reload-and-restores-exactly-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c696791a5a8cf6a287e6-f09acbe901c667ed75a7",
+          "file": "studio-feedback-audit.pw.ts",
+          "line": 416,
+          "column": 5
+        },
+        {
+          "title": "phone Main detail keeps the real content values, package copy, four assistants and progress journal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "state-gap",
+                  "description": "V37 two-tab inspector and desktop ActivityPopover do not exist on phone; the phone detail sections and the shared notification settings are audited instead."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5876,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:21.104Z",
+                  "annotations": [
+                    {
+                      "type": "state-gap",
+                      "description": "V37 two-tab inspector and desktop ActivityPopover do not exist on phone; the phone detail sections and the shared notification settings are audited instead."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "phone-main-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZSIsCiAgInZpZXdwb3J0IjogewogICAgIndpZHRoIjogMzkwLAogICAgImhlaWdodCI6IDg0NAogIH0sCiAgImpvYiI6ICIzMjI1YjYyOS01MWM4LTRmODEtODQ1Ni05ZWNhY2RlNjY0YWMiLAogICJzdGVwR3JvdXAiOiAicmVhZHkiLAogICJhZ2VudHMiOiA0LAogICJjb250ZW50VGl0bGUiOiAiS2nhu4NtIHRo4butIFFBIMK3IE1pZG5pZ2h0IFRhbGVzIMK3IHPDoXUgZ2nDonkiLAogICJjb3B5IjogewogICAgImV4cGVjdGVkTGVuZ3RoIjogMTU2LAogICAgImFjdHVhbExlbmd0aCI6IDE1NiwKICAgICJmZWVkYmFjayI6ICLEkMOjIHNhbyBjaMOpcCB0acOqdSDEkeG7gSwgbcO0IHThuqMgdsOgIHRhZy4iCiAgfSwKICAicGFja2FnZUxlbmd0aCI6IDE1NiwKICAiam91cm5hbCI6IHsKICAgICJzdGVwcyI6IDksCiAgICAicmVuZGVyZWQiOiA0CiAgfQp9"
+                    },
+                    {
+                      "name": "studio-feedback-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "studio-feedback-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/studio-feedback-audit.pw.t-219ae-stants-and-progress-journal-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c696791a5a8cf6a287e6-4600fdf5539852415aef",
+          "file": "studio-feedback-audit.pw.ts",
+          "line": 474,
+          "column": 5
+        },
+        {
+          "title": "notification suggestions is one boolean that saves, reads back, survives reload and restores exactly",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2516,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:30.245Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "notification-suggestions-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAiYmVmb3JlIjogdHJ1ZSwKICAic2F2ZWQiOiBmYWxzZSwKICAicmVsb2FkZWQiOiBmYWxzZSwKICAicmVzdG9yZWQiOiB0cnVlLAogICJ3cml0ZXMiOiBbCiAgICAiUFVUIC9hcGkvbm90aWZpY2F0aW9ucy9zZXR0aW5ncyIKICBdLAogICJ1bnJlbGF0ZWRQcmVmZXJlbmNlc1ByZXNlcnZlZCI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "studio-feedback-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFsKICAgICJQVVQgL2FwaS9ub3RpZmljYXRpb25zL3NldHRpbmdzIgogIF0sCiAgImV4dGVybmFsQ291bnQiOiAwLAogICJleHRlcm5hbFNhbXBsZSI6IFtdCn0="
+                    },
+                    {
+                      "name": "studio-feedback-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/studio-feedback-audit.pw.t-5c122-reload-and-restores-exactly-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c696791a5a8cf6a287e6-dc0d5cd3dac16b6d85ab",
+          "file": "studio-feedback-audit.pw.ts",
+          "line": 416,
+          "column": 5
+        },
+        {
+          "title": "phone Main detail keeps the real content values, package copy, four assistants and progress journal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "state-gap",
+                  "description": "V37 two-tab inspector and desktop ActivityPopover do not exist on phone; the phone detail sections and the shared notification settings are audited instead."
+                }
+              ],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1424,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T13:00:32.767Z",
+                  "annotations": [
+                    {
+                      "type": "state-gap",
+                      "description": "V37 two-tab inspector and desktop ActivityPopover do not exist on phone; the phone detail sections and the shared notification settings are audited instead."
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "phone-main-observations.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJwcm9qZWN0IjogIm1vYmlsZS1yZWR1Y2VkIiwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAzOTAsCiAgICAiaGVpZ2h0IjogODQ0CiAgfSwKICAiam9iIjogIjMyMjViNjI5LTUxYzgtNGY4MS04NDU2LTllY2FjZGU2NjRhYyIsCiAgInN0ZXBHcm91cCI6ICJyZWFkeSIsCiAgImFnZW50cyI6IDQsCiAgImNvbnRlbnRUaXRsZSI6ICJLaeG7g20gdGjhu60gUUEgwrcgTWlkbmlnaHQgVGFsZXMgwrcgc8OhdSBnacOieSIsCiAgImNvcHkiOiB7CiAgICAiZXhwZWN0ZWRMZW5ndGgiOiAxNTYsCiAgICAiYWN0dWFsTGVuZ3RoIjogMTU2LAogICAgImZlZWRiYWNrIjogIsSQw6Mgc2FvIGNow6lwIHRpw6p1IMSR4buBLCBtw7QgdOG6oyB2w6AgdGFnLiIKICB9LAogICJwYWNrYWdlTGVuZ3RoIjogMTU2LAogICJqb3VybmFsIjogewogICAgInN0ZXBzIjogOSwKICAgICJyZW5kZXJlZCI6IDQKICB9Cn0="
+                    },
+                    {
+                      "name": "studio-feedback-network.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZWZ1c2VkIjogW10sCiAgIndyaXRlcyI6IFtdLAogICJleHRlcm5hbENvdW50IjogMCwKICAiZXh0ZXJuYWxTYW1wbGUiOiBbXQp9"
+                    },
+                    {
+                      "name": "studio-feedback-runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/016-settled-phone-interactions/browser/studio-feedback-audit.pw.t-219ae-stants-and-progress-journal-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c696791a5a8cf6a287e6-8fe042939ec6f5e08ace",
+          "file": "studio-feedback-audit.pw.ts",
+          "line": 474,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T13:00:13.798Z",
+    "duration": 20932.723,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -12,6 +12,7 @@ export const space = stylex.defineVars({
   '--vv-s-40': '40px', '--vv-s-42': '42px', '--vv-s-44': '44px', '--vv-s-45': '45px',
   '--vv-s-46': '46px', '--vv-s-48': '48px', '--vv-s-56': '56px', '--vv-s-58': '58px',
   '--vv-s-60': '60px', '--vv-s-64': '64px', '--vv-s-76': '76px', '--vv-s-80': '80px',
+  '--vv-s-112': '112px', '--vv-s-128': '128px',
   '--vv-s-132': '132px', '--vv-s-160': '160px', '--vv-s-232': '232px',
   '--vv-s-240': '240px', '--vv-s-250': '250px', '--vv-s-280': '280px', '--vv-s-400': '400px',
 })
@@ -23,6 +24,28 @@ export const corners = stylex.defineVars({
   '--vv-r-16': '16px', '--vv-r-22': '22px', '--vv-r-26': '26px', '--vv-r-pill': '999px',
 })
 
+/** Semantic values already defined by design/v1/tokens.css and kit.css. */
+export const typography = stylex.defineVars({
+  '--vv-fs-ui': '13px',
+  '--vv-fs-body': '14px',
+  '--vv-fs-meta': '12px',
+  '--vv-fs-small': '11.5px',
+  '--vv-fs-group': '11px',
+  '--vv-fs-title-small': '13.5px',
+  '--vv-fs-detail': '12.5px',
+  '--vv-fs-badge': '10.5px',
+})
+
+export const controlMotion = stylex.defineVars({
+  // kit.css: .vv-select__chev and chip arrows.
+  selectChevron: '180ms',
+})
+
+/** Shared viewer measurements from the round40 Main/Template artboards. */
+export const imageViewer = stylex.defineVars({
+  width: '1240px', height: '800px', header: '52px', footer: '60px', side: '340px', stageBackground: '#050506',
+})
+
 /** Exact clone-pipeline artboard measurements outside the shared token scale. */
 export const pipeline = stylex.defineVars({
   newFooterClearance: '93.75px',
@@ -30,6 +53,11 @@ export const pipeline = stylex.defineVars({
   newSubmitRadius: '13px',
   mobileDockRadius: '32px',
   mobileDockItemRadius: '27px',
+  quickDialogWidth: '640px',
+  quickHeaderHeight: '52px',
+  quickPreviewWidth: '168px',
+  quickSelectorHeight: '54px',
+  quickPreviewWash: 'rgba(255,255,255,.03)',
 })
 
 /** Bề rộng tối đa cột giữa từ 1600px (03-tokens › đợt 32). Luật áp ở viderse.css (.vv-wide*). */
@@ -231,6 +259,7 @@ export const channelLayout = stylex.defineVars({
   idFailedBody: "rgba(255,154,92,.06)",
   idFailedLine: "rgba(255,154,92,.3)",
   idFailedBtnLine: "rgba(255,154,92,.45)",
+  tplSectionMaxWidth: "860px",
 })
 
 export const setupLayout = stylex.defineVars({

@@ -77,7 +77,7 @@ func withVideoDrawSource(ctx context.Context, edits *jobedit.Service, job domain
 	return out
 }
 
-func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service, seams *assistantSeams, binder *cloneimages.ProjectBinder, cancels *images.CancelRegistry) func(context.Context) error {
+func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedit.Service, jobs *pipeline.Service, ai *aiWiring, librarySvc *library.Service, backdropSvc *backdrop.Service, toolKit *tools.Tools, toolDeps tools.Deps, editorService *editor.Service, ownerName func(context.Context, string) (string, error), metadata *clonemetadata.Service, autonomySvc *autonomy.Service, binder *cloneimages.ProjectBinder, cancels *images.CancelRegistry) func(context.Context) error {
 	images := &cloneimages.Service{Edits: edits, Prompts: librarySvc, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, QuotaLeft: func(ctx context.Context) (int, error) {
 		artist, err := ai.Service.ResolveArtist(ctx)
 		if err != nil {
@@ -143,16 +143,15 @@ func mountCloneOwnerOperations(g *web.Gateway, pool *pgxpool.Pool, edits *jobedi
 	}
 	images.Binder = binder
 	images.Cancels = cancels
-	// Mức tự chủ duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
-	images.Autonomy = autonomySvc.Store
+	autonomyStore := postgres.NewAutonomyStore(pool)
+	// Tự duyệt ảnh theo điểm qua đúng đường "Duyệt hết" của chủ kênh.
+	images.AutoApprove = autonomyStore
 	autonomySvc.Reviewer = cloneimages.AutoReviewer{Service: images}
-	images.Learner = imagesLearner{rt: seams.Learn}
 	backdrops := &clonebackdrop.Service{Edits: edits, Deps: stepbackdrop.ProductionDeps(postgres.NewBackdropStore(pool), backdropSvc)}
 	bundles := &bundle.Service{Edits: edits, Exports: editorService, Ffmpeg: toolKit.Ffmpeg, Runner: toolDeps.Runner, OwnerName: ownerName}
 	store := edits.Store.(*postgres.CloneStore)
 	bulkOps := &bulk.Service{Jobs: jobs, Images: images, Store: store, Exports: editorService, Publish: edits.Publish, Approvals: store, ApproveProject: store.PrepareCloneExport}
 	imageOps := &queuedPromptOperations{Service: images, queue: postgres.NewQueueStore(pool), publish: edits.Publish}
-	seams.Images, seams.Backdrops, seams.Metadata, seams.ImagesLeft = imageOps, backdrops, metadata, images.QuotaLeft
 	web.MountCloneOperations(g, web.CloneOperations{Images: imageOps, Backdrops: backdrops, Edits: edits, Bundles: bundles, Bulk: bulkOps, Metadata: metadata})
 	return func(ctx context.Context) error {
 		err := bulkOps.DispatchReviews(ctx)

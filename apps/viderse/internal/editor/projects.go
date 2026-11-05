@@ -94,33 +94,81 @@ func (s Store) Read(ctx context.Context, id string) (Project, string, error) {
 	return s.readWorkspace(ctx, id, path)
 }
 
+// workspaceHead là danh tính head pointer tại lượt đọc bytes. Chỉ khi head này
+// đổi giữa hai lượt thì lỗi missing mới có thể do một save chen giữa (CAS dời
+// head rồi nhả binding/file cũ); head đứng yên nghĩa là dữ liệu mất thật.
+type workspaceHead struct {
+	absent   bool
+	version  int64
+	revision string
+	path     string
+}
+
+// readWorkspace đọc head pointer rồi bytes. Đó là hai snapshot READ COMMITTED
+// riêng, nên một save đang commit có thể dời head (CAS) và nhả revision cũ giữa
+// chúng: reader thấy head cũ nhưng binding/file đã mất và báo project 404 dù nó
+// chỉ vừa được thay. Vì vậy khi gặp missing, đọc lại head và chỉ thử lại nếu
+// head thật sự đã đổi — lặp theo số lần head đổi (không phải số lần cố định),
+// hủy theo ctx. Head không đổi thì trả nguyên lỗi missing gốc, nên 404 thật
+// không bị kéo dài hay che.
 func (s Store) readWorkspace(ctx context.Context, id, path string) (Project, string, error) {
+	p, revision, head, err := s.readWorkspaceAt(ctx, id, path)
+	for err != nil && isMissing(err) && s.Repository != nil {
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return nil, "", ctxErr
+		}
+		current, headErr := s.workspaceHead(ctx, id)
+		if headErr != nil {
+			return nil, "", headErr
+		}
+		if current == head {
+			return nil, "", err
+		}
+		p, revision, head, err = s.readWorkspaceAt(ctx, id, path)
+	}
+	return p, revision, err
+}
+
+func (s Store) workspaceHead(ctx context.Context, id string) (workspaceHead, error) {
+	resource, err := s.Repository.Get(ctx, "projects/"+id)
+	if errors.Is(err, blobstore.ErrNotFound) {
+		return workspaceHead{absent: true}, nil
+	}
+	if err != nil {
+		return workspaceHead{}, err
+	}
+	return workspaceHead{version: resource.Version, revision: resource.Revision, path: resource.Path}, nil
+}
+
+func (s Store) readWorkspaceAt(ctx context.Context, id, path string) (Project, string, workspaceHead, error) {
+	head := workspaceHead{absent: true}
 	if s.Repository != nil {
 		resource, err := s.Repository.Get(ctx, "projects/"+id)
 		if err == nil {
+			head = workspaceHead{version: resource.Version, revision: resource.Revision, path: resource.Path}
 			path = resource.Path
 		} else if !errors.Is(err, blobstore.ErrNotFound) {
-			return nil, "", err
+			return nil, "", head, err
 		}
 	}
 	if resolver, ok := s.Repository.(ResourcePathResolver); ok {
 		resolved, err := resolver.ResolvePath(ctx, path)
 		if err != nil {
-			return nil, "", err
+			return nil, "", head, err
 		}
 		path = resolved
 	}
 	h, err := s.Media.Acquire(ctx, path)
 	if err != nil {
-		return nil, "", err
+		return nil, "", head, err
 	}
 	defer h.Release()
 	b, err := os.ReadFile(h.Path)
 	if err != nil {
-		return nil, "", err
+		return nil, "", head, err
 	}
 	p, err := Parse(b)
-	return p, Revision(b), err
+	return p, Revision(b), head, err
 }
 
 // Stage preserves the canonical project shape and uses same-directory rename.

@@ -132,9 +132,8 @@ func MountLibraryDiag(g *Gateway, svc LibraryService, mix TemplateBackdropMix, d
 // ── wire template ──────────────────────────────────────────────────────────
 
 type channelRefWire struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Position int    `json:"position,omitempty"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type templatePromptsWire struct {
@@ -222,7 +221,7 @@ func TemplateSummaryToWire(s library.Summary) TemplateSummaryWire {
 	}
 	channels := make([]channelRefWire, 0, len(s.Channels))
 	for _, ch := range s.Channels {
-		channels = append(channels, channelRefWire{ID: ch.ID, Name: ch.Name, Position: ch.Position})
+		channels = append(channels, channelRefWire{ID: ch.ID, Name: ch.Name})
 	}
 	return TemplateSummaryWire{
 		ID: s.ID, Name: s.Name, Revision: s.Revision,

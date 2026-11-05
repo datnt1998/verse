@@ -1,0 +1,4935 @@
+{
+  "status": "CAPTURED_WITH_COMPARISON_CONCERNS",
+  "scope": "COMPARISON_CONTEXT_ONLY",
+  "canonicalPropsAreNewDeclaredValues": false,
+  "mappings": [
+    {
+      "key": "Template.picker.add@backdrop",
+      "legacyReferenceId": "Template.picker.add",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "legacyProps": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selectedFile": "fixture-1440-template-picker-add-backdrop-open.png",
+      "stage": "open-lofilanes-unlinked-random-clip-highlight-attach",
+      "declaredValueAlreadyExists": true,
+      "newDeclaredValue": false
+    },
+    {
+      "key": "Template.picker.choose@backdrop",
+      "legacyReferenceId": "Template.picker.choose",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "legacyProps": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selectedFile": "fixture-1440-template-picker-choose-backdrop-open.png",
+      "stage": "open-nightdrivefm-linked-pick-clip-four-selected-save",
+      "declaredValueAlreadyExists": true,
+      "newDeclaredValue": false
+    },
+    {
+      "key": "Template.picker.video@backdrop",
+      "legacyReferenceId": "Template.picker.video",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "legacyProps": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "selectedFile": "fixture-1440-template-picker-video-backdrop-open.png",
+      "stage": "open-ferry-unlinked-segment-0-120-attach",
+      "declaredValueAlreadyExists": true,
+      "newDeclaredValue": false
+    },
+    {
+      "key": "MTemplate.screen.backdrop@attach-source",
+      "legacyReferenceId": null,
+      "baseReferenceId": "MTemplate.screen.backdrop",
+      "referenceProps": {
+        "screen": "backdrop",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "canonicalInteraction": {
+        "action": "Gắn kênh hoặc video",
+        "state": "sS=true",
+        "sheetLabel": "Gắn kênh hoặc video nền"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "selectedFile": "fixture-390-template-backdrop-attach-source-open.png",
+      "stage": "open-attach-source-sheet-before-selection",
+      "declaredValueAlreadyExists": false,
+      "newDeclaredValue": false,
+      "comparisonQualification": "INTERACTION_ONLY; canonical simple list differs from native detailed BackdropPicker Sheet. Not a desktop add/choose/video equivalence claim."
+    }
+  ],
+  "cases": [
+    {
+      "key": "Template.picker.add@backdrop",
+      "status": "PASS",
+      "mapping": {
+        "key": "Template.picker.add@backdrop",
+        "legacyReferenceId": "Template.picker.add",
+        "referenceProps": {
+          "section": "backdrop",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "add"
+        },
+        "legacyProps": {
+          "section": "images",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "add"
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "selectedFile": "fixture-1440-template-picker-add-backdrop-open.png",
+        "stage": "open-lofilanes-unlinked-random-clip-highlight-attach",
+        "declaredValueAlreadyExists": true,
+        "newDeclaredValue": false
+      },
+      "selectedFile": "fixture-1440-template-picker-add-backdrop-open.png",
+      "proof": "LOCAL_TYPED_UI_FIXTURE_NOT_NATIVE_PERSISTENCE",
+      "fixture": {
+        "nativeTemplateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "nativeRevision": 5,
+        "nativeOwnerIds": [
+          "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "98ae68b2-813e-427a-8238-8eb0e86de231"
+        ],
+        "backdrop": {
+          "channels": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "kinds": [
+                "clip",
+                "highlight"
+              ],
+              "pinned": []
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "kinds": [
+                "clip"
+              ],
+              "pinned": [
+                "v38-context-fixture-drive-clip-0",
+                "v38-context-fixture-drive-clip-1",
+                "v38-context-fixture-drive-clip-2",
+                "v38-context-fixture-drive-clip-3"
+              ]
+            }
+          ],
+          "fixedVideoIds": [
+            "v38-context-fixture-pass",
+            "v38-context-fixture-glass"
+          ],
+          "clipSec": 60,
+          "clipCount": null
+        },
+        "preview": {
+          "state": "fresh",
+          "builtAt": null,
+          "minutes": 3,
+          "templateRevision": 5,
+          "sources": []
+        },
+        "mix": {
+          "fixedSec": 170,
+          "perChannel": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "clips": 36,
+              "freshVideos": 312,
+              "repeats": false
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "clips": 4,
+              "freshVideos": 4,
+              "repeats": false
+            }
+          ],
+          "loopSec": 0,
+          "need": 40,
+          "capped": false
+        },
+        "channels": [
+          {
+            "id": "v38-context-fixture-slow",
+            "platform": "twitch",
+            "handle": "slowroads",
+            "url": "https://example.invalid/v38-metadata-only/slow",
+            "title": "slowroads",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 312,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 248,
+              "highlight": 64,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "random",
+                "kinds": [
+                  "clip",
+                  "highlight"
+                ],
+                "chosenCount": 0
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-drive",
+            "platform": "twitch",
+            "handle": "nightdrivefm",
+            "url": "https://example.invalid/v38-metadata-only/drive",
+            "title": "nightdrivefm",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 217,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 186,
+              "highlight": 22,
+              "vod": 9
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "pick",
+                "kinds": [
+                  "clip"
+                ],
+                "chosenCount": 4
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-rain",
+            "platform": "bilibili",
+            "handle": "雨夜电台",
+            "url": "https://example.invalid/v38-metadata-only/rain",
+            "title": "雨夜电台",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 300,
+            "scanStopKnown": true,
+            "counts": {
+              "video": 300
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          },
+          {
+            "id": "v38-context-fixture-lofi",
+            "platform": "twitch",
+            "handle": "lofilanes",
+            "url": "https://example.invalid/v38-metadata-only/lofi",
+            "title": "lofilanes",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 48,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 41,
+              "highlight": 7,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          }
+        ],
+        "videos": [
+          {
+            "id": "v38-context-fixture-pass",
+            "title": "Đường đèo sương mù",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/pass",
+            "durationSec": 760,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 90
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-glass",
+            "title": "Mưa trên kính xe",
+            "platform": "twitch",
+            "url": "https://example.invalid/v38-metadata-only/glass",
+            "durationSec": 80,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 80
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-ferry",
+            "title": "Phà đêm trong sương",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/ferry",
+            "durationSec": 1450,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 120
+            },
+            "state": "ready",
+            "usedBy": [],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          }
+        ],
+        "catalogues": {
+          "v38-context-fixture-slow": [
+            {
+              "videoId": "v38-context-fixture-slow-clip-0",
+              "kind": "clip",
+              "title": "Đường đèo trong mưa đêm",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-1",
+              "kind": "clip",
+              "title": "Cao tốc vắng lúc 3 giờ",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-2",
+              "kind": "highlight",
+              "title": "Đèn hầm chạy dài",
+              "durationSec": 522,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-3",
+              "kind": "clip",
+              "title": "Mưa trên kính lái",
+              "durationSec": 151,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-4",
+              "kind": "clip",
+              "title": "Cầu vượt sương mù",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-5",
+              "kind": "highlight",
+              "title": "Trạm xăng ven đường",
+              "durationSec": 397,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-6",
+              "kind": "clip",
+              "title": "Đường tuyết không người",
+              "durationSec": 55,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-7",
+              "kind": "highlight",
+              "title": "Phà đêm qua hồ",
+              "durationSec": 730,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-drive": [
+            {
+              "videoId": "v38-context-fixture-drive-clip-0",
+              "kind": "clip",
+              "title": "Phố đêm qua kính xe",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/0",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-1",
+              "kind": "clip",
+              "title": "Đèn neon ngã tư",
+              "durationSec": 52,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/1",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-2",
+              "kind": "clip",
+              "title": "Đường ven biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/2",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-3",
+              "kind": "clip",
+              "title": "Mưa phùn trên phố",
+              "durationSec": 44,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/3",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-4",
+              "kind": "clip",
+              "title": "Đèn hậu xe tải",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-5",
+              "kind": "highlight",
+              "title": "Hầm chui thành phố",
+              "durationSec": 435,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-6",
+              "kind": "clip",
+              "title": "Cao tốc ra biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-7",
+              "kind": "clip",
+              "title": "Cầu sông lúc 2 giờ",
+              "durationSec": 50,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-rain": [
+            {
+              "videoId": "v38-context-fixture-rain-clip-0",
+              "kind": "video",
+              "title": "雨夜窗边 · 3小时白噪音",
+              "durationSec": 10812,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-1",
+              "kind": "video",
+              "title": "书房听雨",
+              "durationSec": 4360,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-2",
+              "kind": "video",
+              "title": "深夜车站下雨",
+              "durationSec": 3500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-3",
+              "kind": "video",
+              "title": "屋檐雨声",
+              "durationSec": 7500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-4",
+              "kind": "video",
+              "title": "小店深夜",
+              "durationSec": 2710,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-5",
+              "kind": "video",
+              "title": "铁皮屋顶雨",
+              "durationSec": 5400,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-6",
+              "kind": "video",
+              "title": "湖边雾夜",
+              "durationSec": 3600,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-7",
+              "kind": "video",
+              "title": "雪夜公路",
+              "durationSec": 7200,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-lofi": [
+            {
+              "videoId": "v38-context-fixture-lofi-clip-0",
+              "kind": "clip",
+              "title": "Phòng học đèn vàng",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-1",
+              "kind": "clip",
+              "title": "Thành phố nhìn từ ban công",
+              "durationSec": 59,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-2",
+              "kind": "highlight",
+              "title": "Bàn làm việc đêm",
+              "durationSec": 320,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-3",
+              "kind": "clip",
+              "title": "Trạm xe buýt",
+              "durationSec": 46,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-4",
+              "kind": "clip",
+              "title": "Đường ray chiều",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-5",
+              "kind": "clip",
+              "title": "Mưa ngoài cửa sổ",
+              "durationSec": 51,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-6",
+              "kind": "highlight",
+              "title": "Hồ đêm yên",
+              "durationSec": 242,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-7",
+              "kind": "clip",
+              "title": "Tuyết rơi ngoài phố",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/7",
+              "chosenBy": []
+            }
+          ]
+        },
+        "snowOverlayId": "0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64",
+        "persistence": "LOCAL_REFERENCE_ONLY; fixture() clones native detail and replaces only the local GET response recipe backdrop; no PATCH/POST occurs"
+      },
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-lofi",
+        "sourceKind": "channel",
+        "linked": false,
+        "mode": "random",
+        "kinds": [
+          "Clip",
+          "Highlight"
+        ],
+        "pickedCount": 0,
+        "cta": "Gắn vào mẫu video"
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "key": "Template.picker.choose@backdrop",
+      "status": "PASS",
+      "mapping": {
+        "key": "Template.picker.choose@backdrop",
+        "legacyReferenceId": "Template.picker.choose",
+        "referenceProps": {
+          "section": "backdrop",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "choose"
+        },
+        "legacyProps": {
+          "section": "images",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "choose"
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "selectedFile": "fixture-1440-template-picker-choose-backdrop-open.png",
+        "stage": "open-nightdrivefm-linked-pick-clip-four-selected-save",
+        "declaredValueAlreadyExists": true,
+        "newDeclaredValue": false
+      },
+      "selectedFile": "fixture-1440-template-picker-choose-backdrop-open.png",
+      "proof": "LOCAL_TYPED_UI_FIXTURE_NOT_NATIVE_PERSISTENCE",
+      "fixture": {
+        "nativeTemplateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "nativeRevision": 5,
+        "nativeOwnerIds": [
+          "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "98ae68b2-813e-427a-8238-8eb0e86de231"
+        ],
+        "backdrop": {
+          "channels": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "kinds": [
+                "clip",
+                "highlight"
+              ],
+              "pinned": []
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "kinds": [
+                "clip"
+              ],
+              "pinned": [
+                "v38-context-fixture-drive-clip-0",
+                "v38-context-fixture-drive-clip-1",
+                "v38-context-fixture-drive-clip-2",
+                "v38-context-fixture-drive-clip-3"
+              ]
+            }
+          ],
+          "fixedVideoIds": [
+            "v38-context-fixture-pass",
+            "v38-context-fixture-glass"
+          ],
+          "clipSec": 60,
+          "clipCount": null
+        },
+        "preview": {
+          "state": "fresh",
+          "builtAt": null,
+          "minutes": 3,
+          "templateRevision": 5,
+          "sources": []
+        },
+        "mix": {
+          "fixedSec": 170,
+          "perChannel": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "clips": 36,
+              "freshVideos": 312,
+              "repeats": false
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "clips": 4,
+              "freshVideos": 4,
+              "repeats": false
+            }
+          ],
+          "loopSec": 0,
+          "need": 40,
+          "capped": false
+        },
+        "channels": [
+          {
+            "id": "v38-context-fixture-slow",
+            "platform": "twitch",
+            "handle": "slowroads",
+            "url": "https://example.invalid/v38-metadata-only/slow",
+            "title": "slowroads",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 312,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 248,
+              "highlight": 64,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "random",
+                "kinds": [
+                  "clip",
+                  "highlight"
+                ],
+                "chosenCount": 0
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-drive",
+            "platform": "twitch",
+            "handle": "nightdrivefm",
+            "url": "https://example.invalid/v38-metadata-only/drive",
+            "title": "nightdrivefm",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 217,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 186,
+              "highlight": 22,
+              "vod": 9
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "pick",
+                "kinds": [
+                  "clip"
+                ],
+                "chosenCount": 4
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-rain",
+            "platform": "bilibili",
+            "handle": "雨夜电台",
+            "url": "https://example.invalid/v38-metadata-only/rain",
+            "title": "雨夜电台",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 300,
+            "scanStopKnown": true,
+            "counts": {
+              "video": 300
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          },
+          {
+            "id": "v38-context-fixture-lofi",
+            "platform": "twitch",
+            "handle": "lofilanes",
+            "url": "https://example.invalid/v38-metadata-only/lofi",
+            "title": "lofilanes",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 48,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 41,
+              "highlight": 7,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          }
+        ],
+        "videos": [
+          {
+            "id": "v38-context-fixture-pass",
+            "title": "Đường đèo sương mù",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/pass",
+            "durationSec": 760,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 90
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-glass",
+            "title": "Mưa trên kính xe",
+            "platform": "twitch",
+            "url": "https://example.invalid/v38-metadata-only/glass",
+            "durationSec": 80,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 80
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-ferry",
+            "title": "Phà đêm trong sương",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/ferry",
+            "durationSec": 1450,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 120
+            },
+            "state": "ready",
+            "usedBy": [],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          }
+        ],
+        "catalogues": {
+          "v38-context-fixture-slow": [
+            {
+              "videoId": "v38-context-fixture-slow-clip-0",
+              "kind": "clip",
+              "title": "Đường đèo trong mưa đêm",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-1",
+              "kind": "clip",
+              "title": "Cao tốc vắng lúc 3 giờ",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-2",
+              "kind": "highlight",
+              "title": "Đèn hầm chạy dài",
+              "durationSec": 522,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-3",
+              "kind": "clip",
+              "title": "Mưa trên kính lái",
+              "durationSec": 151,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-4",
+              "kind": "clip",
+              "title": "Cầu vượt sương mù",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-5",
+              "kind": "highlight",
+              "title": "Trạm xăng ven đường",
+              "durationSec": 397,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-6",
+              "kind": "clip",
+              "title": "Đường tuyết không người",
+              "durationSec": 55,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-7",
+              "kind": "highlight",
+              "title": "Phà đêm qua hồ",
+              "durationSec": 730,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-drive": [
+            {
+              "videoId": "v38-context-fixture-drive-clip-0",
+              "kind": "clip",
+              "title": "Phố đêm qua kính xe",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/0",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-1",
+              "kind": "clip",
+              "title": "Đèn neon ngã tư",
+              "durationSec": 52,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/1",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-2",
+              "kind": "clip",
+              "title": "Đường ven biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/2",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-3",
+              "kind": "clip",
+              "title": "Mưa phùn trên phố",
+              "durationSec": 44,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/3",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-4",
+              "kind": "clip",
+              "title": "Đèn hậu xe tải",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-5",
+              "kind": "highlight",
+              "title": "Hầm chui thành phố",
+              "durationSec": 435,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-6",
+              "kind": "clip",
+              "title": "Cao tốc ra biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-7",
+              "kind": "clip",
+              "title": "Cầu sông lúc 2 giờ",
+              "durationSec": 50,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-rain": [
+            {
+              "videoId": "v38-context-fixture-rain-clip-0",
+              "kind": "video",
+              "title": "雨夜窗边 · 3小时白噪音",
+              "durationSec": 10812,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-1",
+              "kind": "video",
+              "title": "书房听雨",
+              "durationSec": 4360,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-2",
+              "kind": "video",
+              "title": "深夜车站下雨",
+              "durationSec": 3500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-3",
+              "kind": "video",
+              "title": "屋檐雨声",
+              "durationSec": 7500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-4",
+              "kind": "video",
+              "title": "小店深夜",
+              "durationSec": 2710,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-5",
+              "kind": "video",
+              "title": "铁皮屋顶雨",
+              "durationSec": 5400,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-6",
+              "kind": "video",
+              "title": "湖边雾夜",
+              "durationSec": 3600,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-7",
+              "kind": "video",
+              "title": "雪夜公路",
+              "durationSec": 7200,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-lofi": [
+            {
+              "videoId": "v38-context-fixture-lofi-clip-0",
+              "kind": "clip",
+              "title": "Phòng học đèn vàng",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-1",
+              "kind": "clip",
+              "title": "Thành phố nhìn từ ban công",
+              "durationSec": 59,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-2",
+              "kind": "highlight",
+              "title": "Bàn làm việc đêm",
+              "durationSec": 320,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-3",
+              "kind": "clip",
+              "title": "Trạm xe buýt",
+              "durationSec": 46,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-4",
+              "kind": "clip",
+              "title": "Đường ray chiều",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-5",
+              "kind": "clip",
+              "title": "Mưa ngoài cửa sổ",
+              "durationSec": 51,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-6",
+              "kind": "highlight",
+              "title": "Hồ đêm yên",
+              "durationSec": 242,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-7",
+              "kind": "clip",
+              "title": "Tuyết rơi ngoài phố",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/7",
+              "chosenBy": []
+            }
+          ]
+        },
+        "snowOverlayId": "0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64",
+        "persistence": "LOCAL_REFERENCE_ONLY; fixture() clones native detail and replaces only the local GET response recipe backdrop; no PATCH/POST occurs"
+      },
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-drive",
+        "sourceKind": "channel",
+        "linked": true,
+        "mode": "pick",
+        "kinds": [
+          "Clip"
+        ],
+        "pickedCount": 4,
+        "cta": "Lưu"
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "key": "Template.picker.video@backdrop",
+      "status": "PASS",
+      "mapping": {
+        "key": "Template.picker.video@backdrop",
+        "legacyReferenceId": "Template.picker.video",
+        "referenceProps": {
+          "section": "backdrop",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "video"
+        },
+        "legacyProps": {
+          "section": "images",
+          "preview": "fresh",
+          "fewClips": false,
+          "picker": "video"
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        },
+        "selectedFile": "fixture-1440-template-picker-video-backdrop-open.png",
+        "stage": "open-ferry-unlinked-segment-0-120-attach",
+        "declaredValueAlreadyExists": true,
+        "newDeclaredValue": false
+      },
+      "selectedFile": "fixture-1440-template-picker-video-backdrop-open.png",
+      "proof": "LOCAL_TYPED_UI_FIXTURE_NOT_NATIVE_PERSISTENCE",
+      "fixture": {
+        "nativeTemplateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "nativeRevision": 5,
+        "nativeOwnerIds": [
+          "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "98ae68b2-813e-427a-8238-8eb0e86de231"
+        ],
+        "backdrop": {
+          "channels": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "kinds": [
+                "clip",
+                "highlight"
+              ],
+              "pinned": []
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "kinds": [
+                "clip"
+              ],
+              "pinned": [
+                "v38-context-fixture-drive-clip-0",
+                "v38-context-fixture-drive-clip-1",
+                "v38-context-fixture-drive-clip-2",
+                "v38-context-fixture-drive-clip-3"
+              ]
+            }
+          ],
+          "fixedVideoIds": [
+            "v38-context-fixture-pass",
+            "v38-context-fixture-glass"
+          ],
+          "clipSec": 60,
+          "clipCount": null
+        },
+        "preview": {
+          "state": "fresh",
+          "builtAt": null,
+          "minutes": 3,
+          "templateRevision": 5,
+          "sources": []
+        },
+        "mix": {
+          "fixedSec": 170,
+          "perChannel": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "clips": 36,
+              "freshVideos": 312,
+              "repeats": false
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "clips": 4,
+              "freshVideos": 4,
+              "repeats": false
+            }
+          ],
+          "loopSec": 0,
+          "need": 40,
+          "capped": false
+        },
+        "channels": [
+          {
+            "id": "v38-context-fixture-slow",
+            "platform": "twitch",
+            "handle": "slowroads",
+            "url": "https://example.invalid/v38-metadata-only/slow",
+            "title": "slowroads",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 312,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 248,
+              "highlight": 64,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "random",
+                "kinds": [
+                  "clip",
+                  "highlight"
+                ],
+                "chosenCount": 0
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-drive",
+            "platform": "twitch",
+            "handle": "nightdrivefm",
+            "url": "https://example.invalid/v38-metadata-only/drive",
+            "title": "nightdrivefm",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 217,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 186,
+              "highlight": 22,
+              "vod": 9
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "pick",
+                "kinds": [
+                  "clip"
+                ],
+                "chosenCount": 4
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-rain",
+            "platform": "bilibili",
+            "handle": "雨夜电台",
+            "url": "https://example.invalid/v38-metadata-only/rain",
+            "title": "雨夜电台",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 300,
+            "scanStopKnown": true,
+            "counts": {
+              "video": 300
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          },
+          {
+            "id": "v38-context-fixture-lofi",
+            "platform": "twitch",
+            "handle": "lofilanes",
+            "url": "https://example.invalid/v38-metadata-only/lofi",
+            "title": "lofilanes",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 48,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 41,
+              "highlight": 7,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          }
+        ],
+        "videos": [
+          {
+            "id": "v38-context-fixture-pass",
+            "title": "Đường đèo sương mù",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/pass",
+            "durationSec": 760,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 90
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-glass",
+            "title": "Mưa trên kính xe",
+            "platform": "twitch",
+            "url": "https://example.invalid/v38-metadata-only/glass",
+            "durationSec": 80,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 80
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-ferry",
+            "title": "Phà đêm trong sương",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/ferry",
+            "durationSec": 1450,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 120
+            },
+            "state": "ready",
+            "usedBy": [],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          }
+        ],
+        "catalogues": {
+          "v38-context-fixture-slow": [
+            {
+              "videoId": "v38-context-fixture-slow-clip-0",
+              "kind": "clip",
+              "title": "Đường đèo trong mưa đêm",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-1",
+              "kind": "clip",
+              "title": "Cao tốc vắng lúc 3 giờ",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-2",
+              "kind": "highlight",
+              "title": "Đèn hầm chạy dài",
+              "durationSec": 522,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-3",
+              "kind": "clip",
+              "title": "Mưa trên kính lái",
+              "durationSec": 151,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-4",
+              "kind": "clip",
+              "title": "Cầu vượt sương mù",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-5",
+              "kind": "highlight",
+              "title": "Trạm xăng ven đường",
+              "durationSec": 397,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-6",
+              "kind": "clip",
+              "title": "Đường tuyết không người",
+              "durationSec": 55,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-7",
+              "kind": "highlight",
+              "title": "Phà đêm qua hồ",
+              "durationSec": 730,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-drive": [
+            {
+              "videoId": "v38-context-fixture-drive-clip-0",
+              "kind": "clip",
+              "title": "Phố đêm qua kính xe",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/0",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-1",
+              "kind": "clip",
+              "title": "Đèn neon ngã tư",
+              "durationSec": 52,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/1",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-2",
+              "kind": "clip",
+              "title": "Đường ven biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/2",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-3",
+              "kind": "clip",
+              "title": "Mưa phùn trên phố",
+              "durationSec": 44,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/3",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-4",
+              "kind": "clip",
+              "title": "Đèn hậu xe tải",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-5",
+              "kind": "highlight",
+              "title": "Hầm chui thành phố",
+              "durationSec": 435,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-6",
+              "kind": "clip",
+              "title": "Cao tốc ra biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-7",
+              "kind": "clip",
+              "title": "Cầu sông lúc 2 giờ",
+              "durationSec": 50,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-rain": [
+            {
+              "videoId": "v38-context-fixture-rain-clip-0",
+              "kind": "video",
+              "title": "雨夜窗边 · 3小时白噪音",
+              "durationSec": 10812,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-1",
+              "kind": "video",
+              "title": "书房听雨",
+              "durationSec": 4360,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-2",
+              "kind": "video",
+              "title": "深夜车站下雨",
+              "durationSec": 3500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-3",
+              "kind": "video",
+              "title": "屋檐雨声",
+              "durationSec": 7500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-4",
+              "kind": "video",
+              "title": "小店深夜",
+              "durationSec": 2710,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-5",
+              "kind": "video",
+              "title": "铁皮屋顶雨",
+              "durationSec": 5400,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-6",
+              "kind": "video",
+              "title": "湖边雾夜",
+              "durationSec": 3600,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-7",
+              "kind": "video",
+              "title": "雪夜公路",
+              "durationSec": 7200,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-lofi": [
+            {
+              "videoId": "v38-context-fixture-lofi-clip-0",
+              "kind": "clip",
+              "title": "Phòng học đèn vàng",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-1",
+              "kind": "clip",
+              "title": "Thành phố nhìn từ ban công",
+              "durationSec": 59,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-2",
+              "kind": "highlight",
+              "title": "Bàn làm việc đêm",
+              "durationSec": 320,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-3",
+              "kind": "clip",
+              "title": "Trạm xe buýt",
+              "durationSec": 46,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-4",
+              "kind": "clip",
+              "title": "Đường ray chiều",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-5",
+              "kind": "clip",
+              "title": "Mưa ngoài cửa sổ",
+              "durationSec": 51,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-6",
+              "kind": "highlight",
+              "title": "Hồ đêm yên",
+              "durationSec": 242,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-7",
+              "kind": "clip",
+              "title": "Tuyết rơi ngoài phố",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/7",
+              "chosenBy": []
+            }
+          ]
+        },
+        "snowOverlayId": "0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64",
+        "persistence": "LOCAL_REFERENCE_ONLY; fixture() clones native detail and replaces only the local GET response recipe backdrop; no PATCH/POST occurs"
+      },
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-ferry",
+        "canonicalSourceKey": "ferry",
+        "sourceKind": "standalone-video",
+        "linked": false,
+        "mode": null,
+        "kinds": [],
+        "pickedCount": 0,
+        "segment": {
+          "fromSec": 0,
+          "toSec": 120
+        },
+        "cta": "Gắn vào mẫu video",
+        "media": "NEUTRAL_NATIVE_SLOT_NO_FILE_NO_MEDIA_ACQUISITION"
+      },
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "key": "MTemplate.screen.backdrop@attach-source",
+      "status": "PASS",
+      "mapping": {
+        "key": "MTemplate.screen.backdrop@attach-source",
+        "legacyReferenceId": null,
+        "baseReferenceId": "MTemplate.screen.backdrop",
+        "referenceProps": {
+          "screen": "backdrop",
+          "preview": "fresh",
+          "sheet": "none"
+        },
+        "canonicalInteraction": {
+          "action": "Gắn kênh hoặc video",
+          "state": "sS=true",
+          "sheetLabel": "Gắn kênh hoặc video nền"
+        },
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "selectedFile": "fixture-390-template-backdrop-attach-source-open.png",
+        "stage": "open-attach-source-sheet-before-selection",
+        "declaredValueAlreadyExists": false,
+        "newDeclaredValue": false,
+        "comparisonQualification": "INTERACTION_ONLY; canonical simple list differs from native detailed BackdropPicker Sheet. Not a desktop add/choose/video equivalence claim."
+      },
+      "selectedFile": "fixture-390-template-backdrop-attach-source-open.png",
+      "proof": "LOCAL_TYPED_UI_FIXTURE_NOT_NATIVE_PERSISTENCE",
+      "fixture": {
+        "nativeTemplateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "nativeRevision": 5,
+        "nativeOwnerIds": [
+          "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+          "98ae68b2-813e-427a-8238-8eb0e86de231"
+        ],
+        "backdrop": {
+          "channels": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "kinds": [
+                "clip",
+                "highlight"
+              ],
+              "pinned": []
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "kinds": [
+                "clip"
+              ],
+              "pinned": [
+                "v38-context-fixture-drive-clip-0",
+                "v38-context-fixture-drive-clip-1",
+                "v38-context-fixture-drive-clip-2",
+                "v38-context-fixture-drive-clip-3"
+              ]
+            }
+          ],
+          "fixedVideoIds": [
+            "v38-context-fixture-pass",
+            "v38-context-fixture-glass"
+          ],
+          "clipSec": 60,
+          "clipCount": null
+        },
+        "preview": {
+          "state": "fresh",
+          "builtAt": null,
+          "minutes": 3,
+          "templateRevision": 5,
+          "sources": []
+        },
+        "mix": {
+          "fixedSec": 170,
+          "perChannel": [
+            {
+              "channelId": "v38-context-fixture-slow",
+              "clips": 36,
+              "freshVideos": 312,
+              "repeats": false
+            },
+            {
+              "channelId": "v38-context-fixture-drive",
+              "clips": 4,
+              "freshVideos": 4,
+              "repeats": false
+            }
+          ],
+          "loopSec": 0,
+          "need": 40,
+          "capped": false
+        },
+        "channels": [
+          {
+            "id": "v38-context-fixture-slow",
+            "platform": "twitch",
+            "handle": "slowroads",
+            "url": "https://example.invalid/v38-metadata-only/slow",
+            "title": "slowroads",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 312,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 248,
+              "highlight": 64,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "random",
+                "kinds": [
+                  "clip",
+                  "highlight"
+                ],
+                "chosenCount": 0
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-drive",
+            "platform": "twitch",
+            "handle": "nightdrivefm",
+            "url": "https://example.invalid/v38-metadata-only/drive",
+            "title": "nightdrivefm",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 217,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 186,
+              "highlight": 22,
+              "vod": 9
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm",
+                "mode": "pick",
+                "kinds": [
+                  "clip"
+                ],
+                "chosenCount": 4
+              }
+            ]
+          },
+          {
+            "id": "v38-context-fixture-rain",
+            "platform": "bilibili",
+            "handle": "雨夜电台",
+            "url": "https://example.invalid/v38-metadata-only/rain",
+            "title": "雨夜电台",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 300,
+            "scanStopKnown": true,
+            "counts": {
+              "video": 300
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          },
+          {
+            "id": "v38-context-fixture-lofi",
+            "platform": "twitch",
+            "handle": "lofilanes",
+            "url": "https://example.invalid/v38-metadata-only/lofi",
+            "title": "lofilanes",
+            "avatarUrl": null,
+            "addedAt": "2026-11-04T00:00:00Z",
+            "listedAt": "2026-11-04T00:00:00Z",
+            "listError": null,
+            "scanNextPage": null,
+            "scanTotal": 48,
+            "scanStopKnown": true,
+            "counts": {
+              "clip": 41,
+              "highlight": 7,
+              "vod": 0
+            },
+            "pausedUntil": null,
+            "pauseReason": null,
+            "usedBy": []
+          }
+        ],
+        "videos": [
+          {
+            "id": "v38-context-fixture-pass",
+            "title": "Đường đèo sương mù",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/pass",
+            "durationSec": 760,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 90
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-glass",
+            "title": "Mưa trên kính xe",
+            "platform": "twitch",
+            "url": "https://example.invalid/v38-metadata-only/glass",
+            "durationSec": 80,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 80
+            },
+            "state": "ready",
+            "usedBy": [
+              {
+                "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                "name": "Truyện kể đêm"
+              }
+            ],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          },
+          {
+            "id": "v38-context-fixture-ferry",
+            "title": "Phà đêm trong sương",
+            "platform": "bilibili",
+            "url": "https://example.invalid/v38-metadata-only/ferry",
+            "durationSec": 1450,
+            "segment": {
+              "fromSec": 0,
+              "toSec": 120
+            },
+            "state": "ready",
+            "usedBy": [],
+            "addedAt": "2026-11-04T00:00:00Z",
+            "updatedAt": "2026-11-04T00:00:00Z"
+          }
+        ],
+        "catalogues": {
+          "v38-context-fixture-slow": [
+            {
+              "videoId": "v38-context-fixture-slow-clip-0",
+              "kind": "clip",
+              "title": "Đường đèo trong mưa đêm",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-1",
+              "kind": "clip",
+              "title": "Cao tốc vắng lúc 3 giờ",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-2",
+              "kind": "highlight",
+              "title": "Đèn hầm chạy dài",
+              "durationSec": 522,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-3",
+              "kind": "clip",
+              "title": "Mưa trên kính lái",
+              "durationSec": 151,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-4",
+              "kind": "clip",
+              "title": "Cầu vượt sương mù",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-5",
+              "kind": "highlight",
+              "title": "Trạm xăng ven đường",
+              "durationSec": 397,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-6",
+              "kind": "clip",
+              "title": "Đường tuyết không người",
+              "durationSec": 55,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-slow-clip-7",
+              "kind": "highlight",
+              "title": "Phà đêm qua hồ",
+              "durationSec": 730,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/slow/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-drive": [
+            {
+              "videoId": "v38-context-fixture-drive-clip-0",
+              "kind": "clip",
+              "title": "Phố đêm qua kính xe",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/0",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-1",
+              "kind": "clip",
+              "title": "Đèn neon ngã tư",
+              "durationSec": 52,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/1",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-2",
+              "kind": "clip",
+              "title": "Đường ven biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/2",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-3",
+              "kind": "clip",
+              "title": "Mưa phùn trên phố",
+              "durationSec": 44,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/3",
+              "chosenBy": [
+                {
+                  "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+                  "name": "Truyện kể đêm"
+                }
+              ]
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-4",
+              "kind": "clip",
+              "title": "Đèn hậu xe tải",
+              "durationSec": 58,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-5",
+              "kind": "highlight",
+              "title": "Hầm chui thành phố",
+              "durationSec": 435,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-6",
+              "kind": "clip",
+              "title": "Cao tốc ra biển",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-drive-clip-7",
+              "kind": "clip",
+              "title": "Cầu sông lúc 2 giờ",
+              "durationSec": 50,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/drive/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-rain": [
+            {
+              "videoId": "v38-context-fixture-rain-clip-0",
+              "kind": "video",
+              "title": "雨夜窗边 · 3小时白噪音",
+              "durationSec": 10812,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-1",
+              "kind": "video",
+              "title": "书房听雨",
+              "durationSec": 4360,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-2",
+              "kind": "video",
+              "title": "深夜车站下雨",
+              "durationSec": 3500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-3",
+              "kind": "video",
+              "title": "屋檐雨声",
+              "durationSec": 7500,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-4",
+              "kind": "video",
+              "title": "小店深夜",
+              "durationSec": 2710,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-5",
+              "kind": "video",
+              "title": "铁皮屋顶雨",
+              "durationSec": 5400,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-6",
+              "kind": "video",
+              "title": "湖边雾夜",
+              "durationSec": 3600,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-rain-clip-7",
+              "kind": "video",
+              "title": "雪夜公路",
+              "durationSec": 7200,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/rain/7",
+              "chosenBy": []
+            }
+          ],
+          "v38-context-fixture-lofi": [
+            {
+              "videoId": "v38-context-fixture-lofi-clip-0",
+              "kind": "clip",
+              "title": "Phòng học đèn vàng",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/0",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-1",
+              "kind": "clip",
+              "title": "Thành phố nhìn từ ban công",
+              "durationSec": 59,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/1",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-2",
+              "kind": "highlight",
+              "title": "Bàn làm việc đêm",
+              "durationSec": 320,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/2",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-3",
+              "kind": "clip",
+              "title": "Trạm xe buýt",
+              "durationSec": 46,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/3",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-4",
+              "kind": "clip",
+              "title": "Đường ray chiều",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/4",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-5",
+              "kind": "clip",
+              "title": "Mưa ngoài cửa sổ",
+              "durationSec": 51,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/5",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-6",
+              "kind": "highlight",
+              "title": "Hồ đêm yên",
+              "durationSec": 242,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/6",
+              "chosenBy": []
+            },
+            {
+              "videoId": "v38-context-fixture-lofi-clip-7",
+              "kind": "clip",
+              "title": "Tuyết rơi ngoài phố",
+              "durationSec": 60,
+              "publishedAt": "2026-11-04T00:00:00Z",
+              "thumbnailUrl": null,
+              "url": "https://example.invalid/v38-catalogue-never-open/lofi/7",
+              "chosenBy": []
+            }
+          ]
+        },
+        "snowOverlayId": "0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64",
+        "persistence": "LOCAL_REFERENCE_ONLY; fixture() clones native detail and replaces only the local GET response recipe backdrop; no PATCH/POST occurs"
+      },
+      "canonicalMobileList": {
+        "names": [
+          "slowroads",
+          "nightdrivefm",
+          "雨夜电台",
+          "lofilanes"
+        ],
+        "linkedNames": [
+          "slowroads",
+          "nightdrivefm"
+        ],
+        "selectedKindsAndCTA": "NOT_APPLICABLE_IN_CANONICAL_SIMPLE_LIST"
+      },
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-slow",
+        "sourceKind": "channel",
+        "linked": true,
+        "mode": "random",
+        "kinds": [
+          "Clip",
+          "Highlight"
+        ],
+        "pickedCount": 0,
+        "cta": "Lưu"
+      },
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    }
+  ],
+  "requests": [
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/index-D_x32yi_.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/client-BJ98bOus.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/overlays",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CLHShwUG.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/shared-controls-C3HxiGbH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Dialog-Cefpk6gq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Inputs-DkPOCu4d.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Banner-C1o0EmBE.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-DffbuM4L.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-CV65KcQS.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/platforms-DhyZbfKR.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Segmented-DPot5mMH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-BS0OPArz.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/upload-limits-D5xfiudB.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/useDebounced-BuI3hrTq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/ImageViewer-Cn3Lc8OV.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-CY9oDNzO.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Selects-BewLSInX.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Dropzone-DO9tQKCd.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/page-BcgquorK.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/sheets-DH7S8z0U.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/index-D_x32yi_.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/client-BJ98bOus.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-BP_a4fA3.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/Banner-C1o0EmBE.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-DffbuM4L.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/shared-controls-C3HxiGbH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/Dialog-Cefpk6gq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/Inputs-DkPOCu4d.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-CV65KcQS.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-BS0OPArz.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/ImageViewer-Cn3Lc8OV.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-CY9oDNzO.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/Selects-BewLSInX.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/images-CSEZyCRd.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/Segmented-DPot5mMH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/page-BcgquorK.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/sheets-DH7S8z0U.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "TemplateDetail (native ID/revision + local recipe reference links)"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropChannel[]"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideo[] (metadata only; no file)"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/overlays",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix",
+      "queryKeys": [
+        "lengthSec"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropMix (healthy/fewClips=false context)"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "PreviewStatus (fresh metadata; no media)"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-context-fixture-slow/videos",
+      "queryKeys": [
+        "limit"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideoPage (canonical eight visible metadata rows; no next page)"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.add@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-context-fixture-lofi/videos",
+      "queryKeys": [
+        "limit"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideoPage (canonical eight visible metadata rows; no next page)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/index-D_x32yi_.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/client-BJ98bOus.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-BP_a4fA3.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/Banner-C1o0EmBE.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-DffbuM4L.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/shared-controls-C3HxiGbH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/Dialog-Cefpk6gq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/Inputs-DkPOCu4d.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-CV65KcQS.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-BS0OPArz.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/ImageViewer-Cn3Lc8OV.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-CY9oDNzO.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/Selects-BewLSInX.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/images-CSEZyCRd.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/Segmented-DPot5mMH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/page-BcgquorK.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/sheets-DH7S8z0U.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "TemplateDetail (native ID/revision + local recipe reference links)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropChannel[]"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideo[] (metadata only; no file)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/overlays",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix",
+      "queryKeys": [
+        "lengthSec"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropMix (healthy/fewClips=false context)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "PreviewStatus (fresh metadata; no media)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-context-fixture-drive/videos",
+      "queryKeys": [
+        "limit"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideoPage (canonical eight visible metadata rows; no next page)"
+    },
+    {
+      "case": "Template.picker.choose@backdrop",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/index-D_x32yi_.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/client-BJ98bOus.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-BP_a4fA3.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/Banner-C1o0EmBE.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-DffbuM4L.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/shared-controls-C3HxiGbH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/Dialog-Cefpk6gq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/Inputs-DkPOCu4d.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-CV65KcQS.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-BS0OPArz.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/ImageViewer-Cn3Lc8OV.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-CY9oDNzO.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/Selects-BewLSInX.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/images-CSEZyCRd.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/Segmented-DPot5mMH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/page-BcgquorK.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/sheets-DH7S8z0U.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "TemplateDetail (native ID/revision + local recipe reference links)"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropChannel[]"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideo[] (metadata only; no file)"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/overlays",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix",
+      "queryKeys": [
+        "lengthSec"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropMix (healthy/fewClips=false context)"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "PreviewStatus (fresh metadata; no media)"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-context-fixture-slow/videos",
+      "queryKeys": [
+        "limit"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideoPage (canonical eight visible metadata rows; no next page)"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "Template.picker.video@backdrop",
+      "method": "GET",
+      "path": "/assets/scissor-CW9RFQvs.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/index-D_x32yi_.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/client-BJ98bOus.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-BP_a4fA3.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/Banner-C1o0EmBE.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-DffbuM4L.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/shared-controls-C3HxiGbH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/Dialog-Cefpk6gq.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/Inputs-DkPOCu4d.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-CV65KcQS.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-BS0OPArz.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/ImageViewer-Cn3Lc8OV.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-CY9oDNzO.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/Selects-BewLSInX.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/images-CSEZyCRd.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/Segmented-DPot5mMH.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/page-BcgquorK.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/sheets-DH7S8z0U.js",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "TemplateDetail (native ID/revision + local recipe reference links)"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropChannel[]"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideo[] (metadata only; no file)"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/overlays",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix",
+      "queryKeys": [
+        "lengthSec"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropMix (healthy/fewClips=false context)"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [
+        "kind"
+      ],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_SAME_ORIGIN_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "queryKeys": [],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "PreviewStatus (fresh metadata; no media)"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "queryKeys": [],
+      "action": "SAME_ORIGIN_APP_STATIC_GET"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "queryKeys": [],
+      "action": "ABORT_MEDIA_DOWNLOAD_DISCOVERY"
+    },
+    {
+      "case": "MTemplate.screen.backdrop@attach-source",
+      "method": "GET",
+      "path": "/api/backdrop/channels/v38-context-fixture-slow/videos",
+      "queryKeys": [
+        "limit"
+      ],
+      "action": "LOCAL_TYPED_GET_FIXTURE",
+      "fixtureType": "BackdropVideoPage (canonical eight visible metadata rows; no next page)"
+    }
+  ],
+  "screenshots": [
+    {
+      "key": "Template.picker.add@backdrop",
+      "file": "fixture-1440-template-picker-add-backdrop-open.png",
+      "stage": "open-lofilanes-unlinked-random-clip-highlight-attach",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "canonicalInteraction": null,
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-lofi",
+        "sourceKind": "channel",
+        "linked": false,
+        "mode": "random",
+        "kinds": [
+          "Clip",
+          "Highlight"
+        ],
+        "pickedCount": 0,
+        "cta": "Gắn vào mẫu video"
+      }
+    },
+    {
+      "key": "Template.picker.choose@backdrop",
+      "file": "fixture-1440-template-picker-choose-backdrop-open.png",
+      "stage": "open-nightdrivefm-linked-pick-clip-four-selected-save",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "canonicalInteraction": null,
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-drive",
+        "sourceKind": "channel",
+        "linked": true,
+        "mode": "pick",
+        "kinds": [
+          "Clip"
+        ],
+        "pickedCount": 4,
+        "cta": "Lưu"
+      }
+    },
+    {
+      "key": "Template.picker.video@backdrop",
+      "file": "fixture-1440-template-picker-video-backdrop-open.png",
+      "stage": "open-ferry-unlinked-segment-0-120-attach",
+      "referenceProps": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "canonicalInteraction": null,
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-ferry",
+        "canonicalSourceKey": "ferry",
+        "sourceKind": "standalone-video",
+        "linked": false,
+        "mode": null,
+        "kinds": [],
+        "pickedCount": 0,
+        "segment": {
+          "fromSec": 0,
+          "toSec": 120
+        },
+        "cta": "Gắn vào mẫu video",
+        "media": "NEUTRAL_NATIVE_SLOT_NO_FILE_NO_MEDIA_ACQUISITION"
+      }
+    },
+    {
+      "key": "MTemplate.screen.backdrop@attach-source",
+      "file": "fixture-390-template-backdrop-attach-source-open.png",
+      "stage": "open-attach-source-sheet-before-selection",
+      "referenceProps": {
+        "screen": "backdrop",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "canonicalInteraction": {
+        "action": "Gắn kênh hoặc video",
+        "state": "sS=true",
+        "sheetLabel": "Gắn kênh hoặc video nền"
+      },
+      "observed": {
+        "selectedSourceId": "v38-context-fixture-slow",
+        "sourceKind": "channel",
+        "linked": true,
+        "mode": "random",
+        "kinds": [
+          "Clip",
+          "Highlight"
+        ],
+        "pickedCount": 0,
+        "cta": "Lưu"
+      }
+    }
+  ],
+  "pageErrors": [],
+  "provenance": {
+    "fixtureLabel": "UI FIXTURE · metadata only · 0 server writes",
+    "nativePersistenceProven": false,
+    "canonicalData": "Template.dc.html:1502–1520,1578–1609; MTemplate.dc.html:955–966,991–994",
+    "schema": "api/backdrop.ts BackdropChannel, ChannelVideoItem, BackdropVideoPage, BackdropVideo; api/library.ts TemplateDetail, PreviewStatus",
+    "sources": [
+      {
+        "path": "apps/viderse/web/src/screens/library/template/BackdropSection.tsx",
+        "sha256": "6ef63407db9d7d9325da6184e1325f363f01980fbbd7ada2b3c9ac2d5404f4ad"
+      },
+      {
+        "path": "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx",
+        "sha256": "c71a83a1d497857ce593c08173df3939cd09ac8436c54d074df0e27675561dcd"
+      },
+      {
+        "path": "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx",
+        "sha256": "9208d2b0c45fae86f34684f996040698b4e68bb92037c5a0d54963626c38f2b8"
+      },
+      {
+        "path": "apps/viderse/web/src/api/backdrop.ts",
+        "sha256": "cbebe6ad31cb61a55c6ebed134564703e782f39dcddb6fed5a02f5816520b1e9"
+      },
+      {
+        "path": "apps/viderse/docs/design/v1/artboards/Template.dc.html",
+        "sha256": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24"
+      },
+      {
+        "path": "apps/viderse/docs/design/v1/artboards/MTemplate.dc.html",
+        "sha256": "2d351bd5fcafafd47fd1c794ad018f03aa27a0d03b69437ab61e91af4fc157c2"
+      },
+      {
+        "path": "plans/reports/orchestrate-261105-095440-v38-acceptance/desktop-tweak-truth.md",
+        "sha256": "e384a36eb636998e85259b817c74648d8ac8580c24966b3832754c5dafef11a1"
+      },
+      {
+        "path": "plans/reports/orchestrate-261105-095440-v38-acceptance/mobile-tweak-truth.md",
+        "sha256": "75310a53192af270b4272fe7ccf02aed366c88c88c9ba9dc9d4e6fd2e809d82d"
+      },
+      {
+        "path": "plans/reports/orchestrate-261105-095440-v38-acceptance/template-visual-acceptance.md",
+        "sha256": "1941f8bf71f1ce7f91f18b8d84854d17b34ad3b15e8fd8f00809ed3dc5bcd235"
+      }
+    ],
+    "fixtureIdsAreNative": false,
+    "templateAndOwnerIdsAreNative": true,
+    "controllerSHA256": "79790bd46c89ab5fd315e61a87ff67bd5c03f90e0cedc5de79f257ccafd32789",
+    "nativeGETs": [
+      "/api/templates",
+      "/api/owner-channels",
+      "/api/overlays",
+      "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06"
+    ]
+  },
+  "concerns": [
+    "Prepared script is not execution evidence. PASS and screenshots exist only after parent execution.",
+    "Named backdrop identities, catalogue metadata, links and healthy mix are local typed GET fixtures, not native records or persisted links.",
+    "Native template identity/revision/recipe and owner IDs are discovered with guarded same-origin GETs. Other native recipe fields are preserved; they are not canonical fixture defaults.",
+    "Fresh preview is UI metadata without projectId, rendered frame or media URL. No preview build, cover generation, provider discovery, source download or export is accepted.",
+    "All fixture thumbnails/avatars are null; standalone videos have ready metadata but no file. Neutral native slots are used. Ferry player/media-region parity remains unproven; do not synthesize artwork.",
+    "Current source initializes unlinked Twitch kinds including zero-count VOD, while canonical add uses Clip+Highlight. If its selected VOD chip is aria-disabled, add records BLOCKED_CANONICAL_CONTEXT instead of bypassing actionability or claiming a normal user journey. Other contexts continue.",
+    "Mobile canonical has only the attach-source interaction list. No MTemplate.picker.add/choose/video or sheet=source/video is invented. Native detailed-sheet vs canonical simple-list mismatch is retained, not repaired.",
+    "No generic final/closed screenshot is generated. Only exact asserted open stages can populate selectedFile. Parent captures matching corrected canonical props separately."
+  ],
+  "safety": {
+    "realWrites": 0,
+    "nonGETContinued": 0,
+    "externalContinued": 0,
+    "localMutationFulfillments": 0,
+    "downloads": 0,
+    "websocketsBlocked": 0,
+    "routeErrors": []
+  },
+  "native": {
+    "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+    "templateName": "Truyện kể đêm",
+    "revision": 5,
+    "ownerIds": [
+      "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "98ae68b2-813e-427a-8238-8eb0e86de231"
+    ],
+    "templateOwnerReferences": [
+      "c76cc725-0e9d-43fd-98d1-4d55412510e8"
+    ],
+    "overlayCount": 12,
+    "proof": "GUARDED_NATIVE_GET_ONLY"
+  },
+  "browserClosed": true,
+  "finishedAt": "2026-11-05T07:05:32.208Z"
+}

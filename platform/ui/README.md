@@ -183,6 +183,24 @@ setKitLabels({
 `menus`, `overlays`, `slow`, `stale`, `conflict`, `scrollTop`, `brand`, `qr`,
 `orbs`, `sheet`.
 
+## Application interaction policy
+
+Applications can choose different feedback lifetimes and phone confirmation
+layouts without changing another app's defaults. Keep that choice in the app
+bootstrap; [Viderse's entry point](../../apps/viderse/web/src/main.tsx) configures
+the policies owned by [`Toast.tsx`](src/Toast.tsx) and
+[`ConfirmDialog.tsx`](src/ConfirmDialog.tsx).
+
+Imperative confirmation roots and the toast store live outside the routed React
+tree. They must not carry content or actionable callbacks into another account:
+the session owner disposes them at its boundary, as in
+[Viderse's root](../../apps/viderse/web/src/App.tsx). Disposal does not cancel an
+already submitted server mutation.
+
+A following action must not open its modal while a closing sheet still owns
+focus and scroll locks. Use [`Sheet`'s exit handoff](src/Sheet.tsx), not a copied
+animation timeout; an owning route/session unmount discards the handoff.
+
 ## Components
 
 ```ts

@@ -1,9 +1,9 @@
 package web
 
 // HTTP của mảng Kênh của bạn: danh sách/tạo/xem/sửa/xoá kênh, liên kết đối
-// thủ, danh sách template luân phiên, tạo nhận diện và phục vụ tệp avatar/ảnh
-// bìa. Handler chỉ đọc request → gọi service → ghi JSON; hình wire tách hẳn
-// khỏi kiểu domain.
+// thủ, template mặc định trong Thư viện, tạo nhận diện và phục vụ tệp
+// avatar/ảnh bìa. Handler chỉ đọc request → gọi service → ghi JSON; hình wire
+// tách hẳn khỏi kiểu domain.
 
 import (
 	"context"
@@ -32,7 +32,6 @@ type ChannelService interface {
 	Link(ctx context.Context, id, rivalID string) (channels.ChannelView, error)
 	Unlink(ctx context.Context, id, rivalID string) (channels.ChannelView, bool, error)
 	SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (channels.ChannelView, error)
-	Templates(ctx context.Context, id string, req channels.TemplateRequest) ([]domain.ChannelTemplate, error)
 	GenerateIdentity(ctx context.Context, id string, in channels.IdentityInput) (string, error)
 	AssetFile(ctx context.Context, id, file string) (io.ReadSeekCloser, string, int64, error)
 }
@@ -84,9 +83,8 @@ type channelSourceWire struct {
 }
 
 type channelTemplateWire struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Position int    `json:"position"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type channelIdentityErrorWire struct {
@@ -113,16 +111,18 @@ type channelWire struct {
 	StyleNote         *string               `json:"styleNote"`
 	DescriptionFooter *string               `json:"descriptionFooter"`
 	AlwaysTags        []string              `json:"alwaysTags"`
-	AutoPick          bool                  `json:"autoPick"`
-	PacePerDay        int                   `json:"pacePerDay"`
-	Autonomy          domain.Autonomy       `json:"autonomy"`
-	Priority          string                `json:"priority"`
-	TemplateCursor    int                   `json:"templateCursor"`
+	AutoFetch         bool                  `json:"autoFetch"`
+	AutoApprove       bool                  `json:"autoApprove"`
+	PerDay            int                   `json:"perDay"`
+	DefaultTemplateID   string              `json:"defaultTemplateId"`
+	DefaultTemplateName string              `json:"defaultTemplateName"`
+	// AgentInstructions là chỉ dẫn riêng của chủ kênh cho từng trợ lý
+	// (Dặn trợ lý về kênh này). Map rỗng nghĩa là chưa dặn.
+	AgentInstructions domain.AgentInstructions `json:"agentInstructions"`
 	Branding          brandingWire          `json:"branding"`
 	AvatarURL         *string               `json:"avatarUrl"`
 	BannerURL         *string               `json:"bannerUrl"`
 	Sources           []channelSourceWire   `json:"sources"`
-	Templates         []channelTemplateWire `json:"templates"`
 	Identity          channelIdentityWire   `json:"identity"`
 	CreatedAt         string                `json:"createdAt"`
 	UpdatedAt         string                `json:"updatedAt"`
@@ -151,11 +151,10 @@ func ChannelToWire(v channels.ChannelView) channelWire {
 		StyleNote:         c.StyleNote,
 		DescriptionFooter: c.DescriptionFooter,
 		AlwaysTags:        c.AlwaysTags,
-		AutoPick:          c.AutoPick && c.Autonomy.AutoPicks(),
-		PacePerDay:        c.PacePerDay,
-		Autonomy:          c.Autonomy,
-		Priority:          c.Priority,
-		TemplateCursor:    c.TemplateCursor,
+		AutoFetch:         c.AutoFetch,
+		AutoApprove:       c.AutoApprove,
+		PerDay:            c.PerDay,
+		DefaultTemplateID: c.DefaultTemplateID,
 		Branding: brandingWire{
 			Brief:   c.Branding.Brief,
 			Summary: c.Branding.Summary,
@@ -164,7 +163,6 @@ func ChannelToWire(v channels.ChannelView) channelWire {
 			Banner:  c.Branding.Banner,
 		},
 		Sources:   make([]channelSourceWire, 0, len(v.Sources)),
-		Templates: make([]channelTemplateWire, 0, len(v.Templates)),
 		Identity:  identityToWire(c),
 		CreatedAt: c.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt: c.UpdatedAt.UTC().Format(time.RFC3339),
@@ -190,9 +188,10 @@ func ChannelToWire(v channels.ChannelView) channelWire {
 			MinDurationSec: s.MinDurationSec,
 		})
 	}
-	for _, t := range v.Templates {
-		out.Templates = append(out.Templates, channelTemplateWire{ID: t.ID, Name: t.Name, Position: t.Position})
+	if v.DefaultTemplate != nil {
+		out.DefaultTemplateName = v.DefaultTemplate.Name
 	}
+	out.AgentInstructions = domain.NormalizeAgentInstructions(c.AgentInstructions)
 	return out
 }
 
@@ -257,14 +256,13 @@ type createChannelBody struct {
 	Name          string   `json:"name"`
 	YoutubeURL    *string  `json:"youtubeUrl"`
 	CompetitorIDs []string `json:"competitorIds"`
-	AutoPick      *bool    `json:"autoPick"`
-	PacePerDay    *int     `json:"pacePerDay"`
+	AutoFetch     *bool    `json:"autoFetch"`
+	AutoApprove   *bool    `json:"autoApprove"`
+	PerDay        *int     `json:"perDay"`
 	Language      string   `json:"language"`
-	// Autonomy/Priority: Mức tự chủ (07 §20); Confirmed là xác nhận rõ cho
-	// "Tự duyệt hết" (D6).
-	Autonomy  *domain.Autonomy `json:"autonomy"`
-	Priority  *string          `json:"priority"`
-	Confirmed bool             `json:"confirmed"`
+	// DefaultTemplateID chọn template có sẵn trong Thư viện; vắng = tạo Mẫu
+	// chuẩn mới.
+	DefaultTemplateID *string `json:"defaultTemplateId"`
 }
 
 type createChannelResponse struct {
@@ -292,15 +290,14 @@ func createChannel(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 		return
 	}
 	view, jobID, err := svc.Create(r.Context(), channels.CreateRequest{
-		Name:          body.Name,
-		YoutubeURL:    body.YoutubeURL,
-		CompetitorIDs: body.CompetitorIDs,
-		AutoPick:      body.AutoPick,
-		PacePerDay:    body.PacePerDay,
-		Language:      body.Language,
-		Autonomy:      body.Autonomy,
-		Priority:      body.Priority,
-		Confirmed:     body.Confirmed,
+		Name:              body.Name,
+		YoutubeURL:        body.YoutubeURL,
+		CompetitorIDs:     body.CompetitorIDs,
+		AutoFetch:         body.AutoFetch,
+		AutoApprove:       body.AutoApprove,
+		PerDay:            body.PerDay,
+		Language:          body.Language,
+		DefaultTemplateID: body.DefaultTemplateID,
 	})
 	if err != nil {
 		writeChannelError(w, err, diag)
@@ -354,8 +351,6 @@ func routeChannels(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 		unlinkSource(w, r, svc, diag, id, extra)
 	case tail == "sources" && extra != "" && r.Method == http.MethodPatch:
 		patchSource(w, r, svc, diag, id, extra)
-	case tail == "templates" && extra == "" && r.Method == http.MethodPost:
-		templates(w, r, svc, diag, id)
 	case tail == "branding" && extra == "" && r.Method == http.MethodPost:
 		generateIdentity(w, r, svc, diag, id)
 	case tail == "branding" && extra != "" && (r.Method == http.MethodGet || r.Method == http.MethodHead):
@@ -366,18 +361,22 @@ func routeChannels(w http.ResponseWriter, r *http.Request, svc ChannelService, d
 }
 
 type updateChannelBody struct {
-	Name              *string          `json:"name"`
-	YoutubeURL        json.RawMessage  `json:"youtubeUrl"`
-	Language          *string          `json:"language"`
-	StyleNote         json.RawMessage  `json:"styleNote"`
-	DescriptionFooter json.RawMessage  `json:"descriptionFooter"`
-	AlwaysTags        *[]string        `json:"alwaysTags"`
-	AutoPick          *bool            `json:"autoPick"`
-	PacePerDay        *int             `json:"pacePerDay"`
-	Brief             *string          `json:"brief"`
-	Autonomy          *domain.Autonomy `json:"autonomy"`
-	Priority          *string          `json:"priority"`
-	Confirmed         bool             `json:"confirmed"`
+	Name              *string         `json:"name"`
+	YoutubeURL        json.RawMessage `json:"youtubeUrl"`
+	Language          *string         `json:"language"`
+	StyleNote         json.RawMessage `json:"styleNote"`
+	DescriptionFooter json.RawMessage `json:"descriptionFooter"`
+	AlwaysTags        *[]string       `json:"alwaysTags"`
+	AutoFetch         *bool           `json:"autoFetch"`
+	AutoApprove       *bool           `json:"autoApprove"`
+	PerDay            *int            `json:"perDay"`
+	Brief             *string         `json:"brief"`
+	// DefaultTemplateID đổi template mặc định; null/rỗng là 400 vì kênh luôn
+	// phải có mặc định.
+	DefaultTemplateID json.RawMessage `json:"defaultTemplateId"`
+	// AgentInstructions gộp chỉ dẫn cho đúng các trợ lý có khoá; trợ lý vắng
+	// khoá giữ nguyên; giá trị rỗng xoá chỉ dẫn của trợ lý đó.
+	AgentInstructions map[string]string `json:"agentInstructions"`
 }
 
 // nullableField đọc một trường vắng / null / chuỗi: vắng = không đổi, null =
@@ -407,13 +406,16 @@ func patchChannel(w http.ResponseWriter, r *http.Request, svc ChannelService, di
 	in.Name = body.Name
 	in.Language = body.Language
 	in.AlwaysTags = body.AlwaysTags
-	in.AutoPick = body.AutoPick
-	in.PacePerDay = body.PacePerDay
+	in.AutoFetch = body.AutoFetch
+	in.AutoApprove = body.AutoApprove
+	in.PerDay = body.PerDay
 	in.Brief = body.Brief
-	in.Autonomy = body.Autonomy
-	in.Priority = body.Priority
-	in.Confirmed = body.Confirmed
+	in.AgentInstructions = body.AgentInstructions
 	var err error
+	if in.DefaultTemplateID, _, err = nullableField(body.DefaultTemplateID); err != nil {
+		writeChannelCode(w, http.StatusBadRequest, "defaultTemplateId không hợp lệ.", channels.CodeInvalidInput, "", nil)
+		return
+	}
 	if in.YoutubeURL, _, err = nullableField(body.YoutubeURL); err != nil {
 		writeChannelCode(w, http.StatusBadRequest, "youtubeUrl không hợp lệ.", channels.CodeInvalidInput, "", nil)
 		return
@@ -452,7 +454,7 @@ func linkSource(w http.ResponseWriter, r *http.Request, svc ChannelService, diag
 }
 
 type unlinkSourceResponse struct {
-	AutoPickPaused bool `json:"autoPickPaused"`
+	AutoFetchPaused bool `json:"autoFetchPaused"`
 }
 
 type patchSourceBody struct {
@@ -479,36 +481,7 @@ func unlinkSource(w http.ResponseWriter, r *http.Request, svc ChannelService, di
 		writeChannelError(w, err, diag)
 		return
 	}
-	webapp.WriteJSON(w, http.StatusOK, unlinkSourceResponse{AutoPickPaused: paused})
-}
-
-type templatesBody struct {
-	Action     string `json:"action"`
-	TemplateID string `json:"templateId"`
-	Position   *int   `json:"position"`
-}
-
-type templatesResponse struct {
-	Templates []channelTemplateWire `json:"templates"`
-}
-
-func templates(w http.ResponseWriter, r *http.Request, svc ChannelService, diag ChannelDiag, id string) {
-	var body templatesBody
-	if !webapp.DecodeJSONCode(w, r, &body, channels.CodeInvalidInput) {
-		return
-	}
-	list, err := svc.Templates(r.Context(), id, channels.TemplateRequest{
-		Action: body.Action, TemplateID: body.TemplateID, Position: body.Position,
-	})
-	if err != nil {
-		writeChannelError(w, err, diag)
-		return
-	}
-	out := templatesResponse{Templates: make([]channelTemplateWire, 0, len(list))}
-	for _, t := range list {
-		out.Templates = append(out.Templates, channelTemplateWire{ID: t.ID, Name: t.Name, Position: t.Position})
-	}
-	webapp.WriteJSON(w, http.StatusOK, out)
+	webapp.WriteJSON(w, http.StatusOK, unlinkSourceResponse{AutoFetchPaused: paused})
 }
 
 type brandingBody struct {
@@ -601,7 +574,7 @@ func writeChannelError(w http.ResponseWriter, err error, diag ChannelDiag) {
 			status = http.StatusBadRequest
 		case channels.CodeNotFound:
 			status = http.StatusNotFound
-		case channels.CodeConflict, channels.CodeCancelled, channels.CodeInterrupted, channels.CodeConfirmRequired:
+		case channels.CodeConflict, channels.CodeCancelled, channels.CodeInterrupted:
 			status = http.StatusConflict
 		case channels.CodeQuota:
 			status = http.StatusTooManyRequests

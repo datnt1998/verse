@@ -163,7 +163,7 @@ UPDATE clone_jobs SET lease_owner = $2, lease_expires_at = $3::timestamptz,
     version = version + 1, updated_at = $4::timestamptz
 WHERE id = $1 AND superseded_at IS NULL
   AND (lease_expires_at IS NULL OR lease_expires_at <= $4::timestamptz)
-RETURNING id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review
+RETURNING id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions
 `
 
 type ClaimJobLeaseParams struct {
@@ -209,6 +209,7 @@ func (q *Queries) ClaimJobLease(ctx context.Context, arg ClaimJobLeaseParams) (C
 		&i.ImageApprovedAt,
 		&i.AutoFix,
 		&i.AutoReview,
+		&i.Instructions,
 	)
 	return i, err
 }
@@ -364,7 +365,7 @@ func (q *Queries) GetCloneArtifact(ctx context.Context, arg GetCloneArtifactPara
 
 const getCloneJob = `-- name: GetCloneJob :one
 
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs WHERE id = $1
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs WHERE id = $1
 `
 
 // Clone pipeline: job/step/artifact rows + các thao tác fenced của runner.
@@ -401,12 +402,13 @@ func (q *Queries) GetCloneJob(ctx context.Context, id pgtype.UUID) (CloneJob, er
 		&i.ImageApprovedAt,
 		&i.AutoFix,
 		&i.AutoReview,
+		&i.Instructions,
 	)
 	return i, err
 }
 
 const getCloneJobBySourceKey = `-- name: GetCloneJobBySourceKey :one
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs WHERE source_key = $1 AND superseded_at IS NULL
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs WHERE source_key = $1 AND superseded_at IS NULL
 `
 
 func (q *Queries) GetCloneJobBySourceKey(ctx context.Context, sourceKey string) (CloneJob, error) {
@@ -440,12 +442,13 @@ func (q *Queries) GetCloneJobBySourceKey(ctx context.Context, sourceKey string) 
 		&i.ImageApprovedAt,
 		&i.AutoFix,
 		&i.AutoReview,
+		&i.Instructions,
 	)
 	return i, err
 }
 
 const getCloneJobForUpdate = `-- name: GetCloneJobForUpdate :one
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs WHERE id = $1 FOR UPDATE
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs WHERE id = $1 FOR UPDATE
 `
 
 func (q *Queries) GetCloneJobForUpdate(ctx context.Context, id pgtype.UUID) (CloneJob, error) {
@@ -479,6 +482,7 @@ func (q *Queries) GetCloneJobForUpdate(ctx context.Context, id pgtype.UUID) (Clo
 		&i.ImageApprovedAt,
 		&i.AutoFix,
 		&i.AutoReview,
+		&i.Instructions,
 	)
 	return i, err
 }
@@ -592,12 +596,12 @@ const insertCloneJob = `-- name: InsertCloneJob :one
 INSERT INTO clone_jobs (
     id, channel_id, source_key, source_snapshot, template_id,
     template_snapshot, model_refs, no_images, generation, priority, origin,
-    status, stage_group, fence, version, created_at, updated_at
+    instructions, status, stage_group, fence, version, created_at, updated_at
 ) VALUES (
     $1, $2, $3, $4, $5,
     $6, $7, $8, $9, $10, $11,
-    'pending', 'working', 0, 1, $12::timestamptz, $12::timestamptz
-) RETURNING id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review
+    $12, 'pending', 'working', 0, 1, $13::timestamptz, $13::timestamptz
+) RETURNING id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions
 `
 
 type InsertCloneJobParams struct {
@@ -612,7 +616,8 @@ type InsertCloneJobParams struct {
 	Generation       int32              `json:"generation"`
 	Priority         string             `json:"priority"`
 	Origin           string             `json:"origin"`
-	Column12         pgtype.Timestamptz `json:"column_12"`
+	Instructions     []byte             `json:"instructions"`
+	Column13         pgtype.Timestamptz `json:"column_13"`
 }
 
 func (q *Queries) InsertCloneJob(ctx context.Context, arg InsertCloneJobParams) (CloneJob, error) {
@@ -628,7 +633,8 @@ func (q *Queries) InsertCloneJob(ctx context.Context, arg InsertCloneJobParams) 
 		arg.Generation,
 		arg.Priority,
 		arg.Origin,
-		arg.Column12,
+		arg.Instructions,
+		arg.Column13,
 	)
 	var i CloneJob
 	err := row.Scan(
@@ -659,6 +665,7 @@ func (q *Queries) InsertCloneJob(ctx context.Context, arg InsertCloneJobParams) 
 		&i.ImageApprovedAt,
 		&i.AutoFix,
 		&i.AutoReview,
+		&i.Instructions,
 	)
 	return i, err
 }
@@ -703,7 +710,7 @@ func (q *Queries) InvalidateStepRange(ctx context.Context, arg InvalidateStepRan
 }
 
 const listBoardJobs = `-- name: ListBoardJobs :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs
 WHERE superseded_at IS NULL
   AND ($1::uuid IS NULL OR channel_id = $1)
 ORDER BY stage_group, updated_at DESC, id
@@ -754,6 +761,7 @@ func (q *Queries) ListBoardJobs(ctx context.Context, arg ListBoardJobsParams) ([
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -766,7 +774,7 @@ func (q *Queries) ListBoardJobs(ctx context.Context, arg ListBoardJobsParams) ([
 }
 
 const listClaimableCloneJobs = `-- name: ListClaimableCloneJobs :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs
 WHERE status = 'pending' AND paused_at IS NULL AND superseded_at IS NULL
   AND (lease_expires_at IS NULL OR lease_expires_at <= now())
 ORDER BY created_at, id
@@ -812,6 +820,7 @@ func (q *Queries) ListClaimableCloneJobs(ctx context.Context, limit int32) ([]Cl
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -940,7 +949,7 @@ func (q *Queries) ListCloneStepsByJobs(ctx context.Context, dollar_1 []pgtype.UU
 }
 
 const listFinishedCloneJobs = `-- name: ListFinishedCloneJobs :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs
 WHERE superseded_at IS NULL AND status = 'succeeded'
   AND (lease_expires_at IS NULL OR lease_expires_at <= now())
 ORDER BY updated_at DESC
@@ -985,6 +994,7 @@ func (q *Queries) ListFinishedCloneJobs(ctx context.Context, dollar_1 int32) ([]
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -997,7 +1007,7 @@ func (q *Queries) ListFinishedCloneJobs(ctx context.Context, dollar_1 int32) ([]
 }
 
 const listInterruptedCloneJobs = `-- name: ListInterruptedCloneJobs :many
-SELECT j.id, j.channel_id, j.source_key, j.source_snapshot, j.template_id, j.template_snapshot, j.model_refs, j.no_images, j.generation, j.superseded_at, j.paused_at, j.cancel_requested_at, j.priority, j.origin, j.status, j.stage_group, j.active_step, j.lease_owner, j.lease_expires_at, j.fence, j.version, j.posted_at, j.created_at, j.updated_at, j.image_approved_at, j.auto_fix, j.auto_review FROM clone_jobs j
+SELECT j.id, j.channel_id, j.source_key, j.source_snapshot, j.template_id, j.template_snapshot, j.model_refs, j.no_images, j.generation, j.superseded_at, j.paused_at, j.cancel_requested_at, j.priority, j.origin, j.status, j.stage_group, j.active_step, j.lease_owner, j.lease_expires_at, j.fence, j.version, j.posted_at, j.created_at, j.updated_at, j.image_approved_at, j.auto_fix, j.auto_review, j.instructions FROM clone_jobs j
 WHERE j.superseded_at IS NULL
   AND EXISTS (SELECT 1 FROM clone_steps s WHERE s.job_id = j.id AND s.status = 'running')
   AND (j.lease_expires_at IS NULL OR j.lease_expires_at <= now())
@@ -1043,6 +1053,7 @@ func (q *Queries) ListInterruptedCloneJobs(ctx context.Context, limit int32) ([]
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -1344,7 +1355,7 @@ func (q *Queries) SetJobStatus(ctx context.Context, arg SetJobStatusParams) erro
 }
 
 const supersedeCloneJob = `-- name: SupersedeCloneJob :exec
-UPDATE clone_jobs SET superseded_at = $2::timestamptz, status = 'cancelled',
+UPDATE clone_jobs SET superseded_at = $2::timestamptz, status = 'cancelled', paused_at = NULL,
     version = version + 1, updated_at = $2::timestamptz
 WHERE id = $1 AND superseded_at IS NULL
 `

@@ -1,0 +1,211 @@
+{
+  "schema": "viderse-owned-replay-restoration/2",
+  "generatedAt": "2026-11-04T10:30:39.999874+00:00",
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "replayID": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "expectedTestTitle": "workbench useVersion persists a real selected version then restores the original usedVersion",
+  "childExitCode": 0,
+  "pwTestPassed": true,
+  "pwTestSkipped": false,
+  "pwReport": {
+    "passed": true,
+    "skipped": false,
+    "matchedSpecs": 1,
+    "matchedTests": 1,
+    "stats": {
+      "startTime": "2026-11-04T10:30:33.463Z",
+      "duration": 5567.534,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "problems": [],
+    "reason": "exact test passed"
+  },
+  "pwReportPath": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/145-integrated-main-use-version-restoration/desktop/playwright-report.json",
+  "baselinePath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-bxadgwkr/owned-replay-baseline.json",
+  "replayRestored": true,
+  "intentTablesRestored": true,
+  "approvalIntentProof": null,
+  "originalSourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "artifactsUnchanged": true,
+  "artifactsRestored": true,
+  "newArtifacts": [
+    {
+      "id": "sha256:bf3de45efd4598cb8ea66c17598958bfea0e59cf1911efef9f2e8a39ef70b82f",
+      "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+      "step": "images",
+      "bytes": 38914,
+      "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+      "sha256": "7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d",
+      "filename": "",
+      "created_at": "2026-11-04T17:30:37.417347+07:00",
+      "content_type": "application/json"
+    },
+    {
+      "id": "sha256:c1038fe5a80c0f9238b11123632f309f9a99d6676e3d1ef9168d45bb72c8bce8",
+      "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json",
+      "step": "images",
+      "bytes": 38914,
+      "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+      "sha256": "fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d",
+      "filename": "",
+      "created_at": "2026-11-04T17:30:37.68463+07:00",
+      "content_type": "application/json"
+    }
+  ],
+  "newManifestArtifacts": [
+    {
+      "id": "sha256:bf3de45efd4598cb8ea66c17598958bfea0e59cf1911efef9f2e8a39ef70b82f",
+      "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+      "step": "images",
+      "bytes": 38914,
+      "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+      "sha256": "7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d",
+      "filename": "",
+      "created_at": "2026-11-04T17:30:37.417347+07:00",
+      "content_type": "application/json"
+    },
+    {
+      "id": "sha256:c1038fe5a80c0f9238b11123632f309f9a99d6676e3d1ef9168d45bb72c8bce8",
+      "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json",
+      "step": "images",
+      "bytes": 38914,
+      "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+      "sha256": "fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d",
+      "filename": "",
+      "created_at": "2026-11-04T17:30:37.68463+07:00",
+      "content_type": "application/json"
+    }
+  ],
+  "manifestCleanup": {
+    "required": true,
+    "attempted": true,
+    "status": "passed",
+    "newArtifacts": [
+      {
+        "id": "sha256:bf3de45efd4598cb8ea66c17598958bfea0e59cf1911efef9f2e8a39ef70b82f",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.417347+07:00",
+        "content_type": "application/json"
+      },
+      {
+        "id": "sha256:c1038fe5a80c0f9238b11123632f309f9a99d6676e3d1ef9168d45bb72c8bce8",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.68463+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "allowedManifestArtifacts": [
+      {
+        "id": "sha256:bf3de45efd4598cb8ea66c17598958bfea0e59cf1911efef9f2e8a39ef70b82f",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.417347+07:00",
+        "content_type": "application/json"
+      },
+      {
+        "id": "sha256:c1038fe5a80c0f9238b11123632f309f9a99d6676e3d1ef9168d45bb72c8bce8",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.68463+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "unexpectedArtifacts": [],
+    "helper": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/workflow-manifest-cleanup",
+    "inputPath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-bxadgwkr/manifest-cleanup-input.json",
+    "receiptPath": "/private/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v36-owner-safe-yqz0cpa_/owned-replay-baseline-bxadgwkr/manifest-cleanup-receipt.json",
+    "helperExitCode": 0,
+    "helperReceipt": {
+      "complete": true,
+      "unbound": [
+        "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+        "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json"
+      ]
+    },
+    "bindingPathsRemaining": [],
+    "rowsDeleted": 2,
+    "artifactsRestored": true,
+    "error": null,
+    "artifactRowsRemaining": [],
+    "artifactRowsDeletedByHelper": [
+      {
+        "id": "sha256:bf3de45efd4598cb8ea66c17598958bfea0e59cf1911efef9f2e8a39ef70b82f",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "7b7e09b0ea6e1c146fe715e66520dfb204604f36848279b5f7c62b13da9b359d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.417347+07:00",
+        "content_type": "application/json"
+      },
+      {
+        "id": "sha256:c1038fe5a80c0f9238b11123632f309f9a99d6676e3d1ef9168d45bb72c8bce8",
+        "path": "clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d/images/manifest.json",
+        "step": "images",
+        "bytes": 38914,
+        "job_id": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+        "sha256": "fba42e61654fc9ba691c719f04a18c908c048a833e07c2fed8824185f3be1c6d",
+        "filename": "",
+        "created_at": "2026-11-04T17:30:37.68463+07:00",
+        "content_type": "application/json"
+      }
+    ],
+    "artifactRowsDeletedByWrapper": 0
+  },
+  "jobStepsRestore": {
+    "attempted": true,
+    "jobStepsRestored": true,
+    "intentTablesRestored": true,
+    "skipped": null,
+    "error": null,
+    "intentErrors": []
+  },
+  "providerAllowance": 0,
+  "providerCallsAuthorized": 0,
+  "providerCallsObservedCharged": 0,
+  "providerAllowanceRespected": true,
+  "receiptJournalProof": {
+    "table": "image_receipts",
+    "scope": "draw_key LIKE replayID:%; snapshotted before child and read back after child",
+    "beforeCount": 0,
+    "afterCount": 0,
+    "beforeDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "afterDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "newRows": [],
+    "chargedNew": [],
+    "preexistingRowsChanged": []
+  },
+  "standbySessionPID": 20341,
+  "standbyBackendStart": "2026-11-04T15:08:19.198979+07:00",
+  "standbyFinalLockObserved": true,
+  "standbySessionUnchanged": true,
+  "standbyLoss": null,
+  "apiStop": null,
+  "workerIsolation": "Production HA standby: controller holds the actual advisory lock and measurable liveness query before server startup; lock observed before child and again before restore; no worker dispatch",
+  "scope": "Real HTTP queued/cancel/use/skip/approve effects only, not a new image completion proof",
+  "errors": []
+}

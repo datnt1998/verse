@@ -2,7 +2,7 @@
 // Thanh trên: logo 24 + bộ đổi kênh trên Bàn dựng + JobsPill gọn + avatar.
 // Thanh dưới 64px, kính mờ (vv-glass), 5 mục — mục giữa Video mới là nút đỏ tròn;
 // mục đang mở nền pill đỏ nhạt, mục thường icon xám. Nội dung pad-bottom 110px.
-import { Suspense, lazy, useState, type ReactNode } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from 'react'
 import { navigate, paths, pickChannelRoute, routePath, navSection, type NavKey, type Route } from '../router'
 import { t } from '../i18n/vi'
 import { LensLogo } from '../components/LensLogo'
@@ -14,7 +14,7 @@ import { getActivity } from '../api/activity'
 import { keys } from '../data/keys'
 import { useResource } from '../data/useResource'
 import * as stylex from '@stylexjs/stylex'
-import { color, line, radius } from '@noverse/ui/tokens.stylex'
+import { color, line } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, pipeline, visualRoles } from '../styles/viderse.stylex'
 
 // Bảng Hàng chờ của điện thoại chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
@@ -28,11 +28,12 @@ const TAB_ITEMS: { key: NavKey; label: string; icon: IconName; iconActive: IconN
   { key: 'explore', label: t.nav.explore, icon: 'radar', iconActive: 'radar-b', path: paths.explore() },
 ]
 
-export function MobileTabBar({ route, reviewCount, channelHref }: {
+export function MobileTabBar({ route, reviewCount, channelHref, reviewHref }: {
   route: Route
   reviewCount: number
   /** đích tab Kênh (kênh gần nhất / tạo kênh khi chưa có) */
   channelHref?: string
+  reviewHref?: string
 }) {
   const section = navSection(route)
   const { tabMode } = useMobileRuntime()
@@ -41,7 +42,7 @@ export function MobileTabBar({ route, reviewCount, channelHref }: {
     label: item.label || undefined,
     icon: item.icon,
     iconActive: item.iconActive,
-    href: item.key === 'channels' ? channelHref ?? item.path : item.path,
+    href: item.key === 'channels' ? channelHref ?? item.path : item.key === 'review' ? reviewHref ?? item.path : item.path,
     ariaLabel: item.key === 'new' ? t.nav.new : item.label,
     center: item.key === 'new',
     badge: item.badge === 'review' && reviewCount > 0
@@ -81,6 +82,11 @@ export function MobileShell({ route, status, online, userName, channels, channel
   children: ReactNode
 }) {
   const [jobsOpen, setJobsOpen] = useState(false)
+  const lastReviewHref = useRef<string | undefined>(route.name === 'review' ? routePath(route) : undefined)
+  useEffect(() => {
+    if (route.name === 'review') lastReviewHref.current = routePath(route)
+  }, [route])
+  const reviewHref = route.name === 'review' ? routePath(route) : lastReviewHref.current
   // Chunk của bảng Việc nền (6 chunk) chỉ được tải khi người dùng mở lần đầu —
   // mount sẵn <QueueSummarySheet open={false}> sẽ kéo cả cụm vào lần vẽ đầu của shell.
   const [jobsLoaded, setJobsLoaded] = useState(false)
@@ -96,23 +102,6 @@ export function MobileShell({ route, status, online, userName, channels, channel
   /* Chấm vàng đếm đúng thông báo cần bạn chưa đọc — cùng nguồn với sheet Việc nền
      (§11 GET /api/activity), nên “Đánh dấu đã đọc” là chấm mất. */
   const unread = activity.data?.unread.length ?? 0
-  const isNew = route.name === 'new'
-  // MNew artboard: trang con có thanh riêng (× + tiêu đề), không thanh dưới.
-  if (isNew) {
-    return (
-      <MobileRuntimeProvider hidden><div className={`vv-mobile-shell vv-mobile-shell--new ${stylex.props(mobileShellStyles.shell).className}`}>
-        <MobileTopBar
-          slots={{ root: `vv-mbar vv-mbar--new ${stylex.props(mobileShellStyles.bar, mobileShellStyles.newBar).className}`, leading: stylex.props(mobileShellStyles.newLead).className, title: `vv-mnew-title ${stylex.props(mobileShellStyles.newTitle).className}` }}
-          leading={<button type="button" aria-label={t.common.close} className={`vv-mclose ${stylex.props(mobileShellStyles.close).className}`}
-            onClick={() => navigate(paths.workbench())}>
-            <Icon name="close" size={18} />
-          </button>}
-          title={t.screens.new.title}
-        />
-        {children}
-      </div></MobileRuntimeProvider>
-    )
-  }
   return (
     <MobileRuntimeProvider hidden={subPage}><div className={`vv-mobile-shell ${stylex.props(mobileShellStyles.shell).className}`}>
       {!subPage &&
@@ -136,7 +125,7 @@ export function MobileShell({ route, status, online, userName, channels, channel
       {children}
       {/* MCreate (tạo kênh) là màn đẩy có chân riêng — artboard không vẽ thanh tab.
           MLibrary / MTemplate cũng vậy: artboard chỉ có thanh riêng của màn. */}
-      {subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} />}
+      {subPage ? null : <MobileTabBar route={route} reviewCount={status?.reviewCount ?? 0} channelHref={channelHref} reviewHref={reviewHref} />}
       {jobsLoaded && <Suspense fallback={null}>
         <QueueSummarySheet open={jobsOpen} initialTab={jobsTab} unread={unread} onClose={() => setJobsOpen(false)} />
       </Suspense>}
@@ -153,12 +142,8 @@ export const mobileShellStyles = stylex.create({
   shell: { position: 'relative', overflow: 'hidden', height: 'max(100dvh, var(--m-viewport-bottom, 0px))', display: 'flex', flexDirection: 'column', paddingTop: 'var(--m-top)', lineHeight: 1.5 },
   /* AppBar đợt 36: một hàng 52px, đệm 0 12 0 16, khe 10; phải đẩy sát mép khe 8. */
   bar: { position: 'relative', zIndex: 30, flex: '0 0 52px', display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], height: 52, padding: `0 ${s['--vv-s-12']} 0 ${s['--vv-s-16']}`, backgroundColor: color['--color-bg'] },
-  newBar: { padding: `0 ${s['--vv-s-6']}`, gap: 0 },
-  close: { width: 44, height: 44, display: 'grid', placeItems: 'center', borderRadius: radius['--radius-tile'], borderWidth: 0, borderStyle: "none", borderColor: "currentColor", backgroundColor: "transparent", color: color['--color-fg-2'], cursor: 'pointer' },
-  newTitle: { flex: 1, minWidth: 0, paddingLeft: s['--vv-s-2'], fontSize: 16, fontWeight: 600 },
   /* Nhóm trái: logo 24 + bộ đổi kênh, khe 10 như hàng thanh trên. */
   lead: { display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], minWidth: 0, flex: '0 1 auto' },
-  newLead: { display: 'flex', alignItems: 'center', flex: '0 0 auto' },
   /* Nhóm phải: nút Việc nền + avatar, không co, đẩy sát mép phải. */
   end: { marginInlineStart: 'auto', display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flex: '0 0 auto' },
   /* Mọi phần tử thanh trên cao 36, nền surface-1, viền line-2 (artboard .vv-mbtn). */

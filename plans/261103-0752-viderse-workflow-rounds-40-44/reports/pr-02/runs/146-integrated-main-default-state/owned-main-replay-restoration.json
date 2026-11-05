@@ -1,0 +1,12 @@
+{
+  "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+  "baseURL": "http://127.0.0.1:8043",
+  "replayID": "de3a4a6e-8a5c-4e57-9415-2704497bd292",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "fixturePolicy": "Owned saved-source replay paused by exact row CAS for the native non-review Main viewer. Optional portrait is a locally authored PNG imported through the real media API, not AI output. No provider call or generated-output claim.",
+  "portrait": null,
+  "childExitCode": 0,
+  "replayRestored": true,
+  "originalSourceUnchanged": true,
+  "providerCallsAuthorized": 0
+}

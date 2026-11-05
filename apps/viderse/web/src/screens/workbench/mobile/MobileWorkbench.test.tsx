@@ -23,14 +23,11 @@ vi.mock('@noverse/ui', async (importOriginal) => {
   return { ...actual, useTabMode: vi.fn(), toast: { err: vi.fn() }, Button: 'button' }
 })
 vi.mock('./MobileWorkbenchList', () => ({
-  MobileWorkbenchList: ({ onOpenJob, onOpenRecap }: { onOpenJob: (id: string) => void; onOpenRecap: () => void }) => <div>
+  MobileWorkbenchList: ({ onOpenJob }: { onOpenJob: (id: string) => void }) => <div>
     <button onClick={() => onOpenJob('job')}>Mở video</button>
-    <button onClick={onOpenRecap}>Mở Bản tin</button>
   </div>,
 }))
 vi.mock('./MobileWorkbenchDetail', () => ({ MobileWorkbenchDetail: () => <div>Chi tiết</div> }))
-vi.mock('./MobileRecap', () => ({ MobileRecap: () => <div>Bản tin</div> }))
-vi.mock('./MobilePlanSheet', () => ({ MobilePlanSheet: () => null }))
 
 let root: Root | undefined
 let host: HTMLDivElement

@@ -1,13 +1,14 @@
-// Đề xuất của trợ lý (data-contract §18) + hoàn tác việc máy tự làm (§22 auto[].undo).
+// Đề xuất của trợ lý (data-contract §18). Ba loại còn sống; server không còn route hoàn tác.
 // Hợp đồng đã chốt với backend: danh sách {suggestions,total}; accept có thể trả 409
 // `confirm_required` kèm giá; `primary.href` có nghĩa chỉ là điều hướng.
+// V37 chỉ còn ba loại việc người dùng thấy ở nhóm Chờ bạn.
 //
 // Đọc bằng guard tay (./guard) chứ không bằng zod: Bàn dựng — màn đầu của điện
-// thoại — nhập tệp này qua SuggestionPanels và api/workbench.
+// thoại — nhập tệp này qua SuggestionRow và api/workbench.
 import { list, maybe, num, oneOf, record, str } from './guard'
 import { ApiError, mutate, request } from './request'
 
-export const SUGGESTION_KINDS = ['hot_video', 'template_failing', 'learn_rule', 'raise_autonomy', 'pace', 'perf_insight', 'cleanup'] as const
+export const SUGGESTION_KINDS = ['hot_video', 'template_failing', 'cleanup'] as const
 export type SuggestionKind = (typeof SUGGESTION_KINDS)[number]
 
 const AGENTS = ['scout', 'director', 'artist', 'qa'] as const
@@ -30,8 +31,6 @@ export type Suggestion = {
   channelName: string | null
   title: string
   evidence: string
-  /** câu đầy đủ của banner học (chỉ learn_rule) */
-  banner?: string
   reason: SuggestionReason
   primary: {
     label: string
@@ -44,8 +43,6 @@ export type Suggestion = {
   expiresAt: string
   state: (typeof STATES)[number]
 }
-
-export type UndoOp = { op: string; params: Record<string, unknown> }
 
 export type SuggestionList = { suggestions: Suggestion[]; total: number }
 
@@ -65,12 +62,6 @@ export const readReason = (value: unknown, path: string): SuggestionReason => {
   }
 }
 
-/** `op` + `params`: params vắng mặt đọc thành object rỗng (server có thể bỏ trống). */
-export const readOp = (value: unknown, path: string): UndoOp => {
-  const o = record(value, path)
-  return { op: str(o.op, `${path}.op`), params: o.params == null ? {} : record(o.params, `${path}.params`) }
-}
-
 const readCost = (value: unknown, path: string): { images?: number } => {
   const o = record(value, path)
   return { ...(o.images === undefined ? {} : { images: num(o.images, `${path}.images`) }) }
@@ -81,7 +72,6 @@ export const readSuggestion = (value: unknown, path: string): Suggestion => {
   const primary = record(o.primary, `${path}.primary`)
   const cost = maybe(primary.cost, readCost, `${path}.primary.cost`)
   const href = maybe(primary.href, str, `${path}.primary.href`)
-  const banner = maybe(o.banner, str, `${path}.banner`)
   return {
     id: str(o.id, `${path}.id`),
     kind: oneOf(o.kind, SUGGESTION_KINDS, `${path}.kind`),
@@ -90,7 +80,6 @@ export const readSuggestion = (value: unknown, path: string): Suggestion => {
     channelName: o.channelName === null ? null : str(o.channelName, `${path}.channelName`),
     title: str(o.title, `${path}.title`),
     evidence: str(o.evidence, `${path}.evidence`),
-    ...(banner === undefined ? {} : { banner }),
     reason: readReason(o.reason, `${path}.reason`),
     primary: {
       label: str(primary.label, `${path}.primary.label`),
@@ -116,23 +105,17 @@ export const readSuggestionList = (value: unknown): SuggestionList => {
 export type AcceptResult = {
   ok: true
   summary: string
-  undo?: UndoOp
   href?: string
-  ruleId?: string
 }
 
 const readAccept = (value: unknown): AcceptResult => {
   const o = record(value, 'accept')
   if (o.ok !== true) throw new TypeError('Dữ liệu máy chủ sai dạng: accept.ok')
-  const undo = maybe(o.undo, readOp, 'accept.undo')
   const href = maybe(o.href, str, 'accept.href')
-  const ruleId = maybe(o.ruleId, str, 'accept.ruleId')
   return {
     ok: true,
     summary: str(o.summary, 'accept.summary'),
-    ...(undo === undefined ? {} : { undo }),
     ...(href === undefined ? {} : { href }),
-    ...(ruleId === undefined ? {} : { ruleId }),
   }
 }
 
@@ -180,14 +163,11 @@ export async function acceptSuggestion(id: string, confirm = false): Promise<Acc
   }
 }
 
-/** Bỏ qua (không hiện lại 7 ngày) hoặc `forever` = tắt loại này cho kênh. Đã mất thì coi như xong. */
-export async function dismissSuggestion(id: string, forever = false) {
+/** Bỏ qua dòng đề xuất. Server quyết định thời hạn ẩn; đã mất thì coi như xong. */
+export async function dismissSuggestion(id: string) {
   try {
-    await mutate<unknown>('POST', `/api/suggestions/${encodeURIComponent(id)}/dismiss`, forever ? { forever: true } : {})
+    await mutate<unknown>('POST', `/api/suggestions/${encodeURIComponent(id)}/dismiss`, {})
   } catch (error) {
     if (!(error instanceof ApiError && (error.status === 404 || error.status === 409))) throw error
   }
 }
-
-/** Hoàn tác một việc máy đã làm (op + params nguyên văn từ server). */
-export const undoOp = async (undo: UndoOp) => { await mutate<unknown>('POST', '/api/undo', { op: undo.op, params: undo.params }) }

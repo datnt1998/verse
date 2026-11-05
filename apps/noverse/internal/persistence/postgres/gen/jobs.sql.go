@@ -59,7 +59,7 @@ SET state = 'cancelled',
     updated_at = clock_timestamp(),
     version = version + 1
 WHERE project_id = $1 AND id = $2 AND state NOT IN ('completed', 'cancelled')
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type CancelJobParams struct {
@@ -93,6 +93,7 @@ func (q *Queries) CancelJob(ctx context.Context, arg CancelJobParams) (Job, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -107,7 +108,7 @@ WITH candidate AS (
       AND (j.state = 'queued' OR j.lease_until IS NULL OR j.lease_until < now())
       AND (j.input->>'needsScript') IS DISTINCT FROM 'true'
       AND ($2::uuid IS NULL OR j.project_id = $2::uuid)
-    ORDER BY j.created_at, j.id
+    ORDER BY j.queue_priority DESC, j.created_at, j.id
     LIMIT 1
     FOR UPDATE SKIP LOCKED
 )
@@ -122,7 +123,7 @@ SET state = 'running',
     version = version + 1
 FROM candidate
 WHERE jobs.project_id = candidate.project_id AND jobs.id = candidate.id
-RETURNING jobs.project_id, jobs.story_id, jobs.id, jobs.kind, jobs.state, jobs.idempotency_key, jobs.input, jobs.result, jobs.error, jobs.progress_done, jobs.progress_total, jobs.requested_by, jobs.worker_id, jobs.lease_until, jobs.fencing_token, jobs.cancelled_at, jobs.started_at, jobs.finished_at, jobs.created_at, jobs.updated_at, jobs.version
+RETURNING jobs.project_id, jobs.story_id, jobs.id, jobs.kind, jobs.state, jobs.idempotency_key, jobs.input, jobs.result, jobs.error, jobs.progress_done, jobs.progress_total, jobs.requested_by, jobs.worker_id, jobs.lease_until, jobs.fencing_token, jobs.cancelled_at, jobs.started_at, jobs.finished_at, jobs.created_at, jobs.updated_at, jobs.version, jobs.queue_priority
 `
 
 type ClaimJobParams struct {
@@ -166,6 +167,7 @@ func (q *Queries) ClaimJob(ctx context.Context, arg ClaimJobParams) (Job, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -180,7 +182,7 @@ WITH candidate AS (
       AND j.state IN ('queued', 'running')
       AND (j.lease_until IS NULL OR j.lease_until <= now())
       AND COALESCE(j.input->>'needsScript', 'false') = 'true'
-    ORDER BY j.created_at, j.id
+    ORDER BY j.queue_priority DESC, j.created_at, j.id
     LIMIT 1
     FOR UPDATE SKIP LOCKED
 )
@@ -193,7 +195,7 @@ SET state = 'queued',
     version = version + 1
 FROM candidate
 WHERE jobs.project_id = candidate.project_id AND jobs.id = candidate.id
-RETURNING jobs.project_id, jobs.story_id, jobs.id, jobs.kind, jobs.state, jobs.idempotency_key, jobs.input, jobs.result, jobs.error, jobs.progress_done, jobs.progress_total, jobs.requested_by, jobs.worker_id, jobs.lease_until, jobs.fencing_token, jobs.cancelled_at, jobs.started_at, jobs.finished_at, jobs.created_at, jobs.updated_at, jobs.version
+RETURNING jobs.project_id, jobs.story_id, jobs.id, jobs.kind, jobs.state, jobs.idempotency_key, jobs.input, jobs.result, jobs.error, jobs.progress_done, jobs.progress_total, jobs.requested_by, jobs.worker_id, jobs.lease_until, jobs.fencing_token, jobs.cancelled_at, jobs.started_at, jobs.finished_at, jobs.created_at, jobs.updated_at, jobs.version, jobs.queue_priority
 `
 
 type ClaimPreparationParams struct {
@@ -230,6 +232,7 @@ func (q *Queries) ClaimPreparation(ctx context.Context, arg ClaimPreparationPara
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -247,7 +250,7 @@ SET state = 'completed',
 WHERE project_id = $1 AND id = $2
   AND worker_id = $3 AND fencing_token = $4
   AND state = 'running' AND lease_until > now()
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type CompleteJobParams struct {
@@ -296,6 +299,7 @@ func (q *Queries) CompleteJob(ctx context.Context, arg CompleteJobParams) (Job, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -317,7 +321,7 @@ WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND state IN ('queued', 'running')
   AND fencing_token = $4
   AND COALESCE(input->>'needsScript', 'false') = 'true'
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type CompletePreparationParams struct {
@@ -365,6 +369,7 @@ func (q *Queries) CompletePreparation(ctx context.Context, arg CompletePreparati
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -387,7 +392,7 @@ WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND state IN ('queued', 'running')
   AND fencing_token = $4
   AND COALESCE(input->>'needsScript', 'false') = 'true'
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type CompletePreparationEmptyParams struct {
@@ -434,6 +439,7 @@ func (q *Queries) CompletePreparationEmpty(ctx context.Context, arg CompletePrep
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -468,7 +474,7 @@ SET state = 'failed',
 WHERE project_id = $1 AND id = $2
   AND worker_id = $3 AND fencing_token = $4
   AND state = 'running' AND lease_until > now()
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type FailJobParams struct {
@@ -512,6 +518,7 @@ func (q *Queries) FailJob(ctx context.Context, arg FailJobParams) (Job, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -532,7 +539,7 @@ WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND fencing_token = $4
   AND lease_until IS NOT NULL AND lease_until > now()
   AND COALESCE(input->>'needsScript', 'false') = 'true'
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type FailPreparationParams struct {
@@ -576,12 +583,13 @@ func (q *Queries) FailPreparation(ctx context.Context, arg FailPreparationParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
 
 const getJob = `-- name: GetJob :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs WHERE project_id = $1 AND id = $2
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs WHERE project_id = $1 AND id = $2
 `
 
 type GetJobParams struct {
@@ -614,12 +622,13 @@ func (q *Queries) GetJob(ctx context.Context, arg GetJobParams) (Job, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
 
 const getJobByIdempotency = `-- name: GetJobByIdempotency :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
 WHERE project_id = $1 AND story_id = $2 AND kind = $3 AND idempotency_key = $4
 `
 
@@ -660,12 +669,13 @@ func (q *Queries) GetJobByIdempotency(ctx context.Context, arg GetJobByIdempoten
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
 
 const getStoryJob = `-- name: GetStoryJob :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs WHERE project_id = $1 AND story_id = $2 AND id = $3
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs WHERE project_id = $1 AND story_id = $2 AND id = $3
 `
 
 type GetStoryJobParams struct {
@@ -699,6 +709,7 @@ func (q *Queries) GetStoryJob(ctx context.Context, arg GetStoryJobParams) (Job, 
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -754,7 +765,7 @@ func (q *Queries) GetWorkerByTokenHash(ctx context.Context, tokenHash []byte) (W
 }
 
 const getWorkerJob = `-- name: GetWorkerJob :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs WHERE id = $1 AND worker_id = $2
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs WHERE id = $1 AND worker_id = $2
 `
 
 type GetWorkerJobParams struct {
@@ -790,6 +801,7 @@ func (q *Queries) GetWorkerJob(ctx context.Context, arg GetWorkerJobParams) (Job
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -802,7 +814,7 @@ SET lease_until = now() + make_interval(secs => $5::int),
 WHERE project_id = $1 AND id = $2
   AND worker_id = $3 AND fencing_token = $4
   AND state = 'running' AND lease_until > now()
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type HeartbeatJobParams struct {
@@ -844,6 +856,7 @@ func (q *Queries) HeartbeatJob(ctx context.Context, arg HeartbeatJobParams) (Job
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -853,7 +866,7 @@ const insertJob = `-- name: InsertJob :one
 INSERT INTO jobs (project_id, story_id, id, kind, state, idempotency_key, input, progress_total, requested_by)
 VALUES ($1, $2, $3, $4, 'queued', $5, $6, $7, $8)
 ON CONFLICT (project_id, story_id, kind, idempotency_key) DO NOTHING
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type InsertJobParams struct {
@@ -905,6 +918,7 @@ func (q *Queries) InsertJob(ctx context.Context, arg InsertJobParams) (Job, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1002,11 +1016,11 @@ func (q *Queries) InsertWorker(ctx context.Context, arg InsertWorkerParams) (Wor
 }
 
 const listClaimableJobs = `-- name: ListClaimableJobs :many
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
 WHERE kind = $1 AND state IN ('queued', 'running')
   AND (state = 'queued' OR lease_until IS NULL OR lease_until < now())
   AND (input->>'needsScript') IS DISTINCT FROM 'true'
-ORDER BY created_at, id
+ORDER BY queue_priority DESC, created_at, id
 `
 
 // Read-only view of what a claim would consider (operators/debug; the claim
@@ -1043,6 +1057,7 @@ func (q *Queries) ListClaimableJobs(ctx context.Context, kind string) ([]Job, er
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Version,
+			&i.QueuePriority,
 		); err != nil {
 			return nil, err
 		}
@@ -1157,9 +1172,9 @@ func (q *Queries) ListPreparationTargets(ctx context.Context) ([]ListPreparation
 }
 
 const listStoryJobs = `-- name: ListStoryJobs :many
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
 WHERE project_id = $1 AND story_id = $2
-ORDER BY created_at, id
+ORDER BY queue_priority DESC, created_at, id
 `
 
 type ListStoryJobsParams struct {
@@ -1198,6 +1213,7 @@ func (q *Queries) ListStoryJobs(ctx context.Context, arg ListStoryJobsParams) ([
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Version,
+			&i.QueuePriority,
 		); err != nil {
 			return nil, err
 		}
@@ -1248,7 +1264,7 @@ func (q *Queries) ListWorkers(ctx context.Context) ([]Worker, error) {
 }
 
 const lockChapterJobs = `-- name: LockChapterJobs :many
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
 WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
   AND input->>'chapterId' = $3::text
 ORDER BY created_at, id
@@ -1297,6 +1313,74 @@ func (q *Queries) LockChapterJobs(ctx context.Context, arg LockChapterJobsParams
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Version,
+			&i.QueuePriority,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lockChapterNumberJobs = `-- name: LockChapterNumberJobs :many
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
+  AND input->>'volume' = $3::text
+  AND input->>'chapter' = $4::text
+ORDER BY created_at, id
+FOR UPDATE
+`
+
+type LockChapterNumberJobsParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	StoryID   pgtype.UUID `json:"story_id"`
+	Volume    string      `json:"volume"`
+	Chapter   string      `json:"chapter"`
+}
+
+// "Làm trước" targets one chapter by the numbers the UI knows. Lock every tts
+// row of that chapter so a concurrent enqueue cannot swap the active row
+// between the state check and the priority write.
+func (q *Queries) LockChapterNumberJobs(ctx context.Context, arg LockChapterNumberJobsParams) ([]Job, error) {
+	rows, err := q.db.Query(ctx, lockChapterNumberJobs,
+		arg.ProjectID,
+		arg.StoryID,
+		arg.Volume,
+		arg.Chapter,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Job{}
+	for rows.Next() {
+		var i Job
+		if err := rows.Scan(
+			&i.ProjectID,
+			&i.StoryID,
+			&i.ID,
+			&i.Kind,
+			&i.State,
+			&i.IdempotencyKey,
+			&i.Input,
+			&i.Result,
+			&i.Error,
+			&i.ProgressDone,
+			&i.ProgressTotal,
+			&i.RequestedBy,
+			&i.WorkerID,
+			&i.LeaseUntil,
+			&i.FencingToken,
+			&i.CancelledAt,
+			&i.StartedAt,
+			&i.FinishedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Version,
+			&i.QueuePriority,
 		); err != nil {
 			return nil, err
 		}
@@ -1309,7 +1393,7 @@ func (q *Queries) LockChapterJobs(ctx context.Context, arg LockChapterJobsParams
 }
 
 const lockJob = `-- name: LockJob :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs WHERE project_id = $1 AND id = $2 FOR UPDATE
 `
 
 type LockJobParams struct {
@@ -1342,12 +1426,13 @@ func (q *Queries) LockJob(ctx context.Context, arg LockJobParams) (Job, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
 
 const lockPreparation = `-- name: LockPreparation :one
-SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version FROM jobs
+SELECT project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority FROM jobs
 WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND kind = 'tts'
   AND worker_id IS NULL
@@ -1397,8 +1482,30 @@ func (q *Queries) LockPreparation(ctx context.Context, arg LockPreparationParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
+}
+
+const maxStoryQueuePriority = `-- name: MaxStoryQueuePriority :one
+SELECT COALESCE(MAX(queue_priority), 0)::int
+FROM jobs
+WHERE project_id = $1 AND story_id = $2 AND kind = 'tts'
+`
+
+type MaxStoryQueuePriorityParams struct {
+	ProjectID pgtype.UUID `json:"project_id"`
+	StoryID   pgtype.UUID `json:"story_id"`
+}
+
+// Highest priority already used by this story (including finished rows), so a
+// new "Làm trước" always sorts ahead of every earlier one. Priority writes are
+// serialized by the story advisory lock in PrioritizeChapter.
+func (q *Queries) MaxStoryQueuePriority(ctx context.Context, arg MaxStoryQueuePriorityParams) (int32, error) {
+	row := q.db.QueryRow(ctx, maxStoryQueuePriority, arg.ProjectID, arg.StoryID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const nextJobEventSeq = `-- name: NextJobEventSeq :one
@@ -1429,7 +1536,7 @@ SET state = 'paused',
     updated_at = clock_timestamp(),
     version = version + 1
 WHERE project_id = $1 AND id = $2 AND state IN ('queued', 'running', 'waiting')
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type PauseJobParams struct {
@@ -1462,6 +1569,7 @@ func (q *Queries) PauseJob(ctx context.Context, arg PauseJobParams) (Job, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1476,7 +1584,7 @@ SET state = 'queued',
 WHERE project_id = $1 AND id = $2
   AND worker_id = $3 AND fencing_token = $4
   AND state = 'running' AND lease_until > now()
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type ReleaseJobParams struct {
@@ -1517,6 +1625,7 @@ func (q *Queries) ReleaseJob(ctx context.Context, arg ReleaseJobParams) (Job, er
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1535,7 +1644,7 @@ WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND fencing_token = $4
   AND lease_until IS NOT NULL AND lease_until > now()
   AND COALESCE(input->>'needsScript', 'false') = 'true'
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type ReleasePreparationParams struct {
@@ -1576,6 +1685,7 @@ func (q *Queries) ReleasePreparation(ctx context.Context, arg ReleasePreparation
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1607,7 +1717,7 @@ SET state = 'queued',
     updated_at = clock_timestamp(),
     version = version + 1
 WHERE project_id = $1 AND id = $2 AND state = 'paused'
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type ResumeJobParams struct {
@@ -1640,6 +1750,7 @@ func (q *Queries) ResumeJob(ctx context.Context, arg ResumeJobParams) (Job, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1660,7 +1771,7 @@ SET state = 'queued',
     updated_at = clock_timestamp(),
     version = version + 1
 WHERE project_id = $1 AND id = $2 AND state IN ('failed', 'cancelled', 'completed')
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type RetryJobParams struct {
@@ -1697,6 +1808,7 @@ func (q *Queries) RetryJob(ctx context.Context, arg RetryJobParams) (Job, error)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1714,6 +1826,53 @@ func (q *Queries) RevokeWorker(ctx context.Context, id pgtype.UUID) (int64, erro
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const setJobQueuePriority = `-- name: SetJobQueuePriority :one
+UPDATE jobs
+SET queue_priority = $3::int,
+    updated_at = clock_timestamp(),
+    version = version + 1
+WHERE project_id = $1 AND id = $2 AND state = 'queued'
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
+`
+
+type SetJobQueuePriorityParams struct {
+	ProjectID     pgtype.UUID `json:"project_id"`
+	ID            pgtype.UUID `json:"id"`
+	QueuePriority int32       `json:"queue_priority"`
+}
+
+// Only the queue position moves: state, worker/lease/fence and created_at stay
+// untouched, so a running render's ownership and the audit timeline survive.
+func (q *Queries) SetJobQueuePriority(ctx context.Context, arg SetJobQueuePriorityParams) (Job, error) {
+	row := q.db.QueryRow(ctx, setJobQueuePriority, arg.ProjectID, arg.ID, arg.QueuePriority)
+	var i Job
+	err := row.Scan(
+		&i.ProjectID,
+		&i.StoryID,
+		&i.ID,
+		&i.Kind,
+		&i.State,
+		&i.IdempotencyKey,
+		&i.Input,
+		&i.Result,
+		&i.Error,
+		&i.ProgressDone,
+		&i.ProgressTotal,
+		&i.RequestedBy,
+		&i.WorkerID,
+		&i.LeaseUntil,
+		&i.FencingToken,
+		&i.CancelledAt,
+		&i.StartedAt,
+		&i.FinishedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Version,
+		&i.QueuePriority,
+	)
+	return i, err
 }
 
 const setWorkerState = `-- name: SetWorkerState :execrows
@@ -1758,7 +1917,7 @@ SET input = $4::jsonb,
 WHERE project_id = $1 AND story_id = $2 AND id = $3
   AND kind = 'tts'
   AND state IN ('queued', 'running', 'paused')
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type SupersedeChapterJobParams struct {
@@ -1805,6 +1964,7 @@ func (q *Queries) SupersedeChapterJob(ctx context.Context, arg SupersedeChapterJ
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }
@@ -1835,7 +1995,7 @@ SET progress_done = $3,
     updated_at = clock_timestamp(),
     version = version + 1
 WHERE project_id = $1 AND id = $2 AND state IN ('queued', 'running', 'waiting')
-RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version
+RETURNING project_id, story_id, id, kind, state, idempotency_key, input, result, error, progress_done, progress_total, requested_by, worker_id, lease_until, fencing_token, cancelled_at, started_at, finished_at, created_at, updated_at, version, queue_priority
 `
 
 type UpdateJobProgressParams struct {
@@ -1875,6 +2035,7 @@ func (q *Queries) UpdateJobProgress(ctx context.Context, arg UpdateJobProgressPa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Version,
+		&i.QueuePriority,
 	)
 	return i, err
 }

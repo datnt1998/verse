@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import * as stylex from '@stylexjs/stylex'
 import { Button, Icon, Segmented } from '@noverse/ui'
@@ -11,8 +11,8 @@ import { useResource } from '../data/useResource'
 import { paths } from '../router'
 import { NotificationRow, useNotificationInbox } from './notificationList'
 
-// Tab Cài đặt thông báo chỉ mở khi bấm: nạp mã riêng, không nằm trong chunk đầu.
-const NotificationSettings = lazy(() => import('../screens/settings/NotificationSettings'))
+// Tab Cài đặt thông báo mở đúng route #/settings?section=notifications —
+// cùng đích với sheet Việc nền trên điện thoại.
 
 const s = stylex.create({
   pop: { position: 'fixed', top: 'calc(var(--vv-s-48) + var(--vv-s-2))', right: 'var(--vv-s-16)', zIndex: 100, width: 448, maxWidth: 'calc(100vw - 24px)', maxHeight: 'calc(100vh - 66px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderRadius: 'var(--vv-r-16)', backgroundColor: 'var(--kit-surface-15)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', boxShadow: 'var(--kit-shadow-pop)', color: 'var(--color-fg)', outline: 'none' },
@@ -21,6 +21,7 @@ const s = stylex.create({
   head: { display: 'flex', alignItems: 'flex-start', gap: 'var(--vv-s-10)', height: 68, boxSizing: 'border-box', flexShrink: 0, padding: 'var(--vv-s-14) var(--vv-s-12) var(--vv-s-10) var(--vv-s-16)', borderBottom: '1px solid var(--line-1)', fontSize: 15, fontWeight: 600 },
   headText: { gap: 'var(--vv-s-1)' },
   headButton: { width: 30, height: 30, flexShrink: 0 },
+  headLink: { width: 30, height: 30, flexShrink: 0, display: 'grid', placeItems: 'center', borderRadius: 'var(--vv-r-8)', color: 'var(--color-fg)', textDecoration: 'none' },
   /* Nhóm chọn của popover là `.vv-seg` của Kit, không phải thanh tab giữa trang. */
   seg: { alignSelf: 'flex-start' },
   segButton: { fontSize: 13, gap: 'var(--vv-s-7)' },
@@ -91,7 +92,7 @@ export function taskOperation(task: BackgroundTask) {
   return null
 }
 
-function Task({ task, refresh, first = false }: { task: BackgroundTask; refresh: () => void; first?: boolean }) {
+function Task({ task, refresh, close, first = false }: { task: BackgroundTask; refresh: () => void; close?: () => void; first?: boolean }) {
   const [error, setError] = useState('')
   const act = async () => {
     try {
@@ -117,19 +118,13 @@ function Task({ task, refresh, first = false }: { task: BackgroundTask; refresh:
       </>}
       {error && <span role="alert" {...stylex.props(s.sub)}>{error}</span>}
     </div>
-    {task.action.href ? <a {...stylex.props(s.mini)} href={task.action.href}>{task.action.label}</a> : task.action.op ? <Button size="sm" variant="ghost" xstyle={s.mini} onClick={() => void act()}>{task.action.label}</Button> : null}
+    {task.action.href ? <a {...stylex.props(s.mini)} href={task.action.href} onClick={close}>{task.action.label}</a> : task.action.op ? <Button size="sm" variant="ghost" xstyle={s.mini} onClick={() => void act()}>{task.action.label}</Button> : null}
   </div>
 }
 
 export function ActivityPopover({ activity, error, retry, close, anchorX, anchor }: { activity?: Activity; error?: unknown; retry: () => void; close: () => void; /** tâm viên Việc nền (px) — mũi nhọn chỉ vào đúng nút */ anchorX?: number; /** nút mở popover: bấm ra ngoài thì đóng, Esc/Đóng trả focus về đây */ anchor?: HTMLElement | null }) {
-  const [tab, setTab] = useState<'running' | 'inbox' | 'settings'>('running')
+  const [tab, setTab] = useState<'running' | 'inbox'>('running')
   const pop = useRef<HTMLElement>(null)
-  /* Đổi lớp trong popover (Việc nền ↔ Cài đặt thông báo) làm nút vừa bấm biến mất:
-     trả focus về khung để Tab/Esc vẫn nằm trong lớp, không rơi về body. */
-  const switchView = (next: 'running' | 'settings') => {
-    setTab(next)
-    requestAnimationFrame(() => pop.current?.focus({ preventScroll: true }))
-  }
   const tabsId = useId()
   const panelId = `${tabsId}-panel`
   const inbox = useNotificationInbox(tab === 'inbox' || (tab === 'running' && !!activity && activity.running.length === 0 && activity.queued === 0))
@@ -170,26 +165,25 @@ export function ActivityPopover({ activity, error, retry, close, anchorX, anchor
   return frame(
     <section ref={pop} tabIndex={-1} {...stylex.props(s.pop)} role="dialog" aria-label="Việc nền">
       <div {...stylex.props(s.head)}>
-        {tab === 'settings' && <Button variant="icon" size="sm" aria-label="Quay lại Việc nền" xstyle={s.headButton} onClick={() => switchView('running')}><Icon name="arrow-left-2" size={16} /></Button>}
-        <div {...stylex.props(s.content, s.headText)}>{tab === 'settings' ? 'Cài đặt thông báo' : 'Việc nền'}<span {...stylex.props(s.sub)}>{tab === 'settings' ? 'Chọn việc nào được báo và báo ở đâu' : tasks.length ? `Máy chạy ${activity.videoJobs} video · ${activity.queued} chờ lượt · ${tasks.filter((task) => task.kind !== 'video').length} việc khác` : `Máy rảnh · ${activity.queued} chờ lượt`}</span></div>
-        {tab !== 'settings' && <Button variant="icon" size="sm" aria-label="Cài đặt thông báo" xstyle={s.headButton} onClick={() => switchView('settings')}><Icon name="setting" size={16} /></Button>}
+        <div {...stylex.props(s.content, s.headText)}>{'Việc nền'}<span {...stylex.props(s.sub)}>{tasks.length ? `Máy chạy ${activity.videoJobs} video · ${activity.queued} chờ lượt · ${tasks.filter((task) => task.kind !== 'video').length} việc khác` : `Máy rảnh · ${activity.queued} chờ lượt`}</span></div>
+        <a href={`#${paths.settings('notifications')}`} aria-label="Cài đặt thông báo" title="Cài đặt thông báo" {...stylex.props(s.headLink)} onClick={close}><Icon name="setting" size={16} /></a>
         <Button variant="icon" size="sm" aria-label="Đóng (Esc)" xstyle={s.headButton} onClick={() => { focusTrigger(); close() }}><Icon name="close" size={16} /></Button>
       </div>
-      {tab !== 'settings' && <Segmented label="Việc nền" value={tab} onChange={(id) => setTab(id as 'running' | 'inbox')} size={32} radius={8} fit="content" tabs={{ id: tabsId, panel: panelId }} xstyle={s.seg} buttonStyle={s.segButton} options={[
+      <Segmented label="Việc nền" value={tab} onChange={(id) => setTab(id as 'running' | 'inbox')} size={32} radius={8} fit="content" tabs={{ id: tabsId, panel: panelId }} xstyle={s.seg} buttonStyle={s.segButton} options={[
         { id: 'running', label: <>{'Đang chạy'}<span {...stylex.props(s.tabCount, tab === 'running' && s.activeCount)}>{tasks.length}</span></> },
         { id: 'inbox', label: <>{'Thông báo'}<span {...stylex.props(s.tabCount, tab === 'inbox' && s.activeCount)}>{activity.unread.length}</span></> },
-      ]} />}
-      <div id={panelId} role={tab === 'settings' ? undefined : 'tabpanel'} aria-labelledby={tab === 'settings' ? undefined : `${tabsId}-${tab}`} {...stylex.props(s.scroll)}>
-        {tab === 'settings' ? <Suspense fallback={null}><NotificationSettings embedded /></Suspense> : tab === 'running' ? tasks.length || activity.queued ? <>
+      ]} />
+      <div id={panelId} role="tabpanel" aria-labelledby={`${tabsId}-${tab}`} {...stylex.props(s.scroll)}>
+        {tab === 'running' ? tasks.length || activity.queued ? <>
           {(['video', 'other'] as const).map((group) => {
             const selected = tasks.filter((task) => group === 'video' ? task.kind === 'video' : task.kind !== 'video')
-            return <div key={group}>{selected.length > 0 && <><div {...stylex.props(s.group)}>{group === 'video' ? 'Video' : 'Khác'} <span>{selected.length}</span></div>{selected.map((task, index) => <Task key={task.id} task={task} refresh={refresh} first={index === 0} />)}</>}{group === 'video' && !!activity.queued && <a href={`#${paths.queue()}`} {...stylex.props(s.queueLink)}><Icon name="clock" size={15} xstyle={s.queueIcon} /><span {...stylex.props(s.queueText)}><b className="num" style={{ color: 'var(--color-fg)' }}>{activity.queued}</b> chờ lượt{nextQueued && <> · tiếp theo {nextChannel?.name || nextQueued.title}{nextQueued.etaStart && <> lúc {new Date(nextQueued.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</>}</>}</span><Icon name="arrow-right-2" size={14} xstyle={s.queueIcon} /></a>}</div>
+            return <div key={group}>{selected.length > 0 && <><div {...stylex.props(s.group)}>{group === 'video' ? 'Video' : 'Khác'} <span>{selected.length}</span></div>{selected.map((task, index) => <Task key={task.id} task={task} refresh={refresh} close={close} first={index === 0} />)}</>}{group === 'video' && !!activity.queued && <a href={`#${paths.queue()}`} onClick={close} {...stylex.props(s.queueLink)}><Icon name="clock" size={15} xstyle={s.queueIcon} /><span {...stylex.props(s.queueText)}><b className="num" style={{ color: 'var(--color-fg)' }}>{activity.queued}</b> chờ lượt{nextQueued && <> · tiếp theo {nextChannel?.name || nextQueued.title}{nextQueued.etaStart && <> lúc {new Date(nextQueued.etaStart).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</>}</>}</span><Icon name="arrow-right-2" size={14} xstyle={s.queueIcon} /></a>}</div>
           })}
         </> : <>
           <div {...stylex.props(s.emptyBody)}>
             <span aria-hidden="true" {...stylex.props(s.emptyOrbs)}><span {...stylex.props(s.emptyOrb, s.scout)} /><span {...stylex.props(s.emptyOrb, s.director)} /><span {...stylex.props(s.emptyOrb, s.artist)} /><span {...stylex.props(s.emptyOrb, s.qa)} /></span>
             <span {...stylex.props(s.emptyTitle)}>Máy đang rảnh</span><span {...stylex.props(s.emptyDescription)}>Không có video nào đang chạy hay chờ lượt.{activity.nextScan && <> Tự lấy video kiểm tra đối thủ lần tới lúc {new Date(activity.nextScan.at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}.</>}</span>
-            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} {...stylex.props(s.mini)}>Làm video</a><a href="#/explore" {...stylex.props(s.mini)}>Mở Khám phá</a></div>
+            <div {...stylex.props(s.emptyActions)}><a href={`#${paths.new()}`} onClick={close} {...stylex.props(s.mini)}>Làm video</a><a href="#/explore" onClick={close} {...stylex.props(s.mini)}>Mở Khám phá</a></div>
           </div>
           {history.data?.notifications.find((n) => n.kind === 'ready_to_post' || n.kind === 'task_done') && <><div {...stylex.props(s.group)}>Xong gần nhất</div>{history.data.notifications.filter((n) => n.kind === 'ready_to_post' || n.kind === 'task_done').slice(0, 1).map((n) => <NotificationRow key={n.id} n={n} showDot={false} onOpen={close} />)}</>}
         </>
@@ -201,7 +195,7 @@ export function ActivityPopover({ activity, error, retry, close, anchorX, anchor
           </div> : null) : <div {...stylex.props(s.empty)}>Chưa có thông báo.</div>}
         {tab === 'inbox' && more ? <div {...stylex.props(s.row)}><Button size="sm" variant="ghost" disabled={paging} onClick={() => void loadMore()}>{paging ? 'Đang tải…' : 'Xem thêm'}</Button>{pageError && <span role="alert" {...stylex.props(s.sub)}>{pageError}</span>}</div> : null}
       </div>
-      {tab !== 'settings' && <footer {...stylex.props(s.footer)}><a {...stylex.props(s.sm32)} href={`#${paths.queue()}`} onClick={close}><Icon name="clock" size={15} />Mở Hàng chờ</a><Button size="sm" variant="ghost" xstyle={s.sm32} onClick={() => switchView('settings')}><Icon name="notify" size={15} />Cài đặt thông báo</Button></footer>}
+      <footer {...stylex.props(s.footer)}><a {...stylex.props(s.sm32)} href={`#${paths.queue()}`} onClick={close}><Icon name="clock" size={15} />Mở Hàng chờ</a><a {...stylex.props(s.sm32)} href={`#${paths.settings('notifications')}`} onClick={close}><Icon name="notify" size={15} />Cài đặt thông báo</a></footer>
     </section>
   )
 }

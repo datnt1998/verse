@@ -1,0 +1,50 @@
+Status: DONE_WITH_CONCERNS — controller preparation complete; NOT EXECUTED.
+
+Run exactly after integrated rebuild and native service readiness:
+node /var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v38-acceptance-xxkx9151/parallel-acceptance-20261104/library-final-proof/library-final-proof.cjs
+
+Output: results.json and individually named PNGs in this private directory. No results.json or screenshots have been manufactured at preparation time. No browser, tests, build, formatter, service, provider call, generation, download, or model call was launched by this assignment.
+
+Read sources (primary tree):
+- apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx
+- apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx
+- apps/viderse/web/src/screens/library/template/useTemplateDraft.ts
+- apps/viderse/web/src/screens/library/template/useTemplatePreview.ts
+- apps/viderse/web/src/screens/library/TemplateScreen.tsx
+- apps/viderse/web/src/screens/library/template/PromptPicker.tsx
+- apps/viderse/web/src/screens/library/PromptsTab.tsx
+- apps/viderse/web/src/screens/library/TemplateArtwork.tsx
+- apps/viderse/web/src/screens/library/template/BackdropPicker.tsx
+- apps/viderse/web/src/screens/library/template/BackdropSection.tsx
+Also consulted current TemplatesTab, PromptEditor, API contracts, i18n copy, responsive-overlays, kit Dialog/Sheet and existing library-native-qa controller. Read private mobile-library-repair/result.md and template-state-repair/report.md. Product source remained read-only.
+
+Native proof when run:
+- Both 1440x900 and 390x844: all four tabs, actual associated scene-prompt sample URL on each template card, actual prompt-card samples versus neutral fallback, exact non-first prompt ID opened from template link, prompt=new empty editor, missing ID never falls back to first asset.
+- Phone: actual source/video/overlay tiles by exact actual name; Enter/Space open, one modal, forward/backward focus wrap, Escape/scrim and focus return. Built-in overlays expose no delete. One actual usedBy target per asset selects the explicit actual ID. Unused overlay selects a non-first actual template by discovered ID. Unused sources may open confirmation, cancel/Escape returns to one detail layer; no destructive action submitted. Additional usage destinations beyond the selected last destination are unproven.
+- Phone prompt overlay: exact selected asset, Escape/scrim route cleanup and focus return; new menu -> empty prompt handoff has exactly one modal.
+- BackdropPicker: explicit actual template detail query selects a recipe-capable template, not a hard-coded first fixture. Phone Sheet vs PC Dialog, accessible title, real container, in-viewport bounds, focus trap, Escape/scrim and trigger return; never submits attach/link input.
+- Actual template preview GET sources: exact server disabled reason, disabled rows; select a real enabled source only if present, proving selection emits no POST. If none exist, genuine absence and unavailable build are recorded; no readiness is invented.
+
+Explicit synthetic UI-only cases (never backend mutation proof):
+- Desktop library template list GET 500 and network abort: error visible, not empty state, retry restores native GET.
+- Desktop template detail GET 500: error/retry criterion separately enforced. SOURCE CONCERN: inspected TemplateScreen.tsx lines 71-77 currently render copy.notFound with error hint plus back-to-library, with no retry action. Expect this named case to expose a missing detail-retry behavior unless integration changes it. Library list fetch-error/retry source does exist.
+- Desktop and phone editor rename: PATCH 400 fields.name, PATCH 409 conflict, network abort; full input retained, phone naming dialog remains open, no rename success toast, dirty/error/conflict status visible. Every attempted PATCH is intercepted/fulfilled or aborted before reaching the server.
+- Cached fresh preview revision reconciliation on both widths: GET/PATCH in-memory response fixtures return synthetic accepted name/revision and stale saved detail while preview GET remains old fresh; separately old templateRevision and absent templateRevision. No project ID, preview URL, generated poster or playable output is fabricated. UI must remain stale after saved status and refreshed GET.
+- Phone ready-source list contains visibly SYNTHETIC job IDs/titles and unavailable reason. Selection is separate from build; explicit build is clicked only to inspect selected jobId, and POST is always aborted. This is not genuine readiness or generation proof.
+- If native source collections are empty, separate visibly SYNTHETIC used-channel/unused-failed-video cases cover detail, usage destination, zero-usable-video truth, and confirmation cancellation. Synthetic overlay usage reuses an existing real overlay media URL but marks ID/name/usage synthetic. These never replace native proof; native absence is recorded UNPROVEN.
+
+Safety:
+- One browser, finally closed; each case owns/closes its context even on failure.
+- Real Chrome executable and repository @playwright/test createRequire are used as contracted; auth cookie read privately, never printed.
+- Routes installed on context before navigation; service workers blocked. Same-origin GET only continues. All external requests, all non-GET, exports/downloads/discovery/follow/platform-support/source-parse requests blocked. Only explicitly scoped synthetic template PATCH may be fulfilled; no mutation is ever continued.
+- Downloads disabled, canceled if emitted and counted as failure. No external links clicked, no source refresh/retry, no actual delete/import/duplicate/attach/default/build/generation/save/provider calls.
+- Settles fonts and finite animations with animation promises and requestAnimationFrame; no arbitrary sleeps. Uses web-first assertions and polling for asynchronous UI/image/request completion. No forced DOM event clicks.
+- Case failures continue to collect independent evidence. Initial data failure blocks identity-dependent work. JSON records proof category, fixture scope, request method/path/action, exact IDs, screenshots, reasons, page errors, and explicit unproven boundaries. It intentionally does not log credentials/headers or full private recipes.
+
+Unproven until parent execution: every runtime assertion above. Controller is runnable source, not a passing test receipt; syntax/runtime not checked by worker because execution was expressly forbidden.
+
+Intentionally unproven even after a successful controller run:
+- Real persisted PATCH/POST/DELETE acceptance/readback, build completion/playable preview continuity, new generated media or provider behavior.
+- Queue-merge preservation across failed recipe and name updates; conflict reload failure/success; all-four-section save failure propagation; breakpoint transitions; overlay destination-template list loading/error/empty; broken sample URL fallback; prompt-list failure; prompt create/duplicate/delete; media play/pause and downloads; drag/short viewport/reduced-motion/cross-browser/screen-reader/contrast/visual-design scoring.
+- Mobile template PromptPicker hides its new link; direct prompt=new is tested there, desktop template new link is clicked, and mobile new-menu path is separately clicked. No invisible mobile template link claim.
+- The final JSON repeats these unchecked cases explicitly. DONE_WITH_CONCERNS is deliberate when limits or failed/unproven cases exist; inspect individual PASS/FAIL/UNPROVEN rather than reading an aggregate as blanket approval.

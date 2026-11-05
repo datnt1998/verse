@@ -1,0 +1,476 @@
+{
+  "captures": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-MT-sources",
+      "filename": "1440-channel-MT-sources.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-MT-templates",
+      "filename": "1440-channel-MT-templates.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-MT-settings",
+      "filename": "1440-channel-MT-settings.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-QH-sources",
+      "filename": "1440-channel-QH-sources.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-QH-templates",
+      "filename": "1440-channel-QH-templates.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-QH-settings",
+      "filename": "1440-channel-QH-settings.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-CL-sources",
+      "filename": "1440-channel-CL-sources.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-CL-templates",
+      "filename": "1440-channel-CL-templates.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "channel-CL-settings",
+      "filename": "1440-channel-CL-settings.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "library-templates",
+      "filename": "1440-library-templates.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "library-prompts",
+      "filename": "1440-library-prompts.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "library-backdrops",
+      "filename": "1440-library-backdrops.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "library-overlays",
+      "filename": "1440-library-overlays.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "create-channel",
+      "filename": "1440-create-channel.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "template-images",
+      "filename": "1440-template-images.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "template-cover",
+      "filename": "1440-template-cover.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "template-backdrop",
+      "filename": "1440-template-backdrop.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "key": "template-output",
+      "filename": "1440-template-output.png",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-MT-sources",
+      "filename": "390-channel-MT-sources.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-MT-templates",
+      "filename": "390-channel-MT-templates.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-MT-settings",
+      "filename": "390-channel-MT-settings.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-QH-sources",
+      "filename": "390-channel-QH-sources.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-QH-templates",
+      "filename": "390-channel-QH-templates.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-QH-settings",
+      "filename": "390-channel-QH-settings.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-CL-sources",
+      "filename": "390-channel-CL-sources.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-CL-templates",
+      "filename": "390-channel-CL-templates.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "channel-CL-settings",
+      "filename": "390-channel-CL-settings.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "library-templates",
+      "filename": "390-library-templates.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "library-prompts",
+      "filename": "390-library-prompts.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "library-backdrops",
+      "filename": "390-library-backdrops.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "library-overlays",
+      "filename": "390-library-overlays.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "create-channel",
+      "filename": "390-create-channel.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "template-images",
+      "filename": "390-template-images.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "template-cover",
+      "filename": "390-template-cover.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "template-backdrop",
+      "filename": "390-template-backdrop.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "key": "template-output",
+      "filename": "390-template-output.png",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "overflow": false
+    }
+  ],
+  "blocked": [],
+  "missing": [],
+  "errors": [],
+  "status": "passed"
+}

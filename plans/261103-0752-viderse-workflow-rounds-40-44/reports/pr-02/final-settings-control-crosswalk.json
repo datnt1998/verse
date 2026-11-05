@@ -1,0 +1,1506 @@
+{
+  "schema": "viderse-pr02-settings-control-crosswalk/1",
+  "generatedAt": "2026-11-04",
+  "status": "DONE_WITH_CONCERNS",
+  "controllerUpdate": {
+    "sourceRevision": "11f1cd36e395205f01e9900856e24ac7e32f07eb",
+    "historicalAuditScope": "The rows and unanswered questions below record the earlier 127-134 audit; this update supersedes its model-autosave and design-85 conclusions only.",
+    "agentModelAutosave": {
+      "status": "PASS",
+      "receipt": "runs/138-integrated-agent-autosave-ready-sources/owned-agent-selection-restoration.json",
+      "projectsPassed": 2,
+      "skipped": 0,
+      "proof": "Actual provider selected PATCH; held real agent PUT proves new closed label before response; persisted GET/reload; real prompt-model and supported effort changes; exact QA restoration.",
+      "notClaimed": "Successful fallback/draw-source switch without a second credential-ready image executor."
+    },
+    "design85": {
+      "status": "RESOLVED_A",
+      "decision": "User selected Giữ thẻ đầy đủ; retain model/plan/quota/reset information. Do not edit artboards."
+    },
+    "currentSafeControlRun": "runs/141-integrated-safe-controls/controls/interaction-results.json",
+    "scopeLimit": "Other earlier unexercised controls and PR6 parity items are not silently marked passed."
+  },
+  "scope": {
+    "commitUnderTestParentStated": "d26631c5f4eb092f72dd90c7793c8a8668f7c7f5",
+    "surface": "Viderse Settings (desktop 1440x900 and mobile 390x844, normal + reduced motion) in the isolated workflow.qa fixture",
+    "exactArtboardRows": [
+      "Settings.section.tools",
+      "Settings.section.connect",
+      "Settings.section.agents",
+      "Settings.section.accounts",
+      "Settings.section.storage",
+      "Settings.section.logs",
+      "Settings.conn.list",
+      "Settings.conn.add",
+      "Settings.conn.added",
+      "Settings.conn.models",
+      "Settings.conn.manual",
+      "Settings.conn.failed"
+    ],
+    "settingsTestsRead": [
+      "tests/viderse-workflow/settings-control-ledger-audit.pw.ts",
+      "tests/viderse-workflow/settings-state-audit.pw.ts",
+      "tests/viderse-workflow/provider-catalog-audit.pw.ts",
+      "tests/viderse-workflow/template-state-audit.pw.ts"
+    ],
+    "nonSettingsRunsRead": {
+      "127-final-app-skin-states": "52 Review state captures (completed, 0 additional provider requests) - not Settings evidence",
+      "129-final-app-skin-actions": "12 Review action-matrix rows (6 cases x desktop/desktop-reduced) all pass - not Settings evidence",
+      "130-final-app-skin-main": "viewer-audit 2/2 passed - Main viewer, not Settings evidence",
+      "134-final-template-preview": "viewer-audit 2/2 passed - Template sample eye + retired key card absence; not a Settings proof"
+    },
+    "secretsPolicy": "No keys, cookies, tokens, auth hashes or provider credential records are reproduced here. Only local 127.0.0.1 provider addresses, labels, statuses and counts appear.",
+    "verifiedComparisonFile": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/verified-source-main-settings-comparisons.json",
+    "supersededComparisonFiles": [
+      "final-main-settings-comparisons.json (older candidate map; do not cite for Settings status)"
+    ]
+  },
+  "provenance": {
+    "runManifests": [
+      {
+        "run": "127-final-app-skin-states",
+        "manifest": "runs/127-final-app-skin-states/review-state-replay-results.json",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "result": "completed: true, 52 captures, additionalProviderRequests: 0"
+      },
+      {
+        "run": "128-final-app-skin-controls",
+        "manifest": "runs/128-final-app-skin-controls/controls/interaction-results.json",
+        "sourceRevision": null,
+        "result": "expected 8 / skipped 0 / unexpected 0 (settings ledger + review ledger x4 projects); sibling references run 2/2 -> 10 total"
+      },
+      {
+        "run": "129-final-app-skin-actions",
+        "manifest": "runs/129-final-app-skin-actions/mutation-matrix-results.json",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "result": "completed: true, 12 rows, all childExitCode 0"
+      },
+      {
+        "run": "130-final-app-skin-main",
+        "manifest": "runs/130-final-app-skin-main/owned-main-replay-restoration.json",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "result": "viewer 2/2 passed, replayRestored true"
+      },
+      {
+        "run": "131-final-real-settings-and-catalog",
+        "manifest": "runs/131-final-real-settings-and-catalog/interaction-results.json",
+        "sourceRevision": null,
+        "result": "expected 16 / skipped 0 / unexpected 0 / flaky 0; started 2026-11-04T09:29:08Z, duration 59399ms"
+      },
+      {
+        "run": "132-final-bundled-manual-model",
+        "manifest": "runs/132-final-bundled-manual-model/owned-catalog-manual-restoration.json",
+        "sourceRevision": null,
+        "result": "expected 2 / skipped 0 / unexpected 0; childExitCode 0; pwTestPassed true; catalogRestored true; providersUnchanged true"
+      },
+      {
+        "run": "133-final-model-trigger",
+        "manifest": "runs/133-final-model-trigger/interaction-results.json",
+        "sourceRevision": null,
+        "result": "expected 2 / skipped 0 / unexpected 0"
+      },
+      {
+        "run": "134-final-template-preview",
+        "manifest": "runs/134-final-template-preview/interaction-results.json",
+        "sourceRevision": null,
+        "result": "expected 2 / skipped 0 / unexpected 0"
+      }
+    ],
+    "revisionFinding": {
+      "sourceIdentity": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+      "correction": "This is the host-retained actual source used by the final native environment. An earlier task-context hash was hand-typed in error; the final commands consumed the host WORKFLOW_SOURCE_REVISION variable, not that hand-typed value. verified-source-main-settings-comparisons.json records d2666b1f30a9... for every Settings row.",
+      "headCheck": "The same hash is the verse HEAD at refs/heads/refactor/viderse-v36-viewer (read from .git/refs, not a git command).",
+      "runsRecordingRevision": [
+        "127",
+        "129",
+        "130",
+        "135"
+      ],
+      "runsWithoutEmbeddedRevision": "Runs 131-134 JSON retain no revision field; their identity is established by the host-retained variable and the verified-source comparison map, per controller correction. There is no missing controller source and no revision blocker."
+    }
+  },
+  "rowCountAudit": {
+    "exactRowGate": "tests/viderse-workflow/settings-control-ledger-audit.pw.ts asserts every EXACT_SETTINGS_ROWS id is present and the ledger ids are unique, then attaches settings-exact-12-rows.json.",
+    "normalVsReduced": {
+      "settingsLedgerRun128": "4/4 passed; therefore 12/12 exact rows present and unique in desktop (normal), desktop-reduced (reduced), mobile and mobile-reduced.",
+      "branchAudit": "The ledger and settings-state tests branch only on testInfo.project.name.startsWith(\"mobile\"); desktop vs desktop-reduced take identical code paths, so the row set is motion-independent. Row-level proof states still differ between desktop and mobile (mobile recheck/manual/cleanup/disconnect are recorded as unavailable rows, not passes).",
+      "captureParity": "Run 128 settings captures: desktop 13 = desktop-reduced 13 (identical names); mobile 9 = mobile-reduced 9 (identical names). Run 131: frame desktop 10 = frame desktop-reduced 10; frame mobile 10 = frame mobile-reduced 10; catalog desktop 5 = desktop-reduced 5; ready desktop 5 = desktop-reduced 5; unreachable mobile 5 = mobile-reduced 5."
+    },
+    "totalControlRowCount": "NOT VERIFIABLE from retained artifacts: settings-control-ledger.json / settings-exact-12-rows.json attachments are not present in run 128 browser dirs (PNG + video.webm only). This audit does not state a total control-row count; the 12 exact ids are proven by the test gate + pass.",
+    "runTotals": {
+      "131": "16/16",
+      "128_settings_ledger": "4/4",
+      "132": "2/2",
+      "133": "2/2",
+      "134": "2/2 (non-settings)",
+      "130": "2/2 (non-settings)"
+    }
+  },
+  "stateRows": [
+    {
+      "id": "Settings.section.tools",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "tools",
+        "default": true
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-tools.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.tools.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-tools-entry.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-tools.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/settings-frame-tools.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-tools-entry.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-tools.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-tools.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-mobile/settings-ledger-section-tools.png"
+        }
+      ],
+      "action": "Desktop sidebar button click / mobile list-row tap / direct #/settings?section=tools; from the queue link, browser Back returns to the tools section.",
+      "readback": "Title equals Công cụ trên máy; .vv-tools__row count equals GET /api/tools count; URL keeps section=tools; after Tab->Enter to queue and goBack the tools section re-renders from the same GET. T128 independently asserts the rows vs GET and keeps the desktop-only recheck probe.",
+      "notExercised": [
+        "tool update/install button (Cập nhật rendered and enabled: 1 update available in the 131 tools capture)"
+      ]
+    },
+    {
+      "id": "Settings.section.connect",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "connect",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.connect.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/settings-frame-connect.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-connect.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-connect.png"
+        }
+      ],
+      "action": "Desktop sidebar button click / mobile list row; desktop keyboard Tab+Enter over nav buttons.",
+      "readback": "Title equals Kết nối AI; .conn-card count equals GET /api/ai/providers (2: ChatGPT ready, Grok logged_out in run 131); mobile list row text is \"2 nhà cung cấp\" from the same GET.",
+      "notExercised": [
+        "Thử kết nối (per-provider test)",
+        "Đăng xuất ChatGPT",
+        "Đăng nhập Grok"
+      ]
+    },
+    {
+      "id": "Settings.section.agents",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "agents",
+        "default": false
+      },
+      "controlStatus": "PROVEN_CONTROLS_BLOCKED_DESIGN_VISUAL",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "blocked-design-question-85",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/133-final-model-trigger/browser/settings-control-ledger-au-85fc0-earchable-popover-and-focus-desktop/agent-Đạo diễn-closed-context.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.agents.png",
+        "note": "#85 drawing-card design conflict remains pending user; visual row is not accepted"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T133_AGENT",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-agents.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-agents-readonly.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-agents-readonly.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/133-final-model-trigger/browser/settings-control-ledger-au-85fc0-earchable-popover-and-focus-desktop/agent-Đạo diễn-closed-context.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/133-final-model-trigger/browser/settings-control-ledger-au-85fc0-earchable-popover-and-focus-desktop/agent-Đạo diễn-model-search.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/133-final-model-trigger/browser/settings-control-ledger-au-85fc0-earchable-popover-and-focus-desktop-reduced/agent-Đạo diễn-model-search.png"
+        }
+      ],
+      "action": "Navigate to agents; assert Director/Artist/Scout/QA labels; open the Director and Artist prompt-model comboboxes, search, Escape.",
+      "readback": "Draw-source quota text and bar containment mirror provider.quota from GET /api/ai/providers; combobox closed state shows model+provider from GET /api/ai/agents; after Escape both GET /api/ai/agents and /api/ai/providers are unchanged.",
+      "notExercised": [
+        "selecting a model option (PUT /api/ai/agents)",
+        "Mức suy nghĩ segmented control",
+        "draw-source radio change",
+        "Vẽ lại bằng nguồn khác khi lỗi switch",
+        "Thêm model (custom)"
+      ]
+    },
+    {
+      "id": "Settings.section.accounts",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "accounts",
+        "default": false
+      },
+      "controlStatus": "PROVEN_READ_ONLY",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-accounts.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.accounts.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-accounts.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-accounts-readonly.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-accounts-readonly.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-accounts.png"
+        }
+      ],
+      "action": "Navigate to accounts; enumerate one region per platform.",
+      "readback": "A region exists for every GET /api/platforms entry, and each card contains the state text derived from that entry (Sẵn sàng/Tạm chặn/Cần đăng nhập lại per platform.state/login); GET /api/platforms unchanged and 0 mutations.",
+      "notExercised": [
+        "YouTube cookie-source select + Tắt confirmation",
+        "Bilibili QR login start",
+        "Dán cookie thủ công",
+        "platform disconnect dialog"
+      ]
+    },
+    {
+      "id": "Settings.section.storage",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "storage",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-storage.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.storage.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-storage.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/settings-frame-storage.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-storage.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-storage-cleanup-consequence.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop-reduced/settings-ledger-storage-cleanup-consequence.png"
+        }
+      ],
+      "action": "Navigate to storage; open the cleanup preview (POST /api/storage/cleanup/preview) and press Để sau.",
+      "readback": "Storage cards render GET /api/storage or /api/storage/server; preview returns 200 with previewId/freedBytes, the consequence card lists what would be freed, cancel returns to idle, and GET writes contain no cleanup/run.",
+      "notExercised": [
+        "Đổi thư mục (store move)",
+        "Xoá video gốc / Xoá MP4 (buttons disabled: 0 MB, 0 items in fixture)",
+        "Dọn (cleanup/run deliberately never pressed)"
+      ]
+    },
+    {
+      "id": "Settings.section.logs",
+      "artboard": {
+        "dcProp": "Settings.section",
+        "value": "logs",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-logs.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.section.logs.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-logs.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop-reduced/settings-frame-logs.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-logs-deeplink.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-logs.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-logs-export-downloaded.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-mobile/settings-ledger-logs-export-downloaded.png"
+        }
+      ],
+      "action": "Desktop sidebar button; mobile has no list child row, so the deep link #/settings?section=logs is opened directly; press Xuất log.",
+      "readback": "Title Báo lỗi and the export control render; clicking export receives GET /api/tools/logs/export 200 with content-type application/zip and a downloadable viderse-logs-*.zip whose central directory and summary.json parse; no log filters exist (0 searchbox / 0 radiogroup).",
+      "notExercised": [
+        "version check POST (source renders the card below the captured fold; never activated)",
+        "Mở lưu trữ links"
+      ]
+    },
+    {
+      "id": "Settings.conn.list",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "list",
+        "default": true
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.list.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-connect.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-connect.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-section-connect.png"
+        }
+      ],
+      "action": "Render the provider list after real ChatGPT ready + Grok logged_out providers.",
+      "readback": "One .conn-card per GET /api/ai/providers; every subline is computed from status/auth/plan/baseUrl; ChatGPT quota line+bar contained and equal to provider.quota (2/2 today); three assertions confirm the retired YouTube Data API card/group are absent.",
+      "notExercised": []
+    },
+    {
+      "id": "Settings.conn.add",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "add",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-add-both-fields.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.add.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-add-both-fields.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/settings-connect-add-both-fields.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-mobile/settings-connect-add-both-fields.png"
+        }
+      ],
+      "action": "Open the add panel (desktop inline / mobile sheet); select each of the 8 radios in turn; fill then clear the required field; close via Đóng, scrim and Escape.",
+      "readback": "8 radios exist; exactly one aria-checked at a time; key/URL fields appear by kind; submit is disabled with empty input and enabled only after input; close restores body overflow and opener focus (mobile); GET provider list unchanged and 0 mutations.",
+      "notExercised": [
+        "pressing submit (POST /api/ai/providers) — covered separately for Ollama only by T131_READY/T131_UNREACHABLE"
+      ]
+    },
+    {
+      "id": "Settings.conn.added",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "added",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/real-local-provider-added-empty-catalog.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.added.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_READY",
+        "T131_UNREACHABLE"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/real-local-provider-added-empty-catalog.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop-reduced/real-local-provider-added-empty-catalog.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/real-local-provider-reloaded-persisted.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop-reduced/real-local-provider-reloaded-persisted.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-mobile/real-local-provider-reloaded-persisted.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/real-owned-provider-removed.png"
+        }
+      ],
+      "action": "Real local Ollama POST /api/ai/providers returns 201; the app shows the just-added card with its select-model note, the open catalog and the desktop unsaved bar (1 thay đổi chưa lưu) in the desktop capture; the owned record is then removed through Gỡ + alertdialog.",
+      "readback": "GET /api/ai/providers returns the new id with status ready, baseUrl 127.0.0.1:11434 and catalogCount 0; a full document reload returns the same id/kind/auth/status/baseUrl/catalogCount and the same real card; after DELETE the id is absent; finally provider records and the job/agent snapshot equal the pre-test values.",
+      "supersedes": {
+        "old": "run 87 EXISTING_PROVIDER_RECEIPT cited by T128_LEDGER for conn=added",
+        "supersededBy": "run 131 T131_READY/T131_UNREACHABLE exact tests in all four projects"
+      },
+      "notExercised": [
+        "Huỷ/Lưu on the new-card unsaved bar (Lưu is a PATCH; the capture shows both buttons enabled)",
+        "added state with a non-empty local catalog (deliberately 0 models downloaded)",
+        "api_key/subscription added kinds"
+      ]
+    },
+    {
+      "id": "Settings.conn.models",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "models",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-catalog.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.models.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER",
+        "T131_READY"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-catalog.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-search.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-search-cleared.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/settings-connect-models-search.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-mobile/settings-connect-models-sheet.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-connect-models-catalog.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-mobile/settings-ledger-connect-models-mobile-sheet.png"
+        }
+      ],
+      "action": "Open Model · 2 on the real ChatGPT card (inline desktop, sheet mobile); switch Gợi ý/Đã chọn/Tất cả; type then clear a real model id in search.",
+      "readback": "Visible row ids equal the union of provider.selected and the GET /api/ai/providers/:id/models page for each filter; search matches GET ?q= and clearing restores the page; Selected view marks every row checked; the empty local catalog renders 0/total 0; scrim/Esc close the sheet; no PATCH is issued.",
+      "notExercised": [
+        "Lưu (PATCH selected) — only toggle+Huỷ cancel is proven by T128_LEDGER",
+        "pagination beyond the first page (ChatGPT total 12 = 12 visible; local catalog 0)"
+      ]
+    },
+    {
+      "id": "Settings.conn.manual",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "manual",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-manual.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.manual.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T128_LEDGER",
+        "T131_CONNECT",
+        "T132_MANUAL"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-manual.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop-reduced/settings-connect-models-manual.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-connect-manual-cancel.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/132-final-bundled-manual-model/browser/settings-control-ledger-au-68e74-t-saving-provider-selection-desktop/settings-ledger-connect-manual-success.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/132-final-bundled-manual-model/browser/settings-control-ledger-au-68e74-t-saving-provider-selection-desktop-reduced/settings-ledger-connect-manual-success.png"
+        }
+      ],
+      "action": "Open Không thấy model? Thêm theo tên; verify empty->disabled, typed->enabled; cancel (131/128). Separately, with the controller-owned ChatGPT row restore, type real catalog id gpt-5.5 and press Kiểm tra & thêm (132).",
+      "readback": "Cancel path: panel closes with 0 POST models/check. Success path: exactly one authorized POST /api/ai/providers/:id/models/check returns 200 ok:true; status text reports the model answers; the draft row is checked; GET catalog ?q=gpt-5.5 returns the model with manual:true; GET provider selected is unchanged; Huỷ unchecks the draft; 0 PATCH; the controller manifest reports catalogRestored/providersUnchanged/authPreexistingPreserved true and childExitCode 0.",
+      "notExercised": [
+        "mobile manual (MSettings sheet omits it; PR6)",
+        "non-ChatGPT adapters (their check would call a model/inference)",
+        "Lưu after the manual draft"
+      ]
+    },
+    {
+      "id": "Settings.conn.failed",
+      "artboard": {
+        "dcProp": "Settings.conn",
+        "value": "failed",
+        "default": false
+      },
+      "controlStatus": "PROVEN",
+      "comparison": {
+        "file": "verified-source-main-settings-comparisons.json",
+        "status": "pending-controller-review",
+        "productAcceptance": "not-asserted-by-verified-source-map",
+        "sourceRevision": "d2666b1f30a9140f29eabf2b1c7cbf3d414b4eca",
+        "verifiedAppCapture": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/real-unreachable-provider-card.png",
+        "verifiedComparison": "comparison-main-settings-verified-source/Settings.conn.failed.png",
+        "note": "control proof is separate from visual acceptance; status stays pending-controller-review"
+      },
+      "finalTests": [
+        "T131_UNREACHABLE",
+        "T131_CONNECT"
+      ],
+      "captures": [
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/real-unreachable-provider-card.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/real-refused-catalog-add-feedback.png"
+        },
+        {
+          "project": "desktop",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/real-unreachable-provider-reloaded-persisted.png"
+        },
+        {
+          "project": "desktop-reduced",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop-reduced/real-unreachable-provider-card.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/real-refused-catalog-add-feedback.png"
+        },
+        {
+          "project": "mobile",
+          "path": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-mobile/real-unreachable-provider-reloaded-persisted.png"
+        }
+      ],
+      "action": "Real refused local port 127.0.0.1:11435: POST /api/ai/providers returns 422; the orange error card shows the failure, and the retry/manual/secondary controls are asserted visible (never clicked).",
+      "readback": "GET /api/ai/providers returns the owned id with status unreachable and the saved baseUrl; the card alert contains \"Không lấy được danh sách model.\" plus that URL and the subline says Không kết nối được <host>; after a full reload the same record, subline and alert persist; the toast stays inside the viewport and does not overlap the mobile action; 0 PATCH; DELETE removes the id and cleanup restores records/snapshot.",
+      "supersedes": {
+        "old": "run 87 EXISTING_PROVIDER_RECEIPT cited by T128_LEDGER for conn=failed",
+        "supersededBy": "run 131 T131_UNREACHABLE exact test in all four projects"
+      },
+      "notExercised": [
+        "api_key auth_failed variant",
+        "login_pending variant",
+        "Thử lại click"
+      ]
+    }
+  ],
+  "controlRows": [
+    {
+      "id": "control.frame.desktop-nav",
+      "label": "Sidebar sections + queue link",
+      "role": "navigation buttons/link",
+      "state": "exercised",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_FRAME"
+      ],
+      "action": "Click each of the 6 section buttons, assert URL+title+content; Tab through every nav button and Enter the queue link, then browser Back.",
+      "readback": "Every button reaches #/settings?section=<id> with its own title and live-resource content; nav rows are 34px with one icon/label/count column; the first focused button shows a visible focus ring; Enter on the queue link reaches #/queue and Back restores the tools section.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-sidebar-keyboard-focus.png"
+    },
+    {
+      "id": "control.frame.mobile-list",
+      "label": "Mobile settings list rows",
+      "role": "list links",
+      "state": "exercised",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_FRAME"
+      ],
+      "action": "Tap each row and Quay lại; read the list values.",
+      "readback": "Row subtitles equal live counts (2 nhà cung cấp, 3 nền tảng, Vẽ bằng ChatGPT, 1 bản cập nhật); each row opens the expected mobile title; logs has no list row, so its deep link is exercised instead.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-mobile/settings-frame-mobile-list.png"
+    },
+    {
+      "id": "control.frame.notifications",
+      "label": "Thông báo (notifications) nav button",
+      "role": "desktop sidebar button (7th section, outside the 12 artboard rows)",
+      "state": "focused-only",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [
+        "T131_FRAME"
+      ],
+      "action": "None: the keyboard pass focuses the button but never activates it.",
+      "readback": "Not proven. The button is in the Tab order; the notifications screen itself is not exercised by any run 127-134.",
+      "notes": "Reachable PC gap; not one of the 12 exact artboard rows."
+    },
+    {
+      "id": "control.tools.details",
+      "label": "Nâng cao · thư mục dữ liệu và phiên bản",
+      "role": "details/summary disclosure",
+      "state": "expanded then collapsed by Enter",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Click summary; collapse with keyboard Enter.",
+      "readback": "Data directory and yt-dlp are hidden when closed and visible when open; no install/update request; 0 new writes.",
+      "capture": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-tools-details-expanded.png"
+    },
+    {
+      "id": "control.tools.recheck",
+      "label": "Kiểm tra lại",
+      "role": "desktop summary button",
+      "state": "fresh probe completed",
+      "enabled": true,
+      "proof": "native (desktop/reduced only)",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Click recheck; await POST /api/tools/check and re-GET /api/tools.",
+      "readback": "The only write is POST /api/tools/check 200; GET /api/tools states equal the response; no install/cancel route.",
+      "capture": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-tools-recheck.png",
+      "notes": "Mobile: not rendered (MSettings hides .vv-tools__sum <=767px); the ledger records an unavailable row + gap owned by PR6. Do not count as mobile pass."
+    },
+    {
+      "id": "control.tools.install-update",
+      "label": "Cập nhật (tool update/install)",
+      "role": "row action button",
+      "state": "rendered and enabled",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [],
+      "action": "None: never pressed by any final run.",
+      "readback": "Not proven. The 131 tools capture shows \"Máy sẵn sàng · có 1 bản cập nhật\" with a Cập nhật button.",
+      "notes": "Reachable PC gap the parent must exercise (mutating install/update) or explicitly accept as unexecuted."
+    },
+    {
+      "id": "control.connect.add.group",
+      "label": "8 add-provider radios",
+      "role": "radiogroup of 8 cards",
+      "state": "each selected in turn, never submitted",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_CONNECT"
+      ],
+      "action": "Click each radio; fill then clear the kind-specific required field.",
+      "readback": "Exactly one aria-checked at a time; API-key kinds show a key field, local shows a URL field, OpenAI-compatible shows both; submit is disabled with no input and enabled with input; the provider GET is unchanged and 0 mutations.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-add-both-fields.png"
+    },
+    {
+      "id": "control.connect.add.overlay",
+      "label": "Add panel scrim/Esc/Đóng",
+      "role": "dialog (mobile) / inline panel (desktop)",
+      "state": "dismissed both ways",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_CONNECT"
+      ],
+      "action": "Mobile: scrim click and Escape; desktop: Đóng.",
+      "readback": "Overlay count returns to 0, body overflow is restored, and the opener is focused again on mobile."
+    },
+    {
+      "id": "control.connect.retry-test",
+      "label": "Thử kết nối / Thử lại",
+      "role": "provider card buttons",
+      "state": "rendered only",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [
+        "T131_CONNECT"
+      ],
+      "action": "None: visible on the ChatGPT card and on the unreachable card error box, never clicked.",
+      "readback": "Not proven.",
+      "notes": "Reachable PC gap (provider test/retry write)."
+    },
+    {
+      "id": "control.connect.login-logout",
+      "label": "Đăng nhập Grok / Đăng xuất ChatGPT",
+      "role": "subscription session controls",
+      "state": "rendered only",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [
+        "T131_CONNECT"
+      ],
+      "action": "None: never clicked (external login/session writes).",
+      "readback": "Not proven.",
+      "notes": "Reachable PC gap requiring an external handshake or an explicit logout decision."
+    },
+    {
+      "id": "control.connect.models.filters",
+      "label": "Lọc model · Đã chọn / Gợi ý / Tất cả",
+      "role": "segmented radiogroup",
+      "state": "all three filters exercised",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "action": "Click each filter and compare visible ids to direct GET pages.",
+      "readback": "Recommended rows equal GET ?filter=recommended; Selected equals provider.selected; All restores the selected+page union; no PATCH.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-catalog.png"
+    },
+    {
+      "id": "control.connect.models.search",
+      "label": "Tìm model",
+      "role": "searchbox",
+      "state": "query and clear exercised",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "action": "Fill with a real model id, then clear.",
+      "readback": "Rows equal GET ?q=<id>; the foot count reports the server total; clearing restores the unfiltered page; 0 PATCH.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-search.png"
+    },
+    {
+      "id": "control.connect.selection-cancel",
+      "label": "Row checkbox + Huỷ (unsaved bar)",
+      "role": "checkbox + dirty bar",
+      "state": "draft toggled and cancelled",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Toggle one row checkbox; press Huỷ on the unsaved bar.",
+      "readback": "The unsaved bar appears; GET provider.selected stays at the server value while the draft is local; Huỷ removes the bar and the checkbox returns to its original state; 0 PATCH.",
+      "capture": null
+    },
+    {
+      "id": "control.connect.selection-save",
+      "label": "Lưu (persist provider model selection)",
+      "role": "dirty-bar primary button",
+      "state": "not exercised",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [],
+      "action": "None: no final run presses Lưu on an existing card or on the added card.",
+      "readback": "Not proven: provider.selected persistence over PATCH is never observed in runs 127-134.",
+      "notes": "Reachable PC gap the parent must exercise or accept."
+    },
+    {
+      "id": "control.connect.manual.input",
+      "label": "Thêm model theo tên · input",
+      "role": "manual panel input",
+      "state": "empty -> typed -> cancel",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_CONNECT",
+        "T128_LEDGER"
+      ],
+      "action": "Open the panel; observe disabled with empty input, enabled with text; close with Đóng.",
+      "readback": "Input value round-trips; the check button state follows emptiness; panel closes with 0 POST models/check and 0 writes.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-c9263-d-conditional-model-catalog-desktop/settings-connect-models-manual.png"
+    },
+    {
+      "id": "control.connect.manual-check-success",
+      "label": "Kiểm tra & thêm · ChatGPT catalog-only",
+      "role": "manual check action",
+      "state": "success + cancel",
+      "enabled": true,
+      "proof": "native (desktop/reduced only)",
+      "finalTests": [
+        "T132_MANUAL"
+      ],
+      "action": "Type gpt-5.5, press Kiểm tra & thêm, then Huỷ the draft.",
+      "readback": "POST models/check 200 ok:true; status text says the model answers; draft checkbox true; GET ?q=gpt-5.5 returns manual:true; provider selection unchanged; cancel unchecks; 0 PATCH; controller restores catalog+auth.",
+      "capture": "runs/132-final-bundled-manual-model/browser/settings-control-ledger-au-68e74-t-saving-provider-selection-desktop/settings-ledger-connect-manual-success.png",
+      "notes": "Only the ChatGPT subscription adapter is proven; other adapters would make a real model call. Mobile is PR6."
+    },
+    {
+      "id": "control.connect.address-edit",
+      "label": "Đổi địa chỉ (local provider)",
+      "role": "inline edit row",
+      "state": "opened, prefilled, draft discarded",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_READY",
+        "T131_UNREACHABLE"
+      ],
+      "action": "Open the edit row from the ready card header or the unreachable alert; type an uncommitted URL; do not save.",
+      "readback": "The field starts at the saved baseUrl; the typed value stays local; GET provider keeps the saved baseUrl/status/catalogCount; 0 PATCH.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-bd683-ce-and-owned-record-removal-desktop/real-unreachable-address-edit-prefilled.png"
+    },
+    {
+      "id": "control.connect.provider-remove",
+      "label": "Gỡ (owned provider) + confirmation",
+      "role": "destructive alertdialog",
+      "state": "confirmed and executed",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T131_READY",
+        "T131_UNREACHABLE"
+      ],
+      "action": "Press Gỡ, assert the alertdialog mentions the saved address, confirm Gỡ.",
+      "readback": "DELETE /api/ai/providers/<owned id> succeeds; GET no longer returns the id; the card unmounts; cleanup restores provider records and job/agent snapshot.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/provider-catalog-audit.pw.-b3907-ce-and-owned-record-removal-desktop/real-owned-provider-removed.png"
+    },
+    {
+      "id": "control.agents.model-popover",
+      "label": "Model Đạo diễn / Model viết mô tả ảnh",
+      "role": "combobox + listbox",
+      "state": "closed -> searchable popover -> Escape",
+      "enabled": true,
+      "proof": "native (desktop/reduced only)",
+      "finalTests": [
+        "T133_AGENT"
+      ],
+      "action": "Open each combobox, verify focused search, filter text, then Escape.",
+      "readback": "Closed trigger shows model + provider from GET /api/ai/agents; popover width 400±2px and inside the viewport; search keeps the current model as the first option; Escape returns focus; both GETs unchanged; 0 writes.",
+      "capture": "runs/133-final-model-trigger/browser/settings-control-ledger-au-85fc0-earchable-popover-and-focus-desktop/agent-Đạo diễn-model-search.png",
+      "notes": "Proves search/closed-provider-context/Escape focus only. Selecting an option (immediate update + autosave PUT) is not exercised; see agentModelSelectionAudit."
+    },
+    {
+      "id": "control.agents.readonly",
+      "label": "Agent roles + draw quota",
+      "role": "read-only status",
+      "state": "rendered from live resources",
+      "enabled": "n/a",
+      "proof": "native",
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "action": "Assert role labels and the selected draw source; read quota text and bar geometry.",
+      "readback": "Director/Artist/Scout/QA labels visible; quota equals provider.quota (2/2 hôm nay) and the fill stays inside the bar; GET /api/ai/agents unchanged.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-agents-readonly.png"
+    },
+    {
+      "id": "control.agents.assign",
+      "label": "Model selection / Mức suy nghĩ / draw-source radio / fallback switch / Thêm model",
+      "role": "agent configuration controls",
+      "state": "rendered only",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [
+        "T131_FRAME",
+        "T133_AGENT"
+      ],
+      "action": "None: popover only opened/searched/Escaped; no option is chosen and no segmented/radio/switch is changed.",
+      "readback": "Not proven: PUT /api/ai/agents persistence is never observed in runs 127-134.",
+      "notes": "Reachable PC gap; the drawing-card visual itself is blocked by design question #85.",
+      "agentModelSelectionProof": "NOT NATIVE-PROVEN: see agentModelSelectionAudit; 133 proves open/search/Escape only, 132 is a provider-card manual draft and is not agent selection."
+    },
+    {
+      "id": "control.accounts.cards",
+      "label": "Platform cards (YouTube/Bilibili/Twitch)",
+      "role": "regions + status text",
+      "state": "read-only render",
+      "enabled": "n/a",
+      "proof": "native",
+      "finalTests": [
+        "T131_FRAME",
+        "T128_LEDGER"
+      ],
+      "action": "Assert one region per platform and its state text.",
+      "readback": "Every GET /api/platforms entry has a region with the mapped state text; GET /api/platforms unchanged; 0 mutations.",
+      "capture": "runs/131-final-real-settings-and-catalog/browser/settings-state-audit.pw.ts-1bff9-d-read-only-agents-accounts-desktop/settings-frame-accounts-readonly.png"
+    },
+    {
+      "id": "control.accounts.login-disconnect",
+      "label": "Login/QR/cookie/disconnect",
+      "role": "platform session controls",
+      "state": "blocked by fixture",
+      "enabled": false,
+      "proof": "blocked",
+      "finalTests": [],
+      "action": "None: no saved login exists in the isolated fixture; creating one requires an external handshake.",
+      "readback": "The ledger records a blocked row + gap (accounts.dialog.fixture). This is missing fixture state, not a dead control."
+    },
+    {
+      "id": "control.storage.cleanup-preview-cancel",
+      "label": "Xem trước những gì sẽ dọn -> Để sau",
+      "role": "preview + consequence card",
+      "state": "preview shown and cancelled",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Press the preview button; read the consequence list; press Để sau.",
+      "readback": "POST /api/storage/cleanup/preview 200 with previewId/freedBytes; the consequence card lists what would be freed; cancel closes it; 0 cleanup/run requests.",
+      "capture": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-storage-cleanup-consequence.png"
+    },
+    {
+      "id": "control.storage.reclaim-delete",
+      "label": "Xoá video gốc / Xoá MP4 đã đăng",
+      "role": "destructive row buttons",
+      "state": "disabled by fixture",
+      "enabled": false,
+      "proof": "blocked",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "None: both groups are 0 MB / 0 items, so the buttons are disabled and no confirmation can open.",
+      "readback": "The ledger checks every item count and records the gap storage.reclaim-cancel. Fixture-shape limitation, not a dead control."
+    },
+    {
+      "id": "control.storage.move",
+      "label": "Đổi thư mục…",
+      "role": "store move action",
+      "state": "rendered only",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [],
+      "action": "None: never pressed.",
+      "readback": "Not proven.",
+      "notes": "Reachable PC gap (store move mutation)."
+    },
+    {
+      "id": "control.storage.cleanup-run",
+      "label": "Dọn (cleanup/run)",
+      "role": "destructive primary",
+      "state": "never pressed",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "None: only preview+cancel; cleanup/run is asserted absent.",
+      "readback": "Absence proven (0 cleanup/run). The delete itself is intentionally unproven."
+    },
+    {
+      "id": "control.logs.export",
+      "label": "Xuất log",
+      "role": "primary button + download",
+      "state": "downloaded and parsed",
+      "enabled": true,
+      "proof": "native",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Click export; await response and download.",
+      "readback": "GET /api/tools/logs/export 200 application/zip; suggested filename viderse-logs-*.zip; archive non-empty; every entry is relative/safe; summary.json has generatedAt and appVersion strings.",
+      "capture": "runs/128-final-app-skin-controls/controls/browser/settings-control-ledger-au-f8605-ws-and-safe-native-controls-desktop/settings-ledger-logs-export-downloaded.png"
+    },
+    {
+      "id": "control.logs.filters",
+      "label": "Log filters",
+      "role": "not present",
+      "state": "not-applicable",
+      "enabled": "n/a",
+      "proof": "native",
+      "finalTests": [
+        "T128_LEDGER"
+      ],
+      "action": "Assert absence rather than inventing a filter.",
+      "readback": "0 searchbox and 0 radiogroup in the logs section."
+    },
+    {
+      "id": "control.logs.version-check",
+      "label": "Kiểm tra bản mới",
+      "role": "version card button",
+      "state": "not exercised",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [],
+      "action": "None: source renders the card below the captured fold; it is never clicked.",
+      "readback": "Not proven. Source: LogsSection calls POST /api/version/check on click.",
+      "notes": "Reachable PC gap (version check POST)."
+    },
+    {
+      "id": "control.accounts.youtube-cookie-source",
+      "label": "Lấy cookie từ trình duyệt",
+      "role": "combobox",
+      "state": "rendered, no browser profile",
+      "enabled": true,
+      "proof": "not-run",
+      "finalTests": [],
+      "action": "None: no browser profile is discovered (\"Chưa thấy hồ sơ trình duyệt nào\"), and turning the source off needs a destructive detach dialog.",
+      "readback": "Not proven; the ledger only opens this dialog when a saved login + profile exists, which it records as a fixture gap.",
+      "notes": "Fixture-dependent reachable control."
+    }
+  ],
+  "supersessions": [
+    {
+      "row": "Settings.conn.added",
+      "oldEvidence": "run 87 owned Ollama receipt cited inside run 128 ledger as existing-proof",
+      "newEvidence": "run 131 provider-catalog ready exact test, 4/4 projects, native POST 201 + reload GET + delete + cleanup",
+      "effect": "The old 87 assumption is superseded; the 128 ledger row remains labeled existing-proof and must not be used as the final added proof."
+    },
+    {
+      "row": "Settings.conn.failed",
+      "oldEvidence": "run 87 refused-port receipt cited inside run 128 ledger as existing-proof",
+      "newEvidence": "run 131 provider-catalog unreachable exact test, 4/4 projects, native POST 422 + reload GET + delete + cleanup",
+      "effect": "The old 87 assumption is superseded; use 131."
+    },
+    {
+      "row": "Settings.conn.list / Settings.section.connect quota",
+      "oldEvidence": "Earlier settings run lacked a genuine provider quota; settings-state-audit can emit a conn.quota state-gap when no provider carries quota",
+      "newEvidence": "run 131 T131_CONNECT asserts the real ChatGPT quota line 2/2 and bar containment",
+      "effect": "Quota is now proven natively in the final run; no quota gap applies to run 131."
+    },
+    {
+      "row": "Settings.conn.manual",
+      "oldEvidence": "128 ledger manual cancel + run 52 receipt for a successful check",
+      "newEvidence": "run 132 exact catalog-only test proves success + manual:true readback + cancel + CAS restore (desktop/reduced)",
+      "effect": "Successful manual check is now native in a final run; mobile remains PR6."
+    }
+  ],
+  "annotationsNotGaps": [
+    "settings-state-audit always records a conn.added state-gap annotation because it cannot see the sibling provider-catalog test; in run 131 the added state is nonetheless proven natively by T131_READY/T131_UNREACHABLE (same run, same fixture). Treat the annotation as per-test bookkeeping, not as an unproven state.",
+    "In run 131 the settings tests execute before the provider-catalog test, so the connect test sees no auth_failed/unreachable provider and records a conn.failed gap; the native failed proof comes from T131_UNREACHABLE later in the same run."
+  ],
+  "disabledVsDead": [
+    {
+      "control": "storage reclaim delete buttons",
+      "observed": "disabled, 0 MB / 0 items",
+      "classification": "FIXTURE_DISABLED (not dead)",
+      "evidence": "131 storage capture; 128 ledger item-count loop + gap storage.reclaim-cancel"
+    },
+    {
+      "control": "platform disconnect dialog",
+      "observed": "cannot open (no saved login)",
+      "classification": "MISSING_PREREQUISITE (not dead)",
+      "evidence": "128 ledger gap accounts.dialog.fixture"
+    },
+    {
+      "control": "mobile tools recheck",
+      "observed": "not rendered by MSettings <=767px",
+      "classification": "DESIGN_OMISSION_MOBILE (desktop works)",
+      "evidence": "128 ledger unavailable-mobile row + gap tools.recheck.mobile (owner PR6)"
+    },
+    {
+      "control": "mobile manual model",
+      "observed": "not rendered in the MSettings model sheet",
+      "classification": "DESIGN_OMISSION_MOBILE",
+      "evidence": "131 T131_CONNECT asserts .conn-cat__tools count 0 and no manual button; 132 test.skip mobile; owner PR6"
+    },
+    {
+      "control": "mobile storage cleanup preview/cancel",
+      "observed": "not rendered on mobile storage",
+      "classification": "DESIGN_OMISSION_MOBILE",
+      "evidence": "128 ledger mobile row + gap storage.cleanup-cancel (owner PR6)"
+    },
+    {
+      "control": "mobile platform disconnect",
+      "observed": "not rendered on mobile accounts",
+      "classification": "DESIGN_OMISSION_MOBILE",
+      "evidence": "128 ledger mobile row + gap accounts.dialog.mobile (owner PR6)"
+    },
+    {
+      "control": "added-card Huỷ/Lưu",
+      "observed": "rendered and enabled, never pressed",
+      "classification": "REACHABLE_UNEXERCISED (not dead)",
+      "evidence": "131 added capture shows the unsaved bar"
+    },
+    {
+      "control": "tools Cập nhật",
+      "observed": "rendered and enabled (1 update available)",
+      "classification": "REACHABLE_UNEXERCISED (not dead)",
+      "evidence": "131 tools capture"
+    }
+  ],
+  "remainingReachablePcGapsForParent": [
+    "Tools: Cập nhật install/update (1 update available; renders enabled in run 131).",
+    "Connect: Thử kết nối / Thử lại, Đăng xuất ChatGPT, Đăng nhập Grok.",
+    "Connect: Lưu on the dirty bar for an existing provider and on the added-card unsaved bar (PATCH selected).",
+    "Connect: manual-check success beyond the ChatGPT subscription adapter (other adapters call a model).",
+    "Agents: choosing a model option (PUT /api/ai/agents), Mức suy nghĩ segmented, draw-source radio, Vẽ lại bằng nguồn khác switch, Thêm model.",
+    "Accounts: YouTube cookie-source select + Tắt confirmation (needs a saved login/profile), Bilibili QR start, Dán cookie thủ công, platform disconnect.",
+    "Storage: Đổi thư mục (store move); reclaim deletes once the fixture has finished/deleted groups; Dọn cleanup/run.",
+    "Logs: Kiểm tra bản mới (POST /api/version/check); Mở lưu trữ links.",
+    "Settings > Thông báo (notifications) screen: nav button is focused in the keyboard pass but the screen is never opened; not part of the 12 artboard rows."
+  ],
+  "gaps": [
+    {
+      "id": "agent-model-selection",
+      "owner": "parent",
+      "detail": "No final native evidence proves Agent model selection updates immediately and autosaves; 133 only opens/searches/Escapes and 132 is a provider-card manual draft (not agent selection). The exact safe PUT contract, settings.ai.agents store/owner and CAS cleanup fields are in agentModelSelectionAudit. Note that selecting a different enabled model also requires a provider.selected PATCH in the current fixture (only one text/vision model is selected)."
+    },
+    {
+      "id": "design-85",
+      "owner": "user",
+      "detail": "Settings.section.agents drawing-card visual conflict (#85) is still pending the user; the comparison row stays blocked-design-question-85 and productAcceptance false. Controls on that screen are proven, the visual acceptance is not."
+    },
+    {
+      "id": "mobile-manual-pr6",
+      "owner": "PR6",
+      "detail": "MSettings model sheet has no manual-entry row; 132 explicitly skips mobile. Mobile manual/recheck parity remains open."
+    },
+    {
+      "id": "mobile-recheck-pr6",
+      "owner": "PR6",
+      "detail": "MSettings hides the tools summary; no mobile recheck. Desktop run 128 proves it."
+    },
+    {
+      "id": "mobile-storage-accounts-pr6",
+      "owner": "PR6",
+      "detail": "Mobile storage cleanup preview/cancel and mobile platform disconnect are absent by design."
+    },
+    {
+      "id": "physical-safari",
+      "owner": "acceptance",
+      "detail": "All final projects are Chromium (desktop 1440x900, mobile emulation 390x844 isMobile/hasTouch). WebKit/physical iPhone Safari is unexercised."
+    },
+    {
+      "id": "provider-variants",
+      "owner": "parent",
+      "detail": "conn.failed is proven for a local unreachable provider only (not api_key auth_failed/login_pending); conn.added is proven with an empty local catalog only."
+    },
+    {
+      "id": "capture-mobile-added",
+      "owner": "parent",
+      "detail": "The mobile real-local-provider-added-empty-catalog.png is captured while the add sheet is still closing (the provider-catalog capture helper only waits for fonts); the settled mobile added state is not captured. Desktop added capture is settled."
+    },
+    {
+      "id": "dead-controls-global",
+      "owner": "nobody",
+      "detail": "This audit makes no zero-dead-control claim for the whole app; only the Settings controls enumerated here are classified."
+    },
+    {
+      "id": "save-paths",
+      "owner": "parent",
+      "detail": "Provider selection save (PATCH selected), added-card Lưu, agent PUT, thinking/draw/fallback switches are never exercised in runs 127-134. For the agent PUT specifically the exact contract and cleanup are in agentModelSelectionAudit."
+    }
+  ],
+  "concerns": [
+    "verified-source-main-settings-comparisons.json now replaces the older candidate map: all 12 Settings app captures point at run 131 (agents at run 133) with sourceRevision d2666b1f30a9.... 11/12 statuses are pending-controller-review and Settings.section.agents is blocked-design-question-85 (#85 pending user); the verified-source map asserts no product acceptance. The control proofs in this crosswalk are independent of that visual review.",
+    "The older final-main-settings-comparisons.json is superseded and must not be cited for Settings status or app evidence.",
+    "132 restoration manifest: temporaryAccessRemoved=false and providerCallProof says the wrapper did not measure provider calls; the no-inference claim rests on the test write-allowlist (one POST models/check) plus the ChatGPTAdapter bundled-catalog boundary, not on the wrapper measurement. errors is empty and authPreexistingPreserved/catalogRestored/providersUnchanged are true.",
+    "Run 128 ledger added/failed rows still cite run 87 as existing-proof; they were not re-run after 131. Use 131 for added/failed (this crosswalk does).",
+    "Run 128 settings ledger JSON attachments (settings-control-ledger.json, settings-exact-12-rows.json, settings-write-audit.json) were not retained in the evidence directory, so only the test gate + pass status prove the 12-row count; per-row observed strings cannot be re-read from artifacts.",
+    "Reduced-motion projects reuse the same assertions; settings overlays are verified by settled screenshots and scrim/Esc behaviour, not by stepwise open/close transition captures.",
+    "Run 135 (52 Review captures, sourceRevision d2666b1f30a9...) is Review-only; it adds no Settings evidence and does not change any Settings row here."
+  ],
+  "agentModelSelectionAudit": {
+    "question": "Does any final native (browser) evidence prove that selecting a DIFFERENT actual Agent model updates the UI immediately and autosaves with no Save button?",
+    "answer": "NO native proof exists in runs 127-134 (or anywhere in the retained run set). The immediate+autosave behaviour is only proven by the jsdom unit test; the user-reported symptom is neither reproduced nor refuted in a real browser.",
+    "finalRunEvidenceReviewed": [
+      "131 T131_FRAME (agents section): labels/draw source/quota only; no picker interaction.",
+      "133 T133_AGENT: desktop director + artist prompt-model comboboxes open a 400px searchable popover, filter, Escape; asserts GET /api/ai/agents and GET /api/ai/providers unchanged and 0 writes. It never chooses an option (no PUT).",
+      "132 T132_MANUAL: selects gpt-5.5 inside the provider-card model-catalog manual-check draft and cancels; it never opens the agents screen and never calls PUT /api/ai/agents. It must NOT be relabelled as agent-selection evidence.",
+      "128 T128_LEDGER: agents row is read-only; no picker interaction.",
+      "Suite-wide: no tests/viderse-workflow/*.pw.ts test clicks an agent model option (grep for .agt-row/Đạo diễn/Model viết mô tả ảnh shows only assertions and the 133 search/Escape case)."
+    ],
+    "unitOnlyEvidence": {
+      "file": "apps/viderse/web/src/screens/settings/agents/AgentsSection.test.tsx",
+      "proves": "jsdom only: choosing a model updates the closed trigger text to provider/model and sends PUT /api/ai/agents with the new ModelRef; queued PUTs send the newest doc; a held first PUT does not get overwritten.",
+      "notProof": "not a native browser run; no real network, no real render, no reload readback."
+    },
+    "sourceBehavior": {
+      "uiWiring": "AgentsSection: pending ref is the single source for serialized PUTs; view = pending.current ?? data; mutate() writes pending, bumps render, then flush() PUTs the newest snapshot. The closed trigger is refId(view.director.model), so it is expected to change immediately, including while the PUT is in flight.",
+      "saveModel": "Autosave only. There is no Save button; the only in-flight affordance is the status line rendered only while saving.",
+      "failure": "On error: pending cleared, GET invalidated, trigger reverts; capability_missing/unknown_model -> inline field message; other errors -> toast. 422 body: {error, reason, need?, field?, model?}.",
+      "caveat": "Whether the real Combobox re-renders its closed display immediately when parent value changes in the browser is exactly what is unproven."
+    },
+    "safeQAContract": {
+      "method": "PUT",
+      "notMethod": "PATCH (there is no PATCH /api/ai/agents)",
+      "path": "/api/ai/agents",
+      "authorization": "admin only: machineAdminOnly returns write for path == /api/ai/agents (GET is allowed for any logged-in user)",
+      "requestBody": {
+        "director": {
+          "model": {
+            "provider": "<ai_providers.id>",
+            "model": "<ai_models.id>"
+          },
+          "effort": "auto|low|medium|high",
+          "fallback": [
+            {
+              "provider": "<id>",
+              "model": "<id>"
+            }
+          ]
+        },
+        "artist": {
+          "promptModel": {
+            "provider": "<id>",
+            "model": "<id>"
+          },
+          "draw": {
+            "provider": "<id>",
+            "model": "<id>"
+          },
+          "fallbackOn": true,
+          "drawFallback": [
+            {
+              "provider": "<id>",
+              "model": "<id>"
+            }
+          ]
+        }
+      },
+      "bodyRules": [
+        "Send the COMPLETE doc: a missing ModelRef becomes {provider:\"\",model:\"\"} and fails validation; missing fallback arrays become [].",
+        "Only fields carried by aiAgentsWire are accepted; the response is the normalized doc.",
+        "Normalization: if artist.fallbackOn && drawFallback is empty, the server fills drawFallback with the other subscription draw source (chatgpt<->grok) and persists that normalized value."
+      ],
+      "validation": [
+        "director.model must exist in that provider catalog AND be in provider.selected AND carry text cap.",
+        "director.fallback[] same, text cap.",
+        "artist.promptModel must be selected and carry vision cap.",
+        "artist.draw and artist.drawFallback[] must be selected and carry image cap.",
+        "effort must be auto|low|medium|high else 422 reason invalid_effort.",
+        "unknown provider/model or unselected model -> 422 reason unknown_model {model}.",
+        "missing capability -> 422 reason capability_missing {need, field, model}.",
+        "when composition-root executors are wired (wire_ai.go), a ref with no executor -> 422 reason no_executor {need, field, model}."
+      ],
+      "response": "200 application/json with the normalized AiAgents doc",
+      "sideEffects": [
+        "settings upsert for key ai.agents",
+        "changed(\"agents\"): Notify SSE/status bump",
+        "OnAgentsChanged: composition root re-runs exec.configure (rebuilds the stored chain; errors printed, not returned)",
+        "no provider, model or receipt rows are written"
+      ],
+      "readback": [
+        "GET /api/ai/agents returns the new refs",
+        "full document reload -> agents screen trigger shows the new refs",
+        "the closed trigger text must change before the PUT resolves"
+      ]
+    },
+    "store": {
+      "table": "settings",
+      "ddl": "settings(key text PRIMARY KEY, value jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())  [migrations/00001_base.sql]",
+      "key": "ai.agents",
+      "value": "jsonb AgentModels {director{model,effort,fallback}, artist{promptModel,draw,fallbackOn,drawFallback}}",
+      "write": "INSERT INTO settings (key, value) VALUES ($1,$2) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = now()  [queries/settings.sql SetSetting]",
+      "owner": "aiconn.Service.PutAgents under cfgMu -> SettingsStore.Set (postgres.SettingsStore) -> gen.SetSetting",
+      "scope": "GLOBAL machine/role config (one row, not per project/clone); GET falls back to domain.DefaultAgentModels() when the key is absent",
+      "rawVsNormalized": "Agents() normalizes for the response but does NOT persist normalization. A stored doc may therefore differ byte-wise from GET (e.g. fallbackOn true with empty drawFallback). For a true CAS restore, snapshot the RAW settings.value (and found), not only the GET body."
+    },
+    "prerequisiteForADifferentModel": {
+      "pickerSource": "The agents picker lists only models in provider.selected (pickedFrom(providers, selected catalog)); unselected catalog models are not listed at all, and selected options lacking the required cap are disabled but visible.",
+      "fixtureState": "Run 131/133 fixture: ChatGPT ready with selected=[gpt-6.1-sol, gpt-image-2] (2 models); Grok logged_out. Director needs text and Artist promptModel needs vision: with that selection the only enabled choice is the current gpt-6.1-sol (gpt-image-2 is image-only). Artist draw image: only the current gpt-image-2. So NO different enabled model can be chosen without first adding one to provider.selected.",
+      "candidateTarget": "gpt-5.5 on the ChatGPT subscription provider: the run-132 catalog capture shows it as \"chữ · đọc ảnh · 272K ngữ cảnh\" (text+vision) and the 132 test already checks it successfully. Evidence capture: runs/132-final-bundled-manual-model/browser/settings-control-ledger-au-68e74-t-saving-provider-selection-desktop/settings-ledger-connect-models-catalog.png. It is NOT in provider.selected (selected = gpt-6.1-sol + gpt-image-2 in the 131/132 captures), so it must be added to selected before the agents picker can list it.",
+      "additionalWriteRequired": {
+        "method": "PATCH",
+        "path": "/api/ai/providers/<chatgpt provider id>",
+        "body": {
+          "selected": [
+            "<current ids>",
+            "<new id>"
+          ]
+        },
+        "server": "aiconn.Service.PatchProvider -> checkSelectedUsable -> AIConnStore.SetSelected -> UPDATE ai_providers SET selected=$2, updated_at=now() WHERE id=$1",
+        "store": {
+          "table": "ai_providers",
+          "column": "selected jsonb NOT NULL DEFAULT []",
+          "updated_at": "set by DB now()"
+        },
+        "constraints": "adding is allowed; removing a model still referenced by agents is blocked (in_use) - so restore agents before restoring selected"
+      }
+    },
+    "harnessSteps": [
+      "1. Read-only preflight: GET /api/ai/providers; GET /api/ai/agents; GET /api/ai/providers/<chatgpt id>/models?q=<target>. Confirm target is in the catalog, not yet selected, and carries the needed cap (text for director, vision for promptModel).",
+      "2. Controller CAS out of band: snapshot settings key ai.agents (found + raw value) and ai_providers.selected for the provider (and updated_at values if exact-timestamp restore is required). No SQL/API in this audit; the parent owns this step.",
+      "3. Browser allowlist: allow GET/HEAD everywhere; allow exactly PUT /api/ai/agents and (if needed) PATCH /api/ai/providers/<id> with the expected body; block and assert every other write, especially /models/check, /login, /test and inference routes.",
+      "4. If a second selected model is required: PATCH selected first, then GET provider to confirm the new id is in selected (persistence of selection is itself currently unproven - include a reload check).",
+      "5. Open #/settings?section=agents, hold the PUT with page.route (continue after the assertion), click the director Model trigger and choose the target option.",
+      "6. Assert BEFORE releasing the PUT: the closed trigger text contains the new provider/model and the current selection marker; the picker closes; no Save button exists; the saving status is shown while in flight. This is the immediate-update assertion the user reported as broken.",
+      "7. Release -> assert PUT 200, body echoes the requested refs, exactly one PUT; GET /api/ai/agents readback; full reload; assert the trigger still shows the new refs from GET.",
+      "8. Negative: assert no other write, no model call, no image receipt; then rollback: PUT the prior agents doc first, then PATCH selected back to the prior ids, then GET equality and reload."
+    ],
+    "cleanupFields": {
+      "agentsBefore": [
+        "settings.key = ai.agents",
+        "found (bool)",
+        "raw value jsonb (CAS source)",
+        "updated_at (DB timestamp; not restorable through HTTP because the upsert always sets now())"
+      ],
+      "agentsRestore": [
+        "If found=true: PUT the prior raw doc; verify GET equals the prior GET and the raw value matches where the prior raw was already normalized; PUT necessarily rewrites updated_at.",
+        "If found=false: the row did not exist and GET served DefaultAgentModels; there is NO HTTP route to delete a settings key, so exact absence restore requires SQL DELETE FROM settings WHERE key='ai.agents'. Without SQL, PUT DefaultAgentModels() leaves an equivalent default row (behaviour equal, presence differs).",
+        "Because Agents() normalizes only in memory, a PUT restore using the GET body may persist drawFallback that the raw row lacked; use the raw snapshot if byte equality matters."
+      ],
+      "providerBefore": [
+        "ai_providers.selected for that provider id (jsonb array)",
+        "ai_providers.updated_at (DB now(), not restorable via HTTP)"
+      ],
+      "providerRestore": "After agents are restored, PATCH /api/ai/providers/<id> {selected: prior array}; verify GET provider.selected equals prior. Do not PATCH selected back first: removing a model still referenced by agents is blocked (in_use).",
+      "noModelRowTouch": "Using an existing catalog model avoids models/check, so no ai_models upsert and no manual flag needs restoring. If models/check were used, its ai_models row (manual=true plus adapter caps/context/prices) would need its own CAS restore (132 manifest already models this).",
+      "extraSideEffects": [
+        "SSE invalidation and executor reconfiguration are transient; no persisted cleanup needed",
+        "queue/pipeline jobs are untouched by a PUT agents; provider-catalog audit already asserts job/agent snapshot equality for its own writes"
+      ]
+    },
+    "riskNotes": [
+      "Do not reuse 132 as agent-selection proof: it writes only POST /models/check and a local draft, never PUT /api/ai/agents.",
+      "The PUT is global: it changes the model chain for future pipeline steps machine-wide; run only against the isolated QA HOME/DB.",
+      "A capability_missing/unknown_model 422 is a truthful negative, not a UI pass; if the harness hits it, stop and report rather than retrying with a different model."
+    ]
+  }
+}

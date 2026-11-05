@@ -82,9 +82,11 @@ type Config struct {
 	// number of delays + 1 bounds the attempts of one start.
 	ProvisionBackoff []time.Duration
 	// Preview advertises whether the server may ask this machine for an
-	// on-demand voice preview (`capabilities.preview`). The Mac build leaves it
-	// false until the server has a reverse preview path: the UI then hides
-	// Nghe thử instead of offering a button that cannot work (10-audio.md §8.4).
+	// on-demand voice preview (`capabilities.preview`). The worker answers those
+	// requests with the same engine that renders chapters, so the CLI turns it
+	// on; the server still gates the button on a ready, connected machine
+	// (10-audio.md §8.4 #6). A build without the preview pull path leaves it
+	// false and the UI hides Nghe thử instead of offering a dead button.
 	Preview bool
 	// StateEvery throttles percent-only state posts (default 2 s).
 	StateEvery time.Duration
@@ -284,6 +286,9 @@ func (w *Worker) Run(ctx context.Context) error {
 		// An operator's install command must be seen even while we are busy
 		// claiming; a command re-provisions before the next claim.
 		_ = w.pollCommand(ctx)
+		// Nghe thử chen trước nhưng chỉ MỘT lượt mỗi vòng: sau đó vòng vẫn thử
+		// nhận chương, nên nghe thử liên tục không thể bỏ đói việc tạo chương.
+		w.servePreview(ctx)
 		processed, err := w.RunOnce(ctx)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			// A cancelled run surfaces as a transport error mid-request; that is
@@ -406,6 +411,9 @@ func (w *Worker) process(parent context.Context, j job) error {
 			return w.failJob(parent, j, fmt.Errorf("đoạn %d: %w", i+1, err))
 		}
 		atts = append(atts, att)
+		// Một lượt nghe thử chen giữa hai đoạn: người dùng đang chờ tiếng, và
+		// mỗi đoạn có thể mất vài giây nên không thể đợi hết chương.
+		w.servePreview(jobCtx)
 	}
 
 	body, _ := json.Marshal(map[string]any{

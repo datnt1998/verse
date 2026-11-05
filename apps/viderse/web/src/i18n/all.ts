@@ -11,7 +11,6 @@ import { backdropCopy } from './backdrop'
 import { channelsCopy } from './channels'
 import { devkitCopy } from './devkitCopy'
 import { errorsCopy } from './errorsCopy'
-import { learnCopy } from './learn'
 import { libraryCopy } from './library'
 import { logs } from './logs'
 import { screenEditor, screenExplore, screenNew, screenQueue, screenReview, screenSettings, screenWorkbench } from './screens'
@@ -44,7 +43,6 @@ export const t = {
   backdrop: backdropCopy,
   channels: channelsCopy,
   autonomy: autonomyCopy,
-  learn: learnCopy,
   errors: errorsCopy.errors,
   devkit: devkitCopy.devkit,
 } as const

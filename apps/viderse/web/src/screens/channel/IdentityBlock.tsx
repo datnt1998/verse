@@ -6,7 +6,7 @@ import { channelStyles } from './channel.stylex'
 // mô tả kênh, phong cách app tự rút, ô góp ý cho lần tạo lại). Không tự bấm vẽ:
 // mỗi lần vẽ là một ảnh trả phí trong hạn mức ChatGPT.
 import { useState } from 'react'
-import { Icon, ProgressBar, Switch } from '@noverse/ui'
+import { Icon, ProgressBar, Switch, TextArea } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
 import { ActionButton, ChannelAvatar, Orb } from '../../components'
 import { t } from '../../i18n/channels'
@@ -19,7 +19,17 @@ import { channelTint } from '../../lib/channelTint'
 import { useMediaQuery } from '../../lib/useMediaQuery'
 import { mch } from './mobile/mchannel.stylex'
 
-export function IdentityBlock({ channel }: { channel: Channel }) {
+type BriefField = {
+  draft: string
+  state: 'idle' | 'saving' | 'saved' | 'error'
+  error: string | null
+  dirty: boolean
+  setDraft: (draft: string) => void
+  commit: () => Promise<void>
+  isSaved: () => boolean
+}
+
+export function IdentityBlock({ channel, brief }: { channel: Channel; brief: BriefField }) {
   const tt = t.channels.identity
   const phone = useMediaQuery('(max-width: 767px)')
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal), {
@@ -38,14 +48,38 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
   const task = activity.data?.running.find((item) => item.kind === 'identity' && item.objectRef.id === channel.id)
   const percent = task?.progress ? Math.round((task.progress.done / Math.max(1, task.progress.total)) * 100) : 0
   const reference = channel.sources.find((source) => source.reference) ?? channel.sources[0]
+  const briefLock = brief.state === 'saving'
+    ? 'Đang lưu mô tả kênh. Chờ lưu xong trước khi tạo lại.'
+    : brief.dirty
+      ? 'Lưu mô tả kênh trước khi tạo lại nhận diện. Rời ô để lưu; nếu có lỗi, sửa rồi thử lại.'
+      : undefined
+  const regenerationLock = generating ? tt.generatingLock : briefLock
+  const avatarPending = pending === 'avatar' || pending === 'all'
+    || (generating && (!channel.identity.part || channel.identity.part === 'avatar' || channel.identity.part === 'all'))
+  const avatar = (
+    <span {...stylex.props(channelStyles.idAvatar)} aria-busy={avatarPending || undefined}>
+      <ChannelAvatar
+        name={channel.name || t.channels.page.noName}
+        src={channel.avatarUrl ?? undefined}
+        color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
+        size={phone ? 48 : 56}
+      />
+      {avatarPending && (
+        <span {...stylex.props(channelStyles.idAvatarPending)} role="status" aria-label="Đang tạo avatar mới; ảnh đang dùng được giữ tới khi xong." />
+      )}
+    </span>
+  )
 
   const regen = async (part: IdentityPart) => {
     if (generating || pending) return
+    // Never start a paid run with an unsaved/failed draft, including blur → click races.
+    if (!brief.isSaved()) return
     setPending(part)
     setError(null)
     try {
       const result = await generateBranding(channel.id, {
         part,
+        // Omit brief: the backend snapshots the persisted branding.brief, not this editor's draft.
         direction: direction.trim() ? direction.trim() : undefined,
       })
       setData(keys.channel(channel.id), result.channel)
@@ -74,12 +108,38 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
   const brandFields = (
     <>
       <div {...stylex.props(channelStyles.idField)}>
-        <span {...stylex.props(channelStyles.idHead)}>{tt.briefTitle}</span>
-        <div {...stylex.props(channelStyles.idBrief)}>{channel.branding.brief || tt.briefEmpty}</div>
-        <span {...stylex.props(channelStyles.idBriefFoot)}>
-          <span>{tt.briefHint}</span>
-          <span className="num">{channel.branding.brief.length} / 2.000</span>
+        <span {...stylex.props(channelStyles.fieldRow)}>
+          <label {...stylex.props(channelStyles.idHead)} htmlFor="vch-brief">{tt.briefTitle}</label>
+          <span {...stylex.props(channelStyles.saveline)} aria-live="polite">
+            {brief.state === 'saving' ? t.channels.settings.saving : brief.state === 'saved' ? t.channels.settings.saved : brief.state === 'error' ? 'Chưa lưu' : t.channels.settings.autosave}
+          </span>
         </span>
+        <TextArea
+          id="vch-brief"
+          xstyle={channelStyles.idBrief}
+          value={brief.draft}
+          placeholder={tt.briefEmpty}
+          maxLength={2000}
+          showCount={false}
+          rows={4}
+          error={brief.error ?? undefined}
+          aria-describedby="vch-brief-hint vch-brief-count"
+          onChange={(event) => brief.setDraft(event.target.value)}
+          onBlur={() => void brief.commit()}
+        />
+        <span {...stylex.props(channelStyles.idBriefFoot)}>
+          <span id="vch-brief-hint">{tt.briefHint}</span>
+          <span id="vch-brief-count" {...stylex.props(channelStyles.idBriefCount)} className="num">{brief.draft.length} / 2.000</span>
+        </span>
+        {briefLock && (
+          <span {...stylex.props(channelStyles.idStyleNote)} aria-live="polite">{briefLock}</span>
+        )}
+        {(brief.dirty || brief.error) && brief.state !== 'saving' && (
+          <ActionButton variant="outline" size={phone ? 'lg' : 'sm'} xstyle={channelStyles.idBriefSave}
+            onClick={() => void brief.commit()}>
+            {brief.error ? 'Thử lưu lại mô tả' : 'Lưu mô tả'}
+          </ActionButton>
+        )}
       </div>
 
       <div {...stylex.props(channelStyles.idStyleBox)}>
@@ -105,7 +165,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
             maxLength={1000}
           />
           <ActionButton variant="outline" size={phone ? 'lg' : 'sm'} block={phone}
-            lockedReason={generating ? tt.generatingLock : undefined}
+            lockedReason={regenerationLock}
             onClick={() => void regen('all')}
             pending={pending === 'all'}
             icon={<Icon name="magic" size={14} />}
@@ -132,6 +192,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
         <ActionButton variant="outline" size={mobile ? 'lg' : 'sm'}
           onClick={() => void regen(failedTextStep ? 'name' : channel.identity.part ?? 'all')}
           pending={pending !== null}
+          lockedReason={regenerationLock}
           icon={<Icon name="refresh" size={14} />}
         >
           {tt.retry}
@@ -151,15 +212,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
           ) : (
             <div {...stylex.props(channelStyles.bannerEmpty)}>{tt.bannerCaption}</div>
           )}
-          {safeArea && <span {...stylex.props(channelStyles.bannerSafeDim)} aria-hidden="true" />}
           {safeArea && <span {...stylex.props(channelStyles.bannerSafe)} aria-hidden="true" />}
-          <span {...stylex.props(channelStyles.bannerChip)}>{tt.bannerCaption}</span>
-          {!phone && (
-            <div {...stylex.props(channelStyles.bannerSafeToggle)}>
-              <Switch checked={safeArea} onChange={setSafeArea} label={tt.safeArea} size="sm" />
-              {tt.safeArea}
-            </div>
-          )}
           {generating && (
             <div {...stylex.props(channelStyles.skelOverlay)} role="status">
               <Orb of="artist" size={26} live />
@@ -175,6 +228,13 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
               )}
             </div>
           )}
+          <span {...stylex.props(channelStyles.bannerChip)}>{tt.bannerCaption}</span>
+          {!phone && (
+            <div {...stylex.props(channelStyles.bannerSafeToggle)}>
+              <Switch checked={safeArea} onChange={setSafeArea} label={tt.safeArea} size="sm" />
+              {tt.safeArea}
+            </div>
+          )}
         </div>
 
         {phone && (
@@ -184,36 +244,31 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
               <Switch checked={safeArea} onChange={setSafeArea} label={tt.safeArea} />
             </div>
             <div {...stylex.props(mch.idAvatarRow)}>
-              <ChannelAvatar
-                name={channel.name || t.channels.page.noName}
-                src={channel.avatarUrl ?? undefined}
-                color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
-                size={48}
-              />
+              {avatar}
               <div {...stylex.props(mch.idAvatarText)}>
                 <span {...stylex.props(mch.idName)}>{channel.name || t.channels.page.noName}</span>
                 <span {...stylex.props(mch.idSub)}>{generating ? tt.generatingLock : tt.readySub}</span>
               </div>
             </div>
             <div {...stylex.props(mch.idGrid)}>
-              <ActionButton variant="outline" size="lg" block
-                lockedReason={generating ? tt.generatingLock : undefined}
+              <ActionButton variant="outline" size="lg" block xstyle={[mch.idAction, mch.idWide]}
+                lockedReason={regenerationLock}
                 onClick={() => void regen('banner')}
                 pending={pending === 'banner'}
                 icon={<Icon name="refresh" size={14} />}
               >
                 {tt.regenBanner}
               </ActionButton>
-              <ActionButton variant="outline" size="lg" block
-                lockedReason={generating ? tt.generatingLock : undefined}
+              <ActionButton variant="outline" size="lg" block xstyle={mch.idAction}
+                lockedReason={regenerationLock}
                 onClick={() => void regen('avatar')}
                 pending={pending === 'avatar'}
                 icon={<Icon name="refresh" size={14} />}
               >
                 {tt.regenAvatar}
               </ActionButton>
-              <ActionButton variant="outline" size="lg" block tooltip={tt.regenNameTitle}
-                lockedReason={generating ? tt.generatingLock : undefined}
+              <ActionButton variant="outline" size="lg" block xstyle={mch.idAction} tooltip={tt.regenNameTitle}
+                lockedReason={regenerationLock}
                 onClick={() => void regen('name')}
                 pending={pending === 'name'}
                 icon={<Icon name="edit" size={14} />}
@@ -221,7 +276,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
                 {tt.regenName}
               </ActionButton>
               {(avatarDownload || bannnerDownload) && (
-                <ActionButton variant="outline" size="lg" block xstyle={mch.idWide} title={tt.downloadTitle} onClick={downloadAll} icon={<Icon name="download" size={14} />}>
+                <ActionButton variant="outline" size="lg" block xstyle={[mch.idAction, mch.idWide]} title={tt.downloadTitle} onClick={downloadAll} icon={<Icon name="download" size={14} />}>
                   {tt.download}
                 </ActionButton>
               )}
@@ -232,7 +287,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
         {!phone && (
           <div {...stylex.props(channelStyles.bannerActions)}>
             <ActionButton variant="outline" size="sm"
-              lockedReason={generating ? tt.generatingLock : undefined}
+              lockedReason={regenerationLock}
               onClick={() => void regen('banner')}
               pending={pending === 'banner'}
               icon={<Icon name="refresh" size={14} />}
@@ -253,12 +308,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
 
         {!phone && (
           <div {...stylex.props(channelStyles.idrow)}>
-            <ChannelAvatar
-              name={channel.name || t.channels.page.noName}
-              src={channel.avatarUrl ?? undefined}
-              color={{ bg: channelTint(channel.id), ring: channelTint(channel.id) }}
-              size={56}
-            />
+            {avatar}
             <div {...stylex.props(channelStyles.idrowText)}>
               <span {...stylex.props(channelStyles.idname)}>{channel.name || t.channels.page.noName}</span>
               <span {...stylex.props(channelStyles.idsub, generating && channelStyles.idsubGen)}>
@@ -267,7 +317,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
             </div>
             <span {...stylex.props(channelStyles.idActions)}>
               <ActionButton variant="outline" size="sm"
-                lockedReason={generating ? tt.generatingLock : undefined}
+                lockedReason={regenerationLock}
                 onClick={() => void regen('avatar')}
                 pending={pending === 'avatar'}
                 icon={<Icon name="refresh" size={14} />}
@@ -275,7 +325,7 @@ export function IdentityBlock({ channel }: { channel: Channel }) {
                 {tt.regenAvatar}
               </ActionButton>
               <ActionButton variant="outline" size="sm" tooltip={tt.regenNameTitle}
-                lockedReason={generating ? tt.generatingLock : undefined}
+                lockedReason={regenerationLock}
                 onClick={() => void regen('name')}
                 pending={pending === 'name'}
                 icon={<Icon name="edit" size={14} />}

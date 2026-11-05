@@ -1,0 +1,199 @@
+{
+  "proof": "NATIVE_HTTP_AND_DATABASE_QUEUE; EXPLICIT_SYNTHETIC_CACHED_METADATA; WORKERS_GUARDED",
+  "cases": [
+    {
+      "name": "Manual block B,C globally precedes older A, input order stable",
+      "status": "PASS",
+      "ids": [
+        "eeea9086-54b1-4f34-ac46-cae64ae1e0f0",
+        "74b33550-49a0-45bb-9f36-a82e286363c4",
+        "3c117c4c-3412-4165-a910-39189df2d793"
+      ]
+    },
+    {
+      "name": "Mixed duplicate+invalid reports real queued identifier, no new job",
+      "status": "PASS"
+    },
+    {
+      "name": "Authenticated queue target resolves real pending row",
+      "status": "PASS"
+    },
+    {
+      "name": "Same source for different channel is allowed",
+      "status": "PASS"
+    },
+    {
+      "name": "Concurrent same-pair requests create exactly one real queue row",
+      "status": "PASS"
+    },
+    {
+      "name": "Per-video template override persisted on queued request",
+      "status": "PASS"
+    },
+    {
+      "name": "Valid candidate queues despite invalid sibling",
+      "status": "PASS"
+    },
+    {
+      "name": "Removed public priority field rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Obsolete creation requests fail without queue mutation; retained generic job operations untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid workers and retired editable rules rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Workers boundaries accepted, other rules fixed",
+      "status": "PASS"
+    },
+    {
+      "name": "Video override does not mutate channel defaults",
+      "status": "PASS"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/queue/items/eeea9086-54b1-4f34-ac46-cae64ae1e0f0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/api/jobs",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/enqueue",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 400
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 400
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 400
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 400
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/queue",
+      "status": 200
+    }
+  ],
+  "noProviderClaim": true,
+  "channelDefaultsBefore": {
+    "c76cc725-0e9d-43fd-98d1-4d55412510e8": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+    "78799ed0-57fa-4cff-ab00-509bdc65e5da": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+    "98ae68b2-813e-427a-8238-8eb0e86de231": "ec7d7b44-39b4-417c-9dbf-958bcf024142"
+  },
+  "originalWorkers": 2,
+  "channelDefaultsAfter": {
+    "c76cc725-0e9d-43fd-98d1-4d55412510e8": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+    "78799ed0-57fa-4cff-ab00-509bdc65e5da": "ec7d7b44-39b4-417c-9dbf-958bcf024142",
+    "98ae68b2-813e-427a-8238-8eb0e86de231": "ec7d7b44-39b4-417c-9dbf-958bcf024142"
+  },
+  "status": "PASS",
+  "workersRestored": true
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "sc-01",
+    "version": 1,
+    "provider": null,
+    "source": "upload",
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 503
+  },
+  {
+    "id": "sc-02",
+    "version": 1,
+    "provider": null,
+    "source": "upload",
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 503
+  },
+  {
+    "id": "sc-03",
+    "version": 1,
+    "provider": null,
+    "source": "upload",
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 503
+  },
+  {
+    "id": "sc-04",
+    "version": 2,
+    "provider": "codex",
+    "source": null,
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 200,
+    "actualSize": [
+      1920,
+      1080
+    ],
+    "format": "PNG",
+    "mode": "RGBA"
+  },
+  {
+    "id": "sc-05",
+    "version": 1,
+    "provider": null,
+    "source": "upload",
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 503
+  },
+  {
+    "id": "sc-06",
+    "version": 1,
+    "provider": null,
+    "source": "upload",
+    "expectedSize": [
+      1920,
+      1080
+    ],
+    "httpStatus": 503
+  }
+]

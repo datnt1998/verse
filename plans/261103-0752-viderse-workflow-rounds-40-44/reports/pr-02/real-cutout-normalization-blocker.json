@@ -1,0 +1,26 @@
+{
+  "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "realImageVersion": 2,
+  "provider": "chatgpt",
+  "model": "gpt-image-2",
+  "normalizedImageSize": [
+    1920,
+    1080
+  ],
+  "pipelineCutoutSize": [
+    1672,
+    941
+  ],
+  "expectedCutoutSize": [
+    1920,
+    1080
+  ],
+  "actualFormat": "png",
+  "decodeError": null,
+  "authoredSceneCutoutsValid": true,
+  "sourceCause": "images/handler.go encodes raw provider PNG to normalized WebP but sends raw PNG to cutout; viewer cutout derives from normalized WebP and already has correct dimensions",
+  "diagnosticSourceRemoved": true,
+  "productionFixApplied": false,
+  "imageBudgetConsumed": 1,
+  "maximumAuthorizedImages": 2
+}

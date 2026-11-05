@@ -1,16 +1,17 @@
 // Hash router có kiểu theo design 02 §4. Hash không hợp lệ hoặc tham số query
 // sai kiểu đều rơi về Bàn dựng — App chuẩn hoá lại thanh địa chỉ sau khi parse.
 import { useEffect, useState } from 'react'
+import { openQuickCreate } from './screens/new/quickCreate'
 
 export type Route =
-  | { name: 'workbench'; channel?: string; video?: string; scope?: 'all' } // '#/'
-  | { name: 'review'; channel?: string; video?: string }               // '#/review'
+  | { name: 'workbench'; channel?: string; video?: string; queueItem?: string; img?: string; scope?: 'all' } // '#/'
+  | { name: 'review'; channel?: string; video?: string; img?: string }               // '#/review'
   | { name: 'queue'; item?: string; sheet?: 'rules' }                    // '#/queue'
   | { name: 'channel'; channelId: string; tab?: ChannelTab }           // '#/channels/<id>'
   | { name: 'channel-new'; step?: ChannelNewStep }                     // '#/channels/new'
   | { name: 'explore'; rival?: string; video?: string }                // '#/explore'
   | { name: 'new'; channel?: string }                                  // '#/new?channel=<id>'
-  | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; nguon?: BackdropSource; kenh?: string } // '#/library'
+  | { name: 'library'; tab?: LibraryTab; prompt?: PromptView; promptId?: string; nguon?: BackdropSource; kenh?: string } // '#/library'
   | { name: 'template'; templateId: string; section?: TemplateSection }// '#/templates/<id>'
   | { name: 'editor'; projectId: string; fix?: string; cue?: string }    // '#/editor/<projectId>'
   | { name: 'render'; requestId: string; token?: string }
@@ -20,7 +21,7 @@ export type Route =
   | { name: 'account' }                                                // '#/account'
   | { name: 'devkit'; board?: DevKitBoard; section?: string }          // '#/dev/kit' (chỉ dev)
 
-export const CHANNEL_TABS = ['videos', 'sources', 'templates', 'settings'] as const
+export const CHANNEL_TABS = ['sources', 'templates', 'settings'] as const
 export type ChannelTab = (typeof CHANNEL_TABS)[number]
 
 export const CHANNEL_NEW_STEPS = ['create', 'done'] as const
@@ -70,11 +71,11 @@ export function parseHash(hash: string): Parsed {
 
   let route: Route
   if (seg.length === 0) {
-    route = { name: 'workbench', channel: text(search.get('channel')), video: text(search.get('video')), ...(search.get('scope') === 'all' && !search.get('channel') ? { scope: 'all' as const } : {}) }
+    route = { name: 'workbench', channel: text(search.get('channel')), video: text(search.get('video')), queueItem: text(search.get('queueItem')), ...(search.get('video') && search.get('img') ? { img: text(search.get('img')) } : {}), ...(search.get('scope') === 'all' && !search.get('channel') ? { scope: 'all' as const } : {}) }
   } else if (seg[0] === 'clone' && seg.length <= 2) {
-    route = { name: 'workbench', video: seg[1] }
+    route = { name: 'workbench', video: seg[1], ...(seg[1] && search.get('img') ? { img: text(search.get('img')) } : {}) }
   } else if (seg[0] === 'review' && seg.length === 1) {
-    route = { name: 'review', channel: text(search.get('channel')), ...(search.get('video') ? { video: text(search.get('video')) } : {}) }
+    route = { name: 'review', channel: text(search.get('channel')), ...(search.get('video') ? { video: text(search.get('video')), ...(search.get('img') ? { img: text(search.get('img')) } : {}) } : {}) }
   } else if (seg[0] === 'queue' && seg.length === 1) {
     route = { name: 'queue', item: text(search.get('item')), sheet: oneOf(search.get('sheet'), ['rules'] as const) }
   } else if (seg[0] === 'channels' && seg[1] === 'new' && seg.length === 2) {
@@ -90,6 +91,7 @@ export function parseHash(hash: string): Parsed {
       name: 'library',
       tab: oneOf(search.get('tab'), LIBRARY_TABS),
       prompt: oneOf(search.get('prompt'), PROMPT_VIEWS),
+      promptId: text(search.get('promptId')),
       nguon: oneOf(search.get('nguon'), BACKDROP_SOURCES),
       kenh: text(search.get('kenh')),
     }
@@ -122,14 +124,14 @@ export function routePath(route: Route): string {
     return s ? `?${s}` : ''
   }
   switch (route.name) {
-    case 'workbench': return `/${q([['scope', route.scope], ['channel', route.channel], ['video', route.video]])}`
-    case 'review': return `/review${q([['channel', route.channel], ['video', route.video]])}`
+    case 'workbench': return `/${q([['scope', route.scope], ['channel', route.channel], ['video', route.video], ['queueItem', route.video ? undefined : route.queueItem], ['img', route.video ? route.img : undefined]])}`
+    case 'review': return `/review${q([['channel', route.channel], ['video', route.video], ['img', route.video ? route.img : undefined]])}`
     case 'queue': return `/queue${q([['item', route.item], ['sheet', route.sheet]])}`
     case 'channel': return `/channels/${encodeURIComponent(route.channelId)}${q([['tab', route.tab]])}`
     case 'channel-new': return `/channels/new${q([['step', route.step]])}`
     case 'explore': return `/explore${q([['rival', route.rival], ['video', route.video]])}`
     case 'new': return `/new${q([['channel', route.channel]])}`
-    case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['nguon', route.nguon], ['kenh', route.kenh]])}`
+    case 'library': return `/library${q([['tab', route.tab], ['prompt', route.prompt], ['promptId', route.promptId], ['nguon', route.nguon], ['kenh', route.kenh]])}`
     case 'template': return `/templates/${encodeURIComponent(route.templateId)}${q([['section', route.section]])}`
     case 'editor': return `/editor/${encodeURIComponent(route.projectId)}${q([['fix', route.fix], ['cue', route.cue]])}`
     case 'render': return `/render/${encodeURIComponent(route.requestId)}${q([['token', route.token]])}`
@@ -142,15 +144,15 @@ export function routePath(route: Route): string {
 }
 
 export const paths = {
-  workbench: (opts?: { channel?: string; video?: string }) => routePath({ name: 'workbench', ...opts }),
-  review: (opts?: { channel?: string; video?: string }) => routePath({ name: 'review', ...opts }),
+  workbench: (opts?: { channel?: string; video?: string; queueItem?: string; img?: string }) => routePath({ name: 'workbench', ...opts }),
+  review: (opts?: { channel?: string; video?: string; img?: string }) => routePath({ name: 'review', ...opts }),
   queue: (opts?: { item?: string; sheet?: 'rules' }) => routePath({ name: 'queue', ...opts }),
   channel: (channelId: string, tab?: ChannelTab) => routePath({ name: 'channel', channelId, tab }),
   channelNew: (step?: ChannelNewStep) => routePath({ name: 'channel-new', step }),
   explore: (opts?: { rival?: string; video?: string }) => routePath({ name: 'explore', ...opts }),
   new: (channel?: string) => routePath({ name: 'new', channel }),
-  library: (tab?: LibraryTab, prompt?: PromptView, backdrop?: { nguon?: BackdropSource; kenh?: string }) =>
-    routePath({ name: 'library', tab, prompt, nguon: backdrop?.nguon, kenh: backdrop?.kenh }),
+  library: (tab?: LibraryTab, prompt?: PromptView, opts?: { nguon?: BackdropSource; kenh?: string; promptId?: string }) =>
+    routePath({ name: 'library', tab, prompt, promptId: opts?.promptId, nguon: opts?.nguon, kenh: opts?.kenh }),
   template: (templateId: string, section?: TemplateSection) => routePath({ name: 'template', templateId, section }),
   editor: (projectId: string) => routePath({ name: 'editor', projectId }),
   settings: (section?: SettingsSection) => routePath({ name: 'settings', section }),
@@ -162,12 +164,13 @@ export const paths = {
 /** Mục MainNav tô sáng cho route đang mở; null = trang ngoài nav (Hàng chờ,
  *  Cài đặt, Tài khoản, Editor) — không mục nào sáng (artboard Queue/Settings).
  */
-export type NavKey = 'workbench' | 'review' | 'channels' | 'explore' | 'new'
+export type NavKey = 'workbench' | 'review' | 'channels' | 'explore' | 'library' | 'new'
 export function navSection(route: Route): NavKey | null {
   switch (route.name) {
     case 'workbench': return 'workbench'
     case 'review': return 'review'
-    case 'channel': case 'channel-new': case 'template': case 'library': return 'channels'
+    case 'channel': case 'channel-new': return 'channels'
+    case 'template': case 'library': return 'library'
     case 'explore': return 'explore'
     case 'new': return 'new'
     default: return null
@@ -190,6 +193,8 @@ export function pickChannelRoute(route: Route, channelId: string | undefined): R
  * gán location.hash thì trình duyệt tự bắn sự kiện.
  */
 export function navigate(path: string, replace = false) {
+  const quick = parseHash(`#${path}`).route
+  if (quick.name === 'new') { openQuickCreate({ channelId: quick.channel }); return }
   if (replace) {
     const next = new URL(location.href)
     next.hash = `#${path}`

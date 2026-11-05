@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Job } from '../../api/types'
 import type { EventHandler } from '../../data/events'
 import type { JobsState } from './store'
@@ -14,7 +14,8 @@ vi.mock('../../data/events', () => ({
   subscribeEvents: (_: unknown, handler: EventHandler) => { mocks.handler = handler; return () => { mocks.handler = null } },
 }))
 vi.mock('../../mobile/pwa', () => ({ notificationsEnabled: () => false, setNotificationUser: () => {} }))
-vi.mock('@noverse/ui', async (importOriginal) => ({ ...(await importOriginal<object>()),  toast: {} }))
+// The store uses only toast; don't evaluate unused kit components in this harness.
+vi.mock('@noverse/ui', () => ({ toast: {} }))
 
 const job = (id = 'p/s/voice/1', finishedAt = '2026-10-27T10:00:00Z'): Job => ({
   id, finishedAt, kind: 'voice', title: 'Tập 1', status: 'done', progress: 1,
@@ -39,6 +40,8 @@ beforeEach(() => {
   mocks.getJobs.mockResolvedValue({ jobs: [] })
   host = document.createElement('div'); document.body.append(host); root = createRoot(host)
 })
+// Compile once before the timed reload scenarios; each test still resets module state.
+beforeAll(async () => { await import('./store') })
 afterEach(async () => {
   release?.(); await act(async () => root.unmount()); host.remove(); vi.clearAllTimers(); vi.useRealTimers()
 })

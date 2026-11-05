@@ -28,6 +28,8 @@ describe('nhãn phiên bản', () => {
 
   it('dòng meta đúng thứ tự nhà cung cấp · model · cỡ · giờ vẽ · giờ · số ảnh', () => {
     expect(versionMeta(base())).toMatch(/^ChatGPT · gpt-image-2 · 1280×720 · vẽ 44 giây · \d\d:\d\d · tốn 1 ảnh$/)
+    // Artboard ghi số giây nguyên: không để lộ phần thập phân từ provider.
+    expect(versionMeta(base({ durationSec: 44.6 }))).toContain('vẽ 45 giây')
     expect(versionMeta(base({ state: 'drawing', durationSec: null, finishedAt: null, costImages: 0 }))).toBe('ChatGPT · gpt-image-2 · 1280×720')
   })
 
@@ -99,6 +101,22 @@ describe('ghép §26 với trường cũ', () => {
     )
     expect(items).toHaveLength(1)
     expect(items[0]).toMatchObject({ label: 'Cảnh 3', index: 3, approved: true, narration: 'Lời kể.', startSec: 745, usedVersion: 2, refLimit: 4 })
+  })
+
+  it('không dùng lại điểm cũ khi phiên bản hiện tại chưa kiểm chứng được chỉ dẫn', () => {
+    const issue = 'Chỉ dẫn nằm ngoài khả năng kiểm ảnh.'
+    const score = { value: 100 }
+    const parsed = jobImagesSchema.parse({
+      images: [{ id: 'a', kind: 'scene', index: 1, label: 'Cảnh 1', usedVersion: 2, refLimit: 4, versions: [base()], scoreIssue: issue }],
+    })
+    const [item] = toReviewItems(
+      [{ id: 'a', kind: 'scene', status: 'review', prompt: 'p', currentVersion: 2, reviewVersion: 2, versions: [], score }],
+      parsed.images,
+      {},
+    )
+    expect(item.score).toBeUndefined()
+    expect(item.scoreIssue).toBe(issue)
+    expect(item.versions[0].url).toBe('/v2.jpg')
   })
 
   it('chưa có §26 thì đọc bản đang xem từ dữ liệu cũ', () => {

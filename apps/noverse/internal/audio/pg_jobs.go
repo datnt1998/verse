@@ -356,12 +356,22 @@ func (s *PGService) chapterQueueSlot(ctx context.Context, scope postgres.ScopeRe
 	if len(active) == 0 {
 		return slot, nil
 	}
-	newest := active[len(active)-1]
+	// List is queue-ordered now (priority first), so pick the newest active row
+	// explicitly: supersede must always replace the most recent attempt.
+	newest := active[0]
+	for _, row := range active[1:] {
+		if row.CreatedAt.After(newest.CreatedAt) {
+			newest = row
+		}
+	}
 	var in pgTTSInput
 	if err := json.Unmarshal(newest.Input, &in); err == nil && pgQueueIntentMatches(in, want) {
 		// Duplicate active rows can only come from older bugs or a racing
 		// request; keep the newest matching row and fence the rest out.
-		for _, extra := range active[:len(active)-1] {
+		for _, extra := range active {
+			if extra.ID == newest.ID {
+				continue
+			}
 			if _, cerr := s.deps.Jobs.Cancel(ctx, postgres.JobKey{ProjectID: scope.ProjectID, ID: extra.ID}); cerr != nil &&
 				!errors.Is(cerr, postgres.ErrJobState) && !errors.Is(cerr, postgres.ErrJobNotFound) {
 				return slot, pgErr(cerr)
@@ -735,14 +745,20 @@ func (s *PGService) resumeJob(ctx context.Context, jobID string) (postgres.Job, 
 // Resume continues a paused (or failed) job.
 func (s *PGService) Resume(jobID string) error {
 	ctx := context.Background()
-	_, row, err := s.jobByID(ctx, jobID)
+	scope, row, err := s.jobByID(ctx, jobID)
 	if err != nil {
 		return err
 	}
 	if row.State != postgres.JobPaused && row.State != postgres.JobFailed {
 		return conflict("Chỉ tiếp tục được việc đang tạm dừng hoặc bị lỗi.")
 	}
-	if _, err := s.resumeJob(ctx, jobID); err != nil {
+	key := postgres.JobKey{ProjectID: scope.ProjectID, ID: row.ID}
+	if row.State == postgres.JobFailed {
+		_, err = s.deps.Jobs.Retry(ctx, key, nil)
+	} else {
+		_, err = s.deps.Jobs.Resume(ctx, key)
+	}
+	if err != nil {
 		return pgErr(err)
 	}
 	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
@@ -784,8 +800,21 @@ func (s *PGService) Retry(ctx context.Context, jobID, quality string) error {
 	return nil
 }
 
-// Prioritize needs a queue order column the durable jobs table does not
-// expose yet; it answers 501 instead of pretending to reorder.
+// Prioritize moves the chapter's queued tts job ahead of every other job in
+// the story. The durable row keeps its lease/fence/created_at; only its queue
+// priority changes, so the list reload and the native claim agree.
 func (s *PGService) Prioritize(ctx context.Context, volume, chapter int) error {
-	return pgUnsupported("Sắp xếp lại hàng đợi")
+	scope, err := s.resolve(ctx)
+	if err != nil {
+		return pgErr(err)
+	}
+	if _, err := s.deps.Jobs.PrioritizeChapter(ctx, scope, volume, chapter); err != nil {
+		if errors.Is(err, postgres.ErrJobState) {
+			return conflict("Chỉ làm trước được chương đang chờ.")
+		}
+		return pgErr(err)
+	}
+	s.hub.Publish(NewEvent(EventQueue, map[string]any{"jobs": s.Queue()}))
+	s.wakePreparation()
+	return nil
 }

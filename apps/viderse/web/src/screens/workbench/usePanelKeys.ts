@@ -9,7 +9,7 @@ export function usePanelKeys() {
   const [rightOpen, setRightOpen] = useState(true)
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || typing(event.target)) return
+      if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || typing(event.target) || document.querySelector('[aria-modal="true"]')) return
       if (event.key === '[') setLeftOpen((open) => !open)
       else if (event.key === ']') setRightOpen((open) => !open)
     }

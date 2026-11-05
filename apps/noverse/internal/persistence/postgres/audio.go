@@ -997,6 +997,11 @@ func (a *Audio) SaveScriptBundleTx(ctx context.Context, tx pgx.Tx, scope ScopeRe
 	if err := validateScriptMeta(script); err != nil {
 		return Script{}, err
 	}
+	// Stable IDs can exchange ordinals during a merge. Validate their final
+	// order atomically instead of rejecting a temporary overlap mid-upsert.
+	if _, err := tx.Exec(ctx, "SET CONSTRAINTS audio_segment_ordinal_unique DEFERRED"); err != nil {
+		return Script{}, sanitizeErr(err)
+	}
 	var saved Script
 	q := gen.New(tx)
 	var row gen.AudioScript
@@ -1093,6 +1098,9 @@ func (a *Audio) SaveScriptBundleTx(ctx context.Context, tx pgx.Tx, scope ScopeRe
 		}); err != nil {
 			return Script{}, sanitizeErr(err)
 		}
+	}
+	if _, err := tx.Exec(ctx, "SET CONSTRAINTS audio_segment_ordinal_unique IMMEDIATE"); err != nil {
+		return Script{}, constraintErr(err)
 	}
 	return saved, nil
 }

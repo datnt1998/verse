@@ -9,9 +9,10 @@ import { Button } from '@noverse/ui'
 import { Radio, RadioCard } from '@noverse/ui'
 import { Skeleton, Spinner } from '@noverse/ui'
 import { Field } from '@noverse/ui'
-import { useAction } from '../../data'
+import { keys, useAction, useResource } from '../../data'
 import { useSaveShortcut } from '@noverse/ui'
-import { previewTtsVoice } from '../../api/client'
+import { getTtsStatus, previewTtsVoice } from '../../api/client'
+import { ttsPreviewURL, voicePreviewSource } from './voicePreview'
 import { issueSegments, speakerName } from './logic'
 import { speakerRoleLabel } from '../../lib/cast'
 import type { PackVoice } from './packVoice'
@@ -200,8 +201,16 @@ export function CastPanel({ cast, voices, lineCounts, writable, pack, styleHref,
   onAddVoice: () => void
 }) {
   const preview = usePreviewAudio()
+  const tts = useResource([...keys.tts(), 'status'], ({ signal }) => getTtsStatus(signal))
+  const canPreview = (voiceId: string | null) => voicePreviewSource(voices.find((voice) => voice.id === voiceId),
+    Boolean(tts.data?.ready && tts.data.capabilities.preview)) !== 'none'
   const sampleAction = useAction(async (id: string, voice: string) => {
-    await preview.play(id, () => previewTtsVoice(voice, t.audio.panels.xinChaoToiLa))
+    // Giọng có tệp mẫu trong dự án phát thẳng URL đó (giọng tải lên được ưu
+    // tiên); preset của máy đọc dùng URL GET phát trực tiếp. Truyền thẳng URL
+    // để play() chạy ngay trong cử chỉ; chỉ khi không có tuyến nào mới gọi API.
+    const found = voices.find((item) => item.id === voice)
+    const url = found?.sampleUrl ?? (found?.builtIn ? ttsPreviewURL(voice) : '')
+    await preview.play(id, url || (() => previewTtsVoice(voice, t.audio.panels.xinChaoToiLa)))
   })
   if (!cast) return <div role="status" aria-label={t.audio.panels.dangTaiPhanVai} style={{ display: 'grid', gap: 12 }}>
     <Skeleton height={70} /><Skeleton height={90} /><Skeleton height={90} />
@@ -211,10 +220,11 @@ export function CastPanel({ cast, voices, lineCounts, writable, pack, styleHref,
   const ordered = [...voices.filter((voice) => !voice.builtIn), ...voices.filter((voice) => voice.builtIn)]
   const missing = cast.speakers.filter((speaker) => !speaker.voiceId && !speaker.sameAs)
 
-  const setMode = (mode: AudioCast['mode']) => onCast({ ...cast, mode })
+  const setMode = (mode: AudioCast['mode']) => onCast({ ...cast, mode, voiceMode: mode })
   // Gói một giọng kể: mọi thay đổi giọng đều ghi chế độ `single` để vai.json khớp với gói.
   const setSingle = (patch: Partial<AudioCast['single']>) => onCast({
-    ...cast, mode: pack ? 'single' : cast.mode, single: { ...cast.single, ...patch },
+    ...cast, mode: pack ? 'single' : cast.mode, voiceMode: pack ? 'pack' : cast.mode,
+    single: { ...cast.single, ...patch },
   })
   const setSpeaker = (id: string, voiceId: string) => onCast({
     ...cast,
@@ -222,7 +232,7 @@ export function CastPanel({ cast, voices, lineCounts, writable, pack, styleHref,
   })
   const sampleButton = (id: string, voiceId: string | null, label: string, size: number, iconSize: number, style?: CSSProperties) => (
     <button type="button" className="hov-ghost" aria-label={label}
-      disabled={!voiceId || (sampleAction.busy && preview.loadingId !== id)}
+      disabled={!canPreview(voiceId) || (sampleAction.busy && preview.loadingId !== id)}
       onClick={() => { if (voiceId) void sampleAction.run(id, voiceId) }}
       style={{
         width: size, height: size, flex: '0 0 auto', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.1)',

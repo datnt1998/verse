@@ -1,0 +1,173 @@
+{
+  "verifiedSourceCommit": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+  "baseCommit": "c96ad3913a34e0baa6b83514b4118091dbbe6af0",
+  "decision": "Question84 A: edit the viewed source; no implicit use-version mutation",
+  "sourceSHA256": {
+    "apps/viderse/internal/clone/images/types.go": "3d17ead990479cc670d207510d09360c4350b706c7f8875f7412ba353badbd4f",
+    "apps/viderse/internal/clone/images/versions.go": "b137d56a87823eda1f134db16fe1af9e949255343ffe98ede23b0ee93abd0d72",
+    "apps/viderse/internal/clone/images/versions_test.go": "cacf349ee986d0a38845cc0493c3cef4ae349fb3f42feba2cf3facce0ecf1847",
+    "apps/viderse/internal/pipeline/steps/images/model.go": "3bce0747348dc9270098086731935a80d8a653c9e48e80af7b1992495e711145",
+    "apps/viderse/internal/pipeline/steps/images/draw.go": "4d25d6362694143759b72bb75f7ffc055408e074fc2fed4addbf7b1f77a5e228",
+    "apps/viderse/internal/pipeline/steps/images/versions_test.go": "839686b923149e42178a4064dab4207fc66ad43c3d7a5332033769f56d5150f6",
+    "apps/viderse/internal/clone/images/service.go": "a70714f6c6d47ad464dc5a7fdbbf1baeee803dcfc59a0085e8d6503436f082c0",
+    "apps/viderse/web/src/api/images.ts": "0ae7ec049e117c08a019564c2078bd474f27c773a7cf716fea47bb91cec54fff",
+    "apps/viderse/web/src/screens/review/useImageEditing.ts": "c32b6e36843b6f49df0d67f3b59df3d6763e9369fcbcee2bc35e99f3e6e59005",
+    "apps/viderse/web/src/screens/review/ReviewScreen.tsx": "d27021a4abc932b98cf1f008c8db2dca06d830df46a8f1a375705b9bc236031a",
+    "apps/viderse/web/src/screens/review/ReviewScreen.test.tsx": "e2af609448cd55f5565996df4b61799dda8310a7ba480263ce06069015aa127e",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.tsx": "bfec5b407d8ade90937312f5b5ddc7df0687cae53ac9518ecbbcde37de0af076",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.test.tsx": "1c4dc1d09c7a7ea3b6e752b7febb77679e37094b4ee2674f765c10ca9f940c3a",
+    "apps/viderse/web/src/editor/v13/SceneImagePanel.tsx": "40251d20196b5f54fad06484a6e532bbc6fa4d5f215f3e4b18067aa2b2ccbf6b",
+    "apps/viderse/web/src/editor/v13/scene-images.test.tsx": "be07e999d2863d0d9f4d08471193dd3bfcb8409ad7e5775bf8fa1cdb6cb4a1b5",
+    "apps/viderse/web/src/screens/workbench/LiveStudio.tsx": "dd669c32b18a9b17891679b17830ff8abe1f358ead4d2a74f1f5e5226eed7274",
+    "apps/viderse/web/src/screens/workbench/LiveStudio.test.tsx": "638d13b72382c3d4d1e3ae1877807e2fcd6bde2ed139c9cdac696ba3c6911f8c",
+    "apps/viderse/web/src/screens/workbench/WorkbenchDesktop.tsx": "48a67d931bbca67436935101de3f74a992aaa83c24f1cb05b4c920b747af3b4a",
+    "apps/viderse/web/src/screens/workbench/WorkbenchDesktop.test.tsx": "90d7be53890800fc5517fdbc2499246d60fad4f18bd99e5ad81fdf8fe66c2b9f",
+    "apps/viderse/web/src/components/autonomy/AutonomyCard.test.tsx": "c9372abd0b18ad80c08cbd074e02d6da2c659fed32d5f28dbbf4b364fa8d149e",
+    "apps/viderse/web/src/screens/review/ImageRail.tsx": "a5664c99ea98112651e3c54d57c022b9f722af478c39237fcf32c523d27cec97",
+    "apps/viderse/web/src/screens/review/imageView.ts": "467c2f4cf2b81e5995ecaeb308db5d6f4a89a143bd4e0e75caeade772d0db067"
+  },
+  "frontend": {
+    "command": "npm test -- --reporter=default --reporter=json",
+    "passed": 3755,
+    "failed": 0,
+    "skipped": 4,
+    "skipReason": "Existing OffscreenCanvas-dependent caption coverage tests, guarded by describe.runIf; jsdom has no OffscreenCanvas. Not claimed executed.",
+    "skippedCases": [
+      {
+        "file": "apps/viderse/web/src/editor/engine/features/export/utils/caption-coverage.test.ts",
+        "name": "painted caption alpha coverage unions real karaoke overflow, stroke, shadow and transformed ink without full-frame coverage",
+        "status": "skipped"
+      },
+      {
+        "file": "apps/viderse/web/src/editor/engine/features/export/utils/caption-coverage.test.ts",
+        "name": "painted caption alpha coverage observes actual auto-expanded static text rather than the authored text box",
+        "status": "skipped"
+      },
+      {
+        "file": "apps/viderse/web/src/editor/engine/features/export/utils/caption-coverage.test.ts",
+        "name": "painted caption alpha coverage releases finished surfaces and starts a discarded render retry fresh",
+        "status": "skipped"
+      },
+      {
+        "file": "apps/viderse/web/src/editor/engine/features/export/utils/caption-coverage.test.ts",
+        "name": "painted caption alpha coverage isolates nested captions from an opaque background and keeps wrapper instances distinct",
+        "status": "skipped"
+      }
+    ],
+    "appTypecheck": "passed",
+    "engineTestTypecheck": "passed",
+    "editorFocused": 25,
+    "appConsumerFocused": 58,
+    "productionBuild": "passed",
+    "warnings": [
+      "Existing Zod PURE annotations",
+      "Chunks larger than500kB; no threshold suppression"
+    ]
+  },
+  "backend": {
+    "commands": [
+      "go test -overlay=<private map> ./internal/clone/images ./internal/pipeline/steps/images",
+      "go test -overlay=<private map> ./internal/web ./internal/pipeline/...",
+      "go build -overlay=<private map> -o <private QA binary> ./cmd/viderse"
+    ],
+    "status": "passed",
+    "nonOwnedCompiledOverlay": {
+      "path": "apps/viderse/internal/persistence/postgres/gen/models.go",
+      "sourceCommit": "c96ad3913a34e0baa6b83514b4118091dbbe6af0",
+      "sha256": "333fd4d885771e8d1d7e042e80b7fd9c3d65e413b765fcdd582858b2565d3846",
+      "reason": "Preserve unrelated user template/trial generated fields without compiling or publishing them",
+      "userFileEdited": false,
+      "userFileStaged": false
+    },
+    "binarySHA256": "25067a99af28d7eb3bc44b2437fccf3f922c5fb1d0c0f1256e668373eed0c4b6",
+    "historyArrayRegression": {
+      "before": "failed: parts:null breaks strict rich-client schema",
+      "after": "passed: parts:[]; full rich cancelled history preserved"
+    }
+  },
+  "native": {
+    "receipt": "runs/61-selected-source-final-empty-cancelled-history/selected-base-native-results.json",
+    "contexts": 4,
+    "passed": 4,
+    "actualHTTP": 202,
+    "sourceVersion": 2,
+    "usedVersionAfter": 1,
+    "selectedReferences": 2,
+    "cancelledHistoryDisabled": true,
+    "documentOverflow": false,
+    "stackedActiveModal": false,
+    "overlayOutsideViewport": false,
+    "sourcePreserved": true,
+    "replayRestored": true,
+    "additionalProviderRequests": 0,
+    "proofLimit": "Worker paused before actual submission; persisted source and UI verified, no new provider/image output claimed."
+  },
+  "httpBoundaries": {
+    "receipt": "runs/62-selected-source-final-api-boundaries/rejection-results.json",
+    "cases": [
+      {
+        "scenario": "zero-base",
+        "httpStatus": 400,
+        "code": "invalid_request",
+        "limit": null,
+        "noPersistentMutation": true
+      },
+      {
+        "scenario": "missing-base",
+        "httpStatus": 404,
+        "code": "not_found",
+        "limit": null,
+        "noPersistentMutation": true
+      },
+      {
+        "scenario": "cancelled-base",
+        "httpStatus": 400,
+        "code": "invalid_request",
+        "limit": null,
+        "noPersistentMutation": true
+      },
+      {
+        "scenario": "live-flight",
+        "httpStatus": 409,
+        "code": "conflict",
+        "limit": null,
+        "noPersistentMutation": true
+      },
+      {
+        "scenario": "video-grok-inherited-refs",
+        "httpStatus": 422,
+        "code": "too_many_refs",
+        "limit": 1,
+        "noPersistentMutation": true
+      },
+      {
+        "scenario": "video-api-card-inherited-refs",
+        "httpStatus": 422,
+        "code": "too_many_refs",
+        "limit": 0,
+        "noPersistentMutation": true
+      }
+    ],
+    "noPersistentMutation": true,
+    "sourcePreserved": true,
+    "replayRestored": true
+  },
+  "globalGates": {
+    "coldEntryKiB": 142.1,
+    "coldEntryLimitKiB": 150,
+    "coldPhoneKiB": 203.1,
+    "coldPhoneLimitKiB": 200,
+    "coldPhoneStatus": "FAILED; retained under approved question83 intermediate-PR exception",
+    "initialCSSKiB": 34.7,
+    "initialCSSLimitKiB": 40,
+    "exploreP95": "Previous full-Go FAIL1371.48ms/400ms under concurrent load; not remeasured or claimed fixed in this change",
+    "physicalSafariIPhone": "unexercised; not Chromium-equivalent proof"
+  },
+  "publication": {
+    "draftPR": "https://github.com/datnt1998/verse/pull/3",
+    "merged": false,
+    "deployed": false,
+    "credentialValueScan": "0matches in122 staged non-deleted source/build blobs",
+    "ordinaryIndexPreserved": true
+  }
+}

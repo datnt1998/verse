@@ -203,6 +203,12 @@ const template = {
   overlayDuration: (time: string) => `dài ${time} · phủ toàn video`,
   overlayEmptyTitle: 'Chưa có lớp phủ nào',
   overlayEmptyHint: 'Hiệu ứng phủ lên toàn video. Thêm tệp mới trong Thư viện › Lớp phủ.',
+  loadingLibrary: 'Đang tải nguồn và lớp phủ…',
+  missingChannelName: 'Kênh nền không còn trong kho',
+  missingVideoName: 'Video nền không còn trong kho',
+  missingOverlayName: 'Lớp phủ không còn trong kho',
+  missingOverlayHint: 'Không tìm thấy lớp phủ đã gắn trong Thư viện.',
+  mixLoadFail: 'Chưa tính được nền cho video. Thử lại.',
   overlayPickTitle: 'Chọn hiệu ứng từ thư viện',
   overlayPickEmpty: 'Kho chưa có hiệu ứng nào. Thêm tệp trong Thư viện › Lớp phủ.',
 

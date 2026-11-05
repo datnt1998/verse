@@ -37,7 +37,7 @@ export function QueueBanner({ queue }: { queue: QueueController }) {
   return <div role="status" {...stylex.props(sx.banner, warning && sx.warningBanner)}><span {...stylex.props(sx.bannerIcon)}><Icon name={warning ? 'danger' : 'pause'} size={16} /></span><span>{text}</span></div>
 }
 export function QueueIdle({ summary = false, onNavigate }: { summary?: boolean; onNavigate?: () => void }) {
-  return <div {...stylex.props(sx.idle)}><span {...stylex.props(sx.idleOrb)} aria-hidden="true"><span {...stylex.props(sx.idleDot)} /></span><span {...stylex.props(sx.idleTitle)}>{m.idle}</span><span {...stylex.props(sx.idleHint)}>{summary ? m.idleSummary : m.idleHint}</span><a href={`#${paths.new()}`} onClick={onNavigate} {...stylex.props(sx.link)}><Icon name="add" size={16} />{m.newVideo}</a></div>
+  return <div {...stylex.props(sx.idle)}><span {...stylex.props(sx.idleOrb)} aria-hidden="true"><span {...stylex.props(sx.idleDot)} /></span><span {...stylex.props(sx.idleTitle)}>{m.idle}</span><span {...stylex.props(sx.idleHint)}>{summary ? m.idleSummary : m.idleHint}</span><a href={`#${paths.new()}`} data-quick-create-handoff={onNavigate ? 'true' : undefined} onClick={onNavigate ? (event) => { event.preventDefault(); onNavigate() } : undefined} {...stylex.props(sx.link)}><Icon name="add" size={16} />{m.newVideo}</a></div>
 }
 export function QueueStepper({ label, value, max, disabled, unit, onChange }: { label: string; value: number; max: number; disabled: boolean; unit?: (value: number) => string; onChange: (value: number) => void }) {
   return <div role="group" aria-label={label} {...stylex.props(sx.stepper)}>
@@ -55,9 +55,7 @@ export function QueueRulesSheet({ open, onClose, queue }: { open: boolean; onClo
     <AdminReadOnly><div {...stylex.props(sx.rulesBody)}>
       <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.lanes}</span><span {...stylex.props(sx.sub)}>{m.workerBounds}</span></span><QueueStepper label={tt.rules.lanesTitle} value={view.workers.total} max={6} disabled={disabled} onChange={(workers) => void patch({ workers })} /></div>
       <p {...stylex.props(sx.ruleNote)}>{tt.workerGuidance}</p><div {...stylex.props(sx.divider)} />
-      <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.imageSlots}</span><span {...stylex.props(sx.sub)}>{m.imageBounds}</span></span><QueueStepper label={tt.rules.imageSlotsTitle} value={view.imageWorkers} max={8} disabled={disabled} onChange={(imageWorkers) => void patch({ imageWorkers })} /></div><div {...stylex.props(sx.divider)} />
-      <div {...stylex.props(sx.rule)}><span {...stylex.props(sx.grow, sx.stack)}><span {...stylex.props(sx.ruleTitle)}>{tt.rules.rescan}</span><span {...stylex.props(sx.sub)}>{m.rescanBounds}</span></span><QueueStepper label={tt.rules.rescanTitle} value={view.rescanHours} max={24} unit={tt.rules.rescanUnit} disabled={disabled} onChange={(rescanHours) => void patch({ rescanHours })} /></div>
-      <p {...stylex.props(sx.ruleFooter)}>{m.rulesNote}</p>
+      <p {...stylex.props(sx.ruleFooter)}>Số ảnh vẽ cùng lúc và chu kỳ xem đối thủ do máy chọn. Nhịp từng kênh được giữ riêng.</p>
     </div></AdminReadOnly><div {...stylex.props(sx.sheetFooter)}><Button variant="primary" size="xl" block onClick={onClose}>{m.done}</Button></div>
   </Sheet>
 }
@@ -151,9 +149,9 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
               <span title={item.title} {...stylex.props(sx.ellipsis, sx.queuedTitle)}>{item.title || item.source}</span>
               <span {...stylex.props(sx.meta)}>
                 <QueueAvatar queue={queue} channelId={item.channelId} size={16} />
-                <span {...stylex.props(sx.ellipsis)}>{item.priority === 'pick' ? `${tt.priority} · ` : ''}{item.templateName} · {fmtDuration(item.durationSec)}</span>
+                <span {...stylex.props(sx.ellipsis)}>{item.templateName} · {fmtDuration(item.durationSec)}</span>
               </span>
-              <span title={waitLine(item, view.paused)} {...stylex.props(sx.small, sx.ellipsis, item.waitReason === 'no_template' && sx.warning)}>
+              <span title={waitLine(item, view.paused)} {...stylex.props(sx.small, sx.ellipsis)}>
                 {!view.paused && item.etaStart ? `${fmtEta(item.etaStart)} · ` : ''}{waitLine(item, view.paused)}
               </span>
             </span>
@@ -168,7 +166,7 @@ export function MobileQueue({ queue }: { queue: QueueController }) {
         aria-haspopup="dialog"
         icon="setting"
         title={tt.rulesTitle}
-        hint={m.rulesSummary(view.workers.total, view.imageWorkers, view.rescanHours)}
+        hint={m.rulesSummary(view.workers.total)}
         chevron
         onClick={() => setRulesOpen(true)}
         xstyle={[sx.card, sx.row, sx.rulesLink]}

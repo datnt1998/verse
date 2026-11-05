@@ -288,6 +288,8 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
       number={number}
       jobId={jobId}
       image={image}
+      images={images}
+      imageProgress={imageProgress}
       progress={image ? imageProgress?.[image.id] : undefined}
       quota={imageQuota}
       beforeMutation={beforeMutation}

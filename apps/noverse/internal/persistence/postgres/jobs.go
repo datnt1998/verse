@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -90,6 +91,7 @@ type Job struct {
 	Error          []byte
 	ProgressDone   int32
 	ProgressTotal  *int32
+	QueuePriority  int32
 	RequestedBy    pgtype.UUID
 	WorkerID       pgtype.UUID
 	LeaseUntil     *time.Time
@@ -162,6 +164,7 @@ func jobFromRow(r gen.Job) Job {
 		Error:          r.Error,
 		ProgressDone:   r.ProgressDone,
 		ProgressTotal:  int32Ptr(r.ProgressTotal),
+		QueuePriority:  r.QueuePriority,
 		RequestedBy:    r.RequestedBy,
 		WorkerID:       r.WorkerID,
 		LeaseUntil:     timePtr(r.LeaseUntil),
@@ -407,6 +410,70 @@ func (j *Jobs) EnqueueChapter(ctx context.Context, scope ScopeRef, idempotencyKe
 	return jobFromRow(out), nil
 }
 
+// PrioritizeChapter moves the exact chapter's queued tts job ahead of every
+// other tts job in the story ("Làm trước"). The story advisory lock serializes
+// concurrent prioritize clicks so they get distinct increasing priorities;
+// enqueue uses a chapter key and only inserts priority 0, so it never races
+// the max read. Only queue_priority/updated_at/version change — state, worker,
+// lease, fence and created_at are preserved, and a running/paused/finished
+// chapter is rejected instead of being silently reordered.
+func (j *Jobs) PrioritizeChapter(ctx context.Context, scope ScopeRef, volume, chapter int) (Job, error) {
+	if !scope.ProjectID.Valid || !scope.StoryID.Valid {
+		return Job{}, fmt.Errorf("job thiếu phạm vi: %w", errInvalidJobInput)
+	}
+	var out gen.Job
+	err := j.tx(ctx, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1, 0))`,
+			fmt.Sprintf("noverse:tts-priority:%s:%s", UUIDString(scope.ProjectID), UUIDString(scope.StoryID))); err != nil {
+			return sanitizeErr(err)
+		}
+		q := gen.New(tx)
+		rows, err := q.LockChapterNumberJobs(ctx, gen.LockChapterNumberJobsParams{
+			ProjectID: scope.ProjectID,
+			StoryID:   scope.StoryID,
+			Volume:    strconv.Itoa(volume),
+			Chapter:   strconv.Itoa(chapter),
+		})
+		if err != nil {
+			return sanitizeErr(err)
+		}
+		if len(rows) == 0 {
+			return ErrJobNotFound
+		}
+		// Historical terminal attempts must not hide the chapter's queued retry.
+		var newest *gen.Job
+		for i := len(rows) - 1; i >= 0; i-- {
+			if JobState(rows[i].State) == JobQueued {
+				newest = &rows[i]
+				break
+			}
+		}
+		if newest == nil {
+			return ErrJobState
+		}
+		maxPriority, err := q.MaxStoryQueuePriority(ctx, gen.MaxStoryQueuePriorityParams{
+			ProjectID: scope.ProjectID,
+			StoryID:   scope.StoryID,
+		})
+		if err != nil {
+			return sanitizeErr(err)
+		}
+		out, err = q.SetJobQueuePriority(ctx, gen.SetJobQueuePriorityParams{
+			ProjectID:     scope.ProjectID,
+			ID:            newest.ID,
+			QueuePriority: maxPriority + 1,
+		})
+		if noRows(err) {
+			return ErrJobState
+		}
+		return sanitizeErr(err)
+	})
+	if err != nil {
+		return Job{}, err
+	}
+	return jobFromRow(out), nil
+}
+
 func jobStateActive(state string) bool {
 	switch JobState(state) {
 	case JobQueued, JobRunning, JobPaused:
@@ -441,8 +508,9 @@ func (j *Jobs) Get(ctx context.Context, key JobKey) (Job, error) {
 	return jobFromRow(row), nil
 }
 
-// List returns every job of a story in enqueue order. The HTTP layer derives
-// the display `position` among queued jobs from this order.
+// List returns every job of a story in queue order: prioritized rows first,
+// then created_at. The HTTP layer derives the display `position` among queued
+// jobs from this order.
 func (j *Jobs) List(ctx context.Context, scope ScopeRef) ([]Job, error) {
 	rows, err := gen.New(j.pool).ListStoryJobs(ctx, gen.ListStoryJobsParams{
 		ProjectID: scope.ProjectID,

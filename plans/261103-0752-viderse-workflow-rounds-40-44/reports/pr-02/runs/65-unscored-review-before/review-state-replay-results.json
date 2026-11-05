@@ -1,0 +1,1333 @@
+{
+  "sourceRevision": "52d3871225e4a6c8dd0799c0e5d151692463d600",
+  "baseURL": "http://127.0.0.1:8043",
+  "replayID": "b816c8ba-e80f-4776-92ab-5c848425d233",
+  "sourceID": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "captures": [
+    {
+      "name": "desktop-unscored-before-assertion",
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "pageWidth": 1440,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": false,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Viderse",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Duyệt2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "title": "Không video nào đang chạy hay chờ lượt"
+          },
+          {
+            "role": "a",
+            "name": "Cài đặt · 3 việc cần xem",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Tài khoản của bạn",
+            "disabled": false,
+            "title": "Tài khoản của bạn"
+          },
+          {
+            "role": "button",
+            "name": "QA replay A · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "QA replay B · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại cả 7 ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Mở Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Ảnh gốc",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Tách nền",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 1",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 2",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 3",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 4",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 5",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 6",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "button",
+            "name": "Sửa chỉ dẫn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lạiR",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựngA",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1 · lần đầu · đang dùng",
+            "disabled": false,
+            "title": "Bản 1 · Lần đầu · Hoạ sĩ viết từ lời kể · 23:43 · đang dùng"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2 · lần đầu",
+            "disabled": false,
+            "title": "Bản 2 · Lần đầu · Hoạ sĩ viết từ lời kể · 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2 cho video",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Thêm",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Chép",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Sửa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ẩn thay đổi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Xem nguyên văn gửi máy chủ",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": []
+    },
+    {
+      "name": "desktop-unscored",
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "pageWidth": 1440,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": false,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Viderse",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Duyệt2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "title": "Không video nào đang chạy hay chờ lượt"
+          },
+          {
+            "role": "a",
+            "name": "Cài đặt · 3 việc cần xem",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Tài khoản của bạn",
+            "disabled": false,
+            "title": "Tài khoản của bạn"
+          },
+          {
+            "role": "button",
+            "name": "QA replay A · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "QA replay B · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại cả 7 ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Mở Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Ảnh gốc",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Tách nền",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 1",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 2",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 3",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 4",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 5",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 6",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "button",
+            "name": "Sửa chỉ dẫn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lạiR",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựngA",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1 · lần đầu · đang dùng",
+            "disabled": false,
+            "title": "Bản 1 · Lần đầu · Hoạ sĩ viết từ lời kể · 23:43 · đang dùng"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2 · lần đầu",
+            "disabled": false,
+            "title": "Bản 2 · Lần đầu · Hoạ sĩ viết từ lời kể · 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2 cho video",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Thêm",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Chép",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Sửa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ẩn thay đổi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Xem nguyên văn gửi máy chủ",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": []
+    },
+    {
+      "name": "desktop-reduced-unscored-before-assertion",
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "pageWidth": 1440,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": true,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Viderse",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Duyệt2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "title": "Không video nào đang chạy hay chờ lượt"
+          },
+          {
+            "role": "a",
+            "name": "Cài đặt · 3 việc cần xem",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Tài khoản của bạn",
+            "disabled": false,
+            "title": "Tài khoản của bạn"
+          },
+          {
+            "role": "button",
+            "name": "QA replay A · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "QA replay B · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại cả 7 ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Mở Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Ảnh gốc",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Tách nền",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 1",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 2",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 3",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 4",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 5",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 6",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "button",
+            "name": "Sửa chỉ dẫn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lạiR",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựngA",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1 · lần đầu · đang dùng",
+            "disabled": false,
+            "title": "Bản 1 · Lần đầu · Hoạ sĩ viết từ lời kể · 23:43 · đang dùng"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2 · lần đầu",
+            "disabled": false,
+            "title": "Bản 2 · Lần đầu · Hoạ sĩ viết từ lời kể · 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2 cho video",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Thêm",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Chép",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Sửa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ẩn thay đổi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Xem nguyên văn gửi máy chủ",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": []
+    },
+    {
+      "name": "desktop-reduced-unscored",
+      "metrics": {
+        "width": 1440,
+        "height": 900,
+        "pageWidth": 1440,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": true,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Viderse",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Duyệt2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "title": "Không video nào đang chạy hay chờ lượt"
+          },
+          {
+            "role": "a",
+            "name": "Cài đặt · 3 việc cần xem",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Tài khoản của bạn",
+            "disabled": false,
+            "title": "Tài khoản của bạn"
+          },
+          {
+            "role": "button",
+            "name": "QA replay A · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "QA replay B · saved source, no new AIMidnight Tales · Chờ bạn duyệt ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại cả 7 ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Mở Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Ảnh gốc",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "radio",
+            "name": "Tách nền",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 1",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 2",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 3",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 4",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 5",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 6",
+            "disabled": false,
+            "title": "Shift + bấm để chọn nhiều ảnh"
+          },
+          {
+            "role": "button",
+            "name": "Sửa chỉ dẫn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lạiR",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựngA",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1 · lần đầu · đang dùng",
+            "disabled": false,
+            "title": "Bản 1 · Lần đầu · Hoạ sĩ viết từ lời kể · 23:43 · đang dùng"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2 · lần đầu",
+            "disabled": false,
+            "title": "Bản 2 · Lần đầu · Hoạ sĩ viết từ lời kể · 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2 cho video",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Thêm",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Chép",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Sửa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ẩn thay đổi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Xem nguyên văn gửi máy chủ",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": []
+    },
+    {
+      "name": "mobile-unscored",
+      "metrics": {
+        "width": 390,
+        "height": 844,
+        "pageWidth": 390,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": false,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Việc nền: máy rảnh, 21 thông báo cần bạn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Tài khoản và cài đặt",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Video sau",
+            "disabled": false,
+            "title": "Video sau"
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 01",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 02",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 03",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 04",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 05",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 06",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1",
+            "disabled": false,
+            "title": "vẽ lúc 23:43"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2",
+            "disabled": false,
+            "title": "vẽ lúc 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Xem prompt đã gửi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh này",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": [
+        {
+          "name": "x1pcm954-B",
+          "state": "running",
+          "duration": 550,
+          "iterations": 1
+        }
+      ]
+    },
+    {
+      "name": "mobile-reduced-unscored",
+      "metrics": {
+        "width": 390,
+        "height": 844,
+        "pageWidth": 390,
+        "dpr": 1,
+        "fonts": "loaded",
+        "reducedMotion": true,
+        "url": "http://127.0.0.1:8043/#/review?video=b816c8ba-e80f-4776-92ab-5c848425d233&img=sc-04",
+        "controls": [
+          {
+            "role": "a",
+            "name": "Việc nền: máy rảnh, 21 thông báo cần bạn",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "a",
+            "name": "Tài khoản và cài đặt",
+            "disabled": false,
+            "title": "Cài đặt"
+          },
+          {
+            "role": "button",
+            "name": "Video sau",
+            "disabled": false,
+            "title": "Video sau"
+          },
+          {
+            "role": "button",
+            "name": "So với bản 1",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh trước",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Ảnh sau",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 01",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 02",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 03",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 04",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 05",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Cảnh 06",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "option",
+            "name": "Ảnh bìa",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Dùng bản 2",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bản 1",
+            "disabled": false,
+            "title": "vẽ lúc 23:43"
+          },
+          {
+            "role": "button",
+            "name": "Bản 2",
+            "disabled": false,
+            "title": "vẽ lúc 01:38"
+          },
+          {
+            "role": "button",
+            "name": "Xem prompt đã gửi",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Vẽ lại",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bỏ ảnh này",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt cả video & dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Bàn dựng",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Duyệt",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Video mới",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Kênh",
+            "disabled": false,
+            "title": null
+          },
+          {
+            "role": "button",
+            "name": "Khám phá",
+            "disabled": false,
+            "title": null
+          }
+        ],
+        "overlays": []
+      },
+      "motion": []
+    }
+  ],
+  "provenance": "Explicit UI fixtures persisted in an owned recorded-source replay; no claim these failures were observed from the paid provider",
+  "additionalProviderRequests": 0,
+  "originalSourceUnchanged": true,
+  "replayRestored": true,
+  "results": [
+    {
+      "project": "desktop",
+      "state": "unscored",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "desktop-reduced",
+      "state": "unscored",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile",
+      "state": "unscored",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    },
+    {
+      "project": "mobile-reduced",
+      "state": "unscored",
+      "status": "captured",
+      "provenance": "authored persisted UI scenario; not a provider execution claim",
+      "writes": []
+    }
+  ]
+}

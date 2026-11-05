@@ -210,24 +210,21 @@ func runServe(args []string) error {
 	}
 	librarySvc := mountLibrary(gateway, libraryDeps{pool: pool, files: storageFiles{svc: storageSvc}, media: mediaManager.Media(), toolKit: toolKit, runner: toolDeps.Runner, ai: ai.Service, hub: hub, logStore: logStore}, newBackdropMix(pool))
 	go seedLibraryBuiltins(bg, librarySvc, logStore)
-	learnRT := newLearnRuntime(pool, settings, hub, ai)
-	learnRT.Channels = channelSvc
-	learnRT.BindCleanup(serverCleanup)
-	learnRT.Mount(gateway)
-	scanSvc.SetNotifier(learnRT.OnRivals(bg, web.Notifier(hub, "rivals")))
-	go learnRT.Run(bg)
-	seams := &assistantSeams{Learn: learnRT}
+	suggestRT := newSuggestRuntime(pool, settings, hub)
+	suggestRT.BindCleanup(serverCleanup)
+	suggestRT.Mount(gateway)
+	scanSvc.SetNotifier(suggestRT.OnRivals(bg, web.Notifier(hub, "rivals")))
+	go suggestRT.Run(bg)
 	headlessOrigin := fmt.Sprintf("http://127.0.0.1:%d", listener.Addr().(*net.TCPAddr).Port)
 	if proxyCfg.PublicURL != nil {
 		// Browser claims must use the same configured origin as the hosted guard.
 		headlessOrigin = proxyCfg.PublicURL.Scheme + "://" + proxyCfg.PublicURL.Host
 	}
-	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, headlessOrigin, seams)
+	cloneClose, err := mountClonePipeline(bg, gateway, pool, settings, hub, statusSvc, cfgDir, toolKit, toolDeps, ai, librarySvc, backdropRuntime.svc, mediaManager.Media(), scanSvc, headlessOrigin, suggestRT)
 	if err != nil {
 		return err
 	}
 	defer cloneClose()
-	defer mountAssistant(gateway, pool, ai, channelSvc, activities, seams)()
 	bound, port, _ := net.SplitHostPort(listener.Addr().String())
 	base := func(host string) string { return "http://" + net.JoinHostPort(host, port) }
 

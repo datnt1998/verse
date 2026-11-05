@@ -1,0 +1,15 @@
+{
+  "writerCalls": 12,
+  "writerStatuses": {
+    "200": 12
+  },
+  "readCalls": 18,
+  "readStatuses": {
+    "200": 18
+  },
+  "invalidReadBodies": 0,
+  "restoredDescription": true,
+  "preservedTimeline": true,
+  "providerCalls": 0,
+  "newChromeProcesses": 0
+}

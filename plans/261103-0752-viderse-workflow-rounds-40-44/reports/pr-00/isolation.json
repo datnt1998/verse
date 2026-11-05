@@ -1,0 +1,70 @@
+{
+  "observedAt": "2026-11-03T09:24:08.101099+00:00",
+  "appDatabase": "verse_workflow_qa_app_1103155657",
+  "identityDatabase": "verse_workflow_qa_identity_1103155657",
+  "distinctDatabases": true,
+  "home": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-workflow-run-_8dhxf7b/qa/home",
+  "providerStore": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-workflow-run-_8dhxf7b/qa/home/.viderse/auth.json",
+  "providerStoreExists": false,
+  "mediaRoot": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-workflow-run-_8dhxf7b/qa/home/.viderse/projects",
+  "blobCache": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-workflow-run-_8dhxf7b/qa/home/.viderse/cache/blobstore",
+  "browser": "Final receipts use Playwright headless Chrome 150.0.7871.24 with fresh temporary profile; app creates a new context per board and separate anonymous MAuth context. QA cookies only; no user Chrome relay. Historical native/managed attempts are superseded and their owned browsers are closed.",
+  "credentials": "ephemeral QA password only in memory; HTTP-only cookies in private mode0600 temp file; no production provider credentials",
+  "fixture": {
+    "channels": 3,
+    "jobs": 3,
+    "imagesPerJob": [
+      7,
+      7,
+      7
+    ],
+    "providerFree": true
+  },
+  "services": [
+    {
+      "name": "viderse-workflow-reference",
+      "pid": 67587,
+      "port": 8041,
+      "cwd": "/Users/dat/Projects/verse",
+      "command": "python3 -m http.server 8041 --bind 127.0.0.1 --directory apps/viderse/docs/design/v1"
+    },
+    {
+      "name": "viderse-workflow-api",
+      "pid": 86707,
+      "port": 8043,
+      "cwd": "/Users/dat/Projects/verse",
+      "command": "isolated env; temp viderse binary serve"
+    },
+    {
+      "name": "viderse-workflow-web",
+      "pid": 86756,
+      "port": 8044,
+      "cwd": "/Users/dat/Projects/verse",
+      "command": "isolated env; npm run dev -w apps/viderse/web -- --host 127.0.0.1 --port 8044 --strictPort"
+    },
+    {
+      "name": "viderse-workflow-isolated",
+      "pid": 17684,
+      "profile": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-workflow-run-_8dhxf7b/qa/chromium-profile",
+      "command": "owned Chrome for Testing via browser.open app.path, never user Chrome",
+      "purpose": "Historical native mobile control smoke, not final full screenshot capture",
+      "status": "stopped; absence verified after capture"
+    },
+    {
+      "name": "playwright-app-baseline",
+      "pid": 34439,
+      "profile": "fresh Playwright temporary profile, new context per board",
+      "purpose": "Final 28-board app baseline",
+      "status": "browser.close in finally; process absence verified"
+    },
+    {
+      "name": "playwright-reference-baseline",
+      "pid": 35962,
+      "profile": "fresh Playwright temporary profile",
+      "purpose": "Final 480-row context/framing reference capture",
+      "status": "browser.close in finally; process absence verified"
+    }
+  ],
+  "revision": "c34cd512002af842ba48532adcc66f026038e51f",
+  "providerDrawProven": false
+}

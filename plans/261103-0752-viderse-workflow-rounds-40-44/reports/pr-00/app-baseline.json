@@ -1,0 +1,4549 @@
+{
+  "capturedAt": "2026-11-03T11:00:11.291Z",
+  "revision": "c34cd512002af842ba48532adcc66f026038e51f",
+  "status": "completed",
+  "error": null,
+  "runner": "Playwright Chromium; headless isolated context",
+  "browser": {
+    "engine": "Chromium, custom executablePath",
+    "version": "150.0.7871.24",
+    "pid": 34439,
+    "profile": "fresh Playwright temporary profile; isolated newContext, no user profile"
+  },
+  "command": [
+    "app"
+  ],
+  "origin": "http://127.0.0.1:8044",
+  "selectedBoards": [
+    "Review",
+    "Main",
+    "Editor",
+    "Template",
+    "Library",
+    "Settings",
+    "Channel",
+    "CreateChannel",
+    "Onboard",
+    "NewVideo",
+    "Explore",
+    "Queue",
+    "Activity",
+    "Dialogs",
+    "System",
+    "MReview",
+    "MMain",
+    "MChannel",
+    "MLibrary",
+    "MTemplate",
+    "MNew",
+    "MExplore",
+    "MCompVideo",
+    "MQueue",
+    "MSystem",
+    "MSettings",
+    "MCreate",
+    "MAuth"
+  ],
+  "captures": [
+    {
+      "board": "Review",
+      "ownerPR": "PR2",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Review.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nCHỜ BẠN DUYỆT\n3\nKiểm thử QA · Midnight Tales · sáu giây\nMidnight Tales · Bản dựng đang chờ duyệt\nKiểm thử QA · Quiet Hours · sáu giây\nQuiet Hours · Bản dựng đang chờ duyệt\nKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giây\nChuyện Lạ Đêm Khuya · Bản dựng đang chờ duyệt\nDuyệt xong hôm nay\n0 video\nKiểm thử QA · Midnight Tales · sáu giây\nMidnight Tales\nĐã duyệt\n0 / 7\nVẽ lại cả 7 ảnh\nMở Bàn dựng\n1\nCảnh 1\n· 0:00–0:01\n· bản 1 · chưa dùng\nẢnh gốc\nTách nền\n1\n1\n2\n3\n4\n5\n6\nGóp ý để vẽ lại ảnh này\nSửa chỉ dẫn\nVẽ lại\nR\nBỏ ảnh\nDuyệt cả video & dựng\nA\n← →\nảnh\nJ K\nvideo trước / sau\nR\nvẽ lại\nE\nsửa chỉ dẫn\nV\nso sánh\nA\nduyệt cả video\nDuyệt xong tự sang video kế\nCảnh 1\n0:00–0:01\nPHIÊN BẢN · 1\n1\nBản 1 · Lần đầu · Hoạ sĩ viết từ lời kể · 16:21\nDùng bản 1 cho video\nẢNH THAM CHIẾU · 0/4\nThêm\nKhông dùng ảnh tham chiếu. Thêm ảnh để giữ nhân vật hoặc bố cục giống nhau giữa các cảnh.\nCHỈ DẪN ĐÃ GỬI\nChép\nSửa\nCẢNH\n· Bản cũ · chưa tách phần\nẢnh kiểm thử QA dựng bằng FFmpeg từ nguồn tổng hợp; không phải ảnh do nhà cung cấp AI vẽ.\n1920×1080\nXem nguyên văn gửi máy chủ\nLời kể trong cảnh",
+        "images": [
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:7d1fb8d618b47a752ffb17a3f2cf12d598867dec4670ebd462be0e01788b95fe",
+            "complete": true,
+            "width": 1280
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:4801c24d7b018e278ca7340788a782ba2840d5878574519ea7a7baa20184e326",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:18e2b96f4a98da36a9352d009b50ab9cecb608f91bd3368c78ee6a31f583ce75",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:f7200a35664cb198eae0674da3e62a05a3938a11d74664583615124b34e3ffbb",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:2ee5730b1acf64d224ee038dc23fee52ab7cdd02c09f202c7855c76fa55b3691",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:fc04c321e46113784b4263d2a9f009cce126b9a0da915025f4cfefa5de4f91bd",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          }
+        ],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kiểm thử QA · Midnight Tales · sáu giâyMidnight Tales · Bản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kiểm thử QA · Quiet Hours · sáu giâyQuiet Hours · Bản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giâyChuyện Lạ Đêm Khuya · Bản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cả 7 ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mở Bàn dựng",
+            "disabled": false,
+            "href": "#/?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "button",
+            "label": "Ảnh trước",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh sau",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Ảnh gốc",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Ảnh bìa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 2",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 3",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 4",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 5",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 6",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Sửa chỉ dẫn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lạiR",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bỏ ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt cả video & dựngA",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bản 1 · lần đầu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Dùng bản 1 cho video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Chép",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Sửa",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xem nguyên văn gửi máy chủ",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/review?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c",
+        "title": "Duyệt · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:30.433Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Main",
+      "ownerPR": "PR3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Main.baseline.png",
+      "actual": {
+        "text": "C\nM\nQ\nMọi kênh\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nVideo mọi kênh\n0 / 15 hôm nay\nBản tin\nĐề xuất\nKÊNH\n3\nCL\nChuyện Lạ Đêm Khuya\n0/5\n1 chờ bạn\n0 sẵn sàng đăng\nMT\nMidnight Tales\n0/5\n1 chờ bạn\n0 sẵn sàng đăng\nQH\nQuiet Hours\n0/5\n1 chờ bạn\n0 sẵn sàng đăng\nCHỜ BẠN\n3\nCL\nKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giây\nBản dựng đang chờ duyệt\nQH\nKiểm thử QA · Quiet Hours · sáu giây\nBản dựng đang chờ duyệt\nMT\nKiểm thử QA · Midnight Tales · sáu giây\nBản dựng đang chờ duyệt\nTự lấy video\nBật ở 0/3 kênh\nHàng chờ chung\n0 video\nMT\nKiểm thử QA · Midnight Tales · sáu giây\nVẽ lại tất cả\nDuyệt & dựng\nChờ bạn duyệt\nNguồn\nMidnight Tales\nMẫu video\nMẫu chuẩn · Tách nền\nẢnh\nTheo nhận diện kênh\nĐộ dài\n0:06\nĐã vẽ xong 7 ảnh. Vẽ lại ảnh nào chưa ưng, hoặc duyệt để Kiểm định dựng và xuất.\nNhật ký tiến độ\n9 bước\n16:21:08\nTrinh sát\n·\nTải video nguồn\n0 giây\n16:21:08\nTrinh sát\n·\nChuẩn bị nền\n0 giây\n16:21:08\nTrinh sát\n·\nLấy lời kể\n0 giây\n16:21:08\nĐạo diễn\n·\nViết nội dung đăng\n0 giây\n16:21:08\nĐạo diễn\n·\nChia cảnh\n0 giây\n16:21:09\nHoạ sĩ\n·\nVẽ ảnh\n0 giây\n16:21:09\nKiểm định\n·\nĐang chờ bạn duyệt. Mở video để duyệt.\n1 giây\nKiểm định\n·\nKiểm định video\nKiểm định\n·\nXuất video\nBộ ảnh chờ duyệt\n7 ảnh · prompt Theo nhận diện kênh\n1–7\nchọn ảnh\nR\nvẽ lại\nA\nduyệt tất cả\n1\nCảnh 1\nXin chào buổi đêm\n0:00–0:01\n2\nCảnh 2\nTiếng radio cũ\n0:01–0:02\n3\nCảnh 3\nCánh cửa mở ra\n0:02–0:03\n4\nCảnh 4\nBước chân ngoài hành lang\n0:03–0:04\n5\nCảnh 5\nĐèn bàn chập chờn\n0:04–0:05\n6\nCảnh 6\nKết thúc trong im lặng\n0:05–0:06\n7\nẢnh bìa\nKiểm thử QA · Midnight Tales · sáu giây\nNhắn cho trợ lý\nEnter\ngửi\n[ ]\nbảng bên\nTrợ lý\nNội dung\nNguồn\nNền\nHoạ sĩ\nVẽ ảnh cảnh và ảnh bìa\nXong\nKiểm định\nDựng, đo, xuất MP4\nChờ bạn\nĐạo diễn\nChia cảnh, viết tiêu đề, tag\nXong\nTrinh sát\nTải nguồn, phụ đề, bốc clip nền\nXong",
+        "images": [
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:4801c24d7b018e278ca7340788a782ba2840d5878574519ea7a7baa20184e326",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:18e2b96f4a98da36a9352d009b50ab9cecb608f91bd3368c78ee6a31f583ce75",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:f7200a35664cb198eae0674da3e62a05a3938a11d74664583615124b34e3ffbb",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:2ee5730b1acf64d224ee038dc23fee52ab7cdd02c09f202c7855c76fa55b3691",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:fc04c321e46113784b4263d2a9f009cce126b9a0da915025f4cfefa5de4f91bd",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:7d1fb8d618b47a752ffb17a3f2cf12d598867dec4670ebd462be0e01788b95fe",
+            "complete": true,
+            "width": 1280
+          }
+        ],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang xem Mọi kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bản tin",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đề xuất",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "CLChuyện Lạ Đêm Khuya0/51 chờ bạn0 sẵn sàng đăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "MTMidnight Tales0/51 chờ bạn0 sẵn sàng đăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "QHQuiet Hours0/51 chờ bạn0 sẵn sàng đăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "CLKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giâyBản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "QHKiểm thử QA · Quiet Hours · sáu giâyBản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "MTKiểm thử QA · Midnight Tales · sáu giâyBản dựng đang chờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại tất cả",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt & dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh Theo nhận diện kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 2",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 3",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 4",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 5",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại cảnh 6",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại ảnh bìa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Gửi",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Trợ lý",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nội dung",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nguồn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nền",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c",
+        "title": "Bàn dựng · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:32.366Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Editor",
+      "ownerPR": "PR3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Editor.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nKiểm thử QA · Quiet Hours · sáu giây\nQuiet Hours · 0:06 · 6 cảnh · Mẫu chuẩn · Tách nền · Tách nền\nĐã lưu\n?\nĐộ hoàn thiện\n—/100\nXuất\nCần sửa\nCảnh\nPhụ đề\nNền\nÂm thanh\nMedia\nCần sửa\nđo lại\nĐộ hoàn thiện\n—\n/100\nChưa đo độ hoàn thiện. Đo lần đầu để biết video còn thiếu gì.\nCHƯA ĐẠT\n0\nĐã đạt\n0\nĐo độ hoàn thiện\nĐo lại sau khi sửa. Kiểm định tự cập nhật điểm và danh sách cần sửa.\nXin chào buổi đêm\n00:00:00:00 / 00:00:06:00\nKhung an toàn\nXem\n1/1\nThu phóng\nVừa khung\nVideo\n\nChọn một cảnh, đoạn phụ đề hay clip nền trên dòng thời gian để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.\n\nKhung hình\n1920×1080 · 30 fps · cả video 00:06\n\nCố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.\n\nTách\nS\nXoá\nBắt dính\nVừa\n0:00\n0:01\n0:02\n0:03\n0:04\n0:05\nLớp phủ: tuyết\nTuyết nhẹ\nChữ Subscribe cuối\nBiểu tượng Subscribe cuối\nNền Subscribe cuối\nChữ Subscribe đầu\nChữ Subscribe\nBiểu tượng Subscribe đầu\nBiểu tượng phát\nNền Subscribe đầu\nNền nút Subscribe\nPhụ đề\nXin chào buổi đêm\nTiếng radio cũ\nCánh cửa mở ra\nBước chân ngoài hành lang\nĐèn bàn chập chờn\nKết thúc trong im lặng\nSóng giọng\nSóng giọng\nHình ảnh cảnh\nXin chào buổi đêm\nTiếng radio cũ\nCánh cửa mở ra\nBước chân ngoài hành lang\nĐèn bàn chập chờn\nKết thúc trong im lặng\nÂm thanh gốc\nÂm thanh minh hoạ",
+        "images": [
+          {
+            "src": "/api/editor/media/media-aa549f5201b8a77847f4b847bc64c567?v=sha256%3Aaa549f5201b8a77847f4b847bc64c567b2183de71b2787d3aeac0ee1ca15700a",
+            "complete": true,
+            "width": 1920
+          }
+        ],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Hoàn tác",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Làm lại",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Phím tắt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Độ hoàn thiện chưa đo/100, mở danh sách cần sửa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xuất",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Cần sửa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Cảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Phụ đề",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Âm thanh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Media",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đã đạt 0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đo độ hoàn thiện",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Về đầu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Phát",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tới cuối",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khung an toàn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Chất lượng xem trước",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Âm lượng xem trước",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tách S",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xoá",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bắt dính",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thu nhỏ dòng thời gian",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Phóng to dòng thời gian",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vừa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Lớp phủ: tuyết",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tuyết nhẹ, 00:00:00:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Chữ Subscribe cuối",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Biểu tượng Subscribe cuối",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Nền Subscribe cuối",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Chữ Subscribe đầu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Chữ Subscribe, 00:00:04:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Biểu tượng Subscribe đầu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Biểu tượng phát, 00:00:04:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Nền Subscribe đầu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Nền nút Subscribe, 00:00:04:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Phụ đề",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xin chào buổi đêm, 00:00:00:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tiếng radio cũ, 00:00:01:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Cánh cửa mở ra, 00:00:02:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bước chân ngoài hành lang, 00:00:03:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đèn bàn chập chờn, 00:00:04:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kết thúc trong im lặng, 00:00:05:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Sóng giọng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Sóng giọng, 00:00:00:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Hình ảnh cảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xin chào buổi đêm, 00:00:00:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tiếng radio cũ, 00:00:01:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Cánh cửa mở ra, 00:00:02:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bước chân ngoài hành lang, 00:00:03:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đèn bàn chập chờn, 00:00:04:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kết thúc trong im lặng, 00:00:05:00",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tắt tiếng Âm thanh gốc",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ẩn rãnh Âm thanh gốc",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Âm thanh minh hoạ, 00:00:00:00",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/editor/clone-e92bbb3c-dcf4-453f-9e9d-f15a3963cbb7-g1",
+        "title": "Kiểm thử QA · Quiet Hours · sáu giây · Bàn dựng · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:36.281Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Template",
+      "ownerPR": "PR3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Template.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\n←\nTất cả mẫu video\nCÀI ĐẶT\nẢnh cảnh\nTách nền · 6 · Theo nhận diện kênh\nẢnh bìa\nẢnh sạch\nNền & hiệu ứng\nChưa gắn video nền\nXuất & kênh\nNén · 2\nSẵn sàng làm video\nChưa gắn video nền\n6 ảnh\nPhụ đề khớp tiếng\nÂm lượng −14 LUFS\nỔn\nDùng ở 2 kênh\nĐã lưu · 16:26\nMở trong Biên tập\nẢnh cảnh\n\nMẫu video ghép các thứ có sẵn trong Thư viện: chọn cách ghép ảnh vào video và một chỉ dẫn ảnh cảnh. Ảnh cảnh không bao giờ có chữ.\n\nCách ghép ảnh vào video\nToàn khung\nẢnh phủ kín khung hình.\nTách nền\nTách nhân vật khỏi nền ảnh để nền video lộ ra.\nCận cảnh\nTách nền và lấy cận mặt để cảm xúc rõ hơn.\n\nMột chỉ dẫn dùng được cho cả ba cách ghép.\n\nChỉ dẫn ảnh cảnh\nKho chỉ dẫn ảnh\nCó sẵn\nTheo nhận diện kênh\nChỉ dẫn mới\nViết trong kho, rồi chọn ở đây\nTheo nhận diện kênh\nSửa trong kho ›\n\nVẽ theo phong cách nhận diện của kênh đang làm video (app tự rút từ đối thủ tham chiếu khi tạo kênh, xem ở Hồ sơ kênh): cùng chất liệu, màu và ánh sáng với avatar và ảnh bìa kênh. Mỗi kênh ra một vẻ riêng. Mẫu chuẩn của kênh mới dùng prompt này.\n\nĐang dùng ở 2 mẫu video.\n\nSố ảnh cảnh\nCố định\nTheo độ dài\nKhông tạo ảnh\nMỗi video\n−\n+\nTừ 1 đến 40.\nảnh cảnh\n\nMột video 42 phút được 6 ảnh cảnh, mỗi ảnh khoảng 7 phút. Ảnh bìa luôn có thêm, không tính vào số này.\n\n6 ảnh mỗi video. Chưa khai giá ảnh của model đang dùng.\n\nChuyển động\nZoom chậm\nTrôi + co giãn\nĐỘ MẠNH\n100%\n100%\n0%\n100%\nTỐC ĐỘ\n1×\n1×\n0.5×\n2×\nĐỘ TRONG SUỐT ẢNH CẢNH\nRõ đầy đủ\nRõ đầy đủ\n10%\nRõ đầy đủ\n\nChỉ làm mờ lớp ảnh cảnh để nền lộ ra. Ảnh bìa và nền video giữ nguyên.\n\nDùng ảnh đối thủ làm mẫu\n\nHoạ sĩ nhìn khung hình của đối thủ để giữ bố cục, góc máy, tư thế. Mặt người, bối cảnh, chữ và logo luôn được thay mới.\n\nXem thử\nChưa có bản xem thử\nChưa có bản xem thử\nDựng thử để xem mẫu video này ra video thế nào\n\nChưa dựng lần nào\n\nDựng từ video đã làm\nChưa có video nào đã làm xong\nDựng lại bản xem thử\nCần một video đã làm xong để dựng bản xem thử. Làm xong một video rồi quay lại.\n\n3 phút đầu, miễn phí: không vẽ ảnh mới, dùng ảnh sẵn có của video và clip cố định của mẫu video.\n\nKhi nào có hiệu lực: Video mới dùng ngay cài đặt này. Video đang làm nhận thay đổi về ảnh từ bước chia cảnh; nền đã bốc thì giữ nguyên khi dựng lại.",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "←Tất cả mẫu video",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Ảnh cảnhTách nền · 6 · Theo nhận diện kênh",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72?section=images"
+          },
+          {
+            "role": "a",
+            "label": "Ảnh bìaẢnh sạch",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72?section=cover"
+          },
+          {
+            "role": "a",
+            "label": "Nền & hiệu ứngChưa gắn video nền",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72?section=backdrop"
+          },
+          {
+            "role": "a",
+            "label": "Xuất & kênhNén · 2",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72?section=output"
+          },
+          {
+            "role": "button",
+            "label": "Mở trong Biên tập",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho mẫu video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Toàn khungẢnh phủ kín khung hình.",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tách nềnTách nhân vật khỏi nền ảnh để nền video lộ ra.",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cận cảnhTách nền và lấy cận mặt để cảm xúc rõ hơn.",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Kho chỉ dẫn ảnh",
+            "disabled": false,
+            "href": "#/library?tab=prompts"
+          },
+          {
+            "role": "radio",
+            "label": "Theo nhận diện kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Chỉ dẫn mớiViết trong kho, rồi chọn ở đây",
+            "disabled": false,
+            "href": "#/library?tab=prompts&prompt=new"
+          },
+          {
+            "role": "a",
+            "label": "Sửa trong kho ›",
+            "disabled": false,
+            "href": "#/library?tab=prompts&prompt=builtin"
+          },
+          {
+            "role": "radio",
+            "label": "Cố định",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Theo độ dài",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Không tạo ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Zoom chậm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Trôi + co giãn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "switch",
+            "label": "Dùng ảnh đối thủ làm mẫu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Dựng lại bản xem thử",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72",
+        "title": "Mẫu video Mẫu chuẩn · Tách nền · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:37.931Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Library",
+      "ownerPR": "PR4",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Library.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nKÊNH CỦA TÔI\n3\nCL\nChuyện Lạ Đêm Khuya\nHôm nay 0/5 · 1 chờ bạn\nMT\nMidnight Tales\nHôm nay 0/5 · 1 chờ bạn\nQH\nQuiet Hours\nHôm nay 0/5 · 1 chờ bạn\nTạo kênh\nTHƯ VIỆN DÙNG CHUNG\nMẫu video\n2\nChỉ dẫn ảnh\n7\nVideo nền\n0\nLớp phủ\n12\nMáy sẵn sàng · 2/2 luồng\nThư viện dùng chung\n\nDùng chung cho cả 3 kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.\n\nNhập mẫu video\nMẫu video mới\nMẫu video\n2\nChỉ dẫn ảnh\n7\nVideo nền\n0\nLớp phủ\n12\n\nMỗi kênh lấy lần lượt các mẫu video trong danh sách luân phiên của kênh. Mẫu video cần sửa được bỏ qua tới khi sửa xong.\n\nỔn\nTách nền\nMẫu chuẩn · Tách nền\nsửa 16:26\n\nChỉ dẫn Theo nhận diện kênh · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nMT\nQH\nDùng ở Midnight Tales, Quiet Hours\nMở\nNhân bản\nỔn\nToàn khung\nTruyện kể đêm\nsửa 16:21\n\nChỉ dẫn Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch · 6 ảnh\n\nCK\nDùng ở Chuyện Lạ Đêm Khuya\nMở\nNhân bản\nKéo tệp mẫu video vào đây\nTệp xuất từ Viderse trên máy khác. Kênh nền và video lẻ còn thiếu được thêm lại vào Video nền.",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "CLChuyện Lạ Đêm KhuyaHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "MTMidnight TalesHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8"
+          },
+          {
+            "role": "a",
+            "label": "QHQuiet HoursHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/3e366365-0821-4d12-8b16-1be5cddc78ea"
+          },
+          {
+            "role": "a",
+            "label": "Tạo kênh",
+            "disabled": false,
+            "href": "#/channels/new"
+          },
+          {
+            "role": "a",
+            "label": "Mẫu video2",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Chỉ dẫn ảnh7",
+            "disabled": false,
+            "href": "#/library?tab=prompts"
+          },
+          {
+            "role": "a",
+            "label": "Video nền0",
+            "disabled": false,
+            "href": "#/library?tab=backdrops"
+          },
+          {
+            "role": "a",
+            "label": "Lớp phủ12",
+            "disabled": false,
+            "href": "#/library?tab=overlays"
+          },
+          {
+            "role": "button",
+            "label": "Nhập mẫu video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Mẫu video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Mẫu video2",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Chỉ dẫn ảnh7",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Video nền0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Lớp phủ12",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72"
+          },
+          {
+            "role": "button",
+            "label": "Mở",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Nhân bản mẫu video Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xuất tệp mẫu video Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Truyện kể đêm",
+            "disabled": false,
+            "href": "#/templates/4a7ff788-ff49-437e-8171-2d11de5bf196"
+          },
+          {
+            "role": "button",
+            "label": "Mở",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Nhân bản mẫu video Truyện kể đêm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xuất tệp mẫu video Truyện kể đêm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho Truyện kể đêm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kéo tệp mẫu video vào đâyTệp xuất từ Viderse trên máy khác. Kênh nền và video lẻ còn thiếu được thêm lại vào Video nền.",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/library?tab=templates",
+        "title": "Thư viện · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:39.217Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Settings",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Settings.baseline.png",
+      "actual": {
+        "text": "Cài đặt · máy này\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nMÁY NÀY\nCông cụ trên máy\nKết nối AI\nTrợ lý AI\nTài khoản nền tảng\nThông báo\nDỮ LIỆU\nLưu trữ\n14,3 MB\nBáo lỗi\n0\nỞ TRANG KHÁC\nLuồng chạy · hàng chờ\nMọi cài đặt ở đây áp dụng cho cả máy, mọi kênh dùng chung.\nViderse 0.0.0\nKết nối AI\n\nTài khoản và khoá dùng chung cho cả máy này. Đăng nhập gói đang trả (ChatGPT, Grok) hoặc dán khoá API; model lấy thẳng từ nhà cung cấp.\n\nC\nChatGPT\nĐăng nhập gói\nChữ · đọc ảnh\nChưa đăng nhập · cần gói ChatGPT Plus hoặc Pro\nĐăng nhập ChatGPT\nG\nGrok\nĐăng nhập gói\nVẽ ảnh\nChưa đăng nhập · cần gói SuperGrok hoặc X Premium\nĐăng nhập Grok\nThêm nhà cung cấp — OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Ollama…\nSố liệu YouTube\nKhông phải AI · Trinh sát dùng để đọc số liệu video đã đăng\nYT\nYouTube Data API\nKhoá API\nKhông bắt buộc\nChưa có khoá · số liệu sau đăng đọc từ trang công khai\nThêm khoá\nHai cách kết nối\n\nĐăng nhập gói (ChatGPT, Grok): dùng hạn mức gói bạn đang trả, không tốn thêm tiền.\n\nKhoá API (Gemini, OpenRouter, OpenAI…): trả theo lượt dùng, không có hạn mức ngày. Ollama chạy model ngay trên máy, miễn phí.\n\nDanh mục model lấy thẳng từ nhà cung cấp, nên model mới hiện ra ngay khi họ phát hành.\n\nAn toàn\n•\nKhoá và đăng nhập chỉ lưu trên máy này, luôn hiện dạng che.\n•\nXoá một nhà cung cấp đang được trợ lý dùng thì app hỏi chọn model thay thế trước.",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Công cụ trên máy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kết nối AI",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Trợ lý AI",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản nền tảng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thông báo",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Lưu trữ14,3 MB",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Báo lỗi0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Luồng chạy · hàng chờ",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "button",
+            "label": "Đăng nhập ChatGPT",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đăng nhập Grok",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm nhà cung cấp — OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Ollama…",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm khoá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/settings?section=connect",
+        "title": "Cài đặt · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:40.505Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Channel",
+      "ownerPR": "PR4",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Channel.baseline.png",
+      "actual": {
+        "text": "MT\nMidnight Tales\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nMọi video của 3 kênh\nKÊNH CỦA TÔI\n3\nCL\nChuyện Lạ Đêm Khuya\nHôm nay 0/5 · 1 chờ bạn\nMT\nMidnight Tales\nHôm nay 0/5 · 1 chờ bạn\nQH\nQuiet Hours\nHôm nay 0/5 · 1 chờ bạn\nTạo kênh\nTHƯ VIỆN DÙNG CHUNG\nMẫu video\n2\nChỉ dẫn ảnh\n7\nVideo nền\n0\nLớp phủ\n12\nMáy sẵn sàng\nMT\nTự chủ ·\nCẩn thận\nTiếng Việt\nMidnight Tales\nChưa liên kết YouTube · tạo hôm nay · 0 đối thủ liên kết\nLiên kết YouTube\nVideo mới cho kênh\nVideo đã làm\n1\ntạo hôm nay\nĐã đăng\n0\nchưa liên kết YouTube\nChờ bạn\n1\n1 chờ duyệt\nChờ lượt\n0\ntự lấy video đang tắt\nVideo1\nNguồn & tự động0\nMẫu video luân phiên1\nHồ sơ kênh\nĐối thủ liên kết\n0\nLiên kết đối thủ\nChưa liên kết đối thủ nào\nTự lấy video tạm dừng vì không có nguồn. Video đã làm và nhận diện kênh giữ nguyên; lần tạo lại nhận diện sau cần một đối thủ tham chiếu.\nLiên kết đối thủ\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\nNhịp và ưu tiên\nTrinh sát xem đối thủ mỗi giờ. Lấy video nào do Mức tự chủ bên dưới quyết định.\nTạm dừng · cần ít nhất một đối thủ liên kết\nNhịp mỗi ngày\nvideo mỗi ngày\nNhịp này áp cho video tự lấy và video thêm hàng loạt. Video bạn chọn từng cái luôn được làm trước, không tính vào nhịp.\nƯu tiên kênh\nĐều đặn\nLượt xem\nGiữ nhịp, lấy video theo thứ tự mới đăng.\nHôm nay 0/5\nMức tự chủ\nMáy tự quyết tới đâu ở kênh này. Việc máy tự làm luôn được kể lại trong Bản tin, có Hoàn tác khi được.\nCẩn thận\nCân bằng\nTự chạy\nLấy video mới của đối thủ\nTrinh sát xem đối thủ mỗi giờ\nChỉ đề xuất video ≥ ×3\nDuyệt ảnh\nDuyệt theo điểm vẫn duyệt cả video: một ảnh dưới ngưỡng thì hỏi bạn\nLuôn hỏi\nKhi gặp lỗi\nChỉ lỗi máy tự sửa được: tải lại nguồn, vẽ lại ảnh lỗi, dựng lại\nDừng và báo\nVideo chưa đạt 90 điểm\nKhi Kiểm định chấm cả video dưới 90 sau khi dựng\nHỏi\nKhông bao giờ tự làm: đăng YouTube, xoá, đổi mẫu video hay chỉ dẫn, bỏ liên kết đối thủ, tiêu ảnh trả phí quá giới hạn ngày.\nDặn trợ lý về kênh này\nBàn với Trinh sát\nĐang áp dụng cho kênh\n“riêng” = khác mặc định của kênh mới\nLấy video\nriêng\nChỉ đề xuất video ≥ ×3 · Nhịp 5/ngày\nTuỳ chỉnh\nMức tự chủ\nriêng\nCẩn thận · duyệt ảnh: luôn hỏi\nTuỳ chỉnh\nMẫu video luân phiên\n1 mẫu video · tiếp theo: Mẫu chuẩn · Tách nền\nTuỳ chỉnh\nTiêu đề, mô tả, tag\nTiếng Việt · mặc định của kênh mới\nTuỳ chỉnh\nTrợ lý AI · chung mọi kênh\nChung mọi kênh\nCài đặt ›\nHôm nay\n0 / 5 video\nLịch đăng\nVN\nNew York\n\nChưa liên kết đối thủ nào để xem lịch đăng.",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang chọn Midnight Tales",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mọi video của 3 kênh",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "CLChuyện Lạ Đêm KhuyaHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "MTMidnight TalesHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "QHQuiet HoursHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/3e366365-0821-4d12-8b16-1be5cddc78ea?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Tạo kênh",
+            "disabled": false,
+            "href": "#/channels/new"
+          },
+          {
+            "role": "a",
+            "label": "Mẫu video2",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Chỉ dẫn ảnh7",
+            "disabled": false,
+            "href": "#/library?tab=prompts"
+          },
+          {
+            "role": "a",
+            "label": "Video nền0",
+            "disabled": false,
+            "href": "#/library?tab=backdrops"
+          },
+          {
+            "role": "a",
+            "label": "Lớp phủ12",
+            "disabled": false,
+            "href": "#/library?tab=overlays"
+          },
+          {
+            "role": "button",
+            "label": "Liên kết YouTube",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới cho kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nguồn & tự động0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Mẫu video luân phiên1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Hồ sơ kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Liên kết đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Liên kết đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi & chọn",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đều đặn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Lượt xem",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cẩn thận",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cân bằng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tự chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Lấy video mới của đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Duyệt ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Khi gặp lỗi",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Video chưa đạt 90 điểm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Gửi",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=settings"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt ›",
+            "disabled": false,
+            "href": "#/settings?section=agents"
+          },
+          {
+            "role": "radio",
+            "label": "VN",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "New York",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources",
+        "title": "Kênh Midnight Tales · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:41.837Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "CreateChannel",
+      "ownerPR": "PR4",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/CreateChannel.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nKênh của tôi\n/\nTạo kênh\nTạo kênh\n\nChọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.\n\nĐối thủ làm nguồn\n· bắt buộc\nChưa theo dõi đối thủ nào\nChưa theo dõi đối thủ nào\nDán @handle hoặc link kênh YouTube bên dưới. Đối thủ được theo dõi và chọn luôn cho kênh này; Trinh sát quét video chạy nền.\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\nhoặc tìm trong Khám phá ›\nThông tin kênh\nTên kênh · không bắt buộc\nLink kênh YouTube · không bắt buộc\nNgôn ngữ tiêu đề, mô tả\n—\n\nĐoán từ đối thủ tham chiếu · đổi ở Hồ sơ kênh\n\nCách kênh chạy\nMẫu video\nMẫu chuẩn · tạo tự động theo nhận diện kênh\nMẫu chuẩn · Tách nền\nChọn mẫu video khác\nMức tự chủ\nLấy mọi video mới · duyệt ảnh luôn hỏi\nCẩn thận\nCân bằng\nTự chạy\nNhịp mỗi ngày\nvideo tự lấy và hàng loạt\nChọn ít nhất 1 đối thủ để tạo kênh\nHuỷ\nTạo kênh\nChọn ít nhất 1 đối thủ làm nguồn",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Kênh của tôi",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi & chọn",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "hoặc tìm trong Khám phá ›",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Chọn mẫu video khác",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "radio",
+            "label": "Cẩn thận",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cân bằng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tự chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Huỷ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tạo kênh",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/new",
+        "title": "Tạo kênh · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:43.041Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Onboard",
+      "ownerPR": "PR4",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Onboard.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nKênh của tôi\n/\nTạo kênh\nTạo kênh\n\nChọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.\n\nĐối thủ làm nguồn\n· bắt buộc\nChưa theo dõi đối thủ nào\nChưa theo dõi đối thủ nào\nDán @handle hoặc link kênh YouTube bên dưới. Đối thủ được theo dõi và chọn luôn cho kênh này; Trinh sát quét video chạy nền.\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\nhoặc tìm trong Khám phá ›\nThông tin kênh\nTên kênh · không bắt buộc\nLink kênh YouTube · không bắt buộc\nNgôn ngữ tiêu đề, mô tả\n—\n\nĐoán từ đối thủ tham chiếu · đổi ở Hồ sơ kênh\n\nCách kênh chạy\nMẫu video\nMẫu chuẩn · tạo tự động theo nhận diện kênh\nMẫu chuẩn · Tách nền\nChọn mẫu video khác\nMức tự chủ\nLấy mọi video mới · duyệt ảnh luôn hỏi\nCẩn thận\nCân bằng\nTự chạy\nNhịp mỗi ngày\nvideo tự lấy và hàng loạt\nChọn ít nhất 1 đối thủ để tạo kênh\nHuỷ\nTạo kênh\nChọn ít nhất 1 đối thủ làm nguồn",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Kênh của tôi",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi & chọn",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "hoặc tìm trong Khám phá ›",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Chọn mẫu video khác",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "radio",
+            "label": "Cẩn thận",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cân bằng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tự chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Huỷ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tạo kênh",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/new",
+        "title": "Tạo kênh · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:44.448Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Onboarding wizard needs a channel-less account; this route renders CreateChannel",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "NewVideo",
+      "ownerPR": "PR5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/NewVideo.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nBạn muốn làm video nào?\n\nTrinh sát tải nguồn · Đạo diễn chia cảnh · Hoạ sĩ vẽ ảnh · Kiểm định dựng và xuất. Bạn duyệt ảnh trước khi dựng.\n\nMột link\nNhiều link\nLink video\nKênh\nMidnight Tales\nTemplate\nTheo luân phiên\nVideo bạn chọn luôn được làm trước video tự lấy.\nLàm video\nEnter\nDán ít nhất một link video đối thủ.\nVideo nổi trội của đối thủ, chưa làm cho kênh này\nMở Khám phá\nĐiều sẽ diễn ra\nTrinh sát tải nguồn và phụ đề\nĐạo diễn chia cảnh, viết tiêu đề\nHoạ sĩ vẽ ảnh, chờ bạn duyệt\nKiểm định dựng, đo và xuất\nLàm cả loạt từ một đối thủ\nChọn nhiều video nổi trội trong Khám phá rồi bấm Làm N video\nTự lấy video mỗi ngày\nTrinh sát tự đưa video mới của đối thủ vào hàng chờ\nĐổi template cho video này\nMặc định lấy template tiếp theo trong luân phiên\nTab\nmột link / nhiều link\nEnter\nlàm video",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Một link",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Nhiều link",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "combobox",
+            "label": "Template",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Làm videoEnter",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mở Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Làm cả loạt từ một đối thủChọn nhiều video nổi trội trong Khám phá rồi bấm Làm N video",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Tự lấy video mỗi ngàyTrinh sát tự đưa video mới của đối thủ vào hàng chờ",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8"
+          },
+          {
+            "role": "a",
+            "label": "Đổi template cho video nàyMặc định lấy template tiếp theo trong luân phiên",
+            "disabled": false,
+            "href": "#/library"
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/new?channel=279b42a7-b068-4124-bcaf-2c8384296ed8",
+        "title": "Video mới · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:45.688Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Explore",
+      "ownerPR": "PR5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Explore.baseline.png",
+      "actual": {
+        "text": "Khám phá\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nĐỐI THỦ\n0\n\nĐối thủ bạn theo dõi sẽ hiện ở đây, kèm số video nổi trội mới.\n\nChưa theo dõi đối thủ nào\n\nThêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.\n\nThêm đối thủ\nVí dụ\n@nocturnestories\nyoutube.com/@hosobian\nUCx9…Qw",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm đối thủ",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/explore",
+        "title": "Khám phá · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:46.875Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Queue",
+      "ownerPR": "PR5",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Queue.baseline.png",
+      "actual": {
+        "text": "Bàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nHàng chờ\n\nVideo bạn chọn lên đầu, video hàng loạt theo nhịp kênh · 2 luồng\n\nHàng chờ trống\nBốn trợ lý đang rảnh. Chọn video nổi trội của đối thủ ở Khám phá, dán link ở Video mới, hoặc bật Tự lấy video trong trang kênh.\nMở Khám phá\nThêm video\nQUY TẮC CHẠY\nLuồng chạy cùng lúc\n2\n\nMỗi luồng là một video chạy cùng lúc. Thêm luồng thì mỗi video chậm hơn và hết hạn mức ảnh sớm hơn.\n\nẢnh vẽ cùng lúc\ndùng chung cho mọi video\n3\nTrinh sát xem đối thủ\ncho kênh bật Tự lấy video\n1 giờ\nNhịp kênh mỗi ngày\nSửa ở trang kênh\nCL\nChuyện Lạ Đêm Khuya\n0/5\nMT\nMidnight Tales\n0/5\nQH\nQuiet Hours\n0/5\nÁp cho video tự lấy và thêm hàng loạt · đếm lại từ 00:00\nHạn mức vẽ ảnh\nCài đặt\nChatGPT\nchính\n50 còn\nđặt lại Ngày mai 00:00\nGrok\ndự phòng\n50 còn\nđặt lại Ngày mai 00:00\nXong hôm nay · 3 video\nKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giây\nChờ duyệt\nKiểm thử QA · Quiet Hours · sáu giây\nChờ duyệt\nKiểm thử QA · Midnight Tales · sáu giây\nChờ duyệt",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mở Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Thêm video",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "button",
+            "label": "Số luồng chạy cùng lúc giảm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Số luồng chạy cùng lúc tăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Số ảnh vẽ cùng lúc giảm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Số ảnh vẽ cùng lúc tăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khoảng giờ xem lại đối thủ giảm",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khoảng giờ xem lại đối thủ tăng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Sửa ở trang kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=d73bb2bf-7129-46d7-9cf7-85226e6ac2bd"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Quiet Hours · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=e92bbb3c-dcf4-453f-9e9d-f15a3963cbb7"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Midnight Tales · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/queue",
+        "title": "Hàng chờ · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:48.071Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Activity",
+      "ownerPR": "PR3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Activity.baseline.png",
+      "actual": {
+        "text": "C\nM\nQ\nMọi kênh\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang xem Mọi kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/",
+        "title": "Bàn dựng · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:49.134Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Background-activity popover not opened; route background only",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "Dialogs",
+      "ownerPR": "PR4",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/Dialogs.baseline.png",
+      "actual": {
+        "text": "MT\nMidnight Tales\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW\nMọi video của 3 kênh\nKÊNH CỦA TÔI\n3\nCL\nChuyện Lạ Đêm Khuya\nHôm nay 0/5 · 1 chờ bạn\nMT\nMidnight Tales\nHôm nay 0/5 · 1 chờ bạn\nQH\nQuiet Hours\nHôm nay 0/5 · 1 chờ bạn\nTạo kênh\nTHƯ VIỆN DÙNG CHUNG\nMẫu video\n2\nChỉ dẫn ảnh\n7\nVideo nền\n0\nLớp phủ\n12\nMáy sẵn sàng\nMT\nTự chủ ·\nCẩn thận\nTiếng Việt\nMidnight Tales\nChưa liên kết YouTube · tạo hôm nay · 0 đối thủ liên kết\nLiên kết YouTube\nVideo mới cho kênh\nVideo đã làm\n1\ntạo hôm nay\nĐã đăng\n0\nchưa liên kết YouTube\nChờ bạn\n1\n1 chờ duyệt\nChờ lượt\n0\ntự lấy video đang tắt\nVideo1\nNguồn & tự động0\nMẫu video luân phiên1\nHồ sơ kênh\nTất cả 1\nĐang làm 0\nChờ bạn 1\nChờ lượt 0\nSẵn sàng 0\nĐã đăng 0\nChọn nhiều\nTải gói đã xong\nChưa có video nào xong để tải gói.\nVideo\nTrạng thái\nMẫu video\nViệc tiếp\n0:06\nKiểm thử QA · Midnight Tales · sáu giây\nMidnight Tales · 16:21\nChờ duyệt\nBản dựng đang chờ duyệt\nMẫu chuẩn · Tách nền\nDuyệt ảnh\nDặn trợ lý về kênh này\nBàn với Trinh sát\nĐang áp dụng cho kênh\n“riêng” = khác mặc định của kênh mới\nLấy video\nriêng\nChỉ đề xuất video ≥ ×3 · Nhịp 5/ngày\nTuỳ chỉnh\nMức tự chủ\nriêng\nCẩn thận · duyệt ảnh: luôn hỏi\nTuỳ chỉnh\nMẫu video luân phiên\n1 mẫu video · tiếp theo: Mẫu chuẩn · Tách nền\nTuỳ chỉnh\nTiêu đề, mô tả, tag\nTiếng Việt · mặc định của kênh mới\nTuỳ chỉnh\nTrợ lý AI · chung mọi kênh\nChung mọi kênh\nCài đặt ›\nHôm nay\n0 / 5 video\nLịch đăng\nVN\nNew York\n\nChưa liên kết đối thủ nào để xem lịch đăng.",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang chọn Midnight Tales",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mọi video của 3 kênh",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "CLChuyện Lạ Đêm KhuyaHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad?tab=videos"
+          },
+          {
+            "role": "a",
+            "label": "MTMidnight TalesHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=videos"
+          },
+          {
+            "role": "a",
+            "label": "QHQuiet HoursHôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": "#/channels/3e366365-0821-4d12-8b16-1be5cddc78ea?tab=videos"
+          },
+          {
+            "role": "a",
+            "label": "Tạo kênh",
+            "disabled": false,
+            "href": "#/channels/new"
+          },
+          {
+            "role": "a",
+            "label": "Mẫu video2",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Chỉ dẫn ảnh7",
+            "disabled": false,
+            "href": "#/library?tab=prompts"
+          },
+          {
+            "role": "a",
+            "label": "Video nền0",
+            "disabled": false,
+            "href": "#/library?tab=backdrops"
+          },
+          {
+            "role": "a",
+            "label": "Lớp phủ12",
+            "disabled": false,
+            "href": "#/library?tab=overlays"
+          },
+          {
+            "role": "button",
+            "label": "Liên kết YouTube",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới cho kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nguồn & tự động0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Mẫu video luân phiên1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Hồ sơ kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tất cả 1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đang làm 0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Chờ bạn 1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Chờ lượt 0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Sẵn sàng 0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đã đăng 0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Chọn nhiều",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tải gói đã xong",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "cell",
+            "label": "0:06Kiểm thử QA · Midnight Tales · sáu giâyMidnight Tales · 16:21",
+            "disabled": false,
+            "href": "#/?channel=279b42a7-b068-4124-bcaf-2c8384296ed8&video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt ảnh",
+            "disabled": false,
+            "href": "#/review?channel=279b42a7-b068-4124-bcaf-2c8384296ed8&video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho Kiểm thử QA · Midnight Tales · sáu giây",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Gửi",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=templates"
+          },
+          {
+            "role": "a",
+            "label": "Tuỳ chỉnh",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=settings"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt ›",
+            "disabled": false,
+            "href": "#/settings?section=agents"
+          },
+          {
+            "role": "radio",
+            "label": "VN",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "New York",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8",
+        "title": "Kênh Midnight Tales · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:50.960Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Confirmation not opened; channel background only",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "System",
+      "ownerPR": "PR3",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "app": "app/System.baseline.png",
+      "actual": {
+        "text": "C\nM\nQ\nMọi kênh\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nVideo mới\nMáy rảnh\nW",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Viderse",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang xem Mọi kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt3",
+            "disabled": false,
+            "href": "#/review"
+          },
+          {
+            "role": "a",
+            "label": "Kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad"
+          },
+          {
+            "role": "a",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": "#/explore"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: Máy rảnh",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt · 5 việc cần xem",
+            "disabled": false,
+            "href": "#/settings?section=connect"
+          },
+          {
+            "role": "button",
+            "label": "Tài khoản của bạn",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/",
+        "title": "Bàn dựng · Viderse",
+        "fontStatus": "loaded",
+        "width": 1440,
+        "height": 900,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 1440,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:51.939Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "System overlay prerequisites not seeded; route background only",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MReview",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MReview.baseline.png",
+      "actual": {
+        "text": "W\nDuyệt ảnh\nVideo 1 / 3\nKiểm thử QA · Midnight Tales · sáu giây\nMT\nMidnight Tales\n·\nĐã duyệt 0 / 7\n0\nCảnh 01 · bản 1\ncảnh 1 chưa có điểm · cảnh 2 chưa có điểm · cảnh 3 chưa có điểm · cảnh 4 chưa có điểm · cảnh 5 chưa có điểm · cảnh 6 chưa có điểm · ảnh bìa chưa có điểm · bạn vẫn duyệt tay\n0\n1\n2\n3\n4\n5\n6\nCảnh 01\n0:00–0:01\n\nXin chào buổi đêm\n\nChỉ dẫn đã gửi\nupload · 1920×1080 · 16:21\nVẽ lại\nBỏ ảnh này\nDuyệt cả video & dựng\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:9f574dcd97d52ecd4bd850686d2f389c35d6835c1bc0b43bfeae499fa4794861",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:4801c24d7b018e278ca7340788a782ba2840d5878574519ea7a7baa20184e326",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:18e2b96f4a98da36a9352d009b50ab9cecb608f91bd3368c78ee6a31f583ce75",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:f7200a35664cb198eae0674da3e62a05a3938a11d74664583615124b34e3ffbb",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:2ee5730b1acf64d224ee038dc23fee52ab7cdd02c09f202c7855c76fa55b3691",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:fc04c321e46113784b4263d2a9f009cce126b9a0da915025f4cfefa5de4f91bd",
+            "complete": true,
+            "width": 1920
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:7d1fb8d618b47a752ffb17a3f2cf12d598867dec4670ebd462be0e01788b95fe",
+            "complete": true,
+            "width": 1280
+          },
+          {
+            "src": "/api/clone/366ae9b9-d5d9-449b-a7c2-692e2545d18c/artifacts/sha256:ef12ae028a05fef619fd19fab7d71cdd4fb4bbc94ec2feb9815b07efcecf560c",
+            "complete": true,
+            "width": 1920
+          }
+        ],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Video sau",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh trước",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh sau",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 01",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 02",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 03",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 04",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 05",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Cảnh 06",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "option",
+            "label": "Ảnh bìa",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xem chỉ dẫn đã gửi",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Vẽ lại",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bỏ ảnh này",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt cả video & dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/review?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c",
+        "title": "Duyệt · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:53.395Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MMain",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MMain.baseline.png",
+      "actual": {
+        "text": "C\nM\nQ\nMọi kênh\nW\nBàn dựng\n0/15 video hôm nay\nTự lấy video · 0/3 kênh\nBản tin · từ 17:59 tới 17:59\nTrong lúc bạn vắng: 3 video chờ duyệt.\nĐề xuất\n0\n\nChưa có đề xuất cho phạm vi này.\n\nKênh\n3\nCL\n0/5 hôm nay\nChuyện Lạ Đêm Khuya\n1 chờ bạn\nMT\n0/5 hôm nay\nMidnight Tales\n1 chờ bạn\nQH\n0/5 hôm nay\nQuiet Hours\n1 chờ bạn\nCHỜ BẠN\n3\nCL\nKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giây\nChờ duyệt\nDuyệt\nQH\nKiểm thử QA · Quiet Hours · sáu giây\nChờ duyệt\nDuyệt\nMT\nKiểm thử QA · Midnight Tales · sáu giây\nChờ duyệt\nDuyệt\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang xem Mọi kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Mở Bản tin",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Chuyện Lạ Đêm Khuya · hôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Midnight Tales · hôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Quiet Hours · hôm nay 0/5 · 1 chờ bạn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "CLKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "QHKiểm thử QA · Quiet Hours · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "MTKiểm thử QA · Midnight Tales · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/",
+        "title": "Bàn dựng · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:55.114Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MChannel",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MChannel.baseline.png",
+      "actual": {
+        "text": "MT\nMidnight Tales\nW\nMT\nTự chủ ·\nCẩn thận\nTiếng Việt\nMidnight Tales\nChưa liên kết YouTube · tạo hôm nay · 0 đối thủ\nVideo mới cho kênh\nĐã làm\n1\nĐã đăng\n0\nChờ bạn\n1\nChờ lượt\n0\nVideo1\nNguồn0\nMẫu video1\nHồ sơ\nNhịp và ưu tiên\nTrinh sát xem đối thủ mỗi giờ. Lấy video nào do Mức tự chủ bên dưới quyết định.\nTạm dừng · cần ít nhất một đối thủ liên kết\nNhịp mỗi ngày\nNhịp này áp cho video tự lấy và video thêm hàng loạt. Video bạn chọn từng cái luôn được làm trước, không tính vào nhịp.\nƯu tiên kênh\nĐều đặn\nLượt xem\nGiữ nhịp, lấy video theo thứ tự mới đăng.\nHôm nay 0/5\nMức tự chủ\nMáy tự quyết tới đâu ở kênh này. Việc máy tự làm luôn được kể lại trong Bản tin, có Hoàn tác khi được.\nCẩn thận\nCân bằng\nTự chạy\nLấy video mới của đối thủ\nChỉ đề xuất video ≥ ×3\nDuyệt ảnh\nLuôn hỏi\nKhi gặp lỗi\nDừng và báo\nVideo chưa đạt 90 điểm\nHỏi\nKhông bao giờ tự làm: đăng YouTube, xoá, đổi mẫu video hay chỉ dẫn, bỏ liên kết đối thủ, tiêu ảnh trả phí quá giới hạn ngày.\nĐỐI THỦ LIÊN KẾT\n0\nLiên kết đối thủ\nChưa liên kết đối thủ nào\nTự lấy video tạm dừng vì không có nguồn. Video đã làm và nhận diện kênh giữ nguyên; lần tạo lại nhận diện sau cần một đối thủ tham chiếu.\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\n\nChọn từ đối thủ đang theo dõi. Tự lấy video bắt đầu tính video mới từ lúc liên kết.\n\nLịch đăng của đối thủ\nVN\n\nChưa liên kết đối thủ nào để xem lịch đăng.\n\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang chọn Midnight Tales",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Video mới cho kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Liên kết YouTube",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nguồn0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Mẫu video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Hồ sơ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đều đặn",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Lượt xem",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cẩn thận",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cân bằng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tự chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Lấy video mới của đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khi gặp lỗi",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video chưa đạt 90 điểm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Liên kết đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi & chọn",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources",
+        "title": "Kênh Midnight Tales · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:56.581Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MLibrary",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MLibrary.baseline.png",
+      "actual": {
+        "text": "Thư viện dùng chung\nDùng chung cho cả 3 kênh\nMẫu video\n2\nChỉ dẫn ảnh\n7\nVideo nền\n0\nLớp phủ\n12\n\nMỗi kênh lấy lần lượt các mẫu video trong danh sách luân phiên. Mẫu video cần sửa được bỏ qua tới khi sửa xong.\n\nTách nền\nMẫu chuẩn · Tách nền\nỔn\n\nChỉ dẫn Theo nhận diện kênh · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nMT\nQH\nDùng ở Midnight Tales, Quiet Hours\nsửa 16:26\nToàn khung\nTruyện kể đêm\nỔn\n\nChỉ dẫn Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch · 6 ảnh\n\nCK\nDùng ở Chuyện Lạ Đêm Khuya\nsửa 16:21",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Quay lại",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm vào thư viện",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Mẫu video2",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Chỉ dẫn ảnh7",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Video nền0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Lớp phủ12",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Mở Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": "#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72"
+          },
+          {
+            "role": "button",
+            "label": "Thao tác với Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Mở Truyện kể đêm",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Truyện kể đêm",
+            "disabled": false,
+            "href": "#/templates/4a7ff788-ff49-437e-8171-2d11de5bf196"
+          },
+          {
+            "role": "button",
+            "label": "Thao tác với Truyện kể đêm",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/library?tab=templates",
+        "title": "Thư viện · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:58.078Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MTemplate",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MTemplate.baseline.png",
+      "actual": {
+        "text": "Mẫu chuẩn · Tách nền · Tách nền\nỔn · dùng ở 2 kênh · đã lưu 16:26\nChưa có bản xem thử\nChưa dựng lần nào\nDựng lại bản xem thử\n\n3 phút đầu, miễn phí: không vẽ ảnh mới, dùng ảnh sẵn có của video và clip cố định của mẫu video.\n\nCÀI ĐẶT\nẢnh cảnh\nTách nền · Theo nhận diện kênh · 6 ảnh\nẢnh bìa\nẢnh sạch\nNền & hiệu ứng\nChưa gắn video nền\nXuất & kênh\nNén · 2 kênh dùng\nSẵn sàng làm video\nChưa gắn video nền\nPhụ đề khớp tiếng\nÂm lượng −14 LUFS\n\nVideo mới dùng ngay cài đặt này. Video đang làm nhận thay đổi về ảnh từ bước chia cảnh; nền đã bốc thì giữ nguyên khi dựng lại.",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Quay lại",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thao tác với mẫu video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Dựng lại bản xem thử",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh cảnhTách nền · Theo nhận diện kênh · 6 ảnh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Ảnh bìaẢnh sạch",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Nền & hiệu ứngChưa gắn video nền",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Xuất & kênhNén · 2 kênh dùng",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/templates/33df03b6-0b67-4748-90f6-df6f4ce73a72",
+        "title": "Mẫu video Mẫu chuẩn · Tách nền · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T10:59:59.321Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MNew",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MNew.baseline.png",
+      "actual": {
+        "text": "Video mới\nBạn muốn làm video nào?\nDán link\nNhiều video\nLink video\nDán\nLàm video\nDán ít nhất một link video đối thủ.\nHoặc chọn video nổi trội của đối thủ",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Đóng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Dán link",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Nhiều video",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Dán",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Làm videoEnter",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/new?channel=279b42a7-b068-4124-bcaf-2c8384296ed8",
+        "title": "Video mới · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:00.555Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MExplore",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MExplore.baseline.png",
+      "actual": {
+        "text": "W\nKhám phá\nChưa theo dõi đối thủ nào\n\nThêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.\n\nTheo dõi đối thủ\nVí dụ\n@nocturnestories\nyoutube.com/@hosobian\nUCx9…Qw\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/explore",
+        "title": "Khám phá · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:01.945Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MCompVideo",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MCompVideo.baseline.png",
+      "actual": {
+        "text": "W\nKhám phá\nChưa theo dõi đối thủ nào\n\nThêm kênh YouTube bạn muốn học theo. Trinh sát lấy khoảng 30 video mới nhất để tính video nổi trội; quét thêm lịch sử khi cần.\n\nTheo dõi đối thủ\nVí dụ\n@nocturnestories\nyoutube.com/@hosobian\nUCx9…Qw\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi đối thủ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/explore",
+        "title": "Khám phá · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:03.341Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "No QA rival/source video detail fixture; Explore background only",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MQueue",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MQueue.baseline.png",
+      "actual": {
+        "text": "Hàng chờ\nMáy rảnh\nMáy rảnh\nKhông video nào đang chạy hay chờ lượt. Video bạn dán link chạy ngay khi có luồng trống; kênh bật Tự lấy video sẽ thêm vào đây theo nhịp ngày.\nVideo mới\nQuy tắc chạy\n2 luồng · 3 ảnh · đối thủ mỗi 1 giờ\nHạn mức vẽ ảnh\nCài đặt\nChatGPT\nchính\n0/50 ảnh\nđặt lại Ngày mai 00:00\nGrok\ndự phòng\n0/50 ảnh\nđặt lại Ngày mai 00:00\nNhịp kênh mỗi ngày\nSửa ở trang kênh\nCL\nChuyện Lạ Đêm Khuya\n0/5\nMT\nMidnight Tales\n0/5\nQH\nQuiet Hours\n0/5\nÁp cho video tự lấy và thêm hàng loạt · đếm lại từ 00:00\nXONG HÔM NAY · 3 VIDEO\nKiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giây\nChờ duyệt\nKiểm thử QA · Quiet Hours · sáu giây\nChờ duyệt\nKiểm thử QA · Midnight Tales · sáu giây\nChờ duyệt",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Quay lại Bàn dựng",
+            "disabled": false,
+            "href": "#/"
+          },
+          {
+            "role": "a",
+            "label": "Video mới",
+            "disabled": false,
+            "href": "#/new"
+          },
+          {
+            "role": "button",
+            "label": "Quy tắc chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Cài đặt",
+            "disabled": false,
+            "href": "#/settings?section=agents"
+          },
+          {
+            "role": "a",
+            "label": "Sửa ở trang kênh",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "CLChuyện Lạ Đêm Khuya0/5",
+            "disabled": false,
+            "href": "#/channels/0873f292-d589-43f3-9f89-550623c7b8ad?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "MTMidnight Tales0/5",
+            "disabled": false,
+            "href": "#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "QHQuiet Hours0/5",
+            "disabled": false,
+            "href": "#/channels/3e366365-0821-4d12-8b16-1be5cddc78ea?tab=sources"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Chuyện Lạ Đêm Khuya · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=d73bb2bf-7129-46d7-9cf7-85226e6ac2bd"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Quiet Hours · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=e92bbb3c-dcf4-453f-9e9d-f15a3963cbb7"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Midnight Tales · sáu giâyChờ duyệt",
+            "disabled": false,
+            "href": "#/?video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/queue",
+        "title": "Hàng chờ · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:04.683Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MSystem",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MSystem.baseline.png",
+      "actual": {
+        "text": "MT\nMidnight Tales\nW\nMT\nTự chủ ·\nCẩn thận\nTiếng Việt\nMidnight Tales\nChưa liên kết YouTube · tạo hôm nay · 0 đối thủ\nVideo mới cho kênh\nĐã làm\n1\nĐã đăng\n0\nChờ bạn\n1\nChờ lượt\n0\nVideo1\nNguồn0\nMẫu video1\nHồ sơ\nTất cả\n1\nĐang làm\n0\nChờ bạn\n1\nChờ lượt\n0\nSẵn sàng\n0\nĐã đăng\n0\n0:06\nKiểm thử QA · Midnight Tales · sáu giây\nChờ duyệt · Bản dựng đang chờ duyệt\nDuyệt ảnh\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Đổi kênh, đang chọn Midnight Tales",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Video mới cho kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Liên kết YouTube",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Nguồn0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Mẫu video1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "tab",
+            "label": "Hồ sơ",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tất cả1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đang làm0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Chờ bạn1",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Chờ lượt0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Sẵn sàng0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Đã đăng0",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "0:06",
+            "disabled": false,
+            "href": "#/?channel=279b42a7-b068-4124-bcaf-2c8384296ed8&video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "a",
+            "label": "Kiểm thử QA · Midnight Tales · sáu giây",
+            "disabled": false,
+            "href": "#/?channel=279b42a7-b068-4124-bcaf-2c8384296ed8&video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "a",
+            "label": "Duyệt ảnh",
+            "disabled": false,
+            "href": "#/review?channel=279b42a7-b068-4124-bcaf-2c8384296ed8&video=366ae9b9-d5d9-449b-a7c2-692e2545d18c"
+          },
+          {
+            "role": "button",
+            "label": "Thêm thao tác cho Kiểm thử QA · Midnight Tales · sáu giây",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/279b42a7-b068-4124-bcaf-2c8384296ed8",
+        "title": "Kênh Midnight Tales · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:06.523Z",
+      "status": "target-prerequisite-missing",
+      "blockedReason": "Confirmation sheet not opened; channel background only",
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MSettings",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MSettings.baseline.png",
+      "actual": {
+        "text": "W\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nKết nối AI\n\nTài khoản và khoá dùng chung cho cả máy. Đăng nhập gói đang trả hoặc dán khoá API; model lấy thẳng từ nhà cung cấp.\n\nC\nChatGPT\nĐăng nhập gói\nChưa đăng nhập · chữ và đọc ảnh\nĐăng nhập ChatGPT\nG\nGrok\nĐăng nhập gói\nChưa đăng nhập · chỉ vẽ ảnh\nĐăng nhập Grok\nThêm nhà cung cấp\nSố liệu YouTube\nKhông phải AI · Trinh sát dùng để đọc số liệu video đã đăng\nYT\nYouTube Data API\nKhông bắt buộc\nChưa có khoá · số liệu sau đăng đọc từ trang công khai\nThêm khoá",
+        "images": [],
+        "controls": [
+          {
+            "role": "a",
+            "label": "Việc nền: máy rảnh, 1 thông báo cần bạn",
+            "disabled": false,
+            "href": "#/queue"
+          },
+          {
+            "role": "a",
+            "label": "Tài khoản và cài đặt",
+            "disabled": false,
+            "href": "#/settings"
+          },
+          {
+            "role": "button",
+            "label": "Bàn dựng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Duyệt",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Video mới",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Kênh",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Khám phá",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Quay lại",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đăng nhập ChatGPT",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đăng nhập Grok",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm nhà cung cấp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Thêm khoá",
+            "disabled": false,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/settings?section=connect",
+        "title": "Cài đặt · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:08.152Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MCreate",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MCreate.baseline.png",
+      "actual": {
+        "text": "Tạo kênh\n\nChọn đối thủ làm nguồn là đủ. Tên, mô tả, avatar và ảnh bìa được làm tự động theo đối thủ chọn đầu tiên (tham chiếu nhận diện); đổi lại được ở Hồ sơ kênh.\n\nĐỐI THỦ LÀM NGUỒN\n· bắt buộc\nChưa theo dõi đối thủ nào\nChưa theo dõi đối thủ nào\nDán @handle hoặc link kênh YouTube bên dưới. Đối thủ được theo dõi và chọn luôn cho kênh này; Trinh sát quét video chạy nền.\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi\n\nĐối thủ đầu tiên bạn chọn là tham chiếu nhận diện.\n\nTHÔNG TIN KÊNH\n· không bắt buộc\nTên kênh\nLink kênh YouTube\nNgôn ngữ tiêu đề, mô tả\n—\nĐoán từ đối thủ tham chiếu · đổi ở Hồ sơ kênh\nCách kênh chạy\nMẫu video\nMẫu chuẩn · tạo tự động theo nhận diện kênh\nMẫu chuẩn · Tách nền\nMức tự chủ\nCẩn thận\nCân bằng\nTự chạy\nLấy mọi video mới · duyệt ảnh luôn hỏi\nNhịp mỗi ngày\nvideo tự lấy và hàng loạt\nChọn ít nhất 1 đối thủ để tạo kênh\nTạo kênh",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Quay lại",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Theo dõi",
+            "disabled": true,
+            "href": null
+          },
+          {
+            "role": "a",
+            "label": "Mẫu chuẩn · Tách nền",
+            "disabled": false,
+            "href": "#/library?tab=templates"
+          },
+          {
+            "role": "radio",
+            "label": "Cẩn thận",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Cân bằng",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "radio",
+            "label": "Tự chạy",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Giảm nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tăng nhịp",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Tạo kênh",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/channels/new",
+        "title": "Tạo kênh · Viderse",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:09.404Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    },
+    {
+      "board": "MAuth",
+      "ownerPR": "PR6",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "app": "app/MAuth.baseline.png",
+      "actual": {
+        "text": "Viderse\nMáy chủ đang hoạt động\nĐăng nhập\n\nMột tài khoản dùng cho Noverse và Viderse\n\nTên đăng nhập\nMật khẩu\nĐăng nhập\nPhiên giữ 30 ngày trên trình duyệt này, dùng chung cho Noverse và Viderse.\nQuên mật khẩu hay chưa có tài khoản?\nNhờ quản trị viên ở Noverse › Thành viên.",
+        "images": [],
+        "controls": [
+          {
+            "role": "button",
+            "label": "Hiện mật khẩu",
+            "disabled": false,
+            "href": null
+          },
+          {
+            "role": "button",
+            "label": "Đăng nhập",
+            "disabled": true,
+            "href": null
+          }
+        ],
+        "url": "http://127.0.0.1:8044/#/",
+        "title": "Viderse · Xưởng video",
+        "fontStatus": "loaded",
+        "width": 390,
+        "height": 844,
+        "dpr": 1,
+        "visibility": "visible",
+        "scrollWidth": 390,
+        "pendingImages": 0,
+        "brokenImages": [],
+        "renderErrors": []
+      },
+      "capturedAt": "2026-11-03T11:00:11.008Z",
+      "status": "baseline-only",
+      "blockedReason": null,
+      "targetStateMatched": false,
+      "productAcceptance": false
+    }
+  ],
+  "failures": [],
+  "apiErrors": [
+    {
+      "board": "Settings",
+      "method": "GET",
+      "path": "/api/storage/server",
+      "status": 404,
+      "expected": true,
+      "observedAt": "2026-11-03T10:59:40.172Z"
+    },
+    {
+      "board": "MSettings",
+      "method": "GET",
+      "path": "/api/storage/server",
+      "status": 404,
+      "expected": true,
+      "observedAt": "2026-11-03T11:00:07.712Z"
+    },
+    {
+      "board": "MAuth",
+      "method": "GET",
+      "path": "/api/me",
+      "status": 401,
+      "expected": true,
+      "observedAt": "2026-11-03T11:00:10.179Z"
+    },
+    {
+      "board": "MAuth",
+      "method": "GET",
+      "path": "/api/me",
+      "status": 401,
+      "expected": true,
+      "observedAt": "2026-11-03T11:00:10.181Z"
+    }
+  ],
+  "productAcceptance": false
+}

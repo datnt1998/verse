@@ -198,8 +198,12 @@ describe('cổng phiên', () => {
     expect(container.textContent).not.toContain(t.auth.accessDenied)
   })
 
-  it('Đăng xuất ở màn bị chặn → POST /api/logout (revoke) rồi về Đăng nhập', async () => {
-    stubFetch((path) => {
+  it('Đăng xuất giữ phiên khi Huỷ, chỉ revoke rồi về Đăng nhập sau xác nhận', async () => {
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
+      matches: query.includes('prefers-reduced-motion'), media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+    })))
+    const fetch = stubFetch((path) => {
       if (path === '/api/me') return respond(deniedBody, 403)
       if (path === '/api/logout') return respond({ ok: true })
       if (path === '/api/setup') return respond({ needed: false, attemptsLeft: 5 })
@@ -208,9 +212,27 @@ describe('cổng phiên', () => {
     const container = await render()
     // Gợi ý phiên chung: thoát Viderse là thoát cả Noverse.
     expect(container.textContent).toContain(t.account.sharedLogoutNote)
-    await act(async () => { buttonWithText(container, t.account.logout)!.click() })
-    await settle()
-    expect(container.querySelector('#lg-user')).toBeTruthy()
+    await act(async () => { buttonWithText(container, t.account.logout)!.click(); await vi.dynamicImportSettled() })
+    let confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    expect(fetch.mock.calls.some(([path]) => path === '/api/logout')).toBe(false)
+    await act(async () => { buttonWithText(confirmation, t.common.cancel)!.click() })
+    await vi.waitFor(async () => {
+      await settle()
+      expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+      expect(buttonWithText(container, t.account.logout)?.disabled).toBe(false)
+    })
+    expect(container.textContent).toContain(t.auth.accessDenied)
+    expect(fetch.mock.calls.some(([path]) => path === '/api/logout')).toBe(false)
+    await act(async () => { buttonWithText(container, t.account.logout)!.click(); await vi.dynamicImportSettled() })
+    confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    await act(async () => { buttonWithText(confirmation, t.account.logout)!.click() })
+    await vi.waitFor(async () => {
+      await settle()
+      expect(fetch.mock.calls.filter(([path]) => path === '/api/logout')).toHaveLength(1)
+      expect(container.querySelector('#lg-user')).toBeTruthy()
+    })
   })
 
   it('user.mustChangePassword → cổng đổi mật khẩu, hash route không vượt được, không SSE', async () => {
@@ -254,9 +276,11 @@ describe('cổng phiên', () => {
       container.querySelector('form')!.requestSubmit()
     })
     await settle()
-    // Không gọi lại /api/me giả sau đổi — thẳng về màn đăng nhập + toast.
+    // Không gọi lại /api/me sau đổi — về màn đăng nhập với lý do kết thúc phiên.
     expect(container.querySelector('#lg-user')).toBeTruthy()
-    expect(document.body.textContent).toContain(t.auth.passwordForm.changed)
+    expect(container.querySelector('#pw-current')).toBeNull()
+    expect(container.querySelector('[data-session-ended]')).not.toBeNull()
+    expect(document.querySelector('.ui-toast-wrap')).toBeNull()
   })
 
   it('đăng nhập đúng mật khẩu nhưng chưa cấp quyền (403) → màn bị chặn, không báo lỗi form', async () => {

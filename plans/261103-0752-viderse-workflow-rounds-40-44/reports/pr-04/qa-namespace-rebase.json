@@ -1,0 +1,23 @@
+{
+  "scope": "Owned restored loopback QA only; not production migration procedure",
+  "appDB": "verse_workflow_qa_v38_230140",
+  "oldNamespace": "85769825eb3ec788799c5adb6eb9e4c8",
+  "newNamespace": "70d692bb9faa6af483e165e6d2dd7380",
+  "existingObjectsSHA256Verified": 128,
+  "preExistingAbsentLocators": 179,
+  "preExistingMissingLogicalRef": [
+    {
+      "filename": "",
+      "objectKey": "v1/sha256/13/13a15fa215a0baf719aa72e3595fb0c18e5df8d6202f439cb57cd755465002a1",
+      "logicalPath": "editor/revisions/4970386d-b944-4564-aefd-5691b9479b84.json"
+    }
+  ],
+  "unreferencedAbsentLocators": 178,
+  "allExistingMediaHealthy": false,
+  "note": "One pre-existing referenced Editor revision is missing in the source baseline and copy; no bytes invented, no referenced row removed. Existing V37 source jobs/steps/receipts remain independently checked.",
+  "sourceFileWrites": false,
+  "independentCopiedRoot": true,
+  "publicationFenceUsed": true,
+  "sourceStoreDescriptorRemovedFromClone": true,
+  "schemaBeforeProductMigration": 38
+}

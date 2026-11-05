@@ -80,6 +80,8 @@ export const imageVersionSchema = z.object({
   finishedAt: z.string().nullable(),
   durationSec: z.number().nullable(),
   costImages: z.number(),
+  scoreIssue: z.string().optional(),
+  score: z.unknown().optional(),
   error: z.object({
     reason: z.enum(['quota', 'filter', 'network', 'provider']),
     retryAt: z.string().optional(),
@@ -104,6 +106,7 @@ export const jobImageSchema = z.object({
   /** Video đã duyệt/dựng: ảnh mới cần duyệt lại (§26). */
   needsReview: z.boolean().optional(),
   status: z.string().optional(),
+  scoreIssue: z.string().optional(),
   versions: z.array(imageVersionSchema),
   refLimit: z.number(),
 }).passthrough()
@@ -171,6 +174,12 @@ export interface RedrawBody {
   parts?: Partial<Record<PromptPartKind, string>>
   refs?: RedrawRef[]
   provider?: string
+  /**
+   * Bản đang xem làm nguồn prompt/ảnh tham chiếu, kể cả khi bản đang dùng của
+   * video khác bản đó. Chỉ dùng cho một ảnh; vắng mặt thì vẽ tiếp bản đang dùng
+   * như chính sách cũ (không phải bí danh tương thích).
+   */
+  baseVersion?: number
 }
 
 const base = (jobId: string) => `/api/clone/${encodeURIComponent(jobId)}/images`

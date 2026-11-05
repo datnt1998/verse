@@ -105,3 +105,27 @@ export async function upload<T>(path: string, form: FormData, signal?: AbortSign
   }
   return settle<T>(response, path)
 }
+
+export type DownloadedFile = { blob: Blob; filename?: string }
+
+/** Tải tệp có `Content-Disposition: attachment` qua cùng hợp đồng lỗi/phản hồi. */
+export async function downloadFile(path: string, signal?: AbortSignal): Promise<DownloadedFile> {
+  let response: Response
+  try {
+    response = await fetch(path, { credentials: 'same-origin', signal })
+  } catch (error) {
+    if (signal?.aborted) throw error
+    throw new ApiError(0, OFFLINE_MSG)
+  }
+  if (!response.ok) {
+    await settle<never>(response, path)
+    throw new ApiError(response.status, `Lỗi HTTP ${response.status}`)
+  }
+  const disposition = response.headers.get('Content-Disposition') ?? ''
+  const match = /filename\*?=(?:UTF-8'')?("?)([^";]+)\1/i.exec(disposition)
+  let filename: string | undefined
+  if (match) {
+    try { filename = decodeURIComponent(match[2]) } catch { filename = match[2] }
+  }
+  return { blob: await response.blob(), filename }
+}

@@ -136,6 +136,10 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 			autoFix = &f
 		}
 	}
+	var instructions domain.AgentInstructions
+	if len(r.Instructions) > 0 {
+		_ = json.Unmarshal(r.Instructions, &instructions)
+	}
 	return domain.CloneJob{
 		ID:                uuidStr(r.ID),
 		ChannelID:         uuidStr(r.ChannelID),
@@ -144,6 +148,7 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 		TemplateID:        uuidStr(r.TemplateID),
 		TemplateSnapshot:  r.TemplateSnapshot,
 		ModelRefs:         r.ModelRefs,
+		Instructions:      domain.NormalizeAgentInstructions(instructions),
 		NoImages:          r.NoImages,
 		Generation:        int(r.Generation),
 		SupersededAt:      tptr(r.SupersededAt),
@@ -437,13 +442,21 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 	err := s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
 		now := nowTz()
+		channelID, err := cloneUUIDOf(in.ChannelID)
+		if err != nil {
+			return err
+		}
+		// The channel row is locked for every admission (queue or direct) and
+		// the default-template + instructions snapshot is read inside this tx,
+		// with the same lock as channel PATCH. A stale planner snapshot must
+		// never decide default/instructions for a new job.
+		admission, err := q.LockChannelForAdmission(txctx, channelID)
+		if err != nil {
+			return err
+		}
+		defaultTemplate := rowUUID(admission.DefaultTemplateID)
+		instructions := admission.AgentInstructions
 		if in.QueueItemID != "" {
-			// Queue edits and admission take the channel lock before touching
-			// the item. A stale scheduler snapshot must not create/adopt a job.
-			channelID, err := cloneUUIDOf(in.ChannelID)
-			if err != nil {
-				return err
-			}
 			if _, err := q.LockQueueOwner(txctx, channelID); err != nil {
 				return err
 			}
@@ -530,15 +543,39 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 		}
 		id, _ := cloneUUIDOf(newUUID())
 		ch, _ := cloneUUIDOf(in.ChannelID)
-		tpl, _ := cloneUUIDOf(in.TemplateID)
+		templateID := in.TemplateID
+		if !in.TemplateExplicit && templateID != "" && templateID != defaultTemplate {
+			return pipeline.ErrAdmissionTemplateChanged
+		}
+		if templateID == "" {
+			templateID = defaultTemplate
+		}
+		if templateID == "" {
+			return &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Kênh chưa có template mặc định"}
+		}
+		// SHARE giữ revision ổn định tới khi job được persist; không giữ khoá
+		// trong lúc chuẩn bị media hoặc gọi mạng.
+		revUUID, err := cloneUUIDOf(templateID)
+		if err != nil {
+			return err
+		}
+		rev, err := q.TemplateRevisionForShare(txctx, revUUID)
+		if err != nil {
+			return err
+		}
+		if in.SnapshotRevision != 0 && rev != in.SnapshotRevision {
+			return pipeline.ErrAdmissionTemplateChanged
+		}
+		tpl, _ := cloneUUIDOf(templateID)
 		srcJSON, _ := json.Marshal(in.Source)
 		row, err := q.InsertCloneJob(txctx, gen.InsertCloneJobParams{
 			ID: id, ChannelID: ch, SourceKey: in.SourceKey, SourceSnapshot: srcJSON,
 			TemplateID: tpl, TemplateSnapshot: in.TemplateSnapshot, ModelRefs: in.ModelRefs,
 			NoImages: in.NoImages, Generation: gen_,
-			Priority: string(orDef(string(in.Priority), "pick")),
-			Origin:   string(orDef(string(in.Origin), "manual")),
-			Column12: now,
+			Priority:     string(orDef(string(in.Priority), "pick")),
+			Origin:       string(orDef(string(in.Origin), "manual")),
+			Instructions: instructions,
+			Column13:     now,
 		})
 		if err != nil {
 			return err
@@ -562,12 +599,6 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			}
 			if n == 0 {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã được xử lý"}
-			}
-		}
-		if ch.Valid {
-			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
-			if _, err := tx.Exec(txctx, "UPDATE owner_channels SET template_cursor=template_cursor+1 WHERE id=$1", ch); err != nil {
-				return err
 			}
 		}
 		if err := s.refreshDerived(txctx, row.ID, nil); err != nil {
@@ -994,6 +1025,14 @@ func (s *CloneStore) SetJobStatus(ctx context.Context, jobID string, status doma
 			ID: u, Status: string(status), Column3: nowTz()}); err != nil {
 			return err
 		}
+		// Trạng thái cancelled là terminal: người ghi nào (service, worker) cũng
+		// phải bỏ tạm dừng trong cùng tx, nếu không video đã huỷ vẫn hiện "tạm
+		// dừng" và pipeline.Delete chặn như video còn dừng.
+		if status == domain.CloneCancelled {
+			if err := clearPaused(txctx, s.pool, u); err != nil {
+				return err
+			}
+		}
 		return s.refreshDerived(txctx, u, nil)
 	})
 }
@@ -1017,22 +1056,41 @@ func (s *CloneStore) SetPaused(ctx context.Context, jobID string, paused bool) e
 	})
 }
 
-func (s *CloneStore) RequestCancel(ctx context.Context, jobID string) error {
+// CancelJob hoàn tất huỷ trong một transaction: ghi yêu cầu huỷ, đóng step mở,
+// bỏ tạm dừng và ghi trạng thái cancelled. Huỷ video đang chạy giữ nguyên nghĩa
+// cũ (cancel_requested_at cho worker/fence + step đóng lại + status cancelled);
+// video đang tạm dừng thành terminal ngay nên Delete không còn bị guard tạm
+// dừng chặn. Cột paused_at là state UI, không sống sót qua huỷ.
+func (s *CloneStore) CancelJob(ctx context.Context, jobID string) error {
 	u, err := cloneUUIDOf(jobID)
 	if err != nil {
 		return ErrNotFound
 	}
 	return s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
-		if err := q.RequestJobCancel(txctx, gen.RequestJobCancelParams{ID: u, Column2: nowTz()}); err != nil {
+		now := nowTz()
+		if err := q.RequestJobCancel(txctx, gen.RequestJobCancelParams{ID: u, Column2: now}); err != nil {
 			return err
 		}
 		// Pending work không bao giờ chạy được nữa.
-		if err := q.CancelOpenSteps(txctx, gen.CancelOpenStepsParams{JobID: u, Column2: nowTz()}); err != nil {
+		if err := q.CancelOpenSteps(txctx, gen.CancelOpenStepsParams{JobID: u, Column2: now}); err != nil {
+			return err
+		}
+		if err := clearPaused(txctx, s.pool, u); err != nil {
+			return err
+		}
+		if err := q.SetJobStatus(txctx, gen.SetJobStatusParams{ID: u, Status: string(domain.CloneCancelled), Column3: now}); err != nil {
 			return err
 		}
 		return s.refreshDerived(txctx, u, nil)
 	})
+}
+
+// clearPaused bỏ dấu tạm dừng trong transaction hiện tại. Tách khỏi SetPaused để
+// cancel/terminal không phải gọi thêm một lượt ghi không nguyên tử.
+func clearPaused(ctx context.Context, pool *pgxpool.Pool, job pgtype.UUID) error {
+	_, err := mediaDB(ctx, pool).Exec(ctx, `UPDATE clone_jobs SET paused_at=NULL WHERE id=$1 AND paused_at IS NOT NULL`, job)
+	return err
 }
 
 // ResumeJob: failed/waiting(non-gate) steps → pending; job → pending; nếu job
@@ -1179,6 +1237,12 @@ func (s *CloneStore) DeleteJob(ctx context.Context, jobID string) error {
 		return ErrNotFound
 	}
 	return s.inTx(ctx, func(tx context.Context) error {
+		// Head editor của chính job phải bị xoá/tombstone trước khi binding của
+		// nó được nhả (media.Unbind). Head media toàn cục của project khác được
+		// giữ nguyên, và Unbind tôn trọng live ref nên binding của chúng ở lại.
+		if err := s.retireJobEditorProject(tx, u); err != nil {
+			return err
+		}
 		if err := s.deleteCutouts(tx, jobID); err != nil {
 			return err
 		}

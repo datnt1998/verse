@@ -9,7 +9,7 @@ describe('tiêu đề tab theo màn', () => {
   it('không route nào lộ mã kênh/template/project', () => {
     const ids = ['twitch:nightdrivefm', 'tpl-9f3', 'p-1']
     const routes: Route[] = [
-      { name: 'channel', channelId: ids[0], tab: 'videos' },
+      { name: 'channel', channelId: ids[0], tab: 'sources' },
       { name: 'template', templateId: ids[1], section: 'images' },
       { name: 'editor', projectId: ids[2] },
       { name: 'workbench', channel: ids[0], video: ids[2] },

@@ -1,0 +1,32 @@
+{
+  "baselineCommit": "a7341d37db67e7cfafdb8035818f700820a11594",
+  "baseline": {
+    "entryJS": 193751,
+    "initialJS": 207324,
+    "chunks": {
+      "assets/index-6xyF37ep.js": 30102,
+      "assets/responsive-overlays-BLj823V8.js": 60908,
+      "assets/client-BCmDuJkz.js": 65211,
+      "assets/phone-family-CM-IdVXf.js": 6019,
+      "assets/shared-controls-CDgbtuFG.js": 37530,
+      "assets/mobile-workbench-3H85JZwI.js": 7554
+    }
+  },
+  "currentBuild": "artifact://84807",
+  "currentKiB": {
+    "entryJS": 190.2,
+    "initialJS": 203.4,
+    "initialCSS": 34.7
+  },
+  "limitsKiB": {
+    "entryJS": 150,
+    "initialJS": 200,
+    "initialCSS": 40
+  },
+  "status": "FAILED_PREEXISTING_WITH_SMALL_CURRENT_INCREASE",
+  "experiment": {
+    "output": "artifact://84935",
+    "iconInliningHypothesis": "Changing non-cold icon inlining reduced only about0.5KiB; not the dominant cause. Experimental config reverted; no thresholds/accounting changed."
+  },
+  "releaseGate": "Cold-load size remains failing; must be resolved by full workflow cutover before release. This is not a passing check."
+}

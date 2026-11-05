@@ -1,0 +1,11 @@
+{
+  "method": "GET",
+  "path": "/api/templates/:qaTemplateId/preview",
+  "environment": "isolated QA",
+  "status": 200,
+  "observed": { "state": "none", "sources": [] },
+  "fixtureState": "Three jobs have real build/editor artifacts but are still waiting for review; no eligible completed preview source exposed by API",
+  "limitation": "Template preview=fresh/building reference rows are not app-verified. Existing API supports building; no new preview service is inferred or added.",
+  "providerCalled": false,
+  "productAcceptance": false
+}

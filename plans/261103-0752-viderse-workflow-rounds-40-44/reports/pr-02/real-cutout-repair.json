@@ -1,0 +1,18 @@
+{
+  "jobId": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "itemId": "sc-04",
+  "version": 2,
+  "before": [
+    1672,
+    941
+  ],
+  "after": [
+    1920,
+    1080
+  ],
+  "aiCalls": 0,
+  "checkpointCAS": true,
+  "originalImmutableCutoutPreserved": true,
+  "originalImageSHA256": "22012723fe48825d27665d24b9cb11ec45ee2c6b89b868e61c6a709687804e4b",
+  "repairedCutoutSHA256": "bb77acdf234443b90651f40fe71194026f3c48fd7eb581755254b4259a7cca0c"
+}

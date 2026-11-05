@@ -1,0 +1,466 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "--config",
+      "tests/viderse-workflow/playwright.config.ts",
+      "viewer-audit.pw.ts",
+      "--grep",
+      "workbench viewer uses stable addresses",
+      "--project=desktop",
+      "--project=desktop-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop",
+        "name": "post-delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "post-delete-desktop-reduced",
+        "name": "post-delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "viewer-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": {},
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts",
+          "settings-state-audit.pw.ts",
+          "template-state-audit.pw.ts",
+          "provider-catalog-audit.pw.ts",
+          "review-control-ledger-audit.pw.ts",
+          "settings-control-ledger-audit.pw.ts",
+          "studio-audit.pw.ts",
+          "editor-template-audit.pw.ts",
+          "studio-feedback-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8043",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "executablePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6277,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T12:52:51.871Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "viewer-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJqb2IiOiAiZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyIiwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAxNDQwLAogICAgImhlaWdodCI6IDkwMAogIH0sCiAgImJhc2VVUkwiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDQzIiwKICAic291cmNlUmV2aXNpb24iOiAicHIzLWludGVncmF0ZWQtdW5jb21taXR0ZWQiLAogICJmb250cyI6ICJsb2FkZWQiLAogICJyZWR1Y2VkTW90aW9uIjogZmFsc2UsCiAgInN0YXRlcyI6IHsKICAgICJub25lIjogIndvcmtiZW5jaC1ub25lLnBuZyIsCiAgICAidmlldyI6ICJ3b3JrYmVuY2gtdmlld2VyLnBuZyIsCiAgICAicmVkcmF3IjogIndvcmtiZW5jaC1mZWVkYmFjay5wbmciCiAgfSwKICAiYWRkcmVzcyI6IHsKICAgICJib290IjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiIsCiAgICAib3BlbmVkIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDMiLAogICAgImFmdGVyQXJyb3dSaWdodCI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA0IiwKICAgICJhZnRlckFycm93TGVmdCI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTAzIiwKICAgICJhZnRlckNsb3NlIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiIKICB9LAogICJoaXN0b3J5IjogewogICAgImJlZm9yZSI6IDIsCiAgICAib3BlbmVkIjogMywKICAgICJhZnRlckFycm93UmlnaHQiOiAzLAogICAgImFmdGVyUmVsb2FkIjogNCwKICAgICJhZnRlckNsb3NlIjogMwogIH0sCiAgImdlb21ldHJ5IjogewogICAgIngiOiAxMDAsCiAgICAieSI6IDUwLAogICAgIndpZHRoIjogMTI0MCwKICAgICJoZWlnaHQiOiA4MDAsCiAgICAibmF0dXJhbCI6IFsKICAgICAgMTkyMCwKICAgICAgMTA4MAogICAgXSwKICAgICJyZW5kZXJlZCI6IFsKICAgICAgODY2LAogICAgICA0ODcKICAgIF0sCiAgICAic3RhZ2UiOiB7CiAgICAgICJ3aWR0aCI6IDg2NiwKICAgICAgImhlaWdodCI6IDU3NC4yODEyNQogICAgfSwKICAgICJpbWFnZSI6IHsKICAgICAgIngiOiAxMTcsCiAgICAgICJ5IjogMTYyLjU3ODEyNSwKICAgICAgIndpZHRoIjogODY2LAogICAgICAiaGVpZ2h0IjogNDg3LjEyNQogICAgfSwKICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1Njo3N2NkOGE5OTY4YTM2ODRiYTMyMzdlODNmN2NlMDYxYjUwZWNkMjcyMmExZjM1YmM2YjU5ZmFhNDMwNDgwOWNiIgogIH0sCiAgIm1vdGlvbiI6IHsKICAgICJkaWFsb2ciOiB7CiAgICAgICJhbmltYXRpb25OYW1lIjogImtpdC1kaWFsb2ciLAogICAgICAiYW5pbWF0aW9uRHVyYXRpb24iOiAiMC4zcyIsCiAgICAgICJ0cmFuc2l0aW9uRHVyYXRpb24iOiAiMHMiLAogICAgICAicnVubmluZyI6IGZhbHNlCiAgICB9LAogICAgInNjcmltIjogewogICAgICAiYW5pbWF0aW9uTmFtZSI6ICJraXQtZmFkZSIsCiAgICAgICJhbmltYXRpb25EdXJhdGlvbiI6ICIwLjJzIiwKICAgICAgInRyYW5zaXRpb25EdXJhdGlvbiI6ICIwcyIsCiAgICAgICJydW5uaW5nIjogZmFsc2UKICAgIH0sCiAgICAic2VsZWN0ZWRUaHVtYiI6IHsKICAgICAgImFuaW1hdGlvbk5hbWUiOiAibm9uZSIsCiAgICAgICJhbmltYXRpb25EdXJhdGlvbiI6ICIwcyIsCiAgICAgICJ0cmFuc2l0aW9uRHVyYXRpb24iOiAiMC4xNnMsIDAuMTZzIiwKICAgICAgInJ1bm5pbmciOiBmYWxzZQogICAgfQogIH0sCiAgIm9yaWVudGF0aW9uIjogewogICAgImxhbmRzY2FwZSI6IHsKICAgICAgImxhYmVsIjogIkPhuqNuaCAzIiwKICAgICAgIm5hdHVyYWwiOiBbCiAgICAgICAgMTkyMCwKICAgICAgICAxMDgwCiAgICAgIF0sCiAgICAgICJyZW5kZXJlZCI6IFsKICAgICAgICA4NjYsCiAgICAgICAgNDg3CiAgICAgIF0sCiAgICAgICJzdGFnZSI6IHsKICAgICAgICAid2lkdGgiOiA4NjYsCiAgICAgICAgImhlaWdodCI6IDU3NC4yODEyNQogICAgICB9CiAgICB9LAogICAgInBvcnRyYWl0IjogewogICAgICAiYXZhaWxhYmxlIjogZmFsc2UsCiAgICAgICJwcmVyZXF1aXNpdGUiOiAiYSByZWFsIHBvcnRyYWl0IGltYWdlIChuYXR1cmFsSGVpZ2h0ID4gbmF0dXJhbFdpZHRoKSBvbiBqb2IgZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyOyB0aGUgbGl2ZSBzdHJpcCBvbmx5IGV4cG9zZXMgbGFuZHNjYXBlIHNvdXJjZXMgKOG6om5oIGLDrGE6MTI4MHg3MjAsIEPhuqNuaCAxOjE5MjB4MTA4MCwgQ+G6o25oIDI6MTkyMHgxMDgwLCBD4bqjbmggMzoxOTIweDEwODAsIEPhuqNuaCA0OjE5MjB4MTA4MCwgQ+G6o25oIDU6MTkyMHgxMDgwLCBD4bqjbmggNjoxOTIweDEwODApIgogICAgfQogIH0sCiAgInF1b3RhIjogewogICAgInNuYXBzaG90TGVmdCI6IDAsCiAgICAiY29zdExhYmVsIjogIlbhur0gbOG6oWkgwrcgdOG7kW4gMSDhuqNuaCAoY8OybiAwKSIKICB9LAogICJzb3VyY2VHdWFyZCI6IHsKICAgICJzdGFnZVBhdGgiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1Njo3N2NkOGE5OTY4YTM2ODRiYTMyMzdlODNmN2NlMDYxYjUwZWNkMjcyMmExZjM1YmM2YjU5ZmFhNDMwNDgwOWNiIiwKICAgICJzbmFwc2hvdEltYWdlSWQiOiAic2MtMDMiLAogICAgInNob3duVmVyc2lvbiI6IDEKICB9LAogICJjb3B5UmF3IjogewogICAgInNlbGVjdGVkVmVyc2lvbiI6IDEsCiAgICAiY2xpcGJvYXJkRXhhY3RTZW50VGV4dCI6IHRydWUsCiAgICAiY2xpcGJvYXJkQnl0ZXMiOiA4OSwKICAgICJyYXdFeGFjdFNhdmVkQnl0ZXMiOiB0cnVlLAogICAgInBhcnRzQ291bnQiOiAxLAogICAgIndyaXRlcyI6IDAKICB9LAogICJzdHJpcEV4ZXJjaXNlIjogewogICAgIm9wdGlvbkNvdW50IjogNywKICAgICJ2aWV3YWJsZU9wdGlvbnMiOiA3LAogICAgInN0cmlwUmVhZGJhY2siOiBbCiAgICAgIHsKICAgICAgICAibGFiZWwiOiAi4bqibmggYsOsYSIsCiAgICAgICAgImlkIjogInRodW1ibmFpbCIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz10aHVtYm5haWwiLAogICAgICAgICJ2ZXJzaW9ucyI6IFsKICAgICAgICAgIDEKICAgICAgICBdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibGFiZWwiOiAiQ+G6o25oIDEiLAogICAgICAgICJpZCI6ICJzYy0wMSIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wMSIsCiAgICAgICAgInZlcnNpb25zIjogWwogICAgICAgICAgMQogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJsYWJlbCI6ICJD4bqjbmggMiIsCiAgICAgICAgImlkIjogInNjLTAyIiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTAyIiwKICAgICAgICAidmVyc2lvbnMiOiBbCiAgICAgICAgICAxCiAgICAgICAgXQogICAgICB9LAogICAgICB7CiAgICAgICAgImxhYmVsIjogIkPhuqNuaCAzIiwKICAgICAgICAiaWQiOiAic2MtMDMiLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDMiLAogICAgICAgICJ2ZXJzaW9ucyI6IFsKICAgICAgICAgIDEKICAgICAgICBdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibGFiZWwiOiAiQ+G6o25oIDQiLAogICAgICAgICJpZCI6ICJzYy0wNCIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNCIsCiAgICAgICAgInZlcnNpb25zIjogWwogICAgICAgICAgMSwKICAgICAgICAgIDIKICAgICAgICBdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibGFiZWwiOiAiQ+G6o25oIDUiLAogICAgICAgICJpZCI6ICJzYy0wNSIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNSIsCiAgICAgICAgInZlcnNpb25zIjogWwogICAgICAgICAgMQogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJsYWJlbCI6ICJD4bqjbmggNiIsCiAgICAgICAgImlkIjogInNjLTA2IiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA2IiwKICAgICAgICAidmVyc2lvbnMiOiBbCiAgICAgICAgICAxCiAgICAgICAgXQogICAgICB9CiAgICBdLAogICAgInZlcnNpb25SZWFkYmFjayI6IFsKICAgICAgewogICAgICAgICJpbWFnZSI6ICJ0aHVtYm5haWwiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXRodW1ibmFpbCIsCiAgICAgICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2OjA4NWQ0OTdjMWI0YjE0YmUzYWM2NjBmZWJmNjRmZWI4MTVhZTllNTMzOGI4ZGEwZTFiMmUzOTFmNzE1MmI1YjIiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaW1hZ2UiOiAic2MtMDEiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTAxIiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6ZTgzOGU0MzZhZGNkNGI1MjNhNGM4MmIwNjU1NzQ3MTI4ODg4ZThiYzliNDQ4NjgyNjAwZTNhM2ZkZTZmNTNlYiIKICAgICAgfSwKICAgICAgewogICAgICAgICJpbWFnZSI6ICJzYy0wMiIsCiAgICAgICAgIm4iOiAxLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDIiLAogICAgICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjphZGU4MDU1NzBkMjMzNzA5ZmVhMDcwZmI0YWJlOTE3Njk5N2FmOTU2ZjZiNzJmMDU3ODViNmVmOWY0ZDMzMmM3IgogICAgICB9LAogICAgICB7CiAgICAgICAgImltYWdlIjogInNjLTAzIiwKICAgICAgICAibiI6IDEsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wMyIsCiAgICAgICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2Ojc3Y2Q4YTk5NjhhMzY4NGJhMzIzN2U4M2Y3Y2UwNjFiNTBlY2QyNzIyYTFmMzViYzZiNTlmYWE0MzA0ODA5Y2IiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaW1hZ2UiOiAic2MtMDQiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA0IiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6YWM1YmY2YWVhM2Y3NmZkYmNhODY5N2MyYWY3OTVkYmYyMGZjNzUyMTU0ZTlmNjBkYWQ3ZWExNTkzZDNiNzBhYSIKICAgICAgfSwKICAgICAgewogICAgICAgICJpbWFnZSI6ICJzYy0wNCIsCiAgICAgICAgIm4iOiAyLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDQiLAogICAgICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjpiZjI1OTc4M2Y1NzU1OWEyNzdmZWNkNWZlZTRhOTFhMDI0Y2U5NDg2Y2E3Y2Y4NzFmNTJjOGI2MGY0NzUxNDM5IgogICAgICB9LAogICAgICB7CiAgICAgICAgImltYWdlIjogInNjLTA1IiwKICAgICAgICAibiI6IDEsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNSIsCiAgICAgICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2OjYxZjg5Y2NhZmVjYTQ4OTg1YTljYTdjYzY3MjU2ZGMzYjI1NGM2ZGE5ODg5Y2VhMDc1Mjk3N2RlODJkYTdmNzgiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaW1hZ2UiOiAic2MtMDYiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA2IiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6Y2JmMjAzOTMxYWVmMjNjZWNlNDY4MjIyMTZjMDk0MjczMjBkYzA0NTMzYzE1MzcwNGYwMWQ3MDY4N2I5YmYxYyIKICAgICAgfQogICAgXSwKICAgICJyZXN0b3JlZEluaXRpYWxTZWxlY3Rpb24iOiB0cnVlLAogICAgImFkZHJlc3NTdGFibGUiOiB0cnVlCiAgfSwKICAicmVkcmF3TXV0YXRpb25zIjogW10sCiAgImltYWdlTXV0YXRpb25zIjogW10KfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-2a17146d0e880ac6630e",
+          "file": "viewer-audit.pw.ts",
+          "line": 121,
+          "column": 5
+        },
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5798,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T12:52:59.507Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "viewer-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJqb2IiOiAiZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyIiwKICAidmlld3BvcnQiOiB7CiAgICAid2lkdGgiOiAxNDQwLAogICAgImhlaWdodCI6IDkwMAogIH0sCiAgImJhc2VVUkwiOiAiaHR0cDovLzEyNy4wLjAuMTo4MDQzIiwKICAic291cmNlUmV2aXNpb24iOiAicHIzLWludGVncmF0ZWQtdW5jb21taXR0ZWQiLAogICJmb250cyI6ICJsb2FkZWQiLAogICJyZWR1Y2VkTW90aW9uIjogdHJ1ZSwKICAic3RhdGVzIjogewogICAgIm5vbmUiOiAid29ya2JlbmNoLW5vbmUucG5nIiwKICAgICJ2aWV3IjogIndvcmtiZW5jaC12aWV3ZXIucG5nIiwKICAgICJyZWRyYXciOiAid29ya2JlbmNoLWZlZWRiYWNrLnBuZyIKICB9LAogICJhZGRyZXNzIjogewogICAgImJvb3QiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyIiwKICAgICJvcGVuZWQiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wMyIsCiAgICAiYWZ0ZXJBcnJvd1JpZ2h0IjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDQiLAogICAgImFmdGVyQXJyb3dMZWZ0IjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDMiLAogICAgImFmdGVyQ2xvc2UiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyIgogIH0sCiAgImhpc3RvcnkiOiB7CiAgICAiYmVmb3JlIjogMiwKICAgICJvcGVuZWQiOiAzLAogICAgImFmdGVyQXJyb3dSaWdodCI6IDMsCiAgICAiYWZ0ZXJSZWxvYWQiOiA0LAogICAgImFmdGVyQ2xvc2UiOiAzCiAgfSwKICAiZ2VvbWV0cnkiOiB7CiAgICAieCI6IDEwMCwKICAgICJ5IjogNTAsCiAgICAid2lkdGgiOiAxMjQwLAogICAgImhlaWdodCI6IDgwMCwKICAgICJuYXR1cmFsIjogWwogICAgICAxOTIwLAogICAgICAxMDgwCiAgICBdLAogICAgInJlbmRlcmVkIjogWwogICAgICA4NjYsCiAgICAgIDQ4NwogICAgXSwKICAgICJzdGFnZSI6IHsKICAgICAgIndpZHRoIjogODY2LAogICAgICAiaGVpZ2h0IjogNTc0LjI4MTI1CiAgICB9LAogICAgImltYWdlIjogewogICAgICAieCI6IDExNywKICAgICAgInkiOiAxNjIuNTc4MTI1LAogICAgICAid2lkdGgiOiA4NjYsCiAgICAgICJoZWlnaHQiOiA0ODcuMTI1CiAgICB9LAogICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2Ojc3Y2Q4YTk5NjhhMzY4NGJhMzIzN2U4M2Y3Y2UwNjFiNTBlY2QyNzIyYTFmMzViYzZiNTlmYWE0MzA0ODA5Y2IiCiAgfSwKICAibW90aW9uIjogewogICAgImRpYWxvZyI6IHsKICAgICAgImFuaW1hdGlvbk5hbWUiOiAibm9uZSIsCiAgICAgICJhbmltYXRpb25EdXJhdGlvbiI6ICIwcyIsCiAgICAgICJ0cmFuc2l0aW9uRHVyYXRpb24iOiAiMWUtMDVzIiwKICAgICAgInJ1bm5pbmciOiBmYWxzZQogICAgfSwKICAgICJzY3JpbSI6IHsKICAgICAgImFuaW1hdGlvbk5hbWUiOiAibm9uZSIsCiAgICAgICJhbmltYXRpb25EdXJhdGlvbiI6ICIwcyIsCiAgICAgICJ0cmFuc2l0aW9uRHVyYXRpb24iOiAiMWUtMDVzIiwKICAgICAgInJ1bm5pbmciOiBmYWxzZQogICAgfSwKICAgICJzZWxlY3RlZFRodW1iIjogewogICAgICAiYW5pbWF0aW9uTmFtZSI6ICJub25lIiwKICAgICAgImFuaW1hdGlvbkR1cmF0aW9uIjogIjBzIiwKICAgICAgInRyYW5zaXRpb25EdXJhdGlvbiI6ICIxZS0wNXMiLAogICAgICAicnVubmluZyI6IGZhbHNlCiAgICB9CiAgfSwKICAib3JpZW50YXRpb24iOiB7CiAgICAibGFuZHNjYXBlIjogewogICAgICAibGFiZWwiOiAiQ+G6o25oIDMiLAogICAgICAibmF0dXJhbCI6IFsKICAgICAgICAxOTIwLAogICAgICAgIDEwODAKICAgICAgXSwKICAgICAgInJlbmRlcmVkIjogWwogICAgICAgIDg2NiwKICAgICAgICA0ODcKICAgICAgXSwKICAgICAgInN0YWdlIjogewogICAgICAgICJ3aWR0aCI6IDg2NiwKICAgICAgICAiaGVpZ2h0IjogNTc0LjI4MTI1CiAgICAgIH0KICAgIH0sCiAgICAicG9ydHJhaXQiOiB7CiAgICAgICJhdmFpbGFibGUiOiBmYWxzZSwKICAgICAgInByZXJlcXVpc2l0ZSI6ICJhIHJlYWwgcG9ydHJhaXQgaW1hZ2UgKG5hdHVyYWxIZWlnaHQgPiBuYXR1cmFsV2lkdGgpIG9uIGpvYiBkZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTI7IHRoZSBsaXZlIHN0cmlwIG9ubHkgZXhwb3NlcyBsYW5kc2NhcGUgc291cmNlcyAo4bqibmggYsOsYToxMjgweDcyMCwgQ+G6o25oIDE6MTkyMHgxMDgwLCBD4bqjbmggMjoxOTIweDEwODAsIEPhuqNuaCAzOjE5MjB4MTA4MCwgQ+G6o25oIDQ6MTkyMHgxMDgwLCBD4bqjbmggNToxOTIweDEwODAsIEPhuqNuaCA2OjE5MjB4MTA4MCkiCiAgICB9CiAgfSwKICAicXVvdGEiOiB7CiAgICAic25hcHNob3RMZWZ0IjogMCwKICAgICJjb3N0TGFiZWwiOiAiVuG6vSBs4bqhaSDCtyB04buRbiAxIOG6o25oIChjw7JuIDApIgogIH0sCiAgInNvdXJjZUd1YXJkIjogewogICAgInN0YWdlUGF0aCI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2Ojc3Y2Q4YTk5NjhhMzY4NGJhMzIzN2U4M2Y3Y2UwNjFiNTBlY2QyNzIyYTFmMzViYzZiNTlmYWE0MzA0ODA5Y2IiLAogICAgInNuYXBzaG90SW1hZ2VJZCI6ICJzYy0wMyIsCiAgICAic2hvd25WZXJzaW9uIjogMQogIH0sCiAgImNvcHlSYXciOiB7CiAgICAic2VsZWN0ZWRWZXJzaW9uIjogMSwKICAgICJjbGlwYm9hcmRFeGFjdFNlbnRUZXh0IjogdHJ1ZSwKICAgICJjbGlwYm9hcmRCeXRlcyI6IDg5LAogICAgInJhd0V4YWN0U2F2ZWRCeXRlcyI6IHRydWUsCiAgICAicGFydHNDb3VudCI6IDEsCiAgICAid3JpdGVzIjogMAogIH0sCiAgInN0cmlwRXhlcmNpc2UiOiB7CiAgICAib3B0aW9uQ291bnQiOiA3LAogICAgInZpZXdhYmxlT3B0aW9ucyI6IDcsCiAgICAic3RyaXBSZWFkYmFjayI6IFsKICAgICAgewogICAgICAgICJsYWJlbCI6ICLhuqJuaCBiw6xhIiwKICAgICAgICAiaWQiOiAidGh1bWJuYWlsIiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXRodW1ibmFpbCIsCiAgICAgICAgInZlcnNpb25zIjogWwogICAgICAgICAgMQogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJsYWJlbCI6ICJD4bqjbmggMSIsCiAgICAgICAgImlkIjogInNjLTAxIiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTAxIiwKICAgICAgICAidmVyc2lvbnMiOiBbCiAgICAgICAgICAxCiAgICAgICAgXQogICAgICB9LAogICAgICB7CiAgICAgICAgImxhYmVsIjogIkPhuqNuaCAyIiwKICAgICAgICAiaWQiOiAic2MtMDIiLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDIiLAogICAgICAgICJ2ZXJzaW9ucyI6IFsKICAgICAgICAgIDEKICAgICAgICBdCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAibGFiZWwiOiAiQ+G6o25oIDMiLAogICAgICAgICJpZCI6ICJzYy0wMyIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wMyIsCiAgICAgICAgInZlcnNpb25zIjogWwogICAgICAgICAgMQogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJsYWJlbCI6ICJD4bqjbmggNCIsCiAgICAgICAgImlkIjogInNjLTA0IiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA0IiwKICAgICAgICAidmVyc2lvbnMiOiBbCiAgICAgICAgICAxLAogICAgICAgICAgMgogICAgICAgIF0KICAgICAgfSwKICAgICAgewogICAgICAgICJsYWJlbCI6ICJD4bqjbmggNSIsCiAgICAgICAgImlkIjogInNjLTA1IiwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA1IiwKICAgICAgICAidmVyc2lvbnMiOiBbCiAgICAgICAgICAxCiAgICAgICAgXQogICAgICB9LAogICAgICB7CiAgICAgICAgImxhYmVsIjogIkPhuqNuaCA2IiwKICAgICAgICAiaWQiOiAic2MtMDYiLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDYiLAogICAgICAgICJ2ZXJzaW9ucyI6IFsKICAgICAgICAgIDEKICAgICAgICBdCiAgICAgIH0KICAgIF0sCiAgICAidmVyc2lvblJlYWRiYWNrIjogWwogICAgICB7CiAgICAgICAgImltYWdlIjogInRodW1ibmFpbCIsCiAgICAgICAgIm4iOiAxLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9dGh1bWJuYWlsIiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6MDg1ZDQ5N2MxYjRiMTRiZTNhYzY2MGZlYmY2NGZlYjgxNWFlOWU1MzM4YjhkYTBlMWIyZTM5MWY3MTUyYjViMiIKICAgICAgfSwKICAgICAgewogICAgICAgICJpbWFnZSI6ICJzYy0wMSIsCiAgICAgICAgIm4iOiAxLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDEiLAogICAgICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjplODM4ZTQzNmFkY2Q0YjUyM2E0YzgyYjA2NTU3NDcxMjg4ODhlOGJjOWI0NDg2ODI2MDBlM2EzZmRlNmY1M2ViIgogICAgICB9LAogICAgICB7CiAgICAgICAgImltYWdlIjogInNjLTAyIiwKICAgICAgICAibiI6IDEsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wMiIsCiAgICAgICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2OmFkZTgwNTU3MGQyMzM3MDlmZWEwNzBmYjRhYmU5MTc2OTk3YWY5NTZmNmI3MmYwNTc4NWI2ZWY5ZjRkMzMyYzciCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaW1hZ2UiOiAic2MtMDMiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTAzIiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6NzdjZDhhOTk2OGEzNjg0YmEzMjM3ZTgzZjdjZTA2MWI1MGVjZDI3MjJhMWYzNWJjNmI1OWZhYTQzMDQ4MDljYiIKICAgICAgfSwKICAgICAgewogICAgICAgICJpbWFnZSI6ICJzYy0wNCIsCiAgICAgICAgIm4iOiAxLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDQiLAogICAgICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjphYzViZjZhZWEzZjc2ZmRiY2E4Njk3YzJhZjc5NWRiZjIwZmM3NTIxNTRlOWY2MGRhZDdlYTE1OTNkM2I3MGFhIgogICAgICB9LAogICAgICB7CiAgICAgICAgImltYWdlIjogInNjLTA0IiwKICAgICAgICAibiI6IDIsCiAgICAgICAgImFkZHJlc3MiOiAiIy8/dmlkZW89ZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyJmltZz1zYy0wNCIsCiAgICAgICAgInNyYyI6ICIvYXBpL2Nsb25lL2RlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5Mi9hcnRpZmFjdHMvc2hhMjU2OmJmMjU5NzgzZjU3NTU5YTI3N2ZlY2Q1ZmVlNGE5MWEwMjRjZTk0ODZjYTdjZjg3MWY1MmM4YjYwZjQ3NTE0MzkiCiAgICAgIH0sCiAgICAgIHsKICAgICAgICAiaW1hZ2UiOiAic2MtMDUiLAogICAgICAgICJuIjogMSwKICAgICAgICAiYWRkcmVzcyI6ICIjLz92aWRlbz1kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTImaW1nPXNjLTA1IiwKICAgICAgICAic3JjIjogIi9hcGkvY2xvbmUvZGUzYTRhNmUtOGE1Yy00ZTU3LTk0MTUtMjcwNDQ5N2JkMjkyL2FydGlmYWN0cy9zaGEyNTY6NjFmODljY2FmZWNhNDg5ODVhOWNhN2NjNjcyNTZkYzNiMjU0YzZkYTk4ODljZWEwNzUyOTc3ZGU4MmRhN2Y3OCIKICAgICAgfSwKICAgICAgewogICAgICAgICJpbWFnZSI6ICJzYy0wNiIsCiAgICAgICAgIm4iOiAxLAogICAgICAgICJhZGRyZXNzIjogIiMvP3ZpZGVvPWRlM2E0YTZlLThhNWMtNGU1Ny05NDE1LTI3MDQ0OTdiZDI5MiZpbWc9c2MtMDYiLAogICAgICAgICJzcmMiOiAiL2FwaS9jbG9uZS9kZTNhNGE2ZS04YTVjLTRlNTctOTQxNS0yNzA0NDk3YmQyOTIvYXJ0aWZhY3RzL3NoYTI1NjpjYmYyMDM5MzFhZWYyM2NlY2U0NjgyMjIxNmMwOTQyNzMyMGRjMDQ1MzNjMTUzNzA0ZjAxZDcwNjg3YjliZjFjIgogICAgICB9CiAgICBdLAogICAgInJlc3RvcmVkSW5pdGlhbFNlbGVjdGlvbiI6IHRydWUsCiAgICAiYWRkcmVzc1N0YWJsZSI6IHRydWUKICB9LAogICJyZWRyYXdNdXRhdGlvbnMiOiBbXSwKICAiaW1hZ2VNdXRhdGlvbnMiOiBbXQp9"
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-03/runs/014-canonical-inspector-viewer-regression/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-9149edde259f9b5e1b02",
+          "file": "viewer-audit.pw.ts",
+          "line": 121,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T12:52:51.507Z",
+    "duration": 14700.26,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

@@ -1,9 +1,8 @@
 // Đánh dấu đã đăng: hộp hỏi link YouTube (không bắt buộc) → POST /api/clone/:id/posted
 // → gợi ý xoá MP4 lấy lại dung lượng. Dùng chung cho Bàn dựng (⋯, LiveStudio) và
-// Kênh › Video. Hộp là ConfirmDialog của kit: lỗi ném ra từ onConfirm hiện ngay trong hộp.
+// bản điện thoại. Hộp là ConfirmDialog của kit: lỗi hiện ngay trong hộp.
 import * as stylex from '@stylexjs/stylex'
 import { Field, confirm, toast } from '@noverse/ui'
-import { invalidate } from '@noverse/ui/data'
 import { ApiError } from '../../api/request'
 import { errorField, markPostedWithLink } from '../../api/performance'
 import { jobBulkAction, type CloneJobView } from '../../api/workbench'
@@ -53,7 +52,6 @@ export async function requestMarkPosted(job: CloneJobView, onDone: () => void): 
     onConfirm: async () => {
       if (!isYoutubeLink(link)) throw new Error(copy.badLink)
       try { await markPostedWithLink(job.id, link) } catch (error) { throw new Error(messageOf(error)) }
-      void invalidate(['channels', 'performance'])
       onDone()
     },
   })

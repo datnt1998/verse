@@ -20,7 +20,7 @@ const view: QueueView = {
   running: [], rotation: { order: ['mine'], next: 'mine', skipped: [] },
   items: [
     { id: 'q1', channelId: 'mine', title: 'Video thứ nhất', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'pace_full', position: 10, thumbnailUrl: '/thumbnail.jpg' },
-    { id: 'q2', channelId: 'mine', title: 'Video thứ hai', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'no_template', position: 20 },
+    { id: 'q2', channelId: 'mine', title: 'Video thứ hai', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'rotation', position: 20 },
   ], pace: [{ channelId: 'mine', used: 5, limit: 5 }], imageQuota: [], doneToday: [],
 }
 const response = (data: unknown) => new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } })
@@ -97,7 +97,10 @@ it('filters queued rows with controlled keyboard choices and retains native menu
   expect(choices[1].getAttribute('aria-checked')).toBe('true')
   expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(1)
   expect(el.querySelector('.vq-row:not(.vq-row--head)')?.textContent).toContain(view.items[0].title)
-  await act(async () => { choices[1].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
+  await act(async () => { choices[2].click() })
+  expect(el.querySelector('.vq-row:not(.vq-row--head)')?.textContent).toContain(view.items[1].title)
+  expect(el.querySelector('.vq-row:not(.vq-row--head) .vq-num')?.textContent).toBe('2')
+  await act(async () => { choices[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true })) })
   expect(choices[0].getAttribute('aria-checked')).toBe('true')
   expect(el.querySelectorAll('.vq-row:not(.vq-row--head)')).toHaveLength(2)
   const trigger = el.querySelector<HTMLButtonElement>(`[aria-label="${t.screens.queue.menuMore(view.items[0].title)}"]`)!

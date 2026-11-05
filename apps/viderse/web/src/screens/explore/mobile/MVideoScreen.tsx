@@ -1,8 +1,8 @@
 // Chi tiết video trên điện thoại (artboard MCompVideo). Là màn đẩy thật của
-// route #/explore?video=<id>: thanh riêng 52, hero 16:9, điểm × + Vì sao?,
+// route #/explore?video=<id>: thanh riêng 52, hero 16:9, điểm ×,
 // nguồn, chương thật + trạng thái đã làm cho từng kênh (cùng dữ liệu máy chủ
 // với bản máy tính), chọn kênh và CTA dính đáy. Không thanh tab, không header.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
   ActionSheet, Button, Icon, MobilePage, MobilePageAction, RadioCard, RadioDot, Sheet, toast, useTabMode,
@@ -15,13 +15,14 @@ import { keys } from '../../../data/keys'
 import { ChannelAvatar } from '../../../components'
 import { getRivalPreview, listRivals, type Video, type VideoPreview } from '../../../api/rivals'
 import { listChannels } from '../../../api/channels'
-import { enqueueClone, planClone, type ClonePlan } from '../../../api/clone'
+import { cloneTarget, enqueueClone, planClone, type ClonePlan } from '../../../api/clone'
+import { openQuickCreate } from '../../new/quickCreate'
 import { chapterHref, fmtChapterTime, fmtDuration, fmtScore, scoreText, videoMeta } from '../fmt'
+import { copyText } from '../media'
 import { hideBrokenImage } from '../VideoGrid'
 import { stageColor, usageHref, usageSubline } from '../status'
 import { scopeOf } from '../scope'
 import { useRivalVideos } from '../useRivalVideos'
-import { ReasonPopover } from '../../../components/reason/ReasonPopover'
 import { mStyles } from './mexplore.stylex'
 import { recallVideo } from './pickedVideo'
 
@@ -46,7 +47,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
     () => (channelList.data?.channels ?? []).map((channel) => ({
       id: channel.id,
       name: channel.name || t.channels.page.noName,
-      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
+      templateName: channel.defaultTemplateName,
     })),
     [channelList.data],
   )
@@ -73,7 +74,6 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
     return () => ctrl.abort()
   }, [chapterVideoId, chapterChannelId])
 
-  const [whyOpen, setWhyOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const [pickerOpen, setPickerOpen] = useState(false)
   const [picked, setPicked] = useState<string>('')
@@ -81,7 +81,10 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
   const [planPhase, setPlanPhase] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const [planRetry, setPlanRetry] = useState(0)
   const [busy, setBusy] = useState(false)
-  const [queued, setQueued] = useState(false)
+  const [added, setAdded] = useState<Record<string, string>>({})
+  const queued = !!added[`${video?.url}:${picked}`]
+  const submitting = useRef(false)
+  const openComposerAfterPicker = useRef(false)
 
   useEffect(() => {
     if (!pickerOpen || !video || channels.length === 0) return
@@ -89,7 +92,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
     setPlanPhase('loading')
     setPicked((current) => current || channels[0].id)
     Promise.all(channels.map(async (channel) => {
-      const plan = await planClone({ channelId: channel.id, urls: [video.url], priority: 'pick' }, ctrl.signal)
+      const plan = await planClone({ channelId: channel.id, urls: [video.url] }, ctrl.signal)
       return [channel.id, plan] as const
     }))
       .then((entries) => {
@@ -116,12 +119,9 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
 
   const copy = useCallback(async () => {
     if (!video) return
-    try {
-      await navigator.clipboard.writeText(video.url)
-      toast.ok(tt.copied)
-    } catch {
-      toast.err(tt.copyFailed)
-    }
+    const ok = await copyText(video.url)
+    if (ok) toast.ok(tt.copied)
+    else toast.err(tt.copyFailed)
   }, [video, tt.copied, tt.copyFailed])
 
   const back = useCallback(() => {
@@ -129,17 +129,23 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
   }, [route.rival])
 
   const make = async () => {
-    if (!video || !picked || !canMake) return
+    if (!video || !picked || !canMake || submitting.current) return
+    submitting.current = true
     setBusy(true)
     try {
-      await enqueueClone({ channelId: picked, urls: [video.url], priority: 'pick' })
-      setQueued(true)
+      const result = await enqueueClone({ channelId: picked, urls: [video.url] })
+      const item = result.items[0]
+      const existing = result.duplicates?.[0]
+      const target = item ? cloneTarget({ jobId: item.jobId, queueItemId: item.id }) : existing ? cloneTarget(existing) : null
+      if (!target) { toast.err('Không thêm được video. Hãy thử lại.'); return }
+      setAdded((current) => ({ ...current, [`${video.url}:${picked}`]: target }))
       setPickerOpen(false)
-      toast(t.screens.new.toasts.made, 'ok', { label: t.screens.new.toasts.openQueue, onClick: () => navigate(paths.queue()) })
+      toast(item ? 'Đã thêm vào đầu hàng chờ' : 'Video đã có cho kênh này', item ? 'ok' : 'warn', { label: 'Mở ở Bàn dựng', onClick: () => navigate(target) })
     } catch {
       toast.err(t.screens.new.toasts.failed)
     } finally {
       setBusy(false)
+      submitting.current = false
     }
   }
 
@@ -188,12 +194,13 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
             size="xl"
             block
             icon={<Icon name="video-add" size={18} />}
-            disabled={queued}
+            disabled={busy}
             onClick={() => setPickerOpen(true)}
           >
             {queued ? tt.queuedLabel : tt.detailMake}
           </Button>
           <span {...stylex.props(mStyles.footerHint)}>{queued ? tt.queuedDone : tt.detailMakeHint}</span>
+          <Button size="lg" variant="quiet" onClick={() => openQuickCreate({ channelId: picked || channels[0]?.id, urls: [video.url] })}>Đổi template hoặc thêm link khác</Button>
         </div>
       )}
     >
@@ -212,17 +219,6 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
         <div {...stylex.props(mStyles.scoreRow)}>
           <span {...stylex.props(mStyles.scoreStatic, hot ? mStyles.scoreHot : mStyles.scoreLow)}>{fmtScore(video.score)}</span>
           <span {...stylex.props(mStyles.scoreText)}>{tt.scoreTimes(scoreText(video.score))}</span>
-          {video.scoreReason && (
-            <Button
-              size="lg"
-              icon={<Icon name="info" size={13} />}
-              aria-haspopup="dialog"
-              aria-expanded={whyOpen}
-              onClick={() => setWhyOpen(true)}
-            >
-              {tt.why}
-            </Button>
-          )}
         </div>
 
         {rival && (
@@ -290,9 +286,6 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
         </div>
       </div>
 
-      <Sheet open={whyOpen} onClose={() => setWhyOpen(false)} size="md" title={tt.whyTitle} height="auto" bodyStyle={mStyles.sheetBody}>
-        {video.scoreReason && <ReasonPopover reason={video.scoreReason} label={tt.whyTitle} />}
-      </Sheet>
 
       <ActionSheet
         open={moreOpen}
@@ -305,7 +298,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
         ]}
       />
 
-      <Sheet open={pickerOpen} onClose={() => setPickerOpen(false)} size="md" title={tt.pickerTitle} height="auto" bodyStyle={mStyles.sheetBody}>
+      <Sheet open={pickerOpen} onClose={() => { if (!submitting.current) setPickerOpen(false) }} onExited={() => { if (openComposerAfterPicker.current) { openComposerAfterPicker.current = false; openQuickCreate({ channelId: picked, urls: [video.url] }) } }} size="md" title={tt.pickerTitle} height="auto" bodyStyle={mStyles.sheetBody}>
         <div {...stylex.props(mStyles.pickerBody)}>
           {channels.length === 0 ? (
             <p {...stylex.props(mStyles.addHint)}>{tt.pickerEmpty}</p>
@@ -330,7 +323,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
                       <span {...stylex.props(mStyles.pickerText)}>
                         <span {...stylex.props(mStyles.pickerName)}>{channel.name}</span>
                         <span {...stylex.props(mStyles.pickerSub, dup && mStyles.pickerSubOn)} style={usage ? { color: stageColor(usage.stage) } : undefined}>
-                          {dup
+                          {added[`${video.url}:${channel.id}`] ? 'Vừa thêm' : dup
                             ? (usage ? usageSubline(usage) : tt.pickerDuplicate)
                             : plan?.template.name
                               ? tt.pickerNext(plan.template.name)
@@ -345,6 +338,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
             </div>
           )}
           <span {...stylex.props(mStyles.pickerHint)}><Icon name="clock" size={15} />{planHint}</span>
+          {(added[`${video.url}:${picked}`] || selectedPlan?.duplicates[0]) && <a {...stylex.props(mStyles.usageOpen)} href={`#${added[`${video.url}:${picked}`] || cloneTarget(selectedPlan?.duplicates[0] ?? { jobId: null })}`}>Mở ở Bàn dựng</a>}
           {planPhase === 'error' && (
             <div role="alert" {...stylex.props(mStyles.planError)}>
               <p {...stylex.props(mStyles.planErrorText)}>{tt.detailPlanFailed}</p>
@@ -362,6 +356,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
           >
             {queued ? tt.queuedLabel : tt.detailMakeFor(selectedChannel?.name ?? '')}
           </Button>
+          <Button size="lg" variant="quiet" disabled={busy} onClick={() => { openComposerAfterPicker.current = true; setPickerOpen(false) }}>Đổi template hoặc thêm link khác</Button>
         </div>
       </Sheet>
     </MobilePage>

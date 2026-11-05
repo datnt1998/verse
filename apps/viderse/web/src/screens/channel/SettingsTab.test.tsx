@@ -22,7 +22,7 @@ vi.mock('../../api/channelVideos', () => ({
 
 const channel = {
   id: 'c1', name: 'Kênh thử', youtubeUrl: null, language: 'en', alwaysTags: [], styleNote: null,
-  descriptionFooter: null, sources: [], templates: [], pacePerDay: 2, bannerUrl: null, avatarUrl: null,
+  descriptionFooter: null, sources: [], perDay: 2, bannerUrl: null, avatarUrl: null,
   identity: { state: 'ready' }, branding: { brief: '', look: '' },
 } as unknown as Channel
 
@@ -59,7 +59,7 @@ const button = (label: string) => [...document.querySelectorAll('button')].find(
 
 describe('Hồ sơ kênh › vùng xoá kênh', () => {
   it('đếm video đang làm từ dữ liệu kênh: hiện cảnh báo, khoá nút xoá và lối xem việc đang làm', async () => {
-    await act(async () => { root.render(<SettingsTab channel={channel} />) })
+    await act(async () => { root.render(<SettingsTab channel={channel} onInstructions={vi.fn()} />) })
     await settle()
     await settle()
 

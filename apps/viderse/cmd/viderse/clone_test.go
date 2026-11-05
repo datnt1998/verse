@@ -24,18 +24,17 @@ func TestCloneParseEnqueueAndExistingJob(t *testing.T) {
 		name     string
 		args     []string
 		channel  string
-		priority domain.ClonePriority
+		template string
 		wait     bool
 		noImages bool
 		urls     int
 	}{
-		{"manual URL", []string{"run", "https://youtube.com/watch?v=video1", "--channel", "owner"}, "owner", domain.ClonePick, false, false, 1},
-		{"source owner flag", []string{"run", "--for", "owner", "https://youtu.be/video1", "--no-images"}, "owner", domain.ClonePick, false, true, 1},
-		{"batch URLs", []string{"batch", "https://youtu.be/video1", "--channel=owner", "https://youtu.be/video2"}, "owner", domain.CloneBatch, false, false, 2},
-		{"manual batch priority", []string{"run", "https://youtu.be/video1", "--channel", "owner", "--priority=batch"}, "owner", domain.CloneBatch, false, false, 1},
-		{"batch pick priority", []string{"batch", "--priority", "pick", "--channel", "owner", "https://youtu.be/video1"}, "owner", domain.ClonePick, false, false, 1},
-		{"existing job", []string{"run", "job-1"}, "", domain.ClonePick, false, false, 1},
-		{"existing job wait", []string{"run", "job-1", "--wait", "--timeout", "0.5"}, "", domain.ClonePick, true, false, 1},
+		{"manual URL", []string{"run", "https://youtube.com/watch?v=video1", "--channel", "owner"}, "owner", "", false, false, 1},
+		{"source owner flag", []string{"run", "--for", "owner", "https://youtu.be/video1", "--no-images"}, "owner", "", false, true, 1},
+		{"batch URLs", []string{"batch", "https://youtu.be/video1", "--channel=owner", "https://youtu.be/video2"}, "owner", "", false, false, 2},
+		{"template override", []string{"run", "https://youtu.be/video1", "--channel", "owner", "--template=template-1"}, "owner", "template-1", false, false, 1},
+		{"existing job", []string{"run", "job-1"}, "", "", false, false, 1},
+		{"existing job wait", []string{"run", "job-1", "--wait", "--timeout", "0.5"}, "", "", true, false, 1},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -43,7 +42,7 @@ func TestCloneParseEnqueueAndExistingJob(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if o.channel != tc.channel || o.priority != tc.priority || o.wait != tc.wait || o.noImages != tc.noImages || len(o.operands) != tc.urls {
+			if o.channel != tc.channel || o.template != tc.template || o.wait != tc.wait || o.noImages != tc.noImages || len(o.operands) != tc.urls {
 				t.Fatalf("options = %+v", o)
 			}
 			if tc.wait && o.timeout != 500*time.Millisecond {
@@ -64,6 +63,8 @@ func TestCloneParseRejectsInvalidInputBeforeHTTP(t *testing.T) {
 		{"run", "job-1", "--no-images"},
 		{"run", "https://youtu.be/video1", "--channel", "owner", "--priority", "urgent"},
 		{"run", "https://youtu.be/video1", "--channel", "owner", "--priority"},
+		{"run", "https://youtu.be/video1", "--channel", "owner", "--priority", "pick"},
+		{"batch", "https://youtu.be/video1", "--channel", "owner", "--priority", "batch"},
 		{"run", "https://youtu.be/video1", "--channel", "owner", "--for", "other"},
 		{"run", "https://youtu.be/video1", "--channel", ""},
 		{"run", "ftp://youtube.com/video", "--for", "owner"},
@@ -149,7 +150,7 @@ func TestCloneCommandEnqueuesAuthenticatedDTOAndPreservesDuplicates(t *testing.T
 			calls := 0
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				calls++
-				if r.Method != http.MethodPost || r.URL.Path != "/api/clone/enqueue" || r.Header.Get("Content-Type") != "application/json" {
+				if r.Method != http.MethodPost || r.URL.Path != "/api/jobs" || r.Header.Get("Content-Type") != "application/json" {
 					t.Errorf("request = %s %s %v", r.Method, r.URL, r.Header)
 				}
 				cookie, err := r.Cookie("verse_session")
@@ -160,11 +161,7 @@ func TestCloneCommandEnqueuesAuthenticatedDTOAndPreservesDuplicates(t *testing.T
 				if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 					t.Error(err)
 				}
-				priority := domain.ClonePick
-				if command == "batch" {
-					priority = domain.CloneBatch
-				}
-				if in.ChannelID != "owner" || len(in.URLs) != 1 || in.URLs[0] != "https://youtu.be/video1" || in.Priority != priority || !in.NoImages {
+				if in.ChannelID != "owner" || len(in.URLs) != 1 || in.URLs[0] != "https://youtu.be/video1" || !in.NoImages {
 					t.Errorf("enqueue = %+v", in)
 				}
 				w.WriteHeader(http.StatusCreated)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
-	"github.com/datnt1998/verse/apps/viderse/internal/learn"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
 	"strings"
@@ -49,7 +48,8 @@ type Version struct {
 	Source            string            `json:"source,omitempty"`
 	Cutout            *scenes.FileRef   `json:"cutout,omitempty"`
 	// Score là điểm Kiểm định của ảnh này (07 §20); nil khi chưa chấm được.
-	Score *domain.ImageScore `json:"score,omitempty"`
+	Score      *domain.ImageScore `json:"score,omitempty"`
+	ScoreIssue string             `json:"scoreIssue,omitempty"`
 
 	// Các trường của 07 §26: đúng những gì đã gửi nhà cung cấp cho lần vẽ này.
 	// Bản cũ không có chúng; Prompt khi đó chính là nguyên văn đã gửi.
@@ -132,6 +132,10 @@ type PromptDraft struct {
 	Refs     *[]ImageRef   `json:"refs,omitempty"`
 	Feedback string        `json:"feedback,omitempty"`
 	Provider string        `json:"provider,omitempty"`
+	// SourceVersion là bản ảnh chủ kênh mở để sửa (có thể khác bản đang
+	// dùng); lần vẽ kế tiếp giữ các phần prompt và ảnh tham chiếu của đúng bản
+	// đó. Vắng mặt thì tiếp nối bản đang dùng như trước.
+	SourceVersion *int `json:"sourceVersion,omitempty"`
 	// BaseStatus là trạng thái ảnh trước khi vẽ lại, để huỷ trả ảnh về đúng
 	// trạng thái cũ.
 	BaseStatus string `json:"baseStatus,omitempty"`
@@ -165,6 +169,12 @@ func UsedParts(i Item) PromptParts {
 	if v == nil {
 		return nil
 	}
+	return VersionParts(*v)
+}
+
+// VersionParts trả các phần prompt đã lưu của một bản. Bản cũ chưa tách phần
+// thì cả prompt là phần Cảnh — không tự bịa phần chưa từng gửi.
+func VersionParts(v Version) PromptParts {
 	if len(v.Parts) > 0 {
 		return append(PromptParts(nil), v.Parts...)
 	}
@@ -172,6 +182,43 @@ func UsedParts(i Item) PromptParts {
 		return nil
 	}
 	return PromptParts{{Kind: PartScene, Text: v.Prompt, Source: PromptPartSource{Type: "artist", Label: "Bản cũ"}}}
+}
+
+// PromptSourceVersion trả bản ảnh mà draft chọn làm nguồn prompt/ảnh tham
+// chiếu, nil khi draft không chỉ định bản nguồn. Bản nguồn phải còn đúng nội
+// dung nguồn của ảnh và không đang vẽ; không bao giờ lặng lẽ quay về bản đang
+// dùng.
+func PromptSourceVersion(i Item) (*Version, error) {
+	if i.Draft == nil || i.Draft.SourceVersion == nil {
+		return nil, nil
+	}
+	n := *i.Draft.SourceVersion
+	if n <= 0 {
+		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Phiên bản ảnh không hợp lệ."}
+	}
+	if i.InFlight != nil && i.InFlight.Version == n {
+		return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang vẽ — chờ xong rồi sửa prompt"}
+	}
+	for index := range i.Versions {
+		v := &i.Versions[index]
+		if v.Version != n {
+			continue
+		}
+		if v.State() == VersionDrawing {
+			return nil, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh đang vẽ — chờ xong rồi sửa prompt"}
+		}
+		if v.State() == VersionCancelled {
+			return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Bản ảnh đã huỷ — chọn bản khác để sửa"}
+		}
+		if v.SourceFingerprint != SourceFingerprint(i) {
+			return nil, &domain.CloneError{Code: domain.CloneErrStale, Message: "Bản ảnh không còn khớp cảnh hoặc nội dung nguồn"}
+		}
+		if len(v.Parts) == 0 && v.Prompt == "" {
+			return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Bản ảnh này chưa có prompt để giữ"}
+		}
+		return v, nil
+	}
+	return nil, &domain.CloneError{Code: domain.CloneErrNotFound, Message: "Không tìm thấy bản ảnh này"}
 }
 
 // UsedRefs trả ảnh tham chiếu của bản đang dùng.
@@ -435,18 +482,6 @@ func CloneManifest(m Manifest) (Manifest, error) {
 	return result, err
 }
 
-// LearnedNotes là Ghi chú đã học của prompt cảnh và prompt bìa (07 §19).
-type LearnedNotes struct{ Scene, Cover []string }
-
-// Apply nối "Ghi chú đã học" vào cuối nội dung prompt cảnh và prompt bìa. Ảnh
-// bìa không có prompt riêng thì dùng prompt cảnh, nên không có ghi chú bìa.
-func (n LearnedNotes) Apply(m Manifest) Manifest {
-	m.TemplatePrompt = learn.AppendNotes(m.TemplatePrompt, n.Scene)
-	if m.CoverPrompt != "" {
-		m.CoverPrompt = learn.AppendNotes(m.CoverPrompt, n.Cover)
-	}
-	return m
-}
 func ItemPrompt(m Manifest, i Item) string {
 	if i.Kind == "thumbnail" && m.CoverPrompt != "" {
 		return m.CoverPrompt

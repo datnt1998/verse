@@ -46,10 +46,10 @@ const scan: ScanStatus = {
 
 const channel = (id: string, name: string): Channel => ({
   id, name, youtubeUrl: null, language: 'vi', styleNote: null, descriptionFooter: null,
-  alwaysTags: [], autoPick: true, pacePerDay: 5, templateCursor: 0,
+  alwaysTags: [], autoFetch: true, autoApprove: false, perDay: 5, defaultTemplateId: 't1', defaultTemplateName: 'Midnight',
+  agentInstructions: {},
   branding: {} as unknown as Channel['branding'],
-  autonomy: {} as unknown as Channel['autonomy'],
-  priority: 'steady', avatarUrl: null, bannerUrl: null, sources: [], templates: [],
+  avatarUrl: null, bannerUrl: null, sources: [],
   identity: { state: 'ready' } as Channel['identity'],
   createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
 })
@@ -57,7 +57,7 @@ const channel = (id: string, name: string): Channel => ({
 const plan: ClonePlan = {
   accepted: [{ url: 'https://youtu.be/v0', videoId: 'v0', title: 'Video số 0', durationSec: 2391, outlier: 4.2, hasCaptions: true }],
   duplicates: [], invalid: [], position: 'front', etaStart: '2026-11-02T03:10:00Z',
-  paceLeftToday: 5, overflowDays: 0, template: { id: 't1', name: 'Midnight', fromRotation: true },
+  paceLeftToday: 5, overflowDays: 0, template: { id: 't1', name: 'Midnight' },
   imageCalls: 4, priceUSD: null,
 }
 
@@ -100,7 +100,7 @@ const stubFetch = () => {
       return respond(chaptersBody)
     }
     if (url === '/api/clone/plan') return respond(plan)
-    if (url === '/api/clone/enqueue') return respond(enqueueBody)
+    if (url === '/api/jobs') return respond(enqueueBody)
     if (url.startsWith('/api/owner-channels/') && url.endsWith('/sources')) return respond({ ok: true })
     if (url.startsWith('/api/rivals/') && method === 'DELETE') return respond({ ok: true })
     return respond({ error: 'not found' }, 404)
@@ -168,16 +168,27 @@ afterEach(async () => {
 })
 
 describe('Khám phá trên điện thoại — lọc, trạng thái thật, chương, xếp hàng loạt', () => {
-  /** chọn 10 video rồi chọn kênh đích trong tấm chọn (hành vi thật của thanh chọn) */
   const bulkMakeForFirstChannel = async (root: ParentNode) => {
     await click(byText(root, 'button', 'Chọn'))
     await click(byText(root.querySelector('[role="toolbar"]')!, 'button', 'Top 10'))
-    const bar = root.querySelector('[role="toolbar"]')!
-    await click(byText(bar, 'button', tt.bulkMakeFor(10, 'Midnight Tales')))
-    const sheet = [...document.querySelectorAll('[role="dialog"]')].find((node) => node.textContent?.includes(tt.pickerTitle))!
-    const action = [...sheet.querySelectorAll('button')].find((node) => node.textContent?.includes('Midnight Tales'))
-    await click(action)
+    await click(byText(root.querySelector('[role="toolbar"]')!, 'button', 'Làm 10 video'))
   }
+
+  it('chọn độ dài trong tấm chọn và giữ lựa chọn khi mở lại', async () => {
+    const root = await mount(<ExploreScreen route={{ name: 'explore' }} />)
+    await until(() => root.textContent?.includes('Video số 0') === true)
+    const trigger = root.querySelector<HTMLButtonElement>('[role="combobox"][aria-label="Độ dài video"]')!
+    await click(trigger)
+    const sheet = document.querySelector('[role="dialog"]')
+    expect(sheet).not.toBeNull()
+    expect(byText(sheet!, '[role="option"]', 'Mọi độ dài')?.getAttribute('aria-selected')).toBe('true')
+    await click(byText(sheet!, '[role="option"]', 'Từ 8 phút'))
+    await until(() => !document.querySelector('[role="dialog"]'))
+    expect(trigger.textContent).toContain('Từ 8 phút')
+    await click(trigger)
+    const reopened = document.querySelector('[role="dialog"]')
+    expect(byText(reopened!, '[role="option"]', 'Từ 8 phút')?.getAttribute('aria-selected')).toBe('true')
+  })
 
   it('chip Trạng thái lọc thật ở máy chủ; Bỏ lọc trả về danh sách đầy đủ', async () => {
     const root = await mount(<ExploreScreen route={{ name: 'explore' }} />)
@@ -228,33 +239,15 @@ describe('Khám phá trên điện thoại — lọc, trạng thái thật, chư
     expect(failed.textContent).not.toContain('Mở đầu')
   })
 
-  it('xếp hàng loạt toàn video đã có sẵn: cảnh báo thật, giữ lựa chọn, mở job có sẵn — không báo thành công', async () => {
-    const selected = videos.slice(0, 10)
-    enqueueBody = {
-      items: [],
-      duplicates: selected.map((item) => ({ url: item.url, jobId: 'j9', state: 'working', title: item.title })),
-    }
-    const root = await mount(<><ExploreScreen route={{ name: 'explore' }} /><ToastHost /></>)
+  it('hàng loạt mở cùng MNew bằng nguồn đã chọn và giữ selection khi chưa xác nhận', async () => {
+    const open = vi.fn(); window.addEventListener('viderse:quick-create', open)
+    const root = await mount(<ExploreScreen route={{ name: 'explore' }} />)
     await until(() => root.textContent?.includes('Video số 0') === true)
     await bulkMakeForFirstChannel(root)
-
-    await until(() => document.body.textContent?.includes(tt.bulkAllDuplicate('10')) === true)
-    expect(document.body.textContent).not.toContain(t.screens.new.toasts.made)
-    expect(byText(document.body, 'button', tt.queuePlanOpen)).toBeTruthy()
+    expect(open.mock.calls[0][0].detail).toEqual({ urls: videos.slice(0, 10).map((video) => video.url), fromSelection: true })
+    expect(calls.filter((call) => call.url === '/api/jobs')).toHaveLength(0)
     expect(root.querySelector('[role="toolbar"]')?.textContent).toContain(tt.selected(10))
-  })
-
-  it('xếp hàng loạt một phần: đếm đúng số vào hàng chờ và giữ đúng nhóm trùng để chọn kênh khác', async () => {
-    enqueueBody = {
-      items: Array.from({ length: 6 }, (_, i) => ({ id: `q${i}`, jobId: null })),
-      duplicates: videos.slice(6, 10).map((item) => ({ url: item.url, jobId: null, state: 'queued', title: item.title })),
-    }
-    const root = await mount(<><ExploreScreen route={{ name: 'explore' }} /><ToastHost /></>)
-    await until(() => root.textContent?.includes('Video số 0') === true)
-    await bulkMakeForFirstChannel(root)
-
-    await until(() => document.body.textContent?.includes(tt.bulkMadePartial('6', '10', '4')) === true)
-    expect(root.querySelector('[role="toolbar"]')?.textContent).toContain(tt.selected(4))
+    window.removeEventListener('viderse:quick-create', open)
   })
 })
 
@@ -292,17 +285,10 @@ describe('Khám phá trên điện thoại', () => {
     expect(calls.some((call) => call.url === '/api/owner-channels/c1/sources')).toBe(true)
   })
 
-  it('chi tiết video: header riêng, Vì sao?, chọn kênh có plan thật rồi xếp hàng', async () => {
+  it('chi tiết video: không còn Vì sao, chọn kênh có plan thật rồi thêm thẳng', async () => {
     const root = await mount(<ExploreScreen route={{ name: 'explore', video: 'v0' }} />)
     await until(() => root.textContent?.includes('Video số 0') === true)
     expect(root.textContent).toContain('Video số 0')
-    await click(byText(root, 'button', 'Vì sao?'))
-    await until(() => (document.body.textContent?.includes('Tổng lượt xem gấp 4,2 lần trung vị.') ?? false))
-    expect(document.body.textContent).toContain('Tổng lượt xem gấp 4,2 lần trung vị.')
-    await act(async () => {
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
-    })
-    await flush()
     await click(byText(root, 'button', 'Làm video cho kênh'))
     await until(() => calls.some((call) => call.url === '/api/clone/plan'))
     await until(() => (document.body.textContent?.includes('Tiếp theo: Midnight') ?? false))
@@ -311,8 +297,8 @@ describe('Khám phá trên điện thoại', () => {
     const make = [...dialog.querySelectorAll('button')].find((el) => el.textContent?.includes('Làm video cho Midnight Tales'))
     expect(make?.hasAttribute('disabled')).toBe(false)
     await click(make)
-    await until(() => calls.some((call) => call.url === '/api/clone/enqueue'))
-    expect(calls.find((call) => call.url === '/api/clone/enqueue')?.body).toMatchObject({ channelId: 'c1', urls: ['https://youtu.be/v0'], priority: 'pick' })
+    await until(() => calls.some((call) => call.url === '/api/jobs'))
+    expect(calls.find((call) => call.url === '/api/jobs')?.body).toEqual({ channelId: 'c1', urls: ['https://youtu.be/v0'] })
   })
 
   it('chi tiết video không có trong trang đầu: nói rõ không tìm thấy, không bịa dữ liệu', async () => {

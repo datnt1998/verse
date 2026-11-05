@@ -44,6 +44,17 @@ func editorPersistencePool(t *testing.T) *pgxpool.Pool {
 	return pool
 }
 
+func seedEditorCloneChannel(t *testing.T, pool *pgxpool.Pool, id string) {
+	t.Helper()
+	_, err := pool.Exec(context.Background(), `WITH template AS (
+ INSERT INTO templates(id,name,recipe) VALUES(gen_random_uuid(),'Mẫu chuẩn','{}') RETURNING id
+)
+INSERT INTO owner_channels(id,name,default_template_id) SELECT $1,'Owner',id FROM template`, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func editorPersistenceStore(t *testing.T) (editor.Store, *postgres.EditorRepository, *media.Service, *pgxpool.Pool, string) {
 	t.Helper()
 	pool := editorPersistencePool(t)
@@ -383,9 +394,7 @@ func TestEditorRepositoryPhase05PointersAndCurrentAnchors(t *testing.T) {
 	ctx := context.Background()
 	channelID := "00000000-0000-4000-8000-000000000001"
 	jobID := "00000000-0000-4000-8000-000000000002"
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES($1,'Owner')`, channelID); err != nil {
-		t.Fatal(err)
-	}
+	seedEditorCloneChannel(t, pool, channelID)
 	if _, err := pool.Exec(ctx, `INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,generation) VALUES($1,$2,'phase05','{}',2)`, jobID, channelID); err != nil {
 		t.Fatal(err)
 	}
@@ -544,10 +553,7 @@ func TestEditorRepositoryTemplateDeletionPolicyAndMediaReferences(t *testing.T) 
 	if _, err = pool.Exec(ctx, `INSERT INTO templates(id,name,recipe,project,preview_revision,preview_built_at) VALUES($1,'Template','{"scenes":{"coverMediaId":"cover-media"}}',$2,1,now())`, id, raw); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES($1,'Policy owner')`, channelID); err != nil {
-		t.Fatal(err)
-	}
-	if _, err = pool.Exec(ctx, `INSERT INTO owner_channel_templates(owner_channel_id,template_id,position) VALUES($1,$2,0)`, channelID, id); err != nil {
+	if _, err = pool.Exec(ctx, `INSERT INTO owner_channels(id,name,default_template_id) VALUES($1,'Policy owner',$2)`, channelID, id); err != nil {
 		t.Fatal(err)
 	}
 	refs, err := repo.MediaReferences(ctx)
@@ -566,7 +572,10 @@ func TestEditorRepositoryTemplateDeletionPolicyAndMediaReferences(t *testing.T) 
 	if !errors.As(err, &apiErr) || apiErr.Code != "conflict" || apiErr.Extra["templateOfChannel"] != "Policy owner" {
 		t.Fatalf("template deletion policy=%v", err)
 	}
-	if _, err = pool.Exec(ctx, `DELETE FROM owner_channel_templates WHERE owner_channel_id=$1`, channelID); err != nil {
+	if _, err = pool.Exec(ctx, `WITH replacement AS (
+ INSERT INTO templates(id,name,recipe) VALUES(gen_random_uuid(),'Mẫu thay thế','{}') RETURNING id
+)
+UPDATE owner_channels SET default_template_id=(SELECT id FROM replacement) WHERE id=$1`, channelID); err != nil {
 		t.Fatal(err)
 	}
 	abort := errors.New("rollback registry deletion")

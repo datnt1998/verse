@@ -1,0 +1,1960 @@
+{
+  "config": {
+    "argv": [
+      "/Users/dat/.nvm/versions/node/v24.13.1/bin/node",
+      "/Users/dat/Projects/verse/node_modules/.bin/playwright",
+      "test",
+      "-c",
+      "tests/viderse-workflow/playwright.config.ts",
+      "viewer-audit.pw.ts",
+      "interaction-audit.pw.ts",
+      "--project=desktop",
+      "--project=desktop-reduced",
+      "--project=mobile",
+      "--project=mobile-reduced"
+    ],
+    "configFile": "/Users/dat/Projects/verse/tests/viderse-workflow/playwright.config.ts",
+    "rootDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop",
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-reduced",
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile",
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-reduced",
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [
+          "delete-audit.pw.ts"
+        ],
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop",
+        "name": "delete-desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "delete-desktop-reduced",
+        "name": "delete-desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": [],
+        "testMatch": [
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "desktop-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "desktop-reduced"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile"
+      },
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "mobile-reduced",
+        "testDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "snapshotDir": "/Users/dat/Projects/verse/tests/viderse-workflow",
+        "testIgnore": "delete-audit.pw.ts",
+        "testMatch": [
+          "interaction-audit.pw.ts",
+          "workflow-parity.pw.ts",
+          "viewer-audit.pw.ts",
+          "delete-audit.pw.ts"
+        ],
+        "timeout": 90000,
+        "use": {
+          "baseURL": "http://127.0.0.1:8044",
+          "actionTimeout": 15000,
+          "deviceScaleFactor": 1,
+          "screenshot": "only-on-failure",
+          "trace": "off",
+          "video": "on",
+          "launchOptions": {
+            "args": [
+              "--force-color-profile=srgb"
+            ]
+          },
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "isMobile": true,
+          "hasTouch": true,
+          "reducedMotion": "reduce"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "mobile-reduced"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/html",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/interaction-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "interaction-audit.pw.ts",
+      "file": "interaction-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "segmented remeasures after real font loading and viewport changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12673,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:00:57.125Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "font-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdEZvbnRTdGF0dXMiOiAibG9hZGVkIiwKICAiZm9udFJlcXVlc3RzIjogWwogICAgIi9mb250cy9iZS12aWV0bmFtLXByby00MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby02MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby01MDAud29mZjIiLAogICAgIi9mb250cy9qZXRicmFpbnMtbW9uby01MDAud29mZjIiLAogICAgIi9mb250cy9qZXRicmFpbnMtbW9uby00MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby00MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby02MDAud29mZjIiCiAgXSwKICAiaW5pdGlhbCI6IHsKICAgICJsYWJlbCI6ICJN4buZdCBsaW5rIiwKICAgICJlZGdlcyI6IFsKICAgICAgMCwKICAgICAgMCwKICAgICAgMCwKICAgICAgMAogICAgXSwKICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICB9LAogICJyZXNpemVkIjogewogICAgImxhYmVsIjogIk3hu5l0IGxpbmsiLAogICAgImVkZ2VzIjogWwogICAgICAwLAogICAgICAwLAogICAgICAwLAogICAgICAwCiAgICBdLAogICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogIH0sCiAgInRocm90dGxpbmciOiB7CiAgICAibGF0ZW5jeU1zIjogMTIwLAogICAgImRvd25sb2FkQnl0ZXNQZXJTZWNvbmQiOiAxNTAwMDAwCiAgfQp9"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-se-25927-oading-and-viewport-changes-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-a19e10d26a260cf78210",
+          "file": "interaction-audit.pw.ts",
+          "line": 56,
+          "column": 5
+        },
+        {
+          "title": "shared selections: all channel/template choices, font geometry, responsive dismiss and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5934,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "template option 0",
+                      "duration": 526
+                    },
+                    {
+                      "title": "template option 1",
+                      "duration": 468
+                    }
+                  ],
+                  "startTime": "2026-11-03T16:01:10.179Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJNaWRuaWdodCBUYWxlcyIsCiAgICAiZXhwZWN0ZWQiOiAiU2VsZWN0ZWQgY2hhbm5lbCBjaGFuZ2VzIHZpc2libHkgYWZ0ZXIgb3ZlcmxheSBleGl0czsgZm9jdXMvc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6ICJLw6puaE1pZG5pZ2h0IFRhbGVzIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiUXVpZXQgSG91cnMiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhRdWlldCBIb3VycyIsCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAib3B0aW9uIiwKICAgICJuYW1lIjogIkNodXnhu4duIEzhuqEgxJDDqm0gS2h1eWEiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhDaHV54buHbiBM4bqhIMSQw6ptIEtodXlhIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiVGhlbyBsdcOibiBwaGnDqm4gwrcgVHJ1eeG7h24ga+G7gyDEkcOqbSIsCiAgICAiZXhwZWN0ZWQiOiAiQ2hvc2VuIHRlbXBsYXRlIHJlbWFpbnMgc2VsZWN0ZWQgYW5kIHZpc2libGUgd2l0aG91dCBzYXZpbmciLAogICAgIm9ic2VydmVkIjogewogICAgICAic2VsZWN0ZWRMYWJlbCI6ICJUaGVvIGx1w6JuIHBoacOqbiDCtyBUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICAgInZpc2libGVWYWx1ZSI6ICJUZW1wbGF0ZVRoZW8gbHXDom4gcGhpw6puIMK3IFRydXnhu4duIGvhu4MgxJHDqm0iCiAgICB9LAogICAgInBhc3NlZCI6IHRydWUKICB9LAogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICJleHBlY3RlZCI6ICJDaG9zZW4gdGVtcGxhdGUgcmVtYWlucyBzZWxlY3RlZCBhbmQgdmlzaWJsZSB3aXRob3V0IHNhdmluZyIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJzZWxlY3RlZExhYmVsIjogIlRydXnhu4duIGvhu4MgxJHDqm0iLAogICAgICAidmlzaWJsZVZhbHVlIjogIlRlbXBsYXRlVHJ1eeG7h24ga+G7gyDEkcOqbSIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTmhp4buBdSBsaW5rIiwKICAgICJleHBlY3RlZCI6ICJNb2RlIGFuZCBpbmRpY2F0b3IgY2hhbmdlIHRvZ2V0aGVyIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgImxhYmVsIjogIk5oaeG7gXUgbGluayIsCiAgICAgICJlZGdlcyI6IFsKICAgICAgICAwLAogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwCiAgICAgIF0sCiAgICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTeG7mXQgbGluayIsCiAgICAiZXhwZWN0ZWQiOiAiTW9kZSBhbmQgaW5kaWNhdG9yIGNoYW5nZSB0b2dldGhlciIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJsYWJlbCI6ICJN4buZdCBsaW5rIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-47cd6a662a7f0be81cf3",
+          "file": "interaction-audit.pw.ts",
+          "line": 80,
+          "column": 5
+        },
+        {
+          "title": "real video menu hands off to one confirmation; cancel, Esc and scrim submit no mutation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6751,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:16.122Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogImNvbmZpcm1hdGlvbi1kaXNtaXNzIiwKICAgICJuYW1lIjogImNhbmNlbCIsCiAgICAiZXhwZWN0ZWQiOiAiTm8gbXV0YXRpb247IHZpZGVvIHJlbWFpbnM7IGZvY3VzIGFuZCBzY3JvbGwgcmVzdG9yZWQiLAogICAgIm9ic2VydmVkIjogewogICAgICAicmVhZGJhY2tTdGF0dXMiOiAyMDAsCiAgICAgICJ3cml0ZXMiOiBbXQogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJjb25maXJtYXRpb24tZGlzbWlzcyIsCiAgICAibmFtZSI6ICJlc2NhcGUiLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAiY29uZmlybWF0aW9uLWRpc21pc3MiLAogICAgIm5hbWUiOiAic2NyaW0iLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-re-a5043-nd-scrim-submit-no-mutation-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-7eee8eff78ab2cc844bb",
+          "file": "interaction-audit.pw.ts",
+          "line": 185,
+          "column": 5
+        },
+        {
+          "title": "segmented remeasures after real font loading and viewport changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:59.632Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "font-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdEZvbnRTdGF0dXMiOiAibG9hZGluZyIsCiAgImZvbnRSZXF1ZXN0cyI6IFsKICAgICIvZm9udHMvYmUtdmlldG5hbS1wcm8tNDAwLndvZmYyIiwKICAgICIvZm9udHMvYmUtdmlldG5hbS1wcm8tNjAwLndvZmYyIiwKICAgICIvZm9udHMvYmUtdmlldG5hbS1wcm8tNTAwLndvZmYyIiwKICAgICIvZm9udHMvamV0YnJhaW5zLW1vbm8tNTAwLndvZmYyIiwKICAgICIvZm9udHMvamV0YnJhaW5zLW1vbm8tNDAwLndvZmYyIiwKICAgICIvZm9udHMvYmUtdmlldG5hbS1wcm8tNDAwLndvZmYyIiwKICAgICIvZm9udHMvYmUtdmlldG5hbS1wcm8tNjAwLndvZmYyIgogIF0sCiAgImluaXRpYWwiOiB7CiAgICAibGFiZWwiOiAiTeG7mXQgbGluayIsCiAgICAiZWRnZXMiOiBbCiAgICAgIDAsCiAgICAgIDAsCiAgICAgIDAsCiAgICAgIDAKICAgIF0sCiAgICAiZm9udFN0YXR1cyI6ICJsb2FkZWQiCiAgfSwKICAicmVzaXplZCI6IHsKICAgICJsYWJlbCI6ICJN4buZdCBsaW5rIiwKICAgICJlZGdlcyI6IFsKICAgICAgMCwKICAgICAgMCwKICAgICAgMCwKICAgICAgMAogICAgXSwKICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICB9LAogICJ0aHJvdHRsaW5nIjogewogICAgImxhdGVuY3lNcyI6IDEyMCwKICAgICJkb3dubG9hZEJ5dGVzUGVyU2Vjb25kIjogMTUwMDAwMAogIH0KfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-se-25927-oading-and-viewport-changes-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-3086c0f3c3ea375c9dd5",
+          "file": "interaction-audit.pw.ts",
+          "line": 56,
+          "column": 5
+        },
+        {
+          "title": "shared selections: all channel/template choices, font geometry, responsive dismiss and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "template option 0",
+                      "duration": 183
+                    },
+                    {
+                      "title": "template option 1",
+                      "duration": 226
+                    }
+                  ],
+                  "startTime": "2026-11-03T16:02:11.336Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJNaWRuaWdodCBUYWxlcyIsCiAgICAiZXhwZWN0ZWQiOiAiU2VsZWN0ZWQgY2hhbm5lbCBjaGFuZ2VzIHZpc2libHkgYWZ0ZXIgb3ZlcmxheSBleGl0czsgZm9jdXMvc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6ICJLw6puaE1pZG5pZ2h0IFRhbGVzIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiUXVpZXQgSG91cnMiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhRdWlldCBIb3VycyIsCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAib3B0aW9uIiwKICAgICJuYW1lIjogIkNodXnhu4duIEzhuqEgxJDDqm0gS2h1eWEiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhDaHV54buHbiBM4bqhIMSQw6ptIEtodXlhIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiVGhlbyBsdcOibiBwaGnDqm4gwrcgVHJ1eeG7h24ga+G7gyDEkcOqbSIsCiAgICAiZXhwZWN0ZWQiOiAiQ2hvc2VuIHRlbXBsYXRlIHJlbWFpbnMgc2VsZWN0ZWQgYW5kIHZpc2libGUgd2l0aG91dCBzYXZpbmciLAogICAgIm9ic2VydmVkIjogewogICAgICAic2VsZWN0ZWRMYWJlbCI6ICJUaGVvIGx1w6JuIHBoacOqbiDCtyBUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICAgInZpc2libGVWYWx1ZSI6ICJUZW1wbGF0ZVRoZW8gbHXDom4gcGhpw6puIMK3IFRydXnhu4duIGvhu4MgxJHDqm0iCiAgICB9LAogICAgInBhc3NlZCI6IHRydWUKICB9LAogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICJleHBlY3RlZCI6ICJDaG9zZW4gdGVtcGxhdGUgcmVtYWlucyBzZWxlY3RlZCBhbmQgdmlzaWJsZSB3aXRob3V0IHNhdmluZyIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJzZWxlY3RlZExhYmVsIjogIlRydXnhu4duIGvhu4MgxJHDqm0iLAogICAgICAidmlzaWJsZVZhbHVlIjogIlRlbXBsYXRlVHJ1eeG7h24ga+G7gyDEkcOqbSIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTmhp4buBdSBsaW5rIiwKICAgICJleHBlY3RlZCI6ICJNb2RlIGFuZCBpbmRpY2F0b3IgY2hhbmdlIHRvZ2V0aGVyIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgImxhYmVsIjogIk5oaeG7gXUgbGluayIsCiAgICAgICJlZGdlcyI6IFsKICAgICAgICAwLAogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwCiAgICAgIF0sCiAgICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTeG7mXQgbGluayIsCiAgICAiZXhwZWN0ZWQiOiAiTW9kZSBhbmQgaW5kaWNhdG9yIGNoYW5nZSB0b2dldGhlciIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJsYWJlbCI6ICJN4buZdCBsaW5rIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-7d152801f3c1372e69ce",
+          "file": "interaction-audit.pw.ts",
+          "line": 80,
+          "column": 5
+        },
+        {
+          "title": "real video menu hands off to one confirmation; cancel, Esc and scrim submit no mutation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:02:16.937Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogImNvbmZpcm1hdGlvbi1kaXNtaXNzIiwKICAgICJuYW1lIjogImNhbmNlbCIsCiAgICAiZXhwZWN0ZWQiOiAiTm8gbXV0YXRpb247IHZpZGVvIHJlbWFpbnM7IGZvY3VzIGFuZCBzY3JvbGwgcmVzdG9yZWQiLAogICAgIm9ic2VydmVkIjogewogICAgICAicmVhZGJhY2tTdGF0dXMiOiAyMDAsCiAgICAgICJ3cml0ZXMiOiBbXQogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJjb25maXJtYXRpb24tZGlzbWlzcyIsCiAgICAibmFtZSI6ICJlc2NhcGUiLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAiY29uZmlybWF0aW9uLWRpc21pc3MiLAogICAgIm5hbWUiOiAic2NyaW0iLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-re-a5043-nd-scrim-submit-no-mutation-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-774f5262ba1ac7560874",
+          "file": "interaction-audit.pw.ts",
+          "line": 185,
+          "column": 5
+        },
+        {
+          "title": "segmented remeasures after real font loading and viewport changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12145,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:11.549Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "font-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdEZvbnRTdGF0dXMiOiAibG9hZGVkIiwKICAiZm9udFJlcXVlc3RzIjogWwogICAgIi9mb250cy9iZS12aWV0bmFtLXByby00MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby02MDAud29mZjIiCiAgXSwKICAiaW5pdGlhbCI6IHsKICAgICJsYWJlbCI6ICJEw6FuIGxpbmsiLAogICAgImVkZ2VzIjogWwogICAgICAwLAogICAgICAwLAogICAgICAwLAogICAgICAwCiAgICBdLAogICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogIH0sCiAgInJlc2l6ZWQiOiB7CiAgICAibGFiZWwiOiAiRMOhbiBsaW5rIiwKICAgICJlZGdlcyI6IFsKICAgICAgMCwKICAgICAgMCwKICAgICAgMCwKICAgICAgMAogICAgXSwKICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICB9LAogICJ0aHJvdHRsaW5nIjogewogICAgImxhdGVuY3lNcyI6IDEyMCwKICAgICJkb3dubG9hZEJ5dGVzUGVyU2Vjb25kIjogMTUwMDAwMAogIH0KfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-se-25927-oading-and-viewport-changes-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-2c45284af8b7da127785",
+          "file": "interaction-audit.pw.ts",
+          "line": 56,
+          "column": 5
+        },
+        {
+          "title": "shared selections: all channel/template choices, font geometry, responsive dismiss and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11273,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "template option 0",
+                      "duration": 1627
+                    },
+                    {
+                      "title": "template option 1",
+                      "duration": 1685
+                    }
+                  ],
+                  "startTime": "2026-11-03T16:03:23.944Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJNaWRuaWdodCBUYWxlcyIsCiAgICAiZXhwZWN0ZWQiOiAiU2VsZWN0ZWQgY2hhbm5lbCBjaGFuZ2VzIHZpc2libHkgYWZ0ZXIgb3ZlcmxheSBleGl0czsgZm9jdXMvc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6ICJLw6puaE1pZG5pZ2h0IFRhbGVzIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiUXVpZXQgSG91cnMiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhRdWlldCBIb3VycyIsCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAib3B0aW9uIiwKICAgICJuYW1lIjogIkNodXnhu4duIEzhuqEgxJDDqm0gS2h1eWEiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhDaHV54buHbiBM4bqhIMSQw6ptIEtodXlhIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiVGhlbyBsdcOibiBwaGnDqm4gwrcgVHJ1eeG7h24ga+G7gyDEkcOqbSIsCiAgICAiZXhwZWN0ZWQiOiAiQ2hvc2VuIHRlbXBsYXRlIHJlbWFpbnMgc2VsZWN0ZWQgYW5kIHZpc2libGUgd2l0aG91dCBzYXZpbmciLAogICAgIm9ic2VydmVkIjogewogICAgICAic2VsZWN0ZWRMYWJlbCI6ICJUaGVvIGx1w6JuIHBoacOqbiDCtyBUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICAgInZpc2libGVWYWx1ZSI6ICJUZW1wbGF0ZVRoZW8gbHXDom4gcGhpw6puIMK3IFRydXnhu4duIGvhu4MgxJHDqm0iCiAgICB9LAogICAgInBhc3NlZCI6IHRydWUKICB9LAogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICJleHBlY3RlZCI6ICJDaG9zZW4gdGVtcGxhdGUgcmVtYWlucyBzZWxlY3RlZCBhbmQgdmlzaWJsZSB3aXRob3V0IHNhdmluZyIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJzZWxlY3RlZExhYmVsIjogIlRydXnhu4duIGvhu4MgxJHDqm0iLAogICAgICAidmlzaWJsZVZhbHVlIjogIlRlbXBsYXRlVHJ1eeG7h24ga+G7gyDEkcOqbSIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTmhp4buBdSB2aWRlbyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9kZSBhbmQgaW5kaWNhdG9yIGNoYW5nZSB0b2dldGhlciIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJsYWJlbCI6ICJOaGnhu4F1IHZpZGVvIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJyYWRpbyIsCiAgICAibmFtZSI6ICJEw6FuIGxpbmsiLAogICAgImV4cGVjdGVkIjogIk1vZGUgYW5kIGluZGljYXRvciBjaGFuZ2UgdG9nZXRoZXIiLAogICAgIm9ic2VydmVkIjogewogICAgICAibGFiZWwiOiAiRMOhbiBsaW5rIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJicm93c2VyLWJhY2siLAogICAgIm5hbWUiOiAiRmlyc3QgZGVza3RvcCByZWFkaW5lc3MgcHJvbXB0IiwKICAgICJleHBlY3RlZCI6ICJSZXR1cm4gdG8gZXhpc3Rpbmcgcm91dGUgd2l0aG91dCBpbnN0YWxsaW5nIHByb3ZpZGVycyBvciBjaGFuZ2luZyByZWFkaW5lc3MiLAogICAgIm9ic2VydmVkIjogewogICAgICAiY29tcGxldGUiOiBmYWxzZSwKICAgICAgInJvdXRlIjogIiMvbmV3IgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-8136cc909f5c06e1af30",
+          "file": "interaction-audit.pw.ts",
+          "line": 80,
+          "column": 5
+        },
+        {
+          "title": "real video menu hands off to one confirmation; cancel, Esc and scrim submit no mutation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8946,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:35.242Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogImNvbmZpcm1hdGlvbi1kaXNtaXNzIiwKICAgICJuYW1lIjogImNhbmNlbCIsCiAgICAiZXhwZWN0ZWQiOiAiTm8gbXV0YXRpb247IHZpZGVvIHJlbWFpbnM7IGZvY3VzIGFuZCBzY3JvbGwgcmVzdG9yZWQiLAogICAgIm9ic2VydmVkIjogewogICAgICAicmVhZGJhY2tTdGF0dXMiOiAyMDAsCiAgICAgICJ3cml0ZXMiOiBbXQogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJjb25maXJtYXRpb24tZGlzbWlzcyIsCiAgICAibmFtZSI6ICJlc2NhcGUiLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAiY29uZmlybWF0aW9uLWRpc21pc3MiLAogICAgIm5hbWUiOiAic2NyaW0iLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-re-a5043-nd-scrim-submit-no-mutation-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-1dc415b4754361e5c4ab",
+          "file": "interaction-audit.pw.ts",
+          "line": 185,
+          "column": 5
+        },
+        {
+          "title": "segmented remeasures after real font loading and viewport changes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12823,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:10.028Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "font-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaXJzdEZvbnRTdGF0dXMiOiAibG9hZGVkIiwKICAiZm9udFJlcXVlc3RzIjogWwogICAgIi9mb250cy9iZS12aWV0bmFtLXByby00MDAud29mZjIiLAogICAgIi9mb250cy9iZS12aWV0bmFtLXByby02MDAud29mZjIiCiAgXSwKICAiaW5pdGlhbCI6IHsKICAgICJsYWJlbCI6ICJEw6FuIGxpbmsiLAogICAgImVkZ2VzIjogWwogICAgICAwLAogICAgICAwLAogICAgICAwLAogICAgICAwCiAgICBdLAogICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogIH0sCiAgInJlc2l6ZWQiOiB7CiAgICAibGFiZWwiOiAiRMOhbiBsaW5rIiwKICAgICJlZGdlcyI6IFsKICAgICAgMCwKICAgICAgMCwKICAgICAgMCwKICAgICAgMAogICAgXSwKICAgICJmb250U3RhdHVzIjogImxvYWRlZCIKICB9LAogICJ0aHJvdHRsaW5nIjogewogICAgImxhdGVuY3lNcyI6IDEyMCwKICAgICJkb3dubG9hZEJ5dGVzUGVyU2Vjb25kIjogMTUwMDAwMAogIH0KfQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-se-25927-oading-and-viewport-changes-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-5b157ca10997c889fd36",
+          "file": "interaction-audit.pw.ts",
+          "line": 56,
+          "column": 5
+        },
+        {
+          "title": "shared selections: all channel/template choices, font geometry, responsive dismiss and resize",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5510,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "steps": [
+                    {
+                      "title": "template option 0",
+                      "duration": 263
+                    },
+                    {
+                      "title": "template option 1",
+                      "duration": 251
+                    }
+                  ],
+                  "startTime": "2026-11-03T16:04:24.731Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJNaWRuaWdodCBUYWxlcyIsCiAgICAiZXhwZWN0ZWQiOiAiU2VsZWN0ZWQgY2hhbm5lbCBjaGFuZ2VzIHZpc2libHkgYWZ0ZXIgb3ZlcmxheSBleGl0czsgZm9jdXMvc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6ICJLw6puaE1pZG5pZ2h0IFRhbGVzIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiUXVpZXQgSG91cnMiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhRdWlldCBIb3VycyIsCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAib3B0aW9uIiwKICAgICJuYW1lIjogIkNodXnhu4duIEzhuqEgxJDDqm0gS2h1eWEiLAogICAgImV4cGVjdGVkIjogIlNlbGVjdGVkIGNoYW5uZWwgY2hhbmdlcyB2aXNpYmx5IGFmdGVyIG92ZXJsYXkgZXhpdHM7IGZvY3VzL3Njcm9sbCByZXN0b3JlZCIsCiAgICAib2JzZXJ2ZWQiOiAiS8OqbmhDaHV54buHbiBM4bqhIMSQw6ptIEtodXlhIiwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJvcHRpb24iLAogICAgIm5hbWUiOiAiVGhlbyBsdcOibiBwaGnDqm4gwrcgVHJ1eeG7h24ga+G7gyDEkcOqbSIsCiAgICAiZXhwZWN0ZWQiOiAiQ2hvc2VuIHRlbXBsYXRlIHJlbWFpbnMgc2VsZWN0ZWQgYW5kIHZpc2libGUgd2l0aG91dCBzYXZpbmciLAogICAgIm9ic2VydmVkIjogewogICAgICAic2VsZWN0ZWRMYWJlbCI6ICJUaGVvIGx1w6JuIHBoacOqbiDCtyBUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICAgInZpc2libGVWYWx1ZSI6ICJUZW1wbGF0ZVRoZW8gbHXDom4gcGhpw6puIMK3IFRydXnhu4duIGvhu4MgxJHDqm0iCiAgICB9LAogICAgInBhc3NlZCI6IHRydWUKICB9LAogIHsKICAgICJyb2xlIjogIm9wdGlvbiIsCiAgICAibmFtZSI6ICJUcnV54buHbiBr4buDIMSRw6ptIiwKICAgICJleHBlY3RlZCI6ICJDaG9zZW4gdGVtcGxhdGUgcmVtYWlucyBzZWxlY3RlZCBhbmQgdmlzaWJsZSB3aXRob3V0IHNhdmluZyIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJzZWxlY3RlZExhYmVsIjogIlRydXnhu4duIGvhu4MgxJHDqm0iLAogICAgICAidmlzaWJsZVZhbHVlIjogIlRlbXBsYXRlVHJ1eeG7h24ga+G7gyDEkcOqbSIKICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAicmFkaW8iLAogICAgIm5hbWUiOiAiTmhp4buBdSB2aWRlbyIsCiAgICAiZXhwZWN0ZWQiOiAiTW9kZSBhbmQgaW5kaWNhdG9yIGNoYW5nZSB0b2dldGhlciIsCiAgICAib2JzZXJ2ZWQiOiB7CiAgICAgICJsYWJlbCI6ICJOaGnhu4F1IHZpZGVvIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJyYWRpbyIsCiAgICAibmFtZSI6ICJEw6FuIGxpbmsiLAogICAgImV4cGVjdGVkIjogIk1vZGUgYW5kIGluZGljYXRvciBjaGFuZ2UgdG9nZXRoZXIiLAogICAgIm9ic2VydmVkIjogewogICAgICAibGFiZWwiOiAiRMOhbiBsaW5rIiwKICAgICAgImVkZ2VzIjogWwogICAgICAgIDAsCiAgICAgICAgMCwKICAgICAgICAwLAogICAgICAgIDAKICAgICAgXSwKICAgICAgImZvbnRTdGF0dXMiOiAibG9hZGVkIgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJicm93c2VyLWJhY2siLAogICAgIm5hbWUiOiAiRmlyc3QgZGVza3RvcCByZWFkaW5lc3MgcHJvbXB0IiwKICAgICJleHBlY3RlZCI6ICJSZXR1cm4gdG8gZXhpc3Rpbmcgcm91dGUgd2l0aG91dCBpbnN0YWxsaW5nIHByb3ZpZGVycyBvciBjaGFuZ2luZyByZWFkaW5lc3MiLAogICAgIm9ic2VydmVkIjogewogICAgICAiY29tcGxldGUiOiBmYWxzZSwKICAgICAgInJvdXRlIjogIiMvbmV3IgogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfQpd"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-643e17939488b196ab2f",
+          "file": "interaction-audit.pw.ts",
+          "line": 80,
+          "column": 5
+        },
+        {
+          "title": "real video menu hands off to one confirmation; cancel, Esc and scrim submit no mutation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:30.251Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "control-ledger.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJyb2xlIjogImNvbmZpcm1hdGlvbi1kaXNtaXNzIiwKICAgICJuYW1lIjogImNhbmNlbCIsCiAgICAiZXhwZWN0ZWQiOiAiTm8gbXV0YXRpb247IHZpZGVvIHJlbWFpbnM7IGZvY3VzIGFuZCBzY3JvbGwgcmVzdG9yZWQiLAogICAgIm9ic2VydmVkIjogewogICAgICAicmVhZGJhY2tTdGF0dXMiOiAyMDAsCiAgICAgICJ3cml0ZXMiOiBbXQogICAgfSwKICAgICJwYXNzZWQiOiB0cnVlCiAgfSwKICB7CiAgICAicm9sZSI6ICJjb25maXJtYXRpb24tZGlzbWlzcyIsCiAgICAibmFtZSI6ICJlc2NhcGUiLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0sCiAgewogICAgInJvbGUiOiAiY29uZmlybWF0aW9uLWRpc21pc3MiLAogICAgIm5hbWUiOiAic2NyaW0iLAogICAgImV4cGVjdGVkIjogIk5vIG11dGF0aW9uOyB2aWRlbyByZW1haW5zOyBmb2N1cyBhbmQgc2Nyb2xsIHJlc3RvcmVkIiwKICAgICJvYnNlcnZlZCI6IHsKICAgICAgInJlYWRiYWNrU3RhdHVzIjogMjAwLAogICAgICAid3JpdGVzIjogW10KICAgIH0sCiAgICAicGFzc2VkIjogdHJ1ZQogIH0KXQ=="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/interaction-audit.pw.ts-re-a5043-nd-scrim-submit-no-mutation-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f0acdb58dcb6645e35f5-dd499d9462e372b6eb21",
+          "file": "interaction-audit.pw.ts",
+          "line": 185,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "viewer-audit.pw.ts",
+      "file": "viewer-audit.pw.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "review image address survives reload, navigation and cancelling paid feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6098,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:22.896Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "review-address.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiZmluYWxBZGRyZXNzIjogIiMvcmV2aWV3P3ZpZGVvPTVmNzlmY2Y0LTI4MDUtNDFhZi1hMmExLWVmOGUyMTllNGU5OCZpbWc9dGh1bWJuYWlsIiwKICAicmVkcmF3TXV0YXRpb25zIjogW10sCiAgIm1vYmlsZVZpZXdlclJvdW5kNDVFeGNsdWRlZCI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-review--041d0-nd-cancelling-paid-feedback-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-dc63af8b9d5dbd013492",
+          "file": "viewer-audit.pw.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6148,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:29.008Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "viewer-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ4IjogMTAwLAogICJ5IjogNTAsCiAgIndpZHRoIjogMTI0MCwKICAiaGVpZ2h0IjogODAwLAogICJuYXR1cmFsIjogWwogICAgMTkyMCwKICAgIDEwODAKICBdLAogICJyZW5kZXJlZCI6IFsKICAgIDg2NiwKICAgIDQ4NwogIF0KfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-2a17146d0e880ac6630e",
+          "file": "viewer-audit.pw.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2843,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:35.172Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-35f743b28008700e94bb",
+          "file": "viewer-audit.pw.ts",
+          "line": 138,
+          "column": 5
+        },
+        {
+          "title": "template export downloads a readable ZIP instead of the template JSON document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7987,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:38.031Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-export.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaWxlbmFtZSI6ICJN4bqrdSBjaHXhuqluIMK3IFTDoWNoIG7hu4FuLnl0Zi10ZW1wbGF0ZS56aXAiLAogICJieXRlcyI6IDE1NzY2NjQsCiAgInNpZ25hdHVyZSI6ICI1MDRiMDMwNCIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-ec6f5--the-template-JSON-document-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-0b490685f9ee3eb75372",
+          "file": "viewer-audit.pw.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop",
+              "projectName": "desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13172,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:01:46.039Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "scene-replacement.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0YXJnZXRJZCI6ICJjbG9uZS01Zjc5ZmNmNC0yODA1LTQxYWYtYTJhMS1lZjhlMjE5ZTRlOTgtZzEtc2NlbmUtc2MtMDMiLAogICJjaGFuZ2VkQ2xpcElkcyI6IFsKICAgICJjbG9uZS01Zjc5ZmNmNC0yODA1LTQxYWYtYTJhMS1lZjhlMjE5ZTRlOTgtZzEtc2NlbmUtc2MtMDMiCiAgXSwKICAiZ2VvbWV0cnlQcmVzZXJ2ZWQiOiB0cnVlLAogICJrZXlmcmFtZXNQcmVzZXJ2ZWQiOiB0cnVlLAogICJ1bmRvUmVzdG9yZWRQZXJzaXN0ZWRJdGVtcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-desktop/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-4935e358b47acf9cae45",
+          "file": "viewer-audit.pw.ts",
+          "line": 178,
+          "column": 5
+        },
+        {
+          "title": "review image address survives reload, navigation and cancelling paid feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:02:23.817Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "review-address.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDE0NDAsCiAgICAiaGVpZ2h0IjogOTAwCiAgfSwKICAiZmluYWxBZGRyZXNzIjogIiMvcmV2aWV3P3ZpZGVvPTVmNzlmY2Y0LTI4MDUtNDFhZi1hMmExLWVmOGUyMTllNGU5OCZpbWc9dGh1bWJuYWlsIiwKICAicmVkcmF3TXV0YXRpb25zIjogW10sCiAgIm1vYmlsZVZpZXdlclJvdW5kNDVFeGNsdWRlZCI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-review--041d0-nd-cancelling-paid-feedback-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-383ca8ffcfcb749ae14f",
+          "file": "viewer-audit.pw.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11420,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:02:42.207Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "viewer-geometry.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ4IjogMTAwLAogICJ5IjogNTAsCiAgIndpZHRoIjogMTI0MCwKICAiaGVpZ2h0IjogODAwLAogICJuYXR1cmFsIjogWwogICAgMTkyMCwKICAgIDEwODAKICBdLAogICJyZW5kZXJlZCI6IFsKICAgIDg2NiwKICAgIDQ4NwogIF0KfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-9149edde259f9b5e1b02",
+          "file": "viewer-audit.pw.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3709,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:02:53.654Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-54ad26a216fe2bcf826f",
+          "file": "viewer-audit.pw.ts",
+          "line": 138,
+          "column": 5
+        },
+        {
+          "title": "template export downloads a readable ZIP instead of the template JSON document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2849,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:02:57.373Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-export.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaWxlbmFtZSI6ICJN4bqrdSBjaHXhuqluIMK3IFTDoWNoIG7hu4FuLnl0Zi10ZW1wbGF0ZS56aXAiLAogICJieXRlcyI6IDE1NzY2NjQsCiAgInNpZ25hdHVyZSI6ICI1MDRiMDMwNCIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-ec6f5--the-template-JSON-document-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-1a743e31433de7ff758d",
+          "file": "viewer-audit.pw.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "desktop-reduced",
+              "projectName": "desktop-reduced",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10698,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:00.242Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "scene-replacement.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ0YXJnZXRJZCI6ICJjbG9uZS01Zjc5ZmNmNC0yODA1LTQxYWYtYTJhMS1lZjhlMjE5ZTRlOTgtZzEtc2NlbmUtc2MtMDMiLAogICJjaGFuZ2VkQ2xpcElkcyI6IFsKICAgICJjbG9uZS01Zjc5ZmNmNC0yODA1LTQxYWYtYTJhMS1lZjhlMjE5ZTRlOTgtZzEtc2NlbmUtc2MtMDMiCiAgXSwKICAiZ2VvbWV0cnlQcmVzZXJ2ZWQiOiB0cnVlLAogICJrZXlmcmFtZXNQcmVzZXJ2ZWQiOiB0cnVlLAogICJ1bmRvUmVzdG9yZWRQZXJzaXN0ZWRJdGVtcyI6IHRydWUKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-desktop-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-adc8f725aa7df19e0e68",
+          "file": "viewer-audit.pw.ts",
+          "line": 178,
+          "column": 5
+        },
+        {
+          "title": "review image address survives reload, navigation and cancelling paid feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:44.211Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "review-address.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDM5MCwKICAgICJoZWlnaHQiOiA4NDQKICB9LAogICJmaW5hbEFkZHJlc3MiOiAiIy9yZXZpZXc/dmlkZW89NWY3OWZjZjQtMjgwNS00MWFmLWEyYTEtZWY4ZTIxOWU0ZTk4JmltZz1zYy0wMSIsCiAgInJlZHJhd011dGF0aW9ucyI6IFtdLAogICJtb2JpbGVWaWV3ZXJSb3VuZDQ1RXhjbHVkZWQiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-review--041d0-nd-cancelling-paid-feedback-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-15e33b3b7c4dffe3c8b9",
+          "file": "viewer-audit.pw.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5431,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:48.990Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-8a91d7f221cfefaab8c9",
+          "file": "viewer-audit.pw.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:54.440Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-a044544687e6298dc4f5",
+          "file": "viewer-audit.pw.ts",
+          "line": 138,
+          "column": 5
+        },
+        {
+          "title": "template export downloads a readable ZIP instead of the template JSON document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9479,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:03:59.197Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-export.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaWxlbmFtZSI6ICJN4bqrdSBjaHXhuqluIMK3IFTDoWNoIG7hu4FuLnl0Zi10ZW1wbGF0ZS56aXAiLAogICJieXRlcyI6IDE1NzY2NjQsCiAgInNpZ25hdHVyZSI6ICI1MDRiMDMwNCIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-ec6f5--the-template-JSON-document-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-560b72dc46b68259f475",
+          "file": "viewer-audit.pw.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop Editor only; no undesigned mobile Editor or round45 viewer",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 179,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile",
+              "projectName": "mobile",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 449,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:08.702Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop Editor only; no undesigned mobile Editor or round45 viewer",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 179,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-mobile/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-212379c1de0dd1604f65",
+          "file": "viewer-audit.pw.ts",
+          "line": 178,
+          "column": 5
+        },
+        {
+          "title": "review image address survives reload, navigation and cancelling paid feedback",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5834,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:34.972Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "review-address.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJ2aWV3cG9ydCI6IHsKICAgICJ3aWR0aCI6IDM5MCwKICAgICJoZWlnaHQiOiA4NDQKICB9LAogICJmaW5hbEFkZHJlc3MiOiAiIy9yZXZpZXc/dmlkZW89NWY3OWZjZjQtMjgwNS00MWFmLWEyYTEtZWY4ZTIxOWU0ZTk4JmltZz1zYy0wMSIsCiAgInJlZHJhd011dGF0aW9ucyI6IFtdLAogICJtb2JpbGVWaWV3ZXJSb3VuZDQ1RXhjbHVkZWQiOiB0cnVlCn0="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-review--041d0-nd-cancelling-paid-feedback-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-ef8639aef30fea4a3d34",
+          "file": "viewer-audit.pw.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "workbench viewer uses stable addresses, contains the natural image and restores focus/scroll",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3215,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:40.821Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-workben-20647-e-and-restores-focus-scroll-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-6e79d33d54cbcfe2a691",
+          "file": "viewer-audit.pw.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "template sample eye does not change selection until its explicit action; retired key card is absent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2639,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:44.051Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-e6b59--retired-key-card-is-absent-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-369a2883d820f1bff2bf",
+          "file": "viewer-audit.pw.ts",
+          "line": 138,
+          "column": 5
+        },
+        {
+          "title": "template export downloads a readable ZIP instead of the template JSON document",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:46.702Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "template-export.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJmaWxlbmFtZSI6ICJN4bqrdSBjaHXhuqluIMK3IFTDoWNoIG7hu4FuLnl0Zi10ZW1wbGF0ZS56aXAiLAogICJieXRlcyI6IDE1NzY2NjQsCiAgInNpZ25hdHVyZSI6ICI1MDRiMDMwNCIKfQ=="
+                    },
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-templat-ec6f5--the-template-JSON-document-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-a9638b905c5c758c5387",
+          "file": "viewer-audit.pw.ts",
+          "line": 163,
+          "column": 5
+        },
+        {
+          "title": "Editor replacement changes only the chosen scene source and undo restores the persisted timeline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Desktop Editor only; no undesigned mobile Editor or round45 viewer",
+                  "location": {
+                    "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                    "line": 179,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "mobile-reduced",
+              "projectName": "mobile-reduced",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 192,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-03T16:04:50.199Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Desktop Editor only; no undesigned mobile Editor or round45 viewer",
+                      "location": {
+                        "file": "/Users/dat/Projects/verse/tests/viderse-workflow/viewer-audit.pw.ts",
+                        "line": 179,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": [
+                    {
+                      "name": "runtime-errors.json",
+                      "contentType": "application/json",
+                      "body": "W10="
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "/Users/dat/Projects/verse/plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-02/runs/04-complete-local-browser/browser/viewer-audit.pw.ts-Editor--4d724-ores-the-persisted-timeline-mobile-reduced/video.webm"
+                    }
+                  ]
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8855c7a706f92e802cd8-f28e024dfb05795f4d29",
+          "file": "viewer-audit.pw.ts",
+          "line": 178,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-03T16:00:56.748Z",
+    "duration": 233764.558,
+    "expected": 30,
+    "skipped": 2,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

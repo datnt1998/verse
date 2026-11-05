@@ -11,6 +11,7 @@ vi.mock('../../../router', () => ({
 }))
 vi.mock('../../../data', () => ({
   keys: { story: (...parts: unknown[]) => parts, config: (...parts: unknown[]) => ['config', ...parts], jobs: () => ['jobs'], tts: () => ['tts'] },
+  invalidate: vi.fn(),
   useConnection: () => ({ writable: true }), useAction: () => ({ run: vi.fn() }),
   useResource: (key: unknown[]) => ({ data: key.includes('outline') ? { volumes: [
     { index: 1, title: 'Có giọng', arcs: [{ chapters: [1] }], chapters: [] },
@@ -21,6 +22,7 @@ vi.mock('../../../data', () => ({
 vi.mock('../../../mobile/primitives', () => ({
   MobilePage: ({ title, actions, children }: { title: ReactNode; actions: ReactNode; children: ReactNode }) => <main>{title}{actions}{children}</main>,
   BottomSheet: ({ open, title, label, children }: { open: boolean; title?: string; label?: string; children: ReactNode }) => open ? <section role="dialog" aria-label={title ?? label}>{children}</section> : null,
+  ConfirmSheet: () => null,
   useMobileToast: () => vi.fn(),
 }))
 vi.mock('../../../shell/jobs/useJobs', () => ({ useJobSelection: () => [] }))
@@ -33,7 +35,7 @@ vi.mock('./ExportSheet', () => ({ ExportSheet: (props: unknown) => { mocks.expor
 vi.mock('./VoiceGenSheet', () => ({ VoiceGenSheet: (props: unknown) => { mocks.queue(props); return null } }))
 vi.mock('./voice', () => ({ VoiceSheet: () => null }))
 vi.mock('../useAudio', () => ({
-  loadAudioScript: vi.fn(), useAudioAccess: () => ({ writable: true }),
+  errText: String, loadAudioScript: vi.fn(), useAudioAccess: () => ({ writable: true }),
   useAudioData: (_p: string, _s: string, requested: number) => {
     const volume = mocks.pending ? 1 : requested
     return {

@@ -1,0 +1,1702 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "scope": "All canonical Channel/MChannel/CreateChannel/MCreate/Onboard rows from supplied manifest; pivot-value map, NOT a claim of full pixel parity for every baseline prop or native backend state.",
+  "execution": "Parent only: node controller.cjs after rebuilding/restarting guarded localhost8043. Child ran no controller/test/browser/build.",
+  "syntheticSources": {
+    "authorization": "Parent explicitly allowed synthetic source/rival UUIDs for locally fulfilled UI only; native owners/templates retained.",
+    "ids": [
+      "38c10001-0000-4000-8000-000000000001",
+      "38c10002-0000-4000-8000-000000000002"
+    ],
+    "reads": "List, scan, posting-slots, latest video metadata all locally fulfilled. All other mutations aborted before networking.",
+    "nativeAbsence": "Prior native inventory:0 followed rivals,0 owner associations. No synthetic fixture is native/provenance/persistence evidence."
+  },
+  "namedBoundaryBlockers": [
+    "No real creation/follow/link/unlink/default save/identity retry/provider execution under this safety scope; native backend persistence and provider state remain unproven.",
+    "Canonical sample personas/artwork/media are not fabricated; mismatch of actual native owner names and default missing artwork is reported.",
+    "Setup login visible state is exercised without launching authentication or provider calls."
+  ],
+  "rows": [
+    {
+      "referenceId": "Channel.tab.sources",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.tab.sources.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "tab.sources",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-1440-sources-layout-picker-no-preference-populated-source.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "Channel.tab.templates",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.tab.templates.png",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "tab.templates",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing actual native default-template card/menu geometry and images route; prior case overall UNPROVEN because default has no associated native sample; #90 honest missing art is retained.",
+      "classification": "EXISTING_PARTIAL_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-final-proof/results.json",
+        "case": "template-native-card-menu-and-images-route",
+        "screenshot": "../channel-final-proof/1440-template-native-card.png",
+        "status": "unproven"
+      },
+      "namedBlocker": "NO_ASSOCIATED_NATIVE_DEFAULT_ARTWORK: native default-template geometry/menu proven; exact populated canonical artwork cannot honestly be claimed. Existing screenshot remains blank/honest."
+    },
+    {
+      "referenceId": "Channel.tab.settings",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.tab.settings.png",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "tab.settings",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing GET-fixture identity/geometry/safe-area proof; existing native sample reused, NOT native channel artwork.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "banner-safe-area-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-1440-banner-safe-area-no-preference-identity-full.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "Channel.channel.MT",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.channel.MT.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "channel.MT",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Concrete native owner ID and matching owner heading; report mismatch of canonical persona rather than silently accepting another owner.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-owner-MT",
+      "primaryStage": "owner",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-owner-MT-owner.png"
+    },
+    {
+      "referenceId": "Channel.channel.CL",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.channel.CL.png",
+      "props": {
+        "tab": "sources",
+        "channel": "CL",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "channel.CL",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Concrete native owner ID and matching owner heading; report mismatch of canonical persona rather than silently accepting another owner.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-owner-CL",
+      "primaryStage": "owner",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-owner-CL-owner.png"
+    },
+    {
+      "referenceId": "Channel.channel.QH",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.channel.QH.png",
+      "props": {
+        "tab": "sources",
+        "channel": "QH",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "channel.QH",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Concrete native owner ID and matching owner heading; report mismatch of canonical persona rather than silently accepting another owner.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-owner-QH",
+      "primaryStage": "owner",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-owner-QH-owner.png"
+    },
+    {
+      "referenceId": "Channel.autoApprove.false",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.autoApprove.false.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "autoApprove.false",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "limitation": "Existing source screenshot shows baseline; prior controller did not assert this precise property. New explicit supplemental channel-baseline assertion required.",
+      "oracle": "New explicit autoApprove=false switch plus nonfresh prior-date/real zero-jobs baseline assertion, without repeating source layout checks.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-baseline",
+      "primaryStage": "baseline",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-baseline-baseline.png"
+    },
+    {
+      "referenceId": "Channel.autoApprove.true",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.autoApprove.true.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": true,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "autoApprove.true",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Synthetic GET with today, zero jobs, no YouTube and two fixture sources; actual approval switch matches supplied state. Fresh has no independent route flag.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-fresh",
+      "primaryStage": "fresh",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-fresh-fresh.png"
+    },
+    {
+      "referenceId": "Channel.tplMenu.false",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.tplMenu.false.png",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "tplMenu.false",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing actual native default-template card/menu geometry and images route; prior case overall UNPROVEN because default has no associated native sample; #90 honest missing art is retained.",
+      "classification": "EXISTING_PARTIAL_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-final-proof/results.json",
+        "case": "template-native-card-menu-and-images-route",
+        "screenshot": "../channel-final-proof/1440-template-native-card.png",
+        "status": "unproven"
+      },
+      "namedBlocker": "NO_ASSOCIATED_NATIVE_DEFAULT_ARTWORK: native default-template geometry/menu proven; exact populated canonical artwork cannot honestly be claimed. Existing screenshot remains blank/honest."
+    },
+    {
+      "referenceId": "Channel.tplMenu.true",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.tplMenu.true.png",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": true,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "tplMenu.true",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing actual native default-template card/menu geometry and images route; prior case overall UNPROVEN because default has no associated native sample; #90 honest missing art is retained.",
+      "classification": "EXISTING_PARTIAL_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-final-proof/results.json",
+        "case": "template-native-card-menu-and-images-route",
+        "screenshot": "../channel-final-proof/1440-template-native-menu.png",
+        "status": "unproven"
+      },
+      "namedBlocker": "NO_ASSOCIATED_NATIVE_DEFAULT_ARTWORK: native default-template geometry/menu proven; exact populated canonical artwork cannot honestly be claimed. Existing screenshot remains blank/honest."
+    },
+    {
+      "referenceId": "Channel.identity.ready",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.identity.ready.png",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "identity.ready",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing GET-fixture identity/geometry/safe-area proof; existing native sample reused, NOT native channel artwork.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "banner-safe-area-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-1440-banner-safe-area-no-preference-identity-full.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "Channel.identity.generating",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.identity.generating.png",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "generating",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "identity.generating",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real failed alert/retryAt and fenced503 feedback, or generating status with locked regeneration.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-identity-generating",
+      "primaryStage": "generating",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-identity-generating-generating.png"
+    },
+    {
+      "referenceId": "Channel.identity.failed",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.identity.failed.png",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "failed",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "identity.failed",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real failed alert/retryAt and fenced503 feedback, or generating status with locked regeneration.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-identity-failed",
+      "primaryStage": "failed",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-identity-failed-failed.png"
+    },
+    {
+      "referenceId": "Channel.link.none",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.link.none.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "link.none",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-1440-sources-layout-picker-no-preference-populated-source.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "Channel.link.picker",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.link.picker.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "picker",
+        "fresh": false
+      },
+      "pivot": "link.picker",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-1440-sources-layout-picker-no-preference-picker-shared-eligible.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "Channel.link.empty",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.link.empty.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "empty",
+        "fresh": false
+      },
+      "pivot": "link.empty",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "No-source status, pause explanation, zero jobs; empty followed-rival chooser is supplemental.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-empty-source",
+      "primaryStage": "empty-source",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-empty-source-empty-source.png"
+    },
+    {
+      "referenceId": "Channel.fresh.false",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.fresh.false.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "pivot": "fresh.false",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "limitation": "Existing source screenshot shows baseline; prior controller did not assert this precise property. New explicit supplemental channel-baseline assertion required.",
+      "oracle": "New explicit autoApprove=false switch plus nonfresh prior-date/real zero-jobs baseline assertion, without repeating source layout checks.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-baseline",
+      "primaryStage": "baseline",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-baseline-baseline.png"
+    },
+    {
+      "referenceId": "Channel.fresh.true",
+      "board": "Channel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Channel.dc.html",
+      "canonicalReference": "reference/Channel.fresh.true.png",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": true
+      },
+      "pivot": "fresh.true",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Synthetic GET with today, zero jobs, no YouTube and two fixture sources; actual approval switch matches supplied state. Fresh has no independent route flag.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-fresh",
+      "primaryStage": "fresh",
+      "expectedScreenshot": "SYNTHETIC-1440-channel-fresh-fresh.png"
+    },
+    {
+      "referenceId": "CreateChannel.step.create",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.step.create.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "step.create",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "CreateChannel.step.done",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.step.done.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "step.done",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.some",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.rivals.some.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.some",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.none",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.rivals.none.png",
+      "props": {
+        "step": "create",
+        "rivals": "none",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.none",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Two locally fulfilled fixture rivals visible and unchecked; blocked footer.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-none-selected",
+      "primaryStage": "none-selected",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-none-selected-none-selected.png"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.empty",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.rivals.empty.png",
+      "props": {
+        "step": "create",
+        "rivals": "empty",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.empty",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Zero actual checkboxes, genuine empty status, blocked create and blank optional name.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-empty",
+      "primaryStage": "empty",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-empty-empty.png"
+    },
+    {
+      "referenceId": "CreateChannel.tplMenu.false",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.tplMenu.false.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "tplMenu.false",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "CreateChannel.tplMenu.true",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.tplMenu.true.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": true,
+        "identity": "running"
+      },
+      "pivot": "tplMenu.true",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real responsive combobox/listbox contains native template option; one modal on mobile; Escape closes with focus restored.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-template-menu",
+      "primaryStage": "template-menu",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-template-menu-template-menu.png"
+    },
+    {
+      "referenceId": "CreateChannel.identity.running",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.identity.running.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "identity.running",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "CreateChannel.identity.failed",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.identity.failed.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "failed"
+      },
+      "pivot": "identity.failed",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-done-failed",
+      "primaryStage": "identity-failed",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-done-failed-identity-failed.png"
+    },
+    {
+      "referenceId": "CreateChannel.identity.director",
+      "board": "CreateChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/CreateChannel.dc.html",
+      "canonicalReference": "reference/CreateChannel.identity.director.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "director"
+      },
+      "pivot": "identity.director",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "createchannel-done-director",
+      "primaryStage": "identity-director",
+      "expectedScreenshot": "SYNTHETIC-1440-createchannel-done-director-identity-director.png"
+    },
+    {
+      "referenceId": "Onboard.step.setup",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.step.setup.png",
+      "props": {
+        "step": "setup",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "step.setup",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Six real setup rows; running progress=50, focused login action without OAuth, or failed network reason. Failed retry503 human inline alert then retry202 updates returned snapshot immediately.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-setup-running",
+      "primaryStage": "setup-running",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-setup-running-setup-running.png"
+    },
+    {
+      "referenceId": "Onboard.step.create",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.step.create.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "step.create",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "Onboard.step.done",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.step.done.png",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "step.done",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "Onboard.setup.running",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.setup.running.png",
+      "props": {
+        "step": "setup",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "setup.running",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Six real setup rows; running progress=50, focused login action without OAuth, or failed network reason. Failed retry503 human inline alert then retry202 updates returned snapshot immediately.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-setup-running",
+      "primaryStage": "setup-running",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-setup-running-setup-running.png"
+    },
+    {
+      "referenceId": "Onboard.setup.login",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.setup.login.png",
+      "props": {
+        "step": "setup",
+        "setup": "login",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "setup.login",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Six real setup rows; running progress=50, focused login action without OAuth, or failed network reason. Failed retry503 human inline alert then retry202 updates returned snapshot immediately.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-setup-login",
+      "primaryStage": "setup-login",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-setup-login-setup-login.png"
+    },
+    {
+      "referenceId": "Onboard.setup.failed",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.setup.failed.png",
+      "props": {
+        "step": "setup",
+        "setup": "failed",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "setup.failed",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Six real setup rows; running progress=50, focused login action without OAuth, or failed network reason. Failed retry503 human inline alert then retry202 updates returned snapshot immediately.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-setup-failed",
+      "primaryStage": "setup-failed",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-setup-failed-setup-failed.png"
+    },
+    {
+      "referenceId": "Onboard.tplMenu.false",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.tplMenu.false.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "tplMenu.false",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "Onboard.tplMenu.true",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.tplMenu.true.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": true,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "tplMenu.true",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real responsive combobox/listbox contains native template option; one modal on mobile; Escape closes with focus restored.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-template-menu",
+      "primaryStage": "template-menu",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-template-menu-template-menu.png"
+    },
+    {
+      "referenceId": "Onboard.identity.running",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.identity.running.png",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "identity.running",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "Onboard.identity.failed",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.identity.failed.png",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "failed",
+        "rivals": "some"
+      },
+      "pivot": "identity.failed",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-done-failed",
+      "primaryStage": "identity-failed",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-done-failed-identity-failed.png"
+    },
+    {
+      "referenceId": "Onboard.identity.director",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.identity.director.png",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "director",
+        "rivals": "some"
+      },
+      "pivot": "identity.director",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-done-director",
+      "primaryStage": "identity-director",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-done-director-identity-director.png"
+    },
+    {
+      "referenceId": "Onboard.rivals.some",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.rivals.some.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "pivot": "rivals.some",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "Onboard.rivals.none",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.rivals.none.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "none"
+      },
+      "pivot": "rivals.none",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Two locally fulfilled fixture rivals visible and unchecked; blocked footer.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-none-selected",
+      "primaryStage": "none-selected",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-none-selected-none-selected.png"
+    },
+    {
+      "referenceId": "Onboard.rivals.empty",
+      "board": "Onboard",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/Onboard.dc.html",
+      "canonicalReference": "reference/Onboard.rivals.empty.png",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "empty"
+      },
+      "pivot": "rivals.empty",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Zero actual checkboxes, genuine empty status, blocked create and blank optional name.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "onboard-empty",
+      "primaryStage": "empty",
+      "expectedScreenshot": "SYNTHETIC-1440-onboard-empty-empty.png"
+    },
+    {
+      "referenceId": "MChannel.tab.sources",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.tab.sources.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "tab.sources",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-390-sources-layout-picker-no-preference-populated-source.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "MChannel.tab.templates",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.tab.templates.png",
+      "props": {
+        "tab": "templates",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "tab.templates",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing actual native default-template card/menu geometry and images route; prior case overall UNPROVEN because default has no associated native sample; #90 honest missing art is retained.",
+      "classification": "EXISTING_PARTIAL_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-final-proof/results.json",
+        "case": "template-native-card-menu-and-images-route",
+        "screenshot": "../channel-final-proof/390-template-native-card.png",
+        "status": "unproven"
+      },
+      "namedBlocker": "NO_ASSOCIATED_NATIVE_DEFAULT_ARTWORK: native default-template geometry/menu proven; exact populated canonical artwork cannot honestly be claimed. Existing screenshot remains blank/honest."
+    },
+    {
+      "referenceId": "MChannel.tab.settings",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.tab.settings.png",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "tab.settings",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing GET-fixture identity/geometry/safe-area proof; existing native sample reused, NOT native channel artwork.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "banner-safe-area-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-390-banner-safe-area-no-preference-identity-full.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "MChannel.fresh.false",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.fresh.false.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "fresh.false",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "limitation": "Existing source screenshot shows baseline; prior controller did not assert this precise property. New explicit supplemental channel-baseline assertion required.",
+      "oracle": "New explicit autoApprove=false switch plus nonfresh prior-date/real zero-jobs baseline assertion, without repeating source layout checks.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-baseline",
+      "primaryStage": "baseline",
+      "expectedScreenshot": "SYNTHETIC-390-channel-baseline-baseline.png"
+    },
+    {
+      "referenceId": "MChannel.fresh.true",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.fresh.true.png",
+      "props": {
+        "tab": "sources",
+        "fresh": true,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "fresh.true",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Synthetic GET with today, zero jobs, no YouTube and two fixture sources; actual approval switch matches supplied state. Fresh has no independent route flag.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-fresh",
+      "primaryStage": "fresh",
+      "expectedScreenshot": "SYNTHETIC-390-channel-fresh-fresh.png"
+    },
+    {
+      "referenceId": "MChannel.identity.ready",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.identity.ready.png",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "identity.ready",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing GET-fixture identity/geometry/safe-area proof; existing native sample reused, NOT native channel artwork.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "banner-safe-area-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-390-banner-safe-area-no-preference-identity-full.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "MChannel.identity.generating",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.identity.generating.png",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "generating",
+        "sheet": "none"
+      },
+      "pivot": "identity.generating",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real failed alert/retryAt and fenced503 feedback, or generating status with locked regeneration.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-identity-generating",
+      "primaryStage": "generating",
+      "expectedScreenshot": "SYNTHETIC-390-channel-identity-generating-generating.png"
+    },
+    {
+      "referenceId": "MChannel.identity.failed",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.identity.failed.png",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "failed",
+        "sheet": "none"
+      },
+      "pivot": "identity.failed",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real failed alert/retryAt and fenced503 feedback, or generating status with locked regeneration.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-identity-failed",
+      "primaryStage": "failed",
+      "expectedScreenshot": "SYNTHETIC-390-channel-identity-failed-failed.png"
+    },
+    {
+      "referenceId": "MChannel.sheet.none",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.sheet.none.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "pivot": "sheet.none",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-390-sources-layout-picker-no-preference-populated-source.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "MChannel.sheet.rival",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.sheet.rival.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "rival"
+      },
+      "pivot": "sheet.rival",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual rival action sheet; unlink opens exactly one confirmation layer with keep-video explanation; cancel produces no DELETE.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-mobile-source-sheets",
+      "primaryStage": "rival-sheet",
+      "expectedScreenshot": "SYNTHETIC-390-channel-mobile-source-sheets-rival-sheet.png"
+    },
+    {
+      "referenceId": "MChannel.sheet.unlink",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.sheet.unlink.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "unlink"
+      },
+      "pivot": "sheet.unlink",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual rival action sheet; unlink opens exactly one confirmation layer with keep-video explanation; cancel produces no DELETE.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "channel-mobile-source-sheets",
+      "primaryStage": "unlink-confirm",
+      "expectedScreenshot": "SYNTHETIC-390-channel-mobile-source-sheets-unlink-confirm.png"
+    },
+    {
+      "referenceId": "MChannel.sheet.template",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.sheet.template.png",
+      "props": {
+        "tab": "templates",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "template"
+      },
+      "pivot": "sheet.template",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing actual native default-template card/menu geometry and images route; prior case overall UNPROVEN because default has no associated native sample; #90 honest missing art is retained.",
+      "classification": "EXISTING_PARTIAL_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-final-proof/results.json",
+        "case": "template-native-card-menu-and-images-route",
+        "screenshot": "../channel-final-proof/390-template-native-menu.png",
+        "status": "unproven"
+      },
+      "namedBlocker": "NO_ASSOCIATED_NATIVE_DEFAULT_ARTWORK: native default-template geometry/menu proven; exact populated canonical artwork cannot honestly be claimed. Existing screenshot remains blank/honest."
+    },
+    {
+      "referenceId": "MChannel.sheet.link",
+      "board": "MChannel",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MChannel.dc.html",
+      "canonicalReference": "reference/MChannel.sheet.link.png",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "link"
+      },
+      "pivot": "sheet.link",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Existing passing source layout/link chooser/no-overlay proof, synthetic records only. No native association/persistence claim.",
+      "classification": "EXISTING_PIVOT_EVIDENCE",
+      "existingEvidence": {
+        "receipt": "../channel-fixture-proof/results.json",
+        "case": "sources-layout-picker-no-preference",
+        "screenshot": "../channel-fixture-proof/SYNTHETIC-390-sources-layout-picker-no-preference-picker-shared-eligible.png",
+        "status": "pass"
+      }
+    },
+    {
+      "referenceId": "MCreate.step.create",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.step.create.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "step.create",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "MCreate.step.done",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.step.done.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "step.done",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "MCreate.rivals.some",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.rivals.some.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.some",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "MCreate.rivals.none",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.rivals.none.png",
+      "props": {
+        "step": "create",
+        "rivals": "none",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.none",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Two locally fulfilled fixture rivals visible and unchecked; blocked footer.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-none-selected",
+      "primaryStage": "none-selected",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-none-selected-none-selected.png"
+    },
+    {
+      "referenceId": "MCreate.rivals.empty",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.rivals.empty.png",
+      "props": {
+        "step": "create",
+        "rivals": "empty",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "rivals.empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Zero actual checkboxes, genuine empty status, blocked create and blank optional name.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-empty",
+      "primaryStage": "empty",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-empty-empty.png"
+    },
+    {
+      "referenceId": "MCreate.tplMenu.false",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.tplMenu.false.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "tplMenu.false",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Actual checked reference, derived English language, optional blank name, 5/day, approval off, standard template and create-ready footer; supplementary Vietnamese/native-template/name/max20 payload case.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-selected-defaults",
+      "primaryStage": "selected-defaults",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png"
+    },
+    {
+      "referenceId": "MCreate.tplMenu.true",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.tplMenu.true.png",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": true,
+        "identity": "running"
+      },
+      "pivot": "tplMenu.true",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "Real responsive combobox/listbox contains native template option; one modal on mobile; Escape closes with focus restored.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-template-menu",
+      "primaryStage": "template-menu",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-template-menu-template-menu.png"
+    },
+    {
+      "referenceId": "MCreate.identity.running",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.identity.running.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "pivot": "identity.running",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-done-running",
+      "primaryStage": "identity-running",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-done-running-identity-running.png"
+    },
+    {
+      "referenceId": "MCreate.identity.failed",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.identity.failed.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "failed"
+      },
+      "pivot": "identity.failed",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-done-failed",
+      "primaryStage": "identity-failed",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-done-failed-identity-failed.png"
+    },
+    {
+      "referenceId": "MCreate.identity.director",
+      "board": "MCreate",
+      "canonicalArtboard": "apps/viderse/docs/design/v1/artboards/MCreate.dc.html",
+      "canonicalReference": "reference/MCreate.identity.director.png",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "director"
+      },
+      "pivot": "identity.director",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PREPARED_NOT_EXECUTED",
+      "proofBoundary": "Property-value component UI only; no real persistence/provider/native-source/generated-art claim.",
+      "oracle": "DoneStep three task rows reflect generating60%, image-step failure/retryAt, or director failure/temporary-name/waiting artist; director503 alert then202 state transition; concrete owner navigation.",
+      "classification": "NEW_BROWSER_ASSERTION_AND_SCREENSHOT_PREPARED",
+      "controllerCase": "mcreate-done-director",
+      "primaryStage": "identity-director",
+      "expectedScreenshot": "SYNTHETIC-390-mcreate-done-director-identity-director.png"
+    }
+  ]
+}

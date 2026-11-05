@@ -130,7 +130,7 @@ func (q *Queries) CountTotalQueued(ctx context.Context) (int64, error) {
 }
 
 const findJobsBySourceKeys = `-- name: FindJobsBySourceKeys :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs
 WHERE source_key = ANY($1::text[]) AND superseded_at IS NULL
 ORDER BY created_at
 `
@@ -174,6 +174,7 @@ func (q *Queries) FindJobsBySourceKeys(ctx context.Context, dollar_1 []string) (
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -359,7 +360,7 @@ func (q *Queries) LastAutoQueuedChannel(ctx context.Context, channelID pgtype.UU
 }
 
 const listActiveJobs = `-- name: ListActiveJobs :many
-SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review FROM clone_jobs
+SELECT id, channel_id, source_key, source_snapshot, template_id, template_snapshot, model_refs, no_images, generation, superseded_at, paused_at, cancel_requested_at, priority, origin, status, stage_group, active_step, lease_owner, lease_expires_at, fence, version, posted_at, created_at, updated_at, image_approved_at, auto_fix, auto_review, instructions FROM clone_jobs
 WHERE status IN ('pending', 'running')
   AND (paused_at IS NULL OR status = 'running')
   AND NOT EXISTS (
@@ -406,6 +407,7 @@ func (q *Queries) ListActiveJobs(ctx context.Context) ([]CloneJob, error) {
 			&i.ImageApprovedAt,
 			&i.AutoFix,
 			&i.AutoReview,
+			&i.Instructions,
 		); err != nil {
 			return nil, err
 		}
@@ -742,11 +744,13 @@ func (q *Queries) ListQueueCountsByChannel(ctx context.Context) ([]ListQueueCoun
 
 const listQueuedItems = `-- name: ListQueuedItems :many
 SELECT id, channel_id, source_video_id, source_key, source_snapshot, priority, origin, position, state, no_images, template_id, job_id, reason, created_at, started_at, removed_at, scene_prompt_id, cover_prompt_id, no_images_override, override_revision, restart_of FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
-ORDER BY channel_id, position, id
+ORDER BY CASE WHEN priority = 'pick' THEN 0 ELSE 1 END,
+         CASE WHEN priority = 'pick' THEN position END,
+         channel_id, position, id
 LIMIT 2000
 `
 
-// Toàn bộ mục đang chờ (lượt drain/ETA gom lại trong tầng nghiệp vụ).
+// Chọn manual toàn cục trước workset cap; auto giữ thứ tự trong lane.
 func (q *Queries) ListQueuedItems(ctx context.Context) ([]CloneQueue, error) {
 	rows, err := q.db.Query(ctx, listQueuedItems)
 	if err != nil {
@@ -1037,6 +1041,25 @@ type PruneQueueHistoryParams struct {
 func (q *Queries) PruneQueueHistory(ctx context.Context, arg PruneQueueHistoryParams) error {
 	_, err := q.db.Exec(ctx, pruneQueueHistory, arg.HistoryCutoff, arg.RemovedCutoff)
 	return err
+}
+
+const queuePositionBounds = `-- name: QueuePositionBounds :one
+SELECT coalesce(min(position) FILTER (WHERE priority = 'pick'), 0)::double precision AS manual_min,
+       coalesce(max(position) FILTER (WHERE priority = 'batch'), 0)::double precision AS auto_max
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
+`
+
+type QueuePositionBoundsRow struct {
+	ManualMin float64 `json:"manual_min"`
+	AutoMax   float64 `json:"auto_max"`
+}
+
+// Aggregate trên toàn eligible set, không lấy bounds từ workset LIMIT.
+func (q *Queries) QueuePositionBounds(ctx context.Context) (QueuePositionBoundsRow, error) {
+	row := q.db.QueryRow(ctx, queuePositionBounds)
+	var i QueuePositionBoundsRow
+	err := row.Scan(&i.ManualMin, &i.AutoMax)
+	return i, err
 }
 
 const queuedSourceKeys = `-- name: QueuedSourceKeys :many

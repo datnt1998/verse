@@ -1,0 +1,64 @@
+{
+  "sourceJob": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "policy": "Owned saved-state replay: real steps/artifacts + real already-published media bytes; no provider call, no renderer, no invented quality/provenance/output. Queue pause is exercised and restored by the test.",
+  "ownedJobIds": {
+    "done": "f2a38a4e-e7fa-47d6-b4b9-6c0960919e6c",
+    "review": "b26bbc5c-5acb-48bb-95ea-5b894a81cbf7",
+    "issue": "ea0e04db-bd13-4dac-bf37-0d81c04481d2",
+    "quality": "1236f3b7-b460-4317-8e31-d137b6904c90",
+    "paused": "c0871f05-2708-45cd-9f07-21d894dd7e9f",
+    "metaPending": "8ef618e4-87a0-425c-aa37-7398b93e9ddf",
+    "metaWriting": "53e7a508-295d-4a7e-9813-cdb3ea334fad",
+    "metaFailed": "354f4c57-8e60-4499-901b-318af6a4a707",
+    "metaEdited": "a112a54f-91cf-48a1-828a-bcbb8e76e7e5",
+    "images": "3eb351e7-4e41-4404-b004-2c76f793a928",
+    "imagesReduced": "ed55de02-688f-4105-9228-723568c6f1f4",
+    "render": "54e43e00-937f-4574-b3bf-29f8dd1c6b11"
+  },
+  "phases": {
+    "static": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T14:17:27.733Z",
+        "duration": 35930.308000000005,
+        "expected": 10,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "working": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T14:18:04.432Z",
+        "duration": 38041.447,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "uniqueSourceMediaObjects": 80,
+  "sourceArtifactsBytes": 6507174,
+  "sourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "imageReceiptsUnchanged": true,
+  "originalMediaBindingsUnchanged": true,
+  "backdropLibraryUnchanged": true,
+  "queuePauseRestored": true,
+  "noOwnedRowsOrFiles": true,
+  "allOtherCloneRowsRestored": true,
+  "remnants": {
+    "jobs": 0,
+    "artifacts": 0,
+    "steps": 0,
+    "media": 0,
+    "files": 0
+  },
+  "playwrightProjects": [
+    "desktop",
+    "desktop-reduced"
+  ],
+  "errors": []
+}

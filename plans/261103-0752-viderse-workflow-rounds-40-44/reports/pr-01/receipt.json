@@ -1,0 +1,92 @@
+{
+  "revisionBase": "f120a62c8ce664b8e4c42f8edda6a74a24e55d91",
+  "playwright": {
+    "startTime": "2026-11-03T13:21:45.431Z",
+    "duration": 96608.557,
+    "expected": 12,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "comparisons": [
+    {
+      "viewport": "desktop",
+      "kind": "channel",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/NewVideo.picker.channel.png",
+      "actual": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/runs/07-settled-foundation/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-desktop/channel-0.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/comparisons/desktop-channel.png",
+      "fullScreenAccepted": false,
+      "remainingOwner": "PR5/PR6"
+    },
+    {
+      "viewport": "desktop",
+      "kind": "template",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/NewVideo.picker.template.png",
+      "actual": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/runs/07-settled-foundation/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-desktop/template-1.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/comparisons/desktop-template.png",
+      "fullScreenAccepted": false,
+      "remainingOwner": "PR5/PR6"
+    },
+    {
+      "viewport": "mobile",
+      "kind": "channel",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/MNew.picker.channel.png",
+      "actual": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/runs/07-settled-foundation/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-mobile/channel-0.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/comparisons/mobile-channel.png",
+      "fullScreenAccepted": false,
+      "remainingOwner": "PR5/PR6"
+    },
+    {
+      "viewport": "mobile",
+      "kind": "template",
+      "reference": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-00/reference/MNew.picker.template.png",
+      "actual": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/runs/07-settled-foundation/browser/interaction-audit.pw.ts-sh-883ae-sponsive-dismiss-and-resize-mobile/template-1.png",
+      "comparison": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-01/comparisons/mobile-template.png",
+      "fullScreenAccepted": false,
+      "remainingOwner": "PR5/PR6"
+    }
+  ],
+  "suites": {
+    "kit": {
+      "files": 33,
+      "passed": 259
+    },
+    "noverse": {
+      "files": 227,
+      "passed": 1894
+    },
+    "viderse": {
+      "files": 453,
+      "passed": 3709,
+      "existingSkipped": 4
+    }
+  },
+  "typecheck": "all three workspaces passed",
+  "build": "Viderse passed; existing chunk-size warning",
+  "history": "Initial concurrent root run timed out Noverse cases; affected files and full Noverse suite then passed without competing build. Initial build timeout; isolated build passed. Prior browser runs retained, final canonical run 07.",
+  "sourceHashes": {
+    "apps/viderse/web/src/App.test.tsx": "e0bebc7c4d0f7c007850122dc477d5acc23c55722fbd3088515644d390857ffe",
+    "apps/viderse/web/src/App.tsx": "d8935a1e5d0df434111a3bc2d703253061e1f41f30ad611b6c8679a9520f4301",
+    "apps/viderse/web/src/components/index.ts": "9cab3dfb78ce5424cca8fd68f121e61fe99689c6a18c765153ed795d07851364",
+    "apps/viderse/web/src/components/suggestions/SuggestionCard.tsx": "94d84eb193e158b9128e7110a4ff7698452c943d3e5ab4c0a54a24f0fe47ccc2",
+    "apps/viderse/web/src/main.tsx": "347a1f75854858081106bdb1950f6db330080673ab67d325c9cf12d768953e65",
+    "apps/viderse/web/src/screens/auth/ChangePasswordScreen.test.tsx": "81d00a19d2968911d4d6ea63957097d2fce6adf6cf7ad997b7cc5b95a824a4a4",
+    "apps/viderse/web/src/screens/auth/ChangePasswordScreen.tsx": "60f14e43976a3ed47944a009af1328650887299e24bb674a6a5506442825e18d",
+    "apps/viderse/web/src/screens/channel/TemplatesTab.tsx": "a3d761d01939ebf5a393f38d5e45b1eeabfb23121a287bafeb25e897c76d7c6a",
+    "apps/viderse/web/src/screens/channel/VideoBulkBar.tsx": "295d8a52c2872b3cd9a2841a0574f9ca44402ae0e19d8bc3c0daf54a6242f438",
+    "apps/viderse/web/src/screens/channel/VideoRow.tsx": "299ff21995830bc0ccd8d30f5ab6d1bbb891f38e4a422fe3da372078d204ca55",
+    "apps/viderse/web/src/screens/explore/ScanCard.tsx": "5b7990eafaec610edfbe52b093b1c1babf1a2738a9203b9040ba440e7716defa",
+    "apps/viderse/web/src/screens/explore/mobile/MExploreScreen.tsx": "bb2a68a9847cbe51d3e09d2d9c7738f9544672bacb0bf8bda49f963e0911d714",
+    "apps/viderse/web/src/screens/new/NewScreen.test.tsx": "efdcf39a3e98561336b84052cd3aab5d9f92e072dba51aa80d73a8380d490d34",
+    "apps/viderse/web/src/screens/new/NewScreen.tsx": "820bbd8a7c74926edcd2e29692e8e904b550e77e0fcc0b2ab96ce499c206c226",
+    "apps/viderse/web/src/styles/viderse.stylex.ts": "8afaa5a71160a96e3a6dd283bfd0e3bbaa9f963124a2508fc378f208683864b0",
+    "platform/ui/README.md": "ab810e22db40e2afcb027095747049c173489afa6377201972bc481eaca0209f",
+    "platform/ui/src/ConfirmDialog.test.tsx": "19b40aec61f88af4120541299dcd612b0071cc51a3d4360743d374afb2a2d4f4",
+    "platform/ui/src/ConfirmDialog.tsx": "f2e5455040f3a8055df77a5769c067ffb4a374dedee48a4a93242cfabe940de3",
+    "platform/ui/src/Sheet.tsx": "6f45d5cac56a065d5baaa9ec34e8b895bde5da765ed10e5c6abdb9d717d7317f",
+    "platform/ui/src/Toast.activity.test.tsx": "04a367ec98d22b7ca7fa759dd93e924e9540bc8caa2655b6a318ccdbd4d78e14",
+    "platform/ui/src/Toast.test.tsx": "090a82a54459a48521dbd25183991472ae07bb677b18c1e5c6b950420527016e",
+    "platform/ui/src/Toast.tsx": "af25a5ff866053eb914bbbb7b7fc393084bdaf667afdecdec58409291eba74a8",
+    "platform/ui/src/index.ts": "f4f8ea6c99f3c414de48d7159a0d58f8c0efe04674c2daf8a0b6c5ba31d6bd32"
+  }
+}

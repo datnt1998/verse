@@ -8,7 +8,7 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { invalidate } from '@noverse/ui/data'
+import { cache } from '@noverse/ui/data'
 import { keys } from '../../data/keys'
 import { t } from '../../i18n/all'
 import type { Activity } from '../../api/activity'
@@ -18,9 +18,12 @@ import { CreateStep } from './CreateStep'
 import { DoneStep } from './DoneStep'
 import { SettingsTab } from './SettingsTab'
 import { SourcesTab } from './SourcesTab'
-import { IdentityBlock } from './IdentityBlock'
 import { PreviewPanel } from '../explore/PreviewPanel'
 import { RivalCard } from '../explore/RivalCard'
+
+Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
+// Kết nối được kiểm riêng; bài test kênh không mở SSE ra máy chủ thật.
+vi.mock('../../data/status', () => ({ useOnline: () => true }))
 
 const tt = t.channels
 const et = t.screens.explore
@@ -36,12 +39,12 @@ const rival: Rival = {
 const channel = (patch: Partial<Channel> = {}): Channel => ({
   id: 'c1', name: 'Chuyện Lạ', youtubeUrl: null, language: 'vi',
   styleNote: null, descriptionFooter: null, alwaysTags: [],
-  autoPick: true, pacePerDay: 5, templateCursor: 0,
-  autonomy: { preset: 'balanced', pick: 'all', approve: { mode: 'ask', min: 85 }, onError: 'retry_once', belowQuality: 'ask' }, priority: 'steady',
+  autoFetch: true, autoApprove: false, perDay: 5, defaultTemplateId: 't1', defaultTemplateName: 'Mẫu chuẩn', agentInstructions: {},
+
   branding: { brief: '', summary: '', look: '', avatar: '', banner: '' },
   avatarUrl: null, bannerUrl: null,
   sources: [{ rivalId: 'r1', title: 'Một Phim', handle: '@motphim', linkedAt: '2026-10-20T00:00:00Z', reference: true }],
-  templates: [], identity: { state: 'ready' },
+ identity: { state: 'ready' },
   createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
   ...patch,
 })
@@ -129,19 +132,15 @@ const leave = async (el: HTMLElement) => {
   await flush()
 }
 
-beforeEach(async () => {
+beforeEach(() => {
   posts = []
-  await invalidate(keys.channels())
-  await invalidate(keys.rivals())
-  await invalidate(keys.channel('c1'))
-  await invalidate(keys.channel('c2'))
-  await invalidate(keys.channel('c3'))
-  await invalidate(keys.templates())
-  await invalidate(keys.activity())
+  cache.clear()
+  stubFetch({})
 })
 
 afterEach(async () => {
   for (const root of roots.splice(0)) await act(async () => { root.unmount() })
+  cache.clear()
   document.body.innerHTML = ''
   vi.unstubAllGlobals()
 })
@@ -168,7 +167,7 @@ describe('Tạo kênh', () => {
     await click(submit)
     await until(() => created !== '')
     const post = posts.find((item) => item.url === '/api/owner-channels')
-    expect(post?.body).toMatchObject({ competitorIds: ['r1'], pacePerDay: 5 })
+    expect(post?.body).toMatchObject({ competitorIds: ['r1'], perDay: 5, autoApprove: false })
     expect(created).toBe('c1')
   })
 })
@@ -182,7 +181,7 @@ describe('Hồ sơ kênh', () => {
           : respond({ error: 'not found' }, 404)
       ),
     })
-    const el = await mount(<SettingsTab channel={channel({ id: 'c2', name: 'Tên cũ' })} />)
+    const el = await mount(<SettingsTab channel={channel({ id: 'c2', name: 'Tên cũ' })} onInstructions={vi.fn()} />)
     const input = el.querySelector('#vch-name') as HTMLInputElement
     expect(input).toBeTruthy()
     await typeIn(input, 'Tên mới đang gõ')
@@ -197,8 +196,10 @@ describe('Hồ sơ kênh', () => {
 describe('Nguồn & tự động', () => {
   it('bỏ đối thủ cuối: hỏi xác nhận rồi gọi DELETE nguồn', async () => {
     stubFetch({
-      '/api/rivals': () => respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList),
-      '/api/owner-channels/c3/sources/r1': () => respond({ autoPickPaused: true }),
+      '/api/rivals': (_init, url) => url === '/api/rivals'
+        ? respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList)
+        : respond({ error: 'not found' }, 404),
+      '/api/owner-channels/c3/sources/r1': () => respond({ autoFetchPaused: true }),
     })
     const el = await mount(<SourcesTab channel={channel({ id: 'c3' })} channels={[channel({ id: 'c3' })]} />)
     await until(() => el.textContent?.includes('Một Phim') === true)
@@ -207,13 +208,53 @@ describe('Nguồn & tự động', () => {
     await until(() => document.querySelector('[role="alertdialog"]') !== null)
     const dialog = document.querySelector('[role="alertdialog"]')
     expect(dialog).toBeTruthy()
-    expect(dialog?.textContent).toContain(tt.sources.unlinkTitle('Một Phim'))
+    expect(dialog?.textContent).toContain(tt.sources.unlinkTitle('Một Phim', 'Chuyện Lạ'))
 
     await click([...(dialog?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.trim() === tt.sources.unlinkOk))
     await until(() => posts.some((item) => item.method === 'DELETE' && item.url.includes('/sources/r1')))
     expect(posts.some((item) => item.method === 'DELETE' && item.url.includes('/sources/r1'))).toBe(true)
     // chờ hộp xác nhận của kit tự đóng + gỡ root trước khi dọn DOM của test
     await until(() => document.querySelector('[role="alertdialog"]') === null)
+  })
+
+  it('mobile unlink keeps pending/error confirmation open and allows a successful retry', async () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      media: query, matches: query.includes('max-width: 767px'), onchange: null,
+      addEventListener: vi.fn(), removeEventListener: vi.fn(),
+      addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: () => true,
+    }))
+    const pending = Promise.withResolvers<Response>()
+    let attempts = 0
+    stubFetch({
+      '/api/rivals': (_init, url) => url === '/api/rivals'
+        ? respond({ rivals: [rival], totalVideos: 1284, newOutliers: 4 } satisfies RivalList)
+        : respond({ error: 'not found' }, 404),
+      '/api/owner-channels/c-mobile/sources/r1': () => ++attempts === 1 ? pending.promise : respond({ autoFetchPaused: true }),
+    })
+    const item = channel({ id: 'c-mobile' })
+    const el = await mount(<SourcesTab channel={item} channels={[item]} />)
+    const openConfirmation = async () => {
+      await click(el.querySelector('button[aria-label="Bỏ liên kết: Một Phim"]'))
+      await until(() => Boolean(byText(document, '[role="dialog"] button', tt.sources.unlinkAction)))
+      await click(byText(document, '[role="dialog"] button', tt.sources.unlinkAction))
+      await until(() => document.querySelector('[role="alertdialog"]') !== null)
+    }
+    await openConfirmation()
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkCancel))
+    await until(() => document.querySelector('[role="alertdialog"]') === null)
+    expect(attempts).toBe(0)
+    await openConfirmation()
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkOk))
+    expect(attempts).toBe(1)
+    expect([...document.querySelectorAll('[role="alertdialog"] button')].every(button => (button as HTMLButtonElement).disabled)).toBe(true)
+    await act(async () => { document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    expect(document.querySelector('[role="alertdialog"]')).not.toBeNull()
+    await act(async () => { pending.resolve(await respond({ error: 'private_internal_marker' }, 503)) })
+    await until(() => document.querySelector('[role="alertdialog"] [role="alert"]') !== null)
+    expect(document.querySelector('[role="alertdialog"]')?.textContent).not.toContain('private_internal_marker')
+    await click(byText(document, '[role="alertdialog"] button', tt.sources.unlinkOk))
+    await until(() => document.querySelector('[role="alertdialog"]') === null)
+    expect(attempts).toBe(2)
   })
 })
 
@@ -270,7 +311,7 @@ describe('Nhận diện', () => {
   it('đang vẽ: nút vẽ lại khoá kèm lý do và có tiến độ', async () => {
     stubFetch({ '/api/activity': () => respond(activity(2, 4)) })
     const el = await mount(
-      <IdentityBlock channel={channel({ identity: { state: 'generating', startedAt: '2026-10-31T06:00:00Z' } })} />,
+      <SettingsTab channel={channel({ identity: { state: 'generating', startedAt: '2026-10-31T06:00:00Z' } })} onInstructions={() => {}} />,
     )
     await until(() => el.textContent?.includes(tt.identity.generating) === true)
     const regen = byText(el, 'button', tt.identity.regenAvatar) as HTMLButtonElement
@@ -283,9 +324,9 @@ describe('Nhận diện', () => {
   it('lỗi: role=alert kèm giờ tự thử lại', async () => {
     const retryAt = new Date(2026, 9, 31, 7, 0).toISOString()
     const el = await mount(
-      <IdentityBlock channel={channel({
+      <SettingsTab channel={channel({
         identity: { state: 'failed', error: { code: 'quota', message: 'Hết hạn mức ảnh.' }, retryAt, part: 'all' },
-      })} />,
+      })} onInstructions={() => {}} />,
     )
     const alert = el.querySelector('[role="alert"]')
     expect(alert?.textContent).toContain('Hết hạn mức ảnh.')
@@ -317,24 +358,6 @@ describe('Nhận diện', () => {
 })
 
 describe('Khám phá mở khoá theo kênh', () => {
-  it('có kênh: chọn được kênh đích, chưa có kế hoạch hợp lệ thì chưa làm video', async () => {
-    const el = await mount(
-      <PreviewPanel
-        video={{
-          id: 'v1', channelId: 'r1', title: 'Video mẫu', durationSec: 600, viewCount: 1000,
-          publishedAt: '2026-10-28T04:00:00Z', exactTime: true, score: 4.2,
-          hasCaptions: null, thumbnailUrl: '', url: 'https://youtu.be/v1',
-        }}
-        rival={rival}
-        channels={[{ id: 'c1', name: 'Chuyện Lạ' }]}
-        onClose={() => {}}
-      />,
-    )
-    const radio = el.querySelector('[role="radio"][aria-checked="true"]')
-    expect(radio).not.toBeNull()
-    const make = byText(el, 'button', et.makeVideo) as HTMLButtonElement
-    expect(make.getAttribute('aria-disabled')).toBe('true')
-  })
 
   it('chưa có kênh: giữ lý do cũ và lối tạo kênh', async () => {
     const el = await mount(

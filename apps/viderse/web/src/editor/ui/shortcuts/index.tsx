@@ -139,7 +139,7 @@ export function ShortcutProvider({ children }: { children: ReactNode }) {
       const root = document.querySelector<HTMLElement>("[data-editor-root]");
       if (!root || root.getClientRects().length === 0) return;
       const target = event.target instanceof Element ? event.target : null;
-      if (target?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']") || document.querySelector("[role='dialog'][data-state='open'], [role='alertdialog'][data-state='open'], [role='menu'][data-state='open']")) return;
+      if (event.defaultPrevented || target?.closest("input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']") || document.querySelector("[aria-modal='true'], [role='menu'][data-state='open']")) return;
       const control = target?.closest<HTMLElement>("button, summary, [role]");
       const controlKind = control?.getAttribute("role") ?? control?.tagName.toLowerCase() ?? "";
       if (!event.metaKey && !event.ctrlKey && !event.altKey && preservesNativeControlKey(controlKind, event.code)) return;

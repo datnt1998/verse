@@ -162,11 +162,10 @@ SELECT t.id, t.name, t.recipe, t.revision, t.preview_revision, t.preview_built_a
        COALESCE(ch.channels, '[]'::jsonb) AS channels
 FROM templates t
 LEFT JOIN LATERAL (
-    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'position', oct.position)
+    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name)
                      ORDER BY c.name, c.id) AS channels
-    FROM owner_channel_templates oct
-    JOIN owner_channels c ON c.id = oct.owner_channel_id
-    WHERE oct.template_id = t.id
+    FROM owner_channels c
+    WHERE c.default_template_id = t.id
 ) ch ON true
 WHERE t.id = $1
 `
@@ -408,11 +407,10 @@ SELECT t.id, t.name, t.recipe, t.revision, t.preview_revision, t.preview_built_a
        COALESCE(ch.channels, '[]'::jsonb) AS channels
 FROM templates t
 LEFT JOIN LATERAL (
-    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name, 'position', oct.position)
+    SELECT jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name)
                      ORDER BY c.name, c.id) AS channels
-    FROM owner_channel_templates oct
-    JOIN owner_channels c ON c.id = oct.owner_channel_id
-    WHERE oct.template_id = t.id
+    FROM owner_channels c
+    WHERE c.default_template_id = t.id
 ) ch ON true
 ORDER BY t.updated_at DESC, t.id
 `
@@ -430,8 +428,8 @@ type ListTemplatesRow struct {
 }
 
 // Đọc/ghi cho mảng Thư viện: template, prompt ảnh, lớp phủ. Truy vấn chéo
-// mảng chỉ ĐỌC bảng của mảng khác (owner_channel_templates để đếm kênh dùng
-// template; backdrop_* để kiểm kênh/video nền còn tồn tại).
+// mảng chỉ ĐỌC bảng của mảng khác (owner_channels.default_template_id để đếm
+// kênh dùng template; backdrop_* để kiểm kênh/video nền còn tồn tại).
 // ── template ───────────────────────────────────────────────────────────────
 // Mọi template kèm kênh đang dùng (một lượt gộp, không N+1).
 func (q *Queries) ListTemplates(ctx context.Context) ([]ListTemplatesRow, error) {
@@ -531,10 +529,10 @@ const nameChannelStandardTemplates = `-- name: NameChannelStandardTemplates :man
 UPDATE templates t
 SET name = $1, updated_at = now()
 WHERE t.name = $2
-  AND EXISTS (SELECT 1 FROM owner_channel_templates oct
-              WHERE oct.template_id = t.id AND oct.owner_channel_id = $3)
-  AND NOT EXISTS (SELECT 1 FROM owner_channel_templates oct
-                  WHERE oct.template_id = t.id AND oct.owner_channel_id <> $3)
+  AND EXISTS (SELECT 1 FROM owner_channels c
+              WHERE c.default_template_id = t.id AND c.id = $3::uuid)
+  AND NOT EXISTS (SELECT 1 FROM owner_channels c
+                  WHERE c.default_template_id = t.id AND c.id <> $3::uuid)
 RETURNING t.id
 `
 
@@ -787,19 +785,18 @@ func (q *Queries) RestoreOverlay(ctx context.Context, arg RestoreOverlayParams) 
 }
 
 const templateChannels = `-- name: TemplateChannels :many
-SELECT c.id, c.name, oct.position
-FROM owner_channel_templates oct
-JOIN owner_channels c ON c.id = oct.owner_channel_id
-WHERE oct.template_id = $1
+SELECT c.id, c.name
+FROM owner_channels c
+WHERE c.default_template_id = $1::uuid
 ORDER BY c.name, c.id
 `
 
 type TemplateChannelsRow struct {
-	ID       pgtype.UUID `json:"id"`
-	Name     string      `json:"name"`
-	Position int32       `json:"position"`
+	ID   pgtype.UUID `json:"id"`
+	Name string      `json:"name"`
 }
 
+// Kênh đang dùng template làm mặc định ("Mặc định của …" và guard xoá).
 func (q *Queries) TemplateChannels(ctx context.Context, templateID pgtype.UUID) ([]TemplateChannelsRow, error) {
 	rows, err := q.db.Query(ctx, templateChannels, templateID)
 	if err != nil {
@@ -809,7 +806,7 @@ func (q *Queries) TemplateChannels(ctx context.Context, templateID pgtype.UUID) 
 	items := []TemplateChannelsRow{}
 	for rows.Next() {
 		var i TemplateChannelsRow
-		if err := rows.Scan(&i.ID, &i.Name, &i.Position); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

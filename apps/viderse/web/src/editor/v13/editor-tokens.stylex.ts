@@ -25,4 +25,9 @@ export const v13 = stylex.defineVars({
   accent: '#FF4D63', accentStrong: '#E6002E', ok: '#A6EDC1', warn: '#F6CB8C',
   warnText: '#FFC09A', warnFill: 'rgba(255,154,92,.07)', okFill: 'rgba(166,237,193,.06)',
   info: '#9DB0F7', imageBadge: 'rgba(11,11,13,.8)',
+  /* Editor.dc.html: hàng đoạn lệch, dải từ karaoke và nhãn nổi trên khung xem. */
+  driftRowTint: 'rgba(255,154,92,.05)',
+  wordOkFill: 'rgba(166,237,193,.35)', wordOkBorder: 'rgba(166,237,193,.7)',
+  wordDriftFill: 'rgba(255,154,92,.35)', wordDriftBorder: 'rgba(255,154,92,.8)',
+  cueVeil: 'rgba(11,11,13,.82)',
 })

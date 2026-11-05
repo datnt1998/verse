@@ -5,11 +5,11 @@
 // 422 capability_missing theo field dạng chấm (director.model, director.
 // fallback, artist.promptModel, artist.draw, artist.drawFallback) → câu
 // inline đúng chỗ, không báo "đã áp dụng".
-import { act } from 'react'
+import { act, useState, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { invalidate } from '@noverse/ui/data'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { blockedReason, pickedFrom } from './ModelPicker'
+import { blockedReason, ModelPicker, pickedFrom, refId, type Picked } from './ModelPicker'
 import { AgentsSection } from './AgentsSection'
 import type { AiAgents, AiModel, AiProvider } from '../../../api/ai'
 
@@ -41,14 +41,37 @@ const flush = async () => {
   for (let i = 0; i < 4; i++) await act(async () => { await vi.advanceTimersByTimeAsync(50) })
 }
 
-async function render() {
+async function mount(node: ReactNode) {
   const container = document.createElement('div')
   document.body.append(container)
   const root = createRoot(container)
   roots.push(root)
-  await act(async () => { root.render(<AgentsSection />) })
+  await act(async () => { root.render(node) })
+  return container
+}
+
+async function render() {
+  const container = await mount(<AgentsSection />)
   await flush()
   return container
+}
+
+/** Ô chọn model có state thật: chọn xong nút đóng phải đổi ngay ngữ cảnh provider. */
+function ModelPickerHarness({ picked, initial }: { picked: Picked[]; initial: string }) {
+  const [value, setValue] = useState(initial)
+  const [pickedRef, setPickedRef] = useState('')
+  return <>
+    <ModelPicker
+      picked={picked}
+      value={value}
+      needs="text"
+      label="Model"
+      title="Model"
+      sub="Model đã chọn ở Kết nối AI."
+      onPick={(p) => { setValue(refId(p.ref)); setPickedRef(`${p.ref.provider}:${p.ref.model}`) }}
+    />
+    <output data-testid="picked">{pickedRef}</output>
+  </>
 }
 
 const click = async (el: Element | null | undefined) => {
@@ -144,7 +167,7 @@ describe('Trợ lý AI', () => {
     const options = card.querySelectorAll('[role="option"]')
     expect(options).toHaveLength(1)
     await act(async () => { search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })) })
-    expect(el.querySelector<HTMLInputElement>('.agt-card input[role="combobox"]')?.value).toContain('openai/gpt-5.2')
+    expect(el.querySelector('.agt-card [role="combobox"]')?.textContent).toContain('openai/gpt-5.2')
     const save = calls.find((call) => call.method === 'PUT')
     expect(save).toBeTruthy()
     expect(JSON.parse(save!.body!).director.model).toEqual({ provider: 'p-or', model: 'openai/gpt-5.2' })
@@ -225,6 +248,47 @@ describe('Trợ lý AI', () => {
     // (artboard không có câu thường trực, và lưu thất bại thì không được báo xong).
     const applied = [...el.querySelectorAll('.agt-applied')].map((h) => h.textContent)
     expect(applied).toHaveLength(0)
+  })
+
+  it('nút model đóng hiện model + ngữ cảnh provider, ô tìm chỉ xuất hiện sau khi mở và Esc trả focus', async () => {
+    const el = await render()
+    const artistCard = [...el.querySelectorAll('.agt-row')].find((c) => c.textContent?.includes('Hoạ sĩ'))!
+    const trigger = artistCard.querySelector('[role="combobox"]') as HTMLButtonElement
+    expect(trigger.tagName).toBe('BUTTON')
+    expect(trigger.textContent).toContain('openai/gpt-5.2')
+    expect(trigger.textContent).toContain('OpenRouter · khoá API')
+    expect(artistCard.querySelector('input[role="combobox"]')).toBeNull()
+
+    await click(trigger)
+    const search = artistCard.querySelector('input[role="combobox"]') as HTMLInputElement
+    expect(search).toBeTruthy()
+    expect(document.activeElement).toBe(search)
+
+    await act(async () => { search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })) })
+    const closed = artistCard.querySelector('[role="combobox"]') as HTMLButtonElement
+    expect(artistCard.querySelector('input[role="combobox"]')).toBeNull()
+    expect(document.activeElement).toBe(closed)
+    expect(closed.textContent).toContain('openai/gpt-5.2')
+  })
+
+  it('cùng một id model ở hai provider: chọn đúng provider và nút đóng đổi ngữ cảnh ngay', async () => {
+    const twin: AiProvider[] = [
+      { id: 'p-a', kind: 'openai', auth: 'api_key', label: 'OpenAI', catalogCount: 1, selected: ['shared-model'], status: 'ready', dailyPaidImageLimit: 50 },
+      { id: 'p-b', kind: 'gemini', auth: 'subscription', label: 'Gemini', plan: 'plus', catalogCount: 1, selected: ['shared-model'], status: 'ready', dailyPaidImageLimit: 50 },
+    ]
+    const el = await mount(<ModelPickerHarness picked={pickedFrom(twin, () => undefined)} initial="p-a/shared-model" />)
+    const trigger = el.querySelector('[role="combobox"]') as HTMLButtonElement
+    expect(trigger.textContent).toContain('shared-model')
+    expect(trigger.textContent).toContain('OpenAI · khoá API')
+
+    await click(trigger)
+    const options = [...el.querySelectorAll<HTMLButtonElement>('[role="option"]')]
+    expect(options).toHaveLength(2)
+    expect(options.every((option) => option.textContent?.includes('shared-model'))).toBe(true)
+
+    await click(options[1])
+    expect(el.querySelector('output')?.textContent).toBe('p-b:shared-model')
+    expect(el.querySelector('[role="combobox"]')?.textContent).toContain('Gemini · gói Plus')
   })
 
   it('switch "Vẽ lại bằng nguồn khác khi lỗi" có tên truy cập', async () => {

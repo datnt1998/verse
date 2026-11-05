@@ -1,0 +1,50 @@
+{
+  "receipts": [
+    {
+      "scenario": "zero-base",
+      "httpStatus": 400,
+      "code": "invalid_request",
+      "limit": null,
+      "noPersistentMutation": true
+    },
+    {
+      "scenario": "missing-base",
+      "httpStatus": 404,
+      "code": "not_found",
+      "limit": null,
+      "noPersistentMutation": true
+    },
+    {
+      "scenario": "cancelled-base",
+      "httpStatus": 400,
+      "code": "invalid_request",
+      "limit": null,
+      "noPersistentMutation": true
+    },
+    {
+      "scenario": "live-flight",
+      "httpStatus": 409,
+      "code": "conflict",
+      "limit": null,
+      "noPersistentMutation": true
+    },
+    {
+      "scenario": "video-grok-inherited-refs",
+      "httpStatus": 422,
+      "code": "too_many_refs",
+      "limit": 1,
+      "noPersistentMutation": true
+    },
+    {
+      "scenario": "video-api-card-inherited-refs",
+      "httpStatus": 422,
+      "code": "too_many_refs",
+      "limit": 0,
+      "noPersistentMutation": true
+    }
+  ],
+  "replayRestored": true,
+  "originalSourceUnchanged": true,
+  "additionalProviderRequests": 0,
+  "fixturePolicy": "Explicit validation-domain fixtures on paused owned replay; no provider outcomes fabricated, no image generated."
+}

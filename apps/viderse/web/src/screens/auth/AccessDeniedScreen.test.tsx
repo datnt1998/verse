@@ -4,7 +4,8 @@
 // (logout thật, thoát cả hai app — không nút đổi tài khoản giấu phiên).
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { dismissConfirmations, dismissToasts } from '@noverse/ui'
 import { SessionProvider, useSession, type SessionState } from '../../api/session'
 import { AccessDeniedScreen } from './AccessDeniedScreen'
 import { t } from '../../i18n/all'
@@ -29,21 +30,31 @@ function Probe() {
 }
 
 const roots: Root[] = []
+const containers: HTMLElement[] = []
 async function render() {
   const container = document.createElement('div')
   document.body.append(container)
   const root = createRoot(container)
   roots.push(root)
+  containers.push(container)
   await act(async () => { root.render(<SessionProvider><Probe /><AccessDeniedScreen /></SessionProvider>) })
   return container
 }
 
 const buttonWithText = (container: HTMLElement, text: string) =>
   [...container.querySelectorAll('button')].find((b) => (b.textContent ?? '').includes(text))
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn().mockImplementation((query: string) => ({
+    matches: query.includes('prefers-reduced-motion'), media: query, onchange: null,
+    addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
+  })))
+})
+
 
 afterEach(async () => {
+  await act(async () => { dismissConfirmations(); dismissToasts() })
   for (const root of roots.splice(0)) await act(() => root.unmount())
-  document.body.replaceChildren()
+  for (const container of containers.splice(0)) container.remove()
   vi.unstubAllGlobals()
 })
 
@@ -93,17 +104,35 @@ describe('màn bị chặn quyền app', () => {
     expect(latest.user).toBeNull()
   })
 
-  it('Đăng xuất: POST /api/logout rồi dọn phiên UI về chưa đăng nhập', async () => {
+  it('Đăng xuất chỉ revoke sau xác nhận; huỷ giữ màn chặn và phiên hiện tại', async () => {
     const fn = stubFetch((path) => {
       if (path === '/api/me') return respond(deniedBody, 403)
       if (path === '/api/logout') return respond({ ok: true })
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    await act(async () => { buttonWithText(container, t.account.logout)!.click() })
-    expect(fn.mock.calls.some(([p]) => p === '/api/logout')).toBe(true)
-    expect(latest.user).toBeNull()
-    expect(latest.accessDenied).toBeNull()
+    await act(async () => { buttonWithText(container, t.account.logout)!.click(); await vi.dynamicImportSettled() })
+    expect(fn.mock.calls.some(([p]) => p === '/api/logout')).toBe(false)
+    let confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    await act(async () => { buttonWithText(confirmation, t.common.cancel)!.click() })
+    await vi.waitFor(async () => {
+      await act(async () => {})
+      expect(document.querySelector('[role="alertdialog"]')).toBeNull()
+      expect(buttonWithText(container, t.account.logout)?.disabled).toBe(false)
+    })
+    expect(fn.mock.calls.some(([p]) => p === '/api/logout')).toBe(false)
+    expect(latest.accessDenied?.username).toBe('linh')
+    await act(async () => { buttonWithText(container, t.account.logout)!.click(); await vi.dynamicImportSettled() })
+    confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    await act(async () => { buttonWithText(confirmation, t.account.logout)!.click() })
+    await vi.waitFor(async () => {
+      await act(async () => {})
+      expect(fn.mock.calls.filter(([p]) => p === '/api/logout')).toHaveLength(1)
+      expect(latest.user).toBeNull()
+      expect(latest.accessDenied).toBeNull()
+    })
   })
 
   it('Đăng xuất lỗi revoke → báo lỗi, giữ nguyên màn chặn (không báo giả đã thoát)', async () => {
@@ -113,8 +142,12 @@ describe('màn bị chặn quyền app', () => {
       throw new Error(`fetch lạ: ${path}`)
     })
     const container = await render()
-    await act(async () => { buttonWithText(container, t.account.logout)!.click() })
-    expect(container.textContent).toContain(t.account.logoutFailed)
+    await act(async () => { buttonWithText(container, t.account.logout)!.click(); await vi.dynamicImportSettled() })
+    const confirmation = document.querySelector<HTMLElement>('[role="alertdialog"]')!
+    expect(confirmation).not.toBeNull()
+    await act(async () => { buttonWithText(confirmation, t.account.logout)!.click() })
+    expect(confirmation.querySelector('[role="alert"]')?.textContent).toBe(t.account.logoutFailed)
+    expect(document.querySelector('[role="alertdialog"]')).toBe(confirmation)
     expect(latest.accessDenied?.username).toBe('linh')
   })
 })

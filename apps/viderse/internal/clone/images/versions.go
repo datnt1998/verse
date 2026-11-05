@@ -2,14 +2,12 @@ package images
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
-	"github.com/datnt1998/verse/apps/viderse/internal/clone/jobedit"
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/editor"
 	"github.com/datnt1998/verse/apps/viderse/internal/imagegen"
 	model "github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/images"
 	"github.com/datnt1998/verse/apps/viderse/internal/pipeline/steps/scenes"
@@ -53,6 +51,9 @@ func (s *Service) imagesView(ctx context.Context, l loaded, refLimit int) []Imag
 			used = *i.CurrentVersion
 		}
 		image := ImageView{ID: i.ID, Kind: kind, Index: index, Label: label, UsedVersion: used, NeedsReview: i.NeedsReview, Status: i.Status, RefLimit: refLimit, Versions: make([]ImageVersionView, 0, len(i.Versions))}
+		if displayed := model.Displayed(i); displayed != nil {
+			image.ScoreIssue = displayed.ScoreIssue
+		}
 		if i.InFlight != nil {
 			image.Status = "running"
 		}
@@ -74,7 +75,7 @@ func (s *Service) versionView(ctx context.Context, l loaded, item model.Item, v 
 			url = &value
 		}
 	}
-	parts := append([]model.PromptPart(nil), v.Parts...)
+	parts := append([]model.PromptPart{}, v.Parts...)
 	legacy := false
 	if len(parts) == 0 && v.Prompt != "" {
 		parts = []model.PromptPart{{Kind: model.PartScene, Text: v.Prompt, Source: model.PromptPartSource{Type: "artist", Label: "Bản cũ · chưa tách phần"}}}
@@ -113,11 +114,16 @@ func (s *Service) versionView(ctx context.Context, l loaded, item model.Item, v 
 	if started == "" {
 		started = v.CreatedAt
 	}
+	score := v.Score
+	if v.ScoreIssue != "" {
+		score = nil
+	}
 	return ImageVersionView{
 		N: v.Version, State: state, URL: url, PreviewURL: nil, Width: v.Width, Height: v.Height,
 		Parts: parts, Wrapper: v.Wrapper, SentText: v.Prompt, Refs: refs, Provider: provider, Model: modelName, Params: params,
 		Feedback: v.Feedback, DiffFromPrev: v.DiffFromPrev, StartedAt: started, FinishedAt: v.FinishedAt,
 		DurationSec: v.DurationSec, CostImages: v.CostImages, Error: v.VersionError, PartsLegacy: legacy,
+		ScoreIssue: v.ScoreIssue, Score: score,
 	}
 }
 
@@ -142,13 +148,16 @@ func (s *Service) quotaView(ctx context.Context) *QuotaView {
 }
 
 // refLimitFor trả trần ảnh tham chiếu của nguồn vẽ đang dùng cho video.
-func (s *Service) refLimitFor(ctx context.Context, provider string) int {
+func (s *Service) refLimitFor(ctx context.Context, provider string, overrides *model.Overrides) int {
+	if provider == "" && overrides != nil {
+		provider = overrides.DrawProvider
+	}
 	if s.RefLimits != nil {
-		if limit, ok := s.RefLimits(ctx, providerAlias(provider)); ok {
+		if limit, ok := s.RefLimits(ctx, provider); ok {
 			return limit
 		}
 	}
-	return imagegen.RefLimit(providerAlias(provider))
+	return imagegen.RefLimit(provider)
 }
 
 // RedrawVersions vẽ lại một hoặc nhiều ảnh với góp ý chung, phần prompt và ảnh
@@ -173,8 +182,12 @@ func (s *Service) RedrawVersions(ctx context.Context, id string, input RedrawVer
 		if imageID == "" || seen[imageID] {
 			continue
 		}
-		if _, ok := model.FindItem(l.manifest, imageID); !ok {
+		target, ok := model.FindItem(l.manifest, imageID)
+		if !ok {
 			return RedrawVersionsResult{}, cloneError(domain.CloneErrNotFound, "Không tìm thấy ảnh")
+		}
+		if target.InFlight != nil {
+			return RedrawVersionsResult{}, cloneError(domain.CloneErrConflict, "Ảnh đang vẽ — chờ xong hoặc huỷ lần vẽ trước")
 		}
 		seen[imageID] = true
 		ids = append(ids, imageID)
@@ -195,24 +208,36 @@ func (s *Service) RedrawVersions(ctx context.Context, id string, input RedrawVer
 	parts := model.PartOverrides{}
 	for kind, text := range input.Parts {
 		key := model.PromptPartKind(kind)
-		valid := false
-		for _, known := range model.PartOrder {
-			if known == key {
-				valid = true
-				break
-			}
-		}
-		if !valid {
+		if !slices.Contains(model.PartOrder, key) {
 			return RedrawVersionsResult{}, cloneError(domain.CloneErrInvalidRequest, "Phần prompt không hợp lệ")
 		}
 		parts[key] = text
 	}
-	limit := s.refLimitFor(ctx, provider)
+	baseRefCount := 0
+	if input.BaseVersion != nil {
+		if len(ids) != 1 {
+			return RedrawVersionsResult{}, cloneError(domain.CloneErrInvalidRequest, "Chỉ giữ bản nguồn khi vẽ lại một ảnh")
+		}
+		// Kiểm tra trước khi ghi manifest: bản nguồn phải còn dùng được, không
+		// bao giờ lặng lẽ quay về bản đang dùng.
+		probe, _ := model.FindItem(l.manifest, ids[0])
+		probe.Draft = &model.PromptDraft{SourceVersion: input.BaseVersion}
+		source, sourceErr := model.PromptSourceVersion(probe)
+		if sourceErr != nil {
+			return RedrawVersionsResult{}, sourceErr
+		}
+		baseRefCount = len(source.Refs)
+	}
+	limit := s.refLimitFor(ctx, provider, l.manifest.Overrides)
 	refs, err := s.resolveRefs(l, input.Refs)
 	if err != nil {
 		return RedrawVersionsResult{}, err
 	}
-	if len(refs) > limit {
+	effectiveRefCount := len(refs)
+	if input.Refs == nil && input.BaseVersion != nil {
+		effectiveRefCount = baseRefCount
+	}
+	if effectiveRefCount > limit {
 		return RedrawVersionsResult{}, &TooManyRefsError{Limit: limit}
 	}
 	feedback := strings.TrimSpace(input.Feedback)
@@ -222,10 +247,12 @@ func (s *Service) RedrawVersions(ctx context.Context, id string, input RedrawVer
 		if !seen[item.ID] {
 			continue
 		}
-		draft := &model.PromptDraft{Parts: parts, Feedback: feedback, Provider: provider, BaseStatus: item.Status}
+		draft := &model.PromptDraft{Parts: parts, Feedback: feedback, Provider: provider, SourceVersion: input.BaseVersion, BaseStatus: item.Status}
 		draft.Project = input.Project
 		if input.Refs != nil {
-			chosen := append([]model.ImageRef(nil), refs...)
+			// Giữ slice rỗng không nil: [] là "bỏ hết ảnh tham chiếu", khác với
+			// vắng mặt (giữ ảnh tham chiếu của bản nguồn).
+			chosen := append([]model.ImageRef{}, refs...)
 			draft.Refs = &chosen
 		}
 		item.Draft = draft
@@ -531,7 +558,3 @@ func editorProjectID(jobID string, generation int) string {
 
 // measureTimeout giới hạn lần đo lại Độ hoàn thiện sau khi thay ảnh.
 const measureTimeout = 30 * time.Second
-
-var _ = errors.Is
-var _ = editor.Object{}
-var _ = jobedit.Snapshot{}

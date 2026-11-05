@@ -31,7 +31,7 @@ beforeEach(async () => {
 afterEach(async () => { await act(async () => root.unmount()); el.remove(); vi.unstubAllGlobals() })
 it('sends only selected rewrite parts and reuses the selected history revision', async () => {
   await act(async () => root.render(<WorkbenchPanels job={job} onRefresh={() => {}} />))
-  await click('Nội dung'); await click('Viết lại'); await click('Mô tả'); await click('Tiêu đề'); await click('Viết lại 1 phần')
+  await click('Nội dung đăng'); await click('Viết lại'); await click('Mô tả'); await click('Tiêu đề'); await click('Viết lại 1 phần')
   expect(calls.find(x => x.path.endsWith('/rewrite'))?.body).toMatchObject({ parts: ['description'], expectedRevision: 3 })
   await click('Lịch sử'); await click('Dùng lại')
   expect(calls.find(x => x.path.endsWith('/restore'))?.body).toMatchObject({ at: '2026-01-01T00:00:00Z', expectedRevision: 4 })
@@ -40,7 +40,6 @@ it('sends only selected rewrite parts and reuses the selected history revision',
 })
 it('locks clips while building and updates coverage when removing one', async () => {
   await act(async () => root.render(<WorkbenchPanels job={{ ...job, activeStep: 'build' }} onRefresh={() => {}} />))
-  await click('Nền')
   expect(el.textContent).toContain('Kiểm định đang dựng video')
   expect(el.querySelector<HTMLButtonElement>('[aria-label="Bỏ clip 1"]')?.disabled).toBe(true)
   await act(async () => root.render(<WorkbenchPanels job={job} onRefresh={() => {}} />))

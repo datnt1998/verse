@@ -35,9 +35,8 @@ func planFixture(t *testing.T) (*queue.Service, *pgxpool.Pool) {
 	t.Cleanup(pool.Close)
 	ctx := context.Background()
 	for _, stmt := range []string{
-		`INSERT INTO owner_channels(id,name,pace_per_day) VALUES ('11111111-1111-4111-8111-111111111111','Kênh',1)`,
 		`INSERT INTO templates(id,name,recipe) VALUES ('aaaaaaaa-1111-4111-8111-111111111111','Mẫu', '{"scenes":{"images":{"mode":"fixed","count":6},"coverSource":"ai"}}')`,
-		`INSERT INTO owner_channel_templates(owner_channel_id,template_id,position) VALUES ('11111111-1111-4111-8111-111111111111','aaaaaaaa-1111-4111-8111-111111111111',0)`,
+		`INSERT INTO owner_channels(id,name,per_day,default_template_id) VALUES ('11111111-1111-4111-8111-111111111111','Kênh',1,'aaaaaaaa-1111-4111-8111-111111111111')`,
 		`INSERT INTO rival_channels(id,title,url,median_views) VALUES ('UCaaaaaaaaaaaaaaaaaaaaaa','Nguồn','https://youtube.com/channel/UCaaaaaaaaaaaaaaaaaaaaaa',100)`,
 		`INSERT INTO owner_channel_sources(owner_channel_id,rival_id) VALUES ('11111111-1111-4111-8111-111111111111','UCaaaaaaaaaaaaaaaaaaaaaa')`,
 		`INSERT INTO rival_videos(id,channel_id,title,position,origin,duration_sec,view_count,has_captions) VALUES ('aaaaaaaaaaa','UCaaaaaaaaaaaaaaaaaaaaaa','Video A',1,'discovery',120,200,true),('bbbbbbbbbbb','UCaaaaaaaaaaaaaaaaaaaaaa','Video B',2,'discovery',180,300,false)`,
@@ -64,10 +63,10 @@ func postPlan(t *testing.T, svc *queue.Service, urls []string) domain.ClonePlan 
 	}
 	return out
 }
-func TestPlanEndpointMultipleLinksUsesBatchPace(t *testing.T) {
+func TestPlanEndpointMultipleLinksUsesManualFront(t *testing.T) {
 	svc, _ := planFixture(t)
 	p := postPlan(t, svc, []string{"https://youtu.be/aaaaaaaaaaa", "https://www.youtube.com/watch?v=bbbbbbbbbbb"})
-	if len(p.Accepted) != 2 || p.Position != "back" || p.PaceLeftToday != 1 || p.OverflowDays != 1 {
+	if len(p.Accepted) != 2 || p.Position != "front" || p.PaceLeftToday != 1 || p.OverflowDays != 0 {
 		t.Fatalf("plan=%+v", p)
 	}
 	if p.ImageCalls != 16 || p.PriceUSD != nil {

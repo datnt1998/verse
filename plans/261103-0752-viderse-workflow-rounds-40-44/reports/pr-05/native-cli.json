@@ -1,0 +1,67 @@
+{
+  "proof": "ACTUAL_BINARY_CANONICAL_HTTP_DUPLICATE_RUN_AND_BATCH_NO_NEW_QUEUE_ROWS",
+  "cases": [
+    {
+      "command": "run",
+      "exitCode": 0,
+      "result": {
+        "items": [],
+        "duplicates": [
+          {
+            "url": "https://www.youtube.com/watch?v=V39qa000001",
+            "jobId": null,
+            "queueItemId": "3c117c4c-3412-4165-a910-39189df2d793",
+            "state": "queued",
+            "title": "QA V39 · video A · dữ liệu mẫu kiểm thử",
+            "thumbnailUrl": "https://i.ytimg.com/vi/V39qa000001/mqdefault.jpg",
+            "durationSec": 60,
+            "viewCount": 10000,
+            "hasCaptions": false,
+            "sourceChannelTitle": "Nguồn dữ liệu kiểm thử V39 · không phải kênh thật",
+            "publishedAt": "2026-11-05T14:41:34.785323+07:00",
+            "outlier": 10
+          }
+        ],
+        "invalid": []
+      }
+    },
+    {
+      "command": "batch",
+      "exitCode": 0,
+      "result": {
+        "items": [],
+        "duplicates": [
+          {
+            "url": "https://www.youtube.com/watch?v=V39qa000001",
+            "jobId": null,
+            "queueItemId": "3c117c4c-3412-4165-a910-39189df2d793",
+            "state": "queued",
+            "title": "QA V39 · video A · dữ liệu mẫu kiểm thử",
+            "thumbnailUrl": "https://i.ytimg.com/vi/V39qa000001/mqdefault.jpg",
+            "durationSec": 60,
+            "viewCount": 10000,
+            "hasCaptions": false,
+            "sourceChannelTitle": "Nguồn dữ liệu kiểm thử V39 · không phải kênh thật",
+            "publishedAt": "2026-11-05T14:41:34.785323+07:00",
+            "outlier": 10
+          },
+          {
+            "url": "https://www.youtube.com/watch?v=V39qa000004",
+            "jobId": null,
+            "queueItemId": "48638efe-4e05-4afe-a063-4d54d91d7374",
+            "state": "queued",
+            "title": "QA V39 · video D · dữ liệu mẫu kiểm thử",
+            "thumbnailUrl": "https://i.ytimg.com/vi/V39qa000004/mqdefault.jpg",
+            "durationSec": 60,
+            "viewCount": 16000,
+            "hasCaptions": false,
+            "sourceChannelTitle": "Nguồn dữ liệu kiểm thử V39 · không phải kênh thật",
+            "publishedAt": "2026-11-05T14:41:34.785323+07:00",
+            "outlier": 16
+          }
+        ],
+        "invalid": []
+      }
+    }
+  ]
+}

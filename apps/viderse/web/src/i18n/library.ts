@@ -6,7 +6,6 @@
 // chung tệp để vi.ts chỉ thêm một import và một khoá.
 import { base } from './vi'
 import { backdropCopy } from './backdrop'
-import { learnCopy } from './learn'
 import { shared } from './shared'
 
 const libraryTabs = {
@@ -39,23 +38,15 @@ const recipeFieldLabels: Record<string, string> = {
 
 export const libraryCopy = {
   title: 'Thư viện dùng chung',
+  /** H1 màn máy tính — board Library để "Thư viện"; điện thoại vẫn dùng `title`. */
+  heading: 'Thư viện',
   /** Tiêu đề tab trình duyệt — tên màn ngắn, không kèm "dùng chung". */
   titleShort: shared.libraryTitle,
   subtitle: (channels: number) => channels > 0
-    ? `Dùng chung cho cả ${channels} kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.`
-    : 'Thư viện dùng chung cho mọi kênh. Sửa ở đây thì mọi kênh đang dùng đổi theo.',
-  subtitleEmpty: 'Chưa có kênh nào. Tạo kênh rồi chọn mẫu video, chỉ dẫn ảnh ở đó.',
-  sideAria: 'Kênh và thư viện',
+    ? `Dùng chung cho cả ${channels} kênh: mẫu video, prompt ảnh, video nền, lớp phủ. Sửa ở đây thì mọi video bắt đầu sau đó dùng bản mới.`
+    : 'Thư viện dùng chung cho mọi kênh: mẫu video, prompt ảnh, video nền, lớp phủ. Sửa ở đây thì mọi video bắt đầu sau đó dùng bản mới.',
+  subtitleEmpty: 'Chưa có kênh nào. Tạo kênh rồi chọn mẫu video, prompt ảnh ở đó.',
   backdropsPending: 'Phần Video nền đang được dựng.',
-  sideChannels: 'Kênh của tôi',
-  machineReady: 'Máy sẵn sàng',
-  machineCapacity: (available: number, total: number) => `Máy sẵn sàng · ${available}/${total} luồng`,
-  machineBusy: (running: number, queued: number) => `${running} đang chạy · ${queued} chờ lượt`,
-  /** Nhịp chạy hôm nay của một kênh (dòng phụ cột kênh). */
-  channelToday: (done: number, cap: number) => `Hôm nay ${done}/${cap}`,
-  waitingAria: 'Có video chờ bạn',
-  sideLibrary: 'Thư viện dùng chung',
-  createChannel: 'Tạo kênh',
   tabAria: 'Thư viện',
   tabs: libraryTabs,
   loadFail: 'Không tải được thư viện. Thử lại.',
@@ -75,22 +66,22 @@ export const libraryCopy = {
   // ── Tab Template ───────────────────────────────────────────────────────────
   templates: {
     aria: 'Mẫu video',
-    intro: 'Mỗi kênh lấy lần lượt các mẫu video trong danh sách luân phiên của kênh. Mẫu video cần sửa được bỏ qua tới khi sửa xong.',
+    intro: 'Mỗi kênh có một mẫu video mặc định, đổi ở Kênh › Template. Hộp Làm video cho chọn mẫu video khác cho từng video. Mẫu video cần sửa thì video dùng nó dừng ở bước dựng tới khi sửa xong.',
     newTemplate: 'Mẫu video mới',
     emptyTitle: 'Chưa có mẫu video nào',
     emptyHint: 'Mẫu video gom cách ghép ảnh, chỉ dẫn ảnh và nền video. Tạo một cái trước rồi gắn vào kênh.',
+    artworkAlt: (name: string) => `Ảnh mẫu minh hoạ của chỉ dẫn ${name}, không phải bản xem thử đã dựng`,
+    artworkMissing: 'Chưa có ảnh mẫu minh hoạ',
     open: 'Mở',
     openFix: 'Mở để sửa',
     exportAria: (name: string) => `Xuất tệp mẫu video ${name}`,
     duplicateAria: (name: string) => `Nhân bản mẫu video ${name}`,
     menuAria: (name: string) => `Thêm thao tác cho ${name}`,
     rename: 'Đổi tên',
-    addToChannel: 'Thêm vào kênh…',
-    deleteItem: 'Xoá mẫu video',
-    deleteReason: (names: string[]) => names.length === 1
-      ? `Đang dùng ở ${names[0]}. Bỏ khỏi kênh trước rồi xoá.`
-      : `Đang dùng ở ${names.length} kênh. Bỏ khỏi kênh trước rồi xoá.`,
-    noChannelsReason: 'Chưa có kênh nào. Tạo kênh trước rồi thêm mẫu video.',
+    addToChannel: 'Đặt làm mặc định cho kênh…',
+    deleteItem: 'Xoá',
+    deleteReason: (names: string[]) => `Đang là mẫu video mặc định của ${names.join(', ')}. Đổi mẫu video mặc định ở Kênh › Template trước rồi xoá.`,
+    noChannelsReason: 'Chưa có kênh nào. Tạo kênh trước rồi đặt mẫu video làm mặc định.',
     healthOk: 'Ổn',
     healthFix: 'Cần sửa · thiếu clip nền',
     style: {
@@ -109,7 +100,7 @@ export const libraryCopy = {
       return parts.join(' · ')
     },
     overlays: (n: number) => (n === 1 ? '1 lớp phủ' : `${n} lớp phủ`),
-    usedText: (names: string[]) => (names.length ? `Dùng ở ${names.join(', ')}` : 'Chưa kênh nào dùng'),
+    usedText: (names: string[]) => (names.length ? `Mặc định của ${names.join(', ')}` : 'Chưa kênh nào dùng làm mặc định'),
     editedToday: (time: string) => `sửa ${time}`,
     editedDate: (date: string) => `sửa ${date}`,
     createTitle: 'Mẫu video mới',
@@ -121,13 +112,15 @@ export const libraryCopy = {
     renameEmpty: 'Tên mẫu video không được để trống.',
     renamed: 'Đã đổi tên mẫu video.',
     duplicated: 'Đã nhân bản mẫu video.',
+    exported: 'Đã tải tệp mẫu video.',
+    exportFail: 'Chưa xuất được tệp mẫu video — thử lại.',
     deleted: 'Đã xoá mẫu video.',
     deleteTitle: (name: string) => `Xoá mẫu video “${name}”?`,
     deleteBody: 'Mẫu video biến khỏi thư viện. Chỉ dẫn ảnh và video nền dùng chung không bị xoá.',
-    attachTitle: 'Thêm vào kênh',
-    attachBody: 'Mẫu video được chọn trong danh sách luân phiên của kênh. Mở tab Mẫu video của kênh để thêm.',
+    attachTitle: 'Đặt làm mặc định cho kênh',
+    attachBody: 'Chọn kênh để mở Kênh › Template rồi chọn mẫu video này làm mặc định.',
     attachGo: (name: string) => `Mở ${name}`,
-    attachEmpty: 'Chưa có kênh nào để thêm mẫu video.',
+    attachEmpty: 'Chưa có kênh nào để đặt mẫu video mặc định.',
     nameTaken: 'Tên này đã có mẫu video khác dùng.',
     importTemplate: 'Nhập mẫu video',
     importTitle: 'Nhập mẫu video cũ',
@@ -147,7 +140,7 @@ export const libraryCopy = {
     importCancelled: 'Đã huỷ',
     importProgress: (done: number, total: number) => `Đang nhập ${done} / ${total} tệp…`,
     importSummary: (imported: number, failed: number) => failed === 0
-      ? `Đã nhập ${imported} mẫu video. Mẫu video mới nằm đầu danh sách, chưa kênh nào dùng.`
+      ? `Đã nhập ${imported} mẫu video. Mẫu video mới nằm đầu danh sách, chưa là mặc định của kênh nào.`
       : `Đã nhập ${imported} mẫu video, ${failed} tệp chưa nhập được.`,
     importCancelSummary: (imported: number, pending: number) => `Đã nhập ${imported} mẫu video, huỷ ${pending} tệp chưa nhập.`,
     importItemOk: 'Đã nhập',
@@ -198,6 +191,7 @@ export const libraryCopy = {
     newTileTitle: 'Chỉ dẫn mới',
     newTileHint: 'Viết chỉ dẫn mới, hoặc nhân bản một chỉ dẫn có sẵn rồi sửa.',
     emptyFiltered: 'Không có chỉ dẫn nào khớp bộ lọc và chữ tìm.',
+    notFound: 'Không tìm thấy chỉ dẫn này. Có thể nó đã bị xoá. Chọn lại một chỉ dẫn trong thư viện.',
     clearSearch: 'Xoá tìm',
     composition: {
       clean: 'Ảnh sạch',
@@ -300,6 +294,7 @@ export const libraryCopy = {
       inUseKind: (names: string[]) => `Không đổi được loại chỉ dẫn khi mẫu video còn dùng. Đang dùng ở ${names.join(', ')}.`,
       builtReadonly: 'Chỉ dẫn có sẵn của Viderse không sửa và không xoá được. Nhân bản để có bản của bạn rồi sửa.',
       duplicateFail: 'Chưa nhân bản được chỉ dẫn. Thử lại.',
+      duplicated: 'Đã nhân bản chỉ dẫn.',
       backAria: 'Về danh sách chỉ dẫn',
     },
   },
@@ -356,13 +351,12 @@ export const libraryCopy = {
     deleteBody: 'Mẫu video biến khỏi thư viện. Chỉ dẫn ảnh, lớp phủ và video nền dùng chung không bị xoá.',
     deleteAction: 'Xoá mẫu video',
     deleteBlockedTitle: 'Chưa xoá được',
-    deleteBlockedReason: (names: string[]) => `Đang dùng ở ${names.length === 1 ? names[0] : `${names.length} kênh`}. Bỏ khỏi kênh trước rồi xoá.`,
     moreAria: 'Thêm thao tác cho mẫu video',
     openEditor: 'Mở trong Biên tập',
     healthOkChip: 'Ổn',
     healthWarnChip: 'Thiếu clip nền',
-    channelsChip: (count: number) => `Dùng ở ${count} kênh`,
-    noChannelsChip: 'Chưa vào kênh',
+    channelsChip: (count: number) => `Mặc định của ${count} kênh`,
+    noChannelsChip: 'Chưa kênh nào dùng làm mặc định',
 
     healthTitle: 'Sức khoẻ mẫu video',
     backdropHelp: 'Nguồn video nền cho ảnh cảnh, và lớp hiệu ứng phủ lên toàn video.',
@@ -529,7 +523,7 @@ export const libraryCopy = {
 
     output: {
       title: 'Xuất & kênh',
-      help: 'Cách xuất video, kênh nào dùng mẫu video này, và bố cục chỉnh trong Biên tập.',
+      help: 'Cách xuất video, kênh nào dùng mẫu video này làm mặc định, và bố cục chỉnh trong Biên tập.',
       compressTitle: 'Nén video sau khi xuất',
       compressed: {
         title: 'Nén',
@@ -541,26 +535,27 @@ export const libraryCopy = {
         size: '≈ 400 MB',
         note: 'khoảng 10 MB mỗi phút · nét hơn, xuất nhanh hơn ~1/4',
       },
-      usersTitle: 'Kênh dùng mẫu video này',
-      usersPosition: (n: string) => `Thứ ${n} trong danh sách luân phiên của kênh`,
-      usersAdd: 'Thêm vào kênh',
-      usersRemove: 'Bỏ khỏi kênh',
-      usersRemoveFail: 'Chưa bỏ được mẫu video khỏi kênh. Thử lại.',
-      usersEmpty: 'Chưa kênh nào dùng. Mở tab Mẫu video của kênh để thêm.',
-      usersNote: 'Mỗi kênh lấy lần lượt các mẫu video trong danh sách luân phiên. Đổi thứ tự ở tab Mẫu video của kênh.',
+      usersTitle: 'Kênh dùng làm mặc định',
+      usersAdd: 'Đặt làm mặc định cho kênh…',
+      usersAddMobile: 'Đặt cho kênh khác',
+      usersGo: 'Đổi ở Kênh',
+      usersDefaultRow: 'Mẫu video mặc định',
+      usersEmpty: 'Chưa kênh nào dùng làm mặc định.',
+      usersNote: 'Mỗi kênh có một mẫu video mặc định, đổi ở Kênh › Template. Hộp Làm video cho chọn mẫu video khác cho từng video.',
+      usersSum: (channels: number) => channels > 0
+        ? `mặc định của ${channels} kênh`
+        : 'chưa là mặc định của kênh nào',
       layoutTitle: 'Bố cục',
       layoutChips: ['Phụ đề karaoke', 'Sóng giọng', 'Subscribe đầu và cuối', 'Chuyển cảnh mờ', 'Âm lượng −14 LUFS'] as const,
       layoutHelp: 'Biên tập chỉ dùng để chỉnh vị trí, cỡ chữ và lớp. Mọi cài đặt khác nằm ở trang này.',
+      layoutHelpMobile: 'Chỉnh vị trí, cỡ chữ trong Biên tập trên máy tính.',
       layoutEdit: 'Mở trong Biên tập',
       fileTitle: 'Tệp mẫu video',
       exportFile: 'Xuất tệp',
       exportHelp: 'Gói .ytf-template.zip giữ nguyên project và media; nhập lại trên máy khác bằng Thêm vào thư viện.',
       deleteTitle: 'Xoá mẫu video',
-      deleteReason: (names: string[]) => names.length === 1
-        ? `Đang dùng ở ${names[0]}. Bỏ khỏi kênh trước rồi xoá.`
-        : `Đang dùng ở ${names.length} kênh. Bỏ khỏi cả ${names.length} kênh trước rồi xoá.`,
-      deleteFree: 'Chưa kênh nào dùng nên xoá được.',
-      deleteLocked: 'Chưa xoá được',
+      deleteReason: (names: string[]) => `Đang là mẫu video mặc định của ${names.join(', ')}. Đổi mẫu video mặc định ở Kênh › Template trước rồi xoá.`,
+      deleteFree: 'Chưa kênh nào dùng làm mặc định nên xoá được.',
     },
   },
 
@@ -571,7 +566,7 @@ export const libraryCopy = {
     subtitle: (channels: number) => `Dùng chung cho cả ${channels} kênh`,
     subtitleEmpty: 'Chưa có kênh nào dùng',
     addAria: 'Thêm vào thư viện',
-    templatesHelp: 'Mỗi kênh lấy lần lượt các mẫu video trong danh sách luân phiên. Mẫu video cần sửa được bỏ qua tới khi sửa xong.',
+    templatesHelp: 'Mỗi kênh có một mẫu video mặc định, đổi ở Kênh › Template. Mẫu video cần sửa thì video dùng nó dừng ở bước dựng tới khi sửa xong.',
     templateEmptyText: 'Mẫu video ghép chỉ dẫn ảnh, video nền và lớp phủ thành cách làm một video. Tạo mới hoặc nhập bản xuất từ máy khác.',
     openTemplateAria: (name: string) => `Mở ${name}`,
     templateMenuAria: (name: string) => `Thao tác với ${name}`,
@@ -592,9 +587,10 @@ export const libraryCopy = {
     editTemplate: 'Sửa mẫu video',
     exportFile: 'Xuất tệp mẫu video',
     deleteTemplate: 'Xoá mẫu video',
-    deleteHintBusy: (channels: number) => `Đang dùng ở ${channels} kênh · bỏ khỏi kênh trước`,
-    deleteHintFree: 'Không kênh nào dùng',
-    attachHint: (names: string[]) => `Đang dùng ở ${names.join(', ')}`,
+    deleteHintBusy: (names: string[]) => `Đang là mặc định của ${names.join(', ')} · đổi ở Kênh trước`,
+    deleteHintFree: 'Không kênh nào dùng làm mặc định',
+    attachHint: (names: string[]) => `Đang là mặc định của ${names.join(', ')}`,
+    attachUnused: 'Chưa kênh nào dùng làm mặc định',
 
     // Tấm thêm vào thư viện
     addSheetTitle: 'Thêm vào thư viện',
@@ -606,15 +602,15 @@ export const libraryCopy = {
     backTemplate: 'Quay lại Thư viện',
     backSection: (name: string) => `Quay lại ${name}`,
     templateSub: (health: string, used: string, saved: string) => `${health} · ${used} · ${saved}`,
-    usedChannels: (channels: number) => `dùng ở ${channels} kênh`,
-    noChannels: 'chưa vào kênh',
+    usedChannels: (channels: number) => `mặc định của ${channels} kênh`,
+    noChannels: 'chưa kênh nào dùng làm mặc định',
     savedAt: (time: string) => `đã lưu ${time}`,
     settingsTitle: 'Cài đặt',
     sectionSub: {
       images: (place: string, prompt: string, images: string) => `${place} · ${prompt} · ${images}`,
       backdrop: (sources: string, overlays: string) => overlays ? `${sources} · ${overlays}` : sources,
-      output: (compress: string, channels: number) => `${compress} · ${channels} kênh dùng`,
-      outputNoChannels: (compress: string) => `${compress} · chưa vào kênh`,
+      output: (compress: string, channels: number) => `${compress} · mặc định của ${channels} kênh`,
+      outputNoChannels: (compress: string) => `${compress} · chưa làm mặc định`,
     },
     readiness: {
       title: 'Sẵn sàng làm video',
@@ -640,4 +636,4 @@ export const libraryCopy = {
 } as const
 
 /** `t` của màn Thư viện: chữ khung app + Thư viện + Video nền + Prompt ảnh. */
-export const t = { ...base, library: libraryCopy, backdrop: backdropCopy, learn: learnCopy } as const
+export const t = { ...base, library: libraryCopy, backdrop: backdropCopy } as const

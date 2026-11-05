@@ -90,37 +90,37 @@ func (q *Queries) CountRivalVideos(ctx context.Context, arg CountRivalVideosPara
 	return column_1, err
 }
 
-const listAutoPickBaselines = `-- name: ListAutoPickBaselines :many
-SELECT s.owner_channel_id, c.name, c.auto_pick, s.rival_id, s.auto_baseline_at
+const listAutoFetchBaselines = `-- name: ListAutoFetchBaselines :many
+SELECT s.owner_channel_id, c.name, c.auto_fetch, s.rival_id, s.auto_baseline_at
 FROM owner_channel_sources s
 JOIN owner_channels c ON c.id = s.owner_channel_id
 WHERE s.auto_baseline_at IS NOT NULL
 ORDER BY s.owner_channel_id, s.rival_id
 `
 
-type ListAutoPickBaselinesRow struct {
+type ListAutoFetchBaselinesRow struct {
 	OwnerChannelID pgtype.UUID        `json:"owner_channel_id"`
 	Name           string             `json:"name"`
-	AutoPick       bool               `json:"auto_pick"`
+	AutoFetch      bool               `json:"auto_fetch"`
 	RivalID        string             `json:"rival_id"`
 	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
 }
 
 // Mốc bật Tự lấy của từng cặp (kênh của bạn, đối thủ) — dùng cho dòng giải
 // thích "Tự lấy chưa lấy video này" khi video đăng trước mốc.
-func (q *Queries) ListAutoPickBaselines(ctx context.Context) ([]ListAutoPickBaselinesRow, error) {
-	rows, err := q.db.Query(ctx, listAutoPickBaselines)
+func (q *Queries) ListAutoFetchBaselines(ctx context.Context) ([]ListAutoFetchBaselinesRow, error) {
+	rows, err := q.db.Query(ctx, listAutoFetchBaselines)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListAutoPickBaselinesRow{}
+	items := []ListAutoFetchBaselinesRow{}
 	for rows.Next() {
-		var i ListAutoPickBaselinesRow
+		var i ListAutoFetchBaselinesRow
 		if err := rows.Scan(
 			&i.OwnerChannelID,
 			&i.Name,
-			&i.AutoPick,
+			&i.AutoFetch,
 			&i.RivalID,
 			&i.AutoBaselineAt,
 		); err != nil {

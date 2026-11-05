@@ -1,0 +1,58 @@
+*** Begin Patch
+[/Users/dat/Projects/verse/apps/viderse/web/src/styles/viderse.stylex.ts#9927]
+PUT >256:
++  tplSectionMaxWidth: "860px",
+[/Users/dat/Projects/verse/apps/viderse/web/src/screens/channel/channel.stylex.ts#87CF]
+PUT 307.=308:
++  tplSection: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-14'], paddingTop: space['--vv-s-14'], maxWidth: channelLayout.tplSectionMaxWidth },
++  tplCard: { display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: space['--vv-s-14'], alignItems: 'center', padding: 'var(--vv-s-14)', borderRadius: corners['--vv-r-14'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], backgroundColor: color['--color-surface-5'], boxShadow: surface['--card-shadow'] },
+PUT 311.=311:
++  tplCardText: { flex: `1 1 ${space['--vv-s-280']}`, minWidth: 0, display: 'flex', flexDirection: 'column', gap: space['--vv-s-4'] },
+[/Users/dat/Projects/verse/apps/viderse/web/src/screens/channel/CreateStep.tsx#8ABB]
+PUT 12.=12:
++import { ResponsiveActionMenu, ResponsiveSelect } from '../../components/responsive-overlays'
+PUT >453:
++  const selectedTemplate = options.find((option) => option.value === (templateId ?? ''))
+PUT <461:
++      {mobile ? (
++        <div {...stylex.props(mch.runCol)}>
++          <ResponsiveActionMenu
++            label={tt.chooseTpl}
++            triggerStyle={mch.tplSelectM}
++            trigger={<>
++              <Icon name="layer" xstyle={mch.tplLeadIconM} />
++              <span {...stylex.props(mch.runText)}>
++                <span {...stylex.props(mch.runLabel)}>{tt.template}</span>
++                <span {...stylex.props(mch.tplSelectedM)}>{selectedTemplate?.label ?? tt.chooseTpl}</span>
++                {selectedTemplate?.description && <span {...stylex.props(mch.runSub, mch.tplWrapM)}>{selectedTemplate.description}</span>}
++              </span>
++              {loading && <Spinner size={12} />}
++              <Icon name="arrow-r" xstyle={mch.tplChevronM} />
++            </>}
++            items={options.map((option) => ({
++              id: option.value,
++              label: option.label,
++              description: option.description,
++              selected: option.value === (templateId ?? ''),
++              onSelect: () => onTemplateId(option.value || null),
++            }))}
++          />
++        </div>
++      ) : (
+PUT 472.=472:
++            triggerStyle={channelStyles.tplRowSelect}
+PUT >478:
++      )}
+[/Users/dat/Projects/verse/apps/viderse/web/src/screens/channel/mobile/mchannel.stylex.ts#4A35]
+PUT 6.=6:
++import { corners, space as s, typography } from '../../../styles/viderse.stylex'
+PUT 644.=644:
++  tplSelectM: { display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: s['--vv-s-12'], width: '100%', minWidth: 0, height: 'auto', minHeight: s['--vv-s-48'], padding: 0, borderRadius: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg'], fontFamily: 'inherit', textAlign: 'left', cursor: 'pointer' },
++  tplLeadIconM: { width: s['--vv-s-18'], height: s['--vv-s-18'], color: 'var(--vv-fg-note)' },
++  tplSelectedM: { fontSize: typography['--vv-fs-detail'], color: color['--color-fg-2'], lineHeight: 1.4, whiteSpace: 'normal', overflowWrap: 'anywhere' },
++  tplWrapM: { whiteSpace: 'normal', overflowWrap: 'anywhere' },
++  tplChevronM: { width: s['--vv-s-16'], height: s['--vv-s-16'], color: 'var(--vv-fg-note)' },
+[/Users/dat/Projects/verse/apps/viderse/web/src/screens/channel/IdentityBlock.tsx#5921]
+CUT 216.=222 @bannerChrome
+PUT >237 @bannerChrome
+*** End Patch

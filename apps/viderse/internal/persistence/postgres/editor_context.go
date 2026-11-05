@@ -462,7 +462,7 @@ func (r *EditorRepository) DeleteProjectPolicy(ctx context.Context, id string) e
 		return err
 	}
 	var channel string
-	err = db.QueryRow(ctx, `SELECT c.name FROM owner_channel_templates linked JOIN owner_channels c ON c.id=linked.owner_channel_id WHERE linked.template_id::text=ANY($1::text[]) ORDER BY c.id LIMIT 1`, templates).Scan(&channel)
+	err = db.QueryRow(ctx, `SELECT c.name FROM owner_channels c WHERE c.default_template_id::text=ANY($1::text[]) ORDER BY c.id LIMIT 1`, templates).Scan(&channel)
 	if err == nil {
 		return &editor.Error{Code: "conflict", Message: "Project đang là template của kênh " + channel + " — bỏ template trước", Extra: editor.Object{"templateOfChannel": channel}}
 	}

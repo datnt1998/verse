@@ -1,0 +1,64 @@
+{
+  "sourceJob": "3225b629-51c8-4f81-8456-9ecacde664ac",
+  "policy": "Owned saved-state replay: real steps/artifacts + real already-published media bytes; no provider call, no renderer, no invented quality/provenance/output. Queue pause is exercised and restored by the test.",
+  "ownedJobIds": {
+    "done": "47ca0273-163a-4a09-a974-d5ca436baff6",
+    "review": "0382f81a-ad20-49e3-9d04-e93e80c05b84",
+    "issue": "17a45bc2-d97b-48cb-8628-344ca664ba05",
+    "quality": "8e47bb53-4baa-41c8-96f5-ef61646c7526",
+    "paused": "7b9bde98-49d7-48c1-9d6e-8c3d790fdcbc",
+    "metaPending": "613db438-ec7c-4c49-8001-aea0788a1ba9",
+    "metaWriting": "abc70671-bb17-4dad-b024-b79b0100dd52",
+    "metaFailed": "b50d19ce-ca78-4972-9f70-591f9360db1a",
+    "metaEdited": "aa41a27f-8840-464e-b7fa-ce13f0fbde43",
+    "images": "0520c307-68c2-40cd-b592-6a17d50ecf0b",
+    "imagesReduced": "ed253d5a-fab9-4783-85bc-b6990326e7e2",
+    "render": "b6e602ed-0bd9-4939-b1c1-07675bbb4531"
+  },
+  "phases": {
+    "static": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T14:21:43.173Z",
+        "duration": 37286.297,
+        "expected": 10,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    },
+    "working": {
+      "exit": 0,
+      "stats": {
+        "startTime": "2026-11-04T14:22:21.253Z",
+        "duration": 37743.51,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      }
+    }
+  },
+  "uniqueSourceMediaObjects": 80,
+  "sourceArtifactsBytes": 6507174,
+  "sourceUnchanged": true,
+  "originalEditorProjectUnchanged": true,
+  "imageReceiptsUnchanged": true,
+  "originalMediaBindingsUnchanged": true,
+  "backdropLibraryUnchanged": true,
+  "queuePauseRestored": true,
+  "noOwnedRowsOrFiles": true,
+  "allOtherCloneRowsRestored": true,
+  "remnants": {
+    "jobs": 0,
+    "artifacts": 0,
+    "steps": 0,
+    "media": 0,
+    "files": 0
+  },
+  "playwrightProjects": [
+    "desktop",
+    "desktop-reduced"
+  ],
+  "errors": []
+}

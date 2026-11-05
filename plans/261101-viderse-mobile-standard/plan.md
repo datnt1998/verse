@@ -48,8 +48,9 @@ Mọi màn điện thoại Viderse (< 768 px) khớp artboard `apps/viderse/docs
 
 ## Kết quả triển khai
 
-- Noverse server/worker đã triển khai `541c088a`, public entry `index-BRE816z1.js`; Viderse đã triển khai `ac352770`, public entry `index-BuCmsTN2.js`. Hai ứng dụng dùng chung sửa keyboard/viewport và safe-area; chưa kiểm bàn phím Safari trên iPhone thật.
+- Noverse server/worker đã triển khai `541c088a`, public entry `index-BRE816z1.js`; Viderse đã triển khai `a61dc0d0`, public entry `index-DKpzOEm5.js`. Hai ứng dụng dùng chung sửa keyboard/viewport và safe-area; chưa kiểm bàn phím Safari trên iPhone thật.
 - Native mobile cuối: 253/253 kiểm tra tại 360/390/430 và hai bộ inset; motion 23 mẫu gồm Segmented 320 ms và reduced-motion 0. Không lỗi JavaScript hay tràn ngang trong smoke public.
 - Avatar thumbnail mobile đã sửa overflow: smoke public với ảnh thật tại 360/390/430 xác nhận badge nhìn thấy ngoài cạnh trái/dưới, ảnh giữ bo góc 8 px; desktop 1280/1440 vẫn nhìn thấy avatar.
 - Cách đọc Noverse đã kiểm trên production với 25 giọng từ worker thật: đổi chế độ, lưu/đọc lại giọng từng vai và quay lại không lưu đều qua; truyện QA riêng đã xoá. Chỉ thay cấu hình trong fixture, không phát sinh job tạo giọng.
+- Icon lịch/phễu trong chip lọc đã dùng slot icon của UIKit thay vì inline trong prefix. Đo production trước/sau: lệch lên 2,375 px → lệch tâm 0 px; mobile 360/390/430 và PC 1280/1440 đều qua hit-test, dropdown, đổi lựa chọn và Escape.
 - Biên bản PC, giới hạn dữ liệu và các lỗi người dùng báo tiếp được theo dõi riêng tại [kế hoạch desktop](../261102-viderse-desktop-artboard-parity/plan.md); hoàn thành đợt mobile không khẳng định mọi trạng thái trả phí hay mọi thiết bị vật lý đã được kiểm.

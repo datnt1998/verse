@@ -1,0 +1,16 @@
+{
+  "cwd": "/Users/dat/Projects/verse",
+  "revision": "c34cd512002af842ba48532adcc66f026038e51f",
+  "commands": [
+    { "command": "go build -o <private-run-root>/workflow-qa ./apps/viderse/cmd/workflow-qa", "exitCode": 0, "scope": "temporary fixture helper, removed after successful pipeline proof" },
+    { "command": "<private-run-root>/workflow-qa (isolated environment, ephemeral password not logged)", "exitCode": 0, "observedSummary": "WORKFLOW_QA_READY channels=3 jobs=3", "note": "Earlier encoder/format failures retained in baseline report; only owned QA DBs recreated" },
+    { "command": "go build -o <private-run-root>/viderse ./apps/viderse/cmd/viderse", "exitCode": 0 },
+    { "command": "node tests/viderse-workflow/artboard-state-manifest.mjs", "exitCode": 0, "observedSummary": "480 rows, 12 probes, 28 stateful boards" },
+    { "command": "node tests/viderse-workflow/artboard-state-manifest.mjs --check", "exitCode": 0, "observedSummary": "OK (480 rows, 12 probes)", "scope": "after final contexts/framing; source input changes require regeneration/check" },
+    { "command": "WORKFLOW_REVISION=<revision> WORKFLOW_QA_FIXTURE=<private fixture.json> WORKFLOW_QA_COOKIE_FILE=<private cookies.json> PW_BROWSER_BINARY=<installed Chrome for Testing> node tests/viderse-workflow/capture-baseline.mjs app", "exitCode": 0, "observedSummary": "captured=28 failed=0 apiErrors=4 unexpectedApiErrors=0", "scope": "real headless Playwright fresh profile, context per board, no route interception" },
+    { "command": "WORKFLOW_REVISION=<revision> PW_BROWSER_BINARY=<installed Chrome for Testing> node tests/viderse-workflow/capture-baseline.mjs reference", "exitCode": 0, "observedSummary": "captured=480 failed=0 apiErrors=0", "scope": "defaults + context + patch, prop readback, 13 framed rows; no artboard file edits" },
+    { "command": "capture runner guard smoke (four negative scenarios, isolated outputs)", "observedSummary": "4/4 expected rejections: filtered canonical overwrite, missing revision, repo cookie path, production origin; canonical app receipt hash unchanged", "evidence": "guard-smoke.json" }
+  ],
+  "notRun": ["full-control Playwright interaction audit", "all dependency combinations and numeric/text probes", "full normal/reduced-motion suite", "real Safari device keyboard/dock verification", "product feature acceptance", "production deployment"],
+  "productAcceptance": false
+}

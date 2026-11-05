@@ -1,0 +1,20 @@
+{
+  "baseCommit": "a7341d37db67e7cfafdb8035818f700820a11594",
+  "proposedSourceTree": "0c55f3c46d6c13b1a841e86e4e20a384876c4882",
+  "verification": "Fresh scoped git archive of proposed source; actual node_modules linked; npm run typecheck -w apps/viderse/web",
+  "typecheckExitObserved": 0,
+  "productionBuildObserved": true,
+  "productionBuildInput": "Reviewed route propagation, sample cancellation/Escape, confirmation lazy-load feedback, quality-gate classification, shared logout confirmation and canonical activity-toast text overflow; whole generated dist staged together",
+  "embeddedSmoke": {
+    "logoutCancel": "runs/30-reviewed-embedded-logout-native-setup-exit/interaction-results.json: 4/4 passed before the subsequent toast-only CSS correction",
+    "actualExhaustedQuota": "runs/31-real-exhausted-quota/interaction-results.json: 4/4 passed, real usage2 and QA cap2, no provider image writes",
+    "productionChunkFailureAndToastGeometry": "runs/35-production-toast-no-overlap/interaction-results.json: 4/4 passed on current embedded build, real failed lazy JS request, live session retained, native reload recovery and unobscured action"
+  },
+  "frontendSuites": {"vidersePassed": 3720, "viderseSkipped": 4, "noversePassed": 1894, "sharedKitPassed": 261, "failed": 0},
+  "phoneBudget": {"initialJSKiB": 202.7, "maximumKiB": 200, "passed": false, "deferredByApprovedQuestion": 83},
+  "entryBudget": {"entryJSKiB": 141.7, "maximumKiB": 150, "passed": true},
+  "cssBudget": {"initialCSSKiB": 34.7, "maximumKiB": 40, "passed": true},
+  "committed": false,
+  "ordinaryIndexModified": false,
+  "hostedActionsEnabled": false
+}

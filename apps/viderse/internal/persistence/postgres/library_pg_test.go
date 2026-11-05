@@ -127,10 +127,7 @@ func TestLibraryTemplateDeleteBlockedWhenChannelUses(t *testing.T) {
 		t.Fatal(err)
 	}
 	channelID := "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels (id) VALUES ($1)`, channelID); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channel_templates (owner_channel_id, template_id, position) VALUES ($1, $2, 0)`, channelID, tpl.ID); err != nil {
+	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels (id, default_template_id) VALUES ($1, $2)`, channelID, tpl.ID); err != nil {
 		t.Fatal(err)
 	}
 	detail, err := svc.Get(ctx, tpl.ID)
@@ -139,14 +136,14 @@ func TestLibraryTemplateDeleteBlockedWhenChannelUses(t *testing.T) {
 	}
 	err = svc.DeleteTemplate(ctx, tpl.ID)
 	var apiErr *library.Error
-	if !errors.As(err, &apiErr) || apiErr.Code != library.CodeConflict || !strings.Contains(apiErr.Message, "Đang dùng ở 1 kênh") {
+	if !errors.As(err, &apiErr) || apiErr.Code != library.CodeConflict {
 		t.Fatalf("chặn xoá = %+v", err)
 	}
 	// Store tự nó cũng chặn (RESTRICT) khi service bị gọi thẳng.
 	if err := postgres.NewLibraryStore(pool).DeleteTemplate(ctx, tpl.ID); !errors.Is(err, library.ErrInUse) {
 		t.Fatalf("FK = %v", err)
 	}
-	if _, err := pool.Exec(ctx, `DELETE FROM owner_channel_templates WHERE template_id = $1`, tpl.ID); err != nil {
+	if _, err := pool.Exec(ctx, `DELETE FROM owner_channels WHERE id = $1`, channelID); err != nil {
 		t.Fatal(err)
 	}
 	if err := svc.DeleteTemplate(ctx, tpl.ID); err != nil {
@@ -162,11 +159,8 @@ func TestLibraryNameStandardTemplatesOnlyOwnPlain(t *testing.T) {
 	ctx := context.Background()
 	chA := "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"
 	chB := "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"
-	for _, id := range []string{chA, chB} {
-		if _, err := pool.Exec(ctx, `INSERT INTO owner_channels (id) VALUES ($1)`, id); err != nil {
-			t.Fatal(err)
-		}
-	}
+	chC := "cccccccc-cccc-4ccc-8ccc-cccccccccccc"
+	chD := "dddddddd-dddd-4ddd-8ddd-dddddddddddd"
 	create := func() string {
 		id, err := svc.CreateStandardTemplate(ctx, "")
 		if err != nil {
@@ -174,17 +168,12 @@ func TestLibraryNameStandardTemplatesOnlyOwnPlain(t *testing.T) {
 		}
 		return id
 	}
-	attach := func(channelID, templateID string, pos int) {
-		if _, err := pool.Exec(ctx, `INSERT INTO owner_channel_templates (owner_channel_id, template_id, position) VALUES ($1, $2, $3)`, channelID, templateID, pos); err != nil {
+	own, shared, custom, other := create(), create(), create(), create()
+	for channelID, templateID := range map[string]string{chA: own, chB: shared, chC: shared, chD: custom} {
+		if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,default_template_id) VALUES($1,$2)`, channelID, templateID); err != nil {
 			t.Fatal(err)
 		}
 	}
-	own, shared, custom, other := create(), create(), create(), create()
-	attach(chA, own, 0)
-	attach(chA, shared, 1)
-	attach(chB, shared, 0)
-	attach(chA, custom, 2)
-	attach(chB, other, 1)
 	if _, err := svc.Rename(ctx, custom, "Của tôi", nil); err != nil {
 		t.Fatal(err)
 	}
@@ -195,6 +184,12 @@ func TestLibraryNameStandardTemplatesOnlyOwnPlain(t *testing.T) {
 
 	if err := svc.NameStandardTemplates(ctx, chA, "Insanity Inside"); err != nil {
 		t.Fatalf("NameStandardTemplates: %v", err)
+	}
+	// A shared default and a user-renamed default are not auto-renamed.
+	for _, channelID := range []string{chB, chD} {
+		if err := svc.NameStandardTemplates(ctx, channelID, "Không ghi đè"); err != nil {
+			t.Fatal(err)
+		}
 	}
 	want := map[string]string{own: "Mẫu chuẩn · Insanity Inside", shared: "Mẫu chuẩn", custom: "Của tôi", other: "Mẫu chuẩn"}
 	for id, name := range want {

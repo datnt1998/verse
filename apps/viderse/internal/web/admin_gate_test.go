@@ -38,8 +38,6 @@ func TestMachineAdminOnlyRoutes(t *testing.T) {
 		{http.MethodGet, "/api/platforms/youtube/login/profiles"},
 		{http.MethodPost, "/api/platforms/bilibili/login/qr"},
 		{http.MethodGet, "/api/platforms/bilibili/login/qr/key"},
-		{http.MethodPut, "/api/youtube/data-key"},
-		{http.MethodDelete, "/api/youtube/data-key"},
 		{http.MethodPost, "/api/tools/check"},
 		{http.MethodPost, "/api/tools/ytdlp/install"},
 		{http.MethodPost, "/api/tools/ytdlp/cancel"},
@@ -64,13 +62,12 @@ func TestMachineAdminOnlyRoutes(t *testing.T) {
 		{http.MethodGet, "/api/ai/agents"},
 		{http.MethodGet, "/api/platforms"},
 		{http.MethodPost, "/api/platforms/requests"},
-		{http.MethodGet, "/api/youtube/data-key"},
 		{http.MethodGet, "/api/tools"},
 		{http.MethodGet, "/api/tools/logs"},
 		{http.MethodGet, "/api/setup/state"},
 		{http.MethodGet, "/api/storage/server"},
 		{http.MethodGet, "/api/notifications/settings"},
-		{http.MethodPost, "/api/clone/enqueue"},
+		{http.MethodPost, "/api/jobs"},
 	}
 	for _, c := range open {
 		if machineAdminOnly(c.method, c.path) {
@@ -135,7 +132,6 @@ func TestGatewayGateStopsMemberBeforeAnyHandler(t *testing.T) {
 	routes := []struct{ method, path string }{
 		{http.MethodPut, "/api/platforms/youtube/login"},
 		{http.MethodGet, "/api/platforms/youtube/login/profiles"},
-		{http.MethodPut, "/api/youtube/data-key"},
 		{http.MethodPost, "/api/tools/ytdlp/install"},
 		{http.MethodPost, "/api/setup/start"},
 		{http.MethodPost, "/api/storage/cleanup/run"},
