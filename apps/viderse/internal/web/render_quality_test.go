@@ -17,6 +17,9 @@ func (j qualityJobs) GetJob(context.Context, string) (*domain.CloneJob, error) {
 func (j qualityJobs) ListSteps(context.Context, string) ([]domain.CloneStepRecord, error) {
 	return nil, nil
 }
+func (j qualityJobs) ListArtifacts(context.Context, string) ([]domain.CloneArtifact, error) {
+	return nil, nil
+}
 
 // Nút "Vẫn xuất" của đồng hồ Độ hoàn thiện đặt lại/đặt ý định chủ duyệt:
 // POST /api/clone/:id/quality {accept}. Trước đây client gọi action không tồn tại.
