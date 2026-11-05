@@ -1,6 +1,6 @@
 # V40 — Bàn dựng, Duyệt và Cài đặt điện thoại
 
-Trạng thái: source đã kiểm tới `24bf453d`; #91/#92 đã được người dùng chốt A và triển khai. Chưa ký đầy đủ, chưa merge hoặc deploy; giữ gate Safari iPhone thật theo#93. V39 đã merge PR#6 (`9ad1effc`).
+Trạng thái UI: đã kiểm tới `24bf453d`; forward-port backend ở `776195e6` có Go checks qua, không thay UI assets. #91/#92 đã chốt A và triển khai. Gói UI V40 chưa ký đầy đủ/chưa merge/chưa deploy; giữ Safari iPhone thật#93. V39 merge PR#6 (`9ad1effc`). Hotfix backend riêng: [PR#9](https://github.com/datnt1998/verse/pull/9) sửa scoped-loopback, [PR#10](https://github.com/datnt1998/verse/pull/10) sửa tra cứu artifact ảnh; không mở gate UI.
 
 ## Bảng màn → đã sửa / còn lệch
 
@@ -35,3 +35,12 @@ Trạng thái: source đã kiểm tới `24bf453d`; #91/#92 đã được ngư�
 - Native Undo: desktop chuyển route trước Hoàn tác vẫn khôi phục; mobile action44px. [Ảnh PC](native-undo-1440.png), [ảnh mobile](native-undo-390.png).
 - Native Tools: POST probe và GET readback thật trên PC/mobile, toast kết quả; không cài/tải công cụ. [Ảnh PC](native-tools-1440.png), [ảnh mobile](native-tools-390.png).
 - Ledger QA cuối vẫn3job/27step/2receipt; không gọi provider hoặc sinh ảnh mới.
+
+## Hotfix production độc lập với V40
+- Bản chạy production `401d1b45` giữ Chrome headless và preflight HTTP loopback; chỉ nhánh token-scoped render/measure nhận exact origin đã bind từ raw loopback peer, không proxy metadata. PUBLIC_URL/SSO/editor policy giữ nguyên. UI production byte-identical; không migrate hoặc triển khai UI V40.
+- [Provenance](source-provenance.json) ghi SHA binary/assets và bằng chứng vnode đang chạy khớp file đã cài. Không dùng file SHA hoặc ready xanh để suy ra process đã đổi image.
+- [Trạng thái kiểm](verification-state.json) sở hữu kết quả recovery; không lấy claim/PCM đang chạy làm bằng chứng score/export đã hoàn tất.
+- Public-origin workaround đã claim nhưng attempt10 timeout ở426.240.000B. Cùng9.216.000B PCM: public36.327,88ms, loopback53,479ms. Không tăng timeout hoặc chạy lại bước AI. Scoped regression trước sửa403/sau sửa qua; full web/cmd và scoped race qua. Production render suite gặp test15ms sai loại hang khi chạy song song; exact isolated test qua, không nới test.
+- Tuyến phục hồi và rollback thuộc [deployment guide](../../../../apps/viderse/deploy/README.md), không mở origin/token toàn app hay bỏ kiểm workspace. Rollout cuối đã xác minh PID38806/inode2809657 trùng binary mới; local/public ready200 và SHA UI cũ khớp.
+- Bước đo thật hoàn tất1.298.188.800B trong khoảng20giây. Lỗi75/100 sau đó là thiếu catalog artifact trung gian, không mất ảnh: render.Inputs nay đọc catalog đúngjob, output hiện hành ưu tiên, relative path khớp hoàn toàn, ambiguity lỗi và vẫn hash bytes. Regression Inputs→filesystem→ComputeScore/tamper/isolation/precedence + race qua; full production/integration render/web/cmd qua.
+- Recovery cuối score attempt12 đạt100/100, không override (`accepted=false`), reuse measurement hợp lệ; export attempt1 đã claim/render thật2223/101421frames. [Receipt](production-video-recovery.json). Đây là bằng chứng gỡ kẹt, **không phải file MP4 đã xuất xong**. Không lặp các bước AI đã thành công.

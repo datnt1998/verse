@@ -1,0 +1,522 @@
+{
+  "jobId": "22b0b3c8-9821-426f-96fa-2f75aa74b054",
+  "firstCause": "Hosted origin guard rejected direct loopback Chrome claim",
+  "publicWorkaround": {
+    "attempt": 10,
+    "bytesReceived": 426240000,
+    "outcome": "existing10minute timeout"
+  },
+  "transportBenchmark": {
+    "bytes": 9216000,
+    "publicMs": 36327.88,
+    "loopbackMs": 53.479
+  },
+  "scopedLoopback": {
+    "source": "a851730e892112f2a37c926e721b0e25c0048643",
+    "sha256": "a1b2f63b2ee29268e9ae708ef2cd5574f4cf50b54cbbba08b19ff5a7c4d35871",
+    "mappedImage": {
+      "pid": 36336,
+      "inode": 2803786,
+      "sha": "a1b2f63b2ee29268e9ae708ef2cd5574f4cf50b54cbbba08b19ff5a7c4d35871",
+      "mappedMatchesInstalled": true
+    },
+    "measurement": {
+      "id": "4c3c27f1-f592-4e86-91e8-4b486c9fe96b",
+      "status": "measured",
+      "createdAt": "2026-11-05T15:43:25.753804Z",
+      "claimedAt": "2026-11-05T15:43:29.474674Z",
+      "heartbeatAt": "",
+      "bytesReceived": 1298188800,
+      "lastChunkSeq": null,
+      "finishedAt": "2026-11-05T15:43:49.763443Z",
+      "error": null
+    },
+    "qualityBeforeArtifactFix": {
+      "version": 1,
+      "total": 75,
+      "passed": false,
+      "items": [
+        {
+          "id": "duration",
+          "status": "pass",
+          "points": 15,
+          "weight": 15,
+          "measured": {
+            "outputSec": 3380.7,
+            "ratio": 0.9999997042033589,
+            "sourceSec": 3380.701
+          },
+          "expected": "±10% so với nguồn",
+          "evidence": "3380.70s / 3380.70s"
+        },
+        {
+          "id": "sceneCount",
+          "status": "pass",
+          "points": 10,
+          "weight": 10,
+          "measured": {
+            "items": 5,
+            "scenes": 5
+          },
+          "expected": "5 cảnh",
+          "evidence": "5 clip ảnh trên dòng thời gian"
+        },
+        {
+          "id": "cutRhythm",
+          "status": "pass",
+          "points": 15,
+          "weight": 15,
+          "measured": {
+            "mismatches": []
+          },
+          "expected": "mép clip khớp boundary ≤ 3f",
+          "evidence": "5 boundary khớp",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-scene-sc-000"
+          }
+        },
+        {
+          "id": "background",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "evidence": "Template không có vai trò Nền video — không yêu cầu nền"
+        },
+        {
+          "id": "images",
+          "status": "fail",
+          "points": 0,
+          "weight": 20,
+          "measured": {
+            "total": 5,
+            "verified": 0
+          },
+          "expected": "5 ảnh WebP đã duyệt, đúng kích thước, trên dòng thời gian",
+          "evidence": "ảnh sc-000 thiếu file; ảnh sc-001 thiếu file; ảnh sc-002 thiếu file",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-scene-sc-000"
+          }
+        },
+        {
+          "id": "captions",
+          "status": "pass",
+          "points": 20,
+          "weight": 20,
+          "measured": {
+            "firstGapSec": null,
+            "gapCount": 0,
+            "gaps": [],
+            "ranges": [],
+            "speechIntervals": 1275
+          },
+          "expected": "Mọi lúc đang nói có phụ đề hiển thị",
+          "evidence": "1275 khoảng có lời đều có phụ đề",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions"
+          }
+        },
+        {
+          "id": "captionAlignment",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "measured": {
+            "matchedRatio": 0.9692307692307692,
+            "medianMs": 6.666666666744277,
+            "p95Ms": 13.333333333488554,
+            "karaokeRatio": 0.9055390702274976,
+            "worst": [
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 79702,
+                "deltaMs": 1493.3333333334886,
+                "text": ">> \"No, Michael.\" She said, her voice"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 60484,
+                "deltaMs": 1493.3333333332557,
+                "text": ">> He stood up signaling the end"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 78573,
+                "deltaMs": 1480,
+                "text": "have thrown her out on the street."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 84903,
+                "deltaMs": 1480,
+                "text": "strategist and a leader."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 67701,
+                "deltaMs": 1480,
+                "text": "But unlike her old life, it energized"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 21990,
+                "deltaMs": 1460,
+                "text": ">> He was dissecting her reaction, judging"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 37470,
+                "deltaMs": 1460,
+                "text": "company. Not just a company, an empire."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 90599,
+                "deltaMs": 1446.6666666665114,
+                "text": "And I am offering the position to"
+              }
+            ],
+            "ranges": []
+          },
+          "expected": "Khớp ≥60% · median ≤120 ms · p95 ≤250 ms",
+          "evidence": "Phụ đề khớp tiếng: 97% · median 6.666666666744277 ms · p95 13.333333333488554 ms",
+          "fix": {
+            "href": "/clone/22b0b3c8-9821-426f-96fa-2f75aa74b054#captions"
+          }
+        },
+        {
+          "id": "captionKaraoke",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "measured": {
+            "karaokeRatio": 0.9055390702274976
+          },
+          "expected": "Thông tin: ≥90% trang có mốc thật",
+          "evidence": "91% trang karaoke · không chặn xuất"
+        },
+        {
+          "id": "loudness",
+          "status": "pass",
+          "points": 10,
+          "weight": 10,
+          "measured": {
+            "lufs": -14,
+            "sourceLufs": -14.2,
+            "targetLufs": -14
+          },
+          "expected": "-14.0±1 LUFS (mục tiêu template)",
+          "evidence": "-14.0 LUFS so với -14.0 LUFS mục tiêu (layout engine)",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-audio"
+          }
+        },
+        {
+          "id": "resolution1080p",
+          "status": "pass",
+          "points": 5,
+          "weight": 5,
+          "measured": {
+            "fps": 30,
+            "height": 1080,
+            "progressive": true,
+            "width": 1920
+          },
+          "expected": "1920×1080 · 30 fps · progressive",
+          "evidence": "1920×1080 · 30 fps"
+        },
+        {
+          "id": "thumbnail",
+          "status": "fail",
+          "points": 0,
+          "weight": 5,
+          "measured": {
+            "height": 720,
+            "sha256": "30820cfe41cc2d69a122b67b12948db5029478254c14a55ec91004e909322482",
+            "width": 1280
+          },
+          "expected": "WebP đã duyệt 1280×720",
+          "evidence": "Thumbnail sai kích thước/hash",
+          "fix": {
+            "href": "/clone"
+          }
+        }
+      ],
+      "blockers": [
+        {
+          "id": "images",
+          "message": "Ảnh cảnh chưa đủ: ảnh sc-000 thiếu file",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-scene-sc-000"
+          }
+        },
+        {
+          "id": "thumbnail",
+          "message": "Thumbnail chưa được duyệt đúng WebP 1280×720",
+          "fix": {
+            "href": "/clone"
+          }
+        }
+      ],
+      "binding": {
+        "projectRevision": "sha256:782fb6b8440707352e1fe2d24a7c40a5cf52f83b1e5d33cbe5892245cb60f29b",
+        "settingsHash": "sha256:adcebb7f1ad60fc309d7acd7e577758814e969e7849c16d1c09f01cce14ee69b",
+        "artifactHash": "sha256:3f9530f5d3dd918029744e9ff214017917ba42a06dbee1161136eced3c71d82b"
+      },
+      "measurementId": "4c3c27f1-f592-4e86-91e8-4b486c9fe96b",
+      "measuredAt": "2026-11-05T15:43:50.146795Z",
+      "generation": 1
+    }
+  },
+  "secondCause": "Approved relative image version paths absent from upstream Output.Artifacts; durable job artifact catalog not loaded by render.Inputs",
+  "paidStepsRepeated": false,
+  "qualityBypassed": false,
+  "artifactFix": {
+    "source": "401d1b4585b8e243874acd23dc7d877a3fbfaec3",
+    "sha256": "6d0db4018bb0b61ee3c2fa91e2bb24cc01c9005b1273ac7a74ffdf338af3dd0e",
+    "mappedImage": {
+      "pid": 38806,
+      "inode": 2809657,
+      "sha": "6d0db4018bb0b61ee3c2fa91e2bb24cc01c9005b1273ac7a74ffdf338af3dd0e",
+      "mappedMatchesInstalled": true
+    },
+    "score": {
+      "version": 1,
+      "total": 100,
+      "passed": true,
+      "items": [
+        {
+          "id": "duration",
+          "status": "pass",
+          "points": 15,
+          "weight": 15,
+          "measured": {
+            "outputSec": 3380.7,
+            "ratio": 0.9999997042033589,
+            "sourceSec": 3380.701
+          },
+          "expected": "±10% so với nguồn",
+          "evidence": "3380.70s / 3380.70s"
+        },
+        {
+          "id": "sceneCount",
+          "status": "pass",
+          "points": 10,
+          "weight": 10,
+          "measured": {
+            "items": 5,
+            "scenes": 5
+          },
+          "expected": "5 cảnh",
+          "evidence": "5 clip ảnh trên dòng thời gian"
+        },
+        {
+          "id": "cutRhythm",
+          "status": "pass",
+          "points": 15,
+          "weight": 15,
+          "measured": {
+            "mismatches": []
+          },
+          "expected": "mép clip khớp boundary ≤ 3f",
+          "evidence": "5 boundary khớp",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-scene-sc-000"
+          }
+        },
+        {
+          "id": "background",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "evidence": "Template không có vai trò Nền video — không yêu cầu nền"
+        },
+        {
+          "id": "images",
+          "status": "pass",
+          "points": 20,
+          "weight": 20,
+          "measured": {
+            "total": 5,
+            "verified": 5
+          },
+          "expected": "5 ảnh WebP đã duyệt, đúng kích thước, trên dòng thời gian",
+          "evidence": "5/5 ảnh đúng",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-scene-sc-000"
+          }
+        },
+        {
+          "id": "captions",
+          "status": "pass",
+          "points": 20,
+          "weight": 20,
+          "measured": {
+            "firstGapSec": null,
+            "gapCount": 0,
+            "gaps": [],
+            "ranges": [],
+            "speechIntervals": 1275
+          },
+          "expected": "Mọi lúc đang nói có phụ đề hiển thị",
+          "evidence": "1275 khoảng có lời đều có phụ đề",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions"
+          }
+        },
+        {
+          "id": "captionAlignment",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "measured": {
+            "matchedRatio": 0.9692307692307692,
+            "medianMs": 6.666666666744277,
+            "p95Ms": 13.333333333488554,
+            "karaokeRatio": 0.9055390702274976,
+            "worst": [
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 79702,
+                "deltaMs": 1493.3333333334886,
+                "text": ">> \"No, Michael.\" She said, her voice"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 60484,
+                "deltaMs": 1493.3333333332557,
+                "text": ">> He stood up signaling the end"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 78573,
+                "deltaMs": 1480,
+                "text": "have thrown her out on the street."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 84903,
+                "deltaMs": 1480,
+                "text": "strategist and a leader."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 67701,
+                "deltaMs": 1480,
+                "text": "But unlike her old life, it energized"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 21990,
+                "deltaMs": 1460,
+                "text": ">> He was dissecting her reaction, judging"
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 37470,
+                "deltaMs": 1460,
+                "text": "company. Not just a company, an empire."
+              },
+              {
+                "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-captions",
+                "frame": 90599,
+                "deltaMs": 1446.6666666665114,
+                "text": "And I am offering the position to"
+              }
+            ],
+            "ranges": []
+          },
+          "expected": "Khớp ≥60% · median ≤120 ms · p95 ≤250 ms",
+          "evidence": "Phụ đề khớp tiếng: 97% · median 6.666666666744277 ms · p95 13.333333333488554 ms",
+          "fix": {
+            "href": "/clone/22b0b3c8-9821-426f-96fa-2f75aa74b054#captions"
+          }
+        },
+        {
+          "id": "captionKaraoke",
+          "status": "pass",
+          "points": 0,
+          "weight": 0,
+          "measured": {
+            "karaokeRatio": 0.9055390702274976
+          },
+          "expected": "Thông tin: ≥90% trang có mốc thật",
+          "evidence": "91% trang karaoke · không chặn xuất"
+        },
+        {
+          "id": "loudness",
+          "status": "pass",
+          "points": 10,
+          "weight": 10,
+          "measured": {
+            "lufs": -14,
+            "sourceLufs": -14.2,
+            "targetLufs": -14
+          },
+          "expected": "-14.0±1 LUFS (mục tiêu template)",
+          "evidence": "-14.0 LUFS so với -14.0 LUFS mục tiêu (layout engine)",
+          "fix": {
+            "itemId": "clone-22b0b3c8-9821-426f-96fa-2f75aa74b054-g1-audio"
+          }
+        },
+        {
+          "id": "resolution1080p",
+          "status": "pass",
+          "points": 5,
+          "weight": 5,
+          "measured": {
+            "fps": 30,
+            "height": 1080,
+            "progressive": true,
+            "width": 1920
+          },
+          "expected": "1920×1080 · 30 fps · progressive",
+          "evidence": "1920×1080 · 30 fps"
+        },
+        {
+          "id": "thumbnail",
+          "status": "pass",
+          "points": 5,
+          "weight": 5,
+          "measured": {
+            "height": 720,
+            "sha256": "30820cfe41cc2d69a122b67b12948db5029478254c14a55ec91004e909322482",
+            "width": 1280
+          },
+          "expected": "WebP đã duyệt 1280×720",
+          "evidence": "Thumbnail đúng hash hiện hành",
+          "fix": {
+            "href": "/clone"
+          }
+        }
+      ],
+      "blockers": [],
+      "binding": {
+        "projectRevision": "sha256:782fb6b8440707352e1fe2d24a7c40a5cf52f83b1e5d33cbe5892245cb60f29b",
+        "settingsHash": "sha256:adcebb7f1ad60fc309d7acd7e577758814e969e7849c16d1c09f01cce14ee69b",
+        "artifactHash": "sha256:3f9530f5d3dd918029744e9ff214017917ba42a06dbee1161136eced3c71d82b"
+      },
+      "measurementId": "4c3c27f1-f592-4e86-91e8-4b486c9fe96b",
+      "measuredAt": "2026-11-05T15:52:35.753494Z",
+      "generation": 1
+    },
+    "acceptedAt": null,
+    "exportObserved": [
+      {
+        "id": "0c744ba6-1476-4cc8-bcbd-7139b3922d40",
+        "status": "running",
+        "claimedAt": "2026-11-05T15:52:38.38315Z",
+        "finishedAt": "",
+        "progress": {
+          "phase": "rendering",
+          "framesDone": 1658,
+          "framesTotal": 101421,
+          "bytesSent": null,
+          "bytesTotal": null
+        },
+        "error": null
+      }
+    ],
+    "exportCompleteClaimed": false,
+    "tests": "Exact production and actual integration render/web/cmd PASS; scoped/catalog race PASS; behavior and tamper/isolation/ambiguity/precedence PASS"
+  }
+}

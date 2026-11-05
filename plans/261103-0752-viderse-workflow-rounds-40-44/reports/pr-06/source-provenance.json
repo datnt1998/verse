@@ -1,6 +1,7 @@
 {
-  "sourceCommit": "24bf453d757d56c1353d3f533c5da066a40cbe53",
+  "sourceCommit": "776195e651fe1c00befbc4ed87827c2ba064a6bc",
   "nativeBinarySHA256": "44ead0f6fd33b4c48cc85269a5b68ea16aa3529abd5496d0d6cd1916d1b6c7b3",
+  "nativeBinaryQualifier": "UI acceptance binary from24bf453d, before backend incident patches; final production backend binary recorded separately below",
   "files": {
     "apps/viderse/web/src/api/rivals.ts": "16cf87bf48f6c60d3cdc2bd822027bed46ad86c6e8d1228567e919614f3ed131",
     "apps/viderse/web/src/components/autonomy/ScoreParts.tsx": "7284093e1ed5e681e78f2e981652003f742b0398888ee2163276b1d657569d1f",
@@ -42,12 +43,37 @@
     "platform/ui/src/Button.tsx": "8025e08b6d8649eb96dec633740b41c1ca2aa39137266fd5d62b38e5c597eebd",
     "platform/ui/src/tokens.stylex.ts": "29f2db964396a9dcf7f8a4b79b62e3693d9e6a6ba03f968392bad3d6d104ebcd",
     "platform/ui/tokens.css": "4fb28fec022a0fe7cd2ca197c30b9fac8ed47c6cbfa928e5e98944adaa5e8b52",
-    "platform/ui/tokens.json": "a4d3d8c17b9ff3c2a25939738e404fd76a2bc0f9775ba8676aa0b7a022d64154"
+    "platform/ui/tokens.json": "a4d3d8c17b9ff3c2a25939738e404fd76a2bc0f9775ba8676aa0b7a022d64154",
+    "apps/viderse/cmd/viderse/serve.go": "d7efb9477339ddfe3579e85bd7e196cd5c32c1f2d90e9ff9274a56b8b65a5f10",
+    "apps/viderse/cmd/viderse/clone_wiring.go": "1dfe82422d52da1bdad2ddb671536f8732ba0a661e58b7499fbf9fc0909b4ab4",
+    "apps/viderse/cmd/viderse/render_wiring.go": "4e7ae6a11d65f2ea4b2e00535bd0e8617494b77a5b8c13f48d43fda02909b672",
+    "apps/viderse/internal/render/service.go": "96e375e4d68af9dfa937f085583c00bc75f114582b44c035b4bb4eb715a6568c",
+    "apps/viderse/internal/web/gateway.go": "54a6a355dc13316d1b80aa2d3b440595b375a0c2e47f742de954b05cb6dc13fd",
+    "apps/viderse/internal/web/render.go": "a5c27e8b57059838d0337ac728fcdf6f54134f0513118c237a35c85367bf0719",
+    "apps/viderse/internal/web/render_loopback_origin_test.go": "32d4d085569914febdb8126d69c524551076a514d77b67390fc298b551b0b7ea"
   },
   "removed": [
     "apps/viderse/web/src/components/reason/ReasonPopover.tsx"
   ],
   "ledger": "3|27|2",
   "authSourceSHAUnchanged": true,
-  "userModelSHAUnchanged": true
+  "userModelSHAUnchanged": true,
+  "productionBackendHotfix": {
+    "commit": "401d1b4585b8e243874acd23dc7d877a3fbfaec3",
+    "binarySHA256": "6d0db4018bb0b61ee3c2fa91e2bb24cc01c9005b1273ac7a74ffdf338af3dd0e",
+    "UIIndexSHA256": "8ceee8209f554c0b602f7018211da938f629426546e5d9c4daea7239eb929d7e",
+    "UIUnchanged": true,
+    "schemaMigrated": false,
+    "mappedExecutable": {
+      "pidAtVerification": 38806,
+      "inode": 2809657,
+      "matchesInstalled": true
+    },
+    "priorMappedImageMismatch": {
+      "pid": 27313,
+      "mappedInode": 2789700,
+      "installedInode": 2794178
+    },
+    "scope": "Separate production origin incident; PR7 UI not released"
+  }
 }
