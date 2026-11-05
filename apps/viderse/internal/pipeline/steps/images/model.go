@@ -48,7 +48,8 @@ type Version struct {
 	Source            string            `json:"source,omitempty"`
 	Cutout            *scenes.FileRef   `json:"cutout,omitempty"`
 	// Score là điểm Kiểm định của ảnh này (07 §20); nil khi chưa chấm được.
-	Score *domain.ImageScore `json:"score,omitempty"`
+	Score      *domain.ImageScore `json:"score,omitempty"`
+	ScoreIssue string             `json:"scoreIssue,omitempty"`
 
 	// Các trường của 07 §26: đúng những gì đã gửi nhà cung cấp cho lần vẽ này.
 	// Bản cũ không có chúng; Prompt khi đó chính là nguyên văn đã gửi.

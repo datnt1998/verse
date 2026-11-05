@@ -51,9 +51,11 @@ type ClonePlanInvalid struct {
 	Reason string `json:"reason"`
 }
 type ClonePlanTemplate struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	FromRotation bool   `json:"fromRotation"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	// FromDefault: template này là default hiện tại của kênh (không phải client
+	// chỉ định). Default thật vẫn được chốt lại trong admission transaction.
+	FromDefault bool `json:"fromDefault"`
 }
 type ClonePlan struct {
 	Accepted      []ClonePlanAccepted  `json:"accepted"`

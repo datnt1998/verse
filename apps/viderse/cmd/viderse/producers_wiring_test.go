@@ -199,7 +199,11 @@ func TestProducerPublicationRollback(t *testing.T) {
 	t.Run("identity", func(t *testing.T) {
 		cs := postgres.NewChannelStore(f.pool)
 		id := "20000000-0000-4000-8000-000000000001"
-		if _, err := cs.CreateChannel(ctx, channels.CreateInput{ID: id, Name: "Before", Language: domain.LangVI, PacePerDay: 5}); err != nil {
+		template, err := library.New(library.Deps{Store: postgres.NewLibraryStore(f.pool), Media: f.media}).Create(ctx, "Mẫu kiểm thử nhận diện")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := cs.CreateChannel(ctx, channels.CreateInput{ID: id, Name: "Before", Language: domain.LangVI, PerDay: 5, DefaultTemplateID: template.ID}); err != nil {
 			t.Fatal(err)
 		}
 		token := "30000000-0000-4000-8000-000000000001"
@@ -207,7 +211,7 @@ func TestProducerPublicationRollback(t *testing.T) {
 			t.Fatalf("lease: %v %v", ok, err)
 		}
 		logical := "channels/" + id + "/40000000-0000-4000-8000-000000000001-avatar.png"
-		err := f.media.Publish(ctx, []media.Artifact{producerArtifact(t, logical, data)}, func(txctx context.Context) error {
+		err = f.media.Publish(ctx, []media.Artifact{producerArtifact(t, logical, data)}, func(txctx context.Context) error {
 			ok, err := cs.PublishIdentity(txctx, channels.PublishInput{ChannelID: id, Token: token, Name: "After", ExpectedName: "Before", AvatarPath: logical})
 			if err != nil {
 				return err
@@ -370,7 +374,11 @@ func testProducerBackendColdCacheHTTP(t *testing.T, driver string) {
 
 	cs := postgres.NewChannelStore(f.pool)
 	id := "50000000-0000-4000-8000-000000000001"
-	if _, err := cs.CreateChannel(ctx, channels.CreateInput{ID: id, Name: "Channel", Language: domain.LangVI, PacePerDay: 5}); err != nil {
+	template, err := lib.Create(ctx, "Mẫu kiểm thử công bố")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := cs.CreateChannel(ctx, channels.CreateInput{ID: id, Name: "Channel", Language: domain.LangVI, PerDay: 5, DefaultTemplateID: template.ID}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := f.pool.Exec(ctx, `UPDATE owner_channels SET branding='{"brief":"brief","look":"look","avatar":"avatar","banner":"banner"}'::jsonb WHERE id=$1`, id); err != nil {

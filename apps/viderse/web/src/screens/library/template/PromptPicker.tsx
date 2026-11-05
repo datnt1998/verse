@@ -83,7 +83,7 @@ export function PromptPicker({ kind, prompts, value, onSelect, usedLabel, mobile
           <div className={`vt-pick-detail-head ${stylex.props(sx.pickDetailHead).className}`}>
             <strong>{selected.name}</strong>
             {selected.composition && <span className={`vt-chip ${stylex.props(sx.chip).className}`}>{t.library.prompts.composition[selected.composition]}</span>}
-            <a className={`vt-link ${stylex.props(sx.link).className}`} href={`#/library?tab=prompts&prompt=${selected.builtIn ? 'builtin' : 'mine'}`}>
+            <a className={`vt-link ${stylex.props(sx.link).className}`} href={`#${paths.library('prompts', selected.builtIn ? 'builtin' : 'mine', { promptId: selected.id })}`}>
               {copy.promptEdit} <span aria-hidden="true">›</span>
             </a>
           </div>
@@ -93,7 +93,7 @@ export function PromptPicker({ kind, prompts, value, onSelect, usedLabel, mobile
       )}
       {!phone && preview && <ImageViewer mode="sample" title={preview.name} items={previewItems} selectedId={preview.id} onSelect={setPreviewId} onClose={() => setPreviewId(null)}
         subtitle={`${preview.kind === 'scene' ? 'Prompt ảnh cảnh' : 'Prompt ảnh bìa'} · ảnh mẫu vẽ bằng prompt này`}
-        side={<><strong {...stylex.props(viewerStyles.sideTitle)}>{preview.name}</strong><h3 {...stylex.props(viewerStyles.caption)}>Prompt</h3><p>{preview.prompt}</p><h3 {...stylex.props(viewerStyles.caption)}>Đang dùng ở</h3>{preview.usedBy.length ? preview.usedBy.map(template => <a key={template.id} href={`#${paths.template(template.id)}`} {...stylex.props(viewerStyles.sideLink)}>{template.name}</a>) : <p>Chưa có template nào dùng prompt này.</p>}<a href={`#${paths.library('prompts', preview.builtIn ? 'builtin' : 'mine')}`} {...stylex.props(viewerStyles.sideLink)}>Mở trong kho prompt</a></>}
+        side={<><strong {...stylex.props(viewerStyles.sideTitle)}>{preview.name}</strong><h3 {...stylex.props(viewerStyles.caption)}>Prompt</h3><p>{preview.prompt}</p><h3 {...stylex.props(viewerStyles.caption)}>Đang dùng ở</h3>{preview.usedBy.length ? preview.usedBy.map(template => <a key={template.id} href={`#${paths.template(template.id)}`} {...stylex.props(viewerStyles.sideLink)}>{template.name}</a>) : <p>Chưa có template nào dùng prompt này.</p>}<a href={`#${paths.library('prompts', preview.builtIn ? 'builtin' : 'mine', { promptId: preview.id })}`} {...stylex.props(viewerStyles.sideLink)}>Mở trong kho prompt</a></>}
         footer={<><span>← → xem mẫu khác · Esc đóng · đổi prompt không vẽ lại video đã xong</span>{preview.id === value ? <span>Template đang dùng</span> : <Button variant="primary" onClick={() => { onSelect(preview.id); setPreviewId(null) }}>Dùng prompt này</Button>}</>}
       />}
     </>

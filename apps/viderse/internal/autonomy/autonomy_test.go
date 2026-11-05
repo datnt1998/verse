@@ -32,3 +32,25 @@ func TestCombineWeights(t *testing.T) {
 		t.Fatalf("match 60 → %d", got)
 	}
 }
+
+func TestEvaluateFixed85Boundaries(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		items []autonomy.ItemScore
+		pass  bool
+	}{
+		{"empty", nil, false},
+		{"all skipped", []autonomy.ItemScore{{Skipped: true}}, false},
+		{"84", []autonomy.ItemScore{{Score: score(84)}}, false},
+		{"85", []autonomy.ItemScore{{Score: score(85)}}, true},
+		{"unscored", []autonomy.ItemScore{{Score: score(99)}, {}}, false},
+		{"mixed", []autonomy.ItemScore{{Score: score(85)}, {Score: score(84)}}, false},
+		{"skipped missing score", []autonomy.ItemScore{{Score: score(85)}, {Skipped: true}}, true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if v := autonomy.Evaluate(domain.AutoApproveMin, tc.items); v.AllPass != tc.pass {
+				t.Fatalf("verdict=%+v want pass=%v", v, tc.pass)
+			}
+		})
+	}
+}

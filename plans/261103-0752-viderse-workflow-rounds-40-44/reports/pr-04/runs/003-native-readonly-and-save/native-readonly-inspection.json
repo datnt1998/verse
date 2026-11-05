@@ -1,0 +1,251 @@
+{
+  "surfaces": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "path": "#/library",
+      "url": "http://127.0.0.1:8043/#/library",
+      "screenshot": "native-1440-library.png",
+      "body": "Bàn dựng\nDuyệt\n2\nKênh\nKhám phá\nThư viện\nLàm video\nN\nMáy rảnh\nW\nThư viện\n\nDùng chung cho cả 3 kênh: mẫu video, prompt ảnh, video nền, lớp phủ. Sửa ở đây thì mọi video bắt đầu sau đó dùng bản mới.\n\nNhập mẫu video\nMẫu video mới\nMẫu video\n3\nChỉ dẫn ảnh\n9\nVideo nền\n0\nLớp phủ\n12\n\nMỗi kênh có một mẫu video mặc định, đổi ở Kênh › Template. Hộp Làm video cho chọn mẫu video khác cho từng video. Mẫu video cần sửa thì video dùng nó dừng ở bước dựng tới khi sửa xong.\n\nỔn\nTách nền\nKiểm thử QA · chọn prompt trong viewer\nsửa 04/11\n\nChỉ dẫn Ảnh mẫu QA tự tạo · 1 · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nChưa kênh nào dùng làm mặc định\nMở\nNhân bản\nỔn\nTách nền\nMẫu chuẩn · Tách nền\nsửa 03/11\n\nChỉ dẫn Theo nhận diện kênh · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nMT\nQH\nMặc định của Midnight Tales, Quiet Hours\nMở\nNhân bản\nỔn\nToàn khung\nTruyện kể đêm\nsửa 03/11\n\nChỉ dẫn Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch · 6 ảnh\n\nCL\nMặc định của Chuyện Lạ Đêm Khuya\nMở\nNhân bản\nKéo tệp mẫu video vào đây\nTệp xuất từ Viderse trên máy khác. Kênh nền và video lẻ còn thiếu được thêm lại vào Video nền.",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "links": [
+        {
+          "text": "",
+          "href": "#/"
+        },
+        {
+          "text": "Bàn dựng",
+          "href": "#/"
+        },
+        {
+          "text": "Duyệt2",
+          "href": "#/review"
+        },
+        {
+          "text": "Kênh",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8"
+        },
+        {
+          "text": "Khám phá",
+          "href": "#/explore"
+        },
+        {
+          "text": "Thư viện",
+          "href": "#/library"
+        },
+        {
+          "text": "Làm videoN",
+          "href": "#/new"
+        },
+        {
+          "text": "Máy rảnh",
+          "href": "#/queue"
+        },
+        {
+          "text": "",
+          "href": "#/settings?section=connect"
+        },
+        {
+          "text": "Kiểm thử QA · chọn prompt trong viewer",
+          "href": "#/templates/5fa15b48-ed8b-4614-ab75-897009d958a2"
+        },
+        {
+          "text": "Mẫu chuẩn · Tách nền",
+          "href": "#/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142"
+        },
+        {
+          "text": "Truyện kể đêm",
+          "href": "#/templates/d630ad66-9ca7-482a-b33f-4b53195eef06"
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "path": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "screenshot": "native-1440-channels-c76cc725-0e9d-43fd-98d1-4d55412510e8.png",
+      "body": "CL\nChuyện Lạ Đêm Khuya\nBàn dựng\nDuyệt\n2\nKênh\nKhám phá\nThư viện\nLàm video\nN\nMáy rảnh\nW\nKÊNH CỦA TÔI\n3\nCL\nChuyện Lạ Đêm Khuya\nHôm nay 0/5\nMT\nMidnight Tales\nHôm nay 0/5 · 2 chờ bạn\nQH\nQuiet Hours\nHôm nay 0/5\nTạo kênh\nMáy sẵn sàng\nCL\nTự lấy đang tắt\nTiếng Việt\nChuyện Lạ Đêm Khuya\nChưa liên kết YouTube · tạo 03-11 · 0 đối thủ liên kết\nLiên kết YouTube\nVideo mới cho kênh\nVideo đã làm\n0\ntừ 03/11\nĐã đăng\n0\nchưa liên kết YouTube\nChờ bạn\n0\nkhông có việc\nChờ lượt\n0\nTự lấy đang tắt\nKênh chưa có video. Video của kênh nằm ở Bàn dựng, nhóm theo Chờ bạn · Đang làm · Sẵn sàng.\nXem trong Bàn dựng\nNguồn & tự động0\nTemplate\nHồ sơ kênh\nĐối thủ liên kết\n0\nLiên kết đối thủ\nChưa liên kết đối thủ nào\nTự lấy video tạm dừng vì không có nguồn. Video đã làm và nhận diện kênh giữ nguyên; lần tạo lại nhận diện sau cần một đối thủ tham chiếu.\nLiên kết đối thủ\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\nTự động\nTrinh sát xem đối thủ mỗi giờ. Video bạn tự thêm luôn được làm trước, không tính vào nhịp.\nTự lấy video mới\nTạm dừng · cần ít nhất một đối thủ liên kết\nVideo mỗi ngày\nHôm nay 0/5\nTự duyệt ảnh\nTắt. Mọi video chờ bạn duyệt ảnh trước khi dựng.\n\nGặp lỗi, máy tự thử sửa một lần (tải lại nguồn, vẽ lại ảnh lỗi, dựng lại) rồi mới báo bạn. Không bao giờ tự đăng YouTube, xoá, đổi template hay bỏ liên kết đối thủ.\n\nDặn trợ lý về kênh này\nBàn với Trinh sát\nTrinh sát",
+      "geometry": {
+        "width": 1440,
+        "scrollWidth": 1440
+      },
+      "links": [
+        {
+          "text": "",
+          "href": "#/"
+        },
+        {
+          "text": "Bàn dựng",
+          "href": "#/"
+        },
+        {
+          "text": "Duyệt2",
+          "href": "#/review"
+        },
+        {
+          "text": "Kênh",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8"
+        },
+        {
+          "text": "Khám phá",
+          "href": "#/explore"
+        },
+        {
+          "text": "Thư viện",
+          "href": "#/library"
+        },
+        {
+          "text": "Làm videoN",
+          "href": "#/new"
+        },
+        {
+          "text": "Máy rảnh",
+          "href": "#/queue"
+        },
+        {
+          "text": "",
+          "href": "#/settings?section=connect"
+        },
+        {
+          "text": "CLChuyện Lạ Đêm KhuyaHôm nay 0/5",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources"
+        },
+        {
+          "text": "MTMidnight TalesHôm nay 0/5 · 2 chờ bạn",
+          "href": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da?tab=sources"
+        },
+        {
+          "text": "QHQuiet HoursHôm nay 0/5",
+          "href": "#/channels/98ae68b2-813e-427a-8238-8eb0e86de231?tab=sources"
+        },
+        {
+          "text": "Tạo kênh",
+          "href": "#/channels/new"
+        },
+        {
+          "text": "Xem trong Bàn dựng",
+          "href": "#/?channel=c76cc725-0e9d-43fd-98d1-4d55412510e8"
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "#/library",
+      "url": "http://127.0.0.1:8043/#/library",
+      "screenshot": "native-390-library.png",
+      "body": "Thư viện dùng chung\nDùng chung cho cả 3 kênh\nMẫu video\n3\nChỉ dẫn ảnh\n9\nVideo nền\n0\nLớp phủ\n12\n\nMỗi kênh có một mẫu video mặc định, đổi ở Kênh › Template. Mẫu video cần sửa thì video dùng nó dừng ở bước dựng tới khi sửa xong.\n\nTách nền\nKiểm thử QA · chọn prompt trong viewer\nỔn\n\nChỉ dẫn Ảnh mẫu QA tự tạo · 1 · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nChưa kênh nào dùng làm mặc định\nsửa 04/11\nTách nền\nMẫu chuẩn · Tách nền\nỔn\n\nChỉ dẫn Theo nhận diện kênh · Tách nền · bìa Ảnh sạch · 6 ảnh\n\nMT\nQH\nMặc định của Midnight Tales, Quiet Hours\nsửa 03/11\nToàn khung\nTruyện kể đêm\nỔn\n\nChỉ dẫn Theo nhận diện kênh · Toàn khung · bìa Ảnh sạch · 6 ảnh\n\nCL\nMặc định của Chuyện Lạ Đêm Khuya\nsửa 03/11",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "links": [
+        {
+          "text": "",
+          "href": "/api/clone/download?ids=3225b629-51c8-4f81-8456-9ecacde664ac"
+        },
+        {
+          "text": "Kiểm thử QA · chọn prompt trong viewer",
+          "href": "#/templates/5fa15b48-ed8b-4614-ab75-897009d958a2"
+        },
+        {
+          "text": "Mẫu chuẩn · Tách nền",
+          "href": "#/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142"
+        },
+        {
+          "text": "Truyện kể đêm",
+          "href": "#/templates/d630ad66-9ca7-482a-b33f-4b53195eef06"
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "path": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "screenshot": "native-390-channels-c76cc725-0e9d-43fd-98d1-4d55412510e8.png",
+      "body": "CL\nChuyện Lạ Đêm Khuya\nW\nCL\nTự lấy đang tắt\nTiếng Việt\nChuyện Lạ Đêm Khuya\nChưa liên kết YouTube · tạo 03-11 · 0 đối thủ\nVideo mới cho kênh\nĐã làm\n0\nĐã đăng\n0\nChờ bạn\n0\nChờ lượt\n0\nKênh chưa có video · xem Bàn dựng\nNguồn0\nTemplate\nHồ sơ\nTự động\nTrinh sát xem đối thủ mỗi giờ. Video bạn tự thêm luôn làm trước, không tính vào nhịp.\nTự lấy video mới\nTạm dừng · cần ít nhất một đối thủ liên kết\nVideo mỗi ngày\nHôm nay 0/5\nTự duyệt ảnh\nTắt. Mọi video chờ bạn duyệt ảnh trước khi dựng.\nGặp lỗi, máy tự thử sửa một lần rồi mới báo bạn. Không bao giờ tự đăng YouTube, xoá, đổi template hay bỏ liên kết đối thủ.\nĐỐI THỦ LIÊN KẾT\n0\nLiên kết đối thủ\nChưa liên kết đối thủ nào\nTự lấy video tạm dừng vì không có nguồn. Video đã làm và nhận diện kênh giữ nguyên; lần tạo lại nhận diện sau cần một đối thủ tham chiếu.\n@handle hoặc link kênh YouTube của đối thủ mới\nTheo dõi & chọn\n\nChọn từ đối thủ đang theo dõi. Tự lấy video bắt đầu tính video mới từ lúc liên kết.\n\nBàn dựng\nDuyệt\n2\nKênh\nKhám phá",
+      "geometry": {
+        "width": 390,
+        "scrollWidth": 390
+      },
+      "links": [
+        {
+          "text": "",
+          "href": "#/queue"
+        },
+        {
+          "text": "W",
+          "href": "#/settings"
+        },
+        {
+          "text": "",
+          "href": "/api/clone/download?ids=3225b629-51c8-4f81-8456-9ecacde664ac"
+        },
+        {
+          "text": "CLChuyện Lạ Đêm KhuyaHôm nay 0/5",
+          "href": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources"
+        },
+        {
+          "text": "MTMidnight TalesHôm nay 0/5 · 2 chờ bạn",
+          "href": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da?tab=sources"
+        },
+        {
+          "text": "QHQuiet HoursHôm nay 0/5",
+          "href": "#/channels/98ae68b2-813e-427a-8238-8eb0e86de231?tab=sources"
+        },
+        {
+          "text": "Tạo kênh",
+          "href": "#/channels/new"
+        },
+        {
+          "text": "Kênh chưa có video · xem Bàn dựng",
+          "href": "#/?channel=c76cc725-0e9d-43fd-98d1-4d55412510e8"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "action": "template-menu-open-escape",
+      "bounds": {
+        "x": 97.5,
+        "y": 526.71875,
+        "width": 250,
+        "height": 115
+      },
+      "status": "passed"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "action": "template-menu-open-escape",
+      "bounds": {
+        "x": 0,
+        "y": 430.703125,
+        "width": 390,
+        "height": 413.296875
+      },
+      "status": "passed"
+    }
+  ],
+  "blockedMutations": []
+}

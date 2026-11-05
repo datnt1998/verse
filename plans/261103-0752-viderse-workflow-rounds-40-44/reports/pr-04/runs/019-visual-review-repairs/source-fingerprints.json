@@ -1,0 +1,46 @@
+{
+  "sourceCommit": "ac3d40c7bbb835209921cee9332744ff8cffacaa",
+  "nativeBinarySha256": "f3ffa4a29b6ce7e6556f1ced8da7b655474548aa3f97fd73ac7c6a3db11ffe21",
+  "hashes": {
+    "apps/viderse/docs/design/v1/06-copy.md": "8a750972809318c433071328d4ef801a0ff922a09ba823d25bc58c8adc8eca02",
+    "apps/viderse/web/src/i18n/backdrop.ts": "d076a2d3213c07101ec0a3bd6420df20813a3eb52f63a5652c4d548a1120f05e",
+    "apps/viderse/web/src/i18n/channels.ts": "8fd8d39e9dc16e707c42e42f2c24bd3559a0b2ff1dd01951767668bba1393068",
+    "apps/viderse/web/src/i18n/library.ts": "ef6ec519cd513be8d57663498030ed71dfeb8c1a23f5b329b2e9702c197eb1a7",
+    "apps/viderse/web/src/i18n/setup.ts": "9d6106bc18d0eb74905a2c9375d147e1a48ddd4984374b6f5e3ff15f9282ea9c",
+    "apps/viderse/web/src/screens/channel/CreateStep.tsx": "deeba67298a4b260b906c20cab4f71b98b90a585d231a85bda0afa88f660c107",
+    "apps/viderse/web/src/screens/channel/IdentityBlock.tsx": "ec640d7a6df8568efe88294a7cfc67e6f8888198b1cef5e05f731dd276a8f8be",
+    "apps/viderse/web/src/screens/channel/SourcesTab.tsx": "c57d80ace80f5b3dc9392db3e0f56f8b955cca92083dbfe9b7b94505b99fa141",
+    "apps/viderse/web/src/screens/channel/channel.stylex.ts": "fc7c495215c230b83955ed280c6ad429bed77b9b064e4485b4e35be99589e178",
+    "apps/viderse/web/src/screens/channel/channels.test.tsx": "b31cdd372ae353ab6bedd66e61b79ce5f1f4eebf584326a27724e6537fa45f69",
+    "apps/viderse/web/src/screens/channel/mobile/mchannel.stylex.ts": "d5fcb0d4e53e08c881f0bba4b23f30e624b62a25f56ef59e1ba7f7fa4b9ba94c",
+    "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx": "5b36a22383b528bcf0810e60ed85e2929c4c0d0a1e3287f90f4f291033d7bf71",
+    "apps/viderse/web/src/screens/library/TemplateScreen.tsx": "7cb2bb620fc5b4aeaf0a80667040a70bf52d282c61dadebfb23c0eca5dd42a85",
+    "apps/viderse/web/src/screens/library/backdrops/ChannelPage.tsx": "ea9df4ffaa07928f7d884d36b73b6550bb6c4ac931227a39cc967d67974666b0",
+    "apps/viderse/web/src/screens/library/library.test.tsx": "6f20d04001eb4f618372299b5de81151034bb776b428bb3775d07f655c8dffed",
+    "apps/viderse/web/src/screens/library/libraryTokens.stylex.ts": "9e97f91b9f9b03b9ccfb0d5d304104c210f01b48689fae4bf9109bf7813f299e",
+    "apps/viderse/web/src/screens/library/mobile/mobile.test.tsx": "88f16aee52fa4105a6f0fe1ea2845c5745e1eafa05ef8d4a54e04e7483ff486a",
+    "apps/viderse/web/src/screens/library/template-import.test.tsx": "3f4c0ae94ad9dedd2a12521810ba47a4fceb24afe9a700b726d3eea09412c37e",
+    "apps/viderse/web/src/screens/library/template/BackdropSection.tsx": "6ef63407db9d7d9325da6184e1325f363f01980fbbd7ada2b3c9ac2d5404f4ad",
+    "apps/viderse/web/src/screens/library/template/CoverSection.tsx": "0e6726553e5c625ba7f9576f5ecf812c0f2d17ae851084916473f0bbd19ae723",
+    "apps/viderse/web/src/screens/library/template/ImagesSection.tsx": "9d735cc50e226bb5170be690784db281430770f4572a90cb1cddb1ded11b0e8f",
+    "apps/viderse/web/src/screens/library/template/OutputSection.tsx": "998412979457d5a6c6881c64ec253d8069617e85b38de52d330e39bd3d8f5ed2",
+    "apps/viderse/web/src/screens/library/template/PreviewPane.tsx": "1cd65c6c82c4d0b9c94db50491a06a33eccf4f8fbc7d138dad58a0191e4ff3d4",
+    "apps/viderse/web/src/screens/setup/SetupScreen.test.tsx": "1bf529c5d58b0908414a148507470b654c5969f1c5c4eb28d9e3c1d698b4622f",
+    "apps/viderse/web/src/screens/setup/SetupScreen.tsx": "43b5d634f196a9197db59a502c83cf2e014cbdc71d133bac50e056ebe1e9baf2",
+    "apps/viderse/web/src/styles/viderse.stylex.ts": "a7a96f2562a01acbc6bda7c943a1387d8b5e06686e61a3c673cc90ad431722c1",
+    "platform/ui/src/mobile/sheets.tsx": "4deec6f15718544402edb0b0cb4dd3f80c61926a62c09769b1744997ea0d6580"
+  },
+  "fullFrontendBeforeResponsiveGallery": {
+    "passed": 3665,
+    "skipped": 4
+  },
+  "focusedLibraryAfterResponsiveGallery": {
+    "passed": 40
+  },
+  "galleryNativeAfter": {
+    "cases": 3,
+    "pageErrors": 0,
+    "realWrites": 0
+  },
+  "ledger": "3|27|2"
+}

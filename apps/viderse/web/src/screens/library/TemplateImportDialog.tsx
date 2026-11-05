@@ -214,7 +214,7 @@ export function TemplateImportDialog({ onClose, initialFiles }: { onClose: () =>
             {rows.map((row, index) => (
               <FileRow
                 key={`${row.file.name}-${index}`}
-                name={row.file.name}
+                name={row.status === 'ok' && row.item?.name ? row.item.name : row.file.name}
                 status={row.status}
                 meta={metaFor(row, phase)}
                 warnings={row.item?.warnings}

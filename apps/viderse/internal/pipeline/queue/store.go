@@ -60,11 +60,17 @@ type Store interface {
 	ListQueueCountsByChannel(context.Context) (map[string]int64, error)
 	ListDoneTodayCounts(context.Context, time.Time) (map[string]int64, error)
 	CountChargedImagesToday(context.Context, time.Time) (map[string]int64, error)
-	// RotationTemplates là danh sách luân phiên của kênh: Templates cộng vòng
-	// thứ hai cho template được chạy nhiều hơn. Con trỏ TemplateCursor chạy trên nó.
-	RotationTemplates(context.Context, domain.Channel) ([]domain.ChannelTemplate, error)
-	// RivalVideoScores trả điểm nổi trội của video đối thủ (chỉ video có điểm).
-	RivalVideoScores(context.Context, []string) (map[string]float64, error)
+	// DefaultTemplate là template mặc định hiện tại của kênh (gợi ý cho lập kế
+	// hoạch; admission chốt lại dưới khoá hàng kênh).
+	DefaultTemplate(context.Context, string) (*domain.ChannelTemplate, error)
+	// TemplateInfo trả một template toàn Thư viện (nil khi không tồn tại) —
+	// validate override của một lần tạo.
+	TemplateInfo(context.Context, string) (*domain.ChannelTemplate, error)
+	// TemplateNames trả tên template theo id (tên hiển thị job/override).
+	TemplateNames(context.Context, []string) (map[string]string, error)
+	// DefaultsForChannels trả template mặc định của nhiều kênh trong một truy
+	// vấn (tên hiển thị cho mục hàng chờ không override).
+	DefaultsForChannels(context.Context, []string) (map[string]domain.ChannelTemplate, error)
 }
 
 // LaneLastStart identifies the last started turn in a channel's batch lane.

@@ -3,9 +3,9 @@
 // Vì sao? ở cột phải (ReasonPopover dùng chung).
 import * as stylex from '@stylexjs/stylex'
 import { useState } from 'react'
-import { Icon } from '@noverse/ui'
+import { Banner, Icon } from '@noverse/ui'
 import { t } from '../../i18n/autonomy'
-import { readImageScore, type Autonomy, type ImageScore } from '../../api/autonomy'
+import { readImageScore, type ImageScore } from '../../api/autonomy'
 import { Orb } from '../Orb'
 import { ReasonPopover } from '../reason/ReasonPopover'
 import { isLow, type ScoreSummary } from './scoreSummary'
@@ -19,20 +19,20 @@ export function ScoreBadge({ value, low, corner = false }: { value: number; low:
 }
 
 const lower = (label: string) => label.charAt(0).toLocaleLowerCase('vi') + label.slice(1)
-const presetName = (autonomy: Autonomy) => (autonomy.preset === 'custom' ? t.autonomy.custom : t.autonomy.presets[autonomy.preset])
 
 /** Dòng tóm tắt trên dải ảnh; nút nhảy tới ảnh thấp nhất. */
-export function ScoreBanner({ summary, autonomy, channelName, onJump }: {
+export function ScoreBanner({ summary, autoApprove, channelName, onJump }: {
   summary: ScoreSummary
-  autonomy: Autonomy
+  autoApprove: boolean
   channelName: string
   onJump: (id: string) => void
 }) {
   const [lowest] = summary.below
-  const mode = autonomy.approve.mode
-  const tail = !lowest || !channelName || mode === 'all'
+  const tail = !channelName
     ? ''
-    : mode === 'score' ? tt.scoreTail(channelName, summary.min) : tt.askTail(channelName, presetName(autonomy))
+    : autoApprove
+      ? lowest ? tt.scoreTail(channelName, summary.min) : ''
+      : tt.askTail(channelName)
   return (
     <div role="status" {...stylex.props(sx.banner)}>
       <Orb of="qa" size={16} />
@@ -56,10 +56,11 @@ export function ScoreBanner({ summary, autonomy, channelName, onJump }: {
 }
 
 /** Cột phải: điểm của ảnh đang xem + Vì sao? (mở sẵn khi ảnh dưới ngưỡng). */
-export function ScorePanel({ imageId, rawScore, min }: { imageId: string; rawScore: unknown; min: number }) {
+export function ScorePanel({ imageId, rawScore, min, issue }: { imageId: string; rawScore: unknown; min: number; issue?: string }) {
   const score = readImageScore(rawScore)
   // Mở/đóng nhớ theo từng ảnh: đổi ảnh thì quay về mặc định (ảnh thấp mở sẵn).
   const [toggled, setToggled] = useState<{ id: string; open: boolean } | null>(null)
+  if (issue) return <Banner tone="warning" title={tt.instructionIssue}>{issue}</Banner>
   if (!score) return null
   const low = isLow(score, min)
   const open = toggled?.id === imageId ? toggled.open : low

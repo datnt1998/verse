@@ -631,3 +631,38 @@ Mẫu:
 - **Hệ quả:** không thể giữ cả hai giới hạn mà vẫn có cùng tuỳ chọn/hành vi. Kế hoạch hiện ghi 1–20; chưa được coi đây là quyền sửa ngầm board tạo kênh hoặc clamp dữ liệu cũ.
 - **Quyết định (người dùng, 04/11/2026): A — tối đa20 video/ngày**, đồng nhất1–20 trên Kênh và Tạo kênh PC/mobile. Design cập nhật màn tạo riêng; task triển khai không sửa artboard. Không tự hạ dữ liệu cũ; ngoài khoảng1–20 phải dừng preflight và báo rõ.
 - **Dữ liệu nghiệm thu (người dùng, cùng lượt):** cho tải một clip công khai thật chỉ vào QA để kiểm nền phủ kín; không gọi AI, không ghi production, giữ provenance và dọn dữ liệu kiểm thử sau nghiệm thu.
+
+### #87 · Dặn trợ lý về kênh: thiết kế giữ nhưng chưa có hợp đồng lưu/áp dụng — Đã chốt A
+- **Ngày phát hiện:** 04/11/2026, khi đối chiếu ảnh tham chiếu V38.
+- **Nguồn chuẩn:** `Workflow.dc.html:979` bỏ ô nhắn toàn cục/Bàn dựng nhưng giữ “Dặn trợ lý về kênh ở Kênh”; `01-ia-flows.md:497` yêu cầu chọn Trinh sát/Đạo diễn/Hoạ sĩ/Kiểm định, gửi có toast và áp dụng video tiếp theo. `Channel.dc.html` vẫn vẽ ô này dưới trang.
+- **Code và phạm vi:** `ChannelAside.tsx:6` ghi chưa dựng vì thiếu API; `styleNote` hiện chỉ là Giọng văn, không phải chỉ dẫn riêng cho bốn trợ lý. V37 đã bỏ đường kế hoạch/assistant toàn cục; không khôi phục nó để thay thế. Backend V38 chỉ liệt kê default-template/automation/retire legacy, chưa có hợp đồng lưu và tiêu thụ chỉ dẫn theo trợ lý.
+- **Không làm giả:** không thêm ô gửi chỉ hiện toast nhưng không được lưu/áp dụng, không tự ghi mọi chỉ dẫn vào Giọng văn.
+- **Quyết định (người dùng, 04/11/2026): A — giữ đúng thiết kế.** Cho phép bổ sung backend tối thiểu lưu chỉ dẫn riêng theo kênh/trợ lý và áp dụng từ lượt tiếp theo/video mới. Lưu phải có readback và consumer thật; không gọi model khi chỉ lưu chỉ dẫn, không thay đổi snapshot video đang chạy, không khôi phục chat/intent/kế hoạch nhiều bước đã bỏ. Các phần V38 còn lại tiếp tục độc lập; chỉ nghiệm thu toàn gói khi phần này có đủ bằng chứng.
+
+### #88 · Chỉ dẫn Kiểm định có bao gồm xử lý nhạc/giọng riêng? — Đã chốt A
+- **Ngày phát hiện:** 05/11/2026, khi nối consumer thật theo quyết định#87.
+- **Quyết định giữ nguyên:** ô Dặn trợ lý theo kênh, đủ bốn người nhận; lưu/readback không gọi model; áp dụng snapshot video mới. Không đưa chat/kế hoạch toàn cục trở lại.
+- **Bằng chứng mới:** ví dụ Kiểm định ở `Channel.dc.html:1468` yêu cầu nhạc nền nhỏ hơn giọng. Consumer Kiểm định hiện là `internal/autonomy/scorer.go:20–35,80–118`, chỉ nhận ảnh/khung tham chiếu và chấm bốn tiêu chí ảnh; không nghe/chỉnh âm thanh. `internal/pipeline/steps/build/audio.go:22–35` trích một track AAC từ nguồn; `build/handler.go:245–261,344,537` đưa chính track đó vào editor. Chưa có stem nhạc/giọng riêng để hạ một thành phần mà giữ nguyên thành phần còn lại. Hạ gain toàn track không đáp ứng ví dụ này.
+- **Ranh giới phạm vi:** #87 cho backend tối thiểu lưu/tiêu thụ chỉ dẫn, không xác định pipeline tách stem, model âm thanh, quota mới hay kiểm thử chất lượng tách giọng. Không tự thêm các phần đó và không nối chỉ dẫn âm thanh vào scorer ảnh rồi báo “đã áp dụng”.
+- **Phương án A:** giữ bố cục/bốn người nhận; Kiểm định áp dụng chỉ dẫn về ảnh theo khả năng thật, chỉ dẫn vượt khả năng phải báo rõ và không tự duyệt như thể đã đáp ứng. Design đổi ví dụ âm thanh sang kiểm ảnh; cần người dùng chấp thuận giới hạn này.
+- **Phương án B không chọn:** bổ sung pipeline tách/mix nhạc–giọng, hợp đồng dữ liệu, quota và nghiệm thu nghe thật; không thuộc đợt này.
+- **Quyết định (người dùng, 05/11/2026): A — Kiểm ảnh, báo rõ giới hạn.** Giữ đủ bốn người nhận và bố cục; Kiểm định tiêu thụ chỉ dẫn về ảnh. Chỉ dẫn ngoài khả năng phải báo rõ, không được tự duyệt như thể đã đáp ứng. Design đổi ví dụ âm thanh sang kiểm ảnh; không sửa artboard trong task triển khai. Không thêm xử lý/tách stem âm thanh.
+
+### #89 · Điểm vào Dặn trợ lý theo kênh trên điện thoại — Đã chốt A
+- **Ngày phát hiện:** 05/11/2026, khi kiểm chức năng tương đương PC/mobile.
+- **Bằng chứng:** PC `Channel.dc.html` giữ hộp Dặn trợ lý; `MChannel.dc.html` không có hộp hoặc điểm vào chỉ dẫn theo kênh. Thẻ “Trợ lý AI · chung mọi kênh” ở Hồ sơ dẫn tới cấu hình model chung, không phải chỉ dẫn riêng. `ChannelScreen.tsx` hiện chỉ render composer khi không phải điện thoại. Vì vậy không thể nhận đủ chức năng tương đương nếu giữ nguyên code này.
+- **Không thay đổi:** ba tab Kênh, bốn người nhận, lưu/readback không gọi model, snapshot lượt/video mới, giới hạn Kiểm định theo#88.
+- **A:** thêm một hàng “Dặn trợ lý về kênh” trong Hồ sơ điện thoại, mở Sheet Nhập nhanh dùng cùng form/bộ chọn người nhận của PC. Không thêm dock dính đáy cạnh bottom nav.
+- **B:** đặt cùng form ngay dưới nội dung ba tab trên điện thoại; luôn thấy nhưng trang dài hơn và cần xử lý bàn phím/đáy màn.
+- **Quyết định (người dùng, 05/11/2026): A — Hồ sơ → Sheet Nhập nhanh.** Thêm một hàng trong Hồ sơ, mở cùng form/bộ chọn bốn người nhận của PC; không thêm dock dính đáy. Lưu/readback và giới hạn Kiểm định theo#87/#88 giữ nguyên. Không bỏ chức năng trên điện thoại hoặc thay bằng cấu hình AI toàn app.
+
+## #90. Ảnh minh hoạ thẻ mẫu khi chưa có ảnh mẫu đã vẽ
+
+- Trạng thái: **Đã chốt A — Ảnh thật hoặc hình chờ**.
+- Đối chiếu: `Library.dc.html` dùng ảnh minh hoạ cố định trong TH, gắn theo chỉ dẫn của từng mẫu; `Channel.dc.html`/`MChannel.dc.html` cũng có khung ảnh. API hiện hành có `ImagePrompt.sampleUrls` là ảnh mẫu thật đã vẽ, không có poster của template trong `TemplateSummary`.
+- Bằng chứng QA: API native có 9 chỉ dẫn, 2 chỉ dẫn có ảnh mẫu thật; có một mẫu video đang dùng ảnh mẫu đó. Hai mẫu mặc định của ba kênh chưa có ảnh mẫu. Renderer đã nối ảnh thật theo đúng `sceneId`, không bịa preview URL hoặc tự vẽ thêm; đang giữ hình chờ trung tính khi thiếu/tải lỗi.
+- Câu hỏi: Khi chưa có ảnh mẫu, giữ hình chờ trung tính kèm nghĩa “Chưa có ảnh mẫu” hay dùng hình minh hoạ tĩnh từ thiết kế và ghi rõ đó không phải ảnh do template dựng ra?
+- Phương án A — Ảnh thật hoặc hình chờ: không thêm dữ liệu/asset giả và không tốn lượt vẽ. Có khác biệt nội dung ảnh với các ví dụ artboard khi tài khoản chưa vẽ mẫu; không dùng điều đó để tuyên bố khớp từng pixel.
+- Phương án B — Ảnh thật ưu tiên, thiếu thì minh hoạ thiết kế: dùng asset thiết kế như đồ hoạ sản phẩm, ghi rõ “Minh hoạ bố cục”, không lưu nó làm ảnh AI hay bản xem thử. Không gọi AI, nhưng cần duyệt chính sách dùng ảnh minh hoạ trong UI dữ liệu thật.
+- Không sửa artboard; không tạo thêm lượt suy luận/ảnh để lấp thiếu dữ liệu trong QA.
+- Quyết định người dùng: chọn **Ảnh thật hoặc hình chờ** qua câu hỏi#90. Có ảnh mẫu thì hiển thị đúng ảnh của chỉ dẫn đang gắn; thiếu/tải lỗi thì ô trung tính với nghĩa “Chưa có ảnh mẫu”. Không dùng ảnh thiết kế thay dữ liệu thật và không tốn thêm lượt vẽ.

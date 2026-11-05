@@ -27,14 +27,15 @@ beforeEach(async () => {
   vi.useFakeTimers()
   cache.clear()
   calls = []
-  plan = { accepted: [{ url: 'https://youtu.be/abcdefghijk', videoId: golden[1].source.id, title: golden[1].source.title, durationSec: 180, outlier: null, hasCaptions: true }], duplicates: [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 2, overflowDays: 0, template: { id: 'standard', name: 'Mẫu chuẩn', fromRotation: true } }
+  plan = { accepted: [{ url: 'https://youtu.be/abcdefghijk', videoId: golden[1].source.id, title: golden[1].source.title, durationSec: 180, outlier: null, hasCaptions: true }], duplicates: [], invalid: [], position: 'front', etaStart: null, paceLeftToday: 2, overflowDays: 0, template: { id: 'standard', name: 'Mẫu chuẩn' } }
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener() {}, removeEventListener() {} })))
   vi.stubGlobal('fetch', vi.fn(async (path: string, init?: RequestInit) => {
     if (path === '/api/owner-channels') return response({ channels: [
-      { id: 'mine', name: 'Kênh của tôi', pacePerDay: 5, templates: [{ id: 'standard', name: 'Mẫu chuẩn', position: 0 }], sources: [] },
+      { id: 'mine', name: 'Kênh của tôi', perDay: 5, autoFetch: true, autoApprove: false, defaultTemplateId: 'standard', defaultTemplateName: 'Mẫu chuẩn', agentInstructions: {}, sources: [] },
       // Kênh để trống tên lúc tạo: nhận diện sẽ đặt tên sau.
-      { id: 'other', name: '', pacePerDay: 3, templates: [{ id: 'doc', name: 'Phim tài liệu', position: 0 }], sources: [] },
+      { id: 'other', name: '', perDay: 3, autoFetch: true, autoApprove: false, defaultTemplateId: 'doc', defaultTemplateName: 'Phim tài liệu', agentInstructions: {}, sources: [] },
     ] })
+    if (path === '/api/templates') return response({ items: [{ id: 'standard', name: 'Mẫu chuẩn' }, { id: 'doc', name: 'Phim tài liệu' }] })
     if (path.includes('/videos')) return response({ videos: [], nextCursor: null, total: 0 })
     if (path === '/api/clone/plan') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response(plan) }
     if (path === '/api/clone/enqueue') { calls.push({ path, body: JSON.parse(String(init?.body)) }); return response({ items: [] }) }
@@ -73,7 +74,7 @@ it('plans multiple links as batch and only enqueues accepted links', async () =>
   expect(calls.find(c => c.path.endsWith('enqueue'))?.body.urls).toEqual(['https://youtu.be/abcdefghijk', 'https://youtu.be/lmnopqrstuv'])
 })
 it('does not enqueue when the real plan has no template assigned', async () => {
-  plan = { ...plan, template: { id: '', name: '', fromRotation: false } }
+  plan = { ...plan, template: { id: '', name: '' } }
   await input('https://youtu.be/abcdefghijk'); await tick(300)
   await act(async () => el.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })))
   expect(calls.filter((call) => call.path.endsWith('enqueue'))).toHaveLength(0)
@@ -173,21 +174,18 @@ const pick = async (label: string, option: string) => {
   await act(async () => target!.click())
 }
 
-it.each([false, true])('plans with the picked template and returns to rotation when the channel changes (mobile=%s)', async (mobile) => {
+it.each([false, true])('plans with an override and resets to the next channel default (mobile=%s)', async (mobile) => {
   await viewport(mobile)
   await input('https://youtu.be/abcdefghijk'); await tick(300)
   expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
   await pick('Template', 'Mẫu chuẩn')
   await tick(300)
   expect(calls.at(-1)?.body).toMatchObject({ channelId: 'mine', templateId: 'standard' })
-  expect(picker('Template').textContent).toContain('Mẫu chuẩn')
   await pick('Kênh', 'Kênh chưa đặt tên')
   await tick(300)
-  // Đổi kênh luôn trả template về luân phiên, kể cả khi kênh mới có template riêng.
+  // Đổi kênh bỏ override để máy chủ dùng mặc định của kênh đích.
   expect(calls.at(-1)?.body).toMatchObject({ channelId: 'other' })
   expect(calls.at(-1)?.body).not.toHaveProperty('templateId')
-  expect(picker('Kênh').textContent).toContain('Kênh chưa đặt tên')
-  expect(picker('Template').textContent).toContain('Theo luân phiên')
 })
 
 it('names a channel that was created without a name instead of showing an empty value', async () => {

@@ -1,0 +1,15 @@
+{
+  "sourceCommit": "7daef5fc7a453c9f277ba7e895c76f7100379222",
+  "hashes": {
+    "platform/ui/src/mobile/sheets.tsx": "4deec6f15718544402edb0b0cb4dd3f80c61926a62c09769b1744997ea0d6580",
+    "apps/viderse/web/src/screens/channel/SourcesTab.tsx": "a560eade8abb8508f9504d5030c85753bc1957aa6112ed37c20a6cc7fc36d8f4",
+    "apps/viderse/web/src/screens/setup/SetupScreen.tsx": "43b5d634f196a9197db59a502c83cf2e014cbdc71d133bac50e056ebe1e9baf2",
+    "apps/viderse/web/src/screens/setup/SetupScreen.test.tsx": "1bf529c5d58b0908414a148507470b654c5969f1c5c4eb28d9e3c1d698b4622f",
+    "apps/viderse/web/src/i18n/setup.ts": "9d6106bc18d0eb74905a2c9375d147e1a48ddd4984374b6f5e3ff15f9282ea9c",
+    "apps/viderse/web/src/screens/library/template/BackdropSection.tsx": "15d674ac4d0f1451e95c70706455612289d37289b14830b07381dd024e38dd89",
+    "apps/viderse/web/src/i18n/backdrop.ts": "d076a2d3213c07101ec0a3bd6420df20813a3eb52f63a5652c4d548a1120f05e",
+    "apps/viderse/web/src/screens/library/backdrops/ChannelPage.tsx": "ea9df4ffaa07928f7d884d36b73b6550bb6c4ac931227a39cc967d67974666b0",
+    "apps/viderse/web/src/screens/library/library.test.tsx": "6f20d04001eb4f618372299b5de81151034bb776b428bb3775d07f655c8dffed",
+    "apps/viderse/docs/design/v1/06-copy.md": "f0ef5bd70473ef29562e71c065d89a7abc64eeb3b7621fb500ba5d8b4c256bd4"
+  }
+}

@@ -104,9 +104,7 @@ func TestBulkApprovalDurablyResumesThroughRenderGateButNeverBypassesLowScore(t *
 func draftApprovalFixture(t *testing.T) (*postgres.CloneStore, *pgxpool.Pool) {
 	t.Helper()
 	pool := provision(t)
-	if _, err := pool.Exec(context.Background(), `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	return postgres.NewCloneStore(pool), pool
 }
 

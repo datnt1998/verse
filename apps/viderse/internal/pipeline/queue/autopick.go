@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
-	"github.com/datnt1998/verse/apps/viderse/internal/performance"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -60,7 +60,7 @@ func (s *Service) Discover(ctx context.Context) error {
 	}()
 	enabled := make(chan domain.Channel, len(owners))
 	for _, o := range owners {
-		if o.AutoPick && o.Autonomy.AutoPicks() {
+		if o.AutoFetch {
 			enabled <- o
 		}
 	}
@@ -92,13 +92,8 @@ func (s *Service) Discover(ctx context.Context) error {
 }
 
 func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error {
-	templates, err := s.store.Templates(ctx, owner.ID)
-	if err != nil {
-		return err
-	}
-	if len(templates) == 0 {
-		return s.recordDiscovery(ctx, owner.ID, 0, "Kênh chưa có template", nil)
-	}
+	// FK NOT NULL bảo đảm kênh luôn có template mặc định; không còn nhánh
+	// "kênh chưa có template".
 	rules, err := s.Rules(ctx)
 	if err != nil {
 		return err
@@ -152,21 +147,24 @@ func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error
 			lastError = e
 			continue
 		}
-		if owner.Autonomy.Pick == domain.PickScore2 {
-			if ids, e = s.outliersOnly(ctx, ids); e != nil {
-				lastError = e
-				continue
-			}
-		}
 		candidates[link.RivalID] = ids
 	}
-	ids := InterleaveCandidates(order, candidates, last)
-	if owner.Priority == domain.PriorityViews && len(ids) > 1 {
-		// Ưu tiên Lượt xem: video đối thủ nổi trội nhất lên trước; lỗi đọc điểm giữ thứ tự xen kẽ.
-		if scores, e := s.store.RivalVideoScores(ctx, ids); e == nil {
-			ids = performance.OrderByScore(ids, scores)
+	var policy scoutPolicy
+	if note := owner.AgentInstructions.InstructionFor(domain.AgentScout); strings.TrimSpace(note) != "" {
+		policy, err = s.resolveScoutPolicy(ctx, note, links, candidates)
+		if err != nil {
+			// Chỉ dẫn không hiểu/không hỗ trợ được ghi nhận như một lần quét
+			// thất bại thật; không xếp hàng ngầm bỏ qua chỉ dẫn.
+			return errors.Join(err, s.recordDiscovery(ctx, owner.ID, 0, "Chưa lấy được video", err))
+		}
+		if policy.restricts() {
+			candidates, err = s.applyScoutPolicy(ctx, policy, links, candidates)
+			if err != nil {
+				return errors.Join(err, s.recordDiscovery(ctx, owner.ID, 0, "Chưa lấy được video", err))
+			}
 		}
 	}
+	ids := InterleaveCandidates(order, candidates, last)
 	created := 0
 	for offset := 0; offset < len(ids); offset += 200 {
 		if err = ctx.Err(); err != nil {
@@ -188,6 +186,8 @@ func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error
 		message = fmt.Sprintf("Đã thêm %d video vào hàng chờ", created)
 	} else if lastError != nil {
 		message = "Chưa lấy được video"
+	} else if policy.restricts() {
+		message = "Không có video mới khớp chỉ dẫn Trinh sát"
 	}
 	return s.recordDiscovery(ctx, owner.ID, created, message, lastError)
 }
@@ -197,29 +197,10 @@ func (s *Service) recordDiscovery(ctx context.Context, id string, created int, m
 		text := err.Error()
 		detail = &text
 	}
-	return s.d.Settings.Set(ctx, "clone.autoPick.lastRun:"+id, struct {
+	return s.d.Settings.Set(ctx, "clone.autoFetch.lastRun:"+id, struct {
 		At      time.Time `json:"at"`
 		Created int       `json:"created"`
 		Result  string    `json:"result"`
 		Error   *string   `json:"error"`
 	}{s.d.Now(), created, message, detail})
-}
-
-// outliersOnly giữ video đạt từ ×2 mức thường của kênh đối thủ (Tự lấy ở chế
-// độ "video ≥ ×2"), giữ nguyên thứ tự. Video chưa có điểm không đủ điều kiện.
-func (s *Service) outliersOnly(ctx context.Context, ids []string) ([]string, error) {
-	if len(ids) == 0 {
-		return ids, nil
-	}
-	scores, err := s.store.RivalVideoScores(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	kept := make([]string, 0, len(ids))
-	for _, id := range ids {
-		if score, ok := scores[id]; ok && score >= domain.PickScore2Min {
-			kept = append(kept, id)
-		}
-	}
-	return kept, nil
 }

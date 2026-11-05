@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cache } from '@noverse/ui/data'
 import { BackdropsTab } from './BackdropsTab'
 import { BackdropSection } from '../template/BackdropSection'
+import { BackdropPicker } from '../template/BackdropPicker'
 import { t } from '../../../i18n/library'
 import type { BackdropChannel, BackdropVideo } from '../../../api/backdrop'
 import type { TemplateDetail } from '../../../api/library'
@@ -167,6 +168,33 @@ describe('BackdropsTab — Video lẻ', () => {
 })
 
 describe('BackdropSection — hộp gắn + mix', () => {
+  it.each([false, true])('keeps empty source kinds unselected for new links but removable on existing links (linked=%s)', async (linked) => {
+    const source = channel({ counts: { clip: 40, highlight: 10, vod: 0 } })
+    const tpl = detail(linked ? { channels: [{ channelId: source.id, kinds: ['clip', 'vod'], pinned: [] }] } : {})
+    const saves: Array<Partial<TemplateDetail['recipe']>> = []
+    handler = async (url) => {
+      if (url.pathname === '/api/backdrop/channels') return respond([source])
+      if (url.pathname === '/api/backdrop/videos') return respond([])
+      if (url.pathname.startsWith('/api/backdrop/channels/')) return respond({ items: [videoItem(1)], counts: source.counts, total: 1, unavailable: 0 })
+      return respond({}, 404)
+    }
+    await render(<BackdropPicker template={tpl} initial={source.id} onClose={vi.fn()}
+      onSave={async (patch) => { saves.push(patch) }} />)
+    await flush(10)
+    const dialog = document.querySelector('[role="dialog"]')!
+    const emptyKind = [...dialog.querySelectorAll<HTMLButtonElement>('.vbd-kindchip')].find(button => button.querySelector('.num')?.textContent === '0')!
+    expect(emptyKind.getAttribute('aria-pressed')).toBe(String(linked))
+    expect(emptyKind.disabled).toBe(!linked)
+    if (linked) {
+      expect(emptyKind.getAttribute('aria-disabled')).not.toBe('true')
+      await act(async () => { emptyKind.click() })
+    }
+    const go = [...dialog.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === (linked ? t.backdrop.template.picker.goSave : t.backdrop.template.picker.go))!
+    await act(async () => { go.click() })
+    await flush(10)
+    expect(saves.at(-1)?.backdrop?.channels[0]?.kinds).toEqual(linked ? ['clip'] : ['clip', 'highlight'])
+  })
+
   it('ghim video trong picker lưu channels[].pinned qua onSave', async () => {
     const tpl = detail()
     const saves: unknown[] = []
@@ -187,15 +215,17 @@ describe('BackdropSection — hộp gắn + mix', () => {
     const attach = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.attach))!
     await act(async () => { attach.click() })
     await flush(10)
+    const dialog = document.querySelector('[role="dialog"]')!
+    expect(dialog).not.toBeNull()
     // Bật chế độ "Chỉ từ video tôi chọn" rồi tick một video
-    const pick = [...c.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes(t.backdrop.template.picker.modePick))!
+    const pick = [...dialog.querySelectorAll('[role=radio]')].find((r) => r.textContent?.includes(t.backdrop.template.picker.modePick))!
     await act(async () => { (pick as HTMLElement).click() })
     await flush(10)
-    const box = c.querySelector<HTMLElement>('[role=checkbox]')!
+    const box = dialog.querySelector<HTMLElement>('[role=checkbox]')!
     expect(box).toBeTruthy()
     await act(async () => { box.click() })
     await flush(10)
-    const go = [...c.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.picker.go))!
+    const go = [...dialog.querySelectorAll('button')].find((b) => b.textContent?.includes(t.backdrop.template.picker.go))!
     await act(async () => { go.click() })
     await flush(10)
     const last = saves.at(-1) as { backdrop?: { channels: { channelId: string; pinned: string[] }[] } }

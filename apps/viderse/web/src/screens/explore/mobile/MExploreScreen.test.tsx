@@ -46,10 +46,10 @@ const scan: ScanStatus = {
 
 const channel = (id: string, name: string): Channel => ({
   id, name, youtubeUrl: null, language: 'vi', styleNote: null, descriptionFooter: null,
-  alwaysTags: [], autoPick: true, pacePerDay: 5, templateCursor: 0,
+  alwaysTags: [], autoFetch: true, autoApprove: false, perDay: 5, defaultTemplateId: 't1', defaultTemplateName: 'Midnight',
+  agentInstructions: {},
   branding: {} as unknown as Channel['branding'],
-  autonomy: {} as unknown as Channel['autonomy'],
-  priority: 'steady', avatarUrl: null, bannerUrl: null, sources: [], templates: [],
+  avatarUrl: null, bannerUrl: null, sources: [],
   identity: { state: 'ready' } as Channel['identity'],
   createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
 })
@@ -57,7 +57,7 @@ const channel = (id: string, name: string): Channel => ({
 const plan: ClonePlan = {
   accepted: [{ url: 'https://youtu.be/v0', videoId: 'v0', title: 'Video số 0', durationSec: 2391, outlier: 4.2, hasCaptions: true }],
   duplicates: [], invalid: [], position: 'front', etaStart: '2026-11-02T03:10:00Z',
-  paceLeftToday: 5, overflowDays: 0, template: { id: 't1', name: 'Midnight', fromRotation: true },
+  paceLeftToday: 5, overflowDays: 0, template: { id: 't1', name: 'Midnight' },
   imageCalls: 4, priceUSD: null,
 }
 

@@ -17,7 +17,7 @@ import { navigate, paths, type DevKitBoard, type Route } from '../../router'
 import {
   ActionButton, ChannelAvatar, EmptyWorkbench, LensLogo, Orb, StatusLabel,
   SystemLoading, SystemNotFound,
-  confirmAutonomy, confirmDeleteChannel, confirmDeleteVideo, confirmLeaveUnsaved,
+  confirmDeleteChannel, confirmDeleteVideo, confirmLeaveUnsaved,
   confirmOverwrite, confirmPause, confirmProviderLogout, confirmStopAll,
   type Assistant, ASSISTANTS, ASSISTANT_ORB as ASSISTANT_ORB_MAP, assistantName,
 } from '../../components'
@@ -228,10 +228,6 @@ function KitConfirm() {
     {
       id: 'leave', label: 'Bỏ thay đổi chưa lưu', sub: 'nút phụ Bỏ thay đổi',
       open: () => void confirmLeaveUnsaved({ changed: 3, template: 'Ánh sáng neon', onConfirm: run('Lưu rồi rời'), onDiscard: run('Bỏ thay đổi') }),
-    },
-    {
-      id: 'autonomy', label: 'Chuyển Tự chạy', sub: 'Dialogs · autonomy',
-      open: () => void confirmAutonomy({ channel: 'Kênh Thực Tế', waiting: 1, onConfirm: run('Chuyển Tự chạy') }),
     },
   ]
 

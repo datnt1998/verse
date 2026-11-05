@@ -1,5 +1,5 @@
 // MainNav — 5 mục giữa thanh đầu: Bàn dựng · Duyệt (badge vàng đếm chờ duyệt) ·
-// Kênh · Khám phá · Video mới. Cuộn ngang khi chỗ nhìn hẹp (04-components §32;
+// Kênh · Khám phá · Thư viện. Cuộn ngang khi chỗ nhìn hẹp (04-components §32;
 // (04-components › AppHeader): scrollbar ẩn, mục co lại icon + chữ.
 // Kiểu: stylex.create bên dưới (trước ở styles/components.css .vv-nav*).
 import type { MouseEvent } from 'react'
@@ -68,7 +68,7 @@ const ITEMS: { key: NavKey; label: string; icon: IconName; path: string; badge?:
   { key: 'review', label: t.nav.review, icon: 'gallery', path: paths.review(), badge: 'review' },
   { key: 'channels', label: t.nav.channels, icon: 'channel', path: paths.channelNew() },
   { key: 'explore', label: t.nav.explore, icon: 'radar', path: paths.explore() },
-  { key: 'new', label: t.nav.new, icon: 'video-add', path: paths.new() },
+  { key: 'library', label: t.nav.library, icon: 'folder', path: paths.library() },
 ]
 
 export function MainNav({ route, reviewCount, channelHref, onNavigate }: {

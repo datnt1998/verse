@@ -16,9 +16,7 @@ import (
 func TestCloneMetadataFailedRetryPersistsAndRequeues(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','Metadata')`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	job := cloneTestJob(t, store, "metadata-recovery")
 	if _, err := pool.Exec(ctx, `UPDATE clone_steps SET status='failed', error='{"code":"internal_error","message":"failed"}' WHERE job_id=$1 AND step='metadata'`, job.ID); err != nil {
@@ -58,9 +56,7 @@ func TestCloneMetadataFailedRetryPersistsAndRequeues(t *testing.T) {
 func TestCloneMetadataEditWithActiveBuildAndMetadataWrite(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','Metadata')`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	job := cloneTestJob(t, store, "metadata-active")
 	if _, err := pool.Exec(ctx, `UPDATE clone_jobs SET status='running',active_step='build',lease_owner='worker',lease_expires_at=now()+interval '5 minutes' WHERE id=$1`, job.ID); err != nil {
@@ -103,9 +99,7 @@ func TestCloneMetadataEditWithActiveBuildAndMetadataWrite(t *testing.T) {
 func TestCloneMetadataPatchAndRestoreWhileBuildRuns(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
-	if _, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','Metadata')`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	job := cloneTestJob(t, store, "metadata-patch-active")
 	files := &stepstest.FakeMedia{Root: t.TempDir()}

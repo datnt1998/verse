@@ -206,6 +206,7 @@ type CloneJob struct {
 	ImageApprovedAt   pgtype.Timestamptz `json:"image_approved_at"`
 	AutoFix           []byte             `json:"auto_fix"`
 	AutoReview        []byte             `json:"auto_review"`
+	Instructions      []byte             `json:"instructions"`
 }
 
 type CloneMetadataState struct {
@@ -224,16 +225,6 @@ type ClonePostFact struct {
 	NextReadAt   pgtype.Timestamptz `json:"next_read_at"`
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
-}
-
-type ClonePostStat struct {
-	JobID     pgtype.UUID        `json:"job_id"`
-	Milestone string             `json:"milestone"`
-	Views     int64              `json:"views"`
-	Likes     pgtype.Int8        `json:"likes"`
-	Comments  pgtype.Int8        `json:"comments"`
-	Source    string             `json:"source"`
-	ReadAt    pgtype.Timestamptz `json:"read_at"`
 }
 
 type CloneQueue struct {
@@ -279,6 +270,30 @@ type CloneStep struct {
 	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
 }
 
+type CoverTrial struct {
+	ID            pgtype.UUID        `json:"id"`
+	TemplateID    pgtype.UUID        `json:"template_id"`
+	JobID         pgtype.UUID        `json:"job_id"`
+	JobTitle      string             `json:"job_title"`
+	PromptID      string             `json:"prompt_id"`
+	PromptName    string             `json:"prompt_name"`
+	Composition   string             `json:"composition"`
+	HookText      string             `json:"hook_text"`
+	State         string             `json:"state"`
+	MediaPath     pgtype.Text        `json:"media_path"`
+	Provider      string             `json:"provider"`
+	Model         string             `json:"model"`
+	Width         int32              `json:"width"`
+	Height        int32              `json:"height"`
+	CostImages    int32              `json:"cost_images"`
+	ErrorCode     pgtype.Text        `json:"error_code"`
+	ErrorMessage  pgtype.Text        `json:"error_message"`
+	ErrorRecovery pgtype.Text        `json:"error_recovery"`
+	RetryAt       pgtype.Timestamptz `json:"retry_at"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	FinishedAt    pgtype.Timestamptz `json:"finished_at"`
+}
+
 type EditorDeletedResource struct {
 	ResourceKey string             `json:"resource_key"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
@@ -321,6 +336,31 @@ type ImagePrompt struct {
 	Prompt      string             `json:"prompt"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ImagePromptSample struct {
+	ID            pgtype.UUID        `json:"id"`
+	PromptID      string             `json:"prompt_id"`
+	PromptName    string             `json:"prompt_name"`
+	PromptKind    string             `json:"prompt_kind"`
+	Composition   pgtype.Text        `json:"composition"`
+	VideoID       pgtype.UUID        `json:"video_id"`
+	VideoTitle    string             `json:"video_title"`
+	SceneID       string             `json:"scene_id"`
+	HookText      string             `json:"hook_text"`
+	State         string             `json:"state"`
+	MediaPath     pgtype.Text        `json:"media_path"`
+	Provider      string             `json:"provider"`
+	Model         string             `json:"model"`
+	Width         int32              `json:"width"`
+	Height        int32              `json:"height"`
+	CostImages    int32              `json:"cost_images"`
+	ErrorCode     pgtype.Text        `json:"error_code"`
+	ErrorMessage  pgtype.Text        `json:"error_message"`
+	ErrorRecovery pgtype.Text        `json:"error_recovery"`
+	RetryAt       pgtype.Timestamptz `json:"retry_at"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	FinishedAt    pgtype.Timestamptz `json:"finished_at"`
 }
 
 type ImageReceipt struct {
@@ -412,9 +452,8 @@ type OwnerChannel struct {
 	StyleNote          pgtype.Text        `json:"style_note"`
 	DescriptionFooter  pgtype.Text        `json:"description_footer"`
 	AlwaysTags         []string           `json:"always_tags"`
-	AutoPick           bool               `json:"auto_pick"`
-	PacePerDay         int32              `json:"pace_per_day"`
-	TemplateCursor     int32              `json:"template_cursor"`
+	AutoFetch          bool               `json:"auto_fetch"`
+	PerDay             int32              `json:"per_day"`
 	Branding           []byte             `json:"branding"`
 	AvatarPath         pgtype.Text        `json:"avatar_path"`
 	BannerPath         pgtype.Text        `json:"banner_path"`
@@ -431,8 +470,9 @@ type OwnerChannel struct {
 	IdentityLeaseUntil pgtype.Timestamptz `json:"identity_lease_until"`
 	CreatedAt          pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
-	Autonomy           []byte             `json:"autonomy"`
-	Priority           string             `json:"priority"`
+	DefaultTemplateID  pgtype.UUID        `json:"default_template_id"`
+	AutoApprove        bool               `json:"auto_approve"`
+	AgentInstructions  []byte             `json:"agent_instructions"`
 }
 
 type OwnerChannelSource struct {
@@ -441,21 +481,6 @@ type OwnerChannelSource struct {
 	LinkedAt       pgtype.Timestamptz `json:"linked_at"`
 	AutoBaselineAt pgtype.Timestamptz `json:"auto_baseline_at"`
 	MinDurationSec pgtype.Int4        `json:"min_duration_sec"`
-}
-
-type OwnerChannelTemplate struct {
-	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
-	TemplateID     pgtype.UUID `json:"template_id"`
-	Position       int32       `json:"position"`
-	Weight         int16       `json:"weight"`
-}
-
-type PerformanceInsightsApplied struct {
-	ChannelID pgtype.UUID        `json:"channel_id"`
-	InsightID string             `json:"insight_id"`
-	Kind      string             `json:"kind"`
-	RuleID    pgtype.Text        `json:"rule_id"`
-	AppliedAt pgtype.Timestamptz `json:"applied_at"`
 }
 
 type PlatformRequest struct {
@@ -658,13 +683,27 @@ type Suggestion struct {
 }
 
 type Template struct {
-	ID              pgtype.UUID        `json:"id"`
-	Name            string             `json:"name"`
-	Recipe          []byte             `json:"recipe"`
-	Revision        int64              `json:"revision"`
-	PreviewRevision pgtype.Int8        `json:"preview_revision"`
-	PreviewBuiltAt  pgtype.Timestamptz `json:"preview_built_at"`
-	CreatedAt       pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
-	Project         []byte             `json:"project"`
+	ID               pgtype.UUID        `json:"id"`
+	Name             string             `json:"name"`
+	Recipe           []byte             `json:"recipe"`
+	Revision         int64              `json:"revision"`
+	PreviewRevision  pgtype.Int8        `json:"preview_revision"`
+	PreviewBuiltAt   pgtype.Timestamptz `json:"preview_built_at"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	Project          []byte             `json:"project"`
+	PreviewProjectID pgtype.Text        `json:"preview_project_id"`
+	PreviewJobID     pgtype.UUID        `json:"preview_job_id"`
+	PreviewMinutes   pgtype.Int4        `json:"preview_minutes"`
+	PreviewRunID     pgtype.UUID        `json:"preview_run_id"`
+	PreviewError     []byte             `json:"preview_error"`
+}
+
+type TemplatePreviewProject struct {
+	ProjectID  string             `json:"project_id"`
+	TemplateID pgtype.UUID        `json:"template_id"`
+	JobID      pgtype.UUID        `json:"job_id"`
+	Minutes    pgtype.Int4        `json:"minutes"`
+	BuiltAt    pgtype.Timestamptz `json:"built_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 }

@@ -136,6 +136,10 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 			autoFix = &f
 		}
 	}
+	var instructions domain.AgentInstructions
+	if len(r.Instructions) > 0 {
+		_ = json.Unmarshal(r.Instructions, &instructions)
+	}
 	return domain.CloneJob{
 		ID:                uuidStr(r.ID),
 		ChannelID:         uuidStr(r.ChannelID),
@@ -144,6 +148,7 @@ func jobFromGen(r gen.CloneJob) domain.CloneJob {
 		TemplateID:        uuidStr(r.TemplateID),
 		TemplateSnapshot:  r.TemplateSnapshot,
 		ModelRefs:         r.ModelRefs,
+		Instructions:      domain.NormalizeAgentInstructions(instructions),
 		NoImages:          r.NoImages,
 		Generation:        int(r.Generation),
 		SupersededAt:      tptr(r.SupersededAt),
@@ -437,13 +442,21 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 	err := s.inTx(ctx, func(txctx context.Context) error {
 		q := s.q(txctx)
 		now := nowTz()
+		channelID, err := cloneUUIDOf(in.ChannelID)
+		if err != nil {
+			return err
+		}
+		// The channel row is locked for every admission (queue or direct) and
+		// the default-template + instructions snapshot is read inside this tx,
+		// with the same lock as channel PATCH. A stale planner snapshot must
+		// never decide default/instructions for a new job.
+		admission, err := q.LockChannelForAdmission(txctx, channelID)
+		if err != nil {
+			return err
+		}
+		defaultTemplate := rowUUID(admission.DefaultTemplateID)
+		instructions := admission.AgentInstructions
 		if in.QueueItemID != "" {
-			// Queue edits and admission take the channel lock before touching
-			// the item. A stale scheduler snapshot must not create/adopt a job.
-			channelID, err := cloneUUIDOf(in.ChannelID)
-			if err != nil {
-				return err
-			}
 			if _, err := q.LockQueueOwner(txctx, channelID); err != nil {
 				return err
 			}
@@ -530,15 +543,39 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 		}
 		id, _ := cloneUUIDOf(newUUID())
 		ch, _ := cloneUUIDOf(in.ChannelID)
-		tpl, _ := cloneUUIDOf(in.TemplateID)
+		templateID := in.TemplateID
+		if !in.TemplateExplicit && templateID != "" && templateID != defaultTemplate {
+			return pipeline.ErrAdmissionTemplateChanged
+		}
+		if templateID == "" {
+			templateID = defaultTemplate
+		}
+		if templateID == "" {
+			return &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Kênh chưa có template mặc định"}
+		}
+		// SHARE giữ revision ổn định tới khi job được persist; không giữ khoá
+		// trong lúc chuẩn bị media hoặc gọi mạng.
+		revUUID, err := cloneUUIDOf(templateID)
+		if err != nil {
+			return err
+		}
+		rev, err := q.TemplateRevisionForShare(txctx, revUUID)
+		if err != nil {
+			return err
+		}
+		if in.SnapshotRevision != 0 && rev != in.SnapshotRevision {
+			return pipeline.ErrAdmissionTemplateChanged
+		}
+		tpl, _ := cloneUUIDOf(templateID)
 		srcJSON, _ := json.Marshal(in.Source)
 		row, err := q.InsertCloneJob(txctx, gen.InsertCloneJobParams{
 			ID: id, ChannelID: ch, SourceKey: in.SourceKey, SourceSnapshot: srcJSON,
 			TemplateID: tpl, TemplateSnapshot: in.TemplateSnapshot, ModelRefs: in.ModelRefs,
 			NoImages: in.NoImages, Generation: gen_,
-			Priority: string(orDef(string(in.Priority), "pick")),
-			Origin:   string(orDef(string(in.Origin), "manual")),
-			Column12: now,
+			Priority:     string(orDef(string(in.Priority), "pick")),
+			Origin:       string(orDef(string(in.Origin), "manual")),
+			Instructions: instructions,
+			Column13:     now,
 		})
 		if err != nil {
 			return err
@@ -562,12 +599,6 @@ func (s *CloneStore) StartJob(ctx context.Context, in StartJobInput) (*StartJobR
 			}
 			if n == 0 {
 				return &domain.CloneError{Code: domain.CloneErrConflict, Message: "Mục hàng chờ đã được xử lý"}
-			}
-		}
-		if ch.Valid {
-			tx := txctx.Value(mediaTxKey{}).(pgx.Tx)
-			if _, err := tx.Exec(txctx, "UPDATE owner_channels SET template_cursor=template_cursor+1 WHERE id=$1", ch); err != nil {
-				return err
 			}
 		}
 		if err := s.refreshDerived(txctx, row.ID, nil); err != nil {

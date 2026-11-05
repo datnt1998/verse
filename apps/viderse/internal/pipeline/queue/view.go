@@ -18,7 +18,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 	out.Workers.Total = rules.Workers
 	out.ImageWorkers = rules.ImageWorkers
 	out.RescanHours = rules.RescanHours
-	lanes, items, owners, templates, err := s.loadLanes(ctx)
+	lanes, items, owners, templateNames, defaults, err := s.loadLanes(ctx)
 	if err != nil {
 		return out, err
 	}
@@ -37,7 +37,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		kept := make([]Item, 0, len(simulated[i].Items))
 		for _, it := range simulated[i].Items {
 			row := items[it.ID]
-			if row.Priority == domain.ClonePick || row.Origin != domain.OriginAuto || owners[row.ChannelID].AutoPick {
+			if row.Priority == domain.ClonePick || row.Origin != domain.OriginAuto || owners[row.ChannelID].AutoFetch {
 				kept = append(kept, it)
 			}
 		}
@@ -57,12 +57,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		}
 		now := domain.Subline(j, steps, s.d.Now())
 		started := j.CreatedAt
-		templateName := ""
-		for _, t := range templates[j.ChannelID] {
-			if t.ID == j.TemplateID {
-				templateName = t.Name
-			}
-		}
+		templateName := templateNames[j.TemplateID]
 		out.Running = append(out.Running, domain.QueueRunningJob{JobID: j.ID, ChannelID: j.ChannelID, Title: j.Source.Title, Agent: agent, Now: now, StepIndex: idx, ThumbnailURL: j.Source.ThumbnailURL, TemplateName: templateName, DurationSec: j.Source.DurationSec, StartedAt: &started, PausedAt: j.PausedAt})
 	}
 	used, err := s.store.PaceUsedToday(ctx, LocalMidnight(s.d.Now()))
@@ -74,7 +69,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		return out, err
 	}
 	for _, o := range ownerRows {
-		out.Pace = append(out.Pace, domain.QueuePace{ChannelID: o.ID, Used: int(used[o.ID]), Limit: o.PacePerDay})
+		out.Pace = append(out.Pace, domain.QueuePace{ChannelID: o.ID, Used: int(used[o.ID]), Limit: o.PerDay})
 	}
 	for _, lane := range lanes {
 		hasBatch := false
@@ -83,7 +78,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 			if it.Priority == "batch" {
 				hasBatch = true
 				row := items[it.ID]
-				if row.Origin != domain.OriginAuto || owners[it.ChannelID].AutoPick {
+				if row.Origin != domain.OriginAuto || owners[it.ChannelID].AutoFetch {
 					hasEligibleBatch = true
 				}
 			}
@@ -95,8 +90,6 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		reason := ""
 		var until *time.Time
 		switch {
-		case !lane.TemplateOK:
-			reason = domain.SkipNoTemplate
 		case !hasEligibleBatch:
 			reason = domain.SkipPausedChannel
 		case lane.UsedToday >= lane.Pace:
@@ -116,7 +109,7 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 		row := items[it.ID]
 		eta := estimates[it.ID]
 		wait := eta.Wait
-		if row.Priority == domain.CloneBatch && row.Origin == domain.OriginAuto && !owners[row.ChannelID].AutoPick {
+		if row.Priority == domain.CloneBatch && row.Origin == domain.OriginAuto && !owners[row.ChannelID].AutoFetch {
 			eta.Start = nil
 			eta.Done = nil
 			wait = domain.WaitPausedChannel
@@ -133,20 +126,12 @@ func (s *Service) List(ctx context.Context) (domain.CloneQueueView, error) {
 				wait = domain.WaitRotation
 			}
 		}
-		tplName := ""
-		ts := templates[row.ChannelID]
-		if len(ts) > 0 {
-			idx := owners[row.ChannelID].TemplateCursor % len(ts)
-			if idx < 0 {
-				idx = 0
-			}
-			tplName = ts[idx].Name
-		}
+		// Tên template: override của mục (nếu có) thắng; không override thì
+		// default của kênh. Không cursor/rotation.
+		tplName := defaults[row.ChannelID].Name
 		if row.TemplateID != nil {
-			for _, t := range ts {
-				if t.ID == *row.TemplateID {
-					tplName = t.Name
-				}
+			if name, ok := templateNames[*row.TemplateID]; ok {
+				tplName = name
 			}
 		}
 		source := ""

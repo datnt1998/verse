@@ -1,0 +1,3592 @@
+{
+  "generated": "2026-11-04T19:34:37.061Z",
+  "base": "http://127.0.0.1:8043",
+  "surfaces": [
+    {
+      "key": "pc",
+      "viewport": "1440x900",
+      "reducedMotion": false,
+      "isMobileEmu": false,
+      "channels": 3,
+      "templates": 3,
+      "probes": {
+        "channel-sources": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 28,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 149,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 97,
+              "h": 40
+            },
+            {
+              "text": "Liên kết đối thủ",
+              "tag": "button",
+              "role": null,
+              "w": 135,
+              "h": 30
+            },
+            {
+              "text": "Liên kết đối thủ",
+              "tag": "button",
+              "role": null,
+              "w": 114,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 405,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-templates": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+          "smallTouchCount": 22,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 148,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 89,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 97,
+              "h": 40
+            },
+            {
+              "text": "Sửa template",
+              "tag": "button",
+              "role": null,
+              "w": 122,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-settings": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings",
+          "smallTouchCount": 33,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 148,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 98,
+              "h": 40
+            },
+            {
+              "text": "Vẽ lại ảnh bìa kênh · 1 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 191,
+              "h": 30
+            },
+            {
+              "text": "Vẽ lại avatar · 1 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 157,
+              "h": 30
+            },
+            {
+              "text": "Đặt tên khác",
+              "tag": "button",
+              "role": null,
+              "w": 120,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 361,
+              "h": 34
+            },
+            {
+              "text": "Tạo lại cả bộ · 2 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 162,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 527,
+              "h": 38
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 527,
+              "h": 38
+            },
+            {
+              "text": "Tiếng Anh",
+              "tag": "button",
+              "role": "radio",
+              "w": 85,
+              "h": 28
+            },
+            {
+              "text": "Tiếng Việt",
+              "tag": "button",
+              "role": "radio",
+              "w": 86,
+              "h": 28
+            },
+            {
+              "text": "Theo đối thủ",
+              "tag": "button",
+              "role": "radio",
+              "w": 101,
+              "h": 28
+            },
+            {
+              "text": "Thêm tag",
+              "tag": "input",
+              "role": null,
+              "w": 168,
+              "h": 28
+            },
+            {
+              "text": "Xoá kênh",
+              "tag": "button",
+              "role": null,
+              "w": 111,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [
+            {
+              "w": 338,
+              "h": 92,
+              "title": null,
+              "color": "rgba(255, 255, 255, 0.55)",
+              "cls": "x10l6tqk x1nrll8i xwa60dl x1qg1h90 x1iqi"
+            },
+            {
+              "w": 16,
+              "h": 16,
+              "title": null,
+              "color": "rgb(139, 139, 151)",
+              "cls": "x1rg5ohu xtwfq29 xirjgq3 x1rudrqi x561xi"
+            }
+          ],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "create-page": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/new",
+          "smallTouchCount": 21,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Kênh của tôi",
+              "tag": "a",
+              "role": null,
+              "w": 95,
+              "h": 20
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 530,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "hoặc tìm trong Khám phá ›",
+              "tag": "a",
+              "role": null,
+              "w": 162,
+              "h": 19
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Huỷ",
+              "tag": "button",
+              "role": null,
+              "w": 54,
+              "h": 36
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "button",
+              "role": null,
+              "w": 89,
+              "h": 36
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "final": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 21,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Kênh của tôi",
+              "tag": "a",
+              "role": null,
+              "w": 95,
+              "h": 20
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 530,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "hoặc tìm trong Khám phá ›",
+              "tag": "a",
+              "role": null,
+              "w": 162,
+              "h": 19
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Huỷ",
+              "tag": "button",
+              "role": null,
+              "w": 54,
+              "h": 36
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "button",
+              "role": null,
+              "w": 89,
+              "h": 36
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        }
+      },
+      "screenshots": [
+        "pc-channel-sources.png",
+        "pc-channel-templates.png",
+        "pc-channel-settings.png",
+        "pc-create-page.png"
+      ],
+      "consoleErrors": []
+    },
+    {
+      "key": "m",
+      "viewport": "390x844",
+      "reducedMotion": false,
+      "isMobileEmu": true,
+      "channels": 3,
+      "templates": 3,
+      "probes": {
+        "channel-sources": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 8,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 79,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 62,
+              "h": 40
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-templates": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+          "smallTouchCount": 6,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 78,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 89,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 62,
+              "h": 40
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-settings": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings",
+          "smallTouchCount": 10,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 78,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 63,
+              "h": 40
+            },
+            {
+              "text": "Tiếng Anh",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Tiếng Việt",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Theo đối thủ",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Xoá kênh",
+              "tag": "button",
+              "role": null,
+              "w": 111,
+              "h": 36
+            }
+          ],
+          "missingIcons": [
+            {
+              "w": 215,
+              "h": 59,
+              "title": null,
+              "color": "rgba(255, 255, 255, 0.55)",
+              "cls": "x10l6tqk x1nrll8i xwa60dl x1qg1h90 x1iqi"
+            }
+          ],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "create-page": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/new",
+          "smallTouchCount": 3,
+          "smallTouch": [
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 21,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "final": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 3,
+          "smallTouch": [
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 21,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        }
+      },
+      "screenshots": [
+        "m-channel-sources.png",
+        "m-channel-templates.png",
+        "m-channel-settings.png",
+        "m-create-page.png"
+      ],
+      "consoleErrors": []
+    },
+    {
+      "key": "pc-rm",
+      "viewport": "1440x900",
+      "reducedMotion": true,
+      "isMobileEmu": false,
+      "channels": 3,
+      "templates": 3,
+      "probes": {
+        "channel-sources": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 28,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 149,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 97,
+              "h": 40
+            },
+            {
+              "text": "Liên kết đối thủ",
+              "tag": "button",
+              "role": null,
+              "w": 135,
+              "h": 30
+            },
+            {
+              "text": "Liên kết đối thủ",
+              "tag": "button",
+              "role": null,
+              "w": 114,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 405,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-templates": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+          "smallTouchCount": 22,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 148,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 89,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 97,
+              "h": 40
+            },
+            {
+              "text": "Sửa template",
+              "tag": "button",
+              "role": null,
+              "w": 122,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-settings": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings",
+          "smallTouchCount": 33,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 206,
+              "h": 30
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "a",
+              "role": null,
+              "w": 232,
+              "h": 38
+            },
+            {
+              "text": "Liên kết YouTube",
+              "tag": "button",
+              "role": null,
+              "w": 155,
+              "h": 32
+            },
+            {
+              "text": "Video mới cho kênh",
+              "tag": "button",
+              "role": null,
+              "w": 174,
+              "h": 32
+            },
+            {
+              "text": "Xem trong Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 146,
+              "h": 28
+            },
+            {
+              "text": "Nguồn & tự động0",
+              "tag": "button",
+              "role": "tab",
+              "w": 148,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ kênh",
+              "tag": "button",
+              "role": "tab",
+              "w": 98,
+              "h": 40
+            },
+            {
+              "text": "Vẽ lại ảnh bìa kênh · 1 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 191,
+              "h": 30
+            },
+            {
+              "text": "Vẽ lại avatar · 1 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 157,
+              "h": 30
+            },
+            {
+              "text": "Đặt tên khác",
+              "tag": "button",
+              "role": null,
+              "w": 120,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 361,
+              "h": 34
+            },
+            {
+              "text": "Tạo lại cả bộ · 2 ảnh",
+              "tag": "button",
+              "role": null,
+              "w": 162,
+              "h": 30
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 527,
+              "h": 38
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 527,
+              "h": 38
+            },
+            {
+              "text": "Tiếng Anh",
+              "tag": "button",
+              "role": "radio",
+              "w": 85,
+              "h": 28
+            },
+            {
+              "text": "Tiếng Việt",
+              "tag": "button",
+              "role": "radio",
+              "w": 86,
+              "h": 28
+            },
+            {
+              "text": "Theo đối thủ",
+              "tag": "button",
+              "role": "radio",
+              "w": 101,
+              "h": 28
+            },
+            {
+              "text": "Thêm tag",
+              "tag": "input",
+              "role": null,
+              "w": 168,
+              "h": 28
+            },
+            {
+              "text": "Xoá kênh",
+              "tag": "button",
+              "role": null,
+              "w": 111,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 868,
+              "h": 33
+            },
+            {
+              "text": "Bàn với Trinh sátTrinh sát",
+              "tag": "button",
+              "role": "combobox",
+              "w": 170,
+              "h": 28
+            },
+            {
+              "text": "Gửi",
+              "tag": "button",
+              "role": null,
+              "w": 38,
+              "h": 38
+            }
+          ],
+          "missingIcons": [
+            {
+              "w": 338,
+              "h": 92,
+              "title": null,
+              "color": "rgba(255, 255, 255, 0.55)",
+              "cls": "x10l6tqk x1nrll8i xwa60dl x1qg1h90 x1iqi"
+            },
+            {
+              "w": 16,
+              "h": 16,
+              "title": null,
+              "color": "rgb(139, 139, 151)",
+              "cls": "x1rg5ohu xtwfq29 xirjgq3 x1rudrqi x561xi"
+            }
+          ],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "create-page": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/new",
+          "smallTouchCount": 21,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Kênh của tôi",
+              "tag": "a",
+              "role": null,
+              "w": 95,
+              "h": 20
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 530,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "hoặc tìm trong Khám phá ›",
+              "tag": "a",
+              "role": null,
+              "w": 162,
+              "h": 19
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Huỷ",
+              "tag": "button",
+              "role": null,
+              "w": 54,
+              "h": 36
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "button",
+              "role": null,
+              "w": 89,
+              "h": 36
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "final": {
+          "innerWidth": 1440,
+          "innerHeight": 900,
+          "docScrollWidth": 1440,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 21,
+          "smallTouch": [
+            {
+              "text": "Viderse",
+              "tag": "a",
+              "role": null,
+              "w": 26,
+              "h": 26
+            },
+            {
+              "text": "Bàn dựng",
+              "tag": "a",
+              "role": null,
+              "w": 106,
+              "h": 30
+            },
+            {
+              "text": "Duyệt2",
+              "tag": "a",
+              "role": null,
+              "w": 108,
+              "h": 30
+            },
+            {
+              "text": "Kênh",
+              "tag": "a",
+              "role": null,
+              "w": 78,
+              "h": 30
+            },
+            {
+              "text": "Khám phá",
+              "tag": "a",
+              "role": null,
+              "w": 110,
+              "h": 30
+            },
+            {
+              "text": "Thư viện",
+              "tag": "a",
+              "role": null,
+              "w": 99,
+              "h": 30
+            },
+            {
+              "text": "Làm videoN",
+              "tag": "a",
+              "role": null,
+              "w": 129,
+              "h": 32
+            },
+            {
+              "text": "Máy rảnh",
+              "tag": "a",
+              "role": null,
+              "w": 92,
+              "h": 30
+            },
+            {
+              "text": "Cài đặt · 2 việc cần xem",
+              "tag": "a",
+              "role": null,
+              "w": 32,
+              "h": 32
+            },
+            {
+              "text": "W",
+              "tag": "button",
+              "role": null,
+              "w": 30,
+              "h": 30
+            },
+            {
+              "text": "Kênh của tôi",
+              "tag": "a",
+              "role": null,
+              "w": 95,
+              "h": 20
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 530,
+              "h": 34
+            },
+            {
+              "text": "Theo dõi & chọn",
+              "tag": "button",
+              "role": null,
+              "w": 118,
+              "h": 30
+            },
+            {
+              "text": "hoặc tìm trong Khám phá ›",
+              "tag": "a",
+              "role": null,
+              "w": 162,
+              "h": 19
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "",
+              "tag": "input",
+              "role": null,
+              "w": 393,
+              "h": 36
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 46,
+              "h": 34
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 14,
+              "h": 34
+            },
+            {
+              "text": "Huỷ",
+              "tag": "button",
+              "role": null,
+              "w": 54,
+              "h": 36
+            },
+            {
+              "text": "Tạo kênh",
+              "tag": "button",
+              "role": null,
+              "w": 89,
+              "h": 36
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        }
+      },
+      "screenshots": [
+        "pc-rm-channel-sources.png",
+        "pc-rm-channel-templates.png",
+        "pc-rm-channel-settings.png",
+        "pc-rm-create-page.png"
+      ],
+      "consoleErrors": []
+    },
+    {
+      "key": "m-rm",
+      "viewport": "390x844",
+      "reducedMotion": true,
+      "isMobileEmu": true,
+      "channels": 3,
+      "templates": 3,
+      "probes": {
+        "channel-sources": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 8,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 79,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 62,
+              "h": 40
+            },
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-templates": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+          "smallTouchCount": 6,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 78,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 89,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 62,
+              "h": 40
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "channel-settings": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings",
+          "smallTouchCount": 10,
+          "smallTouch": [
+            {
+              "text": "CLChuyện Lạ Đêm Khuya",
+              "tag": "button",
+              "role": null,
+              "w": 219,
+              "h": 36
+            },
+            {
+              "text": "Việc nền: máy rảnh, 48 thông báo cần bạn",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "W",
+              "tag": "a",
+              "role": null,
+              "w": 36,
+              "h": 36
+            },
+            {
+              "text": "Nguồn0",
+              "tag": "button",
+              "role": "tab",
+              "w": 78,
+              "h": 40
+            },
+            {
+              "text": "Template",
+              "tag": "button",
+              "role": "tab",
+              "w": 88,
+              "h": 40
+            },
+            {
+              "text": "Hồ sơ",
+              "tag": "button",
+              "role": "tab",
+              "w": 63,
+              "h": 40
+            },
+            {
+              "text": "Tiếng Anh",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Tiếng Việt",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Theo đối thủ",
+              "tag": "button",
+              "role": "radio",
+              "w": 103,
+              "h": 40
+            },
+            {
+              "text": "Xoá kênh",
+              "tag": "button",
+              "role": null,
+              "w": 111,
+              "h": 36
+            }
+          ],
+          "missingIcons": [
+            {
+              "w": 215,
+              "h": 59,
+              "title": null,
+              "color": "rgba(255, 255, 255, 0.55)",
+              "cls": "x10l6tqk x1nrll8i xwa60dl x1qg1h90 x1iqi"
+            }
+          ],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "create-page": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/new",
+          "smallTouchCount": 3,
+          "smallTouch": [
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 21,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        },
+        "final": {
+          "innerWidth": 390,
+          "innerHeight": 844,
+          "docScrollWidth": 390,
+          "hOverflow": false,
+          "url": "#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+          "smallTouchCount": 3,
+          "smallTouch": [
+            {
+              "text": "Giảm",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            },
+            {
+              "text": "Video mỗi ngày",
+              "tag": "input",
+              "role": null,
+              "w": 21,
+              "h": 42
+            },
+            {
+              "text": "Tăng",
+              "tag": "button",
+              "role": null,
+              "w": 44,
+              "h": 42
+            }
+          ],
+          "missingIcons": [],
+          "outOfViewCount": 0,
+          "outOfView": [],
+          "truncatedCount": 0,
+          "truncated": []
+        }
+      },
+      "screenshots": [
+        "m-rm-channel-sources.png",
+        "m-rm-channel-templates.png",
+        "m-rm-channel-settings.png",
+        "m-rm-create-page.png"
+      ],
+      "consoleErrors": []
+    }
+  ],
+  "actions": [
+    {
+      "surface": "pc",
+      "action": "tabs-labels",
+      "labels": [
+        "Nguồn & tự động0",
+        "Template",
+        "Hồ sơ kênh"
+      ],
+      "urls": [
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings"
+      ],
+      "expected": [
+        "Nguồn & tự động",
+        "Template",
+        "Hồ sơ kênh"
+      ],
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "switcher-desktop-menu",
+      "triggerLabel": "Đổi kênh, đang chọn Chuyện Lạ Đêm Khuya",
+      "menuBounds": {
+        "bounds": {
+          "x": 70,
+          "y": 51,
+          "w": 289,
+          "h": 252
+        },
+        "withinViewport": true
+      },
+      "currentChannelListed": true,
+      "screenshot": "pc-switcher-menu.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "siderail-switch-channel",
+      "switchedTo": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "heading": "Chuyện Lạ Đêm Khuya",
+      "andBack": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "nav-tab-sources",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "link-picker-open-esc",
+      "bounds": {
+        "bounds": {
+          "x": 484,
+          "y": 440,
+          "w": 340,
+          "h": 180
+        },
+        "withinViewport": true
+      },
+      "checkboxRows": 0,
+      "submitDisabledWhenEmpty": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": null,
+        "id": "",
+        "match": true
+      },
+      "screenshot": "pc-link-picker.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "link-picker-outside-click",
+      "closeMethod": "outside-pointerdown",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "rival-menus-open-cancel",
+      "status": "unexercised",
+      "note": "channel Chuyện Lạ Đêm Khuya has 0 linked rivals (sources=0 on all 3 QA channels) — unlink confirm / row action-sheet cannot be exercised without writing"
+    },
+    {
+      "surface": "pc",
+      "action": "automation-card-state",
+      "switches": 2,
+      "perDayInputs": 1,
+      "note": "toggles/stepper present, never clicked (would PATCH live channel)",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "nav-tab-templates",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "template-picker-open-keyboard-esc",
+      "triggerLabel": "Đổi template",
+      "bounds": {
+        "bounds": {
+          "x": 300,
+          "y": 648,
+          "w": 346,
+          "h": 102
+        },
+        "withinViewport": true
+      },
+      "optionCount": 3,
+      "optionsSample": [
+        "Kiểm thử QA · chọn prompt trong viewer",
+        "Mẫu chuẩn · Tách nền",
+        "Truyện kể đêm"
+      ],
+      "focusedOption": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_r_"
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_r_"
+      },
+      "screenshot": "pc-template-picker.png",
+      "nothingSelected": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "nav-tab-settings",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "settings-template-nav-icon",
+      "iconStyle": {
+        "maskImage": "none",
+        "borderStyle": "dashed",
+        "borderRadius": "50%",
+        "background": "rgba(0, 0, 0, 0)",
+        "title": null
+      },
+      "rendersRealMask": false,
+      "expectedUrl": "/assets/layer-*.svg",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "profile-name-edit-state",
+      "original": "Chuyện Lạ Đêm Khuya",
+      "draftChanged": true,
+      "savelineShown": "Tự lưu khi bạn rời ô",
+      "restoredAfterReload": "Chuyện Lạ Đêm Khuya",
+      "reverted": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "delete-channel-confirm-cancel",
+      "bounds": {
+        "bounds": {
+          "x": 498,
+          "y": 295,
+          "w": 444,
+          "h": 329
+        },
+        "withinViewport": true
+      },
+      "title": "Xoá kênh “Chuyện Lạ Đêm Khuya”?",
+      "screenshot": "pc-delete-confirm.png",
+      "confirmed": false,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "composer-recipient-draft-switch",
+      "pickerLabel": "Dặn trợ lý nào",
+      "firstRecipient": "Bàn với Trinh sátTrinh sát",
+      "options": [
+        "Trinh sát",
+        "Đạo diễn",
+        "Hoạ sĩ",
+        "Kiểm định"
+      ],
+      "picked": "Đạo diễn",
+      "draftAfterSwitch": "",
+      "draftBackOnFirst": "QA draft scout",
+      "sendDisabledWhenEmpty": true,
+      "sendNeverClicked": true,
+      "bounds": {
+        "bounds": {
+          "x": 1201,
+          "y": 861,
+          "w": 200,
+          "h": 132
+        },
+        "withinViewport": false
+      },
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "composer-picker-keyboard-esc",
+      "keyboardNav": true,
+      "focusedOption": {
+        "tag": "button",
+        "label": "Dặn trợ lý nào",
+        "id": "_r_c_"
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Dặn trợ lý nào",
+        "id": "_r_c_"
+      },
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "create-page-load",
+      "url": "http://127.0.0.1:8043/#/channels/new",
+      "headings": [
+        "Tạo kênh",
+        "Đối thủ làm nguồn · bắt buộc",
+        "Thông tin kênh",
+        "Cách kênh chạy"
+      ],
+      "nameFieldPresent": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "create-fill-fields",
+      "rivalCheckboxes": 0,
+      "sample": [],
+      "submitVisible": true,
+      "submitNeverClicked": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "create-run-rows",
+      "templateTrigger": "Mẫu chuẩn · gợi ý· Gợi ý · Viderse tạo theo nhận diện kênh m",
+      "options": [
+        "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diệ",
+        "Kiểm thử QA · chọn prompt trong viewerChỉ dẫn Ảnh ",
+        "Mẫu chuẩn · Tách nềnChỉ dẫn Theo nhận diện kênh · ",
+        "Truyện kể đêmChỉ dẫn Theo nhận diện kênh · Toàn kh"
+      ],
+      "bounds": {
+        "bounds": {
+          "x": 763,
+          "y": 633,
+          "w": 366,
+          "h": 180
+        },
+        "withinViewport": true
+      },
+      "approveSwitch": true,
+      "perDayCurrent": "5",
+      "neverSaved": true,
+      "screenshot": "pc-create-template-picker.png",
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "create-stepper-local",
+      "before": "5",
+      "afterDec": "4",
+      "restored": "5",
+      "typed99": "20",
+      "clampedTo20": true,
+      "localStateOnly": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc",
+      "action": "create-cancel",
+      "navigatedAway": true,
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "tabs-labels",
+      "labels": [
+        "Nguồn0",
+        "Template",
+        "Hồ sơ"
+      ],
+      "urls": [
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings"
+      ],
+      "expected": [
+        "Nguồn",
+        "Template",
+        "Hồ sơ"
+      ],
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "switcher-mobile-sheet",
+      "triggerLabel": "Đổi kênh, đang chọn Chuyện Lạ Đêm Khuya",
+      "sheetBounds": {
+        "bounds": {
+          "x": 0,
+          "y": 470,
+          "w": 390,
+          "h": 374
+        },
+        "withinViewport": true
+      },
+      "channelRowsVisible": true,
+      "screenshot": "m-switcher-sheet.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "switcher-mobile-sheet-scrim",
+      "closeMethod": "scrim-tap",
+      "closed": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "nav-tab-sources",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "link-picker-open-esc",
+      "bounds": {
+        "bounds": {
+          "x": 19,
+          "y": 239,
+          "w": 340,
+          "h": 185
+        },
+        "withinViewport": true
+      },
+      "checkboxRows": 0,
+      "submitDisabledWhenEmpty": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": null,
+        "id": "",
+        "match": true
+      },
+      "screenshot": "m-link-picker.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "link-picker-outside-click",
+      "closeMethod": "outside-pointerdown",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "rival-menus-open-cancel",
+      "status": "unexercised",
+      "note": "channel Chuyện Lạ Đêm Khuya has 0 linked rivals (sources=0 on all 3 QA channels) — unlink confirm / row action-sheet cannot be exercised without writing"
+    },
+    {
+      "surface": "m",
+      "action": "automation-card-state",
+      "switches": 2,
+      "perDayInputs": 1,
+      "note": "toggles/stepper present, never clicked (would PATCH live channel)",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "nav-tab-templates",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "template-picker-open-keyboard-esc",
+      "triggerLabel": "Đổi template",
+      "bounds": {
+        "bounds": {
+          "x": 0,
+          "y": 554,
+          "w": 390,
+          "h": 290
+        },
+        "withinViewport": true
+      },
+      "optionCount": 3,
+      "optionsSample": [
+        "Kiểm thử QA · chọn prompt trong viewer",
+        "Mẫu chuẩn · Tách nền",
+        "Truyện kể đêm"
+      ],
+      "focusedOption": {
+        "tag": "section",
+        "label": null,
+        "id": ""
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_n_"
+      },
+      "screenshot": "m-template-picker.png",
+      "nothingSelected": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "template-picker-sheet-scrim",
+      "closeMethod": "scrim-tap",
+      "closed": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "nav-tab-settings",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "settings-template-nav-icon",
+      "mobileNote": "PC-only nav shortcut rows hidden by design on phone (navHidden)",
+      "hiddenNavRows": 2,
+      "assistantLinkVisible": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "profile-name-edit-state",
+      "original": "Chuyện Lạ Đêm Khuya",
+      "draftChanged": true,
+      "savelineShown": "Tự lưu khi bạn rời ô",
+      "restoredAfterReload": "Chuyện Lạ Đêm Khuya",
+      "reverted": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "delete-channel-confirm-cancel",
+      "bounds": {
+        "bounds": {
+          "x": 0,
+          "y": 844,
+          "w": 390,
+          "h": 404
+        },
+        "withinViewport": false
+      },
+      "title": "Xoá kênh “Chuyện Lạ Đêm Khuya”?",
+      "screenshot": "m-delete-confirm.png",
+      "confirmed": false,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "create-page-load",
+      "url": "http://127.0.0.1:8043/#/channels/new",
+      "headings": [],
+      "nameFieldPresent": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "create-fill-fields",
+      "rivalCheckboxes": 0,
+      "sample": [],
+      "submitVisible": true,
+      "submitNeverClicked": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "create-run-rows",
+      "templateTrigger": "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diện kênh mới",
+      "options": [
+        "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diệ",
+        "Kiểm thử QA · chọn prompt trong viewerChỉ dẫn Ảnh ",
+        "Mẫu chuẩn · Tách nềnChỉ dẫn Theo nhận diện kênh · ",
+        "Truyện kể đêmChỉ dẫn Theo nhận diện kênh · Toàn kh"
+      ],
+      "bounds": {
+        "bounds": {
+          "x": 0,
+          "y": 532,
+          "w": 390,
+          "h": 312
+        },
+        "withinViewport": true
+      },
+      "approveSwitch": true,
+      "perDayCurrent": "5",
+      "neverSaved": true,
+      "screenshot": "m-create-template-picker.png",
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "create-stepper-local",
+      "before": "5",
+      "afterDec": "4",
+      "restored": "5",
+      "typed99": "20",
+      "clampedTo20": true,
+      "localStateOnly": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m",
+      "action": "create-cancel",
+      "navigatedAway": true,
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "tabs-labels",
+      "labels": [
+        "Nguồn & tự động0",
+        "Template",
+        "Hồ sơ kênh"
+      ],
+      "urls": [
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings"
+      ],
+      "expected": [
+        "Nguồn & tự động",
+        "Template",
+        "Hồ sơ kênh"
+      ],
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "switcher-desktop-menu",
+      "triggerLabel": "Đổi kênh, đang chọn Chuyện Lạ Đêm Khuya",
+      "menuBounds": {
+        "bounds": {
+          "x": 61,
+          "y": 55,
+          "w": 298,
+          "h": 260
+        },
+        "withinViewport": true
+      },
+      "currentChannelListed": true,
+      "screenshot": "pc-rm-switcher-menu.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "siderail-switch-channel",
+      "switchedTo": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "heading": "Chuyện Lạ Đêm Khuya",
+      "andBack": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "nav-tab-sources",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "link-picker-open-esc",
+      "bounds": {
+        "bounds": {
+          "x": 484,
+          "y": 440,
+          "w": 340,
+          "h": 180
+        },
+        "withinViewport": true
+      },
+      "checkboxRows": 0,
+      "submitDisabledWhenEmpty": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": null,
+        "id": "",
+        "match": true
+      },
+      "screenshot": "pc-rm-link-picker.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "rival-menus-open-cancel",
+      "status": "unexercised",
+      "note": "channel Chuyện Lạ Đêm Khuya has 0 linked rivals (sources=0 on all 3 QA channels) — unlink confirm / row action-sheet cannot be exercised without writing"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "automation-card-state",
+      "switches": 2,
+      "perDayInputs": 1,
+      "note": "toggles/stepper present, never clicked (would PATCH live channel)",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "nav-tab-templates",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "template-picker-open-keyboard-esc",
+      "triggerLabel": "Đổi template",
+      "bounds": {
+        "bounds": {
+          "x": 300,
+          "y": 648,
+          "w": 346,
+          "h": 102
+        },
+        "withinViewport": true
+      },
+      "optionCount": 3,
+      "optionsSample": [
+        "Kiểm thử QA · chọn prompt trong viewer",
+        "Mẫu chuẩn · Tách nền",
+        "Truyện kể đêm"
+      ],
+      "focusedOption": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_q_"
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_q_"
+      },
+      "screenshot": "pc-rm-template-picker.png",
+      "nothingSelected": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "nav-tab-settings",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "settings-template-nav-icon",
+      "iconStyle": {
+        "maskImage": "none",
+        "borderStyle": "dashed",
+        "borderRadius": "50%",
+        "background": "rgba(0, 0, 0, 0)",
+        "title": null
+      },
+      "rendersRealMask": false,
+      "expectedUrl": "/assets/layer-*.svg",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "profile-name-edit-state",
+      "original": "Chuyện Lạ Đêm Khuya",
+      "draftChanged": true,
+      "savelineShown": "Tự lưu khi bạn rời ô",
+      "restoredAfterReload": "Chuyện Lạ Đêm Khuya",
+      "reverted": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "composer-recipient-draft-switch",
+      "pickerLabel": "Dặn trợ lý nào",
+      "firstRecipient": "Bàn với Trinh sátTrinh sát",
+      "options": [
+        "Trinh sát",
+        "Đạo diễn",
+        "Hoạ sĩ",
+        "Kiểm định"
+      ],
+      "picked": "Đạo diễn",
+      "draftAfterSwitch": "",
+      "draftBackOnFirst": "QA draft scout",
+      "sendDisabledWhenEmpty": true,
+      "sendNeverClicked": true,
+      "bounds": {
+        "bounds": {
+          "x": 1198,
+          "y": 675,
+          "w": 206,
+          "h": 136
+        },
+        "withinViewport": true
+      },
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "composer-picker-keyboard-esc",
+      "keyboardNav": true,
+      "focusedOption": {
+        "tag": "button",
+        "label": "Dặn trợ lý nào",
+        "id": "_r_c_"
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Dặn trợ lý nào",
+        "id": "_r_c_"
+      },
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "create-page-load",
+      "url": "http://127.0.0.1:8043/#/channels/new",
+      "headings": [],
+      "nameFieldPresent": true,
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "create-run-rows",
+      "templateTrigger": "Mẫu chuẩn · gợi ý· Gợi ý · Viderse tạo theo nhận diện kênh m",
+      "options": [
+        "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diệ",
+        "Kiểm thử QA · chọn prompt trong viewerChỉ dẫn Ảnh ",
+        "Mẫu chuẩn · Tách nềnChỉ dẫn Theo nhận diện kênh · ",
+        "Truyện kể đêmChỉ dẫn Theo nhận diện kênh · Toàn kh"
+      ],
+      "bounds": {
+        "bounds": {
+          "x": 763,
+          "y": 633,
+          "w": 366,
+          "h": 180
+        },
+        "withinViewport": true
+      },
+      "approveSwitch": true,
+      "perDayCurrent": "5",
+      "neverSaved": true,
+      "screenshot": "pc-rm-create-template-picker.png",
+      "status": "passed"
+    },
+    {
+      "surface": "pc-rm",
+      "action": "create-cancel",
+      "navigatedAway": true,
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "tabs-labels",
+      "labels": [
+        "Nguồn0",
+        "Template",
+        "Hồ sơ"
+      ],
+      "urls": [
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=sources",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=templates",
+        "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8?tab=settings"
+      ],
+      "expected": [
+        "Nguồn",
+        "Template",
+        "Hồ sơ"
+      ],
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "switcher-mobile-sheet",
+      "triggerLabel": "Đổi kênh, đang chọn Chuyện Lạ Đêm Khuya",
+      "sheetBounds": {
+        "bounds": {
+          "x": 0,
+          "y": 470,
+          "w": 390,
+          "h": 374
+        },
+        "withinViewport": true
+      },
+      "channelRowsVisible": true,
+      "screenshot": "m-rm-switcher-sheet.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "switcher-mobile-sheet-scrim",
+      "closeMethod": "scrim-tap",
+      "closed": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "nav-tab-sources",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "link-picker-open-esc",
+      "bounds": {
+        "bounds": {
+          "x": 19,
+          "y": 239,
+          "w": 340,
+          "h": 185
+        },
+        "withinViewport": true
+      },
+      "checkboxRows": 0,
+      "submitDisabledWhenEmpty": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": null,
+        "id": "",
+        "match": true
+      },
+      "screenshot": "m-rm-link-picker.png",
+      "closeMethod": "Escape",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "rival-menus-open-cancel",
+      "status": "unexercised",
+      "note": "channel Chuyện Lạ Đêm Khuya has 0 linked rivals (sources=0 on all 3 QA channels) — unlink confirm / row action-sheet cannot be exercised without writing"
+    },
+    {
+      "surface": "m-rm",
+      "action": "automation-card-state",
+      "switches": 2,
+      "perDayInputs": 1,
+      "note": "toggles/stepper present, never clicked (would PATCH live channel)",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "nav-tab-templates",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "template-picker-open-keyboard-esc",
+      "triggerLabel": "Đổi template",
+      "bounds": {
+        "bounds": {
+          "x": 0,
+          "y": 554,
+          "w": 390,
+          "h": 290
+        },
+        "withinViewport": true
+      },
+      "optionCount": 3,
+      "optionsSample": [
+        "Kiểm thử QA · chọn prompt trong viewer",
+        "Mẫu chuẩn · Tách nền",
+        "Truyện kể đêm"
+      ],
+      "focusedOption": {
+        "tag": "section",
+        "label": null,
+        "id": ""
+      },
+      "escClosed": true,
+      "focusAfter": {
+        "tag": "button",
+        "label": "Đổi template",
+        "id": "_r_m_"
+      },
+      "screenshot": "m-rm-template-picker.png",
+      "nothingSelected": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "nav-tab-settings",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "settings-template-nav-icon",
+      "mobileNote": "PC-only nav shortcut rows hidden by design on phone (navHidden)",
+      "hiddenNavRows": 2,
+      "assistantLinkVisible": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "profile-name-edit-state",
+      "original": "Chuyện Lạ Đêm Khuya",
+      "draftChanged": true,
+      "savelineShown": "Tự lưu khi bạn rời ô",
+      "restoredAfterReload": "Chuyện Lạ Đêm Khuya",
+      "reverted": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "create-page-load",
+      "url": "http://127.0.0.1:8043/#/channels/new",
+      "headings": [],
+      "nameFieldPresent": true,
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "create-run-rows",
+      "templateTrigger": "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diện kênh mới",
+      "options": [
+        "Mẫu chuẩn · gợi ýGợi ý · Viderse tạo theo nhận diệ",
+        "Kiểm thử QA · chọn prompt trong viewerChỉ dẫn Ảnh ",
+        "Mẫu chuẩn · Tách nềnChỉ dẫn Theo nhận diện kênh · ",
+        "Truyện kể đêmChỉ dẫn Theo nhận diện kênh · Toàn kh"
+      ],
+      "bounds": {
+        "bounds": {
+          "x": 0,
+          "y": 532,
+          "w": 390,
+          "h": 312
+        },
+        "withinViewport": true
+      },
+      "approveSwitch": true,
+      "perDayCurrent": "5",
+      "neverSaved": true,
+      "screenshot": "m-rm-create-template-picker.png",
+      "status": "passed"
+    },
+    {
+      "surface": "m-rm",
+      "action": "create-cancel",
+      "navigatedAway": true,
+      "url": "http://127.0.0.1:8043/#/channels/c76cc725-0e9d-43fd-98d1-4d55412510e8",
+      "status": "passed"
+    }
+  ],
+  "blockedMutations": [],
+  "api": {
+    "ownerChannels": [
+      {
+        "id": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "name": "Chuyện Lạ Đêm Khuya",
+        "perDay": 5,
+        "autoFetch": false,
+        "autoApprove": false,
+        "language": "vi",
+        "defaultTemplateName": "Truyện kể đêm",
+        "sources": 0,
+        "youtubeUrl": null
+      },
+      {
+        "id": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "name": "Midnight Tales",
+        "perDay": 5,
+        "autoFetch": false,
+        "autoApprove": false,
+        "language": "vi",
+        "defaultTemplateName": "Mẫu chuẩn · Tách nền",
+        "sources": 0,
+        "youtubeUrl": null
+      },
+      {
+        "id": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "name": "Quiet Hours",
+        "perDay": 5,
+        "autoFetch": false,
+        "autoApprove": false,
+        "language": "vi",
+        "defaultTemplateName": "Mẫu chuẩn · Tách nền",
+        "sources": 0,
+        "youtubeUrl": null
+      }
+    ],
+    "templateCount": 3
+  },
+  "notes": []
+}

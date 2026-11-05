@@ -18,9 +18,7 @@ import (
 func cloneStore(t *testing.T) *postgres.CloneStore {
 	t.Helper()
 	pool := provision(t)
-	if _, err := pool.Exec(context.Background(), `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	return postgres.NewCloneStore(pool)
 }
 func cloneTestJob(t testing.TB, store *postgres.CloneStore, key string) *domain.CloneJob {
@@ -224,9 +222,7 @@ func TestCloneInterruptedRunningJobResumesPersistedStepCheckpoint(t *testing.T) 
 // Only the images step reruns: the built project and its later steps stay.
 func TestCloneImageRedrawRerunsImagesAndWakesJob(t *testing.T) {
 	pool := provision(t)
-	if _, err := pool.Exec(context.Background(), `INSERT INTO owner_channels(id,name,language,auto_pick) VALUES('11111111-1111-4111-8111-111111111111','Clone fixture','en',false)`); err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
 	store := postgres.NewCloneStore(pool)
 	ctx := context.Background()
 	job := cloneTestJob(t, store, "redraw")

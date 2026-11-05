@@ -27,7 +27,7 @@ export function sectionSums(detail: TemplateDetail, overlayNames: string[] = [])
     images: `${place} · ${images} · ${detail.prompts.sceneName}`,
     cover: detail.prompts.coverName,
     backdrop: linked || t.library.template.health.noBackdrop,
-    output: `${recipe.output.compressExport ? t.library.template.output.compressed.title : t.library.template.output.original.title} · ${detail.channels.length}`,
+    output: `${recipe.output.compressExport ? t.library.template.output.compressed.title : t.library.template.output.original.title} · ${t.library.template.output.usersSum(detail.channels.length)}`,
   }
 }
 

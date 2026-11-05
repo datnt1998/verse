@@ -47,7 +47,7 @@ export function MVideoScreen({ route }: { route: ExploreRoute }) {
     () => (channelList.data?.channels ?? []).map((channel) => ({
       id: channel.id,
       name: channel.name || t.channels.page.noName,
-      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
+      templateName: channel.defaultTemplateName,
     })),
     [channelList.data],
   )

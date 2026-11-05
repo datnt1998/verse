@@ -59,7 +59,8 @@ function failedHint(step: SetupStep): string {
 
 function StepRow({ step, index, focus }: { step: SetupStep; index: number; focus: boolean }) {
   const copy = t.prep.steps[step.id] ?? { title: step.id, hint: '', agent: 'scout', unlocks: '' }
-  const retry = useAsyncAction(async () => { await retrySetupStep(step.id) })
+  const retry = useAsyncAction(async () => { setData(keys.setup(), await retrySetupStep(step.id)) })
+  const retryReason = retry.error instanceof Error ? reasonOf(retry.error.message) : ''
   const { state, progress } = step
   const done = state === 'done'
   const running = state === 'running'
@@ -70,7 +71,7 @@ function StepRow({ step, index, focus }: { step: SetupStep; index: number; focus
   // pct null = pha chưa biết tổng (tải mô hình, dựng venv): chỉ ghi tên pha,
   // không vẽ “0%” và thanh đứng yên suốt mấy phút.
   const pct = progress?.pct == null ? null : Math.round(progress.pct)
-  const phase = progress?.phaseLabel || progress?.phase || t.prep.card.running
+  const phase = progress?.phaseLabel || t.prep.card.running
 
   const hint = running
     ? progress?.bytesTotal
@@ -95,7 +96,8 @@ function StepRow({ step, index, focus }: { step: SetupStep; index: number; focus
             <Orb of={copy.agent as 'scout' | 'director' | 'artist' | 'qa'} size={10} />
           </span>
         </span>
-        <span className={`vv-setup__row-hint ${stylex.props(setupStyles.rowHint, running && setupStyles.hintRunning, failed && setupStyles.hintFailed).className}`} title={failed && step.error ? step.error : undefined}>{hint}</span>
+        <span className={`vv-setup__row-hint ${stylex.props(setupStyles.rowHint, running && setupStyles.hintRunning, failed && setupStyles.hintFailed).className}`}>{hint}</span>
+        {Boolean(retry.error) && <span role="alert" {...stylex.props(setupStyles.rowHint, setupStyles.hintFailed)}>{retryReason || t.prep.actions.retryFailed}</span>}
         {running && pct != null ? (
           <span className={`vv-setup__bar ${stylex.props(setupStyles.bar).className}`} role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
             <span className={`vv-setup__bar-fill ${stylex.props(setupStyles.barFill).className}`} style={{ width: `${pct}%` }} />

@@ -1,0 +1,1536 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "preparedOnly": false,
+  "cases": [
+    {
+      "key": "native-prerequisites",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [],
+      "proof": "NATIVE_BACKEND_GET",
+      "status": "PASS",
+      "screenshots": [
+        "native-prerequisites.png"
+      ],
+      "observed": {
+        "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "revision": 5,
+        "promptCount": 9,
+        "ownerCount": 3,
+        "sameOriginSampleCount": 4,
+        "coverMediaDiscovery": {
+          "reads": [
+            {
+              "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/cover-trials",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/templates/5fa15b48-ed8b-4614-ab75-897009d958a2/cover-trials",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+              "status": "READ",
+              "historyCount": 1
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-clean/samples",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-hook/samples",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-circle-arrow/samples",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-hook-arrow/samples",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-split/samples",
+              "status": "READ",
+              "historyCount": 0
+            },
+            {
+              "path": "/api/image-prompts/builtin%3Acover-closeup/samples",
+              "status": "READ",
+              "historyCount": 0
+            }
+          ],
+          "candidates": [
+            {
+              "kind": "cover-trial",
+              "readPath": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+              "imageUrl": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image",
+              "decoded": true
+            }
+          ],
+          "selected": {
+            "kind": "cover-trial",
+            "readPath": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+            "imageUrl": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image",
+            "recordId": "6b287035-40bb-4722-bc98-d6d349594e1c"
+          }
+        }
+      }
+    },
+    {
+      "key": "synthetic-1440-overlay-select-remove",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "referenceIds": [],
+      "proof": "SYNTHETIC_UI_CONSUMER_UNLESS_NOTED",
+      "status": "PASS",
+      "screenshots": [
+        "synthetic-1440-overlay-select-remove-picker.png",
+        "synthetic-1440-overlay-select-remove.png"
+      ],
+      "observed": {
+        "nativeOverlayMetadata": "7234b504-1800-4dfb-a343-4ab087720b1a",
+        "selectionAndRemovalMemoryOnly": true,
+        "renderedOverlayMedia": "UNPROVEN"
+      }
+    },
+    {
+      "key": "synthetic-390-overlay-select-remove",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "referenceIds": [],
+      "proof": "SYNTHETIC_UI_CONSUMER_UNLESS_NOTED",
+      "status": "PASS",
+      "screenshots": [
+        "synthetic-390-overlay-select-remove-picker.png",
+        "synthetic-390-overlay-select-remove.png"
+      ],
+      "observed": {
+        "nativeOverlayMetadata": "7234b504-1800-4dfb-a343-4ab087720b1a",
+        "selectionAndRemovalMemoryOnly": true,
+        "renderedOverlayMedia": "UNPROVEN"
+      }
+    }
+  ],
+  "requests": [
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-CuRNjM-G.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/platforms-Ccr7wM8f.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/upload-limits-BWXI2095.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/useDebounced-CDYrOAkM.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/Dropzone-C-x62kY0.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/cover-trials",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/5fa15b48-ed8b-4614-ab75-897009d958a2/cover-trials",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-clean/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-hook/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/copy-DzyElKQH.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-circle-arrow/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-hook-arrow/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-split/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/image-prompts/builtin%3Acover-closeup/samples",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-prerequisites",
+      "method": "GET",
+      "path": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-D1Gvf_0H.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/images-7TaDRcKN.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/queue",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix?lengthSec=2520",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/7234b504-1800-4dfb-a343-4ab087720b1a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/84d9585d-19c0-4995-912b-944b38f2c6b6/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/2cbb3e4e-e752-43d5-9bbc-0326e48e584f/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/2a25c85a-fe45-4ba3-848a-531a82fbdee7/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/66a3a7be-d782-453b-9499-7353a360cc8a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/77617780-b0df-46d9-bb60-071e3e13e79b/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/88647243-4314-4ead-b56e-b19e9cad4d48/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/84fbdfd2-ba61-4602-b0e2-818f80cb4387/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/bf25b40e-a81e-49de-a967-fdddf32812d6/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/8328d903-e943-4c21-a2bc-310509a3903e/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/b01038e9-346c-483a-b3cd-638ed54b66da/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_PATCH_MEMORY_ONLY",
+      "synthetic": {
+        "revision": 6,
+        "fields": [
+          "revision",
+          "recipe"
+        ],
+        "persistence": "MEMORY_ONLY"
+      }
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/play-B4QtGWWj.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/7234b504-1800-4dfb-a343-4ab087720b1a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_PATCH_MEMORY_ONLY",
+      "synthetic": {
+        "revision": 7,
+        "fields": [
+          "revision",
+          "recipe"
+        ],
+        "persistence": "MEMORY_ONLY"
+      }
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/index-DRr0vgkl.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/client-dH_gd0VD.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/me",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/events",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-D1Gvf_0H.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Banner-CXhqDNds.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-ZfRiQoAg.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/shared-controls-DqKj5IVk.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Dialog-Dc4Ytw71.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Inputs-BPwsXwgp.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-Zmwil0Ph.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-DDEDBYRZ.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/ImageViewer-DaG61P5y.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-7CN67tnY.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Selects-Bl25bROc.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/images-7TaDRcKN.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/Segmented-Ke-jRU4D.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/page-CzgF9d4F.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/sheets-DUPuxn_j.js",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/stylex-full-CwwGVduH.css",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/activity",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/status",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/backdrop/videos",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/backdrop/mix?lengthSec=2520",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/7234b504-1800-4dfb-a343-4ab087720b1a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/84d9585d-19c0-4995-912b-944b38f2c6b6/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/2cbb3e4e-e752-43d5-9bbc-0326e48e584f/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/2a25c85a-fe45-4ba3-848a-531a82fbdee7/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/66a3a7be-d782-453b-9499-7353a360cc8a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/77617780-b0df-46d9-bb60-071e3e13e79b/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/88647243-4314-4ead-b56e-b19e9cad4d48/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/84fbdfd2-ba61-4602-b0e2-818f80cb4387/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/bf25b40e-a81e-49de-a967-fdddf32812d6/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/8328d903-e943-4c21-a2bc-310509a3903e/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/b01038e9-346c-483a-b3cd-638ed54b66da/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/0eaa0dc3-fba1-4150-b4e0-91c0bfbf0a64/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_PATCH_MEMORY_ONLY",
+      "synthetic": {
+        "revision": 6,
+        "fields": [
+          "revision",
+          "recipe"
+        ],
+        "persistence": "MEMORY_ONLY"
+      }
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/assets/close-C9kAW9KH.svg",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/overlays/7234b504-1800-4dfb-a343-4ab087720b1a/file",
+      "action": "BLOCK_DOWNLOAD_MEDIA_DISCOVERY"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "action": "SYNTHETIC_PATCH_MEMORY_ONLY",
+      "synthetic": {
+        "revision": 7,
+        "fields": [
+          "revision",
+          "recipe"
+        ],
+        "persistence": "MEMORY_ONLY"
+      }
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "action": "SYNTHETIC_GET"
+    }
+  ],
+  "screenshots": [
+    {
+      "case": "native-prerequisites",
+      "referenceIds": [],
+      "file": "native-prerequisites.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "referenceIds": [],
+      "file": "synthetic-1440-overlay-select-remove-picker.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "synthetic-1440-overlay-select-remove",
+      "referenceIds": [],
+      "file": "synthetic-1440-overlay-select-remove.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "referenceIds": [],
+      "file": "synthetic-390-overlay-select-remove-picker.png",
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "case": "synthetic-390-overlay-select-remove",
+      "referenceIds": [],
+      "file": "synthetic-390-overlay-select-remove.png",
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "All synthetic GET/PATCH fixtures exercise actual mounted components, not generated DOM. PATCH acceptance is memory-only and is not backend persistence.",
+    "Preview fresh/building/stale are synthetic metadata without a projectId or fabricated media URL. No native generation, player playback, rendered video, paid trial, provider request or download is accepted.",
+    "Cancel/rebuild requests are deliberately aborted before networking: only rejected-action feedback/retry and separate synthetic GET polling transitions are proven. No successful cancellation is claimed.",
+    "Canonical import done/partial, named backdrop identities without native records, native import success, external source discovery and mobile viewer round45 remain uncaptured. See coverage-map.json.",
+    "Screenshots are state evidence at 1440x900/390x844, not global pixel parity or visual acceptance. Parent must compare each highest canonical board separately."
+  ],
+  "safety": {
+    "nonGETContinued": 0,
+    "externalContinued": 0,
+    "downloads": 0,
+    "websocketsBlocked": 0,
+    "routeErrors": []
+  },
+  "native": {
+    "templateId": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+    "revision": 5,
+    "promptCount": 9,
+    "ownerCount": 3,
+    "sameOriginSampleCount": 4,
+    "coverMediaDiscovery": {
+      "reads": [
+        {
+          "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/cover-trials",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/templates/5fa15b48-ed8b-4614-ab75-897009d958a2/cover-trials",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+          "status": "READ",
+          "historyCount": 1
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-clean/samples",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-hook/samples",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-circle-arrow/samples",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-hook-arrow/samples",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-split/samples",
+          "status": "READ",
+          "historyCount": 0
+        },
+        {
+          "path": "/api/image-prompts/builtin%3Acover-closeup/samples",
+          "status": "READ",
+          "historyCount": 0
+        }
+      ],
+      "candidates": [
+        {
+          "kind": "cover-trial",
+          "readPath": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+          "imageUrl": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image",
+          "decoded": true
+        }
+      ],
+      "selected": {
+        "kind": "cover-trial",
+        "readPath": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials",
+        "imageUrl": "/api/templates/ec7d7b44-39b4-417c-9dbf-958bcf024142/cover-trials/6b287035-40bb-4722-bc98-d6d349594e1c/image",
+        "recordId": "6b287035-40bb-4722-bc98-d6d349594e1c"
+      }
+    }
+  },
+  "browserClosed": true,
+  "finishedAt": "2026-11-05T06:27:42.177Z"
+}

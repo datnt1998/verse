@@ -13,11 +13,10 @@ import (
 func TestStageNotificationCommitsWithTransition(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewCloneStore(pool)
-	_, err := pool.Exec(ctx, `INSERT INTO owner_channels(id,name) VALUES('11111111-1111-4111-8111-111111111111','test')`)
-	if err != nil {
-		t.Fatal(err)
-	}
+	seedCloneChannel(t, pool)
+	var err error
 	makeJob := func(i int) string {
 		input := postgres.StartJobInput{ChannelID: "11111111-1111-4111-8111-111111111111", SourceKey: fmt.Sprint(i), Source: domain.CloneSourceSnapshot{ID: fmt.Sprint(i), Title: fmt.Sprintf("Video %d", i)}, TemplateSnapshot: json.RawMessage(`{}`), ModelRefs: json.RawMessage(`{}`), Priority: domain.ClonePick, Origin: domain.OriginManual}
 		result, err := store.StartJob(ctx, input)
@@ -67,9 +66,10 @@ func TestStageNotificationCommitsWithTransition(t *testing.T) {
 func TestRedrawMarkerDoesNotNotifyReviewReady(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewCloneStore(pool)
 	var job string
-	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name) VALUES(gen_random_uuid(),'test') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,status,stage_group) SELECT gen_random_uuid(),id,'source','{}'::jsonb,'running','working' FROM c RETURNING id::text`).Scan(&job)
+	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name,default_template_id) VALUES(gen_random_uuid(),'test','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot,status,stage_group) SELECT gen_random_uuid(),id,'source','{}'::jsonb,'running','working' FROM c RETURNING id::text`).Scan(&job)
 	if err != nil {
 		t.Fatal(err)
 	}

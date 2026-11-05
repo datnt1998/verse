@@ -69,10 +69,10 @@ let enqueueBody: CloneEnqueueResult = { items: [{ id: 'q1', jobId: null }] }
 
 const ownerChannel = (id: string, name: string): Channel => ({
   id, name, youtubeUrl: null, language: 'vi', styleNote: null, descriptionFooter: null,
-  alwaysTags: [], autoPick: true, pacePerDay: 5, templateCursor: 0,
+  alwaysTags: [], autoFetch: true, autoApprove: false, perDay: 5, defaultTemplateId: 'standard', defaultTemplateName: 'Mẫu chuẩn',
+  agentInstructions: {},
   branding: {} as unknown as Channel['branding'],
-  autonomy: {} as unknown as Channel['autonomy'],
-  priority: 'steady', avatarUrl: null, bannerUrl: null, sources: [], templates: [],
+  avatarUrl: null, bannerUrl: null, sources: [],
   identity: { state: 'ready' } as Channel['identity'],
   createdAt: '2026-10-20T00:00:00Z', updatedAt: '2026-10-20T00:00:00Z',
 })

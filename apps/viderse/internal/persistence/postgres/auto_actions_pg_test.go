@@ -12,8 +12,9 @@ import (
 func TestDurableAutoActionRecordsReason(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	var job string
-	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name) VALUES(gen_random_uuid(),'test') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot) SELECT gen_random_uuid(),id,'source','{}'::jsonb FROM c RETURNING id::text`).Scan(&job)
+	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name,default_template_id) VALUES(gen_random_uuid(),'test','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot) SELECT gen_random_uuid(),id,'source','{}'::jsonb FROM c RETURNING id::text`).Scan(&job)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,8 +40,9 @@ func TestDurableAutoActionRecordsReason(t *testing.T) {
 func TestSafetyRedrawCheckpointRecordsOnce(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	var job string
-	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name) VALUES(gen_random_uuid(),'test') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot) SELECT gen_random_uuid(),id,'source','{}'::jsonb FROM c RETURNING id::text`).Scan(&job)
+	err := pool.QueryRow(ctx, `WITH c AS (INSERT INTO owner_channels(id,name,default_template_id) VALUES(gen_random_uuid(),'test','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') RETURNING id) INSERT INTO clone_jobs(id,channel_id,source_key,source_snapshot) SELECT gen_random_uuid(),id,'source','{}'::jsonb FROM c RETURNING id::text`).Scan(&job)
 	if err != nil {
 		t.Fatal(err)
 	}

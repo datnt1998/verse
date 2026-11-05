@@ -27,33 +27,71 @@ import { IdentityBlock } from './IdentityBlock'
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
 
 /** Lưu một trường khi rời ô; giữ nguyên chữ đang gõ nếu server từ chối. */
-function useFieldSave(value: string, onSave: (draft: string) => Promise<void>) {
-  const [draft, setDraft] = useState(value)
+function useFieldSave(value: string, onSave: (draft: string) => Promise<string | void>) {
+  const [draft, updateDraft] = useState(value)
+  const [savedValue, setSavedValue] = useState(value)
+  const draftRef = useRef(value)
   const origin = useRef(value)
+  const inFlight = useRef(false)
+  const commitAfterSave = useRef(false)
   const [state, setState] = useState<SaveState>('idle')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (value === origin.current) return
+    const clean = draftRef.current === origin.current
     origin.current = value
-    setDraft(value)
+    setSavedValue(value)
+    if (clean) {
+      draftRef.current = value
+      updateDraft(value)
+    }
   }, [value])
 
-  const commit = async () => {
-    if (draft === origin.current) return
+  const setDraft = (next: string) => {
+    draftRef.current = next
+    updateDraft(next)
+    setError(null)
+    if (!inFlight.current) setState('idle')
+  }
+
+  const commit = async (): Promise<void> => {
+    const submitted = draftRef.current
+    if (inFlight.current) {
+      commitAfterSave.current = true
+      return
+    }
+    if (submitted === origin.current) return
+    inFlight.current = true
     setState('saving')
     setError(null)
     try {
-      await onSave(draft)
-      origin.current = draft
-      setState('saved')
+      const saved = (await onSave(submitted)) ?? submitted
+      origin.current = saved
+      setSavedValue(saved)
+      // A readback may normalize the field; do not overwrite edits made during PATCH.
+      if (draftRef.current === submitted) {
+        draftRef.current = saved
+        updateDraft(saved)
+      }
+      setState(draftRef.current === saved ? 'saved' : 'idle')
     } catch (err) {
       setState('error')
       setError(err instanceof Error ? err.message : t.channels.settings.saveError)
+    } finally {
+      inFlight.current = false
+      // A second blur while PATCH was pending still saves the newer draft, serially.
+      const queued = commitAfterSave.current
+      commitAfterSave.current = false
+      if (queued && draftRef.current !== submitted) void commit()
     }
   }
 
-  return { draft, setDraft, state, error, commit }
+  return {
+    draft, setDraft, state, error, commit,
+    dirty: draft !== savedValue,
+    isSaved: () => !inFlight.current && draftRef.current === origin.current,
+  }
 }
 
 const stateLabel = (state: SaveState): string | null => {
@@ -73,7 +111,14 @@ function SaveHint({ state }: { state: SaveState }) {
   )
 }
 
-export function SettingsTab({ channel }: { channel: Channel }) {
+type SettingsTabProps = { channel: Channel; onInstructions: () => void }
+
+export function SettingsTab(props: SettingsTabProps) {
+  // Keep failed drafts for this channel only; switching channels must not transfer them.
+  return <ChannelSettings key={props.channel.id} {...props} />
+}
+
+function ChannelSettings({ channel, onInstructions }: SettingsTabProps) {
   const tt = t.channels.settings
   const phone = useMediaQuery('(max-width: 767px)')
   const apply = (next: Channel) => {
@@ -102,6 +147,10 @@ export function SettingsTab({ channel }: { channel: Channel }) {
   })
   const footer = useFieldSave(channel.descriptionFooter ?? '', async (draft) => {
     await save({ descriptionFooter: draft.trim() ? draft : null }, 'descriptionFooter')
+  })
+  const brief = useFieldSave(channel.branding.brief, async (draft) => {
+    const next = await save({ brief: draft }, 'brief')
+    return next.branding.brief
   })
 
   const [language, setLanguage] = useState<ChannelLanguage>(channel.language)
@@ -141,7 +190,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
   // Số video đang làm của kênh: dùng lại đúng khoá ChannelScreen đã tải
   // (GET /api/clone?channel=) nên không thêm request; > 0 thì khoá xoá kênh.
   const jobs = useResource(keys.channelJobs(channel.id), ({ signal }) => getChannelJobs(channel.id, signal))
-  const workingCount = (jobs.data?.jobs ?? []).filter((job) => job.stageGroup === 'working').length
+  const workingCount = (jobs.data?.jobs ?? []).filter((job) => job.stageGroup === 'working' || job.stageGroup === 'queued').length
 
   const onDelete = () => {
     void confirmDeleteChannel({
@@ -162,7 +211,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
 
   return (
     <>
-      <IdentityBlock channel={channel} />
+      <IdentityBlock channel={channel} brief={brief} />
 
       <section {...stylex.props(channelStyles.settings)} aria-label={tt.sectionLabel}>
         <div {...stylex.props(channelStyles.settingsGrid, phone && mch.settingsGridM)}>
@@ -221,7 +270,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                     size={phone ? 'xl' : 'sm'}
                     radius={phone ? 10 : undefined}
                     fit={phone ? 'fill' : 'content'}
-                   
+                    buttonStyle={channelStyles.touchTarget}
                     value={language}
                     options={[
                       { id: 'en', label: t.channels.page.language.en },
@@ -311,18 +360,26 @@ export function SettingsTab({ channel }: { channel: Channel }) {
                 <Icon name="radar" size={16} xstyle={channelStyles.navrowIc} />
                 <span {...stylex.props(channelStyles.navrowText)}>
                   <span>{tt.linkSources}</span>
-                  <span {...stylex.props(channelStyles.navrowSub)}>{tt.linkSourcesSub(channel.sources.length, channel.pacePerDay)}</span>
+                  <span {...stylex.props(channelStyles.navrowSub)}>{tt.linkSourcesSub(channel.sources.length, channel.autoFetch, channel.perDay, channel.autoApprove)}</span>
                 </span>
-                <Icon name="arrow-r" size={14} xstyle={channelStyles.navrowIc} />
+                <Icon name="arrow-r" size={13} xstyle={channelStyles.navrowIc} />
               </a>
               <a {...stylex.props(channelStyles.navrow, phone && mch.navHidden)} href={`#${paths.channel(channel.id, 'templates')}`}>
                 <Icon name="layer" size={16} xstyle={channelStyles.navrowIc} />
                 <span {...stylex.props(channelStyles.navrowText)}>
                   <span>{tt.linkTemplates}</span>
-                  <span {...stylex.props(channelStyles.navrowSub)}>{tt.linkTemplatesSub(channel.templates.length)}</span>
+                  <span {...stylex.props(channelStyles.navrowSub)}>{channel.defaultTemplateName || '—'}</span>
+                </span>
+                <Icon name="arrow-r" size={13} xstyle={channelStyles.navrowIc} />
+              </a>
+              {phone && <button type="button" onClick={onInstructions} {...stylex.props(channelStyles.navrow, channelStyles.navrowButton, channelStyles.touchTarget)}>
+                <Icon name="msg" size={16} xstyle={channelStyles.navrowIc} />
+                <span {...stylex.props(channelStyles.navrowText)}>
+                  <span>{t.channels.composer.label}</span>
+                  <span {...stylex.props(channelStyles.navrowSub)}>{t.channels.composer.channelHint}</span>
                 </span>
                 <Icon name="arrow-r" size={14} xstyle={channelStyles.navrowIc} />
-              </a>
+              </button>}
               <a {...stylex.props(channelStyles.navrow)} href={`#${paths.settings('agents')}`}>
                 <Icon name="magic" size={16} xstyle={channelStyles.navrowIc} />
                 <span {...stylex.props(channelStyles.navrowText)}>
@@ -340,7 +397,7 @@ export function SettingsTab({ channel }: { channel: Channel }) {
         <section {...stylex.props(channelStyles.delete)} aria-label={tt.deleteTitle}>
           <div {...stylex.props(channelStyles.deleteText)}>
             <h2 {...stylex.props(channelStyles.deleteTitle)}>{tt.deleteTitle}</h2>
-            <p {...stylex.props(channelStyles.deleteBody)}>{tt.deleteBody}</p>
+            <p {...stylex.props(channelStyles.deleteBody)}>{tt.deleteBody(jobs.data?.jobs.length ?? 0)}</p>
             {workingCount > 0 && (
               <span {...stylex.props(channelStyles.deleteInfo)}>
                 <Icon name="info" size={14} />
@@ -350,11 +407,12 @@ export function SettingsTab({ channel }: { channel: Channel }) {
           </div>
           <div {...stylex.props(channelStyles.deleteActions)}>
             {workingCount > 0 && (
-              <ActionButton variant="outline" onClick={() => navigate(paths.channel(channel.id, 'videos'))}>
+              <ActionButton variant="outline" xstyle={channelStyles.touchTarget} onClick={() => navigate(paths.workbench({ channel: channel.id }))}>
                 {tt.viewRunning(workingCount)}
               </ActionButton>
             )}
             <ActionButton variant="danger-soft"
+              xstyle={channelStyles.touchTarget}
               lockedReason={workingCount > 0 ? tt.deleteLocked(workingCount) : undefined}
               onClick={onDelete}
               icon={<Icon name="trash" size={15} />}

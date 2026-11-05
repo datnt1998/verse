@@ -45,6 +45,7 @@ export const base = {
     review: 'Duyệt',
     channels: 'Kênh',
     explore: 'Khám phá',
+    library: 'Thư viện',
     new: 'Video mới',
     allChannels: 'Mọi kênh',
     myChannels: 'Kênh của tôi',
@@ -52,6 +53,7 @@ export const base = {
     reviewBadge: (n: number) => `${n} video cần duyệt`,
   },
   shell: {
+    makeVideo: 'Làm video',
     storageDown: { title: shared.storageStripTitle, body: shared.storageDownBody, held: shared.storageHeld, open: shared.storageOpen },
     serverSettingsCrumb: shared.storageServerTitle,
     jobsIdle: (_queued: number) => 'Máy rảnh',
@@ -187,22 +189,6 @@ export const base = {
       busy: 'Đang lưu…',
       done: (n: number) => `Đã lưu ${n} mục`,
       error: 'Không lưu được: template đang sửa ở cửa sổ khác. Tải lại để xem.',
-    },
-    autonomy: {
-      auto: {
-        title: (name: string) => `Chuyển ${name} sang Tự chạy?`,
-        body: (min: number) => `Máy tự duyệt video khi mọi ảnh từ ${min} điểm, và tự sửa video chưa đạt trước khi hỏi bạn.`,
-        first: (min: number) => `Có ảnh dưới ${min} thì cả video vẫn chờ bạn duyệt, ảnh đó được đánh dấu`,
-        ok: 'Chuyển sang Tự chạy',
-      },
-      all: {
-        title: (name: string) => `Cho máy tự duyệt hết ảnh của ${name}?`,
-        body: 'Ảnh mới, kể cả ảnh điểm thấp, không chờ bạn duyệt nữa.',
-        first: 'Video vẫn phải đạt 90 điểm mới tự xuất',
-        ok: 'Tự duyệt hết',
-      },
-      fromNow: (waiting: number) => `Áp dụng cho ảnh vẽ từ bây giờ.${waiting > 0 ? ` ${waiting} video đang chờ duyệt vẫn chờ bạn` : ''}`,
-      never: 'Đổi lại bất cứ lúc nào ở Mức tự chủ. Không bao giờ tự đăng, tự xoá hay đổi template',
     },
   },
   account: {

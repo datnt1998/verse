@@ -95,6 +95,19 @@ func (q *Queries) ChannelAssetPaths(ctx context.Context, id pgtype.UUID) (Channe
 	return i, err
 }
 
+const channelAutoApprove = `-- name: ChannelAutoApprove :one
+SELECT auto_approve FROM owner_channels WHERE id = $1::uuid
+`
+
+// Cờ Tự duyệt tại thời điểm xét (đọc lại trước khi duyệt để toggle tắt giữa
+// lượt poll không bị bỏ qua).
+func (q *Queries) ChannelAutoApprove(ctx context.Context, id pgtype.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, channelAutoApprove, id)
+	var auto_approve bool
+	err := row.Scan(&auto_approve)
+	return auto_approve, err
+}
+
 const channelExists = `-- name: ChannelExists :one
 SELECT EXISTS(SELECT 1 FROM owner_channels WHERE id = $1)::bool AS exists
 `
@@ -117,30 +130,32 @@ func (q *Queries) CountSources(ctx context.Context, ownerChannelID pgtype.UUID) 
 	return column_1, err
 }
 
+const defaultTemplate = `-- name: DefaultTemplate :one
+SELECT t.id, t.name
+FROM owner_channels c
+JOIN templates t ON t.id = c.default_template_id
+WHERE c.id = $1::uuid
+`
+
+type DefaultTemplateRow struct {
+	ID   pgtype.UUID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Template mặc định hiện tại của một kênh.
+func (q *Queries) DefaultTemplate(ctx context.Context, channelID pgtype.UUID) (DefaultTemplateRow, error) {
+	row := q.db.QueryRow(ctx, defaultTemplate, channelID)
+	var i DefaultTemplateRow
+	err := row.Scan(&i.ID, &i.Name)
+	return i, err
+}
+
 const deleteChannel = `-- name: DeleteChannel :execrows
 DELETE FROM owner_channels WHERE id = $1
 `
 
 func (q *Queries) DeleteChannel(ctx context.Context, id pgtype.UUID) (int64, error) {
 	result, err := q.db.Exec(ctx, deleteChannel, id)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const deleteChannelTemplate = `-- name: DeleteChannelTemplate :execrows
-DELETE FROM owner_channel_templates
-WHERE owner_channel_id = $1 AND template_id = $2
-`
-
-type DeleteChannelTemplateParams struct {
-	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
-	TemplateID     pgtype.UUID `json:"template_id"`
-}
-
-func (q *Queries) DeleteChannelTemplate(ctx context.Context, arg DeleteChannelTemplateParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteChannelTemplate, arg.OwnerChannelID, arg.TemplateID)
 	if err != nil {
 		return 0, err
 	}
@@ -188,7 +203,7 @@ func (q *Queries) FailIdentity(ctx context.Context, arg FailIdentityParams) (int
 }
 
 const getOwnerChannel = `-- name: GetOwnerChannel :one
-SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, autonomy, priority FROM owner_channels WHERE id = $1
+SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_fetch, per_day, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, default_template_id, auto_approve, agent_instructions FROM owner_channels WHERE id = $1
 `
 
 func (q *Queries) GetOwnerChannel(ctx context.Context, id pgtype.UUID) (OwnerChannel, error) {
@@ -202,9 +217,8 @@ func (q *Queries) GetOwnerChannel(ctx context.Context, id pgtype.UUID) (OwnerCha
 		&i.StyleNote,
 		&i.DescriptionFooter,
 		&i.AlwaysTags,
-		&i.AutoPick,
-		&i.PacePerDay,
-		&i.TemplateCursor,
+		&i.AutoFetch,
+		&i.PerDay,
 		&i.Branding,
 		&i.AvatarPath,
 		&i.BannerPath,
@@ -221,8 +235,9 @@ func (q *Queries) GetOwnerChannel(ctx context.Context, id pgtype.UUID) (OwnerCha
 		&i.IdentityLeaseUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Autonomy,
-		&i.Priority,
+		&i.DefaultTemplateID,
+		&i.AutoApprove,
+		&i.AgentInstructions,
 	)
 	return i, err
 }
@@ -249,40 +264,21 @@ func (q *Queries) HeartbeatIdentityLease(ctx context.Context, arg HeartbeatIdent
 	return result.RowsAffected(), nil
 }
 
-const insertChannelTemplate = `-- name: InsertChannelTemplate :execrows
-INSERT INTO owner_channel_templates (owner_channel_id, template_id, position)
-VALUES ($1, $2, $3)
-ON CONFLICT (owner_channel_id, template_id) DO NOTHING
-`
-
-type InsertChannelTemplateParams struct {
-	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
-	TemplateID     pgtype.UUID `json:"template_id"`
-	Position       int32       `json:"position"`
-}
-
-func (q *Queries) InsertChannelTemplate(ctx context.Context, arg InsertChannelTemplateParams) (int64, error) {
-	result, err := q.db.Exec(ctx, insertChannelTemplate, arg.OwnerChannelID, arg.TemplateID, arg.Position)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const insertOwnerChannel = `-- name: InsertOwnerChannel :exec
-INSERT INTO owner_channels (id, name, youtube_url, language, auto_pick, pace_per_day, autonomy, priority)
-VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8)
+INSERT INTO owner_channels (id, name, youtube_url, language, auto_fetch, per_day, auto_approve, default_template_id, agent_instructions)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
 `
 
 type InsertOwnerChannelParams struct {
-	ID         pgtype.UUID `json:"id"`
-	Name       string      `json:"name"`
-	YoutubeUrl pgtype.Text `json:"youtube_url"`
-	Language   string      `json:"language"`
-	AutoPick   bool        `json:"auto_pick"`
-	PacePerDay int32       `json:"pace_per_day"`
-	Column7    []byte      `json:"column_7"`
-	Priority   string      `json:"priority"`
+	ID                pgtype.UUID `json:"id"`
+	Name              string      `json:"name"`
+	YoutubeUrl        pgtype.Text `json:"youtube_url"`
+	Language          string      `json:"language"`
+	AutoFetch         bool        `json:"auto_fetch"`
+	PerDay            int32       `json:"per_day"`
+	AutoApprove       bool        `json:"auto_approve"`
+	DefaultTemplateID pgtype.UUID `json:"default_template_id"`
+	Column9           []byte      `json:"column_9"`
 }
 
 func (q *Queries) InsertOwnerChannel(ctx context.Context, arg InsertOwnerChannelParams) error {
@@ -291,10 +287,11 @@ func (q *Queries) InsertOwnerChannel(ctx context.Context, arg InsertOwnerChannel
 		arg.Name,
 		arg.YoutubeUrl,
 		arg.Language,
-		arg.AutoPick,
-		arg.PacePerDay,
-		arg.Column7,
-		arg.Priority,
+		arg.AutoFetch,
+		arg.PerDay,
+		arg.AutoApprove,
+		arg.DefaultTemplateID,
+		arg.Column9,
 	)
 	return err
 }
@@ -333,6 +330,41 @@ func (q *Queries) LinkSource(ctx context.Context, arg LinkSourceParams) (int64, 
 	return result.RowsAffected(), nil
 }
 
+const listChannelDefaults = `-- name: ListChannelDefaults :many
+SELECT c.id AS owner_channel_id, t.id AS template_id, t.name
+FROM owner_channels c
+JOIN templates t ON t.id = c.default_template_id
+WHERE c.id = ANY($1::uuid[])
+ORDER BY c.id
+`
+
+type ListChannelDefaultsRow struct {
+	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
+	TemplateID     pgtype.UUID `json:"template_id"`
+	Name           string      `json:"name"`
+}
+
+// Template mặc định của nhiều kênh trong một truy vấn (bỏ kênh không có).
+func (q *Queries) ListChannelDefaults(ctx context.Context, ids []pgtype.UUID) ([]ListChannelDefaultsRow, error) {
+	rows, err := q.db.Query(ctx, listChannelDefaults, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListChannelDefaultsRow{}
+	for rows.Next() {
+		var i ListChannelDefaultsRow
+		if err := rows.Scan(&i.OwnerChannelID, &i.TemplateID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listChannelSources = `-- name: ListChannelSources :many
 SELECT s.owner_channel_id, s.rival_id, s.linked_at, s.min_duration_sec, r.title, r.handle
 FROM owner_channel_sources s
@@ -368,79 +400,6 @@ func (q *Queries) ListChannelSources(ctx context.Context, dollar_1 []pgtype.UUID
 			&i.MinDurationSec,
 			&i.Title,
 			&i.Handle,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listChannelTemplateIDs = `-- name: ListChannelTemplateIDs :many
-SELECT template_id, position FROM owner_channel_templates
-WHERE owner_channel_id = $1
-ORDER BY position
-`
-
-type ListChannelTemplateIDsRow struct {
-	TemplateID pgtype.UUID `json:"template_id"`
-	Position   int32       `json:"position"`
-}
-
-// Danh sách position của một kênh, để chèn cuối/xếp lại trong tx.
-func (q *Queries) ListChannelTemplateIDs(ctx context.Context, ownerChannelID pgtype.UUID) ([]ListChannelTemplateIDsRow, error) {
-	rows, err := q.db.Query(ctx, listChannelTemplateIDs, ownerChannelID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListChannelTemplateIDsRow{}
-	for rows.Next() {
-		var i ListChannelTemplateIDsRow
-		if err := rows.Scan(&i.TemplateID, &i.Position); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listChannelTemplates = `-- name: ListChannelTemplates :many
-SELECT t.owner_channel_id, t.template_id, t.position, tp.name
-FROM owner_channel_templates t
-JOIN templates tp ON tp.id = t.template_id
-WHERE t.owner_channel_id = ANY($1::uuid[])
-ORDER BY t.owner_channel_id, t.position
-`
-
-type ListChannelTemplatesRow struct {
-	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
-	TemplateID     pgtype.UUID `json:"template_id"`
-	Position       int32       `json:"position"`
-	Name           string      `json:"name"`
-}
-
-// Template luân phiên của nhiều kênh trong một truy vấn, theo position.
-func (q *Queries) ListChannelTemplates(ctx context.Context, dollar_1 []pgtype.UUID) ([]ListChannelTemplatesRow, error) {
-	rows, err := q.db.Query(ctx, listChannelTemplates, dollar_1)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ListChannelTemplatesRow{}
-	for rows.Next() {
-		var i ListChannelTemplatesRow
-		if err := rows.Scan(
-			&i.OwnerChannelID,
-			&i.TemplateID,
-			&i.Position,
-			&i.Name,
 		); err != nil {
 			return nil, err
 		}
@@ -497,11 +456,11 @@ func (q *Queries) ListCompetitors(ctx context.Context, ownerChannelID pgtype.UUI
 
 const listOwnerChannels = `-- name: ListOwnerChannels :many
 
-SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_pick, pace_per_day, template_cursor, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, autonomy, priority FROM owner_channels
+SELECT id, name, youtube_url, language, style_note, description_footer, always_tags, auto_fetch, per_day, branding, avatar_path, banner_path, identity_state, identity_part, identity_task_id, identity_error_code, identity_error, identity_failed_step, identity_retry_at, identity_started_at, identity_lease_owner, identity_lease_token, identity_lease_until, created_at, updated_at, default_template_id, auto_approve, agent_instructions FROM owner_channels
 ORDER BY (name = ''), lower(name), id
 `
 
-// Kênh của bạn: kênh + đối thủ liên kết + danh sách template luân phiên +
+// Kênh của bạn: kênh + đối thủ liên kết + template mặc định trong Thư viện +
 // bộ nhận diện (lease một run mỗi kênh). Ghi nhiều dòng nguyên tử nằm trong
 // transaction của store; mỗi câu ở đây là một bước đơn vị.
 // Tên rỗng (kênh chưa được đặt tên) đứng cuối danh sách.
@@ -522,9 +481,8 @@ func (q *Queries) ListOwnerChannels(ctx context.Context) ([]OwnerChannel, error)
 			&i.StyleNote,
 			&i.DescriptionFooter,
 			&i.AlwaysTags,
-			&i.AutoPick,
-			&i.PacePerDay,
-			&i.TemplateCursor,
+			&i.AutoFetch,
+			&i.PerDay,
 			&i.Branding,
 			&i.AvatarPath,
 			&i.BannerPath,
@@ -541,8 +499,9 @@ func (q *Queries) ListOwnerChannels(ctx context.Context) ([]OwnerChannel, error)
 			&i.IdentityLeaseUntil,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Autonomy,
-			&i.Priority,
+			&i.DefaultTemplateID,
+			&i.AutoApprove,
+			&i.AgentInstructions,
 		); err != nil {
 			return nil, err
 		}
@@ -552,6 +511,25 @@ func (q *Queries) ListOwnerChannels(ctx context.Context) ([]OwnerChannel, error)
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockChannelForAdmission = `-- name: LockChannelForAdmission :one
+SELECT default_template_id, agent_instructions FROM owner_channels WHERE id = $1::uuid FOR UPDATE
+`
+
+type LockChannelForAdmissionRow struct {
+	DefaultTemplateID pgtype.UUID `json:"default_template_id"`
+	AgentInstructions []byte      `json:"agent_instructions"`
+}
+
+// Khoá hàng kênh trong transaction admission và trả template mặc định + chỉ
+// dẫn "Dặn trợ lý về kênh" đang có hiệu lực tại thời điểm commit. Cùng một
+// khoá với PATCH kênh nên không thể chốt nửa mặc định/nửa chỉ dẫn.
+func (q *Queries) LockChannelForAdmission(ctx context.Context, id pgtype.UUID) (LockChannelForAdmissionRow, error) {
+	row := q.db.QueryRow(ctx, lockChannelForAdmission, id)
+	var i LockChannelForAdmissionRow
+	err := row.Scan(&i.DefaultTemplateID, &i.AgentInstructions)
+	return i, err
 }
 
 const lockChannelForCreate = `-- name: LockChannelForCreate :exec
@@ -633,55 +611,66 @@ func (q *Queries) NextIdentityLeaseExpiry(ctx context.Context) (pgtype.Timestamp
 const patchChannel = `-- name: PatchChannel :execrows
 WITH reset_auto_baselines AS (
     UPDATE owner_channel_sources SET auto_baseline_at = NULL
-    WHERE owner_channel_id = $23::uuid
+    WHERE owner_channel_id = $26::uuid
       AND $13::bool AND NOT $14::bool
 )
 UPDATE owner_channels SET
-    name               = CASE WHEN $1::bool        THEN $2::text        ELSE name END,
-    youtube_url        = CASE WHEN $3::bool THEN $4::text ELSE youtube_url END,
-    language           = CASE WHEN $5::bool    THEN $6::text     ELSE language END,
-    style_note         = CASE WHEN $7::bool  THEN $8::text  ELSE style_note END,
-    description_footer = CASE WHEN $9::bool      THEN $10::text      ELSE description_footer END,
-    always_tags        = CASE WHEN $11::bool        THEN $12::text[]       ELSE always_tags END,
-    auto_pick          = CASE WHEN $13::bool   THEN $14::bool    ELSE auto_pick END,
-    pace_per_day       = CASE WHEN $15::bool        THEN $16::int          ELSE pace_per_day END,
-    autonomy           = CASE WHEN $17::bool    THEN $18::jsonb    ELSE autonomy END,
-    priority           = CASE WHEN $19::bool    THEN $20::text     ELSE priority END,
-    branding           = CASE WHEN $21::bool
-                              THEN jsonb_set(branding, '{brief}', to_jsonb($22::text), true)
-                              ELSE branding END,
-    updated_at         = clock_timestamp()
-WHERE id = $23::uuid
+    name                = CASE WHEN $1::bool           THEN $2::text          ELSE name END,
+    youtube_url         = CASE WHEN $3::bool    THEN $4::text   ELSE youtube_url END,
+    language            = CASE WHEN $5::bool       THEN $6::text       ELSE language END,
+    style_note          = CASE WHEN $7::bool     THEN $8::text    ELSE style_note END,
+    description_footer  = CASE WHEN $9::bool         THEN $10::text        ELSE description_footer END,
+    always_tags         = CASE WHEN $11::bool           THEN $12::text[]         ELSE always_tags END,
+    auto_fetch          = CASE WHEN $13::bool     THEN $14::bool     ELSE auto_fetch END,
+    auto_approve        = CASE WHEN $15::bool   THEN $16::bool   ELSE auto_approve END,
+    per_day             = CASE WHEN $17::bool        THEN $18::int          ELSE per_day END,
+    default_template_id = CASE WHEN $19::bool THEN $20::uuid ELSE default_template_id END,
+    -- Chỉ dẫn "Dặn trợ lý về kênh": gộp đúng một trợ lý (giữ các trợ lý khác);
+    -- giá trị rỗng xoá khoá. Cả câu lệnh là một UPDATE nên nguyên tử.
+    agent_instructions  = CASE WHEN $21::bool
+                               THEN CASE WHEN COALESCE($22::text, '') = ''
+                                         THEN agent_instructions - $23::text
+                                         ELSE agent_instructions || jsonb_build_object($23::text, $22::text) END
+                               ELSE agent_instructions END,
+    branding            = CASE WHEN $24::bool
+                               THEN jsonb_set(branding, '{brief}', to_jsonb($25::text), true)
+                               ELSE branding END,
+    updated_at          = clock_timestamp()
+WHERE id = $26::uuid
 `
 
 type PatchChannelParams struct {
-	NameSet       bool        `json:"name_set"`
-	Name          pgtype.Text `json:"name"`
-	YoutubeUrlSet bool        `json:"youtube_url_set"`
-	YoutubeUrl    pgtype.Text `json:"youtube_url"`
-	LanguageSet   bool        `json:"language_set"`
-	Language      string      `json:"language"`
-	StyleNoteSet  bool        `json:"style_note_set"`
-	StyleNote     pgtype.Text `json:"style_note"`
-	FooterSet     bool        `json:"footer_set"`
-	Footer        pgtype.Text `json:"footer"`
-	TagsSet       bool        `json:"tags_set"`
-	Tags          []string    `json:"tags"`
-	AutoPickSet   bool        `json:"auto_pick_set"`
-	AutoPick      bool        `json:"auto_pick"`
-	PaceSet       bool        `json:"pace_set"`
-	Pace          int32       `json:"pace"`
-	AutonomySet   bool        `json:"autonomy_set"`
-	Autonomy      []byte      `json:"autonomy"`
-	PrioritySet   bool        `json:"priority_set"`
-	Priority      string      `json:"priority"`
-	BrandingSet   bool        `json:"branding_set"`
-	Brief         string      `json:"brief"`
-	ID            pgtype.UUID `json:"id"`
+	NameSet            bool        `json:"name_set"`
+	Name               pgtype.Text `json:"name"`
+	YoutubeUrlSet      bool        `json:"youtube_url_set"`
+	YoutubeUrl         pgtype.Text `json:"youtube_url"`
+	LanguageSet        bool        `json:"language_set"`
+	Language           string      `json:"language"`
+	StyleNoteSet       bool        `json:"style_note_set"`
+	StyleNote          pgtype.Text `json:"style_note"`
+	FooterSet          bool        `json:"footer_set"`
+	Footer             pgtype.Text `json:"footer"`
+	TagsSet            bool        `json:"tags_set"`
+	Tags               []string    `json:"tags"`
+	AutoFetchSet       bool        `json:"auto_fetch_set"`
+	AutoFetch          bool        `json:"auto_fetch"`
+	AutoApproveSet     bool        `json:"auto_approve_set"`
+	AutoApprove        bool        `json:"auto_approve"`
+	PerDaySet          bool        `json:"per_day_set"`
+	PerDay             int32       `json:"per_day"`
+	DefaultTemplateSet bool        `json:"default_template_set"`
+	DefaultTemplateID  pgtype.UUID `json:"default_template_id"`
+	AgentSet           bool        `json:"agent_set"`
+	AgentValue         pgtype.Text `json:"agent_value"`
+	AgentKey           string      `json:"agent_key"`
+	BrandingSet        bool        `json:"branding_set"`
+	Brief              string      `json:"brief"`
+	ID                 pgtype.UUID `json:"id"`
 }
 
 // Cập nhật đúng các trường được đưa (mỗi trường một cờ *_set); branding chỉ
-// đổi khi cần sửa brief của nhận diện.
+// đổi khi cần sửa brief của nhận diện. default_template_id là NOT NULL nên
+// null/"" bị chặn ở tầng service trước khi tới đây.
 func (q *Queries) PatchChannel(ctx context.Context, arg PatchChannelParams) (int64, error) {
 	result, err := q.db.Exec(ctx, patchChannel,
 		arg.NameSet,
@@ -696,14 +685,17 @@ func (q *Queries) PatchChannel(ctx context.Context, arg PatchChannelParams) (int
 		arg.Footer,
 		arg.TagsSet,
 		arg.Tags,
-		arg.AutoPickSet,
-		arg.AutoPick,
-		arg.PaceSet,
-		arg.Pace,
-		arg.AutonomySet,
-		arg.Autonomy,
-		arg.PrioritySet,
-		arg.Priority,
+		arg.AutoFetchSet,
+		arg.AutoFetch,
+		arg.AutoApproveSet,
+		arg.AutoApprove,
+		arg.PerDaySet,
+		arg.PerDay,
+		arg.DefaultTemplateSet,
+		arg.DefaultTemplateID,
+		arg.AgentSet,
+		arg.AgentValue,
+		arg.AgentKey,
 		arg.BrandingSet,
 		arg.Brief,
 		arg.ID,
@@ -860,60 +852,43 @@ func (q *Queries) RivalExistsForChannels(ctx context.Context, id string) (bool, 
 	return exists, err
 }
 
-const setAutoPick = `-- name: SetAutoPick :execrows
+const setAutoFetch = `-- name: SetAutoFetch :execrows
 WITH reset_auto_baselines AS (
     UPDATE owner_channel_sources SET auto_baseline_at = NULL
     WHERE owner_channel_id = $2::uuid AND NOT $1::bool
 )
 UPDATE owner_channels
-SET auto_pick = $1::bool, updated_at = clock_timestamp()
+SET auto_fetch = $1::bool, updated_at = clock_timestamp()
 WHERE id = $2::uuid
 `
 
-type SetAutoPickParams struct {
-	AutoPick bool        `json:"auto_pick"`
-	ID       pgtype.UUID `json:"id"`
+type SetAutoFetchParams struct {
+	AutoFetch bool        `json:"auto_fetch"`
+	ID        pgtype.UUID `json:"id"`
 }
 
 // Bật/tắt Tự lấy; tắt khi bỏ liên kết đối thủ cuối cùng.
-func (q *Queries) SetAutoPick(ctx context.Context, arg SetAutoPickParams) (int64, error) {
-	result, err := q.db.Exec(ctx, setAutoPick, arg.AutoPick, arg.ID)
+func (q *Queries) SetAutoFetch(ctx context.Context, arg SetAutoFetchParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setAutoFetch, arg.AutoFetch, arg.ID)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected(), nil
 }
 
-const setAutoPickTouch = `-- name: SetAutoPickTouch :execrows
+const setAutoFetchTouch = `-- name: SetAutoFetchTouch :execrows
 UPDATE owner_channels
 SET updated_at = clock_timestamp()
 WHERE id = $1
 `
 
 // Bump updated_at sau một thay đổi link/template (mọi trang đọc lại theo mốc).
-func (q *Queries) SetAutoPickTouch(ctx context.Context, id pgtype.UUID) (int64, error) {
-	result, err := q.db.Exec(ctx, setAutoPickTouch, id)
+func (q *Queries) SetAutoFetchTouch(ctx context.Context, id pgtype.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, setAutoFetchTouch, id)
 	if err != nil {
 		return 0, err
 	}
 	return result.RowsAffected(), nil
-}
-
-const setChannelTemplatePosition = `-- name: SetChannelTemplatePosition :exec
-UPDATE owner_channel_templates
-SET position = $3
-WHERE owner_channel_id = $1 AND template_id = $2
-`
-
-type SetChannelTemplatePositionParams struct {
-	OwnerChannelID pgtype.UUID `json:"owner_channel_id"`
-	TemplateID     pgtype.UUID `json:"template_id"`
-	Position       int32       `json:"position"`
-}
-
-func (q *Queries) SetChannelTemplatePosition(ctx context.Context, arg SetChannelTemplatePositionParams) error {
-	_, err := q.db.Exec(ctx, setChannelTemplatePosition, arg.OwnerChannelID, arg.TemplateID, arg.Position)
-	return err
 }
 
 const setSourceMinDuration = `-- name: SetSourceMinDuration :execrows
@@ -945,6 +920,49 @@ func (q *Queries) TemplateExistsForChannels(ctx context.Context, id pgtype.UUID)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
+}
+
+const templateNames = `-- name: TemplateNames :many
+SELECT id, name FROM templates WHERE id = ANY($1::uuid[]) ORDER BY id
+`
+
+type TemplateNamesRow struct {
+	ID   pgtype.UUID `json:"id"`
+	Name string      `json:"name"`
+}
+
+// Tên template theo id (cho override của hàng chờ và job đang chạy).
+func (q *Queries) TemplateNames(ctx context.Context, ids []pgtype.UUID) ([]TemplateNamesRow, error) {
+	rows, err := q.db.Query(ctx, templateNames, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TemplateNamesRow{}
+	for rows.Next() {
+		var i TemplateNamesRow
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const templateRevisionForShare = `-- name: TemplateRevisionForShare :one
+SELECT revision FROM templates WHERE id = $1::uuid FOR SHARE
+`
+
+// Fence revision của template: job chỉ được persist đúng revision đã build
+// snapshot. SHARE chặn sửa revision và xoá cho tới khi admission commit.
+func (q *Queries) TemplateRevisionForShare(ctx context.Context, id pgtype.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, templateRevisionForShare, id)
+	var revision int64
+	err := row.Scan(&revision)
+	return revision, err
 }
 
 const unlinkSource = `-- name: UnlinkSource :execrows

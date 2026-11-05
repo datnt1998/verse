@@ -1,0 +1,16 @@
+{
+  "baseCommit": "277b902b93cd7db1d771a418c789e8314802f722",
+  "artboards": {
+    "Channel": "5b4c984c85ad46405a66d01cd20f562a1768f08e432392b631cdc9847c5153ab",
+    "Library": "56cf1f182e21590a5959ef263fd2ed168aab7e4c9a58b530feaae64f239f6841",
+    "Template": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24",
+    "CreateChannel": "e4be3675fbe76208da1f6e36bbe7a6373c7c5232eedc437ca13f44f3607bebbf",
+    "Onboard": "2eb8bfd050a2d042a281dedab556c469152ff5cea6562451b72a846ac59785de",
+    "MChannel": "0bbd689ace43af3085709e3c79251e40d9c599fa4b90d304670233acfae487ba",
+    "MLibrary": "97ac9595e64fc06d659aa963ce8f1a99b9e6e0bbcfd230062e69fc9dbe98f7a8",
+    "MTemplate": "2d351bd5fcafafd47fd1c794ad018f03aa27a0d03b69437ab61e91af4fc157c2",
+    "MCreate": "03af265e0edf09d1417b25c8e7d9910a2c6f967cce5cae4492305f0327a7eff7"
+  },
+  "scope": "Current user design worktree, read-only, not edited by implementation",
+  "acceptance": false
+}

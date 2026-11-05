@@ -1,0 +1,64 @@
+{
+  "captures": [
+    {
+      "width": 1440,
+      "filename": "1440-composition-illustrations.png",
+      "images": [
+        {
+          "src": "/illustrations/scene-composition-full.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 245.328125,
+          "height": 137.984375
+        },
+        {
+          "src": "/illustrations/scene-composition-cutout.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 245.328125,
+          "height": 137.984375
+        },
+        {
+          "src": "/illustrations/scene-composition-close.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 245.34375,
+          "height": 138
+        }
+      ],
+      "provenance": "Approved static design illustrations of composition options, not generated template artwork."
+    },
+    {
+      "width": 390,
+      "filename": "390-composition-illustrations.png",
+      "images": [
+        {
+          "src": "/illustrations/scene-composition-full.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 112,
+          "height": 140
+        },
+        {
+          "src": "/illustrations/scene-composition-cutout.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 112,
+          "height": 140
+        },
+        {
+          "src": "/illustrations/scene-composition-close.jpg",
+          "naturalWidth": 1280,
+          "naturalHeight": 720,
+          "width": 112,
+          "height": 140
+        }
+      ],
+      "provenance": "Approved static design illustrations of composition options, not generated template artwork."
+    }
+  ],
+  "blocked": [],
+  "errors": [],
+  "realWrites": 0,
+  "status": "PASS"
+}

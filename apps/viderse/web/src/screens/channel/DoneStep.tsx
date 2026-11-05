@@ -196,7 +196,7 @@ export function DoneStep({ channelId, onLeave }: {
                     name: directorFailed ? tt.noName : (data.name || tt.noName),
                     rivals: data.sources.length,
                     language: t.channels.page.languageLower[data.language],
-                    pace: data.pacePerDay,
+                    perDay: data.perDay,
                   })
                   : tt.noName)
                 : directorFailed ? (
@@ -208,7 +208,7 @@ export function DoneStep({ channelId, onLeave }: {
                     {tt.subTail({
                       rivals: data.sources.length,
                       language: t.channels.page.languageLower[data.language],
-                      pace: data.pacePerDay,
+                      perDay: data.perDay,
                     })}
                   </>
                 )
@@ -218,7 +218,7 @@ export function DoneStep({ channelId, onLeave }: {
                       rival: reference.title,
                       rivals: data.sources.length,
                       language: t.channels.page.languageLower[data.language],
-                      pace: data.pacePerDay,
+                      perDay: data.perDay,
                     })
                     : tt.noName}
             </p>

@@ -8,7 +8,7 @@ import { libraryVars } from '../libraryTokens.stylex'
 // (recipe.appearance), Lớp hiệu ứng (recipe.overlays + listOverlays) và hộp
 // Gắn kênh hoặc video (BackdropPicker). Lưu qua onSave — trang gộp + PATCH.
 import { useMemo, useState } from 'react'
-import { Banner, Button, Dialog, Icon, NumberStepper, Segmented, Skeleton, Switch } from '@noverse/ui'
+import { Banner, Button, Dialog, Icon, NumberStepper, Segmented, Sheet, Skeleton, Switch } from '@noverse/ui'
 
 import { t } from '../../../i18n/library'
 import { keys } from '../../../data/keys'
@@ -52,11 +52,11 @@ function ChannelRow({ link, channel, onEdit, onRemove, mobileLayout }: {
   onRemove: () => void
 }) {
   const copy = t.backdrop.template
-  const name = channel?.title ?? channel?.handle ?? link.channelId
+  const name = channel?.title ?? channel?.handle ?? copy.missingChannelName
   const pick = link.pinned.length > 0
   const kinds = link.kinds.length ? link.kinds.map(kindName).join(', ') : copy.howRandom
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((channel ? undefined : ''))) && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, !channel && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
       {channel?.avatarUrl
         ? <img className={`vbd-av ${stylex.props(sx.av).className}`} src={channel.avatarUrl} alt="" width={30} height={30} style={{ borderRadius: '50%' }} />
         : <span className={`vbd-av ${stylex.props(sx.av).className}`} aria-hidden="true" style={{ width: 30, height: 30, background: channelTint(link.channelId) }}>{initials(name)}</span>}
@@ -83,9 +83,9 @@ function FixedVideoRow({ video, missing, onRemove, mobileLayout }: {
   onRemove: () => void
 }) {
   const copy = t.backdrop.template
-  const name = video?.title ?? '—'
+  const name = video?.title ?? copy.missingVideoName
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((missing ? '' : undefined))) && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, missing && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
       {video?.state === 'ready' && video.file
         ? <span className={`vbd-av vbd-av--rect ${stylex.props(sx.avAvRect).className}`} style={{ width: 54, height: 30 }}>
             <video {...stylex.props(sx.vbdAvVideo)} src={backdropVideoFileHref(video.id)} muted playsInline preload="metadata" />
@@ -132,7 +132,7 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
     const channel = channelById.get(c.channelId)
     segs.push({
       id: c.channelId, sec: c.clips * backdrop.clipSec, tone: 'channel', platform: channel?.platform ?? 'twitch',
-      label: channel?.title ?? channel?.handle ?? c.channelId,
+      label: channel?.title ?? channel?.handle ?? copy.missingChannelName,
       sub: pinnedOf(c.channelId) > 0
         ? copy.mixPickDetail(num(c.clips), num(pinnedOf(c.channelId)))
         : c.repeats ? copy.mixRepeatDetail(num(c.clips), num(c.freshVideos)) : copy.mixRandomDetail(num(c.clips)),
@@ -169,7 +169,7 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
           return (
             <span key={c.channelId} className={`vbd-mixleg ${stylex.props(sx.mixleg).className}`}>
               <i {...stylex.props(sx.vbdMixlegI)} style={{ background: `var(--vv-plat-${channel?.platform === 'bilibili' ? 'bilibili' : 'twitch'})` }} />
-              {channel?.title ?? channel?.handle ?? c.channelId}{' '}
+              {channel?.title ?? channel?.handle ?? copy.missingChannelName}{' '}
               {pinnedOf(c.channelId) > 0
                 ? copy.mixPickDetail(num(c.clips), num(pinnedOf(c.channelId)))
                 : c.repeats ? copy.mixRepeatDetail(num(c.clips), num(c.freshVideos)) : copy.mixRandomDetail(num(c.clips))}
@@ -214,7 +214,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
     ({ signal }) => getBackdropMix(template.id, MIX_TARGET_SEC, signal),
   )
   const [picker, setPicker] = useState<{ edit?: string } | null>(null)
-  const [overlayPick, setOverlayPick] = useState(false)
+  const [overlayPick, setOverlayPick] = useState<{ mobile: boolean; open: boolean } | null>(null)
   const [cutOpen, setCutOpen] = useState(false)
 
   const channelById = useMemo(() => new Map((channels.data ?? []).map((c) => [c.id, c])), [channels.data])
@@ -238,6 +238,46 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
   const removeVideo = (id: string) => saveBackdrop({ fixedVideoIds: backdrop.fixedVideoIds.filter((v) => v !== id) })
 
   const manual = backdrop.clipCount !== null
+  const catalogError = channels.error || videos.error || overlays.error
+  if (catalogError || channels.initialLoading || videos.initialLoading || overlays.initialLoading) {
+    return (
+      <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-busy={!catalogError || undefined}>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)}>{t.library.template.sections.backdrop.label}</h2>}
+        {catalogError ? (
+          <>
+            <p role="alert" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{t.library.loadFail}</p>
+            <Button variant="ghost" onClick={() => { void channels.refresh(); void videos.refresh(); void overlays.refresh() }}>{t.library.retry}</Button>
+          </>
+        ) : (
+          <>
+            <p role="status" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.loadingLibrary}</p>
+            <Skeleton height="var(--vv-s-64)" width="100%" />
+          </>
+        )}
+      </section>
+    )
+  }
+  const closeOverlayPicker = () => setOverlayPick(current => current?.mobile ? { ...current, open: false } : null)
+  const overlayPickerBody = overlayPick && (
+    <div className={`vbd-ovlist ${stylex.props(sx.ovlist).className}`}>
+      {overlayCandidates.length === 0 && <p className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.overlayPickEmpty}</p>}
+      {overlayCandidates.map((overlay) => (
+        <button key={overlay.id} type="button" className={`vbd-ovrow ${stylex.props(sx.ovrow2).className}`} style={{ cursor: 'pointer' }}
+          onClick={() => { saveOverlays([...attachedOverlays, overlay.id]); closeOverlayPicker() }}>
+          <span className={`vbd-ovthumb ${stylex.props(sx.ovthumb).className}`}>
+            {overlay.mime.startsWith('video/')
+              ? <video {...stylex.props(sx.vbdOvthumbVideo)} src={overlay.url} muted playsInline preload="metadata" />
+              : overlay.mime.startsWith('image/') ? <img {...stylex.props(sx.vbdOvthumbImg)} src={overlay.url} alt="" /> : <Icon name="layer" size={14} />}
+          </span>
+          <span className={`vbd-ovmain ${stylex.props(sx.ovmain).className}`}>
+            <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{overlay.name}</span>
+            <span className={`vbd-ovsub ${stylex.props(sx.ovsub).className}`}>{overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin}</span>
+          </span>
+        </button>
+      ))}
+    </div>
+  )
+
 
   return (
     <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? t.library.template.sections.backdrop.label : undefined} aria-labelledby={hideTitle ? undefined : 'vt-backdrop-title'} aria-busy={saving || undefined}>
@@ -247,7 +287,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Lấy nền từ */}
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.fromLabel}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant={mobile ? 'ghost' : 'primary'} onClick={() => setPicker({})}>{copy.attach}</Button>
@@ -275,10 +315,10 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 
       {/* Nền của một video + Cách cắt clip */}
       {(backdrop.channels.length > 0 || backdrop.fixedVideoIds.length > 0) && (
-        <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard).className}`}>
+        <div className={`vt-card ${stylex.props(sx.card).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.mixLabel} · {copy.mixExample}</span>
-          <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []}
-            onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />
+          {mix.error ? <div role="alert" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.mixLoadFail} <Button variant="ghost" onClick={() => void mix.refresh()}>{t.library.retry}</Button></div>
+            : <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []} onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />}
 
           <div className={`vbd-cut ${stylex.props(sx.cut).className}`}>
             <button type="button" className={`vbd-cutline ${stylex.props(sx.cutline).className}`} aria-expanded={cutOpen}
@@ -318,7 +358,7 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       )}
 
       {/* Chỉnh nền */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard, hideTitle && sx.mobileAdvanced).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.card, hideTitle && sx.mobileAdvanced).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.adjustTitle}</span>
           <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" onClick={() => void onSave({ appearance: { ...APPEARANCE_DEFAULT } })}>{copy.adjustReset}</Button>
@@ -348,11 +388,11 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Lớp hiệu ứng */}
-      <div className={`vt-card vbd-part ${stylex.props(sx.cardPart, hideTitle && sx.mobileCard).className}`}>
+      <div className={`vt-card vbd-part ${stylex.props(sx.card).className}`}>
         <div className={`vbd-part-head ${stylex.props(sx.partHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.overlayTitle}</span>
-          <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" disabled={overlayCandidates.length === 0}
-            onClick={() => setOverlayPick(true)}>{copy.overlayAdd}</Button>
+          <Button xstyle={[sx.vtCardHeadButton]} size="sm" variant="quiet" disabled={overlayCandidates.length === 0 || overlayPick !== null}
+            onClick={() => setOverlayPick({ mobile, open: true })}>{copy.overlayAdd}</Button>
         </div>
         {attachedOverlays.length === 0 ? (
           <div className={`vbd-srcempty ${stylex.props(sx.srcempty).className}`}>
@@ -363,21 +403,22 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
           <div className={`vbd-ovlist ${stylex.props(sx.ovlist).className}`}>
             {attachedOverlays.map((id) => {
               const overlay = overlayById.get(id)
+              const name = overlay?.name ?? copy.missingOverlayName
               return (
-                <div key={id} className={`vbd-ovrow ${stylex.props(sx.ovrow, (Boolean((overlay ? undefined : ''))) && sx.ovrowDataMissing).className}`} data-missing={overlay ? undefined : ''}>
+                <div key={id} className={`vbd-ovrow ${stylex.props(sx.ovrow, !overlay && sx.ovrowDataMissing).className}`} data-missing={overlay ? undefined : ''}>
                   <span className={`vbd-ovthumb ${stylex.props(sx.ovthumb).className}`}>
                     {overlay?.mime.startsWith('video/')
                       ? <video {...stylex.props(sx.vbdOvthumbVideo)} src={overlay.url} muted playsInline preload="metadata" />
                       : overlay?.mime.startsWith('image/') ? <img {...stylex.props(sx.vbdOvthumbImg)} src={overlay.url} alt="" /> : <Icon name="layer" size={14} />}
                   </span>
                   <span className={`vbd-ovmain ${stylex.props(sx.ovmain).className}`}>
-                    <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{overlay?.name ?? id}</span>
+                    <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{name}</span>
                     <span className={`vbd-ovsub ${stylex.props(sx.ovsub).className}`}>
-                      {overlay ? (overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin) : copy.missingTitle}
+                      {overlay ? (overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin) : copy.missingOverlayHint}
                     </span>
                   </span>
                   <Button xstyle={[sx.vtCardHeadButton]} variant="icon" icon={<Icon name="close" size={15} />}
-                    aria-label={copy.overlayRemoveAria(overlay?.name ?? id)}
+                    aria-label={copy.overlayRemoveAria(name)}
                     onClick={() => saveOverlays(attachedOverlays.filter((x) => x !== id))} />
                 </div>
               )
@@ -387,33 +428,20 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       </div>
 
       {/* Hộp chọn hiệu ứng */}
-      {overlayPick && (
-        <Dialog title={copy.overlayPickTitle} onClose={() => setOverlayPick(false)} width={520}>
-          <div className={`vbd-ovlist ${stylex.props(sx.ovlist).className}`}>
-            {overlayCandidates.length === 0 && <p className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.overlayPickEmpty}</p>}
-            {overlayCandidates.map((overlay) => (
-              <button key={overlay.id} type="button" className={`vbd-ovrow ${stylex.props(sx.ovrow2).className}`} style={{ cursor: 'pointer' }}
-                onClick={() => { saveOverlays([...attachedOverlays, overlay.id]); setOverlayPick(false) }}>
-                <span className={`vbd-ovthumb ${stylex.props(sx.ovthumb).className}`}>
-                  {overlay.mime.startsWith('video/')
-                    ? <video {...stylex.props(sx.vbdOvthumbVideo)} src={overlay.url} muted playsInline preload="metadata" />
-                    : overlay.mime.startsWith('image/') ? <img {...stylex.props(sx.vbdOvthumbImg)} src={overlay.url} alt="" /> : <Icon name="layer" size={14} />}
-                </span>
-                <span className={`vbd-ovmain ${stylex.props(sx.ovmain).className}`}>
-                  <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{overlay.name}</span>
-                  <span className={`vbd-ovsub ${stylex.props(sx.ovsub).className}`}>{overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin}</span>
-                </span>
-              </button>
-            ))}
-          </div>
+      {overlayPick && (overlayPick.mobile ? (
+        <Sheet open={overlayPick.open} onClose={closeOverlayPicker} onExited={() => setOverlayPick(null)}
+          title={copy.overlayPickTitle} size="md" height="auto">
+          {overlayPickerBody}
+        </Sheet>
+      ) : (
+        <Dialog title={copy.overlayPickTitle} onClose={closeOverlayPicker} width={520}>
+          {overlayPickerBody}
         </Dialog>
-      )}
+      ))}
 
       {/* Hộp gắn kênh/video */}
       {picker && (
-        <div className={`vbd-dlg-backdrop ${stylex.props(sx.dlgBackdrop).className}`} onClick={(event) => { if (event.target === event.currentTarget) setPicker(null) }}>
-          <BackdropPicker template={template} onSave={onSave} onClose={() => setPicker(null)} initial={picker.edit} key={picker.edit ?? 'new'} />
-        </div>
+        <BackdropPicker template={template} onSave={onSave} onClose={() => setPicker(null)} initial={picker.edit} key={picker.edit ?? 'new'} />
       )}
     </section>
   )
@@ -422,21 +450,6 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
 const sx = stylex.create({
   mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
   mobileAdvanced: { order: { default: null, '@media (max-width: 767px)': 1 } },
-  mobileCard: {
-    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
-    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
-    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
-    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
-  },
   mobileSource: {
     paddingRight: { default: null, '@media (max-width: 767px)': 0 },
     paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
@@ -474,11 +487,11 @@ const sx = stylex.create({
   mixlegend: { display: "flex", alignItems: "center", flexWrap: "wrap", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)" },
   mixleg: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-5)", columnGap: "var(--vv-s-5)", fontSize: libraryVars.microFontSize, color: color["--color-fg-3"] },
   vbdMixlegI: { width: "var(--vv-s-9)", height: "var(--vv-s-9)", borderTopLeftRadius: "var(--vv-r-3)", borderTopRightRadius: "var(--vv-r-3)", borderBottomRightRadius: "var(--vv-r-3)", borderBottomLeftRadius: "var(--vv-r-3)", fontStyle: "normal" },
-  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
-  secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
-  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
+  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
+  secHead: { display: "flex", flexDirection: 'column', alignItems: 'flex-start', rowGap: "var(--vv-s-4)", paddingBottom: 'var(--vv-s-6)' },
+  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-18)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
-  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
+  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
   label: {
     fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
@@ -496,7 +509,6 @@ const sx = stylex.create({
   cutrows: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
   cutline2: { display: "inline-flex", alignItems: "center", rowGap: "var(--vv-s-6)", columnGap: "var(--vv-s-6)", fontSize: "var(--vv-s-12)", color: color["--color-fg-2"], borderTopWidth: 0, borderTopStyle: "none", borderTopColor: "currentColor", borderRightWidth: 0, borderRightStyle: "none", borderRightColor: "currentColor", borderBottomWidth: 0, borderBottomStyle: "none", borderBottomColor: "currentColor", borderLeftWidth: 0, borderLeftStyle: "none", borderLeftColor: "currentColor", backgroundColor: "transparent", backgroundImage: "none", paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, cursor: "pointer", fontFamily: "inherit", textAlign: "left" },
   touchTarget: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  cardPart: { borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], paddingTop: "var(--vv-s-14)", display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
   partHead: { display: "flex", alignItems: "center", justifyContent: "space-between" },
   adjust: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
   flips: { display: "flex", rowGap: "var(--vv-s-24)", columnGap: "var(--vv-s-24)" },
@@ -510,5 +522,4 @@ const sx = stylex.create({
   ovname: { fontSize: "var(--vv-s-12)", fontWeight: libraryVars.labelWeight, whiteSpace: "nowrap", overflowX: "hidden", overflowY: "hidden", textOverflow: "ellipsis" },
   ovsub: { fontSize: "var(--vv-s-10)", color: color["--color-fg-3"] },
   ovrow2: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", width: libraryVars.fullExtent, borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-10)", borderTopRightRadius: "var(--vv-r-10)", borderBottomRightRadius: "var(--vv-r-10)", borderBottomLeftRadius: "var(--vv-r-10)", paddingTop: "var(--vv-s-6)", paddingRight: "var(--vv-s-8)", paddingBottom: "var(--vv-s-6)", paddingLeft: "var(--vv-s-8)", backgroundColor: color["--color-bg"], backgroundImage: "none", fontFamily: "inherit", color: color["--color-fg"], textAlign: "left", minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
-  dlgBackdrop: { position: "fixed", top: 0, right: 0, bottom: 0, left: 0, zIndex: "var(--vv-z-overlay)", backgroundColor: "var(--vv-scrim-60)", backgroundImage: "none", display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "var(--vv-s-24)", paddingRight: "var(--vv-s-24)", paddingBottom: "var(--vv-s-24)", paddingLeft: "var(--vv-s-24)" },
 })

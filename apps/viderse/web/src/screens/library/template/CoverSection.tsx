@@ -18,6 +18,7 @@ import { uploadRefImage } from '../../../api/images'
 import type { CoverTrial, CoverTrialStatus } from '../../../api/cover-trials'
 import { useRoute } from '../../../router'
 import { clock } from '../fmt'
+import { duration } from '../backdrops/fmt'
 import { PromptPicker } from './PromptPicker'
 import { useCoverTrial } from './useCoverTrial'
 import { trialFailureText } from '../../../i18n/errorsCopy'
@@ -165,7 +166,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
         <p className={`vt-help ${stylex.props(sx.help).className}`}>{copy.help}</p>
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, previewing && sx.settingsHidden).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, previewing && sx.settingsHidden).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.promptTitle}</span>
           <span className={`vt-links ${stylex.props(sx.links).className}`}>
@@ -183,7 +184,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
         {errors['scenes.coverPromptId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.coverPromptId']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, previewing && sx.settingsHidden).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, previewing && sx.settingsHidden).className}`}>
         <div className={`vt-card-head ${stylex.props(sx.cardHead).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.trialTitle}</span>
           <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.trialKeep}</span>
@@ -196,17 +197,27 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
               id="vt-cover-trial-source"
               aria-label={copy.trialSourceAria}
               value={jobId}
+              inlineDescription
               disabled={trial.running}
               onChange={(value) => setPickedJob(value)}
               xstyle={sx.trialSourceField}
               options={sources.map((item) => ({
                 value: item.jobId,
-                label: copy.trialSourceOption(item.title, Math.max(1, Math.round(item.durationSec / 60))),
+                label: item.title,
+                description: [item.channelName, item.durationSec > 0 && duration(item.durationSec)].filter(Boolean).join(' · '),
               }))}
             />
           ) : (
             <span className={`vt-hint ${stylex.props(sx.hint).className}`}>{trial.loading ? copy.trialRunning : copy.trialLocked}</span>
           )}
+          {!running && <ActionButton
+            xstyle={sx.trialAction}
+            variant="outline"
+            icon={<Icon name="magicpen" size={16} />}
+            pending={trial.loading}
+            lockedReason={drawLockedReason}
+            onClick={() => void drawSelected()}
+          >{copy.trialCost(costLabel || 'AI')}</ActionButton>}
         </div>
 
         {running ? (
@@ -220,15 +231,6 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
           </div>
         ) : (
           <div className={`vt-row ${stylex.props(sx.row).className}`}>
-            <ActionButton
-              variant="outline"
-              icon={<Icon name="magicpen" size={16} />}
-              pending={trial.loading}
-              lockedReason={drawLockedReason}
-              onClick={() => void drawSelected()}
-            >
-              {copy.trialCost(costLabel || 'AI')}
-            </ActionButton>
             <p className={`vt-hint ${stylex.props(sx.hint).className}`}>
               {status?.blockedReason ?? (status?.quota?.paid
                 ? copy.trialHelp + ' ' + quotaText(status)
@@ -267,7 +269,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
         )}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, previewing && sx.settingsHidden).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, previewing && sx.settingsHidden).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.defaultTitle}</span>
         <div
           className={`vt-cover-default ${stylex.props(sx.coverDefault, dropping && sx.coverDefaultDrop).className}`}
@@ -309,7 +311,7 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
         {errors['scenes.coverMediaId'] && <p className={`vt-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{errors['scenes.coverMediaId']}</p>}
       </div>
 
-      <div className={`vt-card ${stylex.props(sx.card, hideTitle && sx.mobileCard, previewing && sx.settingsHidden).className}`}>
+      <div className={`vt-card ${stylex.props(sx.card, previewing && sx.settingsHidden).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.sourceLabel}</span>
         <div role="radiogroup" aria-label={copy.sourceLabel} className={`vt-sources ${stylex.props(sx.sources).className}`}>
           <RadioCard xstyle={[sx.vtSourcesRadioCard]} checked={scenes.coverSource === 'ai'} onChange={() => setScenes({ coverSource: 'ai' })}
@@ -343,30 +345,15 @@ export function CoverSection({ recipe, prompts, errors, onSave, hideTitle, templ
 
 const sx = stylex.create({
   mobileSection: { rowGap: { default: null, '@media (max-width: 767px)': 'var(--vv-s-18)' } },
-  mobileCard: {
-    paddingTop: { default: null, '@media (max-width: 767px)': 0 },
-    paddingRight: { default: null, '@media (max-width: 767px)': 0 },
-    paddingBottom: { default: null, '@media (max-width: 767px)': 0 },
-    paddingLeft: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderRightWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderLeftWidth: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderTopRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomLeftRadius: { default: null, '@media (max-width: 767px)': 0 },
-    borderBottomRightRadius: { default: null, '@media (max-width: 767px)': 0 },
-    backgroundColor: { default: null, '@media (max-width: 767px)': 'transparent' },
-  },
-  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-12)", columnGap: "var(--vv-s-12)", minWidth: 0 },
+  sec: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-24)", minWidth: 0 },
   // Điện thoại: form vẫn mount, chỉ ẩn khi đang xem ảnh mẫu trong chính mục này.
   settingsHidden: { display: "none" },
   sample: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", minWidth: 0 },
   sampleBack: { alignSelf: "flex-start", minHeight: "var(--vv-s-44)" },
-  secHead: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-4)", columnGap: "var(--vv-s-4)" },
-  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-16)", fontWeight: libraryVars.headingWeight },
+  secHead: { display: "flex", flexDirection: 'column', alignItems: 'flex-start', rowGap: "var(--vv-s-4)", paddingBottom: 'var(--vv-s-6)' },
+  vtSecHeadH2: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: "var(--vv-s-18)", fontWeight: libraryVars.headingWeight },
   help: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-3"], lineHeight: libraryVars.helpLineHeight, maxWidth: libraryVars.templateBackdropSectionHelpMaxWidth },
-  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", paddingTop: "var(--vv-s-14)", paddingRight: "var(--vv-s-14)", paddingBottom: "var(--vv-s-14)", paddingLeft: "var(--vv-s-14)", borderTopWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderTopColor: line["--line-2"], borderRightWidth: "var(--vv-s-1)", borderRightStyle: "solid", borderRightColor: line["--line-2"], borderBottomWidth: "var(--vv-s-1)", borderBottomStyle: "solid", borderBottomColor: line["--line-2"], borderLeftWidth: "var(--vv-s-1)", borderLeftStyle: "solid", borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-12)", borderTopRightRadius: "var(--vv-r-12)", borderBottomRightRadius: "var(--vv-r-12)", borderBottomLeftRadius: "var(--vv-r-12)", backgroundColor: color["--color-card"], backgroundImage: "none", minWidth: 0 },
+  card: { display: "flex", flexDirection: "column", rowGap: "var(--vv-s-10)", minWidth: 0 },
   cardHead: { display: "flex", alignItems: "baseline", justifyContent: "space-between", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
   label: {
     fontSize: { default: 'var(--vv-s-14)', '@media (max-width: 767px)': 'var(--vv-s-12)' },
@@ -382,7 +369,8 @@ const sx = stylex.create({
   vtSourcesRadioCard: { minHeight: { default: null, "@media (max-width: 767px) and (pointer: coarse)": "var(--vv-s-44)" } },
   hint: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.captionFontSize, color: color["--color-fg-4"], lineHeight: libraryVars.bodyLineHeight },
   row: { display: "flex", alignItems: "center", rowGap: "var(--vv-s-10)", columnGap: "var(--vv-s-10)", flexWrap: "wrap" },
-  trialSourceField: { flexGrow: 1, flexShrink: 1, flexBasis: "auto", minWidth: 0 },
+  trialSourceField: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minWidth: 0 },
+  trialAction: { flexShrink: 0 },
   progress: { marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, fontSize: libraryVars.bodySmallFontSize, color: color["--color-fg-2"] },
   trials: { listStyle: "none", marginTop: 0, marginRight: 0, marginBottom: 0, marginLeft: 0, paddingTop: 0, paddingRight: 0, paddingBottom: 0, paddingLeft: 0, display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", rowGap: "var(--vv-s-8)", columnGap: "var(--vv-s-8)" },
   trial: { minWidth: 0, borderTopWidth: "var(--vv-s-1)", borderRightWidth: "var(--vv-s-1)", borderBottomWidth: "var(--vv-s-1)", borderLeftWidth: "var(--vv-s-1)", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopColor: line["--line-2"], borderRightColor: line["--line-2"], borderBottomColor: line["--line-2"], borderLeftColor: line["--line-2"], borderTopLeftRadius: "var(--vv-r-7)", borderTopRightRadius: "var(--vv-r-7)", borderBottomRightRadius: "var(--vv-r-7)", borderBottomLeftRadius: "var(--vv-r-7)", overflow: "hidden", backgroundColor: "var(--vv-tile-idle)" },

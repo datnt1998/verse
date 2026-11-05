@@ -20,7 +20,7 @@ const view: QueueView = {
   running: [], rotation: { order: ['mine'], next: 'mine', skipped: [] },
   items: [
     { id: 'q1', channelId: 'mine', title: 'Video thứ nhất', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'pace_full', position: 10, thumbnailUrl: '/thumbnail.jpg' },
-    { id: 'q2', channelId: 'mine', title: 'Video thứ hai', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'no_template', position: 20 },
+    { id: 'q2', channelId: 'mine', title: 'Video thứ hai', source: 'Đối thủ', templateName: 'Mẫu', durationSec: 120, priority: 'batch', etaStart: null, waitReason: 'rotation', position: 20 },
   ], pace: [{ channelId: 'mine', used: 5, limit: 5 }], imageQuota: [], doneToday: [],
 }
 const response = (data: unknown) => new Response(JSON.stringify(data), { headers: { 'Content-Type': 'application/json' } })

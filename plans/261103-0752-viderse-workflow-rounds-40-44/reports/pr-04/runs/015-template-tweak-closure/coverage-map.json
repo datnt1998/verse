@@ -1,0 +1,3129 @@
+{
+  "status": "PREPARED_NOT_RUN",
+  "controller": "controller.cjs",
+  "manifest": "../../remaining-v38-state-manifest.json",
+  "scope": {
+    "canonicalPayloadRows": 124,
+    "assignedRows": 59,
+    "boards": {
+      "Template": 13,
+      "Library": 27,
+      "MLibrary": 9,
+      "MTemplate": 10
+    },
+    "excluded": "Channel/MChannel family is peer-owned. Mobile viewer round45 excluded."
+  },
+  "evidenceReceiptsRead": [
+    {
+      "path": "../library-final-proof/results.json",
+      "counts": {
+        "PASS": 52
+      }
+    },
+    {
+      "path": "../library-recovery-proof/results.json",
+      "counts": {
+        "PASS": 19
+      }
+    },
+    {
+      "path": "../library-recovery-proof/review-probe-results.json",
+      "counts": {
+        "PASS": 5
+      }
+    }
+  ],
+  "acceptanceRule": "Existing receipts retain their exact source-bound claim; prepared entries are not PASS. Never infer a named identity, whole-row contextual state or another board from a shared control. No global pixel-parity acceptance.",
+  "canonicalValues": [
+    {
+      "id": "Template.section.images",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.section.images.png",
+      "canonicalProperty": "section",
+      "canonicalValue": "images",
+      "contextProperties": {
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-images-composition-and-prompt",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "All three static composition images load; each actual radio yields correct flat style/framing PATCH; exact selected native prompt id/text/library-route binding."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+            "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+            "apps/viderse/web/src/api/library.ts:25-76,270-272",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-1440-images-composition-and-prompt-full.png",
+            "synthetic-1440-images-composition-and-prompt-cutout.png",
+            "synthetic-1440-images-composition-and-prompt-close.png",
+            "synthetic-1440-images-composition-and-prompt.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.section.cover",
+      "board": "Template",
+      "props": {
+        "section": "cover",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.section.cover.png",
+      "canonicalProperty": "section",
+      "canonicalValue": "cover",
+      "contextProperties": {
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-cover-ready-confirm-cancel",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual confirmation displays selected source, 1-image cost, 2/5 quota; Huỷ/Escape produce zero paid-trial POST; exact cover prompt selection PATCH."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+            "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+            "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-1440-cover-ready-confirm-cancel-confirm.png",
+            "synthetic-1440-cover-ready-confirm-cancel.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.section.backdrop",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.section.backdrop.png",
+      "canonicalProperty": "section",
+      "canonicalValue": "backdrop",
+      "contextProperties": {
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-backdrop-healthy",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fixed/channel mix metadata and legend, no few-clips warning, empty overlay hint."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+            "apps/viderse/web/src/api/backdrop.ts:51-100,172-184",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-1440-backdrop-healthy.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.section.output",
+      "board": "Template",
+      "props": {
+        "section": "output",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.section.output.png",
+      "canonicalProperty": "section",
+      "canonicalValue": "output",
+      "contextProperties": {
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-output-compress-and-default-route",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Original/compressed radio and switch consistency; memory-only PATCH; enabled exact editor link; default dialog routes to last native channel Template tab, no default save."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/OutputSection.tsx:26-130",
+            "apps/viderse/web/src/screens/library/AttachChannelDialog.tsx:13-43",
+            "apps/viderse/web/src/router.ts:118-135",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-1440-output-compress-and-default-route-original.png",
+            "synthetic-1440-output-compress-and-default-route-compressed.png",
+            "synthetic-1440-output-compress-and-default-route-default-picker.png",
+            "synthetic-1440-output-compress-and-default-route.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.preview.fresh",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.preview.fresh.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "fresh",
+      "contextProperties": {
+        "section": "images",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-preview-fresh-locked",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fresh metadata badge; no-source reason/content; rebuild disabled; no video element; single layer/overflow."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-1440-preview-fresh-locked.png"
+          ],
+          "canonicalGap": "Fresh is metadata-only: no native project/player output. Contextual defaults on other sections are not all accepted."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.preview.stale",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "stale",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.preview.stale.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "stale",
+      "contextProperties": {
+        "section": "images",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "synthetic-1440-cached-fresh-old-revision",
+          "observedStatus": "PASS",
+          "proofKind": "SYNTHETIC_GET_AND_PATCH_ACCEPTANCE_NO_MEDIA_NO_SERVER_WRITE",
+          "screenshots": [
+            "../library-final-proof/synthetic-1440-cached-fresh-old-revision.png"
+          ],
+          "claim": "Synthetic accepted PATCH increments revision and stale replaces cached fresh; no generated media or backend persistence."
+        },
+        {
+          "result": "../library-recovery-proof/review-probe-results.json",
+          "caseKey": "review-pc-unsaved-build-guard",
+          "observedStatus": "PASS",
+          "proofKind": "SYNTHETIC_SAVE_FAILURE_AND_READY_SOURCE_GET",
+          "screenshots": [
+            "../library-recovery-proof/review-pc-unsaved-build-guard.png"
+          ],
+          "claim": "Unsaved draft locks rebuild; build never submitted."
+        }
+      ],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-preview-stale-error-retry",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Stale label; backend-style actionable error message+recovery; selected jobId/minutes in two aborted starts; action error replaces previous error."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-1440-preview-stale-error-retry-server-error.png",
+            "synthetic-1440-preview-stale-error-retry.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.preview.building",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "building",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.preview.building.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "building",
+      "contextProperties": {
+        "section": "images",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-preview-building-cancel-rejection",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Progress 2/5, source selector disabled, rebuild absent; two cancel requests aborted; alert; separate GET polling transitions building to stale."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-1440-preview-building-cancel-rejection-building.png",
+            "synthetic-1440-preview-building-cancel-rejection-cancel-rejected.png",
+            "synthetic-1440-preview-building-cancel-rejection.png"
+          ],
+          "canonicalGap": "No successful native/synthetic cancel acceptance; subsequent state is an independent synthetic GET, not persistence."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.fewClips.false",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.fewClips.false.png",
+      "canonicalProperty": "fewClips",
+      "canonicalValue": false,
+      "contextProperties": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-backdrop-healthy",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fixed/channel mix metadata and legend, no few-clips warning, empty overlay hint."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+            "apps/viderse/web/src/api/backdrop.ts:51-100,172-184",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-1440-backdrop-healthy.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.fewClips.true",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": true,
+        "picker": "none"
+      },
+      "reference": "reference/Template.fewClips.true.png",
+      "canonicalProperty": "fewClips",
+      "canonicalValue": true,
+      "contextProperties": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "picker": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-backdrop-few",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "perChannel.repeats true displays exact 1-video repetition warning."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+            "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+          ],
+          "screenshots": [
+            "synthetic-1440-backdrop-few.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.picker.none",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "reference": "reference/Template.picker.none.png",
+      "canonicalProperty": "picker",
+      "canonicalValue": "none",
+      "contextProperties": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+        "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-preview-fresh-locked",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fresh metadata badge; no-source reason/content; rebuild disabled; no video element; single layer/overflow."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-1440-preview-fresh-locked.png"
+          ],
+          "canonicalGap": "Fresh is metadata-only: no native project/player output. Contextual defaults on other sections are not all accepted."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.picker.add",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "reference": "reference/Template.picker.add.png",
+      "canonicalProperty": "picker",
+      "canonicalValue": "add",
+      "contextProperties": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+        "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-backdrop-picker-wrapper",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-backdrop-picker-wrapper.png"
+          ],
+          "claim": "Actual empty-source backdrop picker wrapper, Escape/scrim/focus trap; no attach submission; canonical context images differs from implementation backdrop."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Template.picker.choose",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "reference": "reference/Template.picker.choose.png",
+      "canonicalProperty": "picker",
+      "canonicalValue": "choose",
+      "contextProperties": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+        "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-backdrop-picker-choose-video",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Choose zero checked locks attach; one checkbox enables attach; video segment and library route; Escape makes zero PATCH."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+            "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+          ],
+          "screenshots": [
+            "synthetic-1440-backdrop-picker-choose-video-choose-empty.png",
+            "synthetic-1440-backdrop-picker-choose-video-choose.png",
+            "synthetic-1440-backdrop-picker-choose-video-video.png",
+            "synthetic-1440-backdrop-picker-choose-video.png"
+          ],
+          "canonicalGap": "Picker is rendered from backdrop, whereas canonical rows carry section=images. This proves picker value only, not identical full row composition."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Template.picker.video",
+      "board": "Template",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "reference": "reference/Template.picker.video.png",
+      "canonicalProperty": "picker",
+      "canonicalValue": "video",
+      "contextProperties": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+        "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-backdrop-picker-choose-video",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Choose zero checked locks attach; one checkbox enables attach; video segment and library route; Escape makes zero PATCH."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropPicker.tsx:30-179,185-225,242-372",
+            "apps/viderse/web/src/screens/library/backdrops/SourceRail.tsx:41-142"
+          ],
+          "screenshots": [
+            "synthetic-1440-backdrop-picker-choose-video-choose-empty.png",
+            "synthetic-1440-backdrop-picker-choose-video-choose.png",
+            "synthetic-1440-backdrop-picker-choose-video-video.png",
+            "synthetic-1440-backdrop-picker-choose-video.png"
+          ],
+          "canonicalGap": "Picker is rendered from backdrop, whereas canonical rows carry section=images. This proves picker value only, not identical full row composition."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.tab.templates",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.tab.templates.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "templates",
+      "contextProperties": {
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-templates",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-templates.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.tab.prompts",
+      "board": "Library",
+      "props": {
+        "tab": "prompts",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.tab.prompts.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "prompts",
+      "contextProperties": {
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-prompts",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-prompts.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.tab.backdrops",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.tab.backdrops.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "backdrops",
+      "contextProperties": {
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-backdrops",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-backdrops.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.tab.overlays",
+      "board": "Library",
+      "props": {
+        "tab": "overlays",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.tab.overlays.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "overlays",
+      "contextProperties": {
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-overlays",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-overlays.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.prompt.list",
+      "board": "Library",
+      "props": {
+        "tab": "prompts",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.prompt.list.png",
+      "canonicalProperty": "prompt",
+      "canonicalValue": "list",
+      "contextProperties": {
+        "tab": "prompts",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-prompts",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-prompts.png"
+          ],
+          "claim": "Actual prompt list tab capture and genuine prompt sample binding; editor modes are independent values."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.prompt.mine",
+      "board": "Library",
+      "props": {
+        "tab": "prompts",
+        "prompt": "mine",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.prompt.mine.png",
+      "canonicalProperty": "prompt",
+      "canonicalValue": "mine",
+      "contextProperties": {
+        "tab": "prompts",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-prompt-mine",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Exact actual custom prompt id and editor name; no mutation."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+          ],
+          "screenshots": [
+            "native-1440-prompt-mine.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.prompt.builtin",
+      "board": "Library",
+      "props": {
+        "tab": "prompts",
+        "prompt": "builtin",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.prompt.builtin.png",
+      "canonicalProperty": "prompt",
+      "canonicalValue": "builtin",
+      "contextProperties": {
+        "tab": "prompts",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-prompt-builtin",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Exact actual builtin prompt id and name; readonly input, no mutation."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+          ],
+          "screenshots": [
+            "native-1440-prompt-builtin.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.prompt.new",
+      "board": "Library",
+      "props": {
+        "tab": "prompts",
+        "prompt": "new",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.prompt.new.png",
+      "canonicalProperty": "prompt",
+      "canonicalValue": "new",
+      "contextProperties": {
+        "tab": "prompts",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-new-and-missing-prompt",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-new-and-missing-prompt.png"
+          ],
+          "claim": "New prompt opens empty, no create; missing prompt has no first-item fallback."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.menu.false",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.menu.false.png",
+      "canonicalProperty": "menu",
+      "canonicalValue": false,
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-library-menu",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual selected-template menu opens; Escape removes menu, no mutation."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+          ],
+          "screenshots": [
+            "native-1440-library-menu-open.png",
+            "native-1440-library-menu.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.menu.true",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": true,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.menu.true.png",
+      "canonicalProperty": "menu",
+      "canonicalValue": true,
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-library-menu",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual selected-template menu opens; Escape removes menu, no mutation."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+          ],
+          "screenshots": [
+            "native-1440-library-menu-open.png",
+            "native-1440-library-menu.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.nguon.channels",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.nguon.channels.png",
+      "canonicalProperty": "nguon",
+      "canonicalValue": "channels",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-library-source-channel-video-routing",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Synthetic channel selected in rail; videos click produces exact nguon=videos route and selected video metadata."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+            "apps/viderse/web/src/api/backdrop.ts:31-39"
+          ],
+          "screenshots": [
+            "synthetic-1440-library-source-channel-video-routing-channels.png",
+            "synthetic-1440-library-source-channel-video-routing-videos.png",
+            "synthetic-1440-library-source-channel-video-routing.png"
+          ],
+          "canonicalGap": "Synthetic source id is not slowroads/nightdrivefm/bilibili/lofilanes. No canonical named identity is crossmapped."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.nguon.videos",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "videos",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.nguon.videos.png",
+      "canonicalProperty": "nguon",
+      "canonicalValue": "videos",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-library-source-channel-video-routing",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Synthetic channel selected in rail; videos click produces exact nguon=videos route and selected video metadata."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+            "apps/viderse/web/src/api/backdrop.ts:31-39"
+          ],
+          "screenshots": [
+            "synthetic-1440-library-source-channel-video-routing-channels.png",
+            "synthetic-1440-library-source-channel-video-routing-videos.png",
+            "synthetic-1440-library-source-channel-video-routing.png"
+          ],
+          "canonicalGap": "Synthetic source id is not slowroads/nightdrivefm/bilibili/lofilanes. No canonical named identity is crossmapped."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.nguon.adding",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "adding",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.nguon.adding.png",
+      "canonicalProperty": "nguon",
+      "canonicalValue": "adding",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-library-source-adding-rejection",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Parser POST held before networking gives pending disabled input; abort shows error and retains URL."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+            "apps/viderse/web/src/api/backdrop.ts:31-39"
+          ],
+          "screenshots": [
+            "synthetic-1440-library-source-adding-rejection-adding.png",
+            "synthetic-1440-library-source-adding-rejection.png"
+          ],
+          "canonicalGap": "Pending parser consumer only; no real provider discovery, source create or channel-add completion."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.nguon.addvideo",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "addvideo",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.nguon.addvideo.png",
+      "canonicalProperty": "nguon",
+      "canonicalValue": "addvideo",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "Current source renders SegmentPicker after parseSource POST returns kind=video. Real parsing/provider access forbidden and no synthetic parse POST fulfillment is introduced; segment state uncaptured."
+    },
+    {
+      "id": "Library.nguon.unsupported",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "unsupported",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.nguon.unsupported.png",
+      "canonicalProperty": "nguon",
+      "canonicalValue": "unsupported",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "Current source branches on parseSource kind=unsupported. Aborted parser proves generic error only, never unsupported label/support CTA; not crossmapped."
+    },
+    {
+      "id": "Library.import.none",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.none.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "none",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-1440-tab-templates",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-1440-tab-templates.png"
+          ],
+          "claim": "Native templates default screen captured without opening import; absence is source-bound default, not a dedicated absence assertion."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "Library.import.ready",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "ready",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.ready.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "ready",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-import-ready-drag-zip-guard",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual import dialog; drag event count/title; invalid extension rejected before POST."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+            "apps/viderse/web/src/api/library.ts:357-361",
+            "apps/viderse/web/src/api/upload-limits.ts:23-49"
+          ],
+          "screenshots": [
+            "native-1440-import-ready-drag-zip-guard-ready.png",
+            "native-1440-import-ready-drag-zip-guard-drag.png",
+            "native-1440-import-ready-drag-zip-guard.png"
+          ],
+          "canonicalGap": "Drag is DOM drag events, not physical gesture. zip value only has extension guard: archive-content/server parser rejection remains uncaptured."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.import.drag",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "drag",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.drag.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "drag",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-import-ready-drag-zip-guard",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual import dialog; drag event count/title; invalid extension rejected before POST."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+            "apps/viderse/web/src/api/library.ts:357-361",
+            "apps/viderse/web/src/api/upload-limits.ts:23-49"
+          ],
+          "screenshots": [
+            "native-1440-import-ready-drag-zip-guard-ready.png",
+            "native-1440-import-ready-drag-zip-guard-drag.png",
+            "native-1440-import-ready-drag-zip-guard.png"
+          ],
+          "canonicalGap": "Drag is DOM drag events, not physical gesture. zip value only has extension guard: archive-content/server parser rejection remains uncaptured."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.import.importing",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "importing",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.importing.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "importing",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-import-pending-offline-retry",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Exact import POST held before network; actual pending consumer; abort yields retained file and retry; second POST also aborted."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+            "apps/viderse/web/src/api/library.ts:357-361",
+            "apps/viderse/web/src/api/upload-limits.ts:23-49"
+          ],
+          "screenshots": [
+            "synthetic-1440-import-pending-offline-retry-pending.png",
+            "synthetic-1440-import-pending-offline-retry-offline.png",
+            "synthetic-1440-import-pending-offline-retry.png"
+          ],
+          "canonicalGap": "No ZIP parsing, import success or persistence. Empty container is not claimed a valid template."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.import.done",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "done",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.done.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "done",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "Current source implements done after imported===queue.length, but no allowed native import or synthetic successful POST is used. Source only, not accepted."
+    },
+    {
+      "id": "Library.import.partial",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "partial",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.partial.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "partial",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "Current source implements per-file partial/cancelled states. No successful import response is fabricated, so partial mix is uncaptured."
+    },
+    {
+      "id": "Library.import.zip",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "zip",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.zip.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "zip",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-1440-import-ready-drag-zip-guard",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual import dialog; drag event count/title; invalid extension rejected before POST."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+            "apps/viderse/web/src/api/library.ts:357-361",
+            "apps/viderse/web/src/api/upload-limits.ts:23-49"
+          ],
+          "screenshots": [
+            "native-1440-import-ready-drag-zip-guard-ready.png",
+            "native-1440-import-ready-drag-zip-guard-drag.png",
+            "native-1440-import-ready-drag-zip-guard.png"
+          ],
+          "canonicalGap": "Drag is DOM drag events, not physical gesture. zip value only has extension guard: archive-content/server parser rejection remains uncaptured."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.import.offline",
+      "board": "Library",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "offline",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.import.offline.png",
+      "canonicalProperty": "import",
+      "canonicalValue": "offline",
+      "contextProperties": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "kenh": "slowroads"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+        "apps/viderse/web/src/api/library.ts:357-361",
+        "apps/viderse/web/src/api/upload-limits.ts:23-49"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-1440-import-pending-offline-retry",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Exact import POST held before network; actual pending consumer; abort yields retained file and retry; second POST also aborted."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplateImportDialog.tsx:21-30,53-115,157-228",
+            "apps/viderse/web/src/api/library.ts:357-361",
+            "apps/viderse/web/src/api/upload-limits.ts:23-49"
+          ],
+          "screenshots": [
+            "synthetic-1440-import-pending-offline-retry-pending.png",
+            "synthetic-1440-import-pending-offline-retry-offline.png",
+            "synthetic-1440-import-pending-offline-retry.png"
+          ],
+          "canonicalGap": "No ZIP parsing, import success or persistence. Empty container is not claimed a valid template."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "Library.kenh.slowroads",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "reference": "reference/Library.kenh.slowroads.png",
+      "canonicalProperty": "kenh",
+      "canonicalValue": "slowroads",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof."
+    },
+    {
+      "id": "Library.kenh.nightdrivefm",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "nightdrivefm"
+      },
+      "reference": "reference/Library.kenh.nightdrivefm.png",
+      "canonicalProperty": "kenh",
+      "canonicalValue": "nightdrivefm",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof."
+    },
+    {
+      "id": "Library.kenh.bilibili",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "bilibili"
+      },
+      "reference": "reference/Library.kenh.bilibili.png",
+      "canonicalProperty": "kenh",
+      "canonicalValue": "bilibili",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof."
+    },
+    {
+      "id": "Library.kenh.lofilanes",
+      "board": "Library",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "lofilanes"
+      },
+      "reference": "reference/Library.kenh.lofilanes.png",
+      "canonicalProperty": "kenh",
+      "canonicalValue": "lofilanes",
+      "contextProperties": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/backdrops/BackdropsTab.tsx:28-168,174-228",
+        "apps/viderse/web/src/api/backdrop.ts:31-39"
+      ],
+      "existingProof": [],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "SOURCE_ONLY_UNCAPTURED",
+      "remainingGap": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof."
+    },
+    {
+      "id": "MLibrary.tab.templates",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.tab.templates.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "templates",
+      "contextProperties": {
+        "sheet": "none",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-templates",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-templates.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.tab.prompts",
+      "board": "MLibrary",
+      "props": {
+        "tab": "prompts",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.tab.prompts.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "prompts",
+      "contextProperties": {
+        "sheet": "none",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-prompts",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-prompts.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.tab.backdrops",
+      "board": "MLibrary",
+      "props": {
+        "tab": "backdrops",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.tab.backdrops.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "backdrops",
+      "contextProperties": {
+        "sheet": "none",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-backdrops",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-backdrops.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.tab.overlays",
+      "board": "MLibrary",
+      "props": {
+        "tab": "overlays",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.tab.overlays.png",
+      "canonicalProperty": "tab",
+      "canonicalValue": "overlays",
+      "contextProperties": {
+        "sheet": "none",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-overlays",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-overlays.png"
+          ],
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.sheet.none",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.sheet.none.png",
+      "canonicalProperty": "sheet",
+      "canonicalValue": "none",
+      "contextProperties": {
+        "tab": "templates",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-templates",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-templates.png"
+          ],
+          "claim": "Native templates default screen captured without opening a sheet; default source state null. Not equivalent to actions/new."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.sheet.actions",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "actions",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.sheet.actions.png",
+      "canonicalProperty": "sheet",
+      "canonicalValue": "actions",
+      "contextProperties": {
+        "tab": "templates",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-390-library-actions-new-and-template-more",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual library card action sheet; distinct add sheet; separate template-more action sheet; each Escape closes; only one visible modal."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "native-390-library-actions-new-and-template-more-actions.png",
+            "native-390-library-actions-new-and-template-more-new.png",
+            "native-390-library-actions-new-and-template-more-template-more.png",
+            "native-390-library-actions-new-and-template-more.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MLibrary.sheet.new",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "new",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.sheet.new.png",
+      "canonicalProperty": "sheet",
+      "canonicalValue": "new",
+      "contextProperties": {
+        "tab": "templates",
+        "empty": false
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-390-library-actions-new-and-template-more",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual library card action sheet; distinct add sheet; separate template-more action sheet; each Escape closes; only one visible modal."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "native-390-library-actions-new-and-template-more-actions.png",
+            "native-390-library-actions-new-and-template-more-new.png",
+            "native-390-library-actions-new-and-template-more-template-more.png",
+            "native-390-library-actions-new-and-template-more.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MLibrary.empty.false",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "reference": "reference/MLibrary.empty.false.png",
+      "canonicalProperty": "empty",
+      "canonicalValue": false,
+      "contextProperties": {
+        "tab": "templates",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "native-390-tab-templates",
+          "observedStatus": "PASS",
+          "proofKind": "NATIVE_BACKEND_GET",
+          "screenshots": [
+            "../library-final-proof/native-390-tab-templates.png"
+          ],
+          "claim": "Actual nonempty template list (3) and visible first template; empty true is a separate fixture."
+        }
+      ],
+      "preparedProof": [],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "EXISTING_PROOF_SCOPED",
+      "remainingGap": "Prior exercised receipt is behavior/state evidence only. Current source is bound by paths/ranges; no new runtime or pixel comparison performed."
+    },
+    {
+      "id": "MLibrary.empty.true",
+      "board": "MLibrary",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": true
+      },
+      "reference": "reference/MLibrary.empty.true.png",
+      "canonicalProperty": "empty",
+      "canonicalValue": true,
+      "contextProperties": {
+        "tab": "templates",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-library-template-empty",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "GET templates empty gives empty title/new/import actions, not stale list."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+          ],
+          "screenshots": [
+            "synthetic-390-library-template-empty.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.screen.list",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.screen.list.png",
+      "canonicalProperty": "screen",
+      "canonicalValue": "list",
+      "contextProperties": {
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-preview-fresh-locked",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fresh metadata badge; no-source reason/content; rebuild disabled; no video element; single layer/overflow."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-390-preview-fresh-locked.png"
+          ],
+          "canonicalGap": "Fresh is metadata-only: no native project/player output. Contextual defaults on other sections are not all accepted."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.screen.images",
+      "board": "MTemplate",
+      "props": {
+        "screen": "images",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.screen.images.png",
+      "canonicalProperty": "screen",
+      "canonicalValue": "images",
+      "contextProperties": {
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-images-composition-and-prompt",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "All three static composition images load; each actual radio yields correct flat style/framing PATCH; exact selected native prompt id/text/library-route binding."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+            "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+            "apps/viderse/web/src/api/library.ts:25-76,270-272",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-390-images-composition-and-prompt-full.png",
+            "synthetic-390-images-composition-and-prompt-cutout.png",
+            "synthetic-390-images-composition-and-prompt-close.png",
+            "synthetic-390-images-composition-and-prompt.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.screen.cover",
+      "board": "MTemplate",
+      "props": {
+        "screen": "cover",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.screen.cover.png",
+      "canonicalProperty": "screen",
+      "canonicalValue": "cover",
+      "contextProperties": {
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-cover-ready-confirm-cancel",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual confirmation displays selected source, 1-image cost, 2/5 quota; Huỷ/Escape produce zero paid-trial POST; exact cover prompt selection PATCH."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+            "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+            "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-390-cover-ready-confirm-cancel-confirm.png",
+            "synthetic-390-cover-ready-confirm-cancel.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.screen.backdrop",
+      "board": "MTemplate",
+      "props": {
+        "screen": "backdrop",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.screen.backdrop.png",
+      "canonicalProperty": "screen",
+      "canonicalValue": "backdrop",
+      "contextProperties": {
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-backdrop-healthy",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fixed/channel mix metadata and legend, no few-clips warning, empty overlay hint."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+            "apps/viderse/web/src/api/backdrop.ts:51-100,172-184",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-390-backdrop-healthy.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.screen.output",
+      "board": "MTemplate",
+      "props": {
+        "screen": "output",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.screen.output.png",
+      "canonicalProperty": "screen",
+      "canonicalValue": "output",
+      "contextProperties": {
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-output-compress-and-default-route",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Original/compressed radio and switch consistency; memory-only PATCH; enabled exact editor link; default dialog routes to last native channel Template tab, no default save."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/OutputSection.tsx:26-130",
+            "apps/viderse/web/src/screens/library/AttachChannelDialog.tsx:13-43",
+            "apps/viderse/web/src/router.ts:118-135",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "synthetic-390-output-compress-and-default-route-original.png",
+            "synthetic-390-output-compress-and-default-route-compressed.png",
+            "synthetic-390-output-compress-and-default-route-default-picker.png",
+            "synthetic-390-output-compress-and-default-route.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.preview.fresh",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.preview.fresh.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "fresh",
+      "contextProperties": {
+        "screen": "list",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-preview-fresh-locked",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fresh metadata badge; no-source reason/content; rebuild disabled; no video element; single layer/overflow."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-390-preview-fresh-locked.png"
+          ],
+          "canonicalGap": "Fresh is metadata-only: no native project/player output. Contextual defaults on other sections are not all accepted."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.preview.stale",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "stale",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.preview.stale.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "stale",
+      "contextProperties": {
+        "screen": "list",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [
+        {
+          "result": "../library-final-proof/results.json",
+          "caseKey": "synthetic-390-cached-fresh-old-revision",
+          "observedStatus": "PASS",
+          "proofKind": "SYNTHETIC_GET_AND_PATCH_ACCEPTANCE_NO_MEDIA_NO_SERVER_WRITE",
+          "screenshots": [
+            "../library-final-proof/synthetic-390-cached-fresh-old-revision.png"
+          ],
+          "claim": "Mobile synthetic stale state after save with old preview revision; no backend persistence/media."
+        }
+      ],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-preview-stale-error-retry",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Stale label; backend-style actionable error message+recovery; selected jobId/minutes in two aborted starts; action error replaces previous error."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-390-preview-stale-error-retry-server-error.png",
+            "synthetic-390-preview-stale-error-retry.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.preview.building",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "building",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.preview.building.png",
+      "canonicalProperty": "preview",
+      "canonicalValue": "building",
+      "contextProperties": {
+        "screen": "list",
+        "sheet": "none"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+        "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+        "apps/viderse/web/src/api/library.ts:102-141,277-285"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-preview-building-cancel-rejection",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Progress 2/5, source selector disabled, rebuild absent; two cancel requests aborted; alert; separate GET polling transitions building to stale."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-390-preview-building-cancel-rejection-building.png",
+            "synthetic-390-preview-building-cancel-rejection-cancel-rejected.png",
+            "synthetic-390-preview-building-cancel-rejection.png"
+          ],
+          "canonicalGap": "No successful native/synthetic cancel acceptance; subsequent state is an independent synthetic GET, not persistence."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.sheet.none",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "reference": "reference/MTemplate.sheet.none.png",
+      "canonicalProperty": "sheet",
+      "canonicalValue": "none",
+      "contextProperties": {
+        "screen": "list",
+        "preview": "fresh"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "synthetic-390-preview-fresh-locked",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Fresh metadata badge; no-source reason/content; rebuild disabled; no video element; single layer/overflow."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+            "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+            "apps/viderse/web/src/api/library.ts:102-141,277-285"
+          ],
+          "screenshots": [
+            "synthetic-390-preview-fresh-locked.png"
+          ],
+          "canonicalGap": "Fresh is metadata-only: no native project/player output. Contextual defaults on other sections are not all accepted."
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    },
+    {
+      "id": "MTemplate.sheet.more",
+      "board": "MTemplate",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "more"
+      },
+      "reference": "reference/MTemplate.sheet.more.png",
+      "canonicalProperty": "sheet",
+      "canonicalValue": "more",
+      "contextProperties": {
+        "screen": "list",
+        "preview": "fresh"
+      },
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+        "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+      ],
+      "existingProof": [],
+      "preparedProof": [
+        {
+          "caseKey": "native-390-library-actions-new-and-template-more",
+          "status": "PREPARED_NOT_RUN",
+          "assertions": [
+            "Actual library card action sheet; distinct add sheet; separate template-more action sheet; each Escape closes; only one visible modal."
+          ],
+          "sourceBindings": [
+            "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+            "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+            "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557",
+            "apps/viderse/web/src/screens/library/TemplateScreen.tsx:60-83,101-127,253-276",
+            "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,222-245,248-330"
+          ],
+          "screenshots": [
+            "native-390-library-actions-new-and-template-more-actions.png",
+            "native-390-library-actions-new-and-template-more-new.png",
+            "native-390-library-actions-new-and-template-more-template-more.png",
+            "native-390-library-actions-new-and-template-more.png"
+          ]
+        }
+      ],
+      "claimScope": "Only this board/property/value. Other props are context, not automatically accepted by proof for the target value. Highest canonical reference wins; no cross-board or full-row pixel parity.",
+      "status": "PREPARED_NOT_RUN",
+      "remainingGap": "Parent execution and per-reference visual comparison remain. Synthetic metadata is never native persistence/generation proof."
+    }
+  ],
+  "additionalPreparedCoverage": [
+    {
+      "caseKey": "synthetic-1440-images-count-motion",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+        "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+        "apps/viderse/web/src/api/library.ts:25-76,270-272"
+      ],
+      "claim": "Actual fixed/per-minutes/none controls, spinbutton presence, wander and slider commit; memory PATCH only."
+    },
+    {
+      "caseKey": "synthetic-1440-cover-quota-locked",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Quota zero blocked reason and disabled trial draw."
+    },
+    {
+      "caseKey": "synthetic-1440-cover-running-cancel-retry",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Running progress/source lock; aborted cancels; separate polled cancelled metadata; retry asks confirmation and is cancelled."
+    },
+    {
+      "caseKey": "synthetic-1440-cover-failed-retry-confirm",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Failed history retry opens confirmation; no paid start."
+    },
+    {
+      "caseKey": "synthetic-1440-cover-ready-history-native-sample",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Synthetic ready history thumbnail uses existing native cover prompt sample; if missing, UNPROVEN. No mobile viewer round45."
+    },
+    {
+      "caseKey": "synthetic-1440-prompt-missing-art-neutral",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+        "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+        "apps/viderse/web/src/api/library.ts:25-76,270-272"
+      ],
+      "claim": "Missing sample metadata produces neutral glyph/no borrowed image; desktop enlarge disabled."
+    },
+    {
+      "caseKey": "synthetic-1440-backdrop-capped",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Capped warning fix computes 62 seconds; actual action PATCH memory-only."
+    },
+    {
+      "caseKey": "synthetic-1440-backdrop-missing",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Missing attached source warning; no substitution."
+    },
+    {
+      "caseKey": "synthetic-1440-backdrop-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Empty source title and no mix bar."
+    },
+    {
+      "caseKey": "synthetic-1440-overlay-select-remove",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Native overlay metadata picked/removed through real components; no rendered media claim."
+    },
+    {
+      "caseKey": "synthetic-1440-overlay-missing-and-no-candidates",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Missing overlay id/reason plus disabled add when library empty."
+    },
+    {
+      "caseKey": "synthetic-1440-library-template-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "Empty list distinct from failure; mobile canonical MLibrary.empty.true also linked."
+    },
+    {
+      "caseKey": "synthetic-1440-library-prompt-error",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "500 prompt read gives failure, not filtered-empty; mobile local retry is absent in current source."
+    },
+    {
+      "caseKey": "synthetic-1440-default-picker-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/OutputSection.tsx:26-130",
+        "apps/viderse/web/src/screens/library/AttachChannelDialog.tsx:13-43",
+        "apps/viderse/web/src/router.ts:118-135"
+      ],
+      "claim": "Zero owner channels dialog reason and no channel options/default save."
+    },
+    {
+      "caseKey": "native-1440-library-prompt-filters",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "Native scene/cover filter controls; desktop unmatched query; mobile search not implemented and not claimed."
+    },
+    {
+      "caseKey": "synthetic-390-images-count-motion",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+        "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+        "apps/viderse/web/src/api/library.ts:25-76,270-272"
+      ],
+      "claim": "Actual fixed/per-minutes/none controls, spinbutton presence, wander and slider commit; memory PATCH only."
+    },
+    {
+      "caseKey": "synthetic-390-cover-quota-locked",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Quota zero blocked reason and disabled trial draw."
+    },
+    {
+      "caseKey": "synthetic-390-cover-running-cancel-retry",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Running progress/source lock; aborted cancels; separate polled cancelled metadata; retry asks confirmation and is cancelled."
+    },
+    {
+      "caseKey": "synthetic-390-cover-failed-retry-confirm",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Failed history retry opens confirmation; no paid start."
+    },
+    {
+      "caseKey": "synthetic-390-cover-ready-history-native-sample",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/CoverSection.tsx:70-120,176-269,314-340",
+        "apps/viderse/web/src/screens/library/template/useCoverTrial.ts:25-80",
+        "apps/viderse/web/src/api/cover-trials.ts:15-65,100-108"
+      ],
+      "claim": "Synthetic ready history thumbnail uses existing native cover prompt sample; if missing, UNPROVEN. No mobile viewer round45."
+    },
+    {
+      "caseKey": "synthetic-390-prompt-missing-art-neutral",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/ImagesSection.tsx:15-183",
+        "apps/viderse/web/src/screens/library/template/PromptPicker.tsx:16-98",
+        "apps/viderse/web/src/api/library.ts:25-76,270-272"
+      ],
+      "claim": "Missing sample metadata produces neutral glyph/no borrowed image; desktop enlarge disabled."
+    },
+    {
+      "caseKey": "synthetic-390-backdrop-capped",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Capped warning fix computes 62 seconds; actual action PATCH memory-only."
+    },
+    {
+      "caseKey": "synthetic-390-backdrop-missing",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Missing attached source warning; no substitution."
+    },
+    {
+      "caseKey": "synthetic-390-backdrop-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Empty source title and no mix bar."
+    },
+    {
+      "caseKey": "synthetic-390-overlay-select-remove",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Native overlay metadata picked/removed through real components; no rendered media claim."
+    },
+    {
+      "caseKey": "synthetic-390-overlay-missing-and-no-candidates",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/BackdropSection.tsx:108-192,198-280,320-415",
+        "apps/viderse/web/src/api/backdrop.ts:51-100,172-184"
+      ],
+      "claim": "Missing overlay id/reason plus disabled add when library empty."
+    },
+    {
+      "caseKey": "synthetic-390-library-template-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "Empty list distinct from failure; mobile canonical MLibrary.empty.true also linked."
+    },
+    {
+      "caseKey": "synthetic-390-library-prompt-error",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "500 prompt read gives failure, not filtered-empty; mobile local retry is absent in current source."
+    },
+    {
+      "caseKey": "synthetic-390-default-picker-empty",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/template/OutputSection.tsx:26-130",
+        "apps/viderse/web/src/screens/library/AttachChannelDialog.tsx:13-43",
+        "apps/viderse/web/src/router.ts:118-135"
+      ],
+      "claim": "Zero owner channels dialog reason and no channel options/default save."
+    },
+    {
+      "caseKey": "native-390-library-prompt-filters",
+      "status": "PREPARED_NOT_RUN",
+      "sourceBindings": [
+        "apps/viderse/web/src/screens/library/TemplatesTab.tsx:85-143,177-254",
+        "apps/viderse/web/src/screens/library/PromptsTab.tsx:85-118,159-233",
+        "apps/viderse/web/src/screens/library/mobile/MLibraryScreen.tsx:237-279,281-320,433-495,518-557"
+      ],
+      "claim": "Native scene/cover filter controls; desktop unmatched query; mobile search not implemented and not claimed."
+    }
+  ],
+  "existingRecoveryProof": {
+    "sourceBindings": [
+      "apps/viderse/web/src/screens/library/template/useTemplateDraft.ts:49-129,139-165",
+      "apps/viderse/web/src/screens/library/template/useTemplatePreview.ts:35-114",
+      "apps/viderse/web/src/screens/library/template/PreviewPane.tsx:19-123",
+      "apps/viderse/web/src/screens/library/mobile/MTemplateScreen.tsx:97-108,278-315",
+      "apps/viderse/web/src/api/library.ts:102-141,277-285"
+    ],
+    "receipts": [
+      {
+        "file": "../library-recovery-proof/results.json",
+        "cases": [
+          {
+            "key": "native-template-prerequisite",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/native-template-prerequisite.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-failed-500-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-failed-500-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-1440-failed-500-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-failed-400-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-failed-400-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-1440-failed-400-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-failed-network-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-failed-network-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-1440-failed-network-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-serialized-newest-draft",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-serialized-newest-draft-first-pending.png",
+              "../library-recovery-proof/synthetic-1440-serialized-newest-draft-second-pending.png",
+              "../library-recovery-proof/synthetic-1440-serialized-newest-draft.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-conflict-native-reload",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-conflict-native-reload-conflict-kept.png",
+              "../library-recovery-proof/synthetic-1440-conflict-native-reload.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-conflict-failed-then-native-reload",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-conflict-failed-then-native-reload-conflict-kept.png",
+              "../library-recovery-proof/synthetic-1440-conflict-failed-then-native-reload-reload-failed-kept.png",
+              "../library-recovery-proof/synthetic-1440-conflict-failed-then-native-reload.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-detail-500-native-recovery",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-detail-500-native-recovery-transient-error.png",
+              "../library-recovery-proof/synthetic-1440-detail-500-native-recovery.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-detail-network-native-recovery",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-detail-network-native-recovery-transient-error.png",
+              "../library-recovery-proof/synthetic-1440-detail-network-native-recovery.png"
+            ]
+          },
+          {
+            "key": "synthetic-1440-detail-404-notfound-navigation",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-1440-detail-404-notfound-navigation-not-found.png",
+              "../library-recovery-proof/synthetic-1440-detail-404-notfound-navigation.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-failed-500-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-failed-500-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-390-failed-500-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-failed-400-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-failed-400-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-390-failed-400-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-failed-network-merged-retry",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-failed-network-merged-retry-unsaved.png",
+              "../library-recovery-proof/synthetic-390-failed-network-merged-retry.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-serialized-newest-draft",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-serialized-newest-draft-first-pending.png",
+              "../library-recovery-proof/synthetic-390-serialized-newest-draft-second-pending.png",
+              "../library-recovery-proof/synthetic-390-serialized-newest-draft.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-conflict-native-reload",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-conflict-native-reload-conflict-kept.png",
+              "../library-recovery-proof/synthetic-390-conflict-native-reload.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-conflict-failed-then-native-reload",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-conflict-failed-then-native-reload-conflict-kept.png",
+              "../library-recovery-proof/synthetic-390-conflict-failed-then-native-reload-reload-failed-kept.png",
+              "../library-recovery-proof/synthetic-390-conflict-failed-then-native-reload.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-detail-500-native-recovery",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-detail-500-native-recovery-transient-error.png",
+              "../library-recovery-proof/synthetic-390-detail-500-native-recovery.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-detail-network-native-recovery",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-detail-network-native-recovery-transient-error.png",
+              "../library-recovery-proof/synthetic-390-detail-network-native-recovery.png"
+            ]
+          },
+          {
+            "key": "synthetic-390-detail-404-notfound-navigation",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/synthetic-390-detail-404-notfound-navigation-not-found.png",
+              "../library-recovery-proof/synthetic-390-detail-404-notfound-navigation.png"
+            ]
+          }
+        ]
+      },
+      {
+        "file": "../library-recovery-proof/review-probe-results.json",
+        "cases": [
+          {
+            "key": "native-template-prerequisite",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/native-template-prerequisite.png"
+            ]
+          },
+          {
+            "key": "review-1440-reload-edit-guard",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/review-1440-reload-edit-guard-pending.png",
+              "../library-recovery-proof/review-1440-reload-edit-guard.png"
+            ]
+          },
+          {
+            "key": "review-390-reload-edit-guard",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/review-390-reload-edit-guard-pending.png",
+              "../library-recovery-proof/review-390-reload-edit-guard.png"
+            ]
+          },
+          {
+            "key": "review-pc-name-escape",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/review-pc-name-escape.png"
+            ]
+          },
+          {
+            "key": "review-pc-unsaved-build-guard",
+            "status": "PASS",
+            "screenshots": [
+              "../library-recovery-proof/review-pc-unsaved-build-guard.png"
+            ]
+          }
+        ]
+      }
+    ],
+    "scope": "Retains detailed name/recipe merge, single-flight, revision, 400/500/network/conflict reload, detail 404 vs read failure, pending reload lock, Escape name and unsaved-build guard evidence. Not generic unit-file counts."
+  },
+  "knownUncaptured": {
+    "Library.import.done": "Current source implements done after imported===queue.length, but no allowed native import or synthetic successful POST is used. Source only, not accepted.",
+    "Library.import.partial": "Current source implements per-file partial/cancelled states. No successful import response is fabricated, so partial mix is uncaptured.",
+    "Library.nguon.addvideo": "Current source renders SegmentPicker after parseSource POST returns kind=video. Real parsing/provider access forbidden and no synthetic parse POST fulfillment is introduced; segment state uncaptured.",
+    "Library.nguon.unsupported": "Current source branches on parseSource kind=unsupported. Aborted parser proves generic error only, never unsupported label/support CTA; not crossmapped.",
+    "Library.kenh.slowroads": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof.",
+    "Library.kenh.nightdrivefm": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof.",
+    "Library.kenh.bilibili": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof.",
+    "Library.kenh.lofilanes": "No such actual channel record appears in prior native receipt (zero backdrop channels). Canonical names are not runtime ids/aliases. Synthetic channel fixture is deliberately NOT mapped to this identity; source-only route support is not named-board proof."
+  },
+  "reviewDisclosure": "Prepared by same-family model using source and existing receipts only; parent executes and personally accepts. No independent model diversity/config change claimed."
+}

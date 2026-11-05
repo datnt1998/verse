@@ -1,7 +1,7 @@
 // Package channels là mảng Kênh của bạn (07 §8, §16): kênh do chủ sở hữu, đối
-// thủ liên kết (dòng đầu là đối thủ tham chiếu nhận diện), danh sách template
-// luân phiên, và bộ nhận diện do trợ lý tạo (tên + avatar + ảnh bìa kênh) với
-// một run mỗi kênh, công bố nguyên tử và phục hồi sau sập.
+// thủ liên kết (dòng đầu là đối thủ tham chiếu nhận diện), template mặc định
+// trong Thư viện, và bộ nhận diện do trợ lý tạo (tên + avatar + ảnh bìa kênh)
+// với một run mỗi kênh, công bố nguyên tử và phục hồi sau sập.
 //
 // Mảng này không tự vẽ hay gọi model: interface AI (Director/Drawer) do
 // cmd/viderse ghép vào, giống cách imagegen nhận provider. Store là interface
@@ -34,9 +34,6 @@ const (
 	CodeCancelled    = "cancelled"
 	CodeInterrupted  = "interrupted"
 	CodeToolMissing  = "tool_missing"
-	// CodeConfirmRequired: thay đổi Mức tự chủ giao thêm việc cho máy nhưng yêu
-	// cầu chưa mang xác nhận rõ (D6) — web trả 409.
-	CodeConfirmRequired = "autonomy_confirm_required"
 )
 
 // Error là lỗi nghiệp vụ của mảng kênh: mã ổn định, câu tiếng Việt cho người
@@ -46,7 +43,7 @@ type Error struct {
 	Message  string
 	Recovery string
 	RetryAt  *time.Time
-	// Field là tên trường lỗi kiểu `autonomy.approve.min` (400 có fields[]).
+	// Field là tên trường lỗi kiểu `perDay` (400 có fields[]).
 	Field string
 }
 
@@ -81,10 +78,11 @@ const (
 	FooterMaxRunes   = 1000
 	AlwaysTagsMax    = 10
 	AlwaysTagRunes   = 60
-	PaceMin          = 1
-	PaceMax          = 50
-	PaceDefault      = 5
-	CompetitorsMax   = 200
+	// PerDay là nhịp video mỗi ngày (design #86: đồng nhất 1–20 PC/mobile).
+	PerDayMin     = 1
+	PerDayMax     = 20
+	PerDayDefault = 5
+	CompetitorsMax = 200
 	BriefMaxRunes    = 2000
 	DirectionMaxRune = 1000
 )
@@ -104,33 +102,48 @@ type Patch struct {
 	StyleNote         Field[*string]
 	DescriptionFooter Field[*string]
 	AlwaysTags        Field[[]string]
-	AutoPick          Field[bool]
-	PacePerDay        Field[int]
-	Autonomy          Field[domain.Autonomy]
-	Priority          Field[string]
+	AutoFetch         Field[bool]
+	AutoApprove       Field[bool]
+	PerDay            Field[int]
+	// DefaultTemplateID là template mặc định trong Thư viện; NOT NULL nên
+	// service chặn null/"" trước khi vào store.
+	DefaultTemplateID Field[string]
+	// AgentInstructions là một khoá chỉ dẫn "Dặn trợ lý về kênh" cần gộp; giá
+	// trị rỗng nghĩa là xoá khoá đó. Chỉ gộp đúng một trợ lý mỗi lần.
+	AgentInstructions AgentInstructionPatch
 	// Brief sửa Mô tả kênh trong branding của nhận diện (07 §16).
 	Brief Field[string]
 }
 
-// CreateInput là dữ liệu đã chuẩn hoá của một kênh mới.
-type CreateInput struct {
-	ID            string
-	Name          string
-	YoutubeURL    *string
-	Language      string
-	AutoPick      bool
-	PacePerDay    int
-	Autonomy      domain.Autonomy
-	Priority      string
-	CompetitorIDs []string
-	TemplateID    string
+// AgentInstructionPatch là bản vá một trợ lý: Set + Key bắt buộc; Value rỗng =
+// xoá, khác rỗng = đặt.
+type AgentInstructionPatch struct {
+	Set   bool
+	Key   string
+	Value string
 }
 
-// ChannelView là một kênh kèm đối thủ (thứ tự liên kết) và template (position).
+// CreateInput là dữ liệu đã chuẩn hoá của một kênh mới.
+type CreateInput struct {
+	ID                string
+	Name              string
+	YoutubeURL        *string
+	Language          string
+	AutoFetch         bool
+	AutoApprove       bool
+	PerDay            int
+	DefaultTemplateID string
+	AgentInstructions domain.AgentInstructions
+	CompetitorIDs     []string
+}
+
+// ChannelView là một kênh kèm đối thủ (thứ tự liên kết) và template mặc định
+// trong Thư viện (nil khi template vừa bị xoá — FK RESTRICT nên chỉ có thể
+// thấy nil trong khoảnh khắc đọc trước khi transaction xoá rollback).
 type ChannelView struct {
 	domain.Channel
-	Sources   []domain.ChannelSource
-	Templates []domain.ChannelTemplate
+	Sources         []domain.ChannelSource
+	DefaultTemplate *domain.ChannelTemplate
 }
 
 // Competitor là đối thủ liên kết, bối cảnh cho prompt nhận diện.
@@ -194,9 +207,6 @@ type Store interface {
 	LinkSource(ctx context.Context, id, rivalID string) (bool, error)
 	UnlinkSource(ctx context.Context, id, rivalID string) (removed, paused bool, err error)
 	SetSourceMinDuration(ctx context.Context, id, rivalID string, minDurationSec *int) (found bool, err error)
-	// UpdateTemplates khoá hàng kênh, đọc danh sách hiện có vào apply, ghi danh
-	// sách apply trả về (position liền mạch) — serialize mọi thao tác.
-	UpdateTemplates(ctx context.Context, id string, apply func(current []string) []string) error
 
 	LoadIdentityRun(ctx context.Context, id string) (IdentityRun, bool, error)
 	AcquireIdentityLease(ctx context.Context, in LeaseInput) (bool, error)
@@ -444,18 +454,23 @@ type CreateRequest struct {
 	Name          string
 	YoutubeURL    *string
 	CompetitorIDs []string
-	AutoPick      *bool
-	PacePerDay    *int
-	Autonomy      *domain.Autonomy
-	Priority      *string
-	Confirmed     bool
+	AutoFetch     *bool
+	AutoApprove   *bool
+	PerDay        *int
 	Language      string
+	// DefaultTemplateID chọn template có sẵn trong Thư viện làm mặc định; vắng
+	// = tạo Mẫu chuẩn mới cho kênh.
+	DefaultTemplateID *string
+	// AgentInstructions là chỉ dẫn ban đầu cho các trợ lý; vắng/rỗng = chưa dặn.
+	AgentInstructions map[string]string
 }
 
-// Create tạo kênh theo đúng luồng: template Mẫu chuẩn trước, một transaction
-// (kênh + đối thủ + template), hỏng thì xoá template bù trừ; sau đó đoán ngôn
-// ngữ từ đối thủ tham chiếu và chạy tạo nhận diện nền. Trả kênh vừa đọc lại
-// và id việc nền nhận diện (rỗng khi chưa có đối thủ để tham chiếu).
+// Create tạo kênh theo đúng luồng: nếu client chỉ định defaultTemplateID thì
+// chỉ kiểm tồn tại (404 khi lạ, không tạo Mẫu chuẩn, shared hợp lệ); ngược lại
+// tạo template Mẫu chuẩn trước, một transaction (kênh + đối thủ + default),
+// hỏng thì xoá template bù trừ; sau đó đoán ngôn ngữ từ đối thủ tham chiếu và
+// chạy tạo nhận diện nền. Trả kênh vừa đọc lại và id việc nền nhận diện (rỗng
+// khi chưa có đối thủ để tham chiếu).
 func (s *Service) Create(ctx context.Context, in CreateRequest) (ChannelView, string, error) {
 	name := strings.TrimSpace(in.Name)
 	if utf8.RuneCountInString(name) > NameMaxRunes {
@@ -475,33 +490,29 @@ func (s *Service) Create(ctx context.Context, in CreateRequest) (ChannelView, st
 	if len(competitors) > CompetitorsMax {
 		return ChannelView{}, "", errInvalid("Một kênh liên kết tối đa %d đối thủ.", CompetitorsMax)
 	}
-	pace := PaceDefault
-	if in.PacePerDay != nil {
-		pace = *in.PacePerDay
+	perDay := PerDayDefault
+	if in.PerDay != nil {
+		perDay = *in.PerDay
 	}
-	if pace < PaceMin || pace > PaceMax {
-		return ChannelView{}, "", errInvalid("Nhịp mỗi ngày phải trong khoảng %d–%d.", PaceMin, PaceMax)
+	if err := validPerDay(perDay); err != nil {
+		return ChannelView{}, "", err
 	}
-	autoPick := true
-	if in.AutoPick != nil {
-		autoPick = *in.AutoPick
+	autoFetch := true
+	if in.AutoFetch != nil {
+		autoFetch = *in.AutoFetch
 	}
-	autonomy := domain.DefaultAutonomy()
-	if in.Autonomy != nil {
-		var err error
-		if autonomy, err = ResolveAutonomy(*in.Autonomy); err != nil {
-			return ChannelView{}, "", err
+	autoApprove := false
+	if in.AutoApprove != nil {
+		autoApprove = *in.AutoApprove
+	}
+	// Chỉ dẫn ban đầu (nếu có): cùng luật gộp/khoá với PATCH.
+	instructions := domain.NewAgentInstructions()
+	if len(in.AgentInstructions) > 0 {
+		merged, err := domain.MergeAgentInstructions(nil, in.AgentInstructions)
+		if err != nil {
+			return ChannelView{}, "", errInvalid("%s", err.Error())
 		}
-		if autonomy.Approve.Mode == domain.ApproveAll && !in.Confirmed {
-			return ChannelView{}, "", errConfirmRequired(autonomy)
-		}
-	}
-	priority := domain.PrioritySteady
-	if in.Priority != nil {
-		if err := validPriority(*in.Priority); err != nil {
-			return ChannelView{}, "", err
-		}
-		priority = *in.Priority
+		instructions = merged
 	}
 	language := in.Language
 	if language == "" {
@@ -517,30 +528,52 @@ func (s *Service) Create(ctx context.Context, in CreateRequest) (ChannelView, st
 	if err != nil {
 		return ChannelView{}, "", err
 	}
-	// Template Mẫu chuẩn tạo trước; transaction dưới gắn nó vào danh sách
-	// luân phiên. Hỏng tx thì xoá template để không bỏ lại rác thư viện.
-	templateID, err := s.templates.CreateStandardTemplate(ctx, name)
-	if err != nil {
-		return ChannelView{}, "", fmt.Errorf("tạo Mẫu chuẩn: %w", err)
+	// Template mặc định: client chỉ định thì chỉ kiểm tồn tại (404 khi lạ, không
+	// fallback tạo Mẫu chuẩn); vắng thì tạo Mẫu chuẩn trước và bù trừ nếu tx
+	// hỏng để không bỏ lại rác thư viện.
+	templateID := ""
+	if in.DefaultTemplateID != nil {
+		tid := strings.TrimSpace(*in.DefaultTemplateID)
+		if tid == "" {
+			return ChannelView{}, "", errInvalid("defaultTemplateId không được rỗng.")
+		}
+		ok, err := s.store.TemplateExists(ctx, tid)
+		if err != nil {
+			return ChannelView{}, "", err
+		}
+		if !ok {
+			return ChannelView{}, "", &Error{Code: CodeNotFound, Message: "Template không tồn tại.",
+				Recovery: "Chọn lại template trong Thư viện."}
+		}
+		templateID = tid
+	} else {
+		created, err := s.templates.CreateStandardTemplate(ctx, name)
+		if err != nil {
+			return ChannelView{}, "", fmt.Errorf("tạo Mẫu chuẩn: %w", err)
+		}
+		templateID = created
 	}
 	_, err = s.store.CreateChannel(ctx, CreateInput{
-		ID:            id,
-		Name:          name,
-		YoutubeURL:    youtubeURL,
-		Language:      language,
-		AutoPick:      autoPick,
-		PacePerDay:    pace,
-		Autonomy:      autonomy,
-		Priority:      priority,
-		CompetitorIDs: competitors,
-		TemplateID:    templateID,
+		ID:                id,
+		Name:              name,
+		YoutubeURL:        youtubeURL,
+		Language:          language,
+		AutoFetch:         autoFetch,
+		AutoApprove:       autoApprove,
+		PerDay:            perDay,
+		DefaultTemplateID: templateID,
+		AgentInstructions: instructions,
+		CompetitorIDs:     competitors,
 	})
 	if err != nil {
 		// Bù trừ best-effort trên ctx thoát khỏi hủy của request (ctx có thể đã
-		// cancel — lỗi gốc gây ra hủy); lỗi xoá không che lỗi gốc.
-		compensateCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
-		defer cancel()
-		_ = s.templates.DeleteTemplate(compensateCtx, templateID)
+		// cancel — lỗi gốc gây ra hủy); lỗi xoá không che lỗi gốc. Chỉ xoá khi
+		// ta vừa tạo (client chọn template có sẵn thì không được xoá).
+		if in.DefaultTemplateID == nil {
+			compensateCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+			defer cancel()
+			_ = s.templates.DeleteTemplate(compensateCtx, templateID)
+		}
 		return ChannelView{}, "", err
 	}
 	// Ngôn ngữ đoán từ đối thủ tham chiếu (dòng liên kết đầu) khi client không
@@ -579,21 +612,22 @@ type UpdateRequest struct {
 	StyleNote         **string
 	DescriptionFooter **string
 	AlwaysTags        *[]string
-	AutoPick          *bool
-	PacePerDay        *int
+	AutoFetch         *bool
+	AutoApprove       *bool
+	PerDay            *int
 	Brief             *string
-	// Autonomy/Priority: Mức tự chủ và ưu tiên (07 §20). Confirmed là xác nhận
-	// rõ của chủ kênh cho thay đổi giao thêm việc cho máy (D6).
-	Autonomy  *domain.Autonomy
-	Priority  *string
-	Confirmed bool
+	// DefaultTemplateID đổi template mặc định trong Thư viện; "" hoặc null là
+	// không hợp lệ vì kênh luôn phải có mặc định.
+	DefaultTemplateID **string
+	// AgentInstructions gộp chỉ dẫn cho đúng các trợ lý có khoá trong map;
+	// trợ lý vắng khoá giữ nguyên; giá trị rỗng xoá chỉ dẫn của trợ lý đó.
+	AgentInstructions map[string]string
 }
 
 // Update sửa hồ sơ kênh. Trường vắng giữ nguyên; tags được trim, bỏ rỗng và
 // bỏ trùng; ngôn ngữ/nhịp kiểm cùng luật với Create.
 func (s *Service) Update(ctx context.Context, id string, in UpdateRequest) (ChannelView, error) {
-	cur, err := s.Get(ctx, id)
-	if err != nil {
+	if _, err := s.Get(ctx, id); err != nil {
 		return ChannelView{}, err
 	}
 	var p Patch
@@ -661,30 +695,55 @@ func (s *Service) Update(ctx context.Context, id string, in UpdateRequest) (Chan
 		}
 		p.AlwaysTags = Field[[]string]{Set: true, Value: tags}
 	}
-	if in.AutoPick != nil {
-		p.AutoPick = Field[bool]{Set: true, Value: *in.AutoPick}
+	if in.AutoFetch != nil {
+		p.AutoFetch = Field[bool]{Set: true, Value: *in.AutoFetch}
 	}
-	if in.PacePerDay != nil {
-		if *in.PacePerDay < PaceMin || *in.PacePerDay > PaceMax {
-			return ChannelView{}, errInvalid("Nhịp mỗi ngày phải trong khoảng %d–%d.", PaceMin, PaceMax)
+	if in.AutoApprove != nil {
+		p.AutoApprove = Field[bool]{Set: true, Value: *in.AutoApprove}
+	}
+	if in.PerDay != nil {
+		if err := validPerDay(*in.PerDay); err != nil {
+			return ChannelView{}, err
 		}
-		p.PacePerDay = Field[int]{Set: true, Value: *in.PacePerDay}
+		p.PerDay = Field[int]{Set: true, Value: *in.PerDay}
 	}
-	if in.Autonomy != nil {
-		next, err := ResolveAutonomy(*in.Autonomy)
+	if len(in.AgentInstructions) > 0 {
+		cur, err := s.Get(ctx, id)
 		if err != nil {
 			return ChannelView{}, err
 		}
-		if cur.Autonomy.RaisesTrust(next) && !in.Confirmed {
-			return ChannelView{}, errConfirmRequired(next)
+		r := in.AgentInstructions
+		if len(r) != 1 {
+			return ChannelView{}, errInvalid("Mỗi lần chỉ gửi chỉ dẫn cho một trợ lý.")
 		}
-		p.Autonomy = Field[domain.Autonomy]{Set: true, Value: next}
+		key := ""
+		for k := range r {
+			key = k
+		}
+		merged, err := domain.MergeAgentInstructions(cur.AgentInstructions, r)
+		if err != nil {
+			return ChannelView{}, errInvalid("%s", err.Error())
+		}
+		value := merged[key]
+		p.AgentInstructions = AgentInstructionPatch{Set: true, Key: key, Value: value}
 	}
-	if in.Priority != nil {
-		if err := validPriority(*in.Priority); err != nil {
+	if in.DefaultTemplateID != nil {
+		tid := ""
+		if *in.DefaultTemplateID != nil {
+			tid = strings.TrimSpace(**in.DefaultTemplateID)
+		}
+		if tid == "" {
+			return ChannelView{}, errInvalid("Template mặc định không được rỗng.")
+		}
+		ok, err := s.store.TemplateExists(ctx, tid)
+		if err != nil {
 			return ChannelView{}, err
 		}
-		p.Priority = Field[string]{Set: true, Value: *in.Priority}
+		if !ok {
+			return ChannelView{}, &Error{Code: CodeNotFound, Message: "Template không tồn tại.",
+				Recovery: "Chọn lại template trong Thư viện."}
+		}
+		p.DefaultTemplateID = Field[string]{Set: true, Value: tid}
 	}
 	if in.Brief != nil {
 		brief := strings.TrimSpace(*in.Brief)
@@ -846,140 +905,7 @@ func (s *Service) SetSourceMinDuration(ctx context.Context, id, rivalID string, 
 
 // ── template luân phiên ────────────────────────────────────────────────────
 
-// TemplateAction là thao tác trên danh sách template luân phiên.
-type TemplateAction = string
-
-const (
-	TemplateAdd      TemplateAction = "add"
-	TemplateRemove   TemplateAction = "remove"
-	TemplateMove     TemplateAction = "move"
-	TemplateStandard TemplateAction = "standard"
-)
-
-// TemplateRequest là đầu vào của POST /api/owner-channels/{id}/templates.
-type TemplateRequest struct {
-	Action     TemplateAction
-	TemplateID string
-	Position   *int
-}
-
-// Templates áp một thao tác lên danh sách luân phiên rồi trả danh sách mới
-// (position liền mạch từ 0). "standard" tạo Mẫu chuẩn mới rồi nối vào cuối;
-// hỏng thì xoá template vừa tạo. Mọi đọc-đổi-ghi đi qua store.UpdateTemplates
-// (khoá hàng kênh) nên hai thao tác đồng thời được serialize — vì vậy apply
-// phải THUẦN (không được gọi lại store hay nó sẽ tự deadlock trên khoá hàng);
-// kiểm tra tồn tại/đầu vào chạy trước khi vào apply.
-func (s *Service) Templates(ctx context.Context, id string, req TemplateRequest) ([]domain.ChannelTemplate, error) {
-	if _, err := s.Get(ctx, id); err != nil {
-		return nil, err
-	}
-	tid := strings.TrimSpace(req.TemplateID)
-	needsID := req.Action == TemplateAdd || req.Action == TemplateRemove || req.Action == TemplateMove
-	if needsID && tid == "" {
-		return nil, errInvalid("Thiếu templateId.")
-	}
-	if req.Action == TemplateMove && req.Position == nil {
-		return nil, errInvalid("Thiếu position.")
-	}
-	var createdStandard string
-	switch req.Action {
-	case TemplateAdd:
-		ok, err := s.store.TemplateExists(ctx, tid)
-		if err != nil {
-			return nil, err
-		}
-		if !ok {
-			return nil, &Error{Code: CodeNotFound, Message: "Template không tồn tại.",
-				Recovery: "Chọn lại template trong danh sách."}
-		}
-	case TemplateStandard:
-		var terr error
-		createdStandard, terr = s.templates.CreateStandardTemplate(ctx, channelNameForTemplate(ctx, s, id))
-		if terr != nil {
-			return nil, fmt.Errorf("tạo Mẫu chuẩn: %w", terr)
-		}
-	case TemplateRemove, TemplateMove:
-	default:
-		return nil, errInvalid("action phải là add, remove, move hoặc standard.")
-	}
-
-	var applyErr error
-	apply := func(current []string) []string {
-		switch req.Action {
-		case TemplateAdd:
-			if contains(current, tid) {
-				return current
-			}
-			return append(current, tid)
-		case TemplateRemove:
-			return removeID(current, tid)
-		case TemplateMove:
-			idx := indexOf(current, tid)
-			if idx < 0 {
-				applyErr = &Error{Code: CodeNotFound, Message: "Template không nằm trong danh sách của kênh.",
-					Recovery: "Tải lại trang Hồ sơ kênh."}
-				return current
-			}
-			target := *req.Position
-			if target < 0 {
-				target = 0
-			}
-			if target > len(current)-1 {
-				target = len(current) - 1
-			}
-			if target == idx {
-				return current
-			}
-			moved := current[idx]
-			next := append(current[:idx], current[idx+1:]...)
-			return append(next[:target], append([]string{moved}, next[target:]...)...)
-		case TemplateStandard:
-			return append(current, createdStandard)
-		}
-		return current
-	}
-	if err := s.store.UpdateTemplates(ctx, id, apply); err != nil {
-		s.dropStandard(ctx, createdStandard)
-		return nil, err
-	}
-	if applyErr != nil {
-		s.dropStandard(ctx, createdStandard)
-		return nil, applyErr
-	}
-	s.emit(id)
-	return s.templatesOf(ctx, id)
-}
-
-// dropStandard xoá Mẫu chuẩn vừa tạo khi ghi danh sách hỏng (bù trừ, ctx tách
-// khỏi yêu cầu đã huỷ).
-func (s *Service) dropStandard(ctx context.Context, created string) {
-	if created == "" {
-		return
-	}
-	compensateCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
-	defer cancel()
-	_ = s.templates.DeleteTemplate(compensateCtx, created)
-}
-
-// channelNameForTemplate đọc tên kênh cho nhãn Mẫu chuẩn; kênh đã Get trước
-// nên hỏng đọc lại thì để tên rỗng (Mẫu chuẩn vẫn tạo được).
-func channelNameForTemplate(ctx context.Context, s *Service, id string) string {
-	view, err := s.Get(ctx, id)
-	if err != nil {
-		return ""
-	}
-	return view.Name
-}
-
 func foundChannel(view ChannelView) bool { return view.ID != "" }
-
-func (s *Service) templatesOf(ctx context.Context, id string) ([]domain.ChannelTemplate, error) {
-	view, err := s.Get(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return view.Templates, nil
-}
 
 // ── tiện ích ───────────────────────────────────────────────────────────────
 
@@ -1035,25 +961,15 @@ func normalizeTags(tags []string) []string {
 	return out
 }
 
-func contains(ids []string, id string) bool { return indexOf(ids, id) >= 0 }
-
-func indexOf(ids []string, id string) int {
-	for i, v := range ids {
-		if v == id {
-			return i
-		}
+// validPerDay kiểm nhịp video mỗi ngày (1–20, không clamp).
+func validPerDay(n int) error {
+	if n < PerDayMin || n > PerDayMax {
+		return &Error{Code: CodeInvalidInput,
+			Message:  fmt.Sprintf("Nhịp mỗi ngày phải trong khoảng %d–%d.", PerDayMin, PerDayMax),
+			Field:    "perDay",
+			Recovery: "Chọn lại số video mỗi ngày."}
 	}
-	return -1
-}
-
-func removeID(ids []string, id string) []string {
-	out := ids[:0]
-	for _, v := range ids {
-		if v != id {
-			out = append(out, v)
-		}
-	}
-	return out
+	return nil
 }
 
 // hasIdentity báo kênh đã có nhận diện đã công bố. Chỉ Mô tả kênh chủ sửa

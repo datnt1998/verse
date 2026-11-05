@@ -1,7 +1,7 @@
 ---
 phase: 5
 title: "Bước 4 · V38 Kênh, Thư viện, Template"
-status: pending
+status: in-progress
 priority: P1
 dependencies: [4]
 ---
@@ -35,6 +35,7 @@ Channel chỉ3phần Nguồn & tự động / Template mặc định / Hồ sơ,
 6. Library top-nav, bỏ side rail. Menu “Đặt làm mặc định cho kênh…”, “Mặc định của…” lấy refs mới, có thể shared2channel. Guard auto-naming không tự đổi tên template shared/đã người dùng đổi. Delete default đang dùng phải giải thích channel nào, không mất FK.
 7. CreateChannel/Onboard/MCreate có đúng3hàng Cách kênh chạy; giữ lỗi identity thật và tiếp tục sau lỗi. Chuyển mobile API consumers ngay trong PR4; PR6 chỉ final layout/tweak/animation, không để mobile dùng old contract đến PR6.
 8. Fixture QA riêng: MT/QH=Mẫu chuẩn · Tách nền; CL=Truyện kể đêm. Không cấy tên/ID minh hoạ vào ứng dụng production.
+9. **Design#87A người dùng đã chốt04/11:** giữ ô Dặn trợ lý về kênh trên PC; bổ sung backend tối thiểu lưu và áp dụng chỉ dẫn riêng theo kênh/trợ lý. `agentInstructions` là object đọc được, PATCH từng trợ lý không ghi đè trợ lý khác. Gửi chỉ lưu, không gọi model; lỗi giữ draft, đổi người nhận nạp đúng chỉ dẫn. Consumer phải thực sự dùng đúng chỉ dẫn từ lượt tiếp theo/video mới, không ảnh hưởng job snapshot đang chạy và không khôi phục chat/intent/kế hoạch toàn cục. Không dùng Giọng văn làm chỗ ghi tắt bốn loại chỉ dẫn.
 
 ## Ma trận test
 | Mức | Scenario | Qua khi |
@@ -47,6 +48,7 @@ Channel chỉ3phần Nguồn & tự động / Template mặc định / Hồ sơ,
 | Medium | Dropdown dài, tab nguồn mặc định,4stats/avatar | Desktop list nổi, mobile sheet, avatar tròn, no horizontal/vertical dock bug |
 | High | Retired post-publication feature ở startup và HTTP | Không goroutine/reader chạy ẩn, không read/apply routes; MarkPosted/export/source pacing vẫn hoạt động thật |
 | High | Default đổi đúng lúc admission + AutoPick=false/pick enabled | Job snapshot theo commit boundary, không bật tự lấy đã tắt |
+| Critical | Dặn trợ lý save/reload, hai người nhận, lỗi ghi, video cũ/mới | Readback đúng kênh/người nhận; không inference khi lưu; consumer thật dùng đúng chỉ dẫn và snapshot cũ bất biến; không chỉ store+toast |
 
 Focused `npm test -w apps/viderse/web -- screens/channel screens/library`; `go test ./apps/viderse/internal/channels ./apps/viderse/internal/autonomy ./apps/viderse/internal/pipeline/queue ./apps/viderse/internal/persistence/postgres`. Full Viderse Go compile/tests và SQLC generate; migration CLI thật từ rỗng và từ snapshot cũ trên DB QA riêng. Typecheck/build và all relevant artboard tweaks/screenshots/controls theo verification.md.
 
@@ -55,7 +57,7 @@ DB/FE/backend phải cùng revision. Không widen quyền set default/template/d
 Rollback schema chỉ restore backup đã kiểm khi mọi writer còn quiesced liên tục từ backup tới acceptance. Sau resume không restore snapshot cũ: forward-fix/recovery riêng có reconcile job/paid receipt. Xem backend-contracts.md; không giả Down lossless hoặc giữ alias để né cutover.
 
 ## Checklist
-- [ ] Hoàn tất preflight, mapping/truth table và stop conditions.
-- [ ] Cutover schema/backend/query/caller kể cả mobile và CLI.
+- [x] Hoàn tất preflight, mapping/truth table và stop conditions trên DB QA riêng; migration CLI thật và regression STOP/admission đã qua.
+- [x] Cutover schema/backend/query/caller kể cả mobile và CLI; full backend suite, vet, build và regression chỉ dẫn qua với SQLC model overlay bảo vệ file người dùng. Chưa merge/publish; trạng thái runtime/ảnh/UI còn ở [báo cáo tích hợp](reports/pr-04/integration-state.md).
 - [ ] Channel/library/template/create theo board, fixtures chỉ QA.
 - [ ] Qua migration/API/score-boundary/UI/motion checks; gửi report và gap V38, merge PR4.

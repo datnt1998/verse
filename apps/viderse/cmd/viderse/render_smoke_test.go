@@ -190,7 +190,7 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 		t.Fatal(err)
 	}
 	channelID := editor.ID()
-	if _, err := postgres.NewChannelStore(pool).CreateChannel(ctx, channels.CreateInput{ID: channelID, Name: "Kênh kiểm tra xuất video", Language: domain.LangVI, PacePerDay: 1, TemplateID: template.ID}); err != nil {
+	if _, err := postgres.NewChannelStore(pool).CreateChannel(ctx, channels.CreateInput{ID: channelID, Name: "Kênh kiểm tra xuất video", Language: domain.LangVI, PerDay: 1, DefaultTemplateID: template.ID}); err != nil {
 		t.Fatal(err)
 	}
 	store := postgres.NewCloneStore(pool)

@@ -11,12 +11,22 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 )
 
+// ErrAdmissionTemplateChanged means the prepared snapshot lost its default or
+// revision fence before admission. Nothing was persisted; re-resolve once.
+var ErrAdmissionTemplateChanged = &domain.CloneError{Code: domain.CloneErrStale, Message: "Mẫu video vừa đổi; xin thử lại."}
+
 type StartJobInput struct {
-	ChannelID             string
-	SourceKey             string
-	Source                domain.CloneSourceSnapshot
-	TemplateID            string
-	TemplateSnapshot      json.RawMessage
+	ChannelID  string
+	SourceKey  string
+	Source     domain.CloneSourceSnapshot
+	TemplateID string
+	// TemplateExplicit: template đến từ override của mục hàng chờ (giữ nguyên
+	// dù default kênh đổi), không phải default suy ra lúc lập kế hoạch.
+	TemplateExplicit bool
+	TemplateSnapshot json.RawMessage
+	// SnapshotRevision là templates.revision đã build snapshot; 0 = không kiểm
+	// (đường cũ/test trực tiếp). Admission kiểm dưới KEY SHARE.
+	SnapshotRevision      int64
 	ModelRefs             json.RawMessage
 	NoImages              bool
 	Priority              domain.ClonePriority
@@ -55,7 +65,7 @@ type QueueReadModel interface {
 }
 
 // TemplateResolver snapshots the selected recipe and models at admission.
-type TemplateResolver func(context.Context, domain.CloneQueueItem) (templateID string, recipe json.RawMessage, models json.RawMessage, err error)
+type TemplateResolver func(context.Context, domain.CloneQueueItem) (templateID string, recipe json.RawMessage, models json.RawMessage, revision int64, err error)
 
 type Service struct {
 	Store                       ServiceStore
@@ -91,26 +101,31 @@ func (s *Service) Start(ctx context.Context, item domain.CloneQueueItem) (*domai
 	if s.ResolveTemplate == nil {
 		return nil, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Chưa có template cho kênh"}
 	}
-	id, recipe, models, err := s.ResolveTemplate(ctx, item)
-	if err != nil {
-		return nil, err
-	}
-	var checkpoint json.RawMessage
-	if s.ResolveQueuedImageOverrides != nil {
-		checkpoint, err = s.ResolveQueuedImageOverrides(ctx, item)
+	for attempt := 0; ; attempt++ {
+		id, recipe, models, revision, err := s.ResolveTemplate(ctx, item)
 		if err != nil {
 			return nil, err
 		}
+		var checkpoint json.RawMessage
+		if s.ResolveQueuedImageOverrides != nil {
+			checkpoint, err = s.ResolveQueuedImageOverrides(ctx, item)
+			if err != nil {
+				return nil, err
+			}
+		}
+		result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateExplicit: item.TemplateID != nil, TemplateSnapshot: recipe, SnapshotRevision: revision, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID, QueueOverrideRevision: item.OverrideRevision, ImageCheckpoint: checkpoint})
+		if errors.Is(err, ErrAdmissionTemplateChanged) && attempt == 0 {
+			continue
+		}
+		if err != nil {
+			return nil, err
+		}
+		if result.Created {
+			s.event(domain.CloneEventCreated, result.Job.ID)
+		}
+		s.Wake()
+		return result.Job, nil
 	}
-	result, err := s.Store.StartJob(ctx, StartJobInput{ChannelID: item.ChannelID, SourceKey: item.SourceKey, Source: item.Source, TemplateID: id, TemplateSnapshot: recipe, ModelRefs: models, NoImages: item.NoImages, Priority: item.Priority, Origin: item.Origin, QueueItemID: item.ID, QueueOverrideRevision: item.OverrideRevision, ImageCheckpoint: checkpoint})
-	if err != nil {
-		return nil, err
-	}
-	if result.Created {
-		s.event(domain.CloneEventCreated, result.Job.ID)
-	}
-	s.Wake()
-	return result.Job, nil
 }
 
 // Restart places a new generation at the head of the normal queue.

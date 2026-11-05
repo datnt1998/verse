@@ -1,0 +1,2477 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "preparedOnly": false,
+  "cases": [
+    {
+      "key": "native-template-prerequisite",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "NATIVE_BACKEND_GET",
+      "status": "PASS",
+      "screenshots": [
+        "native-template-prerequisite.png"
+      ],
+      "observed": {
+        "id": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+        "revision": 3,
+        "nativeDetailRead": true
+      }
+    },
+    {
+      "key": "review-1440-reload-edit-guard",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "SYNTHETIC_CONFLICT_AND_HELD_RELOAD_GET",
+      "status": "FAIL",
+      "screenshots": [
+        "review-1440-reload-edit-guard-failure.png"
+      ],
+      "reason": "expect(locator).toBeDisabled() failed\n\nLocator:  locator('.vt-places').getByRole('radio', { includeHidden: true }).first()\nExpected: disabled\nReceived: enabled\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeDisabled\" locator('.vt-places').getByRole('radio', { includeHidden: true }).first() with timeout 5000ms\n  - waiting for locator('.vt-places').getByRole('radio', { includeHidden: true }).first()\n    14 × locator resolved to <button role=\"radio\" type=\"button\" tabindex=\"-1\" aria-checked=\"false\" class=\"kit-rcard x78zum5 x883omv x1cy8zhl x1y0btm7 x1uf86x9 xdpxx8g x1ypdohk x1hc1fzr x6w5c0t xeuugli x1h9bm8n x1a139d2 xb3r6kr x576hnu xjwn81n x1c7neim xox1v1s\">…</button>\n       - unexpected value \"enabled\"\n"
+    },
+    {
+      "key": "review-390-reload-edit-guard",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "proof": "SYNTHETIC_CONFLICT_AND_HELD_RELOAD_GET",
+      "status": "FAIL",
+      "screenshots": [
+        "review-390-reload-edit-guard-failure.png"
+      ],
+      "reason": "expect(locator).toBeDisabled() failed\n\nLocator:  locator('.vt-places').getByRole('radio', { includeHidden: true }).first()\nExpected: disabled\nReceived: enabled\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toBeDisabled\" locator('.vt-places').getByRole('radio', { includeHidden: true }).first() with timeout 5000ms\n  - waiting for locator('.vt-places').getByRole('radio', { includeHidden: true }).first()\n    14 × locator resolved to <button role=\"radio\" type=\"button\" tabindex=\"-1\" aria-checked=\"false\" class=\"kit-rcard x78zum5 x883omv x1cy8zhl x1y0btm7 x1uf86x9 xdpxx8g x1ypdohk x1hc1fzr x6w5c0t xeuugli x1h9bm8n x1a139d2 xb3r6kr x576hnu xjwn81n x1c7neim xox1v1s\">…</button>\n       - unexpected value \"enabled\"\n"
+    },
+    {
+      "key": "review-pc-name-escape",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "NATIVE_GET_SYNTHETIC_PATCH_FENCE",
+      "status": "FAIL",
+      "screenshots": [
+        "review-pc-name-escape-failure.png"
+      ],
+      "reason": "expect(locator).toHaveValue(expected) failed\n\nLocator:  getByRole('textbox', { name: 'Tên mẫu video', exact: true })\nExpected: \"Truyện kể đêm\"\nReceived: \"V38 MUST NOT SAVE CANCELLED NAME\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveValue\" getByRole('textbox', { name: 'Tên mẫu video', exact: true }) with timeout 5000ms\n  - waiting for getByRole('textbox', { name: 'Tên mẫu video', exact: true })\n    14 × locator resolved to <input aria-label=\"Tên mẫu video\" value=\"V38 MUST NOT SAVE CANCELLED NAME\" class=\"vt-name xeuugli x5f5z56 xz6l49z xrurnyy x4i4ubp x1rqwlto xqkuogw x14yl3g0 x98k5o6 xzvjbm8 x13fuv20 x1v8p93f x186ugkb xzlkt69 x98gzpg x32b0ac xhe5wa1 x1undg9h xrjjehh xzjqy6r x1q0q8m5 x16stqrj x1jgb7gp x17wtl3g x17gmixh x19ypqd9 x1g4hjc x16gzq3k xr9qqtu x1eycct6 x1fos0t0 x19pg1q4 xe8ime9 xjbqb8w xgggv6z x18o3ruo x19zaomo x1uf86x9 xjb2p0i xk2szfn x1778gas x93k4f6 x1ckq587 xox1v1s x1o5zrs8 xhlp2gg xmpv1zg\"/>\n       - unexpected value \"V38 MUST NOT SAVE CANCELLED NAME\"\n"
+    },
+    {
+      "key": "review-pc-unsaved-build-guard",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "proof": "SYNTHETIC_SAVE_FAILURE_AND_READY_SOURCE_GET",
+      "status": "FAIL",
+      "screenshots": [
+        "review-pc-unsaved-build-guard-failure.png"
+      ],
+      "reason": "expect(locator).toHaveAttribute(expected) failed\n\nLocator:  getByRole('button', { name: 'Dựng lại bản xem thử', exact: true })\nExpected: \"true\"\nReceived: \"\"\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveAttribute\" getByRole('button', { name: 'Dựng lại bản xem thử', exact: true }) with timeout 5000ms\n  - waiting for getByRole('button', { name: 'Dựng lại bản xem thử', exact: true })\n    14 × locator resolved to <button type=\"button\" class=\"xc9qbxq xqin4a2 x1q4ynmn x4z9k3i x3nfvp2 x6s0dn4 xl56j7k x1j9xkj6 xuxw1ft xmkeg23 x1y0btm7 x9r1u3d x1osegqy x9kvfbb x1n2onr6 x1x33cxi x1s688f xk4oym4 x42yfd4 x1tf8huo x1iyjqo2 xsmr3ax xs83m0k xdl72j9 xox1v1s\">…</button>\n       - unexpected value \"null\"\n"
+    }
+  ],
+  "requests": [
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/",
+      "resource": "document",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/index-suv0CzQW.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/client-hvrsClBT.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "resource": "other",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/templates",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/me",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/events",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/LibraryScreen-D0Nm0FnX.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/shared-controls-BLKZIGNi.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Dialog-CHKknYP1.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Inputs-uuC9e8zJ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Banner-DfPIfbi8.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-CeNE1iXs.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-B8p7u29b.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/platforms-B2-Iib7O.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Segmented-DVgyJbDI.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-CnkmTv0a.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/upload-limits-BfHXmr2l.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/useDebounced-ClBDmeZq.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/ImageViewer-iIEjkmsZ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-YZS3XJqP.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Selects-DoKk7qCM.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/Dropzone-RtWqI5fL.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/page-CuUQjHel.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/sheets-d2uXXDXa.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfPLxlly.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/activity",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/queue",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/status",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "native-template-prerequisite",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/",
+      "resource": "document",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/index-suv0CzQW.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/client-hvrsClBT.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "resource": "other",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/me",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/events",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-7PY8_XGL.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Banner-DfPIfbi8.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-CeNE1iXs.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/shared-controls-BLKZIGNi.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Dialog-CHKknYP1.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Inputs-uuC9e8zJ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-B8p7u29b.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-CnkmTv0a.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/ImageViewer-iIEjkmsZ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-YZS3XJqP.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Selects-DoKk7qCM.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/images-CNd0fSsX.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Segmented-DVgyJbDI.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/page-CuUQjHel.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/sheets-d2uXXDXa.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfPLxlly.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/activity",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/queue",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/status",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-full.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-cutout.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-close.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/play-B4QtGWWj.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/overlays",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/eye-AC1AoKBS.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_PATCH",
+      "synthetic": {
+        "number": 1,
+        "revision": 3,
+        "hasName": false,
+        "hasRecipe": true,
+        "placement": 1,
+        "outcome": "409"
+      }
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/warning-2-C_tHPlew.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/",
+      "resource": "document",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/index-suv0CzQW.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/client-hvrsClBT.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "resource": "other",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/me",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/events",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-7PY8_XGL.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Banner-DfPIfbi8.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-CeNE1iXs.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/shared-controls-BLKZIGNi.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Dialog-CHKknYP1.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Inputs-uuC9e8zJ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-B8p7u29b.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-CnkmTv0a.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/ImageViewer-iIEjkmsZ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-YZS3XJqP.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Selects-DoKk7qCM.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/images-CNd0fSsX.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/Segmented-DVgyJbDI.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/page-CuUQjHel.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/sheets-d2uXXDXa.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfPLxlly.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/activity",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/status",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-full.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-cutout.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-close.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/overlays",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/backdrop/channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_PATCH",
+      "synthetic": {
+        "number": 1,
+        "revision": 3,
+        "hasName": false,
+        "hasRecipe": true,
+        "placement": 1,
+        "outcome": "409"
+      }
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/copy-DzyElKQH.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/close-circle-bulk-ot6ifWfB.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/assets/warning-2-C_tHPlew.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/",
+      "resource": "document",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/index-suv0CzQW.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/client-hvrsClBT.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "resource": "other",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/me",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/events",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-7PY8_XGL.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/Banner-DfPIfbi8.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-CeNE1iXs.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/shared-controls-BLKZIGNi.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/Dialog-CHKknYP1.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/Inputs-uuC9e8zJ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-B8p7u29b.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-CnkmTv0a.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/ImageViewer-iIEjkmsZ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-YZS3XJqP.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/Selects-DoKk7qCM.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/images-CNd0fSsX.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/Segmented-DVgyJbDI.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/page-CuUQjHel.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/sheets-d2uXXDXa.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfPLxlly.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/activity",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/queue",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/status",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-full.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-cutout.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-close.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/play-B4QtGWWj.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/overlays",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/eye-AC1AoKBS.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_PATCH",
+      "synthetic": {
+        "number": 1,
+        "revision": 3,
+        "hasName": true,
+        "hasRecipe": false,
+        "placement": null,
+        "outcome": "ACCEPT_IN_MEMORY_ONLY"
+      }
+    },
+    {
+      "case": "review-pc-name-escape",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06/preview",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/",
+      "resource": "document",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/index-suv0CzQW.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/client-hvrsClBT.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "resource": "other",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/me",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/events",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/TemplateScreen-7PY8_XGL.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/Banner-DfPIfbi8.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-CeNE1iXs.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/shared-controls-BLKZIGNi.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/Dialog-CHKknYP1.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/Inputs-uuC9e8zJ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/TemplatesTab-B8p7u29b.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/useVirtualGrid-CnkmTv0a.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/ImageViewer-iIEjkmsZ.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-YZS3XJqP.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/Selects-DoKk7qCM.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/images-CNd0fSsX.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/errorsCopy-4pbLfZH-.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/Segmented-DVgyJbDI.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/page-CuUQjHel.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/sheets-d2uXXDXa.js",
+      "resource": "script",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfPLxlly.css",
+      "resource": "stylesheet",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/activity",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/queue",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/status",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-full.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-cutout.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/illustrations/scene-composition-close.jpg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/magicpen-DsGxQLli.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/video-play-BpR_XYuP.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/export-HhVhfY5r.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/tick-T6zt9zcI.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/play-B4QtGWWj.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-400.woff2",
+      "resource": "font",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=scene",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/image-prompts?kind=cover",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/overlays",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/eye-AC1AoKBS.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "NATIVE_GET"
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "PATCH",
+      "path": "/api/templates/d630ad66-9ca7-482a-b33f-4b53195eef06",
+      "resource": "fetch",
+      "scope": "LOCAL",
+      "action": "SYNTHETIC_PATCH",
+      "synthetic": {
+        "number": 1,
+        "revision": 3,
+        "hasName": true,
+        "hasRecipe": false,
+        "placement": null,
+        "outcome": "400"
+      }
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "method": "GET",
+      "path": "/assets/danger-B0Wn1yVs.svg",
+      "resource": "image",
+      "scope": "LOCAL",
+      "action": "LOCAL_STATIC_GET"
+    }
+  ],
+  "screenshots": [
+    {
+      "case": "native-template-prerequisite",
+      "file": "native-template-prerequisite.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "review-1440-reload-edit-guard",
+      "file": "review-1440-reload-edit-guard-failure.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "review-390-reload-edit-guard",
+      "file": "review-390-reload-edit-guard-failure.png",
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "scrollWidth": 390
+      }
+    },
+    {
+      "case": "review-pc-name-escape",
+      "file": "review-pc-name-escape-failure.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    },
+    {
+      "case": "review-pc-unsaved-build-guard",
+      "file": "review-pc-unsaved-build-guard-failure.png",
+      "geometry": {
+        "width": 1440,
+        "height": 900,
+        "scrollWidth": 1440
+      }
+    }
+  ],
+  "pageErrors": [],
+  "limitations": [
+    "All PATCH rejection/acceptance and queued-save normalization responses are browser-local synthetic fixtures; no backend writes or persistence proof.",
+    "Native template IDs and baseline recipes are discovered through actual authenticated GETs at execution time. Conflict/detail recovery returns to actual GET responses, not fabricated backend state.",
+    "Only images placement plus name exercise pending-queue consumers; all-four-section propagation, remount persistence, viewport transition, multi-client concurrency, build/inference, media output, metadata parsing/download and exports are unproven.",
+    "No visual design score, full accessibility audit, cross-browser certification, or genuine generated preview freshness is claimed."
+  ],
+  "safety": {
+    "nonGETContinued": 0,
+    "externalContinued": 0,
+    "downloads": 0,
+    "websocketsBlocked": 0,
+    "unexpectedMutations": 0,
+    "routeErrors": [],
+    "receipt": {
+      "continuedNonGET": 0,
+      "continuedExternal": 0,
+      "syntheticPATCH": 4,
+      "nativeDetailGET": 5,
+      "blockedMutations": 0,
+      "blockedExternal": 0,
+      "blockedDownloadsMedia": 0,
+      "blockedUnlistedAPI": 0
+    }
+  },
+  "native": {
+    "id": "d630ad66-9ca7-482a-b33f-4b53195eef06",
+    "name": "Truyện kể đêm",
+    "revision": 3,
+    "placement": 0
+  },
+  "browserClosed": true,
+  "finishedAt": "2026-11-05T04:34:20.468Z"
+}

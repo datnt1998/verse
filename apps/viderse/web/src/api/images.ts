@@ -80,6 +80,8 @@ export const imageVersionSchema = z.object({
   finishedAt: z.string().nullable(),
   durationSec: z.number().nullable(),
   costImages: z.number(),
+  scoreIssue: z.string().optional(),
+  score: z.unknown().optional(),
   error: z.object({
     reason: z.enum(['quota', 'filter', 'network', 'provider']),
     retryAt: z.string().optional(),
@@ -104,6 +106,7 @@ export const jobImageSchema = z.object({
   /** Video đã duyệt/dựng: ảnh mới cần duyệt lại (§26). */
   needsReview: z.boolean().optional(),
   status: z.string().optional(),
+  scoreIssue: z.string().optional(),
   versions: z.array(imageVersionSchema),
   refLimit: z.number(),
 }).passthrough()

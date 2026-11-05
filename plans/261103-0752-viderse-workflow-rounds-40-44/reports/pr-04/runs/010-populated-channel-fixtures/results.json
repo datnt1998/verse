@@ -1,0 +1,5907 @@
+{
+  "status": "PASS_SYNTHETIC_FIXTURES_ONLY",
+  "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURES_ONLY",
+  "origin": "http://127.0.0.1:8043",
+  "cases": [
+    {
+      "name": "sources-layout-picker-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Two entirely synthetic Rival/scan/posting records; one linked to original channel here, one to a different original channel, solely in GET responses. No backend rivals or associations created.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-sources-layout-picker-no-preference-populated-source.png",
+        "SYNTHETIC-1440-sources-layout-picker-no-preference-picker-shared-eligible.png"
+      ],
+      "fixtureIds": {
+        "target": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "other": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "here": "v38-synthetic-rival-here",
+        "elsewhere": "v38-synthetic-rival-elsewhere"
+      },
+      "columns": [
+        634.172,
+        487.828
+      ],
+      "layout": {
+        "avatar": {
+          "x": 293,
+          "y": 458.875,
+          "width": 34,
+          "height": 34,
+          "bottom": 492.875
+        },
+        "top": {
+          "x": 293,
+          "y": 454.734375,
+          "width": 604.171875,
+          "height": 42.28125,
+          "bottom": 497.015625
+        },
+        "actions": {
+          "x": 293,
+          "y": 507.015625,
+          "width": 604.171875,
+          "height": 30,
+          "bottom": 537.015625
+        },
+        "metadata": "123 N người theo dõi · 3,5 video/tuần · 72 video đã quét",
+        "status": "xem 1 ngày trước",
+        "reference": "Tham chiếu nhận diện"
+      },
+      "openMotion": {
+        "reduced": false,
+        "animations": [
+          {
+            "name": "mo-draw",
+            "duration": 260,
+            "iterations": 1
+          }
+        ]
+      },
+      "dialogGeometry": {
+        "x": 557.171875,
+        "y": 439.734375,
+        "width": 340,
+        "height": 240.65625,
+        "bottom": 680.390625,
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "focusInside": true,
+        "bodyOverflow": ""
+      },
+      "boundary": "Only local checkbox selection, keyboard, Escape and outside/scrim dismissal. Never clicked Link N, follow, scan, make video or unlink.",
+      "contextClosed": true
+    },
+    {
+      "name": "old-avatar-continuity-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET identity overridden to avatar-generating with EXISTING native prompt sample as synthetic old avatar/banner; no job/progress/provider/completion fabricated.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-old-avatar-continuity-no-preference-pending-existing-sample-visible.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "overlay": {
+        "width": 52,
+        "height": 52,
+        "x": 870,
+        "y": 431.984375,
+        "parent": {
+          "x": 868,
+          "y": 429.984375,
+          "width": 56,
+          "height": 56
+        },
+        "radius": "50%",
+        "opacity": "0.65",
+        "backgroundImage": "linear-gradient(100deg, rgb(239, 239, 242) 30%, rgb(248, 248, 250) 50%, rgb(239, 239, 242) 70%)",
+        "animation": "xf4slbi-B",
+        "beforeAnimation": "none",
+        "afterAnimation": "none",
+        "reduced": false
+      },
+      "boundary": "Same loaded synthetic old-image node remains mounted under visible pending shimmer. Actual ready→generating→ready transition and native old media remain UNPROVEN.",
+      "contextClosed": true
+    },
+    {
+      "name": "banner-safe-area-no-preference",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET ready identity with actual pre-existing same-origin prompt sample reused as clearly synthetic avatar/banner. Safe-area proof is component geometry/compositing, NOT generated channel branding.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-banner-safe-area-no-preference-banner-safe-on.png",
+        "SYNTHETIC-1440-banner-safe-area-no-preference-banner-safe-off.png",
+        "SYNTHETIC-1440-banner-safe-area-no-preference-identity-full.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "geometry": {
+        "width": 337.625,
+        "height": 92.4375,
+        "x": 110.6875,
+        "y": 111,
+        "bannerWidth": 559,
+        "bannerHeight": 314.4375,
+        "background": "rgba(0, 0, 0, 0)",
+        "shadow": "rgba(11, 11, 13, 0.45) 0px 0px 0px 9999px",
+        "overflow": "hidden",
+        "objectFit": "cover"
+      },
+      "pixelProof": {
+        "source": "Screenshots of existing native prompt sample used ONLY as synthetic identity",
+        "inside": [
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          }
+        ],
+        "outside": [
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          }
+        ],
+        "averageExteriorDarkening": 57.66666666666666
+      },
+      "boundary": "Centered 60.4% × 29.4% transparent safe region; exterior dimming sampled against same actual sample image with guide off. No claim about native generated banner.",
+      "contextClosed": true
+    },
+    {
+      "name": "sources-layout-picker-reduce",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Two entirely synthetic Rival/scan/posting records; one linked to original channel here, one to a different original channel, solely in GET responses. No backend rivals or associations created.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-sources-layout-picker-reduce-populated-source.png",
+        "SYNTHETIC-1440-sources-layout-picker-reduce-picker-shared-eligible.png"
+      ],
+      "fixtureIds": {
+        "target": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "other": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "here": "v38-synthetic-rival-here",
+        "elsewhere": "v38-synthetic-rival-elsewhere"
+      },
+      "columns": [
+        634.172,
+        487.828
+      ],
+      "layout": {
+        "avatar": {
+          "x": 293,
+          "y": 458.875,
+          "width": 34,
+          "height": 34,
+          "bottom": 492.875
+        },
+        "top": {
+          "x": 293,
+          "y": 454.734375,
+          "width": 604.171875,
+          "height": 42.28125,
+          "bottom": 497.015625
+        },
+        "actions": {
+          "x": 293,
+          "y": 507.015625,
+          "width": 604.171875,
+          "height": 30,
+          "bottom": 537.015625
+        },
+        "metadata": "123 N người theo dõi · 3,5 video/tuần · 72 video đã quét",
+        "status": "xem 1 ngày trước",
+        "reference": "Tham chiếu nhận diện"
+      },
+      "openMotion": {
+        "reduced": true,
+        "animations": []
+      },
+      "dialogGeometry": {
+        "x": 557.171875,
+        "y": 439.734375,
+        "width": 340,
+        "height": 240.65625,
+        "bottom": 680.390625,
+        "scrollWidth": 338,
+        "clientWidth": 338,
+        "focusInside": true,
+        "bodyOverflow": ""
+      },
+      "boundary": "Only local checkbox selection, keyboard, Escape and outside/scrim dismissal. Never clicked Link N, follow, scan, make video or unlink.",
+      "contextClosed": true
+    },
+    {
+      "name": "old-avatar-continuity-reduce",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET identity overridden to avatar-generating with EXISTING native prompt sample as synthetic old avatar/banner; no job/progress/provider/completion fabricated.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-old-avatar-continuity-reduce-pending-existing-sample-visible.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "overlay": {
+        "width": 52,
+        "height": 52,
+        "x": 870,
+        "y": 431.984375,
+        "parent": {
+          "x": 868,
+          "y": 429.984375,
+          "width": 56,
+          "height": 56
+        },
+        "radius": "50%",
+        "opacity": "0.65",
+        "backgroundImage": "linear-gradient(100deg, rgb(239, 239, 242) 30%, rgb(248, 248, 250) 50%, rgb(239, 239, 242) 70%)",
+        "animation": "none",
+        "beforeAnimation": "none",
+        "afterAnimation": "none",
+        "reduced": true
+      },
+      "boundary": "Same loaded synthetic old-image node remains mounted under visible pending shimmer. Actual ready→generating→ready transition and native old media remain UNPROVEN.",
+      "contextClosed": true
+    },
+    {
+      "name": "banner-safe-area-reduce",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET ready identity with actual pre-existing same-origin prompt sample reused as clearly synthetic avatar/banner. Safe-area proof is component geometry/compositing, NOT generated channel branding.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-1440-banner-safe-area-reduce-banner-safe-on.png",
+        "SYNTHETIC-1440-banner-safe-area-reduce-banner-safe-off.png",
+        "SYNTHETIC-1440-banner-safe-area-reduce-identity-full.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "geometry": {
+        "width": 337.625,
+        "height": 92.4375,
+        "x": 110.6875,
+        "y": 111,
+        "bannerWidth": 559,
+        "bannerHeight": 314.4375,
+        "background": "rgba(0, 0, 0, 0)",
+        "shadow": "rgba(11, 11, 13, 0.45) 0px 0px 0px 9999px",
+        "overflow": "hidden",
+        "objectFit": "cover"
+      },
+      "pixelProof": {
+        "source": "Screenshots of existing native prompt sample used ONLY as synthetic identity",
+        "inside": [
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          }
+        ],
+        "outside": [
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          }
+        ],
+        "averageExteriorDarkening": 57.66666666666666
+      },
+      "boundary": "Centered 60.4% × 29.4% transparent safe region; exterior dimming sampled against same actual sample image with guide off. No claim about native generated banner.",
+      "contextClosed": true
+    },
+    {
+      "name": "sources-layout-picker-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Two entirely synthetic Rival/scan/posting records; one linked to original channel here, one to a different original channel, solely in GET responses. No backend rivals or associations created.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-sources-layout-picker-no-preference-populated-source.png",
+        "SYNTHETIC-390-sources-layout-picker-no-preference-picker-shared-eligible.png"
+      ],
+      "fixtureIds": {
+        "target": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "other": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "here": "v38-synthetic-rival-here",
+        "elsewhere": "v38-synthetic-rival-elsewhere"
+      },
+      "mobileLayoutNote": "Mobile source layout is a separate 36px grid; 34px/two-row contract measured on desktop only.",
+      "mobileLayout": {
+        "width": 328,
+        "grid": "36px 224px 44px",
+        "avatarWidth": 36,
+        "avatarHeight": 36,
+        "scrollWidth": 328,
+        "clientWidth": 328
+      },
+      "openMotion": {
+        "reduced": false,
+        "animations": [
+          {
+            "name": "x1pcm954-B",
+            "duration": 550,
+            "iterations": 1
+          },
+          {
+            "name": "m-fade",
+            "duration": 250,
+            "iterations": 1
+          },
+          {
+            "name": "m-sheet-in",
+            "duration": 440,
+            "iterations": 1
+          },
+          {
+            "name": "mo-draw",
+            "duration": 260,
+            "iterations": 1
+          }
+        ]
+      },
+      "dialogGeometry": {
+        "x": 0,
+        "y": 510.40625,
+        "width": 390,
+        "height": 333.59375,
+        "bottom": 844,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "focusInside": true,
+        "bodyOverflow": "hidden"
+      },
+      "sheetMotion": {
+        "panelAnimation": "m-sheet-in",
+        "panelDuration": "0.44s",
+        "panelTransition": "0.26s",
+        "scrimAnimation": "m-fade",
+        "scrimDuration": "0.25s"
+      },
+      "boundary": "Only local checkbox selection, keyboard, Escape and outside/scrim dismissal. Never clicked Link N, follow, scan, make video or unlink.",
+      "contextClosed": true
+    },
+    {
+      "name": "old-avatar-continuity-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET identity overridden to avatar-generating with EXISTING native prompt sample as synthetic old avatar/banner; no job/progress/provider/completion fabricated.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-old-avatar-continuity-no-preference-pending-existing-sample-visible.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "overlay": {
+        "width": 44,
+        "height": 44,
+        "x": 31,
+        "y": 711.875,
+        "parent": {
+          "x": 29,
+          "y": 709.875,
+          "width": 48,
+          "height": 48
+        },
+        "radius": "50%",
+        "opacity": "0.65",
+        "backgroundImage": "linear-gradient(100deg, rgb(239, 239, 242) 30%, rgb(248, 248, 250) 50%, rgb(239, 239, 242) 70%)",
+        "animation": "xf4slbi-B",
+        "beforeAnimation": "none",
+        "afterAnimation": "none",
+        "reduced": false
+      },
+      "boundary": "Same loaded synthetic old-image node remains mounted under visible pending shimmer. Actual ready→generating→ready transition and native old media remain UNPROVEN.",
+      "contextClosed": true
+    },
+    {
+      "name": "banner-safe-area-no-preference",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "no-preference",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET ready identity with actual pre-existing same-origin prompt sample reused as clearly synthetic avatar/banner. Safe-area proof is component geometry/compositing, NOT generated channel branding.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-banner-safe-area-no-preference-banner-safe-on.png",
+        "SYNTHETIC-390-banner-safe-area-no-preference-banner-safe-off.png",
+        "SYNTHETIC-390-banner-safe-area-no-preference-identity-full.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "geometry": {
+        "width": 215.015625,
+        "height": 58.859375,
+        "x": 70.4921875,
+        "y": 70.6953125,
+        "bannerWidth": 356,
+        "bannerHeight": 200.25,
+        "background": "rgba(0, 0, 0, 0)",
+        "shadow": "rgba(11, 11, 13, 0.45) 0px 0px 0px 9999px",
+        "overflow": "hidden",
+        "objectFit": "cover"
+      },
+      "pixelProof": {
+        "source": "Screenshots of existing native prompt sample used ONLY as synthetic identity",
+        "inside": [
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          }
+        ],
+        "outside": [
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          }
+        ],
+        "averageExteriorDarkening": 57.66666666666666
+      },
+      "boundary": "Centered 60.4% × 29.4% transparent safe region; exterior dimming sampled against same actual sample image with guide off. No claim about native generated banner.",
+      "contextClosed": true
+    },
+    {
+      "name": "sources-layout-picker-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Two entirely synthetic Rival/scan/posting records; one linked to original channel here, one to a different original channel, solely in GET responses. No backend rivals or associations created.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-sources-layout-picker-reduce-populated-source.png",
+        "SYNTHETIC-390-sources-layout-picker-reduce-picker-shared-eligible.png"
+      ],
+      "fixtureIds": {
+        "target": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "other": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "here": "v38-synthetic-rival-here",
+        "elsewhere": "v38-synthetic-rival-elsewhere"
+      },
+      "mobileLayoutNote": "Mobile source layout is a separate 36px grid; 34px/two-row contract measured on desktop only.",
+      "mobileLayout": {
+        "width": 328,
+        "grid": "36px 224px 44px",
+        "avatarWidth": 36,
+        "avatarHeight": 36,
+        "scrollWidth": 328,
+        "clientWidth": 328
+      },
+      "openMotion": {
+        "reduced": true,
+        "animations": []
+      },
+      "dialogGeometry": {
+        "x": 0,
+        "y": 510.40625,
+        "width": 390,
+        "height": 333.59375,
+        "bottom": 844,
+        "scrollWidth": 390,
+        "clientWidth": 390,
+        "focusInside": true,
+        "bodyOverflow": "hidden"
+      },
+      "sheetMotion": {
+        "panelAnimation": "none",
+        "panelDuration": "0s",
+        "panelTransition": "1e-05s",
+        "scrimAnimation": "none",
+        "scrimDuration": "0s"
+      },
+      "boundary": "Only local checkbox selection, keyboard, Escape and outside/scrim dismissal. Never clicked Link N, follow, scan, make video or unlink.",
+      "contextClosed": true
+    },
+    {
+      "name": "old-avatar-continuity-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET identity overridden to avatar-generating with EXISTING native prompt sample as synthetic old avatar/banner; no job/progress/provider/completion fabricated.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-old-avatar-continuity-reduce-pending-existing-sample-visible.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "overlay": {
+        "width": 44,
+        "height": 44,
+        "x": 31,
+        "y": 711.875,
+        "parent": {
+          "x": 29,
+          "y": 709.875,
+          "width": 48,
+          "height": 48
+        },
+        "radius": "50%",
+        "opacity": "0.65",
+        "backgroundImage": "linear-gradient(100deg, rgb(239, 239, 242) 30%, rgb(248, 248, 250) 50%, rgb(239, 239, 242) 70%)",
+        "animation": "none",
+        "beforeAnimation": "none",
+        "afterAnimation": "none",
+        "reduced": true
+      },
+      "boundary": "Same loaded synthetic old-image node remains mounted under visible pending shimmer. Actual ready→generating→ready transition and native old media remain UNPROVEN.",
+      "contextClosed": true
+    },
+    {
+      "name": "banner-safe-area-reduce",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "motion": "reduce",
+      "proofClass": "SYNTHETIC_BROWSER_GET_FIXTURE",
+      "fixture": "Original channel GET ready identity with actual pre-existing same-origin prompt sample reused as clearly synthetic avatar/banner. Safe-area proof is component geometry/compositing, NOT generated channel branding.",
+      "status": "pass",
+      "screenshots": [
+        "SYNTHETIC-390-banner-safe-area-reduce-banner-safe-on.png",
+        "SYNTHETIC-390-banner-safe-area-reduce-banner-safe-off.png",
+        "SYNTHETIC-390-banner-safe-area-reduce-identity-full.png"
+      ],
+      "sample": {
+        "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+        "promptIds": [
+          "555963e3-047b-47aa-9c76-1dce258b1173"
+        ],
+        "dimensions": {
+          "width": 1920,
+          "height": 1080
+        }
+      },
+      "geometry": {
+        "width": 215.015625,
+        "height": 58.859375,
+        "x": 70.4921875,
+        "y": 70.6953125,
+        "bannerWidth": 356,
+        "bannerHeight": 200.25,
+        "background": "rgba(0, 0, 0, 0)",
+        "shadow": "rgba(11, 11, 13, 0.45) 0px 0px 0px 9999px",
+        "overflow": "hidden",
+        "objectFit": "cover"
+      },
+      "pixelProof": {
+        "source": "Screenshots of existing native prompt sample used ONLY as synthetic identity",
+        "inside": [
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          },
+          {
+            "max": 0,
+            "darkening": 0
+          }
+        ],
+        "outside": [
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          },
+          {
+            "max": 110,
+            "darkening": 57.666666666666664
+          }
+        ],
+        "averageExteriorDarkening": 57.66666666666666
+      },
+      "boundary": "Centered 60.4% × 29.4% transparent safe region; exterior dimming sampled against same actual sample image with guide off. No claim about native generated banner.",
+      "contextClosed": true
+    }
+  ],
+  "requests": [
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/WorkbenchDesktop-zjztfvqW.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/images-Dng3ibhY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/schemas-_m0uhI6l.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/Dialog-BsW1cEwZ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/DevelopEffect-CRAJ1hxK.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/ImageViewer-CSOU6TCR.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/imageView-B2Onztx3.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/workbench-actions-D5vcR_w7.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/rivals",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/f77ee06e-beba-4d7a-9e4b-68b52d8bfea9/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/f77ee06e-beba-4d7a-9e4b-68b52d8bfea9/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/4a994407-65ec-4fa2-9f09-4f41d9db54b5/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "native-read-only-inventory",
+      "method": "GET",
+      "path": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/4a994407-65ec-4fa2-9f09-4f41d9db54b5/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/scan",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/posting-slots",
+      "queryKeys": [
+        "zone"
+      ],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/chart-DV1PpyQ5.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/minus-bp5TUF_I.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/scan",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/posting-slots",
+      "queryKeys": [
+        "zone"
+      ],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/chart-DV1PpyQ5.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/minus-bp5TUF_I.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/setup/state",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/folder-CHIoXNO-.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/jetbrains-mono-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-down-2-D50BrLmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/add-square-DmF-wDQG.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/tick-b-BqDcZpy_.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/layer-dTAypynZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/arrow-up-DI3S8Tyk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/scan",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/posting-slots",
+      "queryKeys": [
+        "zone"
+      ],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/api/rivals",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-no-preference",
+      "method": "GET",
+      "path": "/assets/minus-bp5TUF_I.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-no-preference",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-no-preference",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/scan",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals/v38-synthetic-rival-here/posting-slots",
+      "queryKeys": [
+        "zone"
+      ],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/api/rivals",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "sources-layout-picker-reduce",
+      "method": "GET",
+      "path": "/assets/minus-bp5TUF_I.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "old-avatar-continuity-reduce",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-400.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-600.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/index-11Sz9xJl.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/app-styles-Ef6haLqa.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/client-C6W0x1Ca.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/icons/favicon.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/me",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/events",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ChannelScreen-jwydXa4J.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/templateLine-BxDiVGgx.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/autonomy-BPWH6cxY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/shared-controls-BbEbc0UY.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ScreenEmpty-9dezwrl8.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/responsive-overlays-BQlhoolE.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Selects-DMetSnFF.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/channelVideos-C7I-y3hG.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/sheets-ueVtUY1L.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/AddRivalForm-y3SXrIRd.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/fmt-BulBpXoa.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Banner-VqKumsJP.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/TemplateArtwork-n2J0DyYw.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/Segmented-DYXphSYz.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/confirm-l3ugnpTS.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/ai-DOx36rrQ.js",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/stylex-full-DfQBGTsl.css",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/queue",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/activity",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/notifications/settings",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/workbench-C8dvxkhe.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/channel-b-RgSYqI3b.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-500.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/status",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/channels/summary",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/fonts/be-vietnam-pro-700.woff2",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/owner-channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "queryKeys": [],
+      "action": "SYNTHETIC_GET_OVERRIDE"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/clone",
+      "queryKeys": [
+        "channel"
+      ],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/video-add-fpEAdCmk.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/link-BE6Gc9Rv.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/refresh-8urF4N3U.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/edit-C0UloT39.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/download-DRktVyhu.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/magic-B84lK2wZ.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/setting-8SswWu69.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/clock-D_hdi6nR.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/assets/msg-DCJP7pMr.svg",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/ai/agents",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    },
+    {
+      "scope": "banner-safe-area-reduce",
+      "method": "GET",
+      "path": "/api/ai/providers",
+      "queryKeys": [],
+      "action": "NATIVE_GET_CONTINUED"
+    }
+  ],
+  "fixtureDefinitions": [
+    {
+      "kind": "sources",
+      "description": "Entirely synthetic Rival, scan, posting and source-association GET objects; originals kept only as owner channel route anchors."
+    },
+    {
+      "kind": "identity",
+      "description": "Actual native prompt sample URL discovered/GET-checked/decoded during this run, reused as synthetic old avatar/banner; generating state GET-only with no fake job/activity."
+    }
+  ],
+  "sampleInventory": [
+    {
+      "rawUrl": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "promptIds": [
+        "555963e3-047b-47aa-9c76-1dce258b1173"
+      ],
+      "proofClass": "EXISTING_NATIVE_PROMPT_SAMPLE_INVENTORY",
+      "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+      "get": {
+        "status": 200,
+        "contentType": "image/webp",
+        "contentDisposition": "inline; filename=\"download\"",
+        "bytes": 130
+      },
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "EXISTING_SAME_ORIGIN_IMAGE_GET_AND_DECODE_OK"
+    },
+    {
+      "rawUrl": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/f77ee06e-beba-4d7a-9e4b-68b52d8bfea9/image",
+      "promptIds": [
+        "555963e3-047b-47aa-9c76-1dce258b1173"
+      ],
+      "proofClass": "EXISTING_NATIVE_PROMPT_SAMPLE_INVENTORY",
+      "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/f77ee06e-beba-4d7a-9e4b-68b52d8bfea9/image",
+      "get": {
+        "status": 200,
+        "contentType": "image/webp",
+        "contentDisposition": "inline; filename=\"download\"",
+        "bytes": 130
+      },
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "EXISTING_SAME_ORIGIN_IMAGE_GET_AND_DECODE_OK"
+    },
+    {
+      "rawUrl": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "promptIds": [
+        "11d073f4-c756-4f6d-a5ab-8e73a7e02ac5"
+      ],
+      "proofClass": "EXISTING_NATIVE_PROMPT_SAMPLE_INVENTORY",
+      "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/ead6be13-0e2b-499d-8209-250179be9b13/image",
+      "get": {
+        "status": 200,
+        "contentType": "image/webp",
+        "contentDisposition": "inline; filename=\"download\"",
+        "bytes": 130
+      },
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "EXISTING_SAME_ORIGIN_IMAGE_GET_AND_DECODE_OK"
+    },
+    {
+      "rawUrl": "/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/4a994407-65ec-4fa2-9f09-4f41d9db54b5/image",
+      "promptIds": [
+        "11d073f4-c756-4f6d-a5ab-8e73a7e02ac5"
+      ],
+      "proofClass": "EXISTING_NATIVE_PROMPT_SAMPLE_INVENTORY",
+      "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/11d073f4-c756-4f6d-a5ab-8e73a7e02ac5/samples/4a994407-65ec-4fa2-9f09-4f41d9db54b5/image",
+      "get": {
+        "status": 200,
+        "contentType": "image/webp",
+        "contentDisposition": "inline; filename=\"download\"",
+        "bytes": 130
+      },
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "status": "EXISTING_SAME_ORIGIN_IMAGE_GET_AND_DECODE_OK"
+    }
+  ],
+  "unsupported": [],
+  "unproven": [
+    "Native followed rivals, native source associations and native generated avatar/banner remain unproven; prior native inventory had none.",
+    "Successful link/unlink/follow/create/default-template save, successful brief persistence and reload after actual mutation are not exercised.",
+    "Real paid generation/admission, provider activity/progress, old-to-new completion, failed generation and backend identity persistence are not exercised.",
+    "Existing prompt samples are reused as clearly synthetic identity images, NOT native generated channel identity or newly created output.",
+    "No download, external navigation, real mutation, production write or deployment is permitted.",
+    "This companion does not rerun brief PATCH failure cases or template artwork acceptance. Existing native controller owns those; pending feedback must target span[aria-live=\"polite\"], not duplicate tooltip text.",
+    "Finite interaction windows only: request absence is not a claim about arbitrary future background behavior."
+  ],
+  "startedAt": "2026-11-05T04:25:09.835Z",
+  "nativeInventory": {
+    "proofClass": "NATIVE_READ_ONLY_GET_INVENTORY_NOT_UI_ACCEPTANCE",
+    "channels": [
+      {
+        "id": "78799ed0-57fa-4cff-ab00-509bdc65e5da",
+        "sourceIds": [],
+        "identity": {
+          "state": "ready"
+        },
+        "hasAvatar": false,
+        "hasBanner": false
+      },
+      {
+        "id": "98ae68b2-813e-427a-8238-8eb0e86de231",
+        "sourceIds": [],
+        "identity": {
+          "state": "ready"
+        },
+        "hasAvatar": false,
+        "hasBanner": false
+      },
+      {
+        "id": "c76cc725-0e9d-43fd-98d1-4d55412510e8",
+        "sourceIds": [],
+        "identity": {
+          "state": "ready"
+        },
+        "hasAvatar": false,
+        "hasBanner": false
+      }
+    ],
+    "rivalCount": 0,
+    "promptCount": 9
+  },
+  "selectedSample": {
+    "url": "/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+    "absoluteUrl": "http://127.0.0.1:8043/api/image-prompts/555963e3-047b-47aa-9c76-1dce258b1173/samples/9ea695ba-22aa-4b32-88c2-18e54d7d1cc0/image",
+    "promptIds": [
+      "555963e3-047b-47aa-9c76-1dce258b1173"
+    ],
+    "dimensions": {
+      "width": 1920,
+      "height": 1080
+    }
+  },
+  "inventoryContextClosed": true,
+  "safety": {
+    "allNonGETAbortedBeforeNetworking": true,
+    "nonGETRequestsContinued": 0,
+    "externalRequestsContinued": 0,
+    "downloadsClicked": 0,
+    "unexpectedEvents": [],
+    "requestFence": "All browser HTTP requests routed; no APIRequestContext; WebSocket connections closed before connectToServer; browser downloads refused/cancelled as defense in depth."
+  },
+  "browserClosed": true,
+  "finishedAt": "2026-11-05T04:25:33.682Z"
+}

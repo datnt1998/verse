@@ -12,10 +12,11 @@ import (
 func TestTransitionNotificationDetails(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	store := postgres.NewCloneStore(pool)
 	var a, b string
 	for i, p := range []*string{&a, &b} {
-		if err := pool.QueryRow(ctx, `INSERT INTO owner_channels(id,name) VALUES(gen_random_uuid(),$1) RETURNING id::text`, fmt.Sprintf("Kênh %d", i+1)).Scan(p); err != nil {
+		if err := pool.QueryRow(ctx, `INSERT INTO owner_channels(id,name,default_template_id) VALUES(gen_random_uuid(),$1,'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') RETURNING id::text`, fmt.Sprintf("Kênh %d", i+1)).Scan(p); err != nil {
 			t.Fatal(err)
 		}
 	}

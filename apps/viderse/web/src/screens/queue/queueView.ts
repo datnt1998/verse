@@ -53,7 +53,6 @@ export function waitLine(item: QueueQueuedItem, paused: boolean): string {
     case 'workers_busy': return tt.reasons.workersBusy
     case 'paused_channel': return tt.reasons.channelPaused
     case 'pace_full': return tt.reasons.paceFull
-    case 'no_template': return tt.reasons.waitFix
     case 'rotation': return tt.reasons.rotation
     default: return item.waitReason || (item.priority === 'pick' ? tt.reasons.pick : '')
   }

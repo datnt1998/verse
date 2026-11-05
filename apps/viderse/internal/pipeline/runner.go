@@ -52,7 +52,7 @@ type Store interface {
 	SetJobStatus(ctx context.Context, jobID string, status domain.CloneStatus) error
 }
 
-// AutoFixer là Mức tự chủ của kênh nhìn từ runner: step vừa hỏng hẳn có được
+// AutoFixer là chính sách tự sửa cố định nhìn từ runner: step vừa hỏng hẳn có được
 // tự thử lại một lần không, và attempt nào đã xong thì đánh dấu đã phục hồi.
 type AutoFixer interface {
 	AutoFix(ctx context.Context, jobID string, step domain.CloneStep, cerr *domain.CloneError) bool
@@ -90,7 +90,7 @@ type Runner struct {
 	ResolveInput StepInputResolver
 	Queue        QueueDrain
 	OnHumanState func(context.Context, *domain.CloneJob, string)
-	// AutoFix nil → không tự thử lại (Mức tự chủ không áp dụng).
+	// AutoFix nil → không tự thử lại.
 	AutoFix    AutoFixer
 	progressMu sync.Mutex
 	progressAt map[string]time.Time

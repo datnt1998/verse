@@ -31,6 +31,7 @@ export interface ReviewItemView {
   narration?: string
   direction?: string
   score?: unknown
+  scoreIssue?: string
   referenceUrl?: string
   reference?: string
   startSec?: number
@@ -73,6 +74,8 @@ function legacyVersion(item: ReviewImage): ImageVersion[] {
     durationSec: null,
     costImages: 0,
     error: null,
+    score: version?.scoreIssue ? undefined : version?.score,
+    scoreIssue: version?.scoreIssue,
   }]
 }
 
@@ -99,7 +102,8 @@ export function toReviewItems(
           approved: extra.approved ?? old?.status === 'approved',
           narration: extra.narration ?? old?.narration,
           direction: extra.direction ?? old?.direction,
-          score: extra.score ?? old?.score,
+          score: image.scoreIssue || old?.scoreIssue ? undefined : extra.score ?? old?.score,
+          scoreIssue: image.scoreIssue ?? old?.scoreIssue,
           referenceUrl: extra.referenceUrl ?? old?.referenceUrl,
           reference: extra.reference ?? old?.reference,
           startSec: extra.startSec ?? old?.startSec,
@@ -122,7 +126,8 @@ export function toReviewItems(
     approved: item.status === 'approved',
     narration: item.narration,
     direction: item.direction,
-    score: item.score,
+    score: item.scoreIssue ? undefined : item.score,
+    scoreIssue: item.scoreIssue,
     referenceUrl: item.referenceUrl,
     reference: item.reference,
     startSec: item.startSec,

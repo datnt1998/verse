@@ -78,6 +78,7 @@ export const setup = {
   },
   actions: {
     retry: 'Thử lại',
+    retryFailed: 'Chưa thử lại được. Bấm Thử lại để gửi lại yêu cầu.',
     loginGhost: 'Đăng nhập ngay',
     loginPrimary: 'Đăng nhập ChatGPT',
     cancelLogin: 'Huỷ',

@@ -96,7 +96,7 @@ type MobileSelectProps = SolidSelectProps & {
 function MobileSelect({ mobile, onBusy, chip = false, custom, size = 'sm', label, ...props }: MobileSelectProps) {
   const {
     options, value, onChange, id: suppliedId, name, 'aria-label': ariaLabel, placeholder, disabled, error,
-    inlineDescription, footer, defaultOpen = false, autoFocus, icon, variant, xstyle, triggerStyle,
+    inlineDescription, optionDescriptions, footer, defaultOpen = false, autoFocus, icon, variant, xstyle, triggerStyle,
     chevronSize, prefix, valueStyle, style,
   } = props
   const uid = useId()
@@ -199,7 +199,7 @@ function MobileSelect({ mobile, onBusy, chip = false, custom, size = 'sm', label
           const on = option.value === value
           const row = stylex.props(sx.row, on && sx.rowOn, option.disabled && sx.rowDisabled)
           const showMeta = option.meta != null || option.code != null
-          const description = option.description && (inlineDescription || variant === 'project-role') ? option.description : null
+          const description = option.description && (inlineDescription || optionDescriptions || variant === 'project-role') ? option.description : null
           return <div key={option.value}>
             {option.group && (index === 0 || options[index - 1].group !== option.group) && <span className={stylex.props(sx.groupLabel).className}>{option.group}</span>}
             <button

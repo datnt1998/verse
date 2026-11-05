@@ -56,6 +56,11 @@ func recordBlockedViaStore(store platforms.StateStore, now func() time.Time) fun
 	}
 }
 
+// sharedYouTubePacer là bộ điều tốc YouTube của cả tiến trình: quét đối thủ và
+// kiểm tra link xếp hàng qua nó. (Trước đây còn phục vụ bộ đọc số liệu sau đăng
+// đã bỏ ở V38.)
+var sharedYouTubePacer = youtube.NewPacer()
+
 // scanServiceDeps dựng phần phụ thuộc bền của luồng quét, dùng chung cho CLI và
 // serve. Đây là điểm duy nhất biết youtube client, ScanStore và cổng nền tảng.
 func scanServiceDeps(pool *pgxpool.Pool, settings *postgres.SettingsStore, activities *activity.Service) scan.Deps {

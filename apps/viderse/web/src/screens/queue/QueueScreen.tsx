@@ -107,7 +107,7 @@ export function QueueScreen() {
   const state = view ? viewState(view) : 'empty'
   const quota = view ? quotaLine(view.imageQuota) : null
   const pausedTime = view?.pausedAt ? fmtEta(view.pausedAt) : null
-  const autoPickNames = (channelsRes.data?.channels ?? []).filter((c) => c.autoPick).map((c) => c.name)
+  const autoFetchNames = (channelsRes.data?.channels ?? []).filter((c) => c.autoFetch).map((c) => c.name)
 
   const pauseBtn = view && (
     <ActionButton
@@ -189,7 +189,6 @@ export function QueueScreen() {
       </span>
       <span className={`vq-tpl ${stylex.props(styles["vq-tpl"]).className}`} role="cell">
         <span className={`vq-tpl__name ${stylex.props(styles["vq-tpl__name"]).className}`}>{item.templateName || '—'}</span>
-        {item.waitReason === 'no_template' && <span className={`vq-tpl__warn ${stylex.props(styles["vq-tpl__warn"]).className}`} title={tt.reasons.waitFix}>{tt.tplFix}</span>}
       </span>
       <span role="cell" className={`vq-start ${stylex.props(styles["vq-start"]).className}`}>
         <span className={`num vq-start__eta ${stylex.props(styles["vq-start__eta"]).className}`}>{view?.paused ? '—' : fmtEta(item.etaStart)}</span>
@@ -368,7 +367,7 @@ export function QueueScreen() {
                 {shown.map((item, i) => qrow(item, i + 1))}
                 {shown.length === 0 && <div className={`vq-norows ${stylex.props(styles["vq-norows"]).className}`}>{tt.noRows}</div>}
                 <div className={`vq-foot ${stylex.props(styles["vq-foot"]).className}`}>
-                  <span>{autoPickNames.length > 0 ? tt.autoPickNote(autoPickNames.join(' · ')) : tt.autoPickOff}</span>
+                  <span>{autoFetchNames.length > 0 ? tt.autoFetchNote(autoFetchNames.join(' · ')) : tt.autoFetchOff}</span>
                 </div>
               </div>
             </section>
@@ -405,7 +404,6 @@ export function QueueScreen() {
 function waitSkip(reason: string): string {
   switch (reason) {
     case 'pace_full': return t.screens.queue.reasons.paceFull
-    case 'no_template': return t.screens.queue.reasons.waitFix
     case 'paused_channel': return t.screens.queue.reasons.channelPaused
     case 'workers_busy': return t.screens.queue.reasons.workersBusy
     default: return t.screens.queue.reasons.rotation

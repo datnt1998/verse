@@ -57,9 +57,9 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
     () => (channelList.data?.channels ?? []).map((channel) => ({
       id: channel.id,
       name: channel.name || t.channels.page.noName,
-      pacePerDay: channel.pacePerDay,
+      perDay: channel.perDay,
       sources: channel.sources,
-      templateName: channel.templates?.[channel.templateCursor % channel.templates.length]?.name,
+      templateName: channel.defaultTemplateName,
     })),
     [channelList.data],
   )
@@ -564,7 +564,7 @@ export function MExploreScreen({ route }: { route: ExploreRoute }) {
             {tt.bulkMakeFor(selectedVideos.length, firstChannel?.name ?? tt.notLinked)}
           </Button>
           <span {...stylex.props(mStyles.barHint)}>
-            {firstChannel ? tt.selectBarHint(firstChannel.pacePerDay) : tt.selectBarHintNoChannel}
+            {firstChannel ? tt.selectBarHint(firstChannel.perDay) : tt.selectBarHintNoChannel}
           </span>
         </div>
       )}

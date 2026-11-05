@@ -43,7 +43,6 @@ type Lane struct {
 	UsedToday     int
 	LastStart     time.Time // started_at mới nhất của kênh (0 = chưa chạy → đi trước)
 	LastSequence  int64     // job.created_at mới nhất, chống hoà
-	TemplateOK    bool
 	PausedChannel bool // Tự lấy tắt → chỉ khoá mục batch origin=auto
 }
 
@@ -322,8 +321,6 @@ func Estimate(lanes []Lane, in EstimateInput) map[string]ETA {
 			switch {
 			case in.Paused:
 				reason = "queue_paused"
-			case !lane.TemplateOK:
-				reason = "no_template"
 			case lane.PausedChannel && item.Priority != "pick":
 				reason = "paused_channel"
 			}

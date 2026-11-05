@@ -11,7 +11,10 @@ import (
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 )
 
-// RestartPlan uses the same template rotation and queue simulation as admission.
+// RestartPlan previews a re-run of an old job using the OLD JOB's template
+// (explicit override), not the channel's current default: restart must not
+// silently switch source of truth. The old job's template can never have been
+// deleted (FK RESTRICT), so a missing one is a hard error.
 func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domain.CloneRestartPlan, error) {
 	var status string
 	var superseded, lease *time.Time
@@ -33,18 +36,10 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 	if owner == nil {
 		return nil, notFound("Kênh không tồn tại")
 	}
-	templates, err := s.store.RotationTemplates(ctx, *owner)
+	tpl, err := s.restartTemplate(ctx, s.store, owner.ID, job)
 	if err != nil {
 		return nil, err
 	}
-	if len(templates) == 0 {
-		return nil, invalid("Kênh chưa có template")
-	}
-	cursor := owner.TemplateCursor % len(templates)
-	if cursor < 0 {
-		cursor = 0
-	}
-	tpl := templates[cursor]
 	raw, err := s.store.TemplateRecipe(ctx, tpl.ID)
 	if err != nil {
 		return nil, err
@@ -54,7 +49,7 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 	if json.Unmarshal(raw, &recipe) == nil {
 		imageEstimate, _ = estimateImages(&recipe, job.Source.DurationSec, job.NoImages)
 	}
-	lanes, _, _, _, err := s.loadLanes(ctx)
+	lanes, _, _, _, _, err := s.loadLanes(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +66,7 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 		}
 	}
 	if index < 0 {
-		lanes = append(lanes, Lane{ChannelID: job.ChannelID, Pace: owner.PacePerDay, TemplateOK: true})
+		lanes = append(lanes, Lane{ChannelID: job.ChannelID, Pace: owner.PerDay})
 		index = len(lanes) - 1
 	}
 	seconds := int64(0)
@@ -93,7 +88,38 @@ func (s *Service) RestartPlan(ctx context.Context, job *domain.CloneJob) (*domai
 		return nil, err
 	}
 	eta := Estimate(lanes, EstimateInput{Now: s.d.Now(), Workers: rules.Workers, Basis: basis, Active: activeETA(active), Paused: rules.Paused})[id]
-	return &domain.CloneRestartPlan{Template: domain.ClonePlanTemplate{ID: tpl.ID, Name: tpl.Name, FromRotation: true}, ImageEstimate: imageEstimate, Position: "front", ETAStart: eta.Start}, nil
+	return &domain.CloneRestartPlan{Template: domain.ClonePlanTemplate{ID: tpl.ID, Name: tpl.Name}, ImageEstimate: imageEstimate, Position: "front", ETAStart: eta.Start}, nil
+}
+
+// restartTemplate trả template của bản làm lại: template của job cũ nếu còn;
+// job legacy thiếu template_id (chỉ dữ liệu trước V38) thì lấy default hiện tại
+// và nói rõ nguồn. Job cũ mất template là bất khả thi (FK RESTRICT) → lỗi rõ,
+// không fallback im lặng.
+func (s *Service) restartTemplate(ctx context.Context, repo restartReader, channelID string, job *domain.CloneJob) (*domain.ChannelTemplate, error) {
+	if job.TemplateID != "" {
+		tpl, err := repo.TemplateInfo(ctx, job.TemplateID)
+		if err != nil {
+			return nil, err
+		}
+		if tpl == nil {
+			return nil, invalid("Template của bản làm lại không còn tồn tại")
+		}
+		return tpl, nil
+	}
+	tpl, err := repo.DefaultTemplate(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+	if tpl == nil {
+		return nil, invalid("Kênh chưa có template mặc định")
+	}
+	return tpl, nil
+}
+
+// restartReader là phần store RestartPlan/EnqueueRestart cần.
+type restartReader interface {
+	TemplateInfo(context.Context, string) (*domain.ChannelTemplate, error)
+	DefaultTemplate(context.Context, string) (*domain.ChannelTemplate, error)
 }
 
 // EnqueueRestart reserves a regular pick at the head, leaving the old job
@@ -130,18 +156,11 @@ func (s *Service) EnqueueRestart(ctx context.Context, job *domain.CloneJob) (*do
 	if owner == nil {
 		return nil, notFound("Kênh không tồn tại")
 	}
-	templates, err := repo.RotationTemplates(ctx, *owner)
+	tpl, err := s.restartTemplate(ctx, repo, owner.ID, job)
 	if err != nil {
 		return nil, err
 	}
-	if len(templates) == 0 {
-		return nil, invalid("Kênh chưa có template")
-	}
-	cursor := owner.TemplateCursor % len(templates)
-	if cursor < 0 {
-		cursor = 0
-	}
-	templateID := templates[cursor].ID
+	templateID := tpl.ID
 	queued, err := repo.ListQueuedItems(ctx)
 	if err != nil {
 		return nil, err

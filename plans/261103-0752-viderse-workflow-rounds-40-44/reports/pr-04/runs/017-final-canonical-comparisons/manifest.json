@@ -1,0 +1,4081 @@
+{
+  "sourceCommit": "7daef5fc7a453c9f277ba7e895c76f7100379222",
+  "status": "VISUAL_REVIEW_PENDING",
+  "referenceRun": "002-completed-canonical-reference",
+  "rows": [
+    {
+      "referenceId": "Template.section.images",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-images-composition-and-prompt-full.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-images-composition-and-prompt-cutout.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-images-composition-and-prompt-close.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-images-composition-and-prompt.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-images-composition-and-prompt"
+        },
+        {
+          "file": "native/1440-template-images.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.section.images.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.section.cover",
+      "props": {
+        "section": "cover",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-cover-ready-confirm-cancel-confirm.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-cover-ready-confirm-cancel"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-cover-ready-confirm-cancel.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-cover-ready-confirm-cancel"
+        },
+        {
+          "file": "native/1440-template-cover.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.section.cover.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.section.backdrop",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-healthy.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-healthy"
+        },
+        {
+          "file": "native/1440-template-backdrop.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.section.backdrop.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.section.output",
+      "props": {
+        "section": "output",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-output-compress-and-default-route-original.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-output-compress-and-default-route-compressed.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-output-compress-and-default-route-default-picker.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-output-compress-and-default-route.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-output-compress-and-default-route"
+        },
+        {
+          "file": "native/1440-template-output.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.section.output.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.preview.fresh",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-fresh-locked.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-fresh-locked"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.preview.fresh.png",
+      "selectedCase": "synthetic-1440-preview-fresh-locked",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.preview.stale",
+      "props": {
+        "section": "images",
+        "preview": "stale",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-stale-error-retry-server-error.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-stale-error-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-stale-error-retry.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-stale-error-retry"
+        },
+        {
+          "file": "app-candidates/Template.preview.stale--2.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "synthetic-1440-cached-fresh-old-revision",
+          "claim": "Synthetic accepted PATCH increments revision and stale replaces cached fresh; no generated media or backend persistence."
+        },
+        {
+          "file": "app-candidates/Template.preview.stale--3.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "review-pc-unsaved-build-guard",
+          "claim": "Unsaved draft locks rebuild; build never submitted."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.preview.stale.png",
+      "selectedCase": "synthetic-1440-preview-stale-error-retry",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.preview.building",
+      "props": {
+        "section": "images",
+        "preview": "building",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-building-cancel-rejection-building.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-building-cancel-rejection"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-building-cancel-rejection-cancel-rejected.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-building-cancel-rejection"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-building-cancel-rejection.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-building-cancel-rejection"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.preview.building.png",
+      "selectedCase": "synthetic-1440-preview-building-cancel-rejection",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.fewClips.false",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-healthy.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-healthy"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.fewClips.false.png",
+      "selectedCase": "synthetic-1440-backdrop-healthy",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.fewClips.true",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": true,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-few.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-few"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.fewClips.true.png",
+      "selectedCase": "synthetic-1440-backdrop-few",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.picker.none",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-preview-fresh-locked.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-preview-fresh-locked"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.picker.none.png",
+      "selectedCase": "synthetic-1440-preview-fresh-locked",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.picker.add",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Template.picker.add--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-backdrop-picker-wrapper",
+          "claim": "Actual empty-source backdrop picker wrapper, Escape/scrim/focus trap; no attach submission; canonical context images differs from implementation backdrop."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.picker.add.png",
+      "selectedCase": "native-1440-backdrop-picker-wrapper",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-Template.picker.add.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Template.picker.choose",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-choose-empty.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-choose.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-video.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.picker.choose.png",
+      "selectedCase": "synthetic-1440-backdrop-picker-choose-video",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Template.picker.video",
+      "props": {
+        "section": "images",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-choose-empty.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-choose.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video-video.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-backdrop-picker-choose-video.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-backdrop-picker-choose-video"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Template.picker.video.png",
+      "selectedCase": "synthetic-1440-backdrop-picker-choose-video",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.tab.templates",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-library-templates.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Library.tab.templates--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-templates",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.tab.templates.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.tab.prompts",
+      "props": {
+        "tab": "prompts",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-library-prompts.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Library.tab.prompts--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-prompts",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.tab.prompts.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.tab.backdrops",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-library-backdrops.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Library.tab.backdrops--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-backdrops",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.tab.backdrops.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.tab.overlays",
+      "props": {
+        "tab": "overlays",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-library-overlays.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Library.tab.overlays--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-overlays",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.tab.overlays.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.prompt.list",
+      "props": {
+        "tab": "prompts",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Library.prompt.list--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-prompts",
+          "claim": "Actual prompt list tab capture and genuine prompt sample binding; editor modes are independent values."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.prompt.list.png",
+      "selectedCase": "native-1440-tab-prompts",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-Library.prompt.list.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Library.prompt.mine",
+      "props": {
+        "tab": "prompts",
+        "prompt": "mine",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-prompt-mine.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-prompt-mine"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.prompt.mine.png",
+      "selectedCase": "native-1440-prompt-mine",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.prompt.builtin",
+      "props": {
+        "tab": "prompts",
+        "prompt": "builtin",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-prompt-builtin.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-prompt-builtin"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.prompt.builtin.png",
+      "selectedCase": "native-1440-prompt-builtin",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.prompt.new",
+      "props": {
+        "tab": "prompts",
+        "prompt": "new",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Library.prompt.new--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-new-and-missing-prompt",
+          "claim": "New prompt opens empty, no create; missing prompt has no first-item fallback."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.prompt.new.png",
+      "selectedCase": "native-1440-new-and-missing-prompt",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-Library.prompt.new.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Library.menu.false",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-library-menu-open.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-library-menu"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-library-menu.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-library-menu"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.menu.false.png",
+      "selectedCase": "native-1440-library-menu",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.menu.true",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": true,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-library-menu-open.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-library-menu"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-library-menu.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-library-menu"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.menu.true.png",
+      "selectedCase": "native-1440-library-menu",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.nguon.channels",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing-channels.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing-videos.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.nguon.channels.png",
+      "selectedCase": "synthetic-1440-library-source-channel-video-routing",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.nguon.videos",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "videos",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing-channels.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing-videos.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-channel-video-routing.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-channel-video-routing"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.nguon.videos.png",
+      "selectedCase": "synthetic-1440-library-source-channel-video-routing",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.nguon.adding",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "adding",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-adding-rejection-adding.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-adding-rejection"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-library-source-adding-rejection.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-library-source-adding-rejection"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.nguon.adding.png",
+      "selectedCase": "synthetic-1440-library-source-adding-rejection",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.nguon.addvideo",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "addvideo",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-library-addvideo.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-library-addvideo"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-library-addvideo.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-library-addvideo"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.nguon.addvideo.png",
+      "selectedCase": "fixture-1440-library-addvideo",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.nguon.unsupported",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "unsupported",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-source-unsupported.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-source-unsupported"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.nguon.unsupported.png",
+      "selectedCase": "fixture-1440-source-unsupported",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-Library.nguon.unsupported.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Library.import.none",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Library.import.none--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-1440-tab-templates",
+          "claim": "Native templates default screen captured without opening import; absence is source-bound default, not a dedicated absence assertion."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.none.png",
+      "selectedCase": "native-1440-tab-templates",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-Library.import.none.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Library.import.ready",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "ready",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-ready.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-drag.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.ready.png",
+      "selectedCase": "native-1440-import-ready-drag-zip-guard",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.drag",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "drag",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-ready.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-drag.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.drag.png",
+      "selectedCase": "native-1440-import-ready-drag-zip-guard",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.importing",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "importing",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry-pending.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry-offline.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.importing.png",
+      "selectedCase": "synthetic-1440-import-pending-offline-retry",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.done",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "done",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-import-done.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-import-done"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-import-done.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-import-done"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.done.png",
+      "selectedCase": "fixture-1440-import-done",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.partial",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "partial",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-import-partial.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-import-partial"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-import-partial.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-import-partial"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.partial.png",
+      "selectedCase": "fixture-1440-import-partial",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.zip",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "zip",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-ready.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard-drag.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-1440-import-ready-drag-zip-guard.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-1440-import-ready-drag-zip-guard"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.zip.png",
+      "selectedCase": "native-1440-import-ready-drag-zip-guard",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.import.offline",
+      "props": {
+        "tab": "templates",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "offline",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry-pending.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry-offline.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-1440-import-pending-offline-retry.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-1440-import-pending-offline-retry"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.import.offline.png",
+      "selectedCase": "synthetic-1440-import-pending-offline-retry",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.kenh.slowroads",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "slowroads"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-slowroads.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-channel-slowroads"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-slowroads.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-channel-slowroads"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.kenh.slowroads.png",
+      "selectedCase": "fixture-1440-channel-slowroads",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.kenh.nightdrivefm",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "nightdrivefm"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-nightdrivefm.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-channel-nightdrivefm"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-nightdrivefm.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-channel-nightdrivefm"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.kenh.nightdrivefm.png",
+      "selectedCase": "fixture-1440-channel-nightdrivefm",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.kenh.bilibili",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "bilibili"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-bilibili.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-channel-bilibili"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-bilibili.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-channel-bilibili"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.kenh.bilibili.png",
+      "selectedCase": "fixture-1440-channel-bilibili",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Library.kenh.lofilanes",
+      "props": {
+        "tab": "backdrops",
+        "prompt": "list",
+        "menu": false,
+        "nguon": "channels",
+        "import": "none",
+        "kenh": "lofilanes"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-lofilanes.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-1440-channel-lofilanes"
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-1440-channel-lofilanes.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-1440-channel-lofilanes"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Library.kenh.lofilanes.png",
+      "selectedCase": "fixture-1440-channel-lofilanes",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.tab.sources",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-channel-MT-sources.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Channel.tab.sources--1.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.tab.sources.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.tab.templates",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-channel-MT-templates.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Channel.tab.templates--1.png",
+          "proof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+          "case": "template-native-card-menu-and-images-route"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.tab.templates.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.tab.settings",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "native/1440-channel-MT-settings.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/Channel.tab.settings--1.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "banner-safe-area-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.tab.settings.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.channel.MT",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-owner-MT-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-owner-MT"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.channel.MT.png",
+      "selectedCase": "channel-owner-MT",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.channel.CL",
+      "props": {
+        "tab": "sources",
+        "channel": "CL",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-owner-CL-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-owner-CL"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.channel.CL.png",
+      "selectedCase": "channel-owner-CL",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.channel.QH",
+      "props": {
+        "tab": "sources",
+        "channel": "QH",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-owner-QH-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-owner-QH"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.channel.QH.png",
+      "selectedCase": "channel-owner-QH",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.autoApprove.false",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-baseline-baseline.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-baseline"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.autoApprove.false.png",
+      "selectedCase": "channel-baseline",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.autoApprove.true",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": true,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-fresh-fresh.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-fresh"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.autoApprove.true.png",
+      "selectedCase": "channel-fresh",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.tplMenu.false",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Channel.tplMenu.false--0.png",
+          "proof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+          "case": "template-native-card-menu-and-images-route"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.tplMenu.false.png",
+      "selectedCase": "template-native-card-menu-and-images-route",
+      "selectedProof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+      "selectedApp": "app-Channel.tplMenu.false.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Channel.tplMenu.true",
+      "props": {
+        "tab": "templates",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": true,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Channel.tplMenu.true--0.png",
+          "proof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+          "case": "template-native-card-menu-and-images-route"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.tplMenu.true.png",
+      "selectedCase": "template-native-card-menu-and-images-route",
+      "selectedProof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+      "selectedApp": "app-Channel.tplMenu.true.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Channel.identity.ready",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Channel.identity.ready--0.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "banner-safe-area-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.identity.ready.png",
+      "selectedCase": "banner-safe-area-no-preference",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-Channel.identity.ready.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Channel.identity.generating",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "generating",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-identity-generating-generating.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-generating"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.identity.generating.png",
+      "selectedCase": "channel-identity-generating",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.identity.failed",
+      "props": {
+        "tab": "settings",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "failed",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-identity-failed-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-identity-failed-retry-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.identity.failed.png",
+      "selectedCase": "channel-identity-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.link.none",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Channel.link.none--0.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.link.none.png",
+      "selectedCase": "sources-layout-picker-no-preference",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-Channel.link.none.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Channel.link.picker",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "picker",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/Channel.link.picker--0.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.link.picker.png",
+      "selectedCase": "sources-layout-picker-no-preference",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-Channel.link.picker.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "Channel.link.empty",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "empty",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-empty-source-empty-source.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-empty-source"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-empty-source-empty-link-picker.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-empty-source"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.link.empty.png",
+      "selectedCase": "channel-empty-source",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.fresh.false",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": false
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-baseline-baseline.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-baseline"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.fresh.false.png",
+      "selectedCase": "channel-baseline",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Channel.fresh.true",
+      "props": {
+        "tab": "sources",
+        "channel": "MT",
+        "autoApprove": false,
+        "tplMenu": false,
+        "identity": "ready",
+        "link": "none",
+        "fresh": true
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-channel-fresh-fresh.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-fresh"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Channel.fresh.true.png",
+      "selectedCase": "channel-fresh",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.step.create",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-custom-settings-custom-settings.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-custom-settings"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-custom-settings-custom-settings-fenced-feedback.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-custom-settings"
+        },
+        {
+          "file": "native/1440-create-channel.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.step.create.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.step.done",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-submit-error-then-created-create-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-submit-error-then-created-created-route.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.step.done.png",
+      "selectedCase": "createchannel-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.some",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.rivals.some.png",
+      "selectedCase": "createchannel-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.none",
+      "props": {
+        "step": "create",
+        "rivals": "none",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-none-selected-none-selected.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-none-selected"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.rivals.none.png",
+      "selectedCase": "createchannel-none-selected",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.rivals.empty",
+      "props": {
+        "step": "create",
+        "rivals": "empty",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-empty-empty.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-empty"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.rivals.empty.png",
+      "selectedCase": "createchannel-empty",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.tplMenu.false",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.tplMenu.false.png",
+      "selectedCase": "createchannel-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.tplMenu.true",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": true,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-template-menu-template-menu.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-template-menu"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.tplMenu.true.png",
+      "selectedCase": "createchannel-template-menu",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.identity.running",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.identity.running.png",
+      "selectedCase": "createchannel-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.identity.failed",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "failed"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-failed-identity-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-failed-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.identity.failed.png",
+      "selectedCase": "createchannel-done-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "CreateChannel.identity.director",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "director"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-director-identity-director.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-director-retry-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-director-retry-generating.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-createchannel-done-director-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "createchannel-done-director"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "CreateChannel.identity.director.png",
+      "selectedCase": "createchannel-done-director",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.step.setup",
+      "props": {
+        "step": "setup",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-running-setup-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.step.setup.png",
+      "selectedCase": "onboard-setup-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.step.create",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-custom-settings-custom-settings.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-custom-settings"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-custom-settings-custom-settings-fenced-feedback.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-custom-settings"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.step.create.png",
+      "selectedCase": "onboard-custom-settings",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.step.done",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-submit-error-then-created-create-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-submit-error-then-created-created-route.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.step.done.png",
+      "selectedCase": "onboard-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.setup.running",
+      "props": {
+        "step": "setup",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-running-setup-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.setup.running.png",
+      "selectedCase": "onboard-setup-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.setup.login",
+      "props": {
+        "step": "setup",
+        "setup": "login",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-login-setup-login.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-login"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.setup.login.png",
+      "selectedCase": "onboard-setup-login",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.setup.failed",
+      "props": {
+        "step": "setup",
+        "setup": "failed",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-failed-setup-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-failed-setup-retry-503.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-setup-failed-setup-retry-success.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-setup-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.setup.failed.png",
+      "selectedCase": "onboard-setup-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.tplMenu.false",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.tplMenu.false.png",
+      "selectedCase": "onboard-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.tplMenu.true",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": true,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-template-menu-template-menu.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-template-menu"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.tplMenu.true.png",
+      "selectedCase": "onboard-template-menu",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.identity.running",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.identity.running.png",
+      "selectedCase": "onboard-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.identity.failed",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "failed",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-failed-identity-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-failed-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.identity.failed.png",
+      "selectedCase": "onboard-done-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.identity.director",
+      "props": {
+        "step": "done",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "director",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-director-identity-director.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-director-retry-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-director-retry-generating.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-done-director-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-done-director"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.identity.director.png",
+      "selectedCase": "onboard-done-director",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.rivals.some",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "some"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.rivals.some.png",
+      "selectedCase": "onboard-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.rivals.none",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "none"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-none-selected-none-selected.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-none-selected"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.rivals.none.png",
+      "selectedCase": "onboard-none-selected",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "Onboard.rivals.empty",
+      "props": {
+        "step": "create",
+        "setup": "running",
+        "tplMenu": false,
+        "identity": "running",
+        "rivals": "empty"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-1440-onboard-empty-empty.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "onboard-empty"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "Onboard.rivals.empty.png",
+      "selectedCase": "onboard-empty",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.tab.sources",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-channel-MT-sources.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MChannel.tab.sources--1.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.tab.sources.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.tab.templates",
+      "props": {
+        "tab": "templates",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-channel-MT-templates.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MChannel.tab.templates--1.png",
+          "proof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+          "case": "template-native-card-menu-and-images-route"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.tab.templates.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.tab.settings",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-channel-MT-settings.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MChannel.tab.settings--1.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "banner-safe-area-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.tab.settings.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.fresh.false",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-baseline-baseline.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-baseline"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.fresh.false.png",
+      "selectedCase": "channel-baseline",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.fresh.true",
+      "props": {
+        "tab": "sources",
+        "fresh": true,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-fresh-fresh.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-fresh"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.fresh.true.png",
+      "selectedCase": "channel-fresh",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.identity.ready",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/MChannel.identity.ready--0.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "banner-safe-area-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.identity.ready.png",
+      "selectedCase": "banner-safe-area-no-preference",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-MChannel.identity.ready.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "MChannel.identity.generating",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "generating",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-identity-generating-generating.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-generating"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.identity.generating.png",
+      "selectedCase": "channel-identity-generating",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.identity.failed",
+      "props": {
+        "tab": "settings",
+        "fresh": false,
+        "identity": "failed",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-identity-failed-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-identity-failed-retry-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-identity-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.identity.failed.png",
+      "selectedCase": "channel-identity-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.sheet.none",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/MChannel.sheet.none--0.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.sheet.none.png",
+      "selectedCase": "sources-layout-picker-no-preference",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+      "selectedApp": "app-MChannel.sheet.none.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "MChannel.sheet.rival",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "rival"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-mobile-source-sheets-rival-sheet.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-mobile-source-sheets"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.sheet.rival.png",
+      "selectedCase": "channel-mobile-source-sheets",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.sheet.unlink",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "unlink"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-mobile-source-sheets-unlink-confirm.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-mobile-source-sheets"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.sheet.unlink.png",
+      "selectedCase": "channel-mobile-source-sheets",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MChannel.sheet.template",
+      "props": {
+        "tab": "templates",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "template"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/MChannel.sheet.template--0.png",
+          "proof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+          "case": "template-native-card-menu-and-images-route"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.sheet.template.png",
+      "selectedCase": "template-native-card-menu-and-images-route",
+      "selectedProof": "PARTIAL_NATIVE_CAPTURE_NOT_ALL_BEHAVIOR",
+      "selectedApp": "app-MChannel.sheet.template.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "MChannel.sheet.link",
+      "props": {
+        "tab": "sources",
+        "fresh": false,
+        "identity": "ready",
+        "sheet": "link"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-empty-source-empty-source.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-empty-source"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-channel-empty-source-empty-link-picker.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "channel-empty-source"
+        },
+        {
+          "file": "app-candidates/MChannel.sheet.link--2.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "sources-layout-picker-no-preference"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MChannel.sheet.link.png",
+      "selectedCase": "channel-empty-source",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.tab.templates",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-library-templates.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MLibrary.tab.templates--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-templates",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.tab.templates.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.tab.prompts",
+      "props": {
+        "tab": "prompts",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-library-prompts.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MLibrary.tab.prompts--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-prompts",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.tab.prompts.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.tab.backdrops",
+      "props": {
+        "tab": "backdrops",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-390-library-backdrop-metadata-list.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "fixture-390-library-backdrop-metadata-list"
+        },
+        {
+          "file": "native/390-library-backdrops.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MLibrary.tab.backdrops--2.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-backdrops",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        },
+        {
+          "file": "../015-template-tweak-closure/extra-states/fixture-390-library-backdrop-metadata-list.png",
+          "proof": "SYNTHETIC_COMPONENT_UI_CURRENT_SOURCE",
+          "case": "fixture-390-library-backdrop-metadata-list"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.tab.backdrops.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.tab.overlays",
+      "props": {
+        "tab": "overlays",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "native/390-library-overlays.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        },
+        {
+          "file": "app-candidates/MLibrary.tab.overlays--1.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-overlays",
+          "claim": "Actual backend tab selection and native counts at this viewport; not every contextual tweak or visual parity."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.tab.overlays.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.sheet.none",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/MLibrary.sheet.none--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-templates",
+          "claim": "Native templates default screen captured without opening a sheet; default source state null. Not equivalent to actions/new."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.sheet.none.png",
+      "selectedCase": "native-390-tab-templates",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-MLibrary.sheet.none.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "MLibrary.sheet.actions",
+      "props": {
+        "tab": "templates",
+        "sheet": "actions",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-actions.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-new.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.sheet.actions.png",
+      "selectedCase": "native-390-library-actions-new-and-template-more",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.sheet.new",
+      "props": {
+        "tab": "templates",
+        "sheet": "new",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-actions.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-new.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.sheet.new.png",
+      "selectedCase": "native-390-library-actions-new-and-template-more",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MLibrary.empty.false",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": false
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "app-candidates/MLibrary.empty.false--0.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "native-390-tab-templates",
+          "claim": "Actual nonempty template list (3) and visible first template; empty true is a separate fixture."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.empty.false.png",
+      "selectedCase": "native-390-tab-templates",
+      "selectedProof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+      "selectedApp": "app-MLibrary.empty.false.png",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping is a review input, not context/pixel/all-control acceptance"
+    },
+    {
+      "referenceId": "MLibrary.empty.true",
+      "props": {
+        "tab": "templates",
+        "sheet": "none",
+        "empty": true
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-library-template-empty.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-library-template-empty"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MLibrary.empty.true.png",
+      "selectedCase": "synthetic-390-library-template-empty",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.screen.list",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-fresh-locked.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-fresh-locked"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.screen.list.png",
+      "selectedCase": "synthetic-390-preview-fresh-locked",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.screen.images",
+      "props": {
+        "screen": "images",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-images-composition-and-prompt-full.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-images-composition-and-prompt-cutout.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-images-composition-and-prompt-close.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-images-composition-and-prompt"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-images-composition-and-prompt.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-images-composition-and-prompt"
+        },
+        {
+          "file": "native/390-template-images.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.screen.images.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.screen.cover",
+      "props": {
+        "screen": "cover",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-cover-ready-confirm-cancel-confirm.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-cover-ready-confirm-cancel"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-cover-ready-confirm-cancel.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-cover-ready-confirm-cancel"
+        },
+        {
+          "file": "native/390-template-cover.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.screen.cover.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.screen.backdrop",
+      "props": {
+        "screen": "backdrop",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-backdrop-healthy.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-backdrop-healthy"
+        },
+        {
+          "file": "native/390-template-backdrop.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.screen.backdrop.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.screen.output",
+      "props": {
+        "screen": "output",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-output-compress-and-default-route-original.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-output-compress-and-default-route-compressed.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-output-compress-and-default-route-default-picker.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-output-compress-and-default-route"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-output-compress-and-default-route.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-output-compress-and-default-route"
+        },
+        {
+          "file": "native/390-template-output.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.screen.output.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.preview.fresh",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-fresh-locked.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-fresh-locked"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.preview.fresh.png",
+      "selectedCase": "synthetic-390-preview-fresh-locked",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.preview.stale",
+      "props": {
+        "screen": "list",
+        "preview": "stale",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-stale-error-retry-server-error.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-stale-error-retry"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-stale-error-retry.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-stale-error-retry"
+        },
+        {
+          "file": "app-candidates/MTemplate.preview.stale--2.png",
+          "proof": "PRIOR_CONTROLLER_REFRESHED_CURRENT_SOURCE",
+          "case": "synthetic-390-cached-fresh-old-revision",
+          "claim": "Mobile synthetic stale state after save with old preview revision; no backend persistence/media."
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.preview.stale.png",
+      "selectedCase": "synthetic-390-preview-stale-error-retry",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.preview.building",
+      "props": {
+        "screen": "list",
+        "preview": "building",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-building-cancel-rejection-building.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-building-cancel-rejection"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-building-cancel-rejection-cancel-rejected.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-building-cancel-rejection"
+        },
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-building-cancel-rejection.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-building-cancel-rejection"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.preview.building.png",
+      "selectedCase": "synthetic-390-preview-building-cancel-rejection",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.sheet.none",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "none"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/synthetic-390-preview-fresh-locked.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "synthetic-390-preview-fresh-locked"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.sheet.none.png",
+      "selectedCase": "synthetic-390-preview-fresh-locked",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MTemplate.sheet.more",
+      "props": {
+        "screen": "list",
+        "preview": "fresh",
+        "sheet": "more"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-actions.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-new.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        },
+        {
+          "file": "../015-template-tweak-closure/native-390-library-actions-new-and-template-more.png",
+          "proof": "SEE_CASE_PROVENANCE",
+          "case": "native-390-library-actions-new-and-template-more"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MTemplate.sheet.more.png",
+      "selectedCase": "native-390-library-actions-new-and-template-more",
+      "selectedProof": "SEE_CASE_PROVENANCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.step.create",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-custom-settings-custom-settings.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-custom-settings"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-custom-settings-custom-settings-fenced-feedback.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-custom-settings"
+        },
+        {
+          "file": "native/390-create-channel.png",
+          "proof": "NATIVE_GET_CURRENT_SOURCE",
+          "case": "native-surface"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.step.create.png",
+      "selectedCase": "native-surface",
+      "selectedProof": "NATIVE_GET_CURRENT_SOURCE",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.step.done",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-submit-error-then-created-create-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-submit-error-then-created-created-route.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-submit-error-then-created"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.step.done.png",
+      "selectedCase": "mcreate-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.rivals.some",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.rivals.some.png",
+      "selectedCase": "mcreate-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.rivals.none",
+      "props": {
+        "step": "create",
+        "rivals": "none",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-none-selected-none-selected.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-none-selected"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.rivals.none.png",
+      "selectedCase": "mcreate-none-selected",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.rivals.empty",
+      "props": {
+        "step": "create",
+        "rivals": "empty",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-empty-empty.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-empty"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.rivals.empty.png",
+      "selectedCase": "mcreate-empty",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.tplMenu.false",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-selected-defaults.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-optional-name.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-selected-defaults-max20.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-selected-defaults"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.tplMenu.false.png",
+      "selectedCase": "mcreate-selected-defaults",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.tplMenu.true",
+      "props": {
+        "step": "create",
+        "rivals": "some",
+        "tplMenu": true,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-template-menu-template-menu.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-template-menu"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.tplMenu.true.png",
+      "selectedCase": "mcreate-template-menu",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.identity.running",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "running"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-running-identity-running.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-running"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-running-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-running"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.identity.running.png",
+      "selectedCase": "mcreate-done-running",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.identity.failed",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "failed"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-failed-identity-failed.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-failed"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-failed-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-failed"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.identity.failed.png",
+      "selectedCase": "mcreate-done-failed",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    },
+    {
+      "referenceId": "MCreate.identity.director",
+      "props": {
+        "step": "done",
+        "rivals": "some",
+        "tplMenu": false,
+        "identity": "director"
+      },
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "candidates": [
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-director-identity-director.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-director-retry-error.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-director-retry-generating.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-director"
+        },
+        {
+          "file": "../014-channel-tweak-closure/SYNTHETIC-390-mcreate-done-director-opened-owner.png",
+          "proof": "SYNTHETIC_COMPONENT_UI",
+          "case": "mcreate-done-director"
+        }
+      ],
+      "status": "REVIEW_PENDING",
+      "comparison": "MCreate.identity.director.png",
+      "selectedCase": "mcreate-done-director",
+      "selectedProof": "SYNTHETIC_COMPONENT_UI",
+      "order": "canonical left; current app right",
+      "warning": "Property mapping from controller is a review input, not pixel/context parity acceptance"
+    }
+  ]
+}

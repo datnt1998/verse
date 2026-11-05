@@ -1,0 +1,17 @@
+{
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PASS",
+      "editorLink": true
+    }
+  ],
+  "errors": [],
+  "blocked": [],
+  "status": "FAIL",
+  "error": "expect(locator).toHaveCount(expected) failed\n\nLocator:  locator('.vt-sec').locator('a[href^=\"#/editor/\"]')\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"toHaveCount\" locator('.vt-sec').locator('a[href^=\"#/editor/\"]') with timeout 5000ms\n  - waiting for locator('.vt-sec').locator('a[href^=\"#/editor/\"]')\n    14 × locator resolved to 1 element\n       - unexpected value \"1\"\n",
+  "browserClosed": true
+}

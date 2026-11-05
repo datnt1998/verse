@@ -1,0 +1,235 @@
+{
+  "captures": [
+    {
+      "id": "Template.picker.add@backdrop",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "add"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "file": "Template.picker.add@backdrop.png",
+      "sourceSha256": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24",
+      "propsSubmitted": true,
+      "propsSetter": "__dcSetProps(__dcRootName(), props)",
+      "fontsLoaded": [
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "700",
+          "status": "loaded"
+        }
+      ],
+      "brokenImages": [],
+      "visibleText": "Thư viện › Template\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nThư viện\nLàm video\nN\n2 đang chạy · 12 chờ lượt\nD\nTất cả template\nCÀI ĐẶT\nẢnh cảnh\nTách nền · Đêm xanh rêu · 6 ảnh\nẢnh bìa\nHook đỏ Midnight\nNền & hiệu ứng\n2 kênh · 2 video lẻ · tuyết\nXuất & kênh\nNén · mặc định của 2 kênh\nSẵn sàng làm video\n2 kênh · 2 video lẻ · 316 video để bốc\nPhụ đề khớp tiếng\nÂm lượng −14 LUFS\nMẫu chuẩn · Tách nền\nỔn\nMT\nQH\nMặc định của\n2 kênh\nĐã lưu · 23:52\nMở trong editor\nNền & hiệu ứng\nVideo nền chạy phía sau ảnh cảnh và phụ đề. Mỗi video tự bốc đoạn nền riêng ngay sau khi tải nguồn.\nLấy nền từ\nGắn kênh hoặc video\nSR\nslowroads\nNgẫu nhiên\nTwitch · từ mọi video · 312 video · Clip, Highlight\nChọn video\nND\nnightdrivefm\nNgẫu nhiên\nTwitch · chỉ từ 4 video đã chọn · Clip\nChọn video\nĐường đèo sương mù\nLuôn có\nBilibili · video · đoạn 0:00–1:30\nMưa trên kính xe\nLuôn có\nTwitch · clip · đoạn 0:00–1:20\nKênh: mỗi video bốc clip ngẫu nhiên từ kênh, nên nền mỗi video một khác. Video lẻ: đoạn đã chọn luôn có trong nền của mọi video (clip cố định).\nNền của một video\nví dụ video dài 42 phút\nslowroads\nLuôn có\n2 clip cố định · 2:50\nslowroads\n≈ 36 clip ngẫu nhiên\nnightdrivefm\n4 clip · từ 4 video đã chọn\nMỗi video làm ra bốc lại clip ngẫu nhiên nên nền không trùng nhau; clip cố định thì video nào cũng có. Kênh có ít video được chọn thì phần còn lại lấy từ kênh khác.\nCách cắt clip\nTự phủ kín · mỗi clip 60 giây\nChỉnh nền\nĐặt lại\nLật ngang\nLật dọc\nLớp hiệu ứng\nThêm từ thư viện\nTuyết\nCó sẵn · phủ toàn video\nXem thử\nKhớp cài đặt\nnobody had checked in since nineteen ninety\nSUBSCRIBE\n0:48 / 3:00\ndựng lúc 23:52\nDựng từ video đã làm\nThe Hotel That Wasn’t on Any Map\nDựng lại\n3 phút đầu, miễn phí: không vẽ ảnh mới, dùng ảnh sẵn có của video và clip cố định của template.\nKhi nào có hiệu lực\nVideo mới dùng ngay cài đặt này. Video đang làm nhận thay đổi về ảnh từ bước chia cảnh; nền đã bốc thì giữ nguyên khi dựng lại.\nGắn video nền vào Mẫu chuẩn · Tách nền\n\nChọn một kênh để mỗi video bốc clip ngẫu nhiên, hoặc một video lẻ để video nào cũng có đoạn đó.\n\nDán link kênh hoặc video mới\nThêm\nKÊNH NỀN\n4\nSR\nslowroads\nTwitch · 312 video\nĐã gắn\nND\nnightdrivefm\nTwitch · 217 video\nĐã gắn\n雨\n雨夜电台\nBilibili · 300 video · tạm chặn tới 02:10\nLL\nlofilanes\nTwitch · 48 video\nVIDEO LẺ\n3\nĐường đèo sương mù\nBilibili · đoạn 0:00–1:30\nĐã gắn\nMưa trên kính xe\nTwitch · đoạn 0:00–1:20\nĐã gắn\nPhà đêm trong sương\nBilibili · đoạn 0:00–2:00\nLL\nlofilanes\nTwitch · 48 video\nMở trong Thư viện\nNgẫu nhiên từ mọi video\n48 video · mỗi video làm ra bốc clip khác nhau, video mới của kênh tự được dùng\nChỉ từ video tôi chọn\nBấm vào video bên dưới để chọn. Hợp khi kênh có nhiều video lạc chủ đề\nLoại video\nClip\n41\nHighlight\n7\nPhát lại\n0\nXem trước 8 / 48 video\nClip\n1:00\nPhòng học đèn vàng\nClip\n0:59\nThành phố nhìn từ ban công\nHighlight\n5:20\nBàn làm việc đêm\nClip\n0:46\nTrạm xe buýt\nClip\n1:00\nĐường ray chiều\nClip\n0:51\nMưa ngoài cửa sổ\nHighlight\n4:02\nHồ đêm yên\nClip\n1:00\nTuyết rơi ngoài phố\nApp bốc ngẫu nhiên trong các loại đã bật; video không còn xem được tự bị bỏ qua.\nlofilanes · ngẫu nhiên từ 48 video · Clip, Highlight\nGắn vào template: video làm từ giờ bốc clip từ kênh này\nHuỷ\nGắn vào template",
+      "activeControls": [
+        {
+          "role": "radio",
+          "text": "Ngẫu nhiên từ mọi video\n48 video · mỗi video làm ra bốc clip khác nhau, video mới của kênh tự được dùng"
+        },
+        {
+          "role": null,
+          "text": ""
+        },
+        {
+          "role": null,
+          "text": "Clip\n41"
+        },
+        {
+          "role": null,
+          "text": "Highlight\n7"
+        }
+      ],
+      "visibleStateVerified": false,
+      "status": "CAPTURED_CURRENT_BYTES_PROPS_SUBMITTED"
+    },
+    {
+      "id": "Template.picker.choose@backdrop",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "choose"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "file": "Template.picker.choose@backdrop.png",
+      "sourceSha256": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24",
+      "propsSubmitted": true,
+      "propsSetter": "__dcSetProps(__dcRootName(), props)",
+      "fontsLoaded": [
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "700",
+          "status": "loaded"
+        }
+      ],
+      "brokenImages": [],
+      "visibleText": "Thư viện › Template\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nThư viện\nLàm video\nN\n2 đang chạy · 12 chờ lượt\nD\nTất cả template\nCÀI ĐẶT\nẢnh cảnh\nTách nền · Đêm xanh rêu · 6 ảnh\nẢnh bìa\nHook đỏ Midnight\nNền & hiệu ứng\n2 kênh · 2 video lẻ · tuyết\nXuất & kênh\nNén · mặc định của 2 kênh\nSẵn sàng làm video\n2 kênh · 2 video lẻ · 316 video để bốc\nPhụ đề khớp tiếng\nÂm lượng −14 LUFS\nMẫu chuẩn · Tách nền\nỔn\nMT\nQH\nMặc định của\n2 kênh\nĐã lưu · 23:52\nMở trong editor\nNền & hiệu ứng\nVideo nền chạy phía sau ảnh cảnh và phụ đề. Mỗi video tự bốc đoạn nền riêng ngay sau khi tải nguồn.\nLấy nền từ\nGắn kênh hoặc video\nSR\nslowroads\nNgẫu nhiên\nTwitch · từ mọi video · 312 video · Clip, Highlight\nChọn video\nND\nnightdrivefm\nNgẫu nhiên\nTwitch · chỉ từ 4 video đã chọn · Clip\nChọn video\nĐường đèo sương mù\nLuôn có\nBilibili · video · đoạn 0:00–1:30\nMưa trên kính xe\nLuôn có\nTwitch · clip · đoạn 0:00–1:20\nKênh: mỗi video bốc clip ngẫu nhiên từ kênh, nên nền mỗi video một khác. Video lẻ: đoạn đã chọn luôn có trong nền của mọi video (clip cố định).\nNền của một video\nví dụ video dài 42 phút\nslowroads\nLuôn có\n2 clip cố định · 2:50\nslowroads\n≈ 36 clip ngẫu nhiên\nnightdrivefm\n4 clip · từ 4 video đã chọn\nMỗi video làm ra bốc lại clip ngẫu nhiên nên nền không trùng nhau; clip cố định thì video nào cũng có. Kênh có ít video được chọn thì phần còn lại lấy từ kênh khác.\nCách cắt clip\nTự phủ kín · mỗi clip 60 giây\nChỉnh nền\nĐặt lại\nLật ngang\nLật dọc\nLớp hiệu ứng\nThêm từ thư viện\nTuyết\nCó sẵn · phủ toàn video\nXem thử\nKhớp cài đặt\nnobody had checked in since nineteen ninety\nSUBSCRIBE\n0:48 / 3:00\ndựng lúc 23:52\nDựng từ video đã làm\nThe Hotel That Wasn’t on Any Map\nDựng lại\n3 phút đầu, miễn phí: không vẽ ảnh mới, dùng ảnh sẵn có của video và clip cố định của template.\nKhi nào có hiệu lực\nVideo mới dùng ngay cài đặt này. Video đang làm nhận thay đổi về ảnh từ bước chia cảnh; nền đã bốc thì giữ nguyên khi dựng lại.\nGắn video nền vào Mẫu chuẩn · Tách nền\n\nChọn một kênh để mỗi video bốc clip ngẫu nhiên, hoặc một video lẻ để video nào cũng có đoạn đó.\n\nDán link kênh hoặc video mới\nThêm\nKÊNH NỀN\n4\nSR\nslowroads\nTwitch · 312 video\nĐã gắn\nND\nnightdrivefm\nTwitch · 217 video\nĐã gắn\n雨\n雨夜电台\nBilibili · 300 video · tạm chặn tới 02:10\nLL\nlofilanes\nTwitch · 48 video\nVIDEO LẺ\n3\nĐường đèo sương mù\nBilibili · đoạn 0:00–1:30\nĐã gắn\nMưa trên kính xe\nTwitch · đoạn 0:00–1:20\nĐã gắn\nPhà đêm trong sương\nBilibili · đoạn 0:00–2:00\nND\nnightdrivefm\nTwitch · 217 video · đã gắn vào template này\nMở trong Thư viện\nNgẫu nhiên từ mọi video\n186 video · mỗi video làm ra bốc clip khác nhau, video mới của kênh tự được dùng\nChỉ từ video tôi chọn\nBấm vào video bên dưới để chọn. Hợp khi kênh có nhiều video lạc chủ đề\nLoại video\nClip\n186\nHighlight\n22\nPhát lại\n9\nĐã chọn 4 video\nClip\n1:00\nPhố đêm qua kính xe\nClip\n0:52\nĐèn neon ngã tư\nClip\n1:00\nĐường ven biển\nClip\n0:44\nMưa phùn trên phố\nClip\n0:58\nĐèn hậu xe tải\nHighlight\n7:15\nHầm chui thành phố\nClip\n1:00\nCao tốc ra biển\nClip\n0:50\nCầu sông lúc 2 giờ\nVideo mới của kênh không tự được dùng khi chỉ lấy từ video đã chọn. Mờ là loại video đang tắt.\nnightdrivefm · chỉ từ 4 video đã chọn · Clip\nLưu thì video làm từ giờ dùng cách lấy mới\nHuỷ\nLưu",
+      "activeControls": [
+        {
+          "role": "radio",
+          "text": "Chỉ từ video tôi chọn\nBấm vào video bên dưới để chọn. Hợp khi kênh có nhiều video lạc chủ đề"
+        },
+        {
+          "role": null,
+          "text": ""
+        },
+        {
+          "role": null,
+          "text": "Clip\n186"
+        },
+        {
+          "role": "checkbox",
+          "text": "Clip\n1:00\nPhố đêm qua kính xe"
+        },
+        {
+          "role": null,
+          "text": ""
+        },
+        {
+          "role": "checkbox",
+          "text": "Clip\n0:52\nĐèn neon ngã tư"
+        },
+        {
+          "role": null,
+          "text": ""
+        },
+        {
+          "role": "checkbox",
+          "text": "Clip\n1:00\nĐường ven biển"
+        },
+        {
+          "role": null,
+          "text": ""
+        },
+        {
+          "role": "checkbox",
+          "text": "Clip\n0:44\nMưa phùn trên phố"
+        },
+        {
+          "role": null,
+          "text": ""
+        }
+      ],
+      "visibleStateVerified": false,
+      "status": "CAPTURED_CURRENT_BYTES_PROPS_SUBMITTED"
+    },
+    {
+      "id": "Template.picker.video@backdrop",
+      "board": "Template",
+      "props": {
+        "section": "backdrop",
+        "preview": "fresh",
+        "fewClips": false,
+        "picker": "video"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "file": "Template.picker.video@backdrop.png",
+      "sourceSha256": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24",
+      "propsSubmitted": true,
+      "propsSetter": "__dcSetProps(__dcRootName(), props)",
+      "fontsLoaded": [
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "400",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "500",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "600",
+          "status": "loaded"
+        },
+        {
+          "family": "Be Vietnam Pro",
+          "weight": "700",
+          "status": "loaded"
+        }
+      ],
+      "brokenImages": [],
+      "visibleText": "Thư viện › Template\nBàn dựng\nDuyệt\n3\nKênh\nKhám phá\nThư viện\nLàm video\nN\n2 đang chạy · 12 chờ lượt\nD\nTất cả template\nCÀI ĐẶT\nẢnh cảnh\nTách nền · Đêm xanh rêu · 6 ảnh\nẢnh bìa\nHook đỏ Midnight\nNền & hiệu ứng\n2 kênh · 2 video lẻ · tuyết\nXuất & kênh\nNén · mặc định của 2 kênh\nSẵn sàng làm video\n2 kênh · 2 video lẻ · 316 video để bốc\nPhụ đề khớp tiếng\nÂm lượng −14 LUFS\nMẫu chuẩn · Tách nền\nỔn\nMT\nQH\nMặc định của\n2 kênh\nĐã lưu · 23:52\nMở trong editor\nNền & hiệu ứng\nVideo nền chạy phía sau ảnh cảnh và phụ đề. Mỗi video tự bốc đoạn nền riêng ngay sau khi tải nguồn.\nLấy nền từ\nGắn kênh hoặc video\nSR\nslowroads\nNgẫu nhiên\nTwitch · từ mọi video · 312 video · Clip, Highlight\nChọn video\nND\nnightdrivefm\nNgẫu nhiên\nTwitch · chỉ từ 4 video đã chọn · Clip\nChọn video\nĐường đèo sương mù\nLuôn có\nBilibili · video · đoạn 0:00–1:30\nMưa trên kính xe\nLuôn có\nTwitch · clip · đoạn 0:00–1:20\nKênh: mỗi video bốc clip ngẫu nhiên từ kênh, nên nền mỗi video một khác. Video lẻ: đoạn đã chọn luôn có trong nền của mọi video (clip cố định).\nNền của một video\nví dụ video dài 42 phút\nslowroads\nLuôn có\n2 clip cố định · 2:50\nslowroads\n≈ 36 clip ngẫu nhiên\nnightdrivefm\n4 clip · từ 4 video đã chọn\nMỗi video làm ra bốc lại clip ngẫu nhiên nên nền không trùng nhau; clip cố định thì video nào cũng có. Kênh có ít video được chọn thì phần còn lại lấy từ kênh khác.\nCách cắt clip\nTự phủ kín · mỗi clip 60 giây\nChỉnh nền\nĐặt lại\nLật ngang\nLật dọc\nLớp hiệu ứng\nThêm từ thư viện\nTuyết\nCó sẵn · phủ toàn video\nXem thử\nKhớp cài đặt\nnobody had checked in since nineteen ninety\nSUBSCRIBE\n0:48 / 3:00\ndựng lúc 23:52\nDựng từ video đã làm\nThe Hotel That Wasn’t on Any Map\nDựng lại\n3 phút đầu, miễn phí: không vẽ ảnh mới, dùng ảnh sẵn có của video và clip cố định của template.\nKhi nào có hiệu lực\nVideo mới dùng ngay cài đặt này. Video đang làm nhận thay đổi về ảnh từ bước chia cảnh; nền đã bốc thì giữ nguyên khi dựng lại.\nGắn video nền vào Mẫu chuẩn · Tách nền\n\nChọn một kênh để mỗi video bốc clip ngẫu nhiên, hoặc một video lẻ để video nào cũng có đoạn đó.\n\nDán link kênh hoặc video mới\nThêm\nKÊNH NỀN\n4\nSR\nslowroads\nTwitch · 312 video\nĐã gắn\nND\nnightdrivefm\nTwitch · 217 video\nĐã gắn\n雨\n雨夜电台\nBilibili · 300 video · tạm chặn tới 02:10\nLL\nlofilanes\nTwitch · 48 video\nVIDEO LẺ\n3\nĐường đèo sương mù\nBilibili · đoạn 0:00–1:30\nĐã gắn\nMưa trên kính xe\nTwitch · đoạn 0:00–1:20\nĐã gắn\nPhà đêm trong sương\nBilibili · đoạn 0:00–2:00\nPhà đêm trong sương\nBilibili · video · dài 24:10\nMở trong Thư viện\n24:10\nĐoạn dùng · dài 2:00\n0:00–2:00\nĐổi đoạn ở Thư viện\nĐoạn này luôn có trong nền của mọi video dùng template, trộn chung với clip bốc từ kênh. Đổi đoạn ở Thư viện thì mọi template đang gắn đổi theo.\nPhà đêm trong sương · luôn có · đoạn 0:00–2:00\nGắn vào template: video nào cũng có đoạn này trong nền\nHuỷ\nGắn vào template",
+      "activeControls": [],
+      "visibleStateVerified": false,
+      "status": "CAPTURED_CURRENT_BYTES_PROPS_SUBMITTED"
+    }
+  ],
+  "pageErrors": [],
+  "externalBlocked": [
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    },
+    {
+      "host": "fonts.googleapis.com",
+      "method": "GET"
+    }
+  ],
+  "sourceHashes": {
+    "Template.dc.html": "3e8107334d098f2dbbe1e5f9c637b945dc99acd1b074cdc9cfa09d4057904c24"
+  },
+  "fontProvenance": "Existing Be Vietnam Pro WOFF2 from native app pack, served locally by route; no font download",
+  "claims": "Props/bytes/fonts/captured-frame proof only; not pixel parity or every visible state acceptance",
+  "status": "CAPTURED",
+  "browserClosed": true
+}

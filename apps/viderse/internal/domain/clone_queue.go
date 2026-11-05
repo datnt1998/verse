@@ -42,13 +42,11 @@ const (
 	WaitRotation      = "rotation"
 	WaitPausedChannel = "paused_channel"
 	WaitPaceFull      = "pace_full"
-	WaitNoTemplate    = "no_template"
 )
 
 // QueueSkipReason giải thích một kênh bị bỏ lượt.
 const (
 	SkipPaceFull      = "pace_full"
-	SkipNoTemplate    = "no_template"
 	SkipPausedChannel = "paused_channel"
 )
 

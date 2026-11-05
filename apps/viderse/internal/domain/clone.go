@@ -290,7 +290,10 @@ type CloneJob struct {
 	TemplateID        string              `json:"templateId"`
 	TemplateSnapshot  json.RawMessage     `json:"templateSnapshot"`
 	ModelRefs         json.RawMessage     `json:"modelRefs"`
-	NoImages          bool                `json:"noImages"`
+	// Instructions là bản chốt "Dặn trợ lý về kênh" tại admission: sửa kênh sau
+	// đó không đổi video đã bắt đầu (cùng luật với TemplateSnapshot).
+	Instructions AgentInstructions `json:"instructions"`
+	NoImages     bool              `json:"noImages"`
 	Generation        int                 `json:"generation"`
 	SupersededAt      *time.Time          `json:"supersededAt"`
 	PausedAt          *time.Time          `json:"pausedAt"`
@@ -305,7 +308,7 @@ type CloneJob struct {
 	PostedAt          *time.Time          `json:"postedAt"`
 	CreatedAt         time.Time           `json:"createdAt"`
 	UpdatedAt         time.Time           `json:"updatedAt"`
-	// AutoFix là lần máy tự thử lại lỗi theo Mức tự chủ của kênh (07 §20).
+	// AutoFix là lần máy tự thử lại lỗi theo chính sách cố định một lần (07 §20).
 	AutoFix *AutoFix `json:"autoFix"`
 }
 type CloneStepRecord struct {

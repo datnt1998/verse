@@ -169,7 +169,7 @@ func (r *testRig) addChannel(id, name string, rivals ...string) {
 	defer r.store.mu.Unlock()
 	now := r.now
 	fc := &fakeChannel{c: domain.Channel{
-		ID: id, Name: name, Language: domain.LangVI, AutoPick: true, PacePerDay: 5,
+		ID: id, Name: name, Language: domain.LangVI, AutoFetch: true, PerDay: 5,
 		AlwaysTags: []string{}, IdentityState: domain.IdentityIdle, CreatedAt: now, UpdatedAt: now,
 	}}
 	for _, rivalID := range rivals {
@@ -199,8 +199,8 @@ func TestCreateGuessesLanguageAndStartsIdentity(t *testing.T) {
 	if len(view.Sources) != 1 || !view.Sources[0].Reference {
 		t.Errorf("nguồn = %+v, muốn một đối thủ tham chiếu", view.Sources)
 	}
-	if len(view.Templates) != 1 {
-		t.Errorf("template = %+v, muốn Mẫu chuẩn đã gắn", view.Templates)
+	if view.DefaultTemplate == nil || view.DefaultTemplate.ID != view.DefaultTemplateID {
+		t.Errorf("template mặc định = %+v, id = %q", view.DefaultTemplate, view.DefaultTemplateID)
 	}
 	if jobID == "" {
 		t.Error("thiếu identityJobId")
@@ -230,8 +230,8 @@ func TestCreateValidation(t *testing.T) {
 		name string
 		in   CreateRequest
 	}{
-		{"nhịp 0", CreateRequest{PacePerDay: new(0)}},
-		{"nhịp 51", CreateRequest{PacePerDay: new(51)}},
+		{"nhịp 0", CreateRequest{PerDay: new(0)}},
+		{"nhịp 21", CreateRequest{PerDay: new(21)}},
 		{"ngôn ngữ lạ", CreateRequest{Language: "fr"}},
 	}
 	for _, tc := range cases {
@@ -265,7 +265,7 @@ func TestUpdateNameNamesStandardTemplate(t *testing.T) {
 	r := newRig(t)
 	r.addChannel("ch-1", "")
 	ctx := context.Background()
-	if _, err := r.svc.Update(ctx, "ch-1", UpdateRequest{PacePerDay: new(3)}); err != nil {
+	if _, err := r.svc.Update(ctx, "ch-1", UpdateRequest{PerDay: new(3)}); err != nil {
 		t.Fatal(err)
 	}
 	if got := r.templates.namedCalls(); len(got) != 0 {
@@ -287,7 +287,7 @@ func TestUpdateNormalizesTagsAndClears(t *testing.T) {
 	view, err := r.svc.Update(context.Background(), "ch-1", UpdateRequest{
 		AlwaysTags: &tags,
 		YoutubeURL: &url,
-		PacePerDay: new(7),
+		PerDay:     new(7),
 	})
 	if err != nil {
 		t.Fatalf("Update: %v", err)
@@ -298,10 +298,10 @@ func TestUpdateNormalizesTagsAndClears(t *testing.T) {
 	if view.YoutubeURL != nil {
 		t.Errorf("youtubeUrl = %v, muốn xoá", *view.YoutubeURL)
 	}
-	if view.PacePerDay != 7 {
-		t.Errorf("pace = %d, muốn 7", view.PacePerDay)
+	if view.PerDay != 7 {
+		t.Errorf("pace = %d, muốn 7", view.PerDay)
 	}
-	if _, err := r.svc.Update(context.Background(), "ch-1", UpdateRequest{PacePerDay: new(99)}); CodeOf(err) != CodeInvalidInput {
+	if _, err := r.svc.Update(context.Background(), "ch-1", UpdateRequest{PerDay: new(99)}); CodeOf(err) != CodeInvalidInput {
 		t.Errorf("pace 99 code = %q, muốn invalid_input", CodeOf(err))
 	}
 }
@@ -354,12 +354,12 @@ func TestLinkOnlyTouchesLinks(t *testing.T) {
 	if len(view.Sources) != 1 {
 		t.Fatalf("sources = %+v", view.Sources)
 	}
-	if view.Name != before.Name || view.Language != before.Language || view.PacePerDay != before.PacePerDay {
+	if view.Name != before.Name || view.Language != before.Language || view.PerDay != before.PerDay {
 		t.Error("Link đổi trường ngoài liên kết")
 	}
 }
 
-func TestUnlinkLastPausesAutoPick(t *testing.T) {
+func TestUnlinkLastPausesAutoFetch(t *testing.T) {
 	r := newRig(t)
 	r.addChannel("ch-1", "Kênh A", "rival-1")
 	r.store.addRival("rival-1", "Kênh B")
@@ -368,10 +368,10 @@ func TestUnlinkLastPausesAutoPick(t *testing.T) {
 		t.Fatalf("Unlink: %v", err)
 	}
 	if !paused {
-		t.Error("autoPickPaused = false, muốn true khi bỏ đối thủ cuối")
+		t.Error("autoFetchPaused = false, muốn true khi bỏ đối thủ cuối")
 	}
-	if view.AutoPick {
-		t.Error("autoPick còn bật sau khi bỏ đối thủ cuối")
+	if view.AutoFetch {
+		t.Error("autoFetch còn bật sau khi bỏ đối thủ cuối")
 	}
 	if len(view.Sources) != 0 {
 		t.Errorf("sources = %+v, muốn rỗng", view.Sources)
@@ -423,58 +423,63 @@ func TestUnlinkMovesReference(t *testing.T) {
 
 // ── template ───────────────────────────────────────────────────────────────
 
-func TestTemplateRotation(t *testing.T) {
+func TestDefaultTemplateReplacementDoesNotAffectOtherChannels(t *testing.T) {
 	r := newRig(t)
 	r.addChannel("ch-1", "Kênh A")
-	for _, id := range []string{"t-a", "t-b", "t-c"} {
-		r.store.addTemplate(id, id)
-	}
+	r.addChannel("ch-2", "Kênh B")
+	r.store.addTemplate("t-a", "Mẫu A")
+	r.store.addTemplate("t-b", "Mẫu B")
 	ctx := context.Background()
-	if _, err := r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateAdd, TemplateID: "t-a"}); err != nil {
-		t.Fatalf("add: %v", err)
-	}
-	if _, err := r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateAdd, TemplateID: "t-b"}); err != nil {
-		t.Fatalf("add: %v", err)
-	}
-	if _, err := r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateAdd, TemplateID: "t-c"}); err != nil {
-		t.Fatalf("add: %v", err)
-	}
-	pos := 0
-	list, err := r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateMove, TemplateID: "t-c", Position: &pos})
-	if err != nil {
-		t.Fatalf("move: %v", err)
-	}
-	want := []string{"t-c", "t-a", "t-b"}
-	for i, tmpl := range list {
-		if tmpl.ID != want[i] || tmpl.Position != i {
-			t.Fatalf("sau move = %+v, muốn %v với position liền mạch", list, want)
+	first := "t-a"
+	selected := &first
+	for _, id := range []string{"ch-1", "ch-2"} {
+		if _, err := r.svc.Update(ctx, id, UpdateRequest{DefaultTemplateID: &selected}); err != nil {
+			t.Fatalf("chọn mặc định: %v", err)
 		}
 	}
-	list, err = r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateRemove, TemplateID: "t-a"})
+	replacement := "t-b"
+	selected = &replacement
+	view, err := r.svc.Update(ctx, "ch-1", UpdateRequest{DefaultTemplateID: &selected})
 	if err != nil {
-		t.Fatalf("remove: %v", err)
+		t.Fatal(err)
 	}
-	if len(list) != 2 || list[0].ID != "t-c" || list[1].Position != 1 {
-		t.Fatalf("sau remove = %+v", list)
+	if view.DefaultTemplateID != replacement || view.DefaultTemplate == nil || view.DefaultTemplate.ID != replacement {
+		t.Fatalf("mặc định mới = %+v", view)
 	}
-	list, err = r.svc.Templates(ctx, "ch-1", TemplateRequest{Action: TemplateStandard})
-	if err != nil {
-		t.Fatalf("standard: %v", err)
+	other, err := r.svc.Get(ctx, "ch-2")
+	if err != nil || other.DefaultTemplateID != first {
+		t.Fatalf("kênh dùng chung bị đổi: %+v, %v", other, err)
 	}
-	if len(list) != 3 || len(r.templates.created) != 1 {
-		t.Fatalf("standard = %+v created=%v", list, r.templates.created)
-	}
-	if list[2].ID != r.templates.created[0] {
-		t.Errorf("standard không nối vào cuối: %+v", list)
+	if len(r.templates.deleted) != 0 {
+		t.Fatalf("đổi mặc định đã xoá template dùng chung: %v", r.templates.deleted)
 	}
 }
 
-func TestTemplateAddUnknownIsNotFound(t *testing.T) {
+func TestDefaultTemplateRejectsUnknownOrEmptyWithoutChangingSelection(t *testing.T) {
 	r := newRig(t)
 	r.addChannel("ch-1", "Kênh A")
-	_, err := r.svc.Templates(context.Background(), "ch-1", TemplateRequest{Action: TemplateAdd, TemplateID: "t-lạ"})
-	if CodeOf(err) != CodeNotFound {
-		t.Fatalf("code = %q, muốn not_found", CodeOf(err))
+	r.store.addTemplate("t-a", "Mẫu A")
+	ctx := context.Background()
+	first := "t-a"
+	selected := &first
+	if _, err := r.svc.Update(ctx, "ch-1", UpdateRequest{DefaultTemplateID: &selected}); err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		id   *string
+		code string
+	}{
+		{new("t-lạ"), CodeNotFound},
+		{new(""), CodeInvalidInput},
+		{nil, CodeInvalidInput},
+	} {
+		if _, err := r.svc.Update(ctx, "ch-1", UpdateRequest{DefaultTemplateID: &tc.id}); CodeOf(err) != tc.code {
+			t.Fatalf("mã lỗi = %q, muốn %q", CodeOf(err), tc.code)
+		}
+		view, err := r.svc.Get(ctx, "ch-1")
+		if err != nil || view.DefaultTemplateID != first {
+			t.Fatalf("đầu vào lỗi đã đổi mặc định: %+v, %v", view, err)
+		}
 	}
 }
 

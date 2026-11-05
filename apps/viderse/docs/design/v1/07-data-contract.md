@@ -185,7 +185,7 @@ Array<{
 - Bản xuất Editor đã công bố có thể nằm trong `steps[export].output.data` (`projectId`, `exportId`, `durationMs`, `size`) mà không có phần tử trong `output.artifacts`. Trình xem thành phẩm đọc bước xuất `succeeded`, không có `removedAt`, và dùng thời lượng của bản xuất thay vì thời lượng nguồn; danh sách artefact rỗng không có nghĩa tệp đã bị xoá. Trường `accepted` chỉ ghi lựa chọn **Vẫn xuất** của chủ, không phải điều kiện tồn tại của tệp; bản tự đạt cổng xuất vẫn phát khi `accepted: false`.
 - Lỗi tải/giải mã MP4 không được thông báo thành “tệp đã xoá” nếu đầu ra vẫn còn; hai trạng thái này tách biệt ở cả máy tính lẫn điện thoại.
 
-## §7 · Chọn nhiều trong Kênh
+## §7 · Chọn nhiều trong Bàn dựng
 
 Dùng `POST /api/clone/bulk` có sẵn. UI cần đếm trước số job hợp lệ cho từng thao tác: hàm thuần `bulkEligibility(jobs)` → `{ retry, approve, bundle, markPosted, cancel, delete }`, mỗi mục là danh sách `jobId`.
 
@@ -196,7 +196,7 @@ Dùng `POST /api/clone/bulk` có sẵn. UI cần đếm trước số job hợp 
 - `POST /api/owner-channels` đã có. **Đổi:** UI bắt buộc ít nhất 1 đối thủ; CLI giữ tuỳ chọn.
 - Ô “Đối thủ mới” trên màn Tạo kênh dùng API theo dõi đối thủ đã có (như Khám phá), rồi đưa id vào danh sách chọn; lỗi handle hiện ngay dưới ô. <!-- r13-create -->
 - Ngay sau khi tạo: chạy tạo bộ nhận diện (logic có sẵn khi liên kết đối thủ đầu tiên). Trả `identityJobId` để màn **Xong** theo dõi. <!-- r11-audit -->
-- Cùng request đặt luôn “Cách kênh chạy” (template rotation = Mẫu chuẩn, nhịp, `autonomy` — data-contract §20) bằng các API đã có, và `language` = ngôn ngữ đoán từ đối thủ tham chiếu.
+- Cùng request lưu `autoFetch`, `autoApprove`, `perDay` (1–20) và `defaultTemplateId` nếu chọn template có sẵn. Không gửi mặc định thì server tạo template chuẩn cho kênh. Mỗi kênh có đúng một template mặc định; không còn luân phiên, ưu tiên kênh hoặc preset tự chủ. `language` khởi đầu theo đối thủ tham chiếu.
 - Nhận diện tham chiếu **đối thủ liên kết đầu tiên** (thứ tự `owner_channel_sources.linked_at`). Chi tiết §16.
 
 ## §9 · Các API trợ lý đã ngừng (Gói V37)
@@ -293,8 +293,14 @@ type ImagePrompt = {
 };
 ```
 
+Thẻ mẫu video và bộ chọn mẫu dùng ảnh mẫu thật của chỉ dẫn ảnh cảnh đang gắn làm minh hoạ, không coi đó là bản xem thử đã dựng. Không có mẫu hợp lệ hoặc mẫu tải lỗi thì hiện trạng thái chưa có ảnh, không bịa URL hay dùng ảnh từ artboard làm kết quả AI. Chủ sở hữu phép chiếu này là [TemplateArtwork](../../../web/src/screens/library/TemplateArtwork.tsx); không cần thêm field preview/thumbnail vào backend.
+
+Riêng ba lựa chọn cách ghép ảnh Toàn khung/Tách nền/Cận cảnh dùng minh hoạ sản phẩm tĩnh đúng artboard, không phải dữ liệu ảnh mẫu hoặc bản xem thử của người dùng. [ImagesSection](../../../web/src/screens/library/template/ImagesSection.tsx) phục vụ ba asset `scene-composition-*.jpg` trong [public/illustrations](../../../web/public/illustrations/), sao chép từ ảnh thiết kế đã duyệt; không gọi model hoặc API tạo ảnh.
+
+Mở chỉ dẫn từ mẫu video phải giữ đúng ID qua route, tải dữ liệu và đổi mục liên tiếp; `prompt=mine|builtin` chỉ xác định kiểu xem, không chọn phần tử đầu danh sách. Query `promptId` thuộc [router](../../../web/src/router.ts), bên mở editor thuộc [PromptsTab](../../../web/src/screens/library/PromptsTab.tsx). Không tìm thấy hoặc tải lỗi phải báo rõ, không mở nhầm chỉ dẫn khác.
+
 API:
-- `GET /api/image-prompts?kind=scene|cover&q=` → `ImagePrompt[]` (có sẵn trước, rồi theo `updatedAt`).
+- `GET /api/image-prompts?kind=scene|cover&q=` → `{ items: ImagePrompt[] }` (có sẵn trước, rồi theo `updatedAt`).
 - `POST /api/image-prompts` `{ name, kind, composition?, prompt, fromId? }` (`composition` chỉ khi `kind = cover`) → tạo hoặc nhân bản (`fromId`).
 - `PATCH /api/image-prompts/:id` → sửa; `403` với prompt có sẵn; đổi `kind` khi `usedBy` khác rỗng → `409 { reason: "in_use", usedBy }`.
 - `DELETE /api/image-prompts/:id` → `409 { reason: "in_use", usedBy }` khi đang dùng; `403` với có sẵn.
@@ -401,6 +407,12 @@ descriptionFooter: string | null;      // mới, ≤ 1.000 ký tự, thêm nguy�
 alwaysTags: string[];                  // mới, ≤ 10, đứng đầu danh sách tag
 ```
 
+- Dữ liệu/API hiện hành theo [kiểu kênh](../../../web/src/api/channels.ts) và [service kênh](../../../internal/channels/channels.go). `defaultTemplateId` bắt buộc trên kênh đã tạo; `defaultTemplateName` đọc từ template dùng chung. Nhiều kênh có thể cùng dùng một template; đổi mặc định không nhân bản hoặc xoá template.
+- Đổi mặc định tham gia cùng khoá admission. Snapshot chuẩn bị từ A nhưng B đã commit trước admission phải được đọc lại thành B; override riêng của video giữ template đã chọn. Recipe/revision được fence trước khi persist; không gọi model/network trong transaction. Video đã persist giữ nguyên snapshot.
+- `agentInstructions` là map thưa `scout | director | artist | qa` → lời dặn, tối đa 8.000 ký tự mỗi người nhận. `PATCH /api/owner-channels/:id` merge đúng khoá gửi; chuỗi rỗng xoá khoá đó, không thay cả map hay làm mất lời dặn người khác. Save/readback không gọi model. Instructions của video chụp từ hàng kênh đã khoá cùng admission, không nhận snapshot do caller ghi đè.
+- PC dùng dock Dặn trợ lý; điện thoại vào Hồ sơ → Dặn trợ lý về kênh → Sheet Nhập nhanh, bốn người nhận chọn ngay trong form để không chồng Sheet. Giới hạn Kiểm định là kiểm ảnh, không tách/chỉnh riêng nhạc–giọng.
+- Trinh sát diễn giải lời dặn bằng chuỗi model Director hiện có khi vòng khám phá có ứng viên hợp lệ, không phải khi lưu. Chỉ hỗ trợ điều kiện nguồn liên kết và thời lượng tối thiểu; yêu cầu không diễn giải được phải báo rõ, không âm thầm lấy video như thể đã làm theo. Hợp đồng thực thi tại [chính sách Trinh sát](../../../internal/pipeline/queue/scout-policy.go).
+
 **Nhận diện** (đã có trong `branding.ts`, chỉ nói rõ cho UI):
 - `BrandingState { brief, summary, look, avatar, banner }`: `brief` = Mô tả kênh (sửa được), `summary` = câu tiếng Việt hiện ở “Phong cách nhận diện”, `look` = phong cách nhận diện dùng cho avatar, ảnh bìa và ảnh video ở prompt **Theo nhận diện kênh** (`imagePromptMode = blend`).
 - Tạo lại: `POST /api/owner-channels/:id/branding` `{ part: "all" | "name" | "avatar" | "banner", brief, direction? }` (theo `brandingInputSchema`). Avatar hoặc ảnh bìa = 1 ảnh; cả bộ = 2 ảnh.
@@ -408,7 +420,7 @@ alwaysTags: string[];                  // mới, ≤ 10, đứng đầu danh sá
 - Tham chiếu = đối thủ liên kết đầu tiên; bỏ liên kết nó thì đối thủ kế tiếp thành tham chiếu cho lần tạo lại sau.
 - `part: "all"` gửi `brief` hiện tại (kể cả bản người dùng sửa) làm hướng; có thể trả tên mới. <!-- r11-audit -->
 
-**Bỏ liên kết đối thủ** (`unlinkCompetitor`, đã có): giữ video đã làm và `clone_queue` đã có; nếu không còn đối thủ nào thì đặt `autoPick.enabled = false` và trả `autoPickPaused: true` để UI ghi lý do.
+**Bỏ liên kết đối thủ** (`unlinkCompetitor`): giữ video đã làm và `clone_queue` đã có; nếu không còn đối thủ nào thì đặt `autoFetch = false` và trả `autoFetchPaused: true` để UI ghi lý do.
 
 **Nội dung đăng của một video** (`metadata` artifact, `cloneMetadataSchema`):
 - Step `metadata` thêm `language`, `descriptionFooter`, `alwaysTags` vào prompt; app (không phải model) nối `descriptionFooter` vào cuối và đặt `alwaysTags` lên đầu, rồi cắt tag của Đạo diễn cho vừa 30 tag / 500 ký tự.
@@ -464,41 +476,23 @@ POST /api/suggestions/:id/dismiss {}
 
 Không phát hiện, lưu hay tiêm quy tắc học từ sửa metadata/góp ý ảnh. Không còn endpoint, trường phản hồi `learn`, nút Lưu thành quy tắc hoặc công việc học ngầm. Lịch sử metadata, góp ý và dấu vết prompt đã gửi vẫn là dữ liệu thật của video; không xoá để giả lập prompt mới và không dùng làm chỉ dẫn cho lượt mới.
 
-## §20 · Mức tự chủ và điểm ảnh (mới, Gói V20) <a id="autonomy"></a>
+## §20 · Tự động và điểm ảnh <a id="autonomy"></a>
 
-```ts
-interface Autonomy {
-  preset: "careful" | "balanced" | "auto" | "custom";
-  pick: "suggest" | "score2" | "all";               // thay autoPick.enabled
-  approve: { mode: "ask" | "score" | "all"; min: number };   // min 70–95, mặc định 85; thay autoApprove
-  onError: "stop" | "retry_once";
-  belowQuality: "ask" | "fix_then_ask";
-}
-owner_channels.autonomy  (JSON)        // migration: autoApprove=true → approve.mode="all"; false → preset "balanced"
-owner_channels.priority: "steady" | "views"
-ai_providers.dailyPaidImageLimit: number | null   // mặc định 50 (D7); 0 = không tự tiêu
-image.score: { value: number; parts: { match: number; artifacts: number; identity: number; duplicate: number }; reason: Reason }
-```
-- Điểm ảnh: Kiểm định chấm sau khi ảnh vẽ xong bằng model đọc ảnh của Hoạ sĩ (§15), không tốn ảnh. `approve.mode="score"` và mọi ảnh ≥ `min` → bỏ qua Chờ duyệt, ghi `action_result` “Tự duyệt theo điểm”.
-- `retry_once`: chỉ với mã lỗi trong danh sách tự sửa được (`source_download_failed`, `image_failed`, `render_failed`); thêm `job.autoFix = { at, code, result }`.
-- `fix_then_ask`: chạy lại các mục chưa đạt có cách tự sửa (vẽ lại ảnh lỗi, dựng lại phụ đề); đo lại một lần.
+- Kênh chỉ chỉnh `autoFetch`, `autoApprove` và `perDay` (1–20); API không còn preset/pick/approve/onError/belowQuality hoặc ưu tiên kênh. Chi tiết trường và mặc định đọc từ [contract kênh](../../../web/src/api/channels.ts).
+- `autoApprove = true` chỉ tự duyệt khi mọi ảnh cần duyệt có điểm hợp lệ từ 85 trở lên. Tắt thì chờ chủ duyệt. Không hạ ngưỡng bằng chỉ dẫn, không chấp nhận điểm thiếu/không hữu hạn/ngoài 0–100 hoặc lỗi chấm như một lần tự duyệt thành công.
+- Kiểm định chấm bốn tiêu chí ảnh bằng model đọc ảnh đã cấu hình, không phải một lượt vẽ ảnh. Chỉ dẫn ngoài khả năng kiểm ảnh phải được báo rõ và không được dùng như căn cứ tự duyệt.
+- `scoreIssue` trên ảnh/phiên bản báo chỉ dẫn chưa áp dụng hoặc chưa kiểm chứng được. Ảnh và biên nhận đã tạo vẫn được giữ để chủ duyệt thủ công; điểm của phiên bản đó không được dùng cho cổng tự duyệt. Trường và phép chiếu thuộc [DTO ảnh](../../../internal/clone/images/types.go); quyết định áp dụng thuộc [bộ chấm ảnh](../../../internal/autonomy/scorer.go).
+- Điểm/cảnh báo cạnh ảnh phải lấy từ đúng phiên bản đang xem hoặc so sánh. Điểm tổng hợp của video vẫn theo ảnh candidate/current của máy chủ; không lấy điểm đạt của bản mới để mô tả ảnh lịch sử, và không làm mất cảnh báo cũ khi đổi bản.
+- Tự sửa có budget một lượt cho lỗi được phép sửa; không chạy lại vô hạn hoặc bỏ qua lifecycle receipt/worker-generation. Độ hoàn thiện vẫn có cổng 90 riêng; sửa được thì đo lại, chưa đạt hỏi chủ. Hai cổng 85/90 không gộp hoặc thay lẫn nhau.
+- `image.score` tiếp tục đọc điểm/chi tiết thật theo [kiểu điểm](../../../web/src/api/autonomy.ts); không còn endpoint cấu hình mức tự chủ.
 
-## §21 · Số liệu sau đăng và nhận xét (mới, Gói V21) <a id="performance"></a>
 
-```ts
-interface PostedStats { jobId: string; youtubeId: string; at24h?: Stat; at7d?: Stat; at28d?: Stat; vsMedian7d?: number }
-interface Stat { views: number; likes: number; comments: number; readAt: string }
-interface Insight {
-  id: string; channelId: string; dimension: "template" | "title_pattern" | "length" | "post_hour";
-  text: string;                     // “Tiêu đề dạng câu hỏi: lượt xem 7 ngày gấp 1,8 lần”
-  groups: { label: string; n: number; median7d: number }[];
-  preliminary: boolean;             // < 20 video
-  apply?: { op: "template.rotation"; params: object };
-}
-POST /api/clone/:id/posted { youtubeUrl? }     // đã có “Đánh dấu đã đăng”, thêm link
-GET  /api/channels/:id/performance → { posted: PostedStats[]; insights: Insight[]; needMore: number }
-```
-- Nguồn số: theo quyết định D5. Đọc ở mốc 24 giờ, 7 ngày, 28 ngày; lỗi đọc không chặn gì, chỉ để trống.
+## §21 · Đánh dấu đã đăng <a id="performance"></a>
+
+- Giữ `POST /api/clone/:id/posted` và trạng thái đã đăng của video.
+- Bỏ API/thẻ cấu hình YouTube Data API (`/api/performance/data-key`), collector/số liệu sau đăng và nhận xét hiệu quả. Không còn hợp đồng `PostedStats`, `Insight`, luân phiên theo hiệu quả hoặc API `/api/channels/:id/performance`.
+- Dữ liệu video/đã đăng có thật không bị xoá để thực hiện cutover giao diện.
+
 
 ## §22 · Tiến độ thay cho Bản tin và Kế hoạch (Gói V37) <a id="recap"></a>
 
@@ -651,6 +645,7 @@ GET /api/backdrop/channels/:id/videos?kind=clip|highlight|vod|video&sort=newest&
 GET /api/backdrop/channels/:id → { …BackdropChannel, usedBy: { templateId, name, mode: "random" | "pick", kinds: Kind[], chosenCount?: number }[] }
 ```
 - **Nguồn nền của template** giữ đúng dạng code (`templateBackdropSchema`): `channels: { channelId, kinds, pinned: videoId[] }[]` — `pinned` rỗng = **Ngẫu nhiên từ mọi video**, có phần tử = **Chỉ từ video tôi chọn**; `clipCount?` (bỏ trống = tự phủ kín), `clipSec`. Video lẻ là `fixedVideoIds`.
+- **Mặc định loại video khi gắn nguồn:** kênh đã đọc danh sách chỉ bật sẵn các loại có số lượng lớn hơn0; kênh chưa đọc danh sách giữ các loại nền tảng hỗ trợ. Khi sửa nguồn đã gắn, giữ nguyên `kinds` trong recipe, kể cả loại hiện rỗng, cho người dùng bỏ chọn nếu còn loại khác. Loại cuối đang bật không thể tắt; loại rỗng chưa bật không thể bật. Không âm thầm sửa recipe cũ theo lần cập nhật số lượng.
 - **Ước lượng cho thanh Nền của một video:** `GET /api/templates/:id/backdrop/mix?lengthSec=2520` → `{ fixedSec, perChannel: { channelId, clips, freshVideos, repeats: boolean }[], loopSec, need, capped }` — dùng cùng hàm chia của `pickBackdropSources` (vòng tròn, kênh hết video nhường kênh khác, tối đa 40 clip) để số trên thanh khớp video làm ra.
 - `BackdropChannel.platform` và `BackdropVideo.platform` dùng cùng `PlatformId`; chip lọc nền tảng ở Thư viện sinh từ `GET /api/platforms` (chỉ các nền tảng có `uses` chứa `backdrop`).
 

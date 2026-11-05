@@ -153,20 +153,20 @@ type Store interface {
 	OwnerChannelExists(ctx context.Context, channelID string) (bool, error)
 	// VideoUsage trả lượt làm thật của các video trong một trang, một truy vấn.
 	VideoUsage(ctx context.Context, videoIDs []string) ([]domain.VideoUsage, error)
-	// AutoPickBaselines trả mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
-	AutoPickBaselines(ctx context.Context) ([]AutoPickBaseline, error)
+	// AutoFetchBaselines trả mốc bật Tự lấy của các cặp kênh–đối thủ đã liên kết.
+	AutoFetchBaselines(ctx context.Context) ([]AutoFetchBaseline, error)
 	// RivalVideoChannel trả kênh đối thủ của một video (found=false nếu lạ).
 	RivalVideoChannel(ctx context.Context, videoID string) (string, bool, error)
 	// SourceInfoArtifactPath trả đường dẫn download/source.info.json đã công bố.
 	SourceInfoArtifactPath(ctx context.Context, videoID string) (string, bool, error)
 }
 
-// AutoPickBaseline là mốc bật Tự lấy của một cặp (kênh của bạn, đối thủ).
-type AutoPickBaseline struct {
+// AutoFetchBaseline là mốc bật Tự lấy của một cặp (kênh của bạn, đối thủ).
+type AutoFetchBaseline struct {
 	ChannelID   string
 	ChannelName string
 	RivalID     string
-	AutoPick    bool
+	AutoFetch   bool
 	BaselineAt  time.Time
 }
 
@@ -368,14 +368,14 @@ func (s *Service) enrichPage(ctx context.Context, page *VideoPage) error {
 			page.Usage[u.VideoID] = append(page.Usage[u.VideoID], u)
 		}
 	}
-	baselines, err := s.store.AutoPickBaselines(ctx)
+	baselines, err := s.store.AutoFetchBaselines(ctx)
 	if err != nil {
 		return fmt.Errorf("đọc mốc Tự lấy: %w", err)
 	}
 	if len(baselines) == 0 {
 		return nil
 	}
-	byRival := make(map[string][]AutoPickBaseline, len(baselines))
+	byRival := make(map[string][]AutoFetchBaseline, len(baselines))
 	for _, b := range baselines {
 		byRival[b.RivalID] = append(byRival[b.RivalID], b)
 	}
@@ -394,7 +394,7 @@ func (s *Service) enrichPage(ctx context.Context, page *VideoPage) error {
 			continue
 		}
 		for _, b := range byRival[v.ChannelID] {
-			if !b.AutoPick || !v.UploadedAt.Before(b.BaselineAt) || used[v.ID][b.ChannelID] {
+			if !b.AutoFetch || !v.UploadedAt.Before(b.BaselineAt) || used[v.ID][b.ChannelID] {
 				continue
 			}
 			if page.PickNotes == nil {

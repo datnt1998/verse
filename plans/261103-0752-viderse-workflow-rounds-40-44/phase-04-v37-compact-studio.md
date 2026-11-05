@@ -1,7 +1,7 @@
 ---
 phase: 4
 title: "Bước 3 · V37 Bàn dựng gọn"
-status: in-progress
+status: completed
 priority: P1
 dependencies: [3]
 ---
@@ -41,7 +41,7 @@ Không thêm chatbot, không thêm realtime service. [Kiểm kê](reports/invent
 - Footer giữ contract attach hiện tại tới PR4 như bước9; không tự đặt template mặc định khi channel còn dữ liệu nhiều template. Bảng/quy tắc cũ đã bỏ UI có thể giữ lịch sử lạnh nếu không còn consumer/route; không thêm API deprecated hoặc `learned` vào prompt mới.
 
 ### Thực thi và bằng chứng hiện tại · 04/11/2026
-- Source: `5d316eabc0875a71ad380a55a7e582ab17d14cd6`, sửa migration `b493792d689095a20e01992c40c76462348e0882`, giữ video khi đổi phạm vi `93545e71cb6d3357a3147385c25db0e862995d53`. Đã mở [PR #4 dạng nháp](https://github.com/datnt1998/verse/pull/4), chưa merge/deploy. Normal git index của người dùng không đổi; không gồm `gen/models.go` hoặc artboard.
+- Source: `5d316eabc0875a71ad380a55a7e582ab17d14cd6`, sửa migration `b493792d689095a20e01992c40c76462348e0882`, giữ video `93545e71cb6d3357a3147385c25db0e862995d53`, thanh phủ `d615299e2352718ea51ee8c7976f7b4565286c4b`; bằng chứng `99ff38eb02dcde0b1f6ad01c507a003f5ac8b69a`. [PR #4 đã merge](https://github.com/datnt1998/verse/pull/4) tại `277b902b93cd7db1d771a418c789e8314802f722`, chưa deploy. Normal index/gen/models.go của người dùng và artboard không đổi.
 - Full frontend **3703 qua / 4 bỏ qua**, full Go và `go vet` qua. Sáu ca PostgreSQL thật qua, gồm nâng từ schema37 bằng migration-role, giữ preference/history và chặn mở lại loại đề xuất đã bỏ.
 - Native desktop + reduced-motion: [ZIP/phát–dừng–tua thật](reports/pr-03/runs/012-reviewed-player-and-zip/owned-ready-studio-restoration.json) **2/2**, [Editor/Template/Main/Việc nền/Thông báo](reports/pr-03/runs/013-reviewed-editor-feedback/interaction-results.json) **10/10**, [Main viewer](reports/pr-03/runs/014-canonical-inspector-viewer-regression/interaction-results.json) **2/2**. Replay dùng media đã lưu, không phải hai lượt render/generate mới; job/project gốc và receipt được bảo vệ.
 - Main giữ tab khi nối SSE lại và khi ẩn/hiện bảng; đổi video trở về **Thông tin** theo `Main.dc.html:1341`, không giữ tab trái artboard. Nguồn xuất Editor có thể không có artefact MP4; đọc `output.data` và phát file thật. Nút phím tắt có focus/Tab/Escape/click-toggle thật.
@@ -73,4 +73,4 @@ Rollback code trước PR4; nếu có migration dữ liệu, áp dụng cửa s�
 - [x] Re-scout consumers, loại bỏ UI và backend obsolete nguyên tử.
 - [x] Main/two tabs/progress/3proposal rows theo board, mọi action nối thật.
 - [x] Kiểm các state/tweak và motion trong phạm vi V37, cross-screen viewer; giới hạn bằng chứng ghi rõ trong report.
-- [ ] Gửi report/gap V37; merge PR3 trước channel migration.
+- [x] Gửi report/gap V37; PR #4 đã merge trước channel migration.

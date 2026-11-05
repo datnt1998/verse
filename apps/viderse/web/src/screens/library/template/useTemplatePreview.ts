@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { cache } from '@noverse/ui/data'
 import { keys } from '../../../data/keys'
 import { useResource } from '../../../data/useResource'
@@ -37,12 +37,25 @@ export function useTemplatePreview(templateId: string, detail: TemplateDetail, d
   const status = useResource(keys.templatePreview(templateId), ({ signal }) => getTemplatePreview(templateId, signal))
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const savedRevision = useRef(detail.revision)
 
-  const state: PreviewState = status.data?.state === 'building'
+  useEffect(() => {
+    if (savedRevision.current === detail.revision) return
+    savedRevision.current = detail.revision
+    // Cập nhật cả lý do nguồn không dùng được khi recipe vừa được lưu.
+    void status.refresh()
+  }, [detail.revision, status.refresh])
+
+  const liveState = status.data?.state ?? detail.preview.state
+  // GET có thể còn trong cache từ trước PATCH. Revision của project thật,
+  // không phải thời điểm render, quyết định nó còn khớp recipe đã lưu hay không.
+  const builtRevision = status.data?.templateRevision
+  const outdated = builtRevision !== undefined
+    ? builtRevision < detail.revision
+    : detail.preview.state === 'stale'
+  const state: PreviewState = liveState === 'building'
     ? 'building'
-    : dirty && status.data?.state === 'fresh'
-      ? 'stale'
-      : status.data?.state ?? detail.preview.state
+    : liveState === 'fresh' && (dirty || outdated) ? 'stale' : liveState
   const building = state === 'building'
 
   useEffect(() => {

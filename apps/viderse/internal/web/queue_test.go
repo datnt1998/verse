@@ -72,7 +72,7 @@ func TestAutoPickRescanDedupAndBaselineReset(t *testing.T) {
 		sql  string
 		args []any
 	}{
-		{`UPDATE owner_channels SET auto_pick=true`, nil},
+		{`UPDATE owner_channels SET auto_fetch=true`, nil},
 		{`UPDATE owner_channel_sources SET auto_baseline_at=$1`, []any{now.Add(-24 * time.Hour)}},
 		{`UPDATE rival_channels SET scanned_at=$1`, []any{now.Add(-time.Minute)}},
 	} {
@@ -104,7 +104,7 @@ func TestAutoPickRescanDedupAndBaselineReset(t *testing.T) {
 	}
 	var owner pgtype.UUID
 	_ = owner.Scan("11111111-1111-4111-8111-111111111111")
-	if _, err = gen.New(pool).SetAutoPick(ctx, gen.SetAutoPickParams{ID: owner, AutoPick: false}); err != nil {
+	if _, err = gen.New(pool).SetAutoFetch(ctx, gen.SetAutoFetchParams{ID: owner, AutoFetch: false}); err != nil {
 		t.Fatal(err)
 	}
 	links, err := postgres.NewQueueStore(pool).ListSourcesWithChannels(ctx, "11111111-1111-4111-8111-111111111111")

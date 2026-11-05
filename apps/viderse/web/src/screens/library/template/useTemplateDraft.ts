@@ -17,6 +17,7 @@ export type SaveStatus = {
   /** bản đang hiện trên màn (gồm cả sửa chưa lưu) */
   detail: TemplateDetail
   saving: boolean
+  reloading: boolean
   /** có thay đổi chưa lên máy chủ */
   dirty: boolean
   /** lần lưu vừa xong trong phiên này — đầu trang nói "Đã lưu vừa xong" */
@@ -29,24 +30,24 @@ export type SaveStatus = {
   error: string | null
 }
 
-type Pending = { name?: string; recipe?: Recipe }
+type Pending = { name?: string; recipe?: Recipe; settled?: ((saved: boolean) => void)[] }
 
 export function useTemplateDraft(initial: TemplateDetail) {
   const [state, setState] = useState<SaveStatus>({
-    detail: initial, saving: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null,
+    detail: initial, saving: false, reloading: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null,
   })
   // Bản mới nhất để đọc ngay trong callback (setState không đồng bộ).
   const draft = useRef<TemplateDetail>(initial)
   const revision = useRef(initial.revision)
-  const savedAt = useRef(initial.savedAt)
   const pending = useRef<Pending | null>(null)
   const busy = useRef(false)
   const conflict = useRef(false)
+  const reloading = useRef(false)
 
   const publish = useCallback((patch: Partial<SaveStatus>) => setState((prev) => ({ ...prev, detail: draft.current, ...patch })), [])
 
   const flush = useCallback(async function run(): Promise<void> {
-    if (busy.current) return
+    if (busy.current || conflict.current) return
     const next = pending.current
     if (!next) {
       publish({ saving: false, dirty: false })
@@ -54,7 +55,7 @@ export function useTemplateDraft(initial: TemplateDetail) {
     }
     pending.current = null
     busy.current = true
-    publish({ saving: true, dirty: true, justSaved: false, error: null })
+    publish({ saving: true, dirty: true, justSaved: false, error: null, fieldErrors: {} })
     try {
       const saved = await patchTemplate(draft.current.id, {
         revision: revision.current,
@@ -62,10 +63,8 @@ export function useTemplateDraft(initial: TemplateDetail) {
         ...(next.recipe !== undefined ? { recipe: next.recipe } : {}),
       })
       revision.current = saved.revision
-      savedAt.current = saved.savedAt
       const queued = pending.current as Pending | null
-      // Không có bản chờ mới → nhận luôn tên/recipe máy chủ (đã chuẩn hoá);
-      // còn bản chờ thì giữ nguyên chữ đang hiện trên màn, chỉ cập nhật mốc.
+      // Chỉ nhận giá trị chuẩn hoá cho phần không có bản sửa mới đang chờ.
       draft.current = {
         ...draft.current,
         revision: saved.revision,
@@ -73,17 +72,27 @@ export function useTemplateDraft(initial: TemplateDetail) {
         updatedAt: saved.updatedAt,
         preview: saved.preview,
         price: saved.price,
-        ...(queued === null
-          ? { name: saved.name ?? draft.current.name, ...(saved.recipe ? { recipe: saved.recipe } : {}) }
-          : queued.name !== undefined ? { name: queued.name } : {}),
+        name: queued?.name ?? saved.name ?? draft.current.name,
+        recipe: queued?.recipe ?? saved.recipe ?? draft.current.recipe,
       }
       conflict.current = false
       publish({ saving: false, dirty: queued !== null, justSaved: true, conflict: false, fieldErrors: {} })
+      for (const settle of next.settled ?? []) settle(true)
+      if (queued) queueMicrotask(() => { void run() })
     } catch (err) {
+      const queued = pending.current as Pending | null
+      // Thất bại không vứt thay đổi cũ: lần sửa/thử lại tiếp theo gửi đủ cả
+      // recipe và tên chưa lưu, ưu tiên phần mới nhất đang chờ.
+      pending.current = {
+        ...(next.name !== undefined ? { name: next.name } : {}),
+        ...(next.recipe !== undefined ? { recipe: next.recipe } : {}),
+        ...(queued?.name !== undefined ? { name: queued.name } : {}),
+        ...(queued?.recipe !== undefined ? { recipe: queued.recipe } : {}),
+      }
+      for (const settle of [...(next.settled ?? []), ...(queued?.settled ?? [])]) settle(false)
       const info = libraryErrorInfo(err)
       if (err instanceof ApiError && err.status === 409 && info.code === 'conflict') {
         conflict.current = true
-        pending.current = null
         publish({ saving: false, dirty: true, justSaved: false, conflict: true, error: null })
       } else if (err instanceof ApiError && err.status === 400) {
         const fields: Record<string, string> = {}
@@ -101,16 +110,18 @@ export function useTemplateDraft(initial: TemplateDetail) {
     } finally {
       busy.current = false
     }
-    if (pending.current && !conflict.current) void run()
   }, [publish])
 
   const enqueue = useCallback((patch: Pending) => {
-    pending.current = { ...(pending.current ?? {}), ...patch }
+    const previous = pending.current
+    pending.current = { ...previous, ...patch, settled: [...(previous?.settled ?? []), ...(patch.settled ?? [])] }
+    publish({ dirty: true, justSaved: false })
     void flush()
-  }, [flush])
+  }, [flush, publish])
 
   /** Đổi recipe (một khối đầy đủ như `scenes`/`appearance`) — lưu ngay. */
   const save = useCallback((patch: Partial<Recipe>) => {
+    if (reloading.current) return
     const recipe = { ...draft.current.recipe, ...patch }
     draft.current = { ...draft.current, recipe }
     publish({ dirty: true, error: null })
@@ -118,21 +129,38 @@ export function useTemplateDraft(initial: TemplateDetail) {
   }, [enqueue, publish])
 
   /** Đổi tên: gửi đúng chữ đã gõ; chỉ nhận tên máy chủ trả khi không còn bản chờ. */
-  const saveName = useCallback((name: string) => {
-    enqueue({ name })
+  const saveName = useCallback((name: string): Promise<boolean> => {
+    if (conflict.current || reloading.current) return Promise.resolve(false)
+    return new Promise<boolean>((resolve) => {
+      enqueue({ name, settled: [resolve] })
+    })
   }, [enqueue])
 
   /** Tải lại sau 409 (hoặc khi người dùng chủ động): bỏ bản đang sửa, lấy bản máy chủ. */
-  const reload = useCallback(async () => {
-    const fresh = await getTemplate(draft.current.id)
-    draft.current = fresh
-    revision.current = fresh.revision
-    savedAt.current = fresh.savedAt
-    pending.current = null
-    conflict.current = false
-    setState({ detail: fresh, saving: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null })
-    return fresh
-  }, [])
+  const reload = useCallback(async (): Promise<TemplateDetail | null> => {
+    if (busy.current) return null
+    busy.current = true
+    reloading.current = true
+    publish({ reloading: true, justSaved: false })
+    try {
+      const fresh = await getTemplate(draft.current.id)
+      draft.current = fresh
+      revision.current = fresh.revision
+      for (const settle of pending.current?.settled ?? []) settle(false)
+      pending.current = null
+      conflict.current = false
+      setState({ detail: fresh, saving: false, reloading: false, dirty: false, justSaved: false, conflict: false, fieldErrors: {}, error: null })
+      return fresh
+    } catch (err) {
+      publish({ reloading: false, error: err instanceof Error ? err.message : String(err) })
+      return null
+    } finally {
+      reloading.current = false
+      busy.current = false
+    }
+  }, [publish])
 
-  return { ...state, save, saveName, reload }
+  const retry = useCallback(() => { void flush() }, [flush])
+
+  return { ...state, save, saveName, reload, retry }
 }

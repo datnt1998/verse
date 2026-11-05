@@ -103,6 +103,22 @@ describe('ghép §26 với trường cũ', () => {
     expect(items[0]).toMatchObject({ label: 'Cảnh 3', index: 3, approved: true, narration: 'Lời kể.', startSec: 745, usedVersion: 2, refLimit: 4 })
   })
 
+  it('không dùng lại điểm cũ khi phiên bản hiện tại chưa kiểm chứng được chỉ dẫn', () => {
+    const issue = 'Chỉ dẫn nằm ngoài khả năng kiểm ảnh.'
+    const score = { value: 100 }
+    const parsed = jobImagesSchema.parse({
+      images: [{ id: 'a', kind: 'scene', index: 1, label: 'Cảnh 1', usedVersion: 2, refLimit: 4, versions: [base()], scoreIssue: issue }],
+    })
+    const [item] = toReviewItems(
+      [{ id: 'a', kind: 'scene', status: 'review', prompt: 'p', currentVersion: 2, reviewVersion: 2, versions: [], score }],
+      parsed.images,
+      {},
+    )
+    expect(item.score).toBeUndefined()
+    expect(item.scoreIssue).toBe(issue)
+    expect(item.versions[0].url).toBe('/v2.jpg')
+  })
+
   it('chưa có §26 thì đọc bản đang xem từ dữ liệu cũ', () => {
     const items = toReviewItems(
       [{ id: 'b', kind: 'scene', status: 'review', prompt: 'prompt cũ', currentVersion: 2, reviewVersion: 2, versions: [{ version: 2, cutout: null, originalUrl: '/old.jpg' }], sceneId: '5', width: 1024, height: 576 }],

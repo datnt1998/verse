@@ -11,8 +11,8 @@ import (
 )
 
 // fakeStore là Store trong bộ nhớ, giữ đúng các bất biến Service dựa vào: thứ
-// tự tên, tham chiếu = link đầu theo linked_at, position liền mạch, lease có
-// hạn, publish fence theo token + tên đọc lúc bắt đầu.
+// tự tên, tham chiếu = link đầu theo linked_at, một template mặc định, lease
+// có hạn, publish fence theo token + tên đọc lúc bắt đầu.
 type fakeStore struct {
 	mu        sync.Mutex
 	now       func() time.Time
@@ -35,7 +35,6 @@ type fakeStore struct {
 type fakeChannel struct {
 	c          domain.Channel
 	sources    []domain.ChannelSource
-	templates  []string
 	leaseToken string
 	leaseUntil time.Time
 }
@@ -76,9 +75,8 @@ func (f *fakeStore) view(fc *fakeChannel) ChannelView {
 			out.Sources[i].Handle = nil
 		}
 	}
-	out.Templates = make([]domain.ChannelTemplate, 0, len(fc.templates))
-	for i, id := range fc.templates {
-		out.Templates = append(out.Templates, domain.ChannelTemplate{ID: id, Name: f.templates[id], Position: i})
+	if id := fc.c.DefaultTemplateID; id != "" {
+		out.DefaultTemplate = &domain.ChannelTemplate{ID: id, Name: f.templates[id]}
 	}
 	return out
 }
@@ -149,7 +147,9 @@ func (f *fakeStore) CreateChannel(_ context.Context, in CreateInput) (string, er
 	now := f.now()
 	fc := &fakeChannel{c: domain.Channel{
 		ID: in.ID, Name: in.Name, YoutubeURL: in.YoutubeURL, Language: in.Language,
-		AutoPick: in.AutoPick, PacePerDay: in.PacePerDay, AlwaysTags: []string{},
+		AutoFetch: in.AutoFetch, AutoApprove: in.AutoApprove, PerDay: in.PerDay,
+		DefaultTemplateID: in.DefaultTemplateID, AgentInstructions: in.AgentInstructions,
+		AlwaysTags:    []string{},
 		IdentityState: domain.IdentityIdle, CreatedAt: now, UpdatedAt: now,
 	}}
 	for _, rivalID := range in.CompetitorIDs {
@@ -158,9 +158,6 @@ func (f *fakeStore) CreateChannel(_ context.Context, in CreateInput) (string, er
 			RivalID: rivalID, Title: f.rivals[rivalID].title,
 			LinkedAt: now.Add(time.Duration(f.links) * time.Millisecond),
 		})
-	}
-	if in.TemplateID != "" {
-		fc.templates = append(fc.templates, in.TemplateID)
 	}
 	f.channels[in.ID] = fc
 	return in.ID, nil
@@ -191,11 +188,27 @@ func (f *fakeStore) PatchChannel(_ context.Context, id string, p Patch) (bool, e
 	if p.AlwaysTags.Set {
 		fc.c.AlwaysTags = p.AlwaysTags.Value
 	}
-	if p.AutoPick.Set {
-		fc.c.AutoPick = p.AutoPick.Value
+	if p.AutoFetch.Set {
+		fc.c.AutoFetch = p.AutoFetch.Value
 	}
-	if p.PacePerDay.Set {
-		fc.c.PacePerDay = p.PacePerDay.Value
+	if p.AutoApprove.Set {
+		fc.c.AutoApprove = p.AutoApprove.Value
+	}
+	if p.PerDay.Set {
+		fc.c.PerDay = p.PerDay.Value
+	}
+	if p.DefaultTemplateID.Set {
+		fc.c.DefaultTemplateID = p.DefaultTemplateID.Value
+	}
+	if p.AgentInstructions.Set {
+		if fc.c.AgentInstructions == nil {
+			fc.c.AgentInstructions = domain.AgentInstructions{}
+		}
+		if p.AgentInstructions.Value == "" {
+			delete(fc.c.AgentInstructions, p.AgentInstructions.Key)
+		} else {
+			fc.c.AgentInstructions[p.AgentInstructions.Key] = p.AgentInstructions.Value
+		}
 	}
 	if p.Brief.Set {
 		fc.c.Branding.Brief = p.Brief.Value
@@ -253,7 +266,7 @@ func (f *fakeStore) UnlinkSource(_ context.Context, id, rivalID string) (bool, b
 	}
 	fc.sources = append(fc.sources[:idx], fc.sources[idx+1:]...)
 	if len(fc.sources) == 0 {
-		fc.c.AutoPick = false
+		fc.c.AutoFetch = false
 		return true, true, nil
 	}
 	return true, false, nil
@@ -273,17 +286,6 @@ func (f *fakeStore) SetSourceMinDuration(_ context.Context, id, rivalID string, 
 		}
 	}
 	return false, nil
-}
-
-func (f *fakeStore) UpdateTemplates(_ context.Context, id string, apply func([]string) []string) error {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	fc, ok := f.channels[id]
-	if !ok {
-		return &Error{Code: CodeNotFound, Message: "Kênh không tồn tại."}
-	}
-	fc.templates = append([]string(nil), apply(append([]string(nil), fc.templates...))...)
-	return nil
 }
 
 func (f *fakeStore) LoadIdentityRun(_ context.Context, id string) (IdentityRun, bool, error) {

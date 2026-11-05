@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "action": "pace-enter-save-and-reload",
+      "before": 5,
+      "after": 6,
+      "status": 200
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "action": "pace-enter-save-and-reload",
+      "before": 5,
+      "after": 6,
+      "status": 200
+    }
+  ],
+  "blocked": []
+}

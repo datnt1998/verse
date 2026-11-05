@@ -8,7 +8,7 @@ import (
 
 func scheduleNow() time.Time { return time.Date(2026, 10, 13, 12, 0, 0, 0, time.Local) }
 func testLane(id string, count, pace int) Lane {
-	lane := Lane{ChannelID: id, Pace: pace, TemplateOK: true}
+	lane := Lane{ChannelID: id, Pace: pace}
 	for i := 0; i < count; i++ {
 		lane.Items = append(lane.Items, Item{ID: id + string(rune('a'+i)), ChannelID: id, Priority: "batch", Position: float64(i + 1), DurationSec: 60})
 	}
@@ -111,16 +111,11 @@ func TestETACappedLaneDoesNotDelayEligibleLane(t *testing.T) {
 	}
 }
 
-func TestETAWorksetBoundAndBlockedTemplate(t *testing.T) {
+func TestETAWorksetBound(t *testing.T) {
 	lane := testLane("a", 600, 50)
 	etas := Estimate([]Lane{lane}, EstimateInput{Now: scheduleNow(), Workers: 2, Basis: DefaultBasis()})
 	if len(etas) != 500 {
 		t.Fatalf("ETA workset=%d", len(etas))
-	}
-	lane.TemplateOK = false
-	etas = Estimate([]Lane{lane}, EstimateInput{Now: scheduleNow(), Workers: 2, Basis: DefaultBasis()})
-	if etas[lane.Items[0].ID].Start != nil {
-		t.Fatal("missing template must have no ETA")
 	}
 }
 

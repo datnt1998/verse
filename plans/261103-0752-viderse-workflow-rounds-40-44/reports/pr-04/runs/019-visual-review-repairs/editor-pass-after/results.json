@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PASS",
+      "editorLink": true
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PASS",
+      "editorLink": false
+    }
+  ],
+  "errors": [],
+  "blocked": [],
+  "status": "PASS",
+  "browserClosed": true
+}

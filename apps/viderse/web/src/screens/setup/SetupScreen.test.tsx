@@ -103,9 +103,8 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  await unmountAll()
   await invalidate()
-  for (const root of roots.splice(0)) await act(() => root.unmount())
-  document.body.replaceChildren()
   vi.unstubAllGlobals()
   vi.useRealTimers()
 })
@@ -156,7 +155,6 @@ describe('Chuẩn bị máy', () => {
   it('bước đang chạy có tiến độ byte và phần trăm', async () => {
     const el = await render()
     const running = el.querySelector('.vv-setup__row.is-running')
-    expect(running?.textContent).toContain('đang tải mô hình nhận giọng nói')
     expect(running?.textContent).toContain('806 MB / 1,3 GB')
     expect(running?.textContent).toContain('62%')
   })
@@ -196,18 +194,33 @@ describe('Chuẩn bị máy', () => {
     expect(btn).toBeTruthy()
   })
 
-  it('bước lỗi nêu lý do mạng và Thử lại gọi POST retry', async () => {
+  it('keeps a failed setup step recoverable after retry rejection and applies the successful retry snapshot', async () => {
     state = {
       ...state, state: 'failed', running: false,
       steps: state.steps.map((s) => (s.id === 'transcription' ? step('transcription', 'failed', 'dial tcp: i/o timeout') : s.id === 'codex' ? step('codex', 'done') : s)),
     }
+    const previousFetch = globalThis.fetch
+    let attempts = 0
+    vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+      if (url !== '/api/setup/retry') return previousFetch(input, init)
+      attempts++
+      return Promise.resolve(attempts === 1
+        ? Response.json({ error: 'UNAVAILABLE_INTERNAL_IDENTIFIER' }, { status: 503 })
+        : Response.json({ ...state, state: 'running', running: true, steps: state.steps.map(s => s.id === 'transcription' ? step('transcription', 'running') : s) }))
+    }))
     const el = await render()
     expect(el.querySelector('.vv-setup__card-head b')?.textContent).toBe('Một bước chưa cài được')
     const failRow = el.querySelector('.vv-setup__row.is-failed')
     expect(failRow?.textContent).toContain('Tải quá chậm nên bị ngắt')
     expect(el.querySelector('.vv-setup__card-sub')?.textContent).toContain('bước 3')
     await click([...(failRow?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.includes('Thử lại')))
-    expect(calls.some((c) => c.url === '/api/setup/retry' && c.method === 'POST')).toBe(true)
+    expect(failRow?.querySelector('[role="alert"]')).not.toBeNull()
+    expect(failRow?.textContent).not.toContain('UNAVAILABLE_INTERNAL_IDENTIFIER')
+    await click([...(failRow?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.includes('Thử lại')))
+    expect(el.querySelector('.vv-setup__row.is-failed')).toBeNull()
+    expect(el.querySelector('.vv-setup__row.is-running')?.textContent).toContain('Tách tiếng và tạo phụ đề')
+    expect(el.querySelector('.vv-setup__row.is-running [role="alert"]')).toBeNull()
   })
 
   it('máy mới (idle + chưa xong + đủ chỗ) tự gọi đúng một POST start', async () => {

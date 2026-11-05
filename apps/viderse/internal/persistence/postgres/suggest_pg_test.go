@@ -27,8 +27,9 @@ func suggestionTitles(list []suggest.Suggestion) []string {
 func TestSuggestionsOpenLimitAndDismissCooldownPostgres(t *testing.T) {
 	ctx := context.Background()
 	pool := provision(t)
+	seedFixtureTemplate(t, pool)
 	var channel string
-	if err := pool.QueryRow(ctx, `INSERT INTO owner_channels(id,name) VALUES(gen_random_uuid(),'Midnight Tales') RETURNING id::text`).Scan(&channel); err != nil {
+	if err := pool.QueryRow(ctx, `INSERT INTO owner_channels(id,name,default_template_id) VALUES(gen_random_uuid(),'Midnight Tales','eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee') RETURNING id::text`).Scan(&channel); err != nil {
 		t.Fatal(err)
 	}
 	now := time.Date(2026, 10, 28, 9, 0, 0, 0, time.UTC)

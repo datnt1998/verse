@@ -3,7 +3,7 @@ package domain
 import "time"
 
 // Từ vựng của Kênh của bạn (07 §8, §16): kênh do chủ sở hữu, đối thủ liên
-// kết, danh sách template luân phiên và bộ nhận diện (tên + avatar + ảnh bìa
+// kết, template mặc định của Thư viện và bộ nhận diện (tên + avatar + ảnh bìa
 // kênh) do trợ lý tạo. Chỉ kiểu giá trị — không I/O.
 
 // ChannelLanguage là ngôn ngữ tiêu đề/mô tả/tag của kênh; "auto" = theo ngôn
@@ -73,14 +73,19 @@ type Channel struct {
 	StyleNote         *string
 	DescriptionFooter *string
 	AlwaysTags        []string
-	AutoPick          bool
-	// Autonomy là Mức tự chủ (07 §20); AutoPick ở trên là cờ bật/tạm dừng Tự
-	// lấy, còn Autonomy.Pick là cách lấy khi cờ bật.
-	Autonomy           Autonomy
-	Priority           string // PrioritySteady | PriorityViews
-	PacePerDay         int
-	TemplateCursor     int
-	Branding           Branding
+	// DefaultTemplateID là template mặc định của kênh trong Thư viện (FK bắt
+	// buộc; nhiều kênh được dùng chung một template).
+	DefaultTemplateID string
+	// AutoFetch bật/tắt Tự lấy video mới của đối thủ; AutoApprove bật/tắt tự
+	// duyệt ảnh khi mọi ảnh đạt ngưỡng cố định 85.
+	AutoFetch   bool
+	AutoApprove bool
+	PerDay      int
+	// AgentInstructions là chỉ dẫn riêng của chủ kênh cho từng trợ lý
+	// (scout|director|artist|qa). Khoá vắng = không có chỉ dẫn. Đây KHÔNG phải
+	// Giọng văn (StyleNote) hay Mô tả kênh (Branding.Brief).
+	AgentInstructions AgentInstructions
+	Branding          Branding
 	AvatarPath         *string // tương đối thư mục dự án: channels/<id>/<tệp>
 	BannerPath         *string
 	IdentityState      IdentityState
@@ -108,10 +113,9 @@ type ChannelSource struct {
 	MinDurationSec *int
 }
 
-// ChannelTemplate là một template trong danh sách luân phiên (position liền
-// mạch từ 0).
+// ChannelTemplate là một template của Thư viện được kênh tham chiếu (mặc định
+// của kênh hoặc override cho một lần tạo).
 type ChannelTemplate struct {
-	ID       string
-	Name     string
-	Position int
+	ID   string
+	Name string
 }
