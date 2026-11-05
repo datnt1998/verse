@@ -119,7 +119,7 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
       <button type="button" aria-label="Quay lại Bàn dựng" onClick={onBack} {...stylex.props(d.headerBtn)}><Icon name="arrow-r" size={20} style={{ transform: 'rotate(180deg)' }} /></button>
       <span {...stylex.props(d.headerText)}>
         <span {...stylex.props(d.headerTitle)} title={job.source.title}>{job.source.title}</span>
-        <span {...stylex.props(d.headerMeta)}>{[jobChannel, durationLabel(job.source.durationSec), job.templateName ?? job.templateId].filter(Boolean).join(' · ')}</span>
+        <span {...stylex.props(d.headerMeta)}>{[jobChannel, durationLabel(job.source.durationSec), job.templateName].filter(Boolean).join(' · ')}</span>
       </span>
       {job.stageGroup === 'working' && <button type="button" aria-label={c.pause} title={!online ? 'Mất kết nối' : c.pause} disabled={!online || actionBusy} aria-busy={actionBusy || undefined} onClick={() => void action('pause')} {...stylex.props(d.headerBtn)}><Icon name="pause" size={20} /></button>}
       <button type="button" aria-label="Thông tin video" onClick={() => setInfoOpen(true)} {...stylex.props(d.headerBtn)}><Icon name="info" size={20} /></button>

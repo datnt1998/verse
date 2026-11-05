@@ -103,6 +103,14 @@ it('shows the saved QA issue only while its historical image is being viewed', a
   }
 })
 
+async function openPromptEditor() {
+  act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+  for (let frame = 0; frame < 3; frame++) {
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
+    expect([...document.querySelectorAll('[role="dialog"]')].filter(dialog => !dialog.closest('[inert]')).length).toBeLessThanOrEqual(1)
+  }
+}
+
 it('shows the selected submitted prompt in four sections without old learned notes', async () => {
   const node = await render()
   act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
@@ -187,7 +195,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
     expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Cảnh 1 phần Cảnh: góc máy rộng.')
     expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain(image.prompt)
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     expect(document.querySelector('textarea')?.value).toBe('Cảnh 1 phần Cảnh: góc máy rộng.')
     expect((button('Vẽ lại với chỉ dẫn này') as HTMLButtonElement).disabled).toBe(true)
     expect(state.mutate).not.toHaveBeenCalled()
@@ -221,7 +229,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     const node = await render()
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     const textarea = document.querySelector<HTMLTextAreaElement>('textarea')!
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
@@ -244,7 +252,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     const node = await render()
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     const textarea = document.querySelector<HTMLTextAreaElement>('textarea')!
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
@@ -280,7 +288,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     expect(activeDialogs()).toHaveLength(1)
     const edit = button('Sửa chỉ dẫn rồi vẽ lại')!
     expect(activeDialogs()[0]?.contains(edit)).toBe(true)
-    act(() => edit.click())
+    await openPromptEditor()
     expect(activeDialogs()).toHaveLength(1)
     expect(activeDialogs()[0]?.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('Cảnh 2 phần Cảnh: đêm mưa, quán nhỏ ven đường.')
     expect(state.loadImages).toHaveBeenCalledWith('j', true)
@@ -322,7 +330,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     act(() => cancelled!.click())
     expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v1.jpg')
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     expect(document.querySelector('textarea')?.value).toBe('Cảnh 1 phần Cảnh: góc máy rộng.')
   })
 

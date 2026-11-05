@@ -52,6 +52,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const [imageFailed, setImageFailed] = useState(false)
   const [sheet, setSheet] = useState<'feedback' | 'prompt' | null>(null)
   const [tab, setTab] = useState<'feed' | 'edit'>('feed')
+  const promptHandoff = useRef(false)
   const [feedback, setFeedback] = useState('')
   const [draft, setDraft] = useState('')
   const [sheetBase, setSheetBase] = useState<{ jobId: string; imageId: string; version: number } | null>(null)
@@ -476,7 +477,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       </div>
     </Sheet>
 
-    <Sheet open={sheet === 'prompt'} onClose={() => setSheet(null)} title={copy.promptTitle} subtitle={promptSubtitle} size="md" height="auto">
+    <Sheet open={sheet === 'prompt'} onClose={() => { promptHandoff.current = false; setSheet(null) }} onExited={() => { if (promptHandoff.current) { promptHandoff.current = false; openFeedback('edit') } }} title={copy.promptTitle} subtitle={promptSubtitle} size="md" height="auto">
       {shown && <div {...stylex.props(ms.sheetPad)}>
         <div {...stylex.props(ms.segments)}>
           {submittedParts.map(part => <div key={part.kind} {...stylex.props(ms.segment)}>
@@ -496,7 +497,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
         {metaLine && <span {...stylex.props(ms.meta)}>{metaLine}</span>}
         <div {...stylex.props(ms.sheetFoot)}>
           <Button variant="ghost" size="lg" xstyle={ms.sheetFootGrow} onClick={() => void copyPrompt()}>{copy.promptCopy}</Button>
-          <Button variant="primary" size="lg" xstyle={ms.sheetFootGrow} disabled={editableScene === null} title={editableScene === null ? 'Bản này chưa lưu prompt theo phần nên chỉ xem được; góp ý vẫn vẽ lại được.' : undefined} onClick={() => { setSheet(null); openFeedback('edit') }}>{copy.promptEdit}</Button>
+          <Button variant="primary" size="lg" xstyle={ms.sheetFootGrow} disabled={editableScene === null} title={editableScene === null ? 'Bản này chưa lưu prompt theo phần nên chỉ xem được; góp ý vẫn vẽ lại được.' : undefined} onClick={() => { promptHandoff.current = true; setSheet(null) }}>{copy.promptEdit}</Button>
         </div>
       </div>}
     </Sheet>
