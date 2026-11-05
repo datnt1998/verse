@@ -26,17 +26,18 @@ var ui embed.FS
 // Gateway phục vụ toàn bộ HTTP của app.
 type Gateway struct {
 	*webapp.Server
-	Clone             CloneService
-	accounts          *identity.Store
-	hub               *events.Hub
-	status            *status.Service
-	serverStorageMode func() bool
-	hosted            bool
-	scopedRender      http.Handler
-	renderCloneRoute  func(http.ResponseWriter, *http.Request) bool
-	cloneReviewRoute  func(http.ResponseWriter, *http.Request) bool
-	clonePostedRoute  func(http.ResponseWriter, *http.Request) bool
-	channelRoutes     map[string][]channelRoute
+	Clone              CloneService
+	accounts           *identity.Store
+	hub                *events.Hub
+	status             *status.Service
+	serverStorageMode  func() bool
+	hosted             bool
+	scopedRender       http.Handler
+	scopedRenderOrigin string
+	renderCloneRoute   func(http.ResponseWriter, *http.Request) bool
+	cloneReviewRoute   func(http.ResponseWriter, *http.Request) bool
+	clonePostedRoute   func(http.ResponseWriter, *http.Request) bool
+	channelRoutes      map[string][]channelRoute
 }
 
 // NewGateway dựng handler: accounts là kho identity chung (Postgres); khi
