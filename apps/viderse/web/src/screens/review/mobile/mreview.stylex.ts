@@ -19,7 +19,7 @@ export const ms = stylex.create({
   titleRow: { flex: '0 0 auto', minHeight: 44, paddingBlockStart: 2, paddingBlockEnd: 4, paddingInlineStart: 16, paddingInlineEnd: 8, display: 'flex', alignItems: 'center', gap: 6 },
   title: { margin: 0, flex: 1, fontSize: 24, fontWeight: 600, letterSpacing: '-.02em', color: 'var(--color-fg)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   count: { fontSize: 13, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
-  nextJob: { width: 36, height: 36, borderRadius: 9, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: 'var(--color-fg-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flex: '0 0 auto' },
+  nextJob: { width: 'var(--vv-s-44)', height: 'var(--vv-s-44)', borderRadius: 9, borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', color: 'var(--color-fg-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flex: '0 0 auto' },
 
   scroll: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', paddingInline: 16, paddingBlockEnd: 14, display: 'flex', flexDirection: 'column', gap: 12, scrollbarWidth: 'none' },
   center: { flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 24, textAlign: 'center' },
@@ -38,7 +38,7 @@ export const ms = stylex.create({
   stageApproved: { position: 'absolute', insetInlineEnd: 10, top: 10, display: 'inline-flex', alignItems: 'center', gap: 4, paddingBlock: 3, paddingInline: 8, borderRadius: 6, backgroundColor: 'var(--tint-ok)', color: 'var(--color-ok)', fontSize: 11, fontWeight: 600, zIndex: 5, pointerEvents: 'none' },
   stageTag: { color: 'inherit' },
   stageTagWarn: { color: 'var(--color-warn)' },
-  compare: { position: 'absolute', insetInlineEnd: 8, bottom: 8, zIndex: 2, height: 32, paddingInline: 8, borderRadius: 7, backgroundColor: 'var(--vv-glass)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', color: 'var(--color-fg-2)', fontSize: 12, gap: 6 },
+  compare: { position: 'absolute', insetInlineEnd: 8, bottom: 8, zIndex: 2, height: 'var(--vv-s-44)', paddingInline: 8, borderRadius: 7, backgroundColor: 'var(--vv-glass)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', color: 'var(--color-fg-2)', fontSize: 12, gap: 6 },
   stageNew: { position: 'absolute', insetInlineStart: 10, bottom: 10, paddingBlock: 3, paddingInline: 8, borderRadius: 6, backgroundColor: 'var(--color-accent)', color: 'var(--color-accent-fg)', fontSize: 10.5, fontWeight: 700, letterSpacing: '.04em', zIndex: 2, pointerEvents: 'none' },
   tap: { position: 'absolute', top: 0, bottom: 0, width: '30%', borderWidth: 0, borderStyle: 'none', backgroundColor: 'transparent', cursor: 'pointer', zIndex: 1 },
   tapPrev: { insetInlineStart: 0 },
@@ -90,7 +90,6 @@ export const ms = stylex.create({
 
   scoreRow: { display: 'flex', alignItems: 'center', gap: 8, paddingBlock: 8, paddingInline: 10, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', fontSize: 12.5, color: 'var(--color-fg-2)' },
   scoreValue: { fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-fg)' },
-  scoreWhy: { marginInlineStart: 'auto' },
 
   versions: { display: 'flex', flexDirection: 'column', gap: 6 },
   verHead: { display: 'flex', alignItems: 'center', gap: 8, minHeight: 36 },
@@ -106,7 +105,8 @@ export const ms = stylex.create({
   verDev: { display: 'flex', alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed', cursor: 'default' },
   verDevText: { fontSize: 10.5, color: 'var(--vv-fg-note)', textAlign: 'center', lineHeight: 1.3 },
 
-  promptRow: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', paddingBlock: 9, paddingInline: 12, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg)', fontSize: 13, textAlign: 'left', cursor: 'pointer' },
+  promptRow: { display: 'flex', alignItems: 'center', gap: 8, width: '100%', minHeight: 'var(--vv-s-44)', paddingBlock: 9, paddingInline: 12, borderRadius: 10, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg)', fontSize: 13, textAlign: 'left', cursor: 'pointer' },
+  touchSegment: { height: 'var(--vv-s-44)' },
   promptLabel: { flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   promptRefs: { display: 'flex', alignItems: 'center', gap: 2, flex: '0 0 auto' },
   promptRefImage: { width: 22, height: 22, borderRadius: 4, objectFit: 'cover', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)' },
@@ -139,10 +139,9 @@ export const ms = stylex.create({
   refRow: { display: 'flex', alignItems: 'center', gap: 6, overflowX: 'auto', scrollbarWidth: 'none' },
   refImage: { width: 56, height: 32, borderRadius: 6, objectFit: 'cover', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-2)', flex: '0 0 auto' },
   meta: { fontSize: 11.5, color: 'var(--color-fg-4)', fontVariantNumeric: 'tabular-nums' },
-  chip: { flexShrink: 0, whiteSpace: 'nowrap', height: 34, paddingInline: 12, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg-2)', fontSize: 12.5, cursor: 'pointer' },
+  chip: { flexShrink: 0, whiteSpace: 'nowrap', height: 'var(--vv-s-44)', paddingInline: 12, borderRadius: 999, borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--line-4)', backgroundColor: 'var(--color-surface-1)', color: 'var(--color-fg-2)', fontSize: 12.5, cursor: 'pointer' },
   sheetFoot: { position: 'sticky', bottom: 0, display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 8, marginInline: -16, paddingInline: 16, paddingBlockStart: 10, paddingBlockEnd: 4, backgroundColor: 'var(--color-surface-3)', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--line-1)' },
   sheetFootGrow: { minWidth: 0 },
   fieldLabel: { display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, color: 'var(--color-fg-4)' },
   editHint: { margin: 0, fontSize: 12, lineHeight: 1.5, color: 'var(--vv-fg-note)' },
-  whyBody: { paddingBlockEnd: 16, paddingInline: 16 },
 })

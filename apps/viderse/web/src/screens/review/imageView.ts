@@ -150,11 +150,11 @@ export function versionImage(item: ReviewItemView, version: ImageVersion | undef
   return version.previewUrl || version.url || (version.state === 'drawing' ? fallback : undefined)
 }
 
-export const PART_LABELS: Record<PromptPartKind, string> = {
+export const SUBMITTED_PARTS = ['scene', 'style', 'refs', 'avoid'] as const
+export const PART_LABELS: Partial<Record<PromptPartKind, string>> = {
   scene: 'Cảnh',
   style: 'Phong cách',
   refs: 'Tham chiếu',
-  learned: 'Ghi chú đã học',
   avoid: 'Tránh',
 }
 

@@ -4,6 +4,10 @@ import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r, visualRoles } from '../../../styles/viderse.stylex'
 
+const panelEnter = stylex.keyframes({
+  from: { opacity: 0, transform: 'translateY(4px)' },
+  to: { opacity: 1, transform: 'translateY(0)' },
+})
 export const mw = stylex.create({
   listRoot: {
     display: 'flex', flexDirection: 'column', gap: s['--vv-s-20'],
@@ -71,11 +75,12 @@ export const mw = stylex.create({
   jobMeter: { paddingLeft: 'calc(80px + var(--vv-s-12))' },
   moreLink: {
     display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-4'], alignSelf: 'flex-start',
-    minHeight: 36, paddingInline: s['--vv-s-2'], borderWidth: 0, backgroundColor: 'transparent',
+    minHeight: s['--vv-s-44'], paddingInline: s['--vv-s-2'], borderWidth: 0, backgroundColor: 'transparent',
     color: color['--color-fg-2'], fontSize: 12.5, textDecoration: 'none', cursor: 'pointer',
   },
   state: { padding: `${s['--vv-s-24']} ${s['--vv-s-16']}`, textAlign: 'center', fontSize: 13, lineHeight: 1.6, color: 'var(--vv-fg-note)' },
   stateTitle: { display: 'block', marginBottom: s['--vv-s-4'], fontSize: 15, fontWeight: 600, color: color['--color-fg'] },
+  touchSegment: { height: s['--vv-s-44'] },
   emptyActions: { display: 'flex', justifyContent: 'center', marginTop: s['--vv-s-12'] },
 
   // Chi tiết
@@ -279,12 +284,11 @@ export const mwList = stylex.create({
   quietLink: { display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-6'], minHeight: 44, alignSelf: 'flex-start', color: color['--color-fg-2'], fontSize: 13, textDecoration: 'none' },
 })
 
-// ── MMain detail: thanh tiêu đề 52, 4 trợ lý một hàng, Ảnh của video, Phòng vẽ,
-// Nội dung đăng, Nhật ký và ô nhắn dính đáy như artboard. ──
+// ── MMain detail: Nội dung đăng / Ảnh, Thông tin trong sheet và Tiến độ. ──
 export const mwDetail = stylex.create({
   root: {
     display: 'flex', flexDirection: 'column', flexBasis: 0, flexGrow: 1, minHeight: 0, minWidth: 0,
-    // Bàn phím ảo do kit đo (`--kb`): giữ ô nhắn dính đáy ngay trên bàn phím.
+    // Bàn phím ảo do shell đo; nội dung sheet dùng cùng viewport và safe area.
     paddingBottom: 'var(--kb, 0px)',
   },
   header: { position: 'sticky', top: 0, zIndex: 10, flex: '0 0 auto', height: 52, paddingInline: 6, display: 'flex', alignItems: 'center', gap: 2, backgroundColor: color['--color-bg'] },
@@ -293,6 +297,11 @@ export const mwDetail = stylex.create({
   headerTitle: { fontSize: 16, fontWeight: 600, color: color['--color-fg'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   headerMeta: { fontSize: 12, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   scroll: { flexGrow: 1, flexShrink: 1, flexBasis: 0, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', padding: `4px 16px 16px`, display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'], scrollbarWidth: 'none' },
+  infoBody: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-16'], padding: s['--vv-s-16'], minWidth: 0 },
+  tabPanel: {
+    animationName: { default: panelEnter, '@media (prefers-reduced-motion: reduce)': 'none' },
+    animationDuration: 'var(--vv-dur)', animationTimingFunction: 'var(--vv-ease)',
+  },
 
   agentRow: { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: s['--vv-s-6'] },
   agentTile: {
@@ -368,7 +377,6 @@ export const mwDetail = stylex.create({
   fieldLabel: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: color['--color-fg-3'] },
   fieldLabelStrong: { fontSize: 12, fontWeight: 600, color: color['--color-fg-2'] },
   fieldGrow: { flex: 1 },
-  whyBtn: { minHeight: 32, display: 'inline-flex', alignItems: 'center', gap: 4, paddingInline: 0, borderWidth: 0, backgroundColor: 'transparent', color: color['--color-fg-3'], fontSize: 12, cursor: 'pointer' },
   titleBox: {
     padding: `${s['--vv-s-10']} ${s['--vv-s-12']}`, borderRadius: r['--vv-r-10'], backgroundColor: color['--color-surface-0'],
     borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(255,255,255,.1)', fontSize: 14, fontWeight: 500, lineHeight: 1.45, color: color['--color-fg'],

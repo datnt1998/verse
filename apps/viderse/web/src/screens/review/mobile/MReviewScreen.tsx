@@ -9,13 +9,12 @@ import { ActionButton } from '../../../components/ActionButton'
 import { listChannels } from '../../../api/channels'
 import { readImageScore } from '../../../api/autonomy'
 import { redrawImages, useImageVersion, type RedrawBody } from '../../../api/images'
-import { request } from '../../../api/request'
+import { ApiError, request } from '../../../api/request'
 import { useResource } from '../../../data/useResource'
 import { keys } from '../../../data/keys'
 import { useOnline } from '../../../data/status'
 import { navigate, paths, type Route } from '../../../router'
 import { DevelopEffect, Orb } from '../../../components'
-import { ReasonPopover } from '../../../components/reason/ReasonPopover'
 import { isLow } from '../../../components/autonomy/scoreSummary'
 import { screenReview } from '../../../i18n/screens'
 import { t as autonomyText } from '../../../i18n/autonomy'
@@ -23,6 +22,7 @@ import {
   imageURL, isBlocked, isDrawing, latestVersion, reviewLabel, useReview, usedVersion, versionURL,
   type ReviewImage,
 } from '../useReview'
+import { PART_LABELS, SUBMITTED_PARTS } from '../imageView'
 import { ms } from './mreview.stylex'
 
 const copy = screenReview.mobile
@@ -41,7 +41,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       await useImageVersion(targetJob, targetImage, n)
       await review.loadImages(targetJob, true)
     } catch (error) {
-      toast.err(error instanceof Error ? error.message : 'Chưa đổi được phiên bản. Vui lòng thử lại.')
+      toast.err(error instanceof ApiError ? error.message : 'Chưa đổi được phiên bản. Vui lòng thử lại.')
     }
   })
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
@@ -50,7 +50,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const jobId = address?.video
   const [versions, setVersions] = useState<Record<string, number>>({})
   const [imageFailed, setImageFailed] = useState(false)
-  const [sheet, setSheet] = useState<'feedback' | 'prompt' | 'why' | null>(null)
+  const [sheet, setSheet] = useState<'feedback' | 'prompt' | null>(null)
   const [tab, setTab] = useState<'feed' | 'edit'>('feed')
   const [feedback, setFeedback] = useState('')
   const [draft, setDraft] = useState('')
@@ -69,12 +69,13 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const { busy: redrawBusy, pending: redrawPending, run: applyRedraw } = useAsyncAction(async (targetJob: string, imageId: string, baseVersion: number | undefined, body: Omit<RedrawBody, 'imageIds' | 'baseVersion'>) => {
     try {
       await redrawImages(targetJob, { imageIds: [imageId], ...(baseVersion == null ? {} : { baseVersion }), ...body })
+      toast.ok('Đã gửi cho Hoạ sĩ. Ảnh cũ được giữ tới khi bản mới vẽ xong.')
       await review.loadImages(targetJob, true)
       if (redrawOwner.current.jobId === targetJob && redrawOwner.current.imageId === imageId && redrawOwner.current.sheet === 'feedback') {
         setSheet(null); setFeedback(''); setDraft(''); setSheetBase(null)
       }
     } catch (error) {
-      toast.err(error instanceof Error ? error.message : 'Chưa gửi được yêu cầu vẽ lại. Vui lòng thử lại.')
+      toast.err(error instanceof ApiError ? error.message : 'Chưa gửi được yêu cầu vẽ lại. Vui lòng thử lại.')
     }
   })
   // Cuộn xuống thì thanh tab thu nhỏ đúng như artboard (tabScroll › down).
@@ -155,9 +156,10 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const used = item ? usedVersion(item) : 0
   // Artboard › nút "So với bản N-1": bản trước đã có URL riêng nên so được thật.
   const shownChosen = shown ? chosen(shown) : 0
-  const canCompare = !!shown && shownChosen > 1 && !isDrawing(shown)
+  const previousVersion = shown?.versions.filter(candidate => candidate.version < shownChosen && usable(shown, candidate.version) && (candidate.originalUrl || candidate.cutoutUrl)).sort((a, b) => b.version - a.version)[0]?.version
+  const canCompare = previousVersion !== undefined && !!shown && !isDrawing(shown)
   const comparing = compare && canCompare
-  const shownVersionNumber = comparing ? shownChosen - 1 : shownChosen
+  const shownVersionNumber = comparing ? previousVersion! : shownChosen
   const stageURL = shown && job ? (versionURL(job.id, shown, shownVersionNumber) || imageURL(job.id, shown)) : ''
   const sceneTime = shown?.kind === 'thumbnail'
     ? shown.width && shown.height ? `${shown.width}×${shown.height}` : ''
@@ -171,6 +173,9 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   const metaLine = [shownVersion?.source, shown?.width && shown?.height ? `${shown.width}×${shown.height}` : '', versionTime].filter(Boolean).join(' · ')
   const sheetSubtitle = item ? (sheetSourceVersion > 0 ? copy.sheetSubtitle(reviewLabel(item, selected), sheetSourceVersion) : reviewLabel(item, selected)) : ''
   const sentPrompt = shownVersion?.prompt?.trim() || shown?.prompt?.trim() || ''
+  const submittedVersion = images?.images?.find(candidate => candidate.id === shown?.id)?.versions.find(candidate => candidate.n === shownChosen)
+  const submittedParts = submittedVersion?.partsLegacy ? [] : SUBMITTED_PARTS.flatMap(kind => submittedVersion?.parts.filter(part => part.kind === kind) ?? [])
+  const rawPrompt = submittedVersion?.sentText || sentPrompt
   const promptSubtitle = shown ? (shownChosen > 0 ? copy.sheetSubtitle(reviewLabel(shown, shownIndex), shownChosen) : reviewLabel(shown, shownIndex)) : ''
   const drawingKey = item && job && isDrawing(item) ? `${job.id}:${item.id}:${item.versions.length}` : null
   const elapsed = drawingKey && since?.key === drawingKey ? Math.max(0, Math.floor((now - since.at) / 1000)) : 0
@@ -263,7 +268,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
   }
   const skip = () => {
     if (!job || !item || busy || !online || item.kind !== 'scene' || scenesLeft <= 1) return
-    void review.mutate(job.id, item, 'skip')
+    void review.mutate(job.id, item, 'skip').then(ok => { if (ok) toast.ok('Đã bỏ ảnh này.') })
   }
   const useVersion = () => {
     if (!job || !item || isDrawing(item) || busy || !online || version === used || !usable(item, version)) return
@@ -277,7 +282,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
     void review.mutate(job.id, null, 'approveAll').then(ok => { if (!ok) selectJob(job.id) })
   }
   const copyPrompt = async () => {
-    const text = sentPrompt
+    const text = rawPrompt
     if (!text) return
     try { await navigator.clipboard.writeText(text); toast.ok(copy.promptCopied) }
     catch { toast.err(copy.copyFailed) }
@@ -324,14 +329,14 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       </div>
 
       <div {...stylex.props(ms.stage)}>
-        {!images && <div role="status" {...stylex.props(ms.stageError)}>{review.imageErrors[job.id] ? <><span {...stylex.props(ms.stageErrorTitle)}>{copy.imageError}</span><Button variant="ghost" size="sm" onClick={() => void review.loadImages(job.id, true)}>{copy.retry}</Button></> : <><Spinner size={18} /><span {...stylex.props(ms.stageErrorText)}>{copy.loadingImages}</span></>}</div>}
+        {!images && <div role="status" {...stylex.props(ms.stageError)}>{review.imageErrors[job.id] ? <><span {...stylex.props(ms.stageErrorTitle)}>{copy.imageError}</span><Button variant="ghost" size="lg" onClick={() => void review.loadImages(job.id, true)}>{copy.retry}</Button></> : <><Spinner size={18} /><span {...stylex.props(ms.stageErrorText)}>{copy.loadingImages}</span></>}</div>}
         {images && !drawing && !stageError && stageURL && (reveal?.id === shown?.id
           ? <DevelopEffect key={`${shown?.id}:${shownVersionNumber}`} state="done"><img src={stageURL} alt={shown ? reviewLabel(shown, shownIndex) : ''} onError={() => setImageFailed(true)} {...stylex.props(ms.stageImage)} /></DevelopEffect>
           : <img src={stageURL} alt={shown ? reviewLabel(shown, shownIndex) : ''} onError={() => setImageFailed(true)} {...stylex.props(ms.stageImage)} />)}
         {images && !drawing && stageError && <div role="alert" {...stylex.props(ms.stageError)}>
           <span {...stylex.props(ms.stageErrorTitle)}>{failed ? copy.failedTitle : copy.imageError}</span>
           {failed && <span {...stylex.props(ms.stageErrorText)}>{copy.failedHint}</span>}
-          <Button variant="ghost" size="sm" onClick={() => { setImageFailed(false); if (failed) openFeedback('feed'); else if (job) void review.loadImages(job.id, true) }}>{failed ? copy.redraw : copy.retry}</Button>
+          <Button variant="ghost" size="lg" onClick={() => { setImageFailed(false); if (failed) openFeedback('feed'); else if (job) void review.loadImages(job.id, true) }}>{failed ? copy.redraw : copy.retry}</Button>
         </div>}
         {images && shown && <span {...stylex.props(ms.stageLabel)}>
           <span {...stylex.props(ms.stageKey)}>{shownIndex}</span>
@@ -354,7 +359,7 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
             </span>
           </div>
         </div>}
-        {canCompare && <Button variant="ghost" size="sm" aria-pressed={comparing} aria-label={comparing ? copy.compareOn(shownVersionNumber) : copy.compareTo(shownChosen - 1)} xstyle={ms.compare} onClick={() => setCompare(old => !old)}><Icon name="eye" size={14} />{comparing ? copy.compareOn(shownVersionNumber) : copy.compareTo(shownChosen - 1)}</Button>}
+        {canCompare && <Button variant="ghost" size="lg" aria-pressed={comparing} aria-label={comparing ? copy.compareOn(shownVersionNumber) : copy.compareTo(previousVersion!)} xstyle={ms.compare} onClick={() => setCompare(old => !old)}><Icon name="eye" size={14} />{comparing ? copy.compareOn(shownVersionNumber) : copy.compareTo(previousVersion!)}</Button>}
         {items.length > 1 && <>
           <button type="button" aria-label={copy.prevImage} onClick={() => moveImage(-1)} {...stylex.props(ms.tap, ms.tapPrev)}><span aria-hidden="true" {...stylex.props(ms.tapArrow, ms.tapArrowPrev)}><Icon name="arrow-left-2" size={16} /></span></button>
           <button type="button" aria-label={copy.nextImage} onClick={() => moveImage(1)} {...stylex.props(ms.tap, ms.tapNext)}><span aria-hidden="true" {...stylex.props(ms.tapArrow, ms.tapArrowNext)}><Icon name="arrow-r" size={16} /></span></button>
@@ -365,8 +370,8 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       {scoreVersion?.scoreIssue && <Banner tone="warning" title={autonomyText.autonomy.score.instructionIssue}>{scoreVersion.scoreIssue}</Banner>}
       {summary && <div role="status" {...stylex.props(ms.scoreBanner)}>
         <Orb of="qa" size={16} />
-        <span {...stylex.props(ms.scoreBannerText)}>{summary.text || copy.scoreFallback(summary.passed, summary.total)} · {summary.mode === 'score' ? copy.scoreAuto : copy.scoreAsk}</span>
-        {lowIndex > 0 && <Button variant="ghost" size="sm" xstyle={ms.scoreBannerAction} onClick={() => setIndex(lowIndex)}>Xem {reviewLabel(items[lowIndex], lowIndex)}</Button>}
+        <span {...stylex.props(ms.scoreBannerText)}>{copy.scoreFallback(summary.passed, summary.total)} · {summary.mode === 'score' ? copy.scoreAuto : `${channel?.name || 'Kênh này'} chưa bật Tự duyệt ảnh nên vẫn hỏi bạn`}</span>
+        {lowIndex >= 0 && <Button variant="ghost" size="lg" xstyle={ms.scoreBannerAction} onClick={() => setIndex(lowIndex)}>Xem {reviewLabel(items[lowIndex], lowIndex)}</Button>}
       </div>}
 
       {items.length > 0 && <div role="listbox" aria-label={copy.imagesAria} {...stylex.props(ms.strip)}>
@@ -393,13 +398,12 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       {summary && score && <div {...stylex.props(ms.scoreRow)}>
         <span>{copy.scoreLabel}</span>
         <span {...stylex.props(ms.scoreValue)}>{score.value}</span>
-        <Button variant="ghost" size="sm" xstyle={ms.scoreWhy} onClick={() => setSheet('why')}>{copy.why}</Button>
       </div>}
 
       {item && item.versions.length > 1 && <div {...stylex.props(ms.versions)}>
         <div {...stylex.props(ms.verHead)}>
           <span {...stylex.props(ms.verTitle)}>{copy.versionsTitle}</span>
-          {version > 0 && <Button variant="ghost" size="sm" xstyle={ms.useVersion} disabled={drawing || version === used || busy || !online || !usable(item, version)} pending={versionPending} onClick={useVersion}>{copy.useVersion(version)}</Button>}
+          {version > 0 && <Button variant="ghost" size="lg" xstyle={ms.useVersion} disabled={drawing || version === used || busy || !online || !usable(item, version)} pending={versionPending} onClick={useVersion}>{copy.useVersion(version)}</Button>}
         </div>
         <div {...stylex.props(ms.verRow)}>
           {item.versions.map(candidate => {
@@ -443,13 +447,18 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
             <span {...stylex.props(ms.sheetHeroCaption)}>{item.kind === 'thumbnail' ? copy.coverHint : item.narration || copy.noNarration}</span>
           </span>
         </div>}
-        <Segmented label={copy.feedbackTitle} value={tab} onChange={next => { if (next === 'edit' && sheetScene === null) return; setTab(next as 'feed' | 'edit'); if (next === 'edit') setDraft(sheetScene ?? '') }} size="md" fit="fill" radius={7} tabs={{ id: 'review-feedback-tabs', panel: 'review-feedback-panel' }}
+        <Segmented label={copy.feedbackTitle} value={tab} onChange={next => { if (next === 'edit' && sheetScene === null) return; setTab(next as 'feed' | 'edit'); if (next === 'edit') setDraft(sheetScene ?? '') }} size="md" buttonStyle={ms.touchSegment} fit="fill" radius={7} tabs={{ id: 'review-feedback-tabs', panel: 'review-feedback-panel' }}
           options={[{ id: 'feed', label: copy.feedbackTab }, { id: 'edit', label: copy.editTab, disabled: sheetScene === null }]} />
         <div id="review-feedback-panel" role="tabpanel" aria-labelledby={`review-feedback-tabs-${tab}`}>
           {tab === 'feed' ? <>
             <TextArea aria-label={copy.feedbackTitle} rows={3} showCount={false} maxLength={-1} value={feedback} onChange={event => setFeedback(event.currentTarget.value)} placeholder={copy.feedbackPlaceholder} />
             <div {...stylex.props(ms.chipsRail)}>
-              {copy.feedbackQuick.map(suggestion => <Button key={suggestion} variant="ghost" size="sm" xstyle={ms.chip} onClick={() => setFeedback(old => old.trim() ? `${old.trim()}, ${suggestion.toLowerCase()}` : suggestion)}>{suggestion}</Button>)}
+              {copy.feedbackQuick.map(suggestion => <Button key={suggestion} variant="ghost" size="lg" xstyle={ms.chip} aria-pressed={feedback.split(',').some(part => part.trim() === suggestion)} onClick={() => setFeedback(old => {
+                const parts = old.split(',')
+                return parts.some(part => part.trim() === suggestion)
+                  ? parts.filter(part => part.trim() !== suggestion).join(',').trim()
+                  : old.trim() ? `${old.trim()}, ${suggestion}` : suggestion
+              })}>{suggestion}</Button>)}
             </div>
             <p {...stylex.props(ms.editHint)}>Hoạ sĩ sửa phần Cảnh của prompt theo góp ý rồi vẽ; xem lại thay đổi ở Prompt đã gửi.</p>
           </> : <>
@@ -470,20 +479,20 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
     <Sheet open={sheet === 'prompt'} onClose={() => setSheet(null)} title={copy.promptTitle} subtitle={promptSubtitle} size="md" height="auto">
       {shown && <div {...stylex.props(ms.sheetPad)}>
         <div {...stylex.props(ms.segments)}>
-          {sentPrompt && <div {...stylex.props(ms.segment)}>
-            <span {...stylex.props(ms.segmentHead)}>{copy.promptSegmentScene}<span {...stylex.props(ms.metaSep)}>·</span>{copy.promptSourceArtist}</span>
-            <span {...stylex.props(ms.segmentText)}>{sentPrompt}</span>
+          {submittedParts.map(part => <div key={part.kind} {...stylex.props(ms.segment)}>
+            <span {...stylex.props(ms.segmentHead)}>{PART_LABELS[part.kind]}<span {...stylex.props(ms.metaSep)}>·</span>{part.source.label}</span>
+            <span {...stylex.props(ms.segmentText)}>{part.text}</span>
+          </div>)}
+          {!submittedParts.length && rawPrompt && <div {...stylex.props(ms.segment)}>
+            <span {...stylex.props(ms.segmentHead)}>Nguyên văn đã gửi</span>
+            <span {...stylex.props(ms.segmentText)}>{rawPrompt}</span>
           </div>}
-          {shown.direction?.trim() && <div {...stylex.props(ms.segment)}>
-            <span {...stylex.props(ms.segmentHead)}>{copy.promptSegmentDirection}<span {...stylex.props(ms.metaSep)}>·</span>{copy.promptSourceDirection}</span>
-            <span {...stylex.props(ms.segmentText)}>{shown.direction.trim()}</span>
-          </div>}
-          {!sentPrompt && !shown.direction?.trim() && <p {...stylex.props(ms.sheetLead)}>{copy.promptEmpty}</p>}
+          {!submittedParts.length && !rawPrompt && <p {...stylex.props(ms.sheetLead)}>{copy.promptEmpty}</p>}
         </div>
-        {shown.referenceUrl && <div {...stylex.props(ms.segments)}>
+        {(submittedVersion?.refs?.length || shown.referenceUrl) ? <div {...stylex.props(ms.segments)}>
           <span {...stylex.props(ms.segmentHead)}>{copy.promptReference}</span>
-          <div {...stylex.props(ms.refRow)}><img src={shown.referenceUrl} alt={copy.promptReference} {...stylex.props(ms.refImage)} /></div>
-        </div>}
+          <div {...stylex.props(ms.refRow)}>{submittedVersion?.refs?.length ? submittedVersion.refs.map(ref => <img key={ref.id} src={ref.url} alt={copy.promptReference} title={ref.source.label} {...stylex.props(ms.refImage)} />) : <img src={shown.referenceUrl} alt={copy.promptReference} {...stylex.props(ms.refImage)} />}</div>
+        </div> : null}
         {metaLine && <span {...stylex.props(ms.meta)}>{metaLine}</span>}
         <div {...stylex.props(ms.sheetFoot)}>
           <Button variant="ghost" size="lg" xstyle={ms.sheetFootGrow} onClick={() => void copyPrompt()}>{copy.promptCopy}</Button>
@@ -492,8 +501,5 @@ export function MReviewScreen({ route }: { route: Extract<Route, { name: 'review
       </div>}
     </Sheet>
 
-    <Sheet open={sheet === 'why'} onClose={() => setSheet(null)} title={copy.whyTitle} size="md" height="auto">
-      <div {...stylex.props(ms.whyBody)}>{score && <ReasonPopover reason={score.reason} label={copy.why} />}</div>
-    </Sheet>
   </div>
 }

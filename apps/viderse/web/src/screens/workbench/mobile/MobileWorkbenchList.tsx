@@ -34,6 +34,8 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
   const groups = groupJobs(jobs, scope === 'all')
   const suggestions = useSuggestions(scope)
   const channel = channels.find((item) => item.channelId === scope)
+  const waiting = groups.find(group => group.key === 'waiting')
+  const suggestionRows = suggestions.list.data?.suggestions.slice(0, 3) ?? []
 
   if (listLoading) return <div role="status" {...stylex.props(mw.state)}>Đang tải Bàn dựng…</div>
   if (listError != null && jobs.length === 0) return <div role="alert" {...stylex.props(mw.state)}>
@@ -51,20 +53,20 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
       </div>
     </div>
 
-    <section aria-label={c.suggestions} {...stylex.props(mw.section)}>
-      <div {...stylex.props(mw.sectionHead)}>
-        <h2 {...stylex.props(mw.sectionTitle)}>{c.suggestions}</h2>
-        <span {...stylex.props(mw.sectionCount)}>{suggestions.list.data?.total ?? 0}</span>
+    {(waiting || suggestionRows.length > 0 || suggestions.list.initialLoading || suggestions.list.error != null) && <section aria-label="Chờ bạn" {...stylex.props(l.groupSection)}>
+      <div {...stylex.props(l.groupHead)}>
+        <h2 {...stylex.props(l.groupTitle)}>Chờ bạn</h2>
+        <span {...stylex.props(l.groupCount)}>{(waiting?.count ?? 0) + suggestionRows.length}</span>
       </div>
-      {suggestions.list.initialLoading ? <p role="status" {...stylex.props(mw.notice)}>Đang tải…</p>
+      {waiting && <div role="list" aria-label="Video chờ bạn" {...stylex.props(mw.jobList)}>
+        {waiting.items.map(job => <GroupRow key={job.id} group="waiting" job={job} scope={scope} channel={channels.find(item => item.channelId === job.channelId)} onOpen={() => onOpenJob(job.id)} />)}
+      </div>}
+      {suggestions.list.initialLoading ? <p role="status" {...stylex.props(mw.notice)}>Đang tải đề xuất…</p>
         : suggestions.list.error != null && !suggestions.list.data ? <div role="alert" {...stylex.props(mw.notice)}>{c.suggestionsError} <Button size="sm" variant="quiet" onClick={() => void suggestions.list.refresh()}>{c.retry}</Button></div>
-        : !suggestions.list.data?.suggestions.length ? <p {...stylex.props(mw.notice)}>{c.suggestionsEmpty}</p>
-        : <div {...stylex.props(mw.jobList)}>
-          {suggestions.list.data.suggestions.slice(0, 3).map((suggestion) => <SuggestionRow key={suggestion.id} suggestion={suggestion} busy={suggestions.busy === suggestion.id} offline={!suggestions.online}
-            notice={suggestions.notice?.id === suggestion.id ? suggestions.notice.text : undefined}
-            onAccept={() => void suggestions.accept(suggestion)} onDismiss={() => void suggestions.dismiss(suggestion)} />)}
-        </div>}
-    </section>
+        : suggestionRows.map(suggestion => <SuggestionRow key={suggestion.id} suggestion={suggestion} busy={suggestions.busy === suggestion.id} offline={!suggestions.online}
+          notice={suggestions.notice?.id === suggestion.id ? suggestions.notice.text : undefined}
+          onAccept={() => void suggestions.accept(suggestion)} onDismiss={() => void suggestions.dismiss(suggestion)} />)}
+    </section>}
 
     {scope === 'all' && <section aria-label={c.channels} {...stylex.props(mw.section)}>
       <div {...stylex.props(mw.sectionHead)}>
@@ -98,7 +100,7 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
       <div {...stylex.props(mw.emptyActions)}><Button size="lg" variant="primary" onClick={() => navigate(paths.new(channel?.channelId))}>{c.emptyAction}</Button></div>
     </div>}
 
-    {groups.map((group) => <section key={group.key} aria-label={groupLabel[group.key]} {...stylex.props(l.groupSection)}>
+    {groups.filter(group => group.key !== 'waiting').map((group) => <section key={group.key} aria-label={groupLabel[group.key]} {...stylex.props(l.groupSection)}>
       <div {...stylex.props(l.groupHead)}>
         <h2 {...stylex.props(l.groupTitle)}>{groupLabel[group.key]}</h2>
         <span {...stylex.props(l.groupCount)}>{group.count}</span>

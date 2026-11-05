@@ -16,7 +16,6 @@ export const autonomyCopy = {
   score: {
     panelTitle: 'Điểm của Kiểm định',
     instructionIssue: 'Chỉ dẫn chưa được áp dụng',
-    why: 'Vì sao?',
     lead: (scored: number) => `Kiểm định chấm ${scored} ảnh:`,
     passed: (n: number, min: number, all: boolean) => `${all ? 'cả ' : ''}${n} ảnh từ ${min} điểm`,
     below: (label: string, value: number) => `${label} được ${value}`,

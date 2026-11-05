@@ -8,7 +8,7 @@ import type { AiProvider } from '../../api/ai'
 import type { ImageQuota, ImageRef, PromptPartKind } from '../../api/images'
 import { DevelopEffect } from '../../components'
 import {
-  EDITABLE_PARTS, PART_LABELS, REF_ROLES, defaultVersion, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
+  EDITABLE_PARTS, PART_LABELS, SUBMITTED_PARTS, REF_ROLES, defaultVersion, diffSummary, providerName, rawParams, rawSentText, resetAtLabel, versionMeta, versionNote,
 } from './imageView'
 import type { ImageEditing } from './useImageEditing'
 import type { ReviewItemView } from './imageView'
@@ -345,8 +345,8 @@ export function ImageRail({
           </div>
         ) : (
           <div {...stylex.props(sx.promptCard)}>
-            {version?.parts.length
-              ? version.parts.filter(part => part.kind !== 'learned').map((part, index) => (
+            {!legacyParts && version
+              ? SUBMITTED_PARTS.flatMap(kind => version.parts.filter(part => part.kind === kind)).map((part, index) => (
                   <div key={`${part.kind}-${index}`} {...stylex.props(sx.seg, index === 0 && sx.segFirst)}>
                     <span {...stylex.props(sx.segLabel)}>
                       {PART_LABELS[part.kind]}

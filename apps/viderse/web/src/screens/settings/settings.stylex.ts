@@ -317,6 +317,7 @@ export const styles = stylex.create({
   connErrText: { fontSize: settingsVars.setTipsTitlefontSize, color: "var(--vv-warn-ink)", lineHeight: 1.55 },
   connErrActs: { display: "flex", gap: "var(--vv-s-8)", flexWrap: "wrap" },
   connEdit: { display: "flex", gap: "var(--vv-s-8)", alignItems: "center", flexWrap: "wrap" },
+  connEditMobile: { flexDirection: "column", alignItems: "stretch", padding: "0 var(--vv-s-16) var(--vv-s-16)" },
   connEditGrow: { flex: "1", minWidth: "var(--vv-s-80)" },
   connCat: { display: "flex", flexDirection: "column", gap: "var(--vv-s-10)", padding: "var(--vv-s-12)", borderRadius: "var(--vv-r-12)", backgroundImage: "none", backgroundColor: color["--color-surface-0"], borderWidth: "var(--vv-s-1)", borderStyle: "solid", borderColor: line["--line-2"] },
   connCatTools: { display: "flex", alignItems: "center", gap: "var(--vv-s-8)", flexWrap: "wrap" },

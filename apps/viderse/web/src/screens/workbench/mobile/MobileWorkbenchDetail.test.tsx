@@ -161,3 +161,24 @@ describe('bản xuất thật của video đã xong', () => {
   })
 })
 
+describe('chi tiết video gọn trên điện thoại', () => {
+  it('mặc định mở Nội dung đăng, chỉ có hai tab và chuyển sang Ảnh thật', async () => {
+    await render(base())
+    expect(host.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby')).toBe('mobile-video-tabs-content')
+    expect(host.querySelector('[aria-label="Phòng vẽ trực tiếp"]')).toBeNull()
+    await act(async () => button('Ảnh · 0')!.click())
+    expect(host.querySelector('[role="tabpanel"]')?.getAttribute('aria-labelledby')).toBe('mobile-video-tabs-images')
+    expect(host.querySelector('[aria-label="Phòng vẽ trực tiếp"]')).not.toBeNull()
+  })
+
+  it('Thông tin mở sheet gộp trợ lý, nguồn, template và video nền', async () => {
+    await render(base())
+    expect(host.querySelector('[aria-label="Bốn trợ lý"]')).toBeNull()
+    await act(async () => host.querySelector<HTMLButtonElement>('[aria-label="Thông tin video"]')!.click())
+    const dialog = document.querySelector('[role="dialog"]')!
+    expect(dialog.querySelector('[aria-label="Bốn trợ lý"]')).not.toBeNull()
+    for (const section of ['Nguồn', 'Template', 'Video nền']) expect(dialog.querySelector(`section[aria-label="${section}"]`)).not.toBeNull()
+    expect(dialog.querySelector('a[href="#/templates/t1"]')).not.toBeNull()
+  })
+})
+

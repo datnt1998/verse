@@ -53,13 +53,25 @@ describe('7 tình huống xác nhận', () => {
     await expect(p).resolves.toBe(true)
   })
 
-  it('logout nhà cung cấp: nút cam nhạt ghi tên gói', async () => {
-    const confirm = vi.fn()
-    const p = confirmProviderLogout({ provider: 'ChatGPT', fallback: 'Gemini', onConfirm: confirm })
+  it('logout nhà cung cấp: huỷ không đăng xuất', async () => {
+    const logout = vi.fn()
+    const pending = confirmProviderLogout({ provider: 'ChatGPT', onConfirm: logout })
     await waitForDialog()
-    await act(async () => { [...document.querySelectorAll('button')].find((b) => b.textContent === 'Đăng xuất ChatGPT')?.click() })
-    expect(confirm).toHaveBeenCalled()
-    await expect(p).resolves.toBe(true)
+    await act(async () => { [...document.querySelectorAll('button')].find((button) => button.textContent === t.common.cancel)?.click() })
+    await expect(pending).resolves.toBe(false)
+    expect(logout).not.toHaveBeenCalled()
+  })
+
+  it('logout nhà cung cấp: xác nhận chỉ gửi một hành động', async () => {
+    const { promise, resolve: finish } = Promise.withResolvers<void>()
+    const logout = vi.fn(() => promise)
+    const pending = confirmProviderLogout({ provider: 'ChatGPT', onConfirm: logout })
+    await waitForDialog()
+    const button = [...document.querySelectorAll('button')].find((item) => item.textContent === t.confirm.logout.ok('ChatGPT'))!
+    await act(async () => { button.click(); button.click() })
+    expect(logout).toHaveBeenCalledTimes(1)
+    await act(async () => { finish() })
+    await expect(pending).resolves.toBe(true)
   })
 
   it('xoá video: hai cột hệ quả Sẽ xoá / Giữ lại + nút cam đặc', async () => {

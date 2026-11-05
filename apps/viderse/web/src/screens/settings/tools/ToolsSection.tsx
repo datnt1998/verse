@@ -294,7 +294,7 @@ export default function ToolsSection() {
     return (
       <section className={`vv-tools__card ${stylex.props(settingsStyles.card, settingsStyles.toolsCard).className}`}>
         <span {...stylex.props(box.errline)}>
-          <span {...stylex.props(box.grow)}>{(res.error as Error | undefined)?.message ?? ''}</span>
+          <span {...stylex.props(box.grow)}>{t.errors.failed}</span>
           <ActionButton variant="outline" size={mobile ? 'lg' : 'compact'} onClick={() => void res.refresh()}>{t.common.retry}</ActionButton>
         </span>
       </section>
