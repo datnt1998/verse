@@ -30,7 +30,6 @@ chỉ bằng env của lệnh, xác minh GitHub host key, không chép private k
 đổi global Git config. Dừng agent đã tạo và kiểm `viderse.commit`/health/ready
 sau rollout.
 
-
 ### Viderse không lên dù PostgreSQL trong Colima vẫn khỏe
 
 Dành cho người vận hành Mac mini đã có quyền SSH, trong phạm vi phục hồi dịch vụ
@@ -68,15 +67,18 @@ nội bộ khiến Lima trước đó báo SSH forwarding exit255.
 
 ### Trang đo/xuất không nhận việc trên hosted
 
-Chrome headless phải mở cùng origin HTTPS đã được `PUBLIC_URL` xác thực;
-desktop không có `PUBLIC_URL` mới dùng loopback. **Preflight kiểm workspace vẫn
-phải dùng HTTP loopback**, không dùng chung biến public origin với URL của Chrome.
-Nguồn wiring là [`serve.go`](../cmd/viderse/serve.go) →
-[`render_wiring.go`](../cmd/viderse/render_wiring.go); guard scoped request vẫn
-kiểm origin và token.
-Nếu đo timeout nhưng request còn queued, đối chiếu lỗi trang headless trước khi
-bấm retry: lỗi origin xảy ra trước claim nên tăng timeout hoặc vẽ lại ảnh không sửa
-được. Không nới allowlist toàn app hoặc bỏ CSRF để cho request nội bộ đi qua.
+Chrome headless và preflight workspace giữ HTTP loopback theo listener thực.
+PCM/video là dữ liệu lớn; vòng qua HTTPS/Cloudflare có thể làm request đã claim
+hết hạn dù heartbeat và byte count vẫn tăng. Không đổi launcher sang public origin
+chỉ để qua claim hoặc tăng timeout khi chưa đo nguyên nhân nghẽn.
+
+Ngoại lệ origin nội bộ chỉ nằm ở nhánh request-scoped `/api/render/` và
+`/api/measure/`; nguồn chính sách là [`render.go`](../internal/web/render.go),
+nguồn launcher là [`render_wiring.go`](../cmd/viderse/render_wiring.go).
+Chỉ nhận authority loopback đã bind, peer trực tiếp và không có dấu hiệu proxy.
+Token/nonce/fence/binding/project scope vẫn bắt buộc; không mở allowlist PUBLIC_URL,
+SSO hoặc API editor/tài khoản. Nếu request còn queued, xem lỗi origin trước retry;
+nếu đã upload nhưng chậm, đo đường truyền và storage thay vì chạy lại bước AI.
 
 Khi hotfix backend trong lúc UI mới chưa nghiệm thu, không chạy script lấy toàn bộ
 `origin/main`: dựng từ đúng revision production với patch tối thiểu, giữ nguyên

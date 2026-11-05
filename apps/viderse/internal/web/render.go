@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"net/netip"
 	"net/url"
 	"sort"
 	"strconv"
@@ -25,7 +26,9 @@ func (g *Gateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Nhánh này bỏ qua webapp.Server.ServeHTTP nên phải tự ghi header bảo
 		// mật; renderHTTP đặt sau đó (no-referrer) vẫn thắng vì Apply không ghi đè.
 		g.SecurityHeaders(w)
-		if !g.RequireSameOrigin(w, r) {
+		w.Header().Set("Cache-Control", "no-store")
+		w.Header().Set("Referrer-Policy", "no-referrer")
+		if !g.directScopedLoopback(r) && !g.RequireSameOrigin(w, r) {
 			return
 		}
 		g.scopedRender.ServeHTTP(w, r)
@@ -41,8 +44,52 @@ type renderHTTP struct {
 
 func MountRender(g *Gateway, s *render.Service, ctx context.Context) {
 	h := renderHTTP{s, ctx}
+	g.scopedRenderOrigin = ""
+	if s != nil && s.Supervisor != nil {
+		origin := s.Supervisor.Origin
+		u, err := url.Parse(origin)
+		if err == nil && u.Scheme == "http" && origin == "http://"+u.Host {
+			ip, ipErr := netip.ParseAddr(u.Hostname())
+			port, portErr := strconv.Atoi(u.Port())
+			if ipErr == nil && ip.Zone() == "" && ip.IsLoopback() && portErr == nil && port > 0 && port <= 65535 {
+				g.scopedRenderOrigin = origin
+			}
+		}
+	}
 	g.scopedRender = h
 	g.renderCloneRoute = h.cloneRoute
+}
+
+// Only the launcher-bound, direct loopback browser may use its local origin.
+// Token, nonce, fence and project scope remain enforced by renderHTTP.
+func (g *Gateway) directScopedLoopback(r *http.Request) bool {
+	expected := g.scopedRenderOrigin
+	if expected == "" || r.TLS != nil || r.Host != expected[len("http://"):] {
+		return false
+	}
+	origins := r.Header.Values("Origin")
+	if len(origins) != 1 || origins[0] != expected {
+		return false
+	}
+	sites := r.Header.Values("Sec-Fetch-Site")
+	if len(sites) > 1 || (len(sites) == 1 && sites[0] != "" && sites[0] != "same-origin") {
+		return false
+	}
+	peer, err := netip.ParseAddrPort(r.RemoteAddr)
+	if err != nil || peer.Addr().Zone() != "" || !peer.Addr().IsLoopback() {
+		return false
+	}
+	// A loopback socket can also belong to cloudflared or another reverse proxy.
+	for name := range r.Header {
+		if len(name) >= len("X-Forwarded-") && strings.EqualFold(name[:len("X-Forwarded-")], "X-Forwarded-") {
+			return false
+		}
+		switch http.CanonicalHeaderKey(name) {
+		case "Forwarded", "X-Real-Ip", "Cf-Connecting-Ip", "Cf-Ray", "Cf-Visitor", "Cdn-Loop", "Via", "True-Client-Ip":
+			return false
+		}
+	}
+	return true
 }
 func renderHTTPError(w http.ResponseWriter, err error) {
 	var req *render.RequestError
