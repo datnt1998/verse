@@ -19,7 +19,7 @@ import { workbenchPlaceholder } from '../../../components/assistant/placeholders
 import { progressState, progressText } from '../../../lib/progress-copy'
 import { screenWorkbench } from '../../../i18n/screens'
 import { navigate, routePath } from '../../../router'
-import { imageTime } from '../workbench-logic'
+import { finishedVideo, imageTime } from '../workbench-logic'
 import { durationLabel, imageLabel, imageUrl } from './mworkbench-logic'
 import { mw, mwDetail as d } from './mworkbench.stylex'
 import { OverflowMenu } from '../OverflowMenu'
@@ -67,7 +67,7 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
   const meta = useResource(['workbench', 'meta', job.id], ({ signal }) => getMetadata(job.id, signal))
   const scoreArtifact = job.steps?.find((step) => step.step === 'score')?.output?.artifacts?.find((item) => item.path.endsWith('score.json'))
   const score = useResource(['workbench', 'score', job.id, scoreArtifact?.id || ''], ({ signal }) => getScoreArtifact(job.id, scoreArtifact!.id, signal), { enabled: Boolean(scoreArtifact) && job.activeStep === 'score' })
-  const video = job.steps?.find((step) => step.step === 'export')?.output?.artifacts?.find((item) => item.contentType === 'video/mp4')
+  const video = finishedVideo(job)
   const items = images?.items ?? []
   const cover = items.find((item) => item.kind === 'thumbnail' || item.kind === 'cover')
   const drawn = items.filter((item) => imageUrl(item)).length
@@ -312,8 +312,8 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
 
       {(job.stageGroup === 'ready' || job.stageGroup === 'posted') && <section aria-label={c.readyTitle} {...stylex.props(d.videoCard)}>
         <h2 {...stylex.props(d.sectionTitle)}><Icon name="video-add" size={15} />{c.readyTitle}</h2>
-        {video ? <video controls {...stylex.props(d.viewer)} src={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} /> : <p {...stylex.props(d.sectionNote)}>{c.noVideoFile}</p>}
-        {video && <a {...stylex.props(mw.moreLink)} href={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} target="_blank" rel="noreferrer">Mở file video<Icon name="arrow-r" size={14} /></a>}
+        {video ? <video controls {...stylex.props(d.viewer)} src={video.url} /> : <p {...stylex.props(d.sectionNote)}>{c.noVideoFile}</p>}
+        {video && <a {...stylex.props(mw.moreLink)} href={video.url} target="_blank" rel="noreferrer">Mở file video<Icon name="arrow-r" size={14} /></a>}
         {job.stageGroup === 'posted' && hasExport && <Button size="sm" variant="ghost" icon={<Icon name="trash" size={15} />} onClick={deleteMp4}>{c.deleteMp4}</Button>}
       </section>}
     </main>

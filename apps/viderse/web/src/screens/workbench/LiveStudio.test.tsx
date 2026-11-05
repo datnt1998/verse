@@ -76,3 +76,31 @@ it('vẫn gửi vẽ lại cả bộ khi người dùng chọn rõ Vẽ lại t�
   expect(url).toBe('/api/clone/job/images')
   expect(JSON.parse(String(init.body))).toEqual({ op: 'regenerateAll', expectedRevision: 7, confirmCount: 2, feedback: '' })
 })
+
+it.each([
+  { name: 'editor export without artifacts', artifacts: [], data: { projectId: 'project', exportId: 'export', durationMs: 859471 }, url: '/api/editor/projects/project/exports/export' },
+  { name: 'legacy MP4 artifact', artifacts: [{ id: 'mp4', path: 'video.mp4', contentType: 'video/mp4' }], data: {}, url: '/api/clone/job/artifacts/mp4' },
+])('plays the $name without replacing the source duration with export elapsed time', async ({ artifacts, data, url }) => {
+  const completed = {
+    ...job, stageGroup: 'ready', activeStep: null, source: { ...job.source, durationSec: 3380.7 },
+    steps: [{ step: 'export', status: 'succeeded', output: { artifacts, data }, progress: { unitsDone: 1, unitsTotal: 1, phase: '' }, error: null, startedAt: null, finishedAt: null }],
+  }
+  await act(async () => root.render(<LiveStudio job={completed} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  expect(host.querySelector('video')?.getAttribute('src')).toBe(url)
+  expect(host.textContent).not.toContain('File video không còn trên máy.')
+  expect(host.textContent).toContain('56:20')
+  expect(host.textContent).not.toContain('14:19')
+})
+
+it('removes the player when the export is deleted after the completed job refreshes', async () => {
+  const completed = {
+    ...job, stageGroup: 'ready', activeStep: null,
+    steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'project', exportId: 'export', removedAt: '' } }, progress: { unitsDone: 1, unitsTotal: 1, phase: '' }, error: null, startedAt: null, finishedAt: null }],
+  }
+  await act(async () => root.render(<LiveStudio job={completed} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  expect(host.querySelector('video')).not.toBeNull()
+  completed.steps[0].output.data.removedAt = '2026-11-05T00:00:00Z'
+  await act(async () => root.render(<LiveStudio job={{ ...completed }} onChangePrompt={() => {}} onRefresh={() => {}} />))
+  expect(host.querySelector('video')).toBeNull()
+  expect(host.textContent).toContain('File video không còn trên máy.')
+})

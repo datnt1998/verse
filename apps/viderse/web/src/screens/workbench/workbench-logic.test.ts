@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { followAdmitted, groupJobs, imageTime, issueReason, readScope, scheduleScopeRestore } from './workbench-logic'
+import { followAdmitted, finishedVideo, groupJobs, imageTime, issueReason, readScope, scheduleScopeRestore } from './workbench-logic'
 
 describe('Bàn dựng', () => {
   it('đi theo job mới khi mục hàng chờ đang chọn được nhận', () => {
@@ -39,6 +39,79 @@ describe('Bàn dựng', () => {
     hash = '#/review'
     await Promise.resolve()
     expect(restore).not.toHaveBeenCalled()
+  })
+})
+
+describe('file cuối của video đã xuất', () => {
+  it('phát bản xuất editor không có artifact và không coi thời gian chạy xuất là thời lượng video', () => {
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{
+        step: 'export', status: 'succeeded',
+        output: { artifacts: [], data: { projectId: 'clone-job-g1', exportId: 'export', size: 432805526, durationMs: 859471, accepted: false } },
+      }],
+    })).toEqual({ url: '/api/editor/projects/clone-job-g1/exports/export', durationSec: null, bytes: 432805526 })
+  })
+
+  it('ẩn bản xuất đã xoá ngay cả khi còn artifact cũ', () => {
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{
+        step: 'export', status: 'succeeded',
+        output: { artifacts: [{ id: 'old', path: 'video.mp4', contentType: 'video/mp4' }], data: { projectId: 'p', exportId: 'e', removedAt: '2026-11-01T00:00:00Z' } },
+      }],
+    })).toBeNull()
+  })
+
+  it('giữ đường artifact cũ và mã hoá từng phần của URL', () => {
+    expect(finishedVideo({
+      id: 'job /1',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [{ id: 'art /1', path: 'video.mp4', contentType: 'video/mp4' }], data: {} } }],
+    })).toEqual({ url: '/api/clone/job%20%2F1/artifacts/art%20%2F1', durationSec: null, bytes: null })
+  })
+
+  it('lấy project từ bước dựng khi bước xuất chỉ công bố exportId', () => {
+    expect(finishedVideo({
+      id: 'job',
+      steps: [
+        { step: 'build', status: 'succeeded', output: { artifacts: null, data: { projectId: 'built /1' } } },
+        { step: 'export', status: 'succeeded', output: { artifacts: [], data: { exportId: 'exp /1' } } },
+      ],
+    })?.url).toBe('/api/editor/projects/built%20%2F1/exports/exp%20%2F1')
+  })
+
+  it.each(['waiting', 'running', 'failed'])('không phát output editor khi bước xuất %s', status => {
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{ step: 'export', status, output: { artifacts: [], data: { projectId: 'p', exportId: 'e' } } }],
+    })).toBeNull()
+  })
+
+  it.each([
+    {},
+    { projectId: 'p' },
+    { exportId: 'e' },
+    { projectId: '', exportId: 'e' },
+    { projectId: 'p', exportId: 42 },
+    { projectId: {}, exportId: 'e' },
+  ])('không tạo URL từ output thiếu hoặc sai kiểu: %j', data => {
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data } }],
+    })).toBeNull()
+  })
+
+  it('không coi bước dựng hoặc artifact không phải MP4 là file cuối', () => {
+    expect(finishedVideo({ id: 'job', steps: null })).toBeNull()
+    expect(finishedVideo({ id: 'job', steps: [{ step: 'export', status: 'succeeded', output: null }] })).toBeNull()
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{ step: 'build', status: 'succeeded', output: { artifacts: [], data: { projectId: 'p', exportId: 'e' } } }],
+    })).toBeNull()
+    expect(finishedVideo({
+      id: 'job',
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [{ id: 'score', path: 'score.json', contentType: 'application/json' }], data: {} } }],
+    })).toBeNull()
   })
 })
 

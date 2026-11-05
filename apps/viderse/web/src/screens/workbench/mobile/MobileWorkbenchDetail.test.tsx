@@ -140,3 +140,46 @@ describe('xoá riêng file MP4 của video đã đăng', () => {
     expect(button('Xoá MP4')).toBeUndefined()
   })
 })
+
+describe('phát và mở file cuối trên điện thoại', () => {
+  it.each([
+    { name: 'bản xuất editor không có artifact', artifacts: [], data: { projectId: 'project', exportId: 'export', durationMs: 859471 }, url: '/api/editor/projects/project/exports/export' },
+    { name: 'artifact MP4 cũ', artifacts: [{ id: 'mp4', path: 'video.mp4', contentType: 'video/mp4' }], data: {}, url: '/api/clone/job/artifacts/mp4' },
+  ])('phát và mở cùng $name', async ({ artifacts, data, url }) => {
+    await render(base({
+      stageGroup: 'ready', status: 'done', activeStep: null,
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts, data }, progress: { unitsDone: 1, unitsTotal: 1, phase: '' }, error: null, startedAt: null, finishedAt: null }],
+    }))
+    expect(host.querySelector('video')?.getAttribute('src')).toBe(url)
+    expect([...host.querySelectorAll('a')].find(link => link.textContent?.includes('Mở file video'))?.getAttribute('href')).toBe(url)
+    expect(host.textContent).not.toContain('File video không còn trên máy.')
+  })
+
+  it('bỏ cả player và lối mở file khi bản xuất đã bị xoá', async () => {
+    const completed = base({
+      stageGroup: 'ready', status: 'done', activeStep: null,
+      steps: [{ step: 'export', status: 'succeeded', output: { artifacts: [], data: { projectId: 'project', exportId: 'export' } }, progress: { unitsDone: 1, unitsTotal: 1, phase: '' }, error: null, startedAt: null, finishedAt: null }],
+    })
+    await render(completed)
+    expect(host.querySelector('video')).not.toBeNull()
+    await render({
+      ...completed,
+      steps: completed.steps!.map(step => ({ ...step, output: { ...step.output!, data: { ...step.output!.data, removedAt: '2026-11-05T00:00:00Z' } } })),
+    })
+    expect(host.querySelector('video')).toBeNull()
+    expect([...host.querySelectorAll('a')].find(link => link.textContent?.includes('Mở file video'))).toBeUndefined()
+  })
+
+  it.each([
+    { name: 'thiếu exportId', status: 'succeeded', data: { projectId: 'project' } },
+    { name: 'sai kiểu projectId', status: 'succeeded', data: { projectId: 42, exportId: 'export' } },
+    { name: 'bước xuất chưa xong', status: 'waiting', data: { projectId: 'project', exportId: 'export' } },
+  ])('không mời phát hoặc mở file khi $name', async ({ status, data }) => {
+    await render(base({
+      stageGroup: 'ready', status: 'done', activeStep: null,
+      steps: [{ step: 'export', status, output: { artifacts: [], data }, progress: { unitsDone: 0, unitsTotal: 1, phase: '' }, error: null, startedAt: null, finishedAt: null }],
+    }))
+    expect(host.querySelector('video')).toBeNull()
+    expect([...host.querySelectorAll('a')].find(link => link.textContent?.includes('Mở file video'))).toBeUndefined()
+  })
+})

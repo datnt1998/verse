@@ -11,7 +11,7 @@ import { subscribeEvents } from '../../data/events'
 import { DevelopEffect, Orb } from '../../components'
 import { screenWorkbench } from '../../i18n/screens'
 import { progressState, progressText } from '../../lib/progress-copy'
-import { clockLabel, imageTime, issueReason, jobStage, stepDuration, stepPercent, QUALITY_MIN_SCORE, type JobStage } from './workbench-logic'
+import { clockLabel, finishedVideo, imageTime, issueReason, jobStage, stepDuration, stepPercent, QUALITY_MIN_SCORE, type FinishedVideo, type JobStage } from './workbench-logic'
 
 type Props = {
   job: CloneJobView
@@ -36,7 +36,7 @@ export function LiveStudio({ job, onChangePrompt, onRefresh, onApproveAll, appro
   const stage = jobStage(job)
   const images = useResource(['workbench', 'images', job.id], ({ signal }) => getJobImages(job.id, signal), { enabled: stage !== 'queued' })
   const scoreArtifact = job.steps?.find(step => step.step === 'score')?.output?.artifacts?.find(item => item.path.endsWith('score.json'))
-  const video = job.steps?.find(step => step.step === 'export')?.output?.artifacts?.find(item => item.contentType === 'video/mp4')
+  const video = finishedVideo(job)
   const score = useResource(['workbench', 'score', job.id, scoreArtifact?.id || ''], ({ signal }) => getScoreArtifact(job.id, scoreArtifact!.id, signal), { enabled: !!scoreArtifact })
   // Hộp vẽ lại gắn với đúng video đang mở: đổi video thì hộp cũ không còn hiệu lực.
   const [dialog, setDialog] = useState<{ jobId: string; imageId: string | 'all' } | null>(null)
@@ -270,13 +270,13 @@ function RenderSteps({ job, score, scoreLoading }: { job: CloneJobView; score: {
 }
 
 /** Thành phẩm: file thật + điểm + ảnh bìa; nút tải/đánh dấu nằm ở header. */
-function DoneStage({ job, video, score, items }: { job: CloneJobView; video: { id: string } | undefined; score: { total: number } | null | undefined; items: JobImage[] }) {
+function DoneStage({ job, video, score, items }: { job: CloneJobView; video: FinishedVideo | null; score: { total: number } | null | undefined; items: JobImage[] }) {
   const cover = items.find(item => item.kind === 'thumbnail' || item.kind === 'cover')
   const seconds = job.source.durationSec
   const size = job.exportBytes
   return <div {...stylex.props(styles.done)}>
     <div {...stylex.props(styles.playerBox)}>
-      {video ? <video controls {...stylex.props(styles.video)} src={`/api/clone/${encodeURIComponent(job.id)}/artifacts/${encodeURIComponent(video.id)}`} /> : <span {...stylex.props(styles.muted)}>File video không còn trên máy.</span>}
+      {video ? <video controls {...stylex.props(styles.video)} src={video.url} /> : <span {...stylex.props(styles.muted)}>File video không còn trên máy.</span>}
       <div {...stylex.props(styles.playerBar)}>
         <span {...stylex.props(styles.num)}>{seconds != null ? clockLabel(seconds) : 'MP4'}</span>
         <span {...stylex.props(styles.playerLine)} />
