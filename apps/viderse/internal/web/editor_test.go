@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -35,7 +36,7 @@ func editorRequest(h editorHTTP, method, path, body, revision string) *httptest.
 	r := httptest.NewRequest(method, path, strings.NewReader(body))
 	r.Header.Set("Content-Type", "application/json")
 	if revision != "" {
-		r.Header.Set("If-Match", revision)
+		r.Header.Set("If-Match", strconv.Quote(revision))
 	}
 	w := httptest.NewRecorder()
 	h.serve(w, r)
@@ -50,8 +51,8 @@ func editorObject(t *testing.T, w *httptest.ResponseRecorder) editor.Object {
 	return value
 }
 
-// Ported from projects.test.ts/http.test.ts: raw project + ETag on read,
-// sha256 If-Match saves, and a stale write remains a real HTTP 409.
+// Project reads carry an opaque application revision independently of ETag.
+// Quoted If-Match saves preserve the real stale-write HTTP 409 contract.
 func TestEditorHTTPProjectWireAndRevisionConflict(t *testing.T) {
 	h := editorHTTPFixture(t)
 	baseline := editorRequest(h, "GET", "/api/editor/projects", "", "")
@@ -65,7 +66,7 @@ func TestEditorHTTPProjectWireAndRevisionConflict(t *testing.T) {
 	revision := value["revision"].(string)
 	id := p["id"].(string)
 	load := editorRequest(h, "GET", "/api/editor/projects/"+id, "", "")
-	if load.Code != 200 || editorObject(t, load)["name"] != "HTTP project" || load.Header().Get("ETag") != `"`+revision+`"` {
+	if load.Code != 200 || editorObject(t, load)["name"] != "HTTP project" || load.Header().Get("ETag") != strconv.Quote(revision) || load.Header().Get("X-Editor-Revision") != revision {
 		t.Fatalf("load=%d %s %v", load.Code, load.Body.String(), load.Header())
 	}
 	save := editorRequest(h, "PUT", "/api/editor/projects/"+id, `{"name":"Changed","metadata":{"width":1920,"height":1080,"fps":30}}`, revision)
@@ -87,6 +88,52 @@ func TestEditorHTTPProjectWireAndRevisionConflict(t *testing.T) {
 	list := editorRequest(h, "GET", "/api/editor/projects", "", "")
 	if list.Code != 200 || len(editorObject(t, list)["projects"].([]any)) != initialCount+1 {
 		t.Fatalf("list=%d %s", list.Code, list.Body.String())
+	}
+}
+
+func TestEditorHTTPAuxiliaryRevisionHeaders(t *testing.T) {
+	h := editorHTTPFixture(t)
+	create := editorRequest(h, http.MethodPost, "/api/editor/projects", `{"name":"Revision headers"}`, "")
+	if create.Code != http.StatusCreated {
+		t.Fatalf("create=%d %s", create.Code, create.Body.String())
+	}
+	id := editorObject(t, create)["project"].(map[string]any)["id"].(string)
+	for _, path := range []string{
+		"/api/editor/projects/" + id + "/sidecars/animation-presets",
+		"/api/editor/projects/" + id + "/sidecars/render-queue",
+		"/api/editor/workspace/effect-presets",
+	} {
+		t.Run(path, func(t *testing.T) {
+			load := editorRequest(h, http.MethodGet, path, "", "")
+			if load.Code != http.StatusOK || load.Header().Get("X-Editor-Revision") != "empty" || load.Header().Get("ETag") != `"empty"` {
+				t.Fatalf("empty load=%d %s %v", load.Code, load.Body.String(), load.Header())
+			}
+			save := editorRequest(h, http.MethodPut, path, `{"version":1,"presets":[]}`, load.Header().Get("X-Editor-Revision"))
+			if save.Code != http.StatusOK {
+				t.Fatalf("save=%d %s", save.Code, save.Body.String())
+			}
+			revision := editorObject(t, save)["revision"].(string)
+			loaded := editorRequest(h, http.MethodGet, path, "", "")
+			if loaded.Code != http.StatusOK || loaded.Header().Get("X-Editor-Revision") != revision || loaded.Header().Get("ETag") != strconv.Quote(revision) || editorObject(t, loaded)["version"] != float64(1) {
+				t.Fatalf("load=%d %s %v", loaded.Code, loaded.Body.String(), loaded.Header())
+			}
+			stale := editorRequest(h, http.MethodPut, path, `{"version":2}`, "empty")
+			if stale.Code != http.StatusConflict || editorObject(t, stale)["code"] != "revision_conflict" {
+				t.Fatalf("stale=%d %s", stale.Code, stale.Body.String())
+			}
+		})
+	}
+}
+
+func TestEditorHTTPConflictErrorCodes(t *testing.T) {
+	for _, code := range []string{"conflict", "revision_conflict"} {
+		t.Run(code, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			writeEditorError(w, &editor.Error{Code: code, Message: "Rejected"})
+			if w.Code != http.StatusConflict || editorObject(t, w)["code"] != code {
+				t.Fatalf("conflict=%d %s", w.Code, w.Body.String())
+			}
+		})
 	}
 }
 
@@ -177,7 +224,7 @@ func TestEditorHTTPTemplateProjectAuthoritativeRevision(t *testing.T) {
 	if project["id"] != template.ID || project["schemaVersion"] != float64(15) {
 		t.Fatalf("project=%v", project)
 	}
-	revision := strings.Trim(load.Header().Get("ETag"), `"`)
+	revision := load.Header().Get("X-Editor-Revision")
 	if revision != "1" {
 		t.Fatalf("template revision=%q", revision)
 	}

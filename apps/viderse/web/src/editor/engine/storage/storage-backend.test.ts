@@ -1,8 +1,10 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
-import { HttpEditorStorage, type StorageFetch } from './storage-backend'
-import { StorageConflictError } from './errors'
+import { getEditorStorage, HttpEditorStorage, setEditorStorage, type StorageFetch } from './storage-backend'
+import { StorageClientError, StorageConflictError } from './errors'
+import { getProjectRevision, getProjectSnapshot, loadProject, resetProjectPersistenceForTesting, updateProject } from './project-persistence'
+import { getStorageConflict, useStorageConflictStore } from './conflict-store'
 import type { Project } from '@editor/types/project'
 import type { ServerExportRecord, ServerMediaRecord } from './types'
 
@@ -105,15 +107,62 @@ describe('HTTP editor storage transport', () => {
     expect(await storage.workspaceId()).toBe('workspace')
   })
 
+  const revisionLoaders = [
+    { label: 'project', path: '/projects/project', data: project, load: (client: HttpEditorStorage) => client.loadProject(project.id) },
+    { label: 'sidecar', path: '/projects/project/sidecars/animation-presets', data: { version: 1, presets: [] }, load: (client: HttpEditorStorage) => client.loadSidecar(project.id, 'animation-presets') },
+    { label: 'workspace effects', path: '/workspace/effect-presets', data: { version: 1, presets: [] }, load: (client: HttpEditorStorage) => client.loadWorkspaceEffectPresets() },
+  ]
+  for (const loader of revisionLoaders) {
+    it.each([undefined, 'W/"representation-only"'])(`loads ${loader.label} using the application revision with ETag %s`, async etag => {
+      expected.push({ method: 'GET', path: loader.path, response: loader.data, responseHeaders: { 'x-editor-revision': 'authoritative', ...(etag && { etag }) } })
+      expect(await loader.load(storage)).toEqual({ data: loader.data, revision: 'authoritative' })
+    })
+
+    it.each([undefined, ''])(`rejects ${loader.label} without an application revision (%s), even with an ETag`, async revision => {
+      expected.push({ method: 'GET', path: loader.path, response: loader.data, responseHeaders: { etag: '"not-an-application-revision"', ...(revision !== undefined && { 'x-editor-revision': revision }) } })
+      const error = await loader.load(storage).catch((cause: unknown) => cause)
+      expect(error).toBeInstanceOf(StorageClientError)
+      expect(error).not.toBeInstanceOf(StorageConflictError)
+      expect(error).toMatchObject({ code: 'internal_error', status: 200 })
+    })
+  }
+
+  it.each(['revision_conflict', 'conflict', undefined])('retains the loaded snapshot and records only a revision_conflict 409 (%s)', async code => {
+    const previous = getEditorStorage()
+    resetProjectPersistenceForTesting()
+    useStorageConflictStore.setState({ conflicts: {} })
+    setEditorStorage(storage)
+    try {
+      expected.push(
+        { method: 'GET', path: '/projects/project', response: project, responseHeaders: { 'x-editor-revision': 'r1', etag: 'W/"representation-only"' } },
+        { method: 'PUT', path: '/projects/project', headers: { 'if-match': '"r1"' }, status: 409, response: { code, error: 'Yêu cầu bị từ chối', revision: 'r2' } },
+      )
+      await loadProject(project.id)
+      await expect(updateProject(project.id, { description: 'Chưa lưu' })).rejects.toMatchObject({ name: code === 'revision_conflict' ? 'StorageConflictError' : 'StorageClientError', status: 409 })
+      expect(getProjectSnapshot(project.id)).toEqual(project)
+      expect(getProjectRevision(project.id)).toBe('r1')
+      if (code === 'revision_conflict') {
+        expect(getStorageConflict(project.id)).toMatchObject({ baseRevision: 'r1', serverRevision: 'r2' })
+        await expect(updateProject(project.id, { description: 'Không ghi đè' })).rejects.toBeInstanceOf(StorageConflictError)
+      } else {
+        expect(getStorageConflict(project.id)).toBeUndefined()
+      }
+    } finally {
+      setEditorStorage(previous)
+      resetProjectPersistenceForTesting()
+      useStorageConflictStore.setState({ conflicts: {} })
+    }
+  })
+
   it('sends optimistic project revisions and exposes the winning revision on stale saves', async () => {
     const edited = { ...project, description: 'Đã sửa' }
     expected.push(
       { method: 'POST', path: '/projects', body: { name: project.name }, response: { project, revision: 'r1' } },
-      { method: 'GET', path: '/projects/project', response: project, responseHeaders: { etag: '"r1"' } },
-      { method: 'PUT', path: '/projects/project', headers: { 'if-match': 'r1' }, body: edited, response: { revision: 'r2' } },
-      { method: 'PUT', path: '/projects/project', headers: { 'if-match': 'r1' }, body: project, status: 409, response: { error: 'Đã thay đổi', code: 'conflict', revision: 'r2', project: edited } },
-      { method: 'GET', path: '/projects/project', response: edited, responseHeaders: { etag: '"r2"' } },
-      { method: 'PATCH', path: '/projects/project', body: { name: 'Tên mới' }, headers: { 'if-match': 'r2' }, response: { revision: 'r3' } },
+      { method: 'GET', path: '/projects/project', response: project, responseHeaders: { 'x-editor-revision': 'r1', etag: 'W/"compressed-r1"' } },
+      { method: 'PUT', path: '/projects/project', headers: { 'if-match': '"r1"' }, body: edited, response: { revision: 'r2' } },
+      { method: 'PUT', path: '/projects/project', headers: { 'if-match': '"r1"' }, body: project, status: 409, response: { error: 'Đã thay đổi', code: 'revision_conflict', revision: 'r2', project: edited } },
+      { method: 'GET', path: '/projects/project', response: edited, responseHeaders: { 'x-editor-revision': 'r2' } },
+      { method: 'PATCH', path: '/projects/project', body: { name: 'Tên mới' }, headers: { 'if-match': '"r2"' }, response: { revision: 'r3' } },
       { method: 'GET', path: '/projects', response: { projects: [{ id: project.id, name: 'Tên mới', updatedAt: 2 }] } },
       { method: 'DELETE', path: '/projects/project', status: 204 },
     )
@@ -131,10 +180,10 @@ describe('HTTP editor storage transport', () => {
   it('keeps sidecar revisions independent and sends duplicate names', async () => {
     const data = { version: 1, presets: [{ id: 'zoom', name: 'Phóng to' }] }
     expected.push(
-      { method: 'GET', path: '/projects/project/sidecars/animation-presets', response: { version: 1, presets: [] } },
-      { method: 'PUT', path: '/projects/project/sidecars/animation-presets', body: data, headers: { 'if-match': 'empty' }, response: { revision: 'sidecar-1' } },
-      { method: 'GET', path: '/projects/project/sidecars/animation-presets', response: data, responseHeaders: { etag: '"sidecar-1"' } },
-      { method: 'PUT', path: '/projects/project/sidecars/animation-presets', body: data, headers: { 'if-match': 'empty' }, status: 409, response: { revision: 'sidecar-1' } },
+      { method: 'GET', path: '/projects/project/sidecars/animation-presets', response: { version: 1, presets: [] }, responseHeaders: { 'x-editor-revision': 'empty' } },
+      { method: 'PUT', path: '/projects/project/sidecars/animation-presets', body: data, headers: { 'if-match': '"empty"' }, response: { revision: 'sidecar-1' } },
+      { method: 'GET', path: '/projects/project/sidecars/animation-presets', response: data, responseHeaders: { 'x-editor-revision': 'sidecar-1', etag: 'W/"compressed-sidecar"' } },
+      { method: 'PUT', path: '/projects/project/sidecars/animation-presets', body: data, headers: { 'if-match': '"empty"' }, status: 409, response: { code: 'revision_conflict', revision: 'sidecar-1' } },
       { method: 'POST', path: '/projects/project/duplicate', body: { name: 'Bản sao' }, response: { project: { ...project, id: 'copy' }, revision: 'copy-1' } },
     )
     expect((await storage.loadSidecar(project.id, 'animation-presets')).revision).toBe('empty')
@@ -220,10 +269,10 @@ describe('HTTP editor storage transport', () => {
   it('revision-checks workspace effect presets independently', async () => {
     const data = { version: 1, presets: [{ id: 'grade', name: 'Màu phim' }] }
     expected.push(
-      { method: 'GET', path: '/workspace/effect-presets', response: { version: 1, presets: [] } },
-      { method: 'PUT', path: '/workspace/effect-presets', body: data, headers: { 'if-match': 'empty' }, response: { revision: 'effects-1' } },
-      { method: 'GET', path: '/workspace/effect-presets', response: data, responseHeaders: { etag: '"effects-1"' } },
-      { method: 'PUT', path: '/workspace/effect-presets', body: data, headers: { 'if-match': 'empty' }, status: 409, response: { revision: 'effects-1' } },
+      { method: 'GET', path: '/workspace/effect-presets', response: { version: 1, presets: [] }, responseHeaders: { 'x-editor-revision': 'empty' } },
+      { method: 'PUT', path: '/workspace/effect-presets', body: data, headers: { 'if-match': '"empty"' }, response: { revision: 'effects-1' } },
+      { method: 'GET', path: '/workspace/effect-presets', response: data, responseHeaders: { 'x-editor-revision': 'effects-1', etag: 'W/"compressed-effects"' } },
+      { method: 'PUT', path: '/workspace/effect-presets', body: data, headers: { 'if-match': '"empty"' }, status: 409, response: { code: 'revision_conflict', revision: 'effects-1' } },
     )
     expect((await storage.loadWorkspaceEffectPresets()).revision).toBe('empty')
     expect(await storage.saveWorkspaceEffectPresets(data, 'empty')).toBe('effects-1')
@@ -234,8 +283,8 @@ describe('HTTP editor storage transport', () => {
   it('keeps an authoritative unchanged project revision when loading refreshed source URLs', async () => {
     const refreshed: Project = { ...project, timeline: { tracks: [], items: [{ id: 'item', trackId: 'video', type: 'video', from: 0, durationInFrames: 30, label: '', mediaId: media.id, src: '/api/editor/media/media?v=sha256%3Areplacement' }] } }
     expected.push(
-      { method: 'GET', path: '/projects/project', response: refreshed, responseHeaders: { etag: '"r1"' } },
-      { method: 'PUT', path: '/projects/project', body: { ...refreshed, description: 'Sửa ở tab B' }, headers: { 'if-match': 'r1' }, response: { revision: 'r2' } },
+      { method: 'GET', path: '/projects/project', response: refreshed, responseHeaders: { 'x-editor-revision': 'r1', etag: '"representation-only"' } },
+      { method: 'PUT', path: '/projects/project', body: { ...refreshed, description: 'Sửa ở tab B' }, headers: { 'if-match': '"r1"' }, response: { revision: 'r2' } },
     )
     const loaded = await storage.loadProject(project.id)
     expect(loaded.revision).toBe('r1')
@@ -244,7 +293,7 @@ describe('HTTP editor storage transport', () => {
   })
 
   it('escapes path identifiers and passes abort signals to the upload transport', async () => {
-    expected.push({ method: 'GET', path: '/projects/project%2Fwith%20space', response: project })
+    expected.push({ method: 'GET', path: '/projects/project%2Fwith%20space', response: project, responseHeaders: { 'x-editor-revision': 'r1' } })
     await storage.loadProject('project/with space')
     expect(storage.mediaUrl('media/id', 'sha256:a+b')).toBe(`${baseUrl}/media/media%2Fid?v=sha256%3Aa%2Bb`)
     const controller = new AbortController()
