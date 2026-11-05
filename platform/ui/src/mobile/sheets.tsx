@@ -70,6 +70,8 @@ const message = (error: unknown, fallback: string) => (error instanceof Error &&
 export type ActionSheetProps = {
   open: boolean
   onClose: () => void
+  /** Runs after the sheet finishes closing, before opening a follow-up dialog. */
+  onExited?: () => void
   title: string
   description?: string
   actions: MobileSheetAction[]
@@ -78,7 +80,7 @@ export type ActionSheetProps = {
   cancelLabel?: string
 }
 
-export function ActionSheet({ open, onClose, title, description, actions, layout = 'list', cancelLabel }: ActionSheetProps) {
+export function ActionSheet({ open, onClose, onExited, title, description, actions, layout = 'list', cancelLabel }: ActionSheetProps) {
   const [pending, setPending] = useState(false)
   const [failure, setFailure] = useState('')
   const t = getKitLabels()
@@ -98,7 +100,7 @@ export function ActionSheet({ open, onClose, title, description, actions, layout
 
   if (layout === 'grouped') {
     return (
-      <Sheet open={open} onClose={close} height="auto" style={{ background: 'transparent', border: 0, boxShadow: 'none' }}>
+      <Sheet open={open} onClose={close} onExited={onExited} height="auto" style={{ background: 'transparent', border: 0, boxShadow: 'none' }}>
         <div className="m-action-group">
           <h2>{title}</h2>
           {description && <p>{description}</p>}
@@ -124,7 +126,7 @@ export function ActionSheet({ open, onClose, title, description, actions, layout
   }
 
   return (
-    <Sheet open={open} onClose={close} size="md" height="auto" title={title} subtitle={description}>
+    <Sheet open={open} onClose={close} onExited={onExited} size="md" height="auto" title={title} subtitle={description}>
       <div {...stylex.props(styles.list)}>
         {actions.map((action) => {
           const off = pending || action.disabled

@@ -124,6 +124,18 @@
 | `template_changed` | “Template đã đổi số ảnh hoặc prompt ảnh. Đạo diễn cần chia cảnh lại (tốn 7 ảnh).” | Chia cảnh lại |
 | `failed` | Một câu từ lý do đã dịch; nguyên văn trong “Chi tiết” | Thử lại |
 
+### Lỗi tải và nguồn không còn trong kho
+
+| Chỗ / trạng thái | Câu | Nút |
+|---|---|---|
+| Công cụ trên máy · yêu cầu thử lại chưa gửi được | “Chưa thử lại được. Bấm Thử lại để gửi lại yêu cầu.”; lý do đã dịch được thì ưu tiên lý do đó, không hiện nguyên văn mã nội bộ | Thử lại |
+| Mẫu video · đang đọc nguồn/lớp phủ | “Đang tải nguồn và lớp phủ…” | — |
+| Mẫu video · chưa đọc được danh mục Thư viện | “Không tải được thư viện. Thử lại.”; giữ các nguồn đã gắn, không báo chúng bị xoá khi chỉ là lỗi tải | Thử lại |
+| Nguồn đã gắn thực sự không có trong danh mục đã đọc xong | “Kênh nền không còn trong kho” / “Video nền không còn trong kho”; không dùng ID thay tên | Chọn video · Bỏ nguồn |
+| Lớp phủ đã gắn không có trong danh mục đã đọc xong | “Lớp phủ không còn trong kho” · “Không tìm thấy lớp phủ đã gắn trong Thư viện.”; không dùng ID thay tên hoặc lời báo mất video nền | Bỏ hiệu ứng |
+| Chưa tính được cách chia nền | “Chưa tính được nền cho video. Thử lại.”; các nguồn và chỉnh sửa vẫn giữ nguyên | Thử lại |
+
+
 ## Khám phá <a id="copy-explore"></a> <!-- r28-explore -->
 
 Câu chuẩn cho các trạng thái không vẽ frame riêng (hỏi đáp #31, #32, #34, #35). Một câu nói chuyện gì đang xảy ra, câu sau nói việc tiếp theo; không nối bằng “—”.
@@ -306,7 +318,7 @@ Sheet / màn Hàng chờ: băng tạm dừng “Đã tạm dừng lúc 00:04. Vi
 |---|---|
 | Nhóm ở cột phải | Phiên bản · N · Ảnh tham chiếu · N/4 · Prompt đã gửi · Lời kể trong cảnh |
 | Phiên bản | “Bản 2 · Theo góp ý “bảo vệ đứng trên đầu thang, tông lạnh hơn” · 23:58” · “Lần đầu · Hoạ sĩ viết từ lời kể” · *Dùng bản 1 cho video* · huy hiệu ảnh “bản 2” / “bản 1 · chưa dùng” |
-| Phần của prompt | Cảnh · Phong cách · Tham chiếu · Ghi chú đã học · Tránh; nguồn: “Hoạ sĩ viết từ lời kể” · “Hoạ sĩ sửa theo góp ý” · “prompt “Đêm xanh rêu”” · “template Mẫu chuẩn” · “2 ảnh bên dưới” |
+| Phần của prompt | Cảnh · Phong cách · Tham chiếu · Tránh (Ghi chú đã học bỏ ở đợt 44); nguồn: “Hoạ sĩ viết từ lời kể” · “Hoạ sĩ sửa theo góp ý” · “prompt “Đêm xanh rêu”” · “template Mẫu chuẩn” · “2 ảnh bên dưới” |
 | Dòng dưới prompt | “ChatGPT · gpt-image-2 · 1280×720 · vẽ 44 giây · 23:58 · tốn 1 ảnh” · *Xem nguyên văn gửi máy chủ* / *Xem theo phần* · *Chép* → “Đã chép” |
 | Thay đổi | “So với bản 2: Hoạ sĩ đổi 2 chỗ theo góp ý của bạn.” · *Xem thay đổi* / *Ẩn thay đổi* |
 | Sửa prompt | thanh dưới “Đã sửa 1 chỗ trong prompt cảnh 3” · “Chỉ áp cho ảnh này · tốn 1 ảnh, ChatGPT còn 7/50 hôm nay” · *Huỷ sửa* · **Vẽ lại với prompt này** · phần đổi: “Đã sửa · Hoàn tác” |
@@ -368,8 +380,8 @@ Giữ nhãn đầy đủ, không rút gọn (#80): Khám phá › Sắp xếp �
 
 **Cài đặt › Kết nối AI › Số liệu YouTube** (dùng đúng `performanceCopy.dataKey`)
 - Nhóm: “Số liệu YouTube” · “Không phải AI · Trinh sát dùng để đọc số liệu video đã đăng”.
-- Thẻ: “YouTube Data API” · nhãn “Khoá API”, “Không bắt buộc”. Dòng phụ: chưa có “Chưa có khoá · số liệu sau đăng đọc từ trang công khai”; đã lưu “Đã lưu ••••x9Qw · Trinh sát đọc lượt xem, thích, bình luận qua API” (xanh); không đọc được “Không đọc được trạng thái khoá” (cam) + *Thử lại*; mất kết nối “Mất kết nối máy chủ — mọi nút của hàng này tắt cho tới khi kết nối lại”.
-- Ô dán: nhãn “Khoá API”; gợi ý dưới ô “Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.” Lỗi: “Google không nhận khoá này — kiểm tra lại khoá và bật YouTube Data API v3.”
+- ~~Thẻ: “YouTube Data API” · nhãn “Khoá API”, “Không bắt buộc”. Dòng phụ: chưa có “Chưa có khoá · số liệu sau đăng đọc từ trang công khai”; đã lưu “Đã lưu ••••x9Qw · Trinh sát đọc lượt xem, thích, bình luận qua API” (xanh); không đọc được “Không đọc được trạng thái khoá” (cam) + *Thử lại*; mất kết nối “Mất kết nối máy chủ — mọi nút của hàng này tắt cho tới khi kết nối lại”.~~ (đã bỏ, đợt 44)
+- ~~Ô dán: nhãn “Khoá API”; gợi ý dưới ô “Tạo khoá trong Google Cloud Console rồi bật YouTube Data API v3 cho dự án đó. Không có khoá, Trinh sát vẫn đọc số liệu từ trang công khai của video.” Lỗi: “Google không nhận khoá này — kiểm tra lại khoá và bật YouTube Data API v3.”~~ (đã bỏ, đợt 44)
 
 **Tạo kênh — bước Xong khi Đạo diễn lỗi** (`identity=director`)
 - Tiêu đề “Đã tạo kênh”; tên “Kênh mới” · “tên tạm, đặt lại ở Hồ sơ kênh”.

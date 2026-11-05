@@ -52,11 +52,11 @@ function ChannelRow({ link, channel, onEdit, onRemove, mobileLayout }: {
   onRemove: () => void
 }) {
   const copy = t.backdrop.template
-  const name = channel?.title ?? channel?.handle ?? link.channelId
+  const name = channel?.title ?? channel?.handle ?? copy.missingChannelName
   const pick = link.pinned.length > 0
   const kinds = link.kinds.length ? link.kinds.map(kindName).join(', ') : copy.howRandom
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((channel ? undefined : ''))) && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, !channel && sx.srcrowDataMissing).className}`} data-missing={channel ? undefined : ''}>
       {channel?.avatarUrl
         ? <img className={`vbd-av ${stylex.props(sx.av).className}`} src={channel.avatarUrl} alt="" width={30} height={30} style={{ borderRadius: '50%' }} />
         : <span className={`vbd-av ${stylex.props(sx.av).className}`} aria-hidden="true" style={{ width: 30, height: 30, background: channelTint(link.channelId) }}>{initials(name)}</span>}
@@ -83,9 +83,9 @@ function FixedVideoRow({ video, missing, onRemove, mobileLayout }: {
   onRemove: () => void
 }) {
   const copy = t.backdrop.template
-  const name = video?.title ?? '—'
+  const name = video?.title ?? copy.missingVideoName
   return (
-    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, (Boolean((missing ? '' : undefined))) && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
+    <div className={`vbd-srcrow ${stylex.props(sx.srcrow, mobileLayout && sx.mobileSource, missing && sx.srcrowDataMissing).className}`} data-missing={missing ? '' : undefined}>
       {video?.state === 'ready' && video.file
         ? <span className={`vbd-av vbd-av--rect ${stylex.props(sx.avAvRect).className}`} style={{ width: 54, height: 30 }}>
             <video {...stylex.props(sx.vbdAvVideo)} src={backdropVideoFileHref(video.id)} muted playsInline preload="metadata" />
@@ -132,7 +132,7 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
     const channel = channelById.get(c.channelId)
     segs.push({
       id: c.channelId, sec: c.clips * backdrop.clipSec, tone: 'channel', platform: channel?.platform ?? 'twitch',
-      label: channel?.title ?? channel?.handle ?? c.channelId,
+      label: channel?.title ?? channel?.handle ?? copy.missingChannelName,
       sub: pinnedOf(c.channelId) > 0
         ? copy.mixPickDetail(num(c.clips), num(pinnedOf(c.channelId)))
         : c.repeats ? copy.mixRepeatDetail(num(c.clips), num(c.freshVideos)) : copy.mixRandomDetail(num(c.clips)),
@@ -169,7 +169,7 @@ function MixBar({ mix, backdrop, channels, onBumpClipSec }: {
           return (
             <span key={c.channelId} className={`vbd-mixleg ${stylex.props(sx.mixleg).className}`}>
               <i {...stylex.props(sx.vbdMixlegI)} style={{ background: `var(--vv-plat-${channel?.platform === 'bilibili' ? 'bilibili' : 'twitch'})` }} />
-              {channel?.title ?? channel?.handle ?? c.channelId}{' '}
+              {channel?.title ?? channel?.handle ?? copy.missingChannelName}{' '}
               {pinnedOf(c.channelId) > 0
                 ? copy.mixPickDetail(num(c.clips), num(pinnedOf(c.channelId)))
                 : c.repeats ? copy.mixRepeatDetail(num(c.clips), num(c.freshVideos)) : copy.mixRandomDetail(num(c.clips))}
@@ -238,6 +238,25 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
   const removeVideo = (id: string) => saveBackdrop({ fixedVideoIds: backdrop.fixedVideoIds.filter((v) => v !== id) })
 
   const manual = backdrop.clipCount !== null
+  const catalogError = channels.error || videos.error || overlays.error
+  if (catalogError || channels.initialLoading || videos.initialLoading || overlays.initialLoading) {
+    return (
+      <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-busy={!catalogError || undefined}>
+        {!hideTitle && <h2 {...stylex.props(sx.vtSecHeadH2)}>{t.library.template.sections.backdrop.label}</h2>}
+        {catalogError ? (
+          <>
+            <p role="alert" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{t.library.loadFail}</p>
+            <Button variant="ghost" onClick={() => { void channels.refresh(); void videos.refresh(); void overlays.refresh() }}>{t.library.retry}</Button>
+          </>
+        ) : (
+          <>
+            <p role="status" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.loadingLibrary}</p>
+            <Skeleton height="var(--vv-s-64)" width="100%" />
+          </>
+        )}
+      </section>
+    )
+  }
 
   return (
     <section className={`vt-sec ${stylex.props(sx.sec, hideTitle && sx.mobileSection).className}`} aria-label={hideTitle ? t.library.template.sections.backdrop.label : undefined} aria-labelledby={hideTitle ? undefined : 'vt-backdrop-title'} aria-busy={saving || undefined}>
@@ -277,8 +296,8 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
       {(backdrop.channels.length > 0 || backdrop.fixedVideoIds.length > 0) && (
         <div className={`vt-card ${stylex.props(sx.card).className}`}>
           <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.mixLabel} · {copy.mixExample}</span>
-          <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []}
-            onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />
+          {mix.error ? <div role="alert" className={`vbd-hint ${stylex.props(sx.hint).className}`}>{copy.mixLoadFail} <Button variant="ghost" onClick={() => void mix.refresh()}>{t.library.retry}</Button></div>
+            : <MixBar mix={mix.data} backdrop={backdrop} channels={channels.data ?? []} onBumpClipSec={(sec) => saveBackdrop({ clipSec: sec })} />}
 
           <div className={`vbd-cut ${stylex.props(sx.cut).className}`}>
             <button type="button" className={`vbd-cutline ${stylex.props(sx.cutline).className}`} aria-expanded={cutOpen}
@@ -363,21 +382,22 @@ export function BackdropSection({ template, onSave, saving, hideTitle }: {
           <div className={`vbd-ovlist ${stylex.props(sx.ovlist).className}`}>
             {attachedOverlays.map((id) => {
               const overlay = overlayById.get(id)
+              const name = overlay?.name ?? copy.missingOverlayName
               return (
-                <div key={id} className={`vbd-ovrow ${stylex.props(sx.ovrow, (Boolean((overlay ? undefined : ''))) && sx.ovrowDataMissing).className}`} data-missing={overlay ? undefined : ''}>
+                <div key={id} className={`vbd-ovrow ${stylex.props(sx.ovrow, !overlay && sx.ovrowDataMissing).className}`} data-missing={overlay ? undefined : ''}>
                   <span className={`vbd-ovthumb ${stylex.props(sx.ovthumb).className}`}>
                     {overlay?.mime.startsWith('video/')
                       ? <video {...stylex.props(sx.vbdOvthumbVideo)} src={overlay.url} muted playsInline preload="metadata" />
                       : overlay?.mime.startsWith('image/') ? <img {...stylex.props(sx.vbdOvthumbImg)} src={overlay.url} alt="" /> : <Icon name="layer" size={14} />}
                   </span>
                   <span className={`vbd-ovmain ${stylex.props(sx.ovmain).className}`}>
-                    <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{overlay?.name ?? id}</span>
+                    <span className={`vbd-ovname ${stylex.props(sx.ovname).className}`}>{name}</span>
                     <span className={`vbd-ovsub ${stylex.props(sx.ovsub).className}`}>
-                      {overlay ? (overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin) : copy.missingTitle}
+                      {overlay ? (overlay.durationSec !== null ? copy.overlayDuration(duration(overlay.durationSec)) : copy.overlayBuiltin) : copy.missingOverlayHint}
                     </span>
                   </span>
                   <Button xstyle={[sx.vtCardHeadButton]} variant="icon" icon={<Icon name="close" size={15} />}
-                    aria-label={copy.overlayRemoveAria(overlay?.name ?? id)}
+                    aria-label={copy.overlayRemoveAria(name)}
                     onClick={() => saveOverlays(attachedOverlays.filter((x) => x !== id))} />
                 </div>
               )

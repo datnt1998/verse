@@ -205,6 +205,7 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
 }) {
   const tt = t.channels.sources
   const [sheet, setSheet] = useState(false)
+  const [pendingUnlink, setPendingUnlink] = useState(false)
   const [making, setMaking] = useState(false)
   const scan = useResource(keys.rivalScan(source.rivalId), ({ signal }) => getRivalScan(source.rivalId, signal))
   const posting = useResource(keys.rivalPosting(source.rivalId, 'vn'), ({ signal }) => getPostingSlots(source.rivalId, 'vn', signal))
@@ -275,11 +276,12 @@ function SourceRow({ channelId, source, rival, onUnlink, variant = 'desktop' }: 
         <ActionSheet
           open={sheet}
           onClose={() => setSheet(false)}
+          onExited={() => { if (pendingUnlink) { setPendingUnlink(false); onUnlink() } }}
           title={source.title}
           actions={[
             { label: tt.topVideos, icon: 'chart', onSelect: () => navigate(href.slice(1)) },
             { label: tt.openExplore, icon: 'global', onSelect: () => navigate(href.slice(1)) },
-            { label: tt.unlink, icon: 'link', destructive: true, onSelect: onUnlink },
+            { label: tt.unlink, icon: 'link', destructive: true, onSelect: () => setPendingUnlink(true) },
           ]}
         />
       </div>

@@ -404,3 +404,30 @@ it('does not build a saved recipe while a different visible draft has failed to 
   await click(build)
   expect(calls.filter(call => call.method === 'POST' && call.url.endsWith('/preview'))).toEqual([])
 })
+
+it('keeps attached sources intact during catalog failure and hides technical IDs after recovery', async () => {
+  detailBody.recipe.backdrop = { channels: [{ channelId: 'private-source-id', kinds: ['clip'], pinned: [] }], fixedVideoIds: [], clipSec: 60, clipCount: null }
+  detailBody.recipe.overlays = ['private-overlay-id']
+  const previousFetch = globalThis.fetch
+  let fail = true
+  vi.stubGlobal('fetch', vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    const pathname = url.split('?')[0]
+    if (pathname === '/api/backdrop/channels') return fail ? respond({ error: 'STORAGE_INTERNAL_IDENTIFIER' }, 503) : respond([])
+    if (pathname === '/api/backdrop/videos') return respond([])
+    if (pathname === '/api/overlays') return respond({ items: [] })
+    if (pathname === '/api/templates/t1/backdrop/mix') return respond({ fixedSec: 0, perChannel: [{ channelId: 'private-source-id', clips: 0, freshVideos: 0, repeats: false }], loopSec: 0, need: 0, capped: false })
+    return previousFetch(input, init)
+  }))
+  const page = await render(<TemplateScreen route={{ ...templateRoute, section: 'backdrop' }} />)
+  expect(page.textContent).toContain(t.library.loadFail)
+  expect(page.querySelectorAll('[data-missing]')).toHaveLength(0)
+  expect(page.textContent).not.toContain('STORAGE_INTERNAL_IDENTIFIER')
+  fail = false
+  await click(byText(page, 'button', t.library.retry))
+  expect(page.textContent).not.toContain(t.library.loadFail)
+  expect(page.querySelectorAll('[data-missing]')).toHaveLength(2)
+  expect(page.textContent).not.toContain('private-source-id')
+  expect(page.textContent).not.toContain('private-overlay-id')
+  expect(calls.filter(call => call.method === 'PATCH')).toEqual([])
+})
