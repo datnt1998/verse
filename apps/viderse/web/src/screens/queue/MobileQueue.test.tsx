@@ -34,7 +34,7 @@ beforeEach(async () => {
         else if ('action' in body && body.action === 'remove') { removed.push(current.items.find((item) => item.id === body.id)!); current = { ...current, items: current.items.filter((item) => item.id !== body.id) } }
         else if ('action' in body && body.action === 'restore') current = { ...current, items: [...current.items, removed.find((item) => item.id === body.id)!] }
         else if ('action' in body && body.action === 'front') current = { ...current, items: current.items.map((item) => item.id === body.id ? { ...item, priority: 'pick', position: 0 } : item) }
-        else if ('workers' in body || 'imageWorkers' in body || 'rescanHours' in body) current = { ...current, workers: { ...current.workers, total: body.workers ?? current.workers.total }, imageWorkers: body.imageWorkers ?? current.imageWorkers, rescanHours: body.rescanHours ?? current.rescanHours }
+        else if ('workers' in body) current = { ...current, workers: { ...current.workers, total: body.workers } }
       }
       return json(current)
     }
@@ -68,13 +68,13 @@ it('pauses real running work without hiding it and gives every waiting row the p
   expect([...host.querySelectorAll('.mq-row')].every((node) => node.textContent?.includes('Hàng chờ đang tạm dừng'))).toBe(true)
   expect(host.textContent).toContain('Đã tạm dừng lúc')
 })
-it('bounds mobile workers at six, image concurrency at eight, and rescan at one hour', async () => {
-  current = { ...current, workers: { used: 1, total: 6 }, imageWorkers: 8, rescanHours: 1 }
+it('bounds mobile workers at six and exposes no image or rescan edit controls', async () => {
+  current = { ...current, workers: { used: 1, total: 6 }, imageWorkers: 3, rescanHours: 1 }
   await act(async () => { cache.setData(['queue'], current) })
   await click(button('Quy tắc chạy'))
   expect(document.querySelector<HTMLButtonElement>('[aria-label="Số luồng chạy cùng lúc tăng"]')?.disabled).toBe(true)
-  expect(document.querySelector<HTMLButtonElement>('[aria-label="Số ảnh vẽ cùng lúc tăng"]')?.disabled).toBe(true)
-  expect(document.querySelector<HTMLButtonElement>('[aria-label="Khoảng giờ xem lại đối thủ giảm"]')?.disabled).toBe(true)
+  expect(document.querySelector('[aria-label="Số ảnh vẽ cùng lúc tăng"]')).toBeNull()
+  expect(document.querySelector('[aria-label="Khoảng giờ xem lại đối thủ giảm"]')).toBeNull()
   await click(document.querySelector('[aria-label="Số luồng chạy cùng lúc giảm"]'))
   expect(patches).toContainEqual({ workers: 5 }); expect(current.workers.total).toBe(5)
   await click(button('Xong')); expect(patches).toHaveLength(1)
@@ -119,6 +119,7 @@ it('renders the actual empty summary and closes when navigating to Video mới',
   expect(document.body.textContent).toContain('Máy rảnh')
   expect(button('Tạm dừng')).toBeNull()
   await click(document.querySelector('a[href="#/new"]'))
+  await vi.waitFor(() => expect(close).toHaveBeenCalledOnce())
   expect(close).toHaveBeenCalledOnce()
 })
 

@@ -27,6 +27,7 @@ type Store interface {
 	GetQueueItem(context.Context, string) (*domain.CloneQueueItem, error)
 	InsertQueueItem(context.Context, domain.CloneQueueItem) error
 	ListQueuedItems(context.Context) ([]domain.CloneQueueItem, error)
+	QueuePositionBounds(context.Context) (manualMin, autoMax float64, err error)
 	ListLaneItems(context.Context, string) ([]domain.CloneQueueItem, error)
 	RemoveQueueItem(context.Context, string, time.Time) (bool, error)
 	RestoreQueueItem(context.Context, string) (bool, error)

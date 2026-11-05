@@ -154,7 +154,7 @@ func (o suggestOps) PlanImages(ctx context.Context, channelID, videoID string) (
 	if o.rt.Queue == nil {
 		return nil, errSuggestNotReady
 	}
-	plan, err := o.rt.Queue.Plan(ctx, domain.CloneEnqueueRequest{ChannelID: channelID, URLs: []string{watchURL(videoID)}, Priority: domain.ClonePick})
+	plan, err := o.rt.Queue.Plan(ctx, domain.CloneEnqueueRequest{ChannelID: channelID, URLs: []string{watchURL(videoID)}})
 	if err != nil || len(plan.Accepted) == 0 {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (o suggestOps) Pick(ctx context.Context, channelID, videoID string) error {
 	if o.rt.Queue == nil {
 		return errSuggestNotReady
 	}
-	_, err := o.rt.Queue.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: channelID, URLs: []string{watchURL(videoID)}, Priority: domain.ClonePick})
+	_, err := o.rt.Queue.Enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: channelID, URLs: []string{watchURL(videoID)}})
 	return err
 }
 

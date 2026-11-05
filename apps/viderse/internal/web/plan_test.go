@@ -63,10 +63,10 @@ func postPlan(t *testing.T, svc *queue.Service, urls []string) domain.ClonePlan 
 	}
 	return out
 }
-func TestPlanEndpointMultipleLinksUsesBatchPace(t *testing.T) {
+func TestPlanEndpointMultipleLinksUsesManualFront(t *testing.T) {
 	svc, _ := planFixture(t)
 	p := postPlan(t, svc, []string{"https://youtu.be/aaaaaaaaaaa", "https://www.youtube.com/watch?v=bbbbbbbbbbb"})
-	if len(p.Accepted) != 2 || p.Position != "back" || p.PaceLeftToday != 1 || p.OverflowDays != 1 {
+	if len(p.Accepted) != 2 || p.Position != "front" || p.PaceLeftToday != 1 || p.OverflowDays != 0 {
 		t.Fatalf("plan=%+v", p)
 	}
 	if p.ImageCalls != 16 || p.PriceUSD != nil {

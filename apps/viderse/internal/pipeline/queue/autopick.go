@@ -174,7 +174,7 @@ func (s *Service) discoverOwner(ctx context.Context, owner domain.Channel) error
 		for i := range urls {
 			urls[i] = watchURL(ids[offset+i])
 		}
-		out, e := s.enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: owner.ID, URLs: urls, Priority: domain.CloneBatch}, domain.OriginAuto)
+		out, e := s.enqueue(ctx, domain.CloneEnqueueRequest{ChannelID: owner.ID, URLs: urls}, domain.OriginAuto)
 		if e != nil {
 			lastError = e
 			continue

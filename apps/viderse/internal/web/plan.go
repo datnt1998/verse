@@ -18,15 +18,3 @@ func planClone(w http.ResponseWriter, r *http.Request, svc QueueService, diag fu
 	}
 	webapp.WriteJSON(w, http.StatusOK, plan)
 }
-func enqueueQueue(w http.ResponseWriter, r *http.Request, svc QueueService, diag func(error)) {
-	var body domain.CloneEnqueueRequest
-	if !webapp.DecodeJSONCode(w, r, &body, domain.CloneErrInvalidRequest) {
-		return
-	}
-	out, err := svc.Enqueue(r.Context(), body)
-	if err != nil {
-		writeQueueError(w, err, diag)
-		return
-	}
-	webapp.WriteJSON(w, http.StatusCreated, out)
-}

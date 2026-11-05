@@ -176,11 +176,11 @@ func TestCloneEnqueueUsesQueueAndPreservesResult(t *testing.T) {
 	}}
 	svc := &fakeCloneService{}
 	tg, cookie := cloneFixture(t, svc, queue, nil)
-	w := tg.do(http.MethodPost, "/api/clone", cookie, `{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"priority":"batch","noImages":true}`)
+	w := tg.do(http.MethodPost, "/api/jobs", cookie, `{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"noImages":true}`)
 	if w.Code != http.StatusCreated {
 		t.Fatalf("status %d: %s", w.Code, w.Body.String())
 	}
-	want := domain.CloneEnqueueRequest{ChannelID: "channel-1", URLs: []string{"https://youtu.be/source00001"}, Priority: domain.CloneBatch, NoImages: true}
+	want := domain.CloneEnqueueRequest{ChannelID: "channel-1", URLs: []string{"https://youtu.be/source00001"}, NoImages: true}
 	if !reflect.DeepEqual(queue.request, want) || queue.calls != 1 || len(svc.calls) != 0 {
 		t.Fatalf("queue request %#v; calls %d; pipeline calls %v", queue.request, queue.calls, svc.calls)
 	}
@@ -193,14 +193,14 @@ func TestCloneEnqueueUsesQueueAndPreservesResult(t *testing.T) {
 	}
 	for _, body := range []string{
 		`{}`, `null`, `{"channelId":"channel-1","urls":[]}`,
-		`{"channelId":"channel-1","urls":[" "]}`,
 		`{"channelId":"../private","urls":["https://youtu.be/source00001"]}`,
 		`{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"priority":"urgent"}`,
+		`{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"priority":"pick"}`,
+		`{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"priority":"batch"}`,
 		`{"channelId":"channel-1","urls":["https://youtu.be/source00001"],"extra":true}`,
 		`{"channelId":"channel-1","urls":["https://youtu.be/source00001"]}{}`,
-		`{"channelId":"channel-1","urls":["` + strings.Repeat("x", 2049) + `"]}`,
 	} {
-		w := tg.do(http.MethodPost, "/api/clone", cookie, body)
+		w := tg.do(http.MethodPost, "/api/jobs", cookie, body)
 		if w.Code != http.StatusBadRequest {
 			t.Fatalf("invalid enqueue status %d: %s", w.Code, w.Body.String())
 		}
@@ -209,7 +209,7 @@ func TestCloneEnqueueUsesQueueAndPreservesResult(t *testing.T) {
 		t.Fatal("invalid enqueue reached queue")
 	}
 	queue.err = &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã có trong hàng chờ."}
-	w = tg.do(http.MethodPost, "/api/clone", cookie, `{"channelId":"channel-1","urls":["https://youtu.be/source00001"]}`)
+	w = tg.do(http.MethodPost, "/api/jobs", cookie, `{"channelId":"channel-1","urls":["https://youtu.be/source00001"]}`)
 	if w.Code != http.StatusConflict {
 		t.Fatalf("enqueue failure status %d: %s", w.Code, w.Body.String())
 	}
@@ -576,7 +576,7 @@ func TestCloneRoutesRequireSessionAndSameOrigin(t *testing.T) {
 
 func TestCloneMountLeavesSpecificQueueRoutesReachable(t *testing.T) {
 	tg := newTestGateway(t)
-	for _, path := range []string{"/api/clone/plan", "/api/clone/enqueue"} {
+	for _, path := range []string{"/api/clone/plan"} {
 		tg.g.Handle(http.MethodPost, path, func(w http.ResponseWriter, _ *http.Request, _ identity.User) {
 			w.WriteHeader(http.StatusAccepted)
 		})
@@ -584,7 +584,7 @@ func TestCloneMountLeavesSpecificQueueRoutesReachable(t *testing.T) {
 	svc := &fakeCloneService{}
 	MountClone(tg.g, svc, &fakeCloneEnqueuer{}, nil)
 	cookie := tg.sessionCookie()
-	for _, path := range []string{"/api/clone/plan", "/api/clone/enqueue"} {
+	for _, path := range []string{"/api/clone/plan"} {
 		if w := tg.do(http.MethodPost, path, cookie, `{}`); w.Code != http.StatusAccepted {
 			t.Fatalf("specific queue route %s was shadowed: %d", path, w.Code)
 		}
@@ -602,7 +602,7 @@ func TestCloneUnmountedDependenciesReturnServiceUnavailable(t *testing.T) {
 		{http.MethodGet, "/api/clone", ""},
 		{http.MethodGet, "/api/clone/counts", ""},
 		{http.MethodGet, "/api/clone/job-1", ""},
-		{http.MethodPost, "/api/clone", `{"channelId":"channel-1","urls":["https://youtu.be/source00001"]}`},
+		{http.MethodPost, "/api/jobs", `{"channelId":"channel-1","urls":["https://youtu.be/source00001"]}`},
 	} {
 		w := tg.do(tc.method, tc.path, cookie, tc.body)
 		if w.Code != http.StatusServiceUnavailable {

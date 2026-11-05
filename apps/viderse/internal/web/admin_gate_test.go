@@ -67,7 +67,7 @@ func TestMachineAdminOnlyRoutes(t *testing.T) {
 		{http.MethodGet, "/api/setup/state"},
 		{http.MethodGet, "/api/storage/server"},
 		{http.MethodGet, "/api/notifications/settings"},
-		{http.MethodPost, "/api/clone/enqueue"},
+		{http.MethodPost, "/api/jobs"},
 	}
 	for _, c := range open {
 		if machineAdminOnly(c.method, c.path) {

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "NewVideo.input.empty",
+    "referenceProps": {
+      "input": "empty",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.input.empty.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.input.pasted",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.input.pasted.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.input.duplicate",
+    "referenceProps": {
+      "input": "duplicate",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.input.duplicate.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.input.error",
+    "referenceProps": {
+      "input": "error",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.input.error.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.input.multi",
+    "referenceProps": {
+      "input": "multi",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.input.multi.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.from.topbar",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.from.topbar.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.from.explore",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "explore",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.from.explore.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.picker.none",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/NewVideo.picker.none.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.picker.channel",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "channel"
+    },
+    "file": "comparisons/NewVideo.picker.channel.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "NewVideo.picker.template",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "template"
+    },
+    "file": "comparisons/NewVideo.picker.template.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.input.empty",
+    "referenceProps": {
+      "input": "empty",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.input.empty.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.input.pasted",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.input.pasted.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.input.duplicate",
+    "referenceProps": {
+      "input": "duplicate",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.input.duplicate.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.input.error",
+    "referenceProps": {
+      "input": "error",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.input.error.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.input.multi",
+    "referenceProps": {
+      "input": "multi",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.input.multi.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.from.topbar",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.from.topbar.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.from.explore",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "explore",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.from.explore.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.picker.none",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "none"
+    },
+    "file": "comparisons/MNew.picker.none.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.picker.channel",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "channel"
+    },
+    "file": "comparisons/MNew.picker.channel.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  },
+  {
+    "id": "MNew.picker.template",
+    "referenceProps": {
+      "input": "pasted",
+      "from": "topbar",
+      "picker": "template"
+    },
+    "file": "comparisons/MNew.picker.template.png",
+    "reference": "artboard left",
+    "code": "native UI right",
+    "qualification": "Different QA source metadata, channel population, OS status inset; not certified pixel equality. Focus border superseded by focus-border-repair receipt."
+  }
+]

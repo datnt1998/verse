@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
@@ -59,23 +60,10 @@ func (s *Service) Plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	return p, err
 }
 func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (domain.ClonePlan, map[string]VideoMetadata, error) {
-	out := domain.ClonePlan{Accepted: []domain.ClonePlanAccepted{}, Duplicates: []domain.ClonePlanDuplicate{}, Invalid: []domain.ClonePlanInvalid{}, Position: "back"}
+	out := domain.ClonePlan{Accepted: []domain.ClonePlanAccepted{}, Duplicates: []domain.ClonePlanDuplicate{}, Invalid: []domain.ClonePlanInvalid{}, Position: "front"}
 	meta := map[string]VideoMetadata{}
 	if len(in.URLs) == 0 || len(in.URLs) > 200 {
 		return out, meta, invalid("Cần từ 1 đến 200 link video")
-	}
-	priority := in.Priority
-	if priority == "" {
-		priority = domain.CloneBatch
-		if len(in.URLs) == 1 {
-			priority = domain.ClonePick
-		}
-	}
-	if priority != domain.CloneBatch && priority != domain.ClonePick {
-		return out, meta, invalid("Mức ưu tiên không hợp lệ")
-	}
-	if priority == domain.ClonePick {
-		out.Position = "front"
 	}
 	owner, err := s.store.Owner(ctx, in.ChannelID)
 	if err != nil {
@@ -132,14 +120,20 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	}
 	duplicates := map[string]domain.ClonePlanDuplicate{}
 	duplicateSources := map[string]domain.CloneSourceSnapshot{}
-	for _, q := range queued {
-		duplicates[q.SourceVideoID] = domain.ClonePlanDuplicate{JobID: q.JobID, State: string(q.State), Title: q.Source.Title}
-		duplicateSources[q.SourceVideoID] = q.Source
-	}
 	for _, j := range jobs {
 		id := j.ID
 		duplicates[domain.CloneSourceVideoID(j.SourceKey)] = domain.ClonePlanDuplicate{JobID: &id, State: j.StageGroup, Title: j.Source.Title}
 		duplicateSources[domain.CloneSourceVideoID(j.SourceKey)] = j.Source
+	}
+	for _, q := range queued {
+		existing, found := duplicates[q.SourceVideoID]
+		// A pending restart remains the live target until its new job is admitted.
+		if found && (q.State != domain.QueueQueued || (existing.QueueItemID != nil && existing.State == string(domain.QueueQueued))) {
+			continue
+		}
+		id := q.ID
+		duplicates[q.SourceVideoID] = domain.ClonePlanDuplicate{JobID: q.JobID, QueueItemID: &id, State: string(q.State), Title: q.Source.Title}
+		duplicateSources[q.SourceVideoID] = q.Source
 	}
 	videos, err := s.store.ListVideosByIDs(ctx, ids)
 	if err != nil {
@@ -160,6 +154,54 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	linked := make(map[string]bool, len(sources))
 	for _, source := range sources {
 		linked[source.RivalID] = true
+	}
+	// Cached/duplicate sources need no network read. Unknown unique sources
+	// use the same bounded two-worker pattern as discovery, then results are
+	// assembled below in the original input order.
+	type probeResult struct {
+		metadata VideoMetadata
+		err      error
+	}
+	probes := map[string]probeResult{}
+	var missing []string
+	if s.d.Probe != nil {
+		for _, id := range ids {
+			if _, cached := videos[id]; cached {
+				continue
+			}
+			if _, duplicate := duplicates[id]; duplicate {
+				continue
+			}
+			if _, scheduled := probes[id]; !scheduled {
+				probes[id] = probeResult{}
+				missing = append(missing, id)
+			}
+		}
+	}
+	if len(missing) == 1 {
+		m, err := s.d.Probe(ctx, missing[0])
+		probes[missing[0]] = probeResult{m, err}
+	} else if len(missing) > 1 {
+		jobs := make(chan string, len(missing))
+		for _, id := range missing {
+			jobs <- id
+		}
+		close(jobs)
+		var wg sync.WaitGroup
+		var mu sync.Mutex
+		for range 2 {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for id := range jobs {
+					m, err := s.d.Probe(ctx, id)
+					mu.Lock()
+					probes[id] = probeResult{m, err}
+					mu.Unlock()
+				}
+			}()
+		}
+		wg.Wait()
 	}
 	requestSeen := map[string]bool{}
 	for _, rawURL := range in.URLs {
@@ -230,11 +272,12 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 				m.Outlier = &o
 			}
 		} else if s.d.Probe != nil {
-			m, err = s.d.Probe(ctx, id)
-			if err != nil {
+			probe := probes[id]
+			m = probe.metadata
+			if probe.err != nil {
 				var unavailable *youtube.VideoUnavailableError
 				reason := "unreadable"
-				if errors.As(err, &unavailable) && unavailable.Reason == "private" {
+				if errors.As(probe.err, &unavailable) && unavailable.Reason == "private" {
 					reason = "private"
 				}
 				out.Invalid = append(out.Invalid, domain.ClonePlanInvalid{URL: rawURL, Reason: reason})
@@ -274,15 +317,9 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 		return out, meta, nil
 	}
 	target := -1
-	queuedBatch := 0
 	for i := range lanes {
 		if lanes[i].ChannelID == owner.ID {
 			target = i
-			for _, item := range lanes[i].Items {
-				if item.Priority == "batch" {
-					queuedBatch++
-				}
-			}
 			break
 		}
 	}
@@ -293,23 +330,11 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	lane := &lanes[target]
 	// All accepted videos are included in simulation, not just the first.
 	firstID := ""
-	position := 0.0
-	if priority == domain.ClonePick {
-		position = float64(s.d.Now().UnixNano()) / 1e9
-		for _, l := range lanes {
-			for _, i := range l.Items {
-				if i.Priority == "pick" && i.Position > position {
-					position = i.Position
-				}
-			}
-		}
-	} else {
-		for _, i := range lane.Items {
-			if i.Priority == "batch" && i.Position > position {
-				position = i.Position
-			}
-		}
+	minimum, _, err := s.store.QueuePositionBounds(ctx)
+	if err != nil {
+		return out, meta, err
 	}
+	position := minimum - float64(len(out.Accepted)) - 1
 	for idx, a := range out.Accepted {
 		seconds := int64(0)
 		if a.DurationSec != nil {
@@ -320,7 +345,7 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 			firstID = id
 		}
 		position++
-		lane.Items = append(lane.Items, Item{ID: id, ChannelID: owner.ID, Priority: string(priority), Position: position, DurationSec: seconds, CreatedAt: s.d.Now()})
+		lane.Items = append(lane.Items, Item{ID: id, ChannelID: owner.ID, Priority: string(domain.ClonePick), Position: position, DurationSec: seconds, CreatedAt: s.d.Now()})
 	}
 	rules, err := s.Rules(ctx)
 	if err != nil {
@@ -336,9 +361,6 @@ func (s *Service) plan(ctx context.Context, in domain.CloneEnqueueRequest) (doma
 	}
 	estimates := Estimate(lanes, EstimateInput{Now: s.d.Now(), Workers: rules.Workers, Basis: basis, Active: activeETA(active), Paused: rules.Paused})
 	out.ETAStart = estimates[firstID].Start
-	if priority == domain.CloneBatch {
-		out.OverflowDays = max(0, int(math.Ceil(float64(queuedBatch+len(out.Accepted)+int(used[owner.ID]))/float64(owner.PerDay)))-1)
-	}
 	return out, meta, nil
 }
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"math"
 	"strings"
 	"sync"
 	"time"
@@ -20,11 +19,6 @@ type Provider interface {
 	FirstChannelPage(ctx context.Context, channel string) (*youtube.ChannelVideoPage, error)
 	NextChannelPage(ctx context.Context, cursor youtube.ChannelCursor) (*youtube.ChannelVideoPage, error)
 	FetchUploadTime(ctx context.Context, videoID string) (*time.Time, bool, error)
-}
-
-// Settings là phần đọc cài đặt mà service cần (khoá clone.rescanHours).
-type Settings interface {
-	Get(ctx context.Context, key string, out any) (bool, error)
 }
 
 // Tasks là phần của activity.Service mà luồng quét dùng: đóng dòng việc khi
@@ -60,7 +54,6 @@ type Runtime interface {
 type Deps struct {
 	Store    Store
 	YouTube  Provider
-	Settings Settings
 	Tasks    Tasks        // nil = không ghi việc nền/thông báo
 	Platform PlatformGate // nil = không kiểm/ghi giờ chờ nền tảng
 	Now      func() time.Time
@@ -141,23 +134,12 @@ func (s *Service) Stop() {
 	s.stopped = true
 }
 
-// rescanHours đọc khoảng quét lại của đối thủ (clone.rescanHours, mặc định 1,
-// kẹp 1–24; giá trị xấu đọc như chưa ghi).
-func (s *Service) rescanHours(ctx context.Context) int {
-	hours := float64(domain.RescanHoursDefault)
-	if s.d.Settings != nil {
-		var v float64
-		if found, err := s.d.Settings.Get(ctx, domain.KeyRescanHours, &v); err == nil && found {
-			hours = v
-		}
-	}
-	if math.IsNaN(hours) || math.IsInf(hours, 0) {
-		hours = domain.RescanHoursDefault
-	}
-	return int(math.Min(domain.RescanHoursMax, math.Max(domain.RescanHoursMin, math.Round(hours))))
+// rescanHours cố định một giờ; cài đặt legacy không còn ảnh hưởng lịch quét.
+func (s *Service) rescanHours(_ context.Context) int {
+	return domain.RescanHoursDefault
 }
 
-// RescanInterval returns the same configured interval used by Discovery.NextAt.
+// RescanInterval returns the fixed interval used by Discovery.NextAt.
 func (s *Service) RescanInterval(ctx context.Context) time.Duration {
 	return time.Duration(s.rescanHours(ctx)) * time.Hour
 }

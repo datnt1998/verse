@@ -71,6 +71,11 @@ export function QueueScreen() {
   const chName = (id: string) => channels.get(id)?.name || id
   const chColor = (id: string) => ({ bg: channelTint(id), ring: channelTint(id) })
   const shown = filter === 'all' ? items : items.filter((i) => i.channelId === filter)
+  const ordinals = useMemo(() => {
+    const result = new Map<string, number>()
+    items.forEach((item, index) => result.set(item.id, index + 1))
+    return result
+  }, [items])
   const filters = useMemo(() => {
     const list = new Map<string, number>()
     for (const i of items) list.set(i.channelId, (list.get(i.channelId) ?? 0) + 1)
@@ -213,17 +218,6 @@ export function QueueScreen() {
                 onChange={(v) => void patch({ workers: v }, (old) => ({ ...old, workers: { ...old.workers, total: v } }))} />
             </div>
             <p className={`vq-note ${stylex.props(styles["vq-note"]).className}`}>{tt.workerGuidance}</p>
-            <div className={`vq-sep ${stylex.props(styles["vq-sep"]).className}`} />
-            <div className={`vq-card__row ${stylex.props(styles["vq-card__row"]).className}`}>
-              <span className={`vq-sub ${stylex.props(styles["vq-sub"]).className}`}>{tt.rules.imageSlots}<span className={`vq-sub__s ${stylex.props(styles["vq-sub__s"]).className}`}>{tt.imageSlotsSub}</span></span>
-              <Stepper aria={tt.rules.imageSlotsTitle} value={view.imageWorkers} min={1} max={8} disabled={busy || !online}
-                onChange={(v) => void patch({ imageWorkers: v }, (old) => ({ ...old, imageWorkers: v }))} />
-            </div>
-            <div className={`vq-card__row ${stylex.props(styles["vq-card__row"]).className}`}>
-              <span className={`vq-sub ${stylex.props(styles["vq-sub"]).className}`}>{tt.rules.rescan}<span className={`vq-sub__s ${stylex.props(styles["vq-sub__s"]).className}`}>{tt.rescanSub}</span></span>
-              <Stepper aria={tt.rules.rescanTitle} value={view.rescanHours} min={1} max={24} fmt={tt.rules.rescanUnit} disabled={busy || !online}
-                onChange={(v) => void patch({ rescanHours: v }, (old) => ({ ...old, rescanHours: v }))} />
-            </div>
           </section>
           </AdminReadOnly>
 
@@ -364,7 +358,7 @@ export function QueueScreen() {
                   <span role="columnheader">{tt.colStart}</span>
                   <span {...stylex.props(text.srOnly)} role="columnheader">{tt.colActions}</span>
                 </div>
-                {shown.map((item, i) => qrow(item, i + 1))}
+                {shown.map((item) => qrow(item, ordinals.get(item.id)!))}
                 {shown.length === 0 && <div className={`vq-norows ${stylex.props(styles["vq-norows"]).className}`}>{tt.noRows}</div>}
                 <div className={`vq-foot ${stylex.props(styles["vq-foot"]).className}`}>
                   <span>{autoFetchNames.length > 0 ? tt.autoFetchNote(autoFetchNames.join(' · ')) : tt.autoFetchOff}</span>

@@ -58,7 +58,7 @@ func (g *Gateway) registerCloneRoutes(enqueuer CloneEnqueuer, files cloneMedia) 
 		w.Header().Set("Cache-Control", "no-store")
 		listClone(w, r, g.Clone)
 	})
-	g.Handle(http.MethodPost, "/api/clone", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+	g.Handle(http.MethodPost, "/api/jobs", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
 		w.Header().Set("Cache-Control", "no-store")
 		enqueueClone(w, r, enqueuer)
 	})
@@ -172,16 +172,6 @@ func enqueueClone(w http.ResponseWriter, r *http.Request, svc CloneEnqueuer) {
 	if !cloneSegment(request.ChannelID) || len(request.URLs) == 0 {
 		invalidClone(w, "Chọn kênh và ít nhất một liên kết video.")
 		return
-	}
-	if request.Priority != "" && request.Priority != domain.ClonePick && request.Priority != domain.CloneBatch {
-		invalidClone(w, "Mức ưu tiên không hợp lệ.")
-		return
-	}
-	for _, value := range request.URLs {
-		if strings.TrimSpace(value) == "" || len(value) > 2048 {
-			invalidClone(w, "Liên kết video không hợp lệ.")
-			return
-		}
 	}
 	if !cloneAvailable(w, svc != nil) {
 		return

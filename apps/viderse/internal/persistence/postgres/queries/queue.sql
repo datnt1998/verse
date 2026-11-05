@@ -10,10 +10,18 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
 SELECT * FROM clone_queue WHERE id = $1;
 
 -- name: ListQueuedItems :many
--- Toàn bộ mục đang chờ (lượt drain/ETA gom lại trong tầng nghiệp vụ).
+-- Chọn manual toàn cục trước workset cap; auto giữ thứ tự trong lane.
 SELECT * FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL
-ORDER BY channel_id, position, id
+ORDER BY CASE WHEN priority = 'pick' THEN 0 ELSE 1 END,
+         CASE WHEN priority = 'pick' THEN position END,
+         channel_id, position, id
 LIMIT 2000;
+
+-- name: QueuePositionBounds :one
+-- Aggregate trên toàn eligible set, không lấy bounds từ workset LIMIT.
+SELECT coalesce(min(position) FILTER (WHERE priority = 'pick'), 0)::double precision AS manual_min,
+       coalesce(max(position) FILTER (WHERE priority = 'batch'), 0)::double precision AS auto_max
+FROM clone_queue WHERE state = 'queued' AND removed_at IS NULL;
 
 -- name: ListLaneItems :many
 SELECT * FROM clone_queue

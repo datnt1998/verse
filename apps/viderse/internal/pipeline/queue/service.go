@@ -23,6 +23,9 @@ const pausedAtKey = "clone.queuePausedAt"
 const queueLock int64 = 27900501
 const discoveryLock int64 = 27900502
 
+// Global allocation lock: always acquire before owner/job row locks.
+const allocationLock int64 = 27900503
+
 type Settings interface {
 	Get(context.Context, string, any) (bool, error)
 	Set(context.Context, string, any) error
@@ -95,7 +98,7 @@ func (s *Service) Rules(ctx context.Context) (Rules, error) {
 		key    string
 		target *int
 		lo, hi int
-	}{{domain.KeyJobConcurrency, &out.Workers, 1, 6}, {domain.KeyImageConcurrency, &out.ImageWorkers, 1, 8}, {domain.KeyRescanHours, &out.RescanHours, 1, 24}} {
+	}{{domain.KeyJobConcurrency, &out.Workers, 1, 6}} {
 		var raw json.RawMessage
 		found, err := s.d.Settings.Get(ctx, v.key, &raw)
 		if err != nil {
@@ -125,6 +128,9 @@ func (s *Service) Rules(ctx context.Context) (Rules, error) {
 
 func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.CloneQueueView, error) {
 	// Validate the entire request before any side effect.
+	if in.Workers != nil && (*in.Workers < domain.JobConcurrencyMin || *in.Workers > domain.JobConcurrencyMax) {
+		return domain.CloneQueueView{}, invalid("Số luồng phải từ 1 đến 6")
+	}
 	if in.ID != nil {
 		var id pgtype.UUID
 		if err := id.Scan(*in.ID); err != nil || !id.Valid {
@@ -157,7 +163,7 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 		key    string
 		n      *int
 		lo, hi int
-	}{{domain.KeyJobConcurrency, in.Workers, 1, 6}, {domain.KeyImageConcurrency, in.ImageWorkers, 1, 8}, {domain.KeyRescanHours, in.RescanHours, 1, 24}} {
+	}{{domain.KeyJobConcurrency, in.Workers, 1, 6}} {
 		if v.n != nil {
 			n := max(v.lo, min(v.hi, *v.n))
 			if err := s.d.Settings.Set(ctx, v.key, n); err != nil {
@@ -172,6 +178,9 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 			return domain.CloneQueueView{}, err
 		}
 		defer tx.Rollback(ctx)
+		if err = lockAllocation(ctx, tx); err != nil {
+			return domain.CloneQueueView{}, err
+		}
 		repo := s.store.With(tx)
 		item, err := repo.GetQueueItem(ctx, *in.ID)
 		if err != nil {
@@ -207,17 +216,11 @@ func (s *Service) Patch(ctx context.Context, in domain.QueuePatch) (domain.Clone
 				return domain.CloneQueueView{}, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Video đã chạy hoặc đã được xếp lại, không thể đổi hàng chờ"}
 			}
 		} else if in.Action == "front" {
-			queued, e := repo.ListQueuedItems(ctx)
+			minimum, _, e := repo.QueuePositionBounds(ctx)
 			if e != nil {
 				return domain.CloneQueueView{}, e
 			}
-			pos := float64(s.d.Now().UnixNano()) / 1e9
-			for _, q := range queued {
-				if q.Priority == domain.ClonePick && q.Position <= pos {
-					pos = q.Position - 1
-				}
-			}
-			err = repo.PromotePick(ctx, item.ID, pos)
+			err = repo.PromotePick(ctx, item.ID, minimum-1)
 		} else if in.Position != nil {
 			err = repo.UpdateQueuePosition(ctx, item.ID, *in.Position)
 		}
@@ -351,32 +354,26 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 	if err != nil {
 		return domain.CloneEnqueueResult{}, err
 	}
-	priority := in.Priority
-	if priority == "" {
+	priority := domain.ClonePick
+	if origin == domain.OriginAuto {
 		priority = domain.CloneBatch
-		if len(in.URLs) == 1 {
-			priority = domain.ClonePick
-		}
 	}
-	out := domain.CloneEnqueueResult{Items: []domain.CloneQueueItem{}, Duplicates: plan.Duplicates}
-	if len(plan.Invalid) > 0 {
-		return out, invalid("Có link video không đọc được")
-	}
+	out := domain.CloneEnqueueResult{Items: []domain.CloneQueueItem{}, Duplicates: plan.Duplicates, Invalid: plan.Invalid}
 	tx, err := s.d.Pool.Begin(ctx)
 	if err != nil {
 		return out, err
 	}
 	defer tx.Rollback(ctx)
 	repo := s.store.With(tx)
+	if err = lockAllocation(ctx, tx); err != nil {
+		return out, err
+	}
 	if err = repo.LockOwnerChannel(ctx, in.ChannelID); err != nil {
 		return out, err
 	}
 	lane, err := repo.ListLaneItems(ctx, in.ChannelID)
 	if err != nil {
 		return out, err
-	}
-	if len(lane)+len(plan.Accepted) > LaneCap {
-		return out, invalid("Hàng chờ của kênh đã đầy")
 	}
 	keys := make([]string, len(plan.Accepted))
 	for i, a := range plan.Accepted {
@@ -391,33 +388,48 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 		return out, err
 	}
 	seen := map[string]bool{}
+	// A pending restart precedes its unsuperseded predecessor and historical rows.
+	for _, q := range existingQueue {
+		if q.State != domain.QueueQueued {
+			continue
+		}
+		seen[q.SourceKey] = true
+		id := q.ID
+		out.Duplicates = append(out.Duplicates, domain.ClonePlanDuplicate{URL: q.Source.URL, JobID: q.JobID, QueueItemID: &id, State: string(q.State), Title: q.Source.Title})
+	}
 	for _, j := range existingJobs {
+		if seen[j.SourceKey] {
+			continue
+		}
 		seen[j.SourceKey] = true
 		id := j.ID
 		out.Duplicates = append(out.Duplicates, domain.ClonePlanDuplicate{URL: j.Source.URL, JobID: &id, State: j.StageGroup, Title: j.Source.Title})
 	}
 	for _, q := range existingQueue {
+		if seen[q.SourceKey] {
+			continue
+		}
 		seen[q.SourceKey] = true
-		out.Duplicates = append(out.Duplicates, domain.ClonePlanDuplicate{URL: q.Source.URL, JobID: q.JobID, State: string(q.State), Title: q.Source.Title})
+		id := q.ID
+		out.Duplicates = append(out.Duplicates, domain.ClonePlanDuplicate{URL: q.Source.URL, JobID: q.JobID, QueueItemID: &id, State: string(q.State), Title: q.Source.Title})
 	}
-	position := 0.0
+	count := 0
+	for _, key := range keys {
+		if !seen[key] {
+			count++
+		}
+	}
+	if len(lane)+count > LaneCap {
+		return out, invalid("Hàng chờ của kênh đã đầy")
+	}
+	minimum, maximum, err := repo.QueuePositionBounds(ctx)
+	if err != nil {
+		return out, err
+	}
+	position := maximum
 	if priority == domain.ClonePick {
-		position = float64(s.d.Now().UnixNano()) / 1e9
-		queued, e := repo.ListQueuedItems(ctx)
-		if e != nil {
-			return out, e
-		}
-		for _, q := range queued {
-			if q.Priority == domain.ClonePick && q.Position > position {
-				position = q.Position
-			}
-		}
-	} else {
-		for _, q := range lane {
-			if q.Priority == domain.CloneBatch && q.Position > position {
-				position = q.Position
-			}
-		}
+		// Reserve the entire block before incrementing so [B,C] stays B,C.
+		position = minimum - float64(count) - 1
 	}
 	for _, a := range plan.Accepted {
 		key := domain.CloneSourceKey(in.ChannelID, a.VideoID)
@@ -440,12 +452,56 @@ func (s *Service) enqueue(ctx context.Context, in domain.CloneEnqueueRequest, or
 		}
 		out.Items = append(out.Items, item)
 	}
+	// Repeated links in this request resolve to the actual row just inserted,
+	// rather than a fabricated queue target or a silently dropped input.
+	for _, item := range out.Items {
+		first := true
+		for _, raw := range in.URLs {
+			id, reason := ParseVideoURL(raw)
+			if reason != "" || id != item.SourceVideoID {
+				continue
+			}
+			if first {
+				first = false
+				continue
+			}
+			queueID := item.ID
+			out.Duplicates = append(out.Duplicates, domain.ClonePlanDuplicate{URL: raw, QueueItemID: &queueID, State: string(item.State), Title: item.Source.Title})
+		}
+	}
 	if err = tx.Commit(ctx); err != nil {
 		return out, err
 	}
 	s.emit()
 	s.RequestDrain()
 	return out, nil
+}
+
+func lockAllocation(ctx context.Context, tx pgx.Tx) error {
+	_, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock($1)`, allocationLock)
+	return err
+}
+
+func (s *Service) ItemTarget(ctx context.Context, id string) (*domain.QueueItemTarget, error) {
+	var parsed pgtype.UUID
+	if err := parsed.Scan(id); err != nil || !parsed.Valid {
+		return nil, notFound("Không tìm thấy mục hàng chờ")
+	}
+	item, err := s.store.GetQueueItem(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if item == nil || item.RemovedAt != nil {
+		return nil, notFound("Không tìm thấy mục hàng chờ")
+	}
+	owner, err := s.store.Owner(ctx, item.ChannelID)
+	if err != nil {
+		return nil, err
+	}
+	if owner == nil {
+		return nil, notFound("Không tìm thấy mục hàng chờ")
+	}
+	return &domain.QueueItemTarget{ID: item.ID, ChannelID: item.ChannelID, JobID: item.JobID, State: item.State}, nil
 }
 
 // Drain is serialized by a session-scoped PostgreSQL advisory lock. The

@@ -54,15 +54,12 @@ export function waitLine(item: QueueQueuedItem, paused: boolean): string {
     case 'paused_channel': return tt.reasons.channelPaused
     case 'pace_full': return tt.reasons.paceFull
     case 'rotation': return tt.reasons.rotation
-    default: return item.waitReason || (item.priority === 'pick' ? tt.reasons.pick : '')
+    default: return 'Đang chờ đến lượt'
   }
 }
 
-/** Nhãn nguồn của mục: "Ưu tiên · bạn chọn · <source>" | "<source>". */
-export const sourceLabel = (item: QueueQueuedItem): string =>
-  item.priority === 'pick' && item.source
-    ? `${tt.priority} · ${item.source}`
-    : item.source || tt.batch
+/** Source label is independent of internal scheduler lanes. */
+export const sourceLabel = (item: QueueQueuedItem): string => item.source || 'Video bạn thêm'
 
 /**
  * Trạng thái màn theo thứ tự: paused → empty → limited → running (map tweak artboard).

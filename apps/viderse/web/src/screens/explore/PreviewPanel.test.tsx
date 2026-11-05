@@ -17,7 +17,7 @@ const make = () => [...el.querySelectorAll<HTMLButtonElement>('button')].find((b
 beforeEach(() => {
   duplicate = false; enqueue = vi.fn()
   vi.stubGlobal('fetch', vi.fn(async (path: string) => {
-    if (path === '/api/clone/enqueue') { enqueue(); return new Response(JSON.stringify({ items: [{ id: 'q', jobId: null }], duplicates: [] })) }
+    if (path === '/api/jobs') { enqueue(); return new Response(JSON.stringify({ items: [{ id: 'q', jobId: null }], duplicates: [] })) }
     if (path.endsWith('/preview')) {
       const preview: VideoPreview = { videoId: decodeURIComponent(path.split('/')[5] ?? ''), source: 'youtube', state: 'ready', chapters: [] }
       return new Response(JSON.stringify(preview))
@@ -28,28 +28,13 @@ beforeEach(() => {
   el = document.createElement('div'); document.body.append(el); root = createRoot(el)
 })
 afterEach(async () => { await act(async () => root.unmount()); el.remove(); vi.unstubAllGlobals() })
-it('blocks a duplicate that is queued without a job id', async () => {
-  duplicate = true; await render('one')
-  expect(make().getAttribute('aria-disabled')).toBe('true')
-  await act(async () => make().click())
-  expect(enqueue).not.toHaveBeenCalled()
-})
-it('allows the next selected video after enqueueing the previous one', async () => {
+it('hands the selected source to the shell composer without enqueueing', async () => {
+  const open = vi.fn(); window.addEventListener('viderse:quick-create', open)
   await render('one'); await act(async () => make().click())
-  expect(enqueue).toHaveBeenCalledTimes(1)
-  await render('two')
-  expect(make().getAttribute('aria-disabled')).not.toBe('true')
-  await act(async () => make().click())
-  expect(enqueue).toHaveBeenCalledTimes(2)
-})
-
-
-it('shows the supplied score evidence and dismisses it on outside click', async () => {
-  const source: Video = { ...video('one'), score: 4, scoreReason: { agent: 'scout', text: 'Dựa trên tổng lượt xem.', facts: [{ label: 'Trung vị', value: '25', source: '150 video gần nhất' }] } }
-  await act(async () => { root.render(<PreviewPanel video={source} rival={undefined} channels={[{ id: 'mine', name: 'Kênh' }]} onClose={() => {}} />) })
-  const trigger = [...el.querySelectorAll('button')].find(b => b.textContent?.includes('Vì sao'))!
-  await act(async () => trigger.click())
-  expect(el.querySelector('[role="dialog"]')?.textContent).toContain('150 video gần nhất')
-  await act(async () => { document.body.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true })) })
-  expect(el.querySelector('[role="dialog"]')).toBeNull()
+  expect(open.mock.calls[0][0].detail).toEqual({ channelId: 'mine', urls: ['https://youtu.be/one'], fromSelection: true })
+  expect(enqueue).not.toHaveBeenCalled()
+  await render('two'); await act(async () => make().click())
+  expect(open.mock.calls[1][0].detail.urls).toEqual(['https://youtu.be/two'])
+  expect([...el.querySelectorAll('button')].some((button) => button.textContent?.includes('Vì sao'))).toBe(false)
+  window.removeEventListener('viderse:quick-create', open)
 })

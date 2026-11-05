@@ -158,8 +158,7 @@ DSN `VERSE_IDENTITY_DATABASE_URL`) cùng Noverse — không còn
   (Chuẩn bị máy; tạo quản trị viên đầu tiên vẫn là `/api/setup`,
   `/api/setup/verify`, `/api/setup/admin` do platform/webapp phục vụ trước
   phiên), `/api/storage/cleanup/*`, thao tác thư mục lưu trữ (kể cả duyệt thư mục máy chủ), cài đặt
-  thông báo và quy tắc chạy của hàng chờ (`workers`, `imageWorkers`,
-  `rescanHours`). Thành viên vẫn đọc được danh sách provider/nền tảng nhưng
+  thông báo và số luồng chạy của hàng chờ (`workers`, 1–6). Xử lý ảnh cố định 3 luồng, quét lại nguồn mỗi giờ, không còn khoá chỉnh hai giá trị này. Thành viên vẫn đọc được danh sách provider/nền tảng nhưng
   không thấy `keyHint`, `baseUrl`, tài khoản hay hồ sơ trình duyệt.
 - Địa chỉ tuỳ biến của provider (`ollama`, `openai_compat`): khi `PUBLIC_URL`
   được đặt (hosted), baseUrl phải phân giải (DNS trước khi kiểm) ra địa chỉ

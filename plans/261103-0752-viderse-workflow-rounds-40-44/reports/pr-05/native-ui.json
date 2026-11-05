@@ -1,0 +1,473 @@
+{
+  "proof": "NATIVE_UI_REAL_PLAN_READS_WITH_EXPLICIT_CACHED_METADATA_FIXTURE",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "status": "PASS",
+      "planReadsOnly": true,
+      "preservedUnderlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "states": [
+        "empty",
+        "pasted",
+        "template-picker",
+        "duplicate",
+        "invalid",
+        "multi",
+        "queue"
+      ]
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "status": "PASS",
+      "planReadsOnly": true,
+      "preservedUnderlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "states": [
+        "empty",
+        "pasted",
+        "template-picker",
+        "duplicate",
+        "invalid",
+        "multi",
+        "queue"
+      ]
+    }
+  ],
+  "captures": [
+    {
+      "name": "1440-empty",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 331.921875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkChưa có link? Chọn video nổi trội ở Khám pháKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnmặc địnhKhông có video mới để làm cho kênh này.Esc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-pasted",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 475.046875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002×121:00QA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnmặc địnhLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíEsc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-channel-picker",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 475.046875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002×121:00QA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờKênhMidnight TalesChuyện Lạ Đêm KhuyaMidnight TalesQuiet HoursTemplateMẫu chuẩn · Tách nềnmặc địnhLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíEsc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-template-picker",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 475.046875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002×121:00QA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnMẫu chuẩn · Tách nềnMặc định kênhTruyện kể đêmChỉ video nàyKiểm thử QA · chọn prompt trong viewerChỉ video nàymặc địnhLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíEsc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-duplicate",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 443.546875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000001Midnight Tales đã có video từ link nàyQA V39 · video A · dữ liệu mẫu kiểm thửMở ở Bàn dựngKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnmặc địnhKhông có video mới để làm cho kênh này.Esc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-invalid",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 395.546875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linknot-a-videoKhông đọc được link nàyLink không phải video YouTubeKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnmặc địnhKhông có video mới để làm cho kênh này.Esc đóngHuỷLàm video"
+      ]
+    },
+    {
+      "name": "1440-multi",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [
+        {
+          "x": 400,
+          "y": 76,
+          "width": 640,
+          "height": 529.015625
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoDán link YouTube của đối thủ. Kênh và template điền sẵn, đổi được cho riêng lần này.Dán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002\nhttps://www.youtube.com/watch?v=V39qa000003Đã chọn 2 video · 2 video mớiQA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờQA V39 · video C · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 14 N lượt xem · 1 giờKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnmặc địnhLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíEsc đóngHuỷLàm 2 video"
+      ]
+    },
+    {
+      "name": "1440-queue",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "bounds": [],
+      "underlay": "#/queue",
+      "dialogText": []
+    },
+    {
+      "name": "390-empty",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoKênh và template điền sẵn, đổi đượcDán link video · mỗi dòng một linkDánChưa có link? Chọn video nổi trội ở Khám pháKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnKhông có video mới để làm cho kênh này.Làm video"
+      ]
+    },
+    {
+      "name": "390-pasted",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoKênh và template điền sẵn, đổi đượcDán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002×121:00QA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíLàm video"
+      ]
+    },
+    {
+      "name": "390-channel-picker",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 522.703125,
+          "width": 390,
+          "height": 321.296875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Chọn kênhChuyện Lạ Đêm KhuyaMidnight TalesQuiet HoursQuay lại"
+      ]
+    },
+    {
+      "name": "390-template-picker",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 522.703125,
+          "width": 390,
+          "height": 321.296875
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Template · chỉ video nàyMẫu chuẩn · Tách nềnTruyện kể đêmKiểm thử QA · chọn prompt trong viewerQuay lại"
+      ]
+    },
+    {
+      "name": "390-duplicate",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoKênh và template điền sẵn, đổi đượcDán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000001Midnight Tales đã có video từ link nàyQA V39 · video A · dữ liệu mẫu kiểm thửMở ở Bàn dựngKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnKhông có video mới để làm cho kênh này.Làm video"
+      ]
+    },
+    {
+      "name": "390-invalid",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoKênh và template điền sẵn, đổi đượcDán link video · mỗi dòng một linknot-a-videoKhông đọc được link nàyLink không phải video YouTubeKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnKhông có video mới để làm cho kênh này.Làm video"
+      ]
+    },
+    {
+      "name": "390-multi",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "underlay": "#/channels/78799ed0-57fa-4cff-ab00-509bdc65e5da",
+      "dialogText": [
+        "Làm videoKênh và template điền sẵn, đổi đượcDán link video · mỗi dòng một linkhttps://www.youtube.com/watch?v=V39qa000002\nhttps://www.youtube.com/watch?v=V39qa000003Đã chọn 2 video · 2 video mớiQA V39 · video B · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 12 N lượt xem · 1 giờQA V39 · video C · dữ liệu mẫu kiểm thửNguồn dữ liệu kiểm thử V39 · không phải kênh thật · 14 N lượt xem · 1 giờKênhMidnight TalesTemplateMẫu chuẩn · Tách nềnLên đầu hàng chờ · bắt đầu khoảng 16:17, khi có luồng trống. Không tính vào nhịp tự lấy của kênh.Chưa ước lượng được chi phíLàm 2 video"
+      ]
+    },
+    {
+      "name": "390-queue",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "bounds": [],
+      "underlay": "#/queue",
+      "dialogText": []
+    }
+  ],
+  "writes": [
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    },
+    {
+      "method": "POST",
+      "path": "/api/clone/plan"
+    }
+  ],
+  "blocked": [
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    },
+    {
+      "kind": "external",
+      "host": "i.ytimg.com"
+    }
+  ],
+  "pageErrors": [],
+  "notClaiming": "All tweak parity, external YouTube metadata, provider inference or physical Safari",
+  "status": "PASS",
+  "browserClosed": true
+}

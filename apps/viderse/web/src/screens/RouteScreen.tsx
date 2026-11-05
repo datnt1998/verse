@@ -22,7 +22,6 @@ const QueueScreen = lazy(() => import('./queue/QueueScreen').then((m) => ({ defa
 const ChannelScreen = lazy(() => import('./channel/ChannelScreen').then((m) => ({ default: m.ChannelScreen })))
 const ChannelNewScreen = lazy(() => import('./channel/ChannelNewScreen').then((m) => ({ default: m.ChannelNewScreen })))
 const ExploreScreen = lazy(() => import('./explore/ExploreScreen').then((m) => ({ default: m.ExploreScreen })))
-const NewScreen = lazy(() => import('./new/NewScreen').then((m) => ({ default: m.NewScreen })))
 const LibraryScreen = lazy(() => import('./library/LibraryScreen').then((m) => ({ default: m.LibraryScreen })))
 const TemplateScreen = lazy(() => import('./library/TemplateScreen').then((m) => ({ default: m.TemplateScreen })))
 const EditorScreen = lazy(() => import('./editor/EditorScreen').then((m) => ({ default: m.EditorScreen })))
@@ -45,7 +44,7 @@ export function RouteScreen({ route }: { route: Route }) {
       case 'channel': return <ChannelScreen route={route} />
       case 'channel-new': return <ChannelNewScreen route={route} />
       case 'explore': return <ExploreScreen route={route} />
-      case 'new': return <NewScreen route={route} />
+      case 'new': return <HomeScreen route={{ name: 'workbench', channel: route.channel }} />
       case 'library': return <LibraryScreen route={route} />
       case 'template': return <TemplateScreen route={route} />
       case 'editor': return <EditorScreen route={route} />

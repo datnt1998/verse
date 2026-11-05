@@ -16,6 +16,7 @@ import { mobileQueueStyles as sx } from './queueMobile.stylex'
 import { NotificationRow, useNotificationInbox, type NotificationInbox } from '../../shell/notificationList'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
+import { openQuickCreate } from '../new/quickCreate'
 
 const tt = t.screens.queue
 const m = tt.mobile
@@ -40,6 +41,7 @@ export function QueueSummarySheet({ open, onClose, initialTab = 'running', unrea
 
 function OpenQueueSummary({ onClose, initialTab, unreadFallback }: { onClose: () => void; initialTab: 'running' | 'inbox'; unreadFallback?: number }) {
   const [tab, setTab] = useState<'running' | 'inbox'>(initialTab)
+  const [composerHandoff, setComposerHandoff] = useState(false)
   const queue = useQueue()
   const activity = useResource(keys.activity(), ({ signal }) => getActivity(signal))
   const inbox = useNotificationInbox(tab === 'inbox')
@@ -52,7 +54,7 @@ function OpenQueueSummary({ onClose, initialTab, unreadFallback }: { onClose: ()
   const rows = inbox.rows
   const hasUnread = rows.some((n) => !n.readAt)
   const inboxSub = !inbox.history.data && !inbox.history.error ? t.common.loading : rows.length === 0 ? shell.jobsSheetInboxEmpty : hasUnread ? shell.jobsSheetInboxSub(rows.filter((n) => !n.readAt).length) : shell.jobsSheetInboxReadAll
-  return <Sheet open onClose={onClose} label={tt.sheetTitleMobile} size="md" height="auto" xstyle={sx.sheet} bodyStyle={sx.sheetBody}>
+  return <Sheet open={!composerHandoff} onClose={onClose} onExited={() => { if (composerHandoff) { onClose(); openQuickCreate() } }} label={tt.sheetTitleMobile} size="md" height="auto" xstyle={sx.sheet} bodyStyle={sx.sheetBody}>
     {/* Đầu sheet: tiêu đề + dòng phụ theo tab; nút Tạm dừng chỉ có ở tab Đang chạy. */}
     <div {...stylex.props(sx.summaryHead)}><span {...stylex.props(sx.grow, sx.stack)}><h2 {...stylex.props(sx.sheetTitle)}>{tt.sheetTitleMobile}</h2><span className={`vi-sub ${stylex.props(sx.sub).className}`}>{tab === 'inbox' ? inboxSub : runningSub}</span></span>{tab === 'running' && view && !empty && <Button size="lg" disabled={busy || !online} aria-pressed={view.paused} onClick={() => void patch({ paused: !view.paused })} icon={<Icon name={view.paused ? 'play' : 'pause'} size={16} />}>{view.paused ? tt.resume : tt.pause}</Button>}</div>
     <div {...stylex.props(inboxStyles.tabs)}>
@@ -66,7 +68,7 @@ function OpenQueueSummary({ onClose, initialTab, unreadFallback }: { onClose: ()
       {tab === 'running' ? <>
         <QueueBanner queue={queue} />
         {!view && <span role="status">{queue.res.status === 'error' ? tt.fail.title : t.common.loading}</span>}
-        {empty && <QueueIdle summary onNavigate={onClose} />}
+        {empty && <QueueIdle summary onNavigate={() => setComposerHandoff(true)} />}
         {view && !empty && <>
           {view.running.length > 0 && <section {...stylex.props(sx.group)}><h3 {...stylex.props(sx.section)}>{tt.runningNow}</h3>{view.running.map((job) => <a key={job.jobId} {...stylex.props(sx.summaryRun)} href={`#${paths.workbench({ video: job.jobId })}`} onClick={onClose}><Orb of={(['scout', 'director', 'artist', 'qa'].includes(job.agent) ? job.agent : 'scout') as Assistant} size={22} live={online && !view.paused} /><span {...stylex.props(sx.grow, sx.stack)}><span title={job.title} {...stylex.props(sx.ellipsis, sx.queuedTitle)}>{job.title}</span><span title={job.now} {...stylex.props(sx.ellipsis, sx.small)}>{job.now}</span></span><QueueAvatar channelId={job.channelId} queue={queue} size={26} /></a>)}</section>}
           {items.length > 0 && <section {...stylex.props(sx.group)}><h3 {...stylex.props(sx.section)}>{tt.nextRotation}</h3><div>{items.slice(0, 4).map((item, index) => <a key={item.id} {...stylex.props(sx.summaryRow)} href={`#${paths.queue({ item: item.id })}`} onClick={onClose}><span {...stylex.props(sx.number)}>{index + 1}</span><QueueAvatar channelId={item.channelId} queue={queue} size={26} /><span {...stylex.props(sx.grow, sx.stack)}><span title={item.title} {...stylex.props(sx.ellipsis, sx.queuedTitle)}>{item.title || item.source}</span><span title={waitLine(item, view.paused)} {...stylex.props(sx.ellipsis, sx.small)}>{waitLine(item, view.paused) || fmtEta(item.etaStart)}</span></span></a>)}</div></section>}

@@ -6,7 +6,7 @@ import { exploreStyles } from './explore.stylex'
 // Đã làm, lọc theo lượt làm thật ở máy chủ). ChipSelect của kit sở hữu listbox
 // và bàn phím. Dòng đếm: "24 / 1.284 video", khi tìm "2 video có “floor”
 // · trong 1.284 đã quét" (1.284 = số video đã quét của phạm vi, không lọc).
-import { Button, ChipSelect, Icon } from '@noverse/ui'
+import { ResponsiveChipSelect as ChipSelect } from '../../components/responsive-overlays'
 import { Segmented } from '../../components/Segmented'
 import { t } from '../../i18n/explore'
 import type { VideoSort } from '../../api/rivals'
@@ -65,11 +65,7 @@ export function FilterBar({ sort, long, within, status, onSort, onLong, onWithin
           { id: 'views', label: tt.sorts.views },
         ]}
       />
-      <Button variant="ghost" size={touch ? 'lg' : 'sm'} xstyle={touch ? undefined : exploreStyles.filterChip}
-        aria-pressed={long} active={long} onClick={() => onLong(!long)} icon={<Icon name="clock" size={14} />}>
-        {tt.filterLong} <b {...stylex.props(exploreStyles.filterValue)}>{tt.filterLongValue}</b>
-        <Icon name="arrow-d" size={12} />
-      </Button>
+      <ChipSelect label="Độ dài video" prefix="Độ dài" size={touch ? 'm' : 'sm'} custom={long} value={long ? 'long' : 'all'} options={[{ value: 'all', label: 'Mọi độ dài' }, { value: 'long', label: 'Từ 8 phút' }]} onChange={(value) => onLong(value === 'long')} />
       <ChipSelect label={tt.withinLabel} prefix={tt.filterWithin} size={touch ? 'm' : 'sm'} custom={within !== 30} value={String(within)}
         options={WITHIN.map((w) => ({ value: String(w.value), label: w.label }))}
         onChange={(value) => onWithin(Number(value) as 0 | 7 | 30 | 90)} />

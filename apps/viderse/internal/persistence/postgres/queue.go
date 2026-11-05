@@ -114,6 +114,12 @@ func (s *QueueStore) ListQueuedItems(ctx context.Context) ([]domain.CloneQueueIt
 	return queueItemsOf(rows)
 }
 
+// QueuePositionBounds đọc toàn bộ hàng hợp lệ, không giới hạn workset.
+func (s *QueueStore) QueuePositionBounds(ctx context.Context) (float64, float64, error) {
+	bounds, err := s.q.QueuePositionBounds(ctx)
+	return bounds.ManualMin, bounds.AutoMax, err
+}
+
 // ListLaneItems trả mục đang chờ của một kênh, xếp theo position.
 func (s *QueueStore) ListLaneItems(ctx context.Context, channelID string) ([]domain.CloneQueueItem, error) {
 	rows, err := s.q.ListLaneItems(ctx, queueUUID(channelID))

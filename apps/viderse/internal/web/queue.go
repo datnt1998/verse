@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/platform/identity"
@@ -14,7 +15,7 @@ type QueueService interface {
 	List(context.Context) (domain.CloneQueueView, error)
 	Patch(context.Context, domain.QueuePatch) (domain.CloneQueueView, error)
 	Plan(context.Context, domain.CloneEnqueueRequest) (domain.ClonePlan, error)
-	Enqueue(context.Context, domain.CloneEnqueueRequest) (domain.CloneEnqueueResult, error)
+	ItemTarget(context.Context, string) (*domain.QueueItemTarget, error)
 }
 
 func MountQueue(g *Gateway, svc QueueService) { MountQueueDiag(g, svc, nil) }
@@ -22,7 +23,16 @@ func MountQueueDiag(g *Gateway, svc QueueService, diag func(error)) {
 	g.Handle(http.MethodGet, "/api/queue", func(w http.ResponseWriter, r *http.Request, _ identity.User) { getQueue(w, r, svc, diag) })
 	g.Handle(http.MethodPatch, "/api/queue", func(w http.ResponseWriter, r *http.Request, user identity.User) { patchQueue(w, r, user, svc, diag) })
 	g.Handle(http.MethodPost, "/api/clone/plan", func(w http.ResponseWriter, r *http.Request, _ identity.User) { planClone(w, r, svc, diag) })
-	g.Handle(http.MethodPost, "/api/clone/enqueue", func(w http.ResponseWriter, r *http.Request, _ identity.User) { enqueueQueue(w, r, svc, diag) })
+	g.Handle(http.MethodGet, "/api/queue/items/", func(w http.ResponseWriter, r *http.Request, _ identity.User) {
+		w.Header().Set("Cache-Control", "no-store")
+		id := strings.TrimPrefix(r.URL.Path, "/api/queue/items/")
+		item, err := svc.ItemTarget(r.Context(), id)
+		if err != nil {
+			writeQueueError(w, err, diag)
+			return
+		}
+		webapp.WriteJSON(w, http.StatusOK, item)
+	})
 }
 func getQueue(w http.ResponseWriter, r *http.Request, svc QueueService, diag func(error)) {
 	view, err := svc.List(r.Context())
@@ -37,9 +47,8 @@ func patchQueue(w http.ResponseWriter, r *http.Request, user identity.User, svc 
 	if !webapp.DecodeJSONCode(w, r, &body, domain.CloneErrInvalidRequest) {
 		return
 	}
-	// Quy tắc chạy (số luồng, chu kỳ quét lại) là cấu hình toàn máy; tạm dừng
-	// và thao tác trên một mục là việc vận hành của mọi thành viên.
-	if (body.Workers != nil || body.ImageWorkers != nil || body.RescanHours != nil) && !requireAdmin(w, user) {
+	// Số luồng là cấu hình toàn máy; tạm dừng và thao tác mục là vận hành.
+	if body.Workers != nil && !requireAdmin(w, user) {
 		return
 	}
 	view, err := svc.Patch(r.Context(), body)

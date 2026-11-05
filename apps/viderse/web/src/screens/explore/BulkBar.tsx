@@ -1,10 +1,9 @@
-// Thanh chọn nhiều: chọn kênh đích trước khi xếp các video đã chọn.
-import { Button, Icon, KitSelect, toast } from '@noverse/ui'
+// Bulk selection opens the shell-owned quick composer without leaving Explore.
+import { Button, Icon, toast } from '@noverse/ui'
 import { t } from '../../i18n/explore'
 import { ActionButton } from '../../components'
 import type { Video } from '../../api/rivals'
 import { copyText } from './media'
-import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color, line, radius } from '@noverse/ui/tokens.stylex'
 import { space as s } from '../../styles/viderse.stylex'
@@ -20,8 +19,6 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
   busy?: boolean
 }) {
   const tt = t.screens.explore
-  const [targetId, setTargetId] = useState(channels[0]?.id ?? '')
-  const target = channels.some((channel) => channel.id === targetId) ? targetId : channels[0]?.id ?? ''
   const copyLinks = async () => {
     const urls = selected.map((v) => v.url)
     const ok = await copyText(urls.join('\n'))
@@ -38,19 +35,7 @@ export function BulkBar({ count, selected, onTop, onClear, onExit, channels, onM
           <Button variant="quiet" size="sm" onClick={onClear}>{tt.deselect}</Button>
         </span>
         <ActionButton size="md" icon={<Icon name="copy" size={15} />} onClick={copyLinks}>{tt.copyLink}</ActionButton>
-        {channels.length ? (
-          <KitSelect
-            aria-label={tt.makeChannel}
-            value={target}
-            onChange={(value) => { setTargetId(value); onMake(value) }}
-            options={channels.map((channel) => ({ value: channel.id, label: channel.name }))}
-            icon={<Icon name="clock" size={15} />}
-            prefix={tt.bulkMakePrefix(count)}
-            triggerStyle={styles.primary}
-            disabled={busy}
-            popWidth={260}
-          />
-        ) : <ActionButton variant="primary" lockedReason={tt.lockedReason}>{tt.bulkMake(count)}</ActionButton>}
+        <ActionButton variant="primary" size="lg" disabled={busy || !count} onClick={() => onMake(channels[0]?.id ?? '')}>{tt.bulkMake(count)}</ActionButton>
         <Button variant="icon" aria-label={tt.exitSelect} onClick={onExit}><Icon name="close" size={16} /></Button>
       </div>
     </div>
