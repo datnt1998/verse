@@ -307,6 +307,8 @@ Thẻ mẫu video và bộ chọn mẫu dùng ảnh mẫu thật của chỉ d�
 
 Riêng ba lựa chọn cách ghép ảnh Toàn khung/Tách nền/Cận cảnh dùng minh hoạ sản phẩm tĩnh đúng artboard, không phải dữ liệu ảnh mẫu hoặc bản xem thử của người dùng. [ImagesSection](../../../web/src/screens/library/template/ImagesSection.tsx) phục vụ ba asset `scene-composition-*.jpg` trong [public/illustrations](../../../web/public/illustrations/), sao chép từ ảnh thiết kế đã duyệt; không gọi model hoặc API tạo ảnh.
 
+Khi đổi cách tính ảnh cảnh, track `templateScenes.images` phải là đúng một biến thể: `{ mode: "fixed", count }`, `{ mode: "per-minutes", minutes }` hoặc `{ mode: "none" }`. Giá trị của chế độ không hoạt động trong form không được ghi sang track, vì schema Biên tập kiểm nghiêm ngặt. Form giữ số đã nhập trong phiên khi đổi chế độ; chưa có số hợp lệ thì Cố định dùng mặc định5ảnh, Theo độ dài bắt đầu ở cận dưới1phút. Việc sửa dữ liệu cũ phải sao lưu, kiểm revision và toàn bộ project trước ghi, chỉ bỏ trường không hoạt động; không đặt lại timeline hay media.
+
 Mở chỉ dẫn từ mẫu video phải giữ đúng ID qua route, tải dữ liệu và đổi mục liên tiếp; `prompt=mine|builtin` chỉ xác định kiểu xem, không chọn phần tử đầu danh sách. Query `promptId` thuộc [router](../../../web/src/router.ts), bên mở editor thuộc [PromptsTab](../../../web/src/screens/library/PromptsTab.tsx). Không tìm thấy hoặc tải lỗi phải báo rõ, không mở nhầm chỉ dẫn khác.
 
 API:
