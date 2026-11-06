@@ -386,7 +386,7 @@ export function LiveStudio({ job, onRefresh, onApproveAll, approveBusy, redrawAl
               onFocus={() => setSelectedId(item.id)}
               {...stylex.props(styles.tile, (item.kind === 'thumbnail' || item.kind === 'cover') && styles.coverTile, selected && styles.tileSelected)}
             >
-              <div {...stylex.props(styles.preview, tileDrawing && styles.previewDrawing, failed && styles.previewFailed)}>
+              <div {...stylex.props(styles.preview, (item.kind === 'thumbnail' || item.kind === 'cover') && styles.coverPreview, tileDrawing && styles.previewDrawing, failed && styles.previewFailed)}>
                 {url && <img src={url} alt={label} {...stylex.props(styles.image, tileDrawing && styles.imageDimmed)} />}
                 {tileDrawing && <><DevelopEffect state="drawing" baseUrl={url} compact /><span role="status" {...stylex.props(styles.tileState)}><Orb of="artist" size={18} live /><Shimmer>{status === 'running' ? copy.drawing : copy.queued}</Shimmer></span></>}
                 {waiting && !tileDrawing && <span role="status" {...stylex.props(styles.tileState, styles.tileWait)}>{copy.queued}</span>}
@@ -840,9 +840,10 @@ const styles = stylex.create({
   kbd: { fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--color-fg-3)', paddingBlock: 1, paddingInline: 5, borderRadius: r['--vv-r-4'], border: '1px solid var(--line-2)', backgroundColor: 'var(--color-surface-0)' },
   grid: { flex: '0 1 auto', minHeight: 0, display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gridAutoRows: 'min-content', gap: `${s['--vv-s-12']} ${s['--vv-s-10']}`, paddingInlineEnd: s['--vv-s-4'] },
   tile: { minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'], color: 'var(--color-fg-3)', fontSize: 12, cursor: 'pointer', borderRadius: r['--vv-r-10'], ':focus-visible': { outline: '2px solid var(--vv-red-line)', outlineOffset: 2 } },
-  coverTile: { gridColumn: 'span 2' },
+  coverTile: { gridColumn: 'span 2', gridRow: 'span 2' },
   tileSelected: { outline: '2px solid var(--vv-red-line)', outlineOffset: 2 },
   preview: { position: 'relative', aspectRatio: '16 / 9', overflow: 'hidden', border: '1px solid var(--line-1)', borderRadius: r['--vv-r-10'], backgroundColor: 'var(--color-surface-0)', display: 'grid', placeItems: 'center' },
+  coverPreview: { flexGrow: 1 },
   previewDrawing: { backgroundImage: 'var(--vv-draw-tile-bg)', borderColor: 'var(--vv-draw-tile-line)' },
   previewFailed: { borderColor: 'var(--vv-artist-line)', backgroundColor: 'var(--vv-danger-8)' },
   image: { width: '100%', height: '100%', objectFit: 'cover' },

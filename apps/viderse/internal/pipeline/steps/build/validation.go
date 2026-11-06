@@ -43,28 +43,21 @@ func templateStale(message string) error {
 	return steps.CloneError(domain.CloneErrStale, message, "Media trong template đã bị thay — làm lại job để dùng bản mới")
 }
 
-func verifyTemplateMedia(ctx context.Context, s *pipeline.StepContext, pin library.TemplateMediaBinding, file string) error {
+func (h Handler) verifyTemplateMedia(ctx context.Context, s *pipeline.StepContext, pin library.TemplateMediaBinding, file string) error {
 	// Uploaded media may be replaced under the same id while its old source
 	// file still exists. Check the live index as well as the pinned bytes.
 	// Built-in template assets are immutable library files, without an index.
 	if strings.HasPrefix(file, "editor/media/"+pin.MediaID+"/") {
-		metadata, err := s.Acquire(ctx, "editor/media/"+pin.MediaID+"/metadata.json")
+		if h.Deps.MediaMetadata == nil {
+			return errors.New("editor media metadata reader is required")
+		}
+		record, err := h.Deps.MediaMetadata(ctx, pin.MediaID)
 		if err != nil {
-			if errors.Is(err, os.ErrNotExist) || errors.Is(err, blobstore.ErrNotFound) {
+			var editorErr *editor.Error
+			if errors.Is(err, os.ErrNotExist) || errors.Is(err, blobstore.ErrNotFound) || (errors.As(err, &editorErr) && editorErr.Code == "not_found") {
 				return steps.CloneError(domain.CloneErrStale, "Media trong template đã bị xoá: "+pin.MediaID, "Media trong template đã bị xoá — thêm lại media hoặc sửa template")
 			}
 			return err
-		}
-		data, readErr := os.ReadFile(metadata.Path)
-		metadata.Release()
-		if readErr != nil {
-			return readErr
-		}
-		var record struct {
-			ContentHash string `json:"contentHash"`
-		}
-		if err := json.Unmarshal(data, &record); err != nil {
-			return templateStale("Metadata media của template không hợp lệ: " + pin.MediaID)
 		}
 		if record.ContentHash != pin.ContentHash {
 			return templateStale("Media trong template đã bị thay đổi: " + pin.MediaID)

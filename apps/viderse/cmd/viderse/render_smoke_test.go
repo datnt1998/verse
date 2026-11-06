@@ -204,7 +204,7 @@ func TestRenderPhase05SmokeFixture(t *testing.T) {
 	artifacts := renderSmokeInputs(t, ctx, runner, ffmpeg, inputs, source, *snapshot)
 	registry := pipeline.Registry{
 		domain.CloneBackdrop: stepbackdrop.New(stepbackdrop.Deps{Store: postgres.NewBackdropStore(pool)}),
-		domain.CloneBuild:    build.Handler{Deps: build.Deps{Ffmpeg: ffmpeg, FFprobe: ffprobe}},
+		domain.CloneBuild:    build.Handler{Deps: build.Deps{Ffmpeg: ffmpeg, FFprobe: ffprobe, MediaMetadata: newEditorService(pool, files, cfgDir, nil, toolDeps).GetMediaMetadata}},
 	}
 	for step, inputs := range artifacts {
 		// These are deliberately authored provider-free fixture inputs, not
