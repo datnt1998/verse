@@ -76,6 +76,15 @@ func fixture(t *testing.T) (Handler, *pipeline.StepContext, *stepstest.FakeMedia
 	}, MeasureLUFS: func(context.Context, *pipeline.StepContext, string) (float64, error) { return -20, nil }, Envelope: func(context.Context, *pipeline.StepContext, string, string) (editor.Object, error) {
 		return editor.Object{"sourceHash": "sha256:" + strings.Repeat("b", 64), "samplesPerSecond": 50, "durationSeconds": 6, "envelopeBase64": base64.StdEncoding.EncodeToString(make([]byte, 300)), "normalization": .4}, nil
 	}}}
+	h.Deps.MediaMetadata = func(_ context.Context, id string) (editor.MediaRecord, error) {
+		var record editor.MediaRecord
+		data, err := os.ReadFile(m.Root + "/editor/media/" + id + "/metadata.json")
+		if err != nil {
+			return record, err
+		}
+		err = json.Unmarshal(data, &record)
+		return record, err
+	}
 	return h, s, m
 }
 func TestBuildUsesPersistedFixedBackdropInput(t *testing.T) {

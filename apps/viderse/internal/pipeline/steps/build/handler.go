@@ -26,6 +26,7 @@ import (
 type Deps struct {
 	Ffmpeg, FFprobe string
 	Now             func() time.Time
+	MediaMetadata   func(context.Context, string) (editor.MediaRecord, error)
 	ExtractAudio    func(context.Context, *pipeline.StepContext, string, string) error
 	MeasureLUFS     func(context.Context, *pipeline.StepContext, string) (float64, error)
 	Envelope        func(context.Context, *pipeline.StepContext, string, string) (editor.Object, error)
@@ -115,7 +116,7 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	// Check all bound template bytes before extraction or editor imports. Missing
 	// media is drift too, not an unclassified filesystem error.
 	for _, pin := range snap.Binding.Media {
-		if err := verifyTemplateMedia(ctx, s, pin, snap.MediaFiles[pin.MediaID]); err != nil {
+		if err := h.verifyTemplateMedia(ctx, s, pin, snap.MediaFiles[pin.MediaID]); err != nil {
 			return pipeline.StepResult{}, err
 		}
 	}

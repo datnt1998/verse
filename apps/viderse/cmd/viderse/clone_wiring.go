@@ -385,7 +385,7 @@ func mountClonePipeline(ctx context.Context, g *web.Gateway, pool *pgxpool.Pool,
 			if err != nil {
 				return pipeline.StepResult{}, err
 			}
-			return (build.Handler{Deps: build.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe}}).Run(ctx, s)
+			return (build.Handler{Deps: build.Deps{Ffmpeg: resolved.Ffmpeg, FFprobe: resolved.Ffprobe, MediaMetadata: editorService.GetMediaMetadata}}).Run(ctx, s)
 		}),
 	}
 	slots := queue.NewResourceSlots()
