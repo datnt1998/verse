@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import { color } from '@noverse/ui/tokens.stylex'
 import { libraryVars } from '../libraryTokens.stylex'
@@ -25,6 +26,12 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
   const scenes = recipe.scenes
   const placement: ScenePlacement = scenes.style === 'full' ? 'full' : scenes.framing === 'close' ? 'close' : 'cutout'
   const setScenes = (next: Partial<Recipe['scenes']>) => onSave({ scenes: { ...scenes, ...next } })
+  const imageCounts = useRef({ count: 5, minutes: 1 })
+  const changeImageMode = (mode: Recipe['scenes']['images']['mode']) => {
+    if (scenes.images.count > 0) imageCounts.current.count = scenes.images.count
+    if (scenes.images.minutes > 0) imageCounts.current.minutes = scenes.images.minutes
+    setScenes({ images: { mode, ...imageCounts.current } })
+  }
 
   const countText = scenes.images.mode === 'none'
     ? copy.countHelpNone
@@ -94,7 +101,7 @@ export function ImagesSection({ recipe, price, prompts, errors, onSave, hideTitl
           label={copy.countAria}
          
           value={scenes.images.mode}
-          onChange={(mode) => setScenes({ images: { ...scenes.images, mode: mode as Recipe['scenes']['images']['mode'] } })}
+          onChange={(mode) => changeImageMode(mode as Recipe['scenes']['images']['mode'])}
           options={[
             { id: 'fixed', label: copy.countFixed },
             { id: 'per-minutes', label: copy.countPer },
