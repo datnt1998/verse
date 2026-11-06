@@ -59,7 +59,7 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
         <span {...stylex.props(l.groupCount)}>{(waiting?.count ?? 0) + suggestionRows.length}</span>
       </div>
       {waiting && <div role="list" aria-label="Video chờ bạn" {...stylex.props(mw.jobList)}>
-        {waiting.items.map(job => <GroupRow key={job.id} group="waiting" job={job} scope={scope} channel={channels.find(item => item.channelId === job.channelId)} onOpen={() => onOpenJob(job.id)} />)}
+        {waiting.items.map(job => <GroupRow key={job.id} group="waiting" job={job} channel={channels.find(item => item.channelId === job.channelId)} onOpen={() => onOpenJob(job.id)} />)}
       </div>}
       {suggestions.list.initialLoading ? <p role="status" {...stylex.props(mw.notice)}>Đang tải đề xuất…</p>
         : suggestions.list.error != null && !suggestions.list.data ? <div role="alert" {...stylex.props(mw.notice)}>{c.suggestionsError} <Button size="sm" variant="quiet" onClick={() => void suggestions.list.refresh()}>{c.retry}</Button></div>
@@ -110,7 +110,7 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
           {group.items.map((job) => <div role="listitem" key={job.id}><WorkingCard job={job} channel={channels.find((item) => item.channelId === job.channelId)} scope={scope} onOpen={() => onOpenJob(job.id)} /></div>)}
         </div>
         : <div role="list" aria-label={groupLabel[group.key]} {...stylex.props(mw.jobList)}>
-          {group.items.map((job) => <GroupRow key={job.id} group={group.key} job={job} scope={scope} channel={channels.find((item) => item.channelId === job.channelId)} onOpen={() => onOpenJob(job.id)} />)}
+          {group.items.map((job) => <GroupRow key={job.id} group={group.key} job={job} channel={channels.find((item) => item.channelId === job.channelId)} onOpen={() => onOpenJob(job.id)} />)}
         </div>}
       {group.key === 'queued' && queuedTotal > group.items.length && <a {...stylex.props(l.fullButton)} href="#/queue">{c.queueAll(queuedTotal)}<Icon name="arrow-r" size={14} /></a>}
       {group.key === 'posted' && scope !== 'all' && <a {...stylex.props(l.quietLink)} href={`#/channels/${encodeURIComponent(scope)}`}>{c.channelPage}<Icon name="arrow-r" size={14} /></a>}
@@ -120,7 +120,7 @@ export function MobileWorkbenchList({ scope, jobs, queuedTotal, channels, channe
   </div>
 }
 
-function GroupRow({ group, job, scope, channel, onOpen }: { group: string; job: CloneJobView; scope: string; channel?: ChannelSummary; onOpen: () => void }) {
+function GroupRow({ group, job, channel, onOpen }: { group: string; job: CloneJobView; channel?: ChannelSummary; onOpen: () => void }) {
   const review = job.stageGroup === 'review'
   const issue = job.stageGroup === 'attention'
   const status = issue ? 'Cần xử lý' : review ? 'Chờ duyệt' : job.stageGroup === 'paused' ? 'Tạm dừng' : jobStatusLine(job)
@@ -130,7 +130,7 @@ function GroupRow({ group, job, scope, channel, onOpen }: { group: string; job: 
     return <div role="listitem" {...stylex.props(l.row)}>
       <button type="button" {...stylex.props(l.rowMain)} onClick={onOpen}>
         <span {...stylex.props(l.queueChannel)}>
-          {channel ? <ChannelAvatar name={channel.name} initials={channel.initials} size={20} color={{ bg: channel.color, ring: channel.color }} /> : '·'}
+          <ChannelAvatar name={channel?.name || `Kênh ${job.channelId}`} initials={channel?.initials || undefined} src={channel?.avatarUrl ?? undefined} size={20} color={channel ? { bg: channel.color, ring: channel.color } : undefined} />
         </span>
         <span {...stylex.props(l.rowText)}>
           <span title={job.source.title} {...stylex.props(l.rowTitle)}>{job.source.title}</span>
@@ -141,12 +141,11 @@ function GroupRow({ group, job, scope, channel, onOpen }: { group: string; job: 
     </div>
   }
 
-  const ch = channel ?? undefined
   return <div role="listitem" {...stylex.props(l.row)}>
     <button type="button" {...stylex.props(l.rowMain)} onClick={onOpen}>
       <span aria-hidden="true" {...stylex.props(l.rowThumb)}>
         {job.source.thumbnailUrl ? <img src={job.source.thumbnailUrl} alt="" loading="lazy" {...stylex.props(l.rowThumbImg)} /> : null}
-        {scope === 'all' && ch && <ChannelAvatar name={ch.name} initials={ch.initials} size={20} color={{ bg: ch.color, ring: ch.color }} style={{ position: 'absolute', left: -4, bottom: -4, boxShadow: '0 0 0 2px var(--color-bg)' }} />}
+        <ChannelAvatar name={channel?.name || `Kênh ${job.channelId}`} initials={channel?.initials || undefined} src={channel?.avatarUrl ?? undefined} size={20} color={channel ? { bg: channel.color, ring: channel.color } : undefined} style={{ position: 'absolute', left: -4, bottom: -4, boxShadow: '0 0 0 2px var(--color-bg)' }} />
       </span>
       <span {...stylex.props(l.rowText)}>
         <span title={job.source.title} {...stylex.props(l.rowTitle, group === 'posted' && l.rowTitleMuted)}>{job.source.title}</span>
@@ -165,11 +164,14 @@ function WorkingCard({ job, channel, scope, onOpen }: { job: CloneJobView; chann
   const agent = job.agentView?.find((item) => item.state === 'running')
   const orb = agent?.id === 'artist' ? 'artist' : agent?.id === 'director' ? 'director' : agent?.id === 'qa' ? 'qa' : 'scout'
   const ink = orb === 'artist' ? 'var(--vv-artist-ink)' : orb === 'director' ? 'var(--vv-director-ink)' : orb === 'qa' ? 'var(--vv-qa-ink)' : 'var(--vv-scout-ink)'
+  const running = job.stageGroup === 'working' && job.status === 'running'
+  const statusText = agent?.now ?? jobStatusLine(job)
   return <button type="button" {...stylex.props(l.workCard)} onClick={onOpen}>
     <span {...stylex.props(l.workTop)}>
       <span aria-hidden="true" {...stylex.props(l.workThumb)}>
         {job.source.thumbnailUrl ? <img src={job.source.thumbnailUrl} alt="" loading="lazy" {...stylex.props(l.rowThumbImg)} /> : null}
         {durationLabel(job.source.durationSec) && <span {...stylex.props(l.workDur)}>{durationLabel(job.source.durationSec)}</span>}
+        <ChannelAvatar name={channel?.name || `Kênh ${job.channelId}`} initials={channel?.initials || undefined} src={channel?.avatarUrl ?? undefined} size={20} color={channel ? { bg: channel.color, ring: channel.color } : undefined} style={{ position: 'absolute', left: -4, bottom: -4, boxShadow: '0 0 0 2px var(--color-bg)' }} />
       </span>
       <span {...stylex.props(l.workText)}>
         <span {...stylex.props(l.workTitle)}>{job.source.title}</span>
@@ -177,8 +179,8 @@ function WorkingCard({ job, channel, scope, onOpen }: { job: CloneJobView; chann
       </span>
     </span>
     <span {...stylex.props(l.workStepRow)}>
-      <Orb of={orb} size={18} live />
-      <Shimmer style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13, color: 'var(--color-fg-2)' }}>{agent?.now ?? jobStatusLine(job)}</Shimmer>
+      <Orb of={orb} size={18} live={running} />
+      <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13, color: 'var(--color-fg-2)' }}>{running ? <Shimmer>{statusText}</Shimmer> : statusText}</span>
       {progress && <span {...stylex.props(l.workPct)}>{Math.round(progress.pct * 100)}%</span>}
     </span>
     <span aria-hidden="true" {...stylex.props(l.workTrack)}><span {...stylex.props(l.workFill(progress ? progress.pct * 100 : 0, ink))} /></span>

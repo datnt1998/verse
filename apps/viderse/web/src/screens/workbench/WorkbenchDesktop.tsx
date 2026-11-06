@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, type IconName } from '@noverse/ui'
+import { Button, Icon, Shimmer, type IconName } from '@noverse/ui'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { acceptExport, getWorkbench, getWorkbenchJob, getJobImages, getScoreArtifact, jobAction, type CloneJobView } from '../../api/workbench'
 import { getJobImages as getFullJobImages, redrawImages } from '../../api/images'
@@ -15,7 +15,7 @@ import { ChannelAvatar, EmptyWorkbench, Orb, SystemLoading, SystemNotFound } fro
 import { ActionButton } from '../../components/ActionButton'
 import { SuggestionRow } from '../../components/suggestions/SuggestionRow'
 import { useSuggestions } from '../../components/suggestions/useSuggestions'
-import { clockLabel, followAdmitted, groupJobs, issueReason, jobStage, scheduleScopeRestore, stepPercent, QUALITY_MIN_SCORE, type JobStage } from './workbench-logic'
+import { clockLabel, followAdmitted, groupJobs, issueReason, jobStage, scheduleScopeRestore, stepAgent, stepPercent, QUALITY_MIN_SCORE, type JobStage } from './workbench-logic'
 import { LiveStudio } from './LiveStudio'
 import { usePanelKeys } from './usePanelKeys'
 import { requestDeleteExport, requestMarkPosted } from '../../components/performance'
@@ -194,18 +194,20 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
           const itemStage = jobStage(item)
           const current = item.id === selectedId
           const checked = !!picked[item.id]
+          const itemChannel = channelRows.find(channel => channel.channelId === item.channelId)
+          const itemRunning = item.stageGroup === 'working' && item.status === 'running'
           return <li key={item.id}><button type="button" role={selectMode ? 'checkbox' : undefined} aria-current={current || undefined} aria-checked={selectMode ? checked : undefined} title={item.source.title} {...stylex.props(styles.row, current && styles.selected)}
             onClick={() => {
               if (selectMode) { setPicked(prev => { const next = { ...prev }; if (next[item.id]) delete next[item.id]; else next[item.id] = true; return next }); return }
               navigate(routePath({ name: 'workbench', channel: route.channel, scope: route.scope, video: item.id }))
             }}>
             {selectMode && <span aria-hidden="true" {...stylex.props(styles.check, checked && styles.checkOn)}>{checked && <Icon name="tick" size={11} />}</span>}
-            {scope === 'all' && <ChannelAvatar name={channelRows.find(c => c.channelId === item.channelId)?.name ?? item.source.channelTitle ?? 'Kênh'} initials={channelRows.find(c => c.channelId === item.channelId)?.initials} src={channelRows.find(c => c.channelId === item.channelId)?.avatarUrl ?? undefined} color={channelRows.find(c => c.channelId === item.channelId) ? { bg: channelRows.find(c => c.channelId === item.channelId)!.color, ring: channelRows.find(c => c.channelId === item.channelId)!.color } : undefined} size={20} />}
-            <span {...stylex.props(styles.rowText)}><span {...stylex.props(styles.rowTitle, current && styles.rowTitleCurrent)}>{item.source.title}</span><span {...stylex.props(styles.rowHint)}>{item.subline}</span></span>
+            <ChannelAvatar name={itemChannel?.name || `Kênh ${item.channelId}`} initials={itemChannel?.initials || undefined} src={itemChannel?.avatarUrl ?? undefined} color={itemChannel ? { bg: itemChannel.color, ring: itemChannel.color } : undefined} size={20} />
+            <span {...stylex.props(styles.rowText)}><span {...stylex.props(styles.rowTitle, current && styles.rowTitleCurrent)}>{item.source.title}</span><span {...stylex.props(styles.rowHint)}>{itemRunning ? <Shimmer>{item.subline}</Shimmer> : item.subline}</span></span>
             {itemStage === 'review' ? <Icon name="flag" size={15} xstyle={styles.reviewIcon} label={label[item.stageGroup]} />
               : itemStage === 'issue' || itemStage === 'quality' ? <Icon name="danger" size={15} xstyle={styles.warnIcon} label="Cần xử lý" />
                 : itemStage === 'paused' ? <Icon name="pause" size={15} xstyle={styles.noteIcon} label="Tạm dừng" />
-                  : itemStage === 'render' || itemStage === 'images' ? (current ? <Orb of={itemStage === 'render' ? 'qa' : 'artist'} size={12} live /> : <span {...stylex.props(styles.rowSpinner)} aria-label="Đang làm" />)
+                  : itemRunning ? (current ? <Orb of={stepAgent(item.activeStep ?? '') ?? 'scout'} size={12} live /> : <span {...stylex.props(styles.rowSpinner)} aria-label="Đang làm" />)
                     : itemStage === 'done' ? <Icon name="tick-b" size={15} xstyle={styles.okIcon} label={item.stageGroup === 'posted' ? 'Đã đăng' : 'Sẵn sàng'} />
                       : <Icon name="clock" size={15} xstyle={styles.noteIcon} label="Chờ lượt" />}
           </button></li>
@@ -233,7 +235,7 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
       {!selectedId ? <EmptyWorkbench /> : detail.initialLoading ? <SystemLoading /> : !job ? <SystemNotFound /> : <>
         <header {...stylex.props(styles.header)}>
           <div {...stylex.props(styles.heading)}>
-            {(scope === 'all' || job.channelId !== scope) && <ChannelAvatar name={jobChannel?.name ?? job.source.channelTitle ?? 'Kênh'} initials={jobChannel?.initials} src={jobChannel?.avatarUrl ?? undefined} color={jobChannel ? { bg: jobChannel.color, ring: jobChannel.color } : undefined} size={26} />}
+            {(scope === 'all' || job.channelId !== scope) && <ChannelAvatar name={jobChannel?.name || `Kênh ${job.channelId}`} initials={jobChannel?.initials || undefined} src={jobChannel?.avatarUrl ?? undefined} color={jobChannel ? { bg: jobChannel.color, ring: jobChannel.color } : undefined} size={26} />}
             <h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>
             <div {...stylex.props(styles.actions)}>
               {stage === 'images' && job.stageGroup === 'working' && <Button size="compact" variant="ghost" kbd="Esc" disabled={!online} title={!online ? 'Mất kết nối' : undefined} onClick={() => void action('pause')}><Icon name="pause" size={15} />Tạm dừng</Button>}
