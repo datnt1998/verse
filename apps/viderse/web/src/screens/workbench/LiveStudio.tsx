@@ -343,14 +343,14 @@ export function LiveStudio({ job, onRefresh, onApproveAll, approveBusy, redrawAl
 
       {logAll.length > 0 && <div {...stylex.props(styles.logBox)}>
         <ol aria-label="Nhật ký" {...stylex.props(styles.logList)}>{logShow.map(step => {
-          const running = step.status === 'running'
+          const running = job.stageGroup === 'working' && job.status === 'running' && step.status === 'running'
           const failed = step.status === 'failed'
           const done = step.status === 'succeeded' || step.status === 'done'
           const agent = stepAgent(step.step)
           return <li key={step.step} {...stylex.props(styles.logRow)}>
             <span {...stylex.props(styles.logTime)}>{stepClock(step.startedAt)}</span>
             <span {...stylex.props(styles.logIcon)}>{running ? <span aria-label="Đang chạy" {...stylex.props(styles.spinner)} /> : <Icon name={failed ? 'danger' : done ? 'tick-b' : 'clock'} size={15} label={progressState(step.status) || undefined} xstyle={failed ? styles.warnIcon : done ? styles.okIcon : styles.waitIcon} />}</span>
-            <span {...stylex.props(styles.logText)}>{agent && <b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b>}{agent && ' · '}<span>{progressText(step)}</span></span>
+            <span {...stylex.props(styles.logText)}>{agent && <b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b>}{agent && ' · '}<span>{running ? <Shimmer>{progressText(step)}</Shimmer> : progressText(step)}</span></span>
             <span {...stylex.props(styles.logDuration)}>{stepDuration(step)}</span>
           </li>
         })}</ol>

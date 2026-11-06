@@ -2,7 +2,7 @@
 // --vv-s-*/--vv-r-*; màu lấy token kit để luật thiết kế không bắt hex.
 import * as stylex from '@stylexjs/stylex'
 import { color, line, kit } from '@noverse/ui/tokens.stylex'
-import { space as s, corners as r, visualRoles } from '../../../styles/viderse.stylex'
+import { space as s, corners as r, typography as type, visualRoles } from '../../../styles/viderse.stylex'
 
 export const mw = stylex.create({
   listRoot: {
@@ -169,6 +169,23 @@ export const mw = stylex.create({
     display: 'inline-flex', alignItems: 'center', gap: s['--vv-s-4'], padding: `${s['--vv-s-4']} ${s['--vv-s-8']}`,
     borderRadius: r['--vv-r-pill'], backgroundColor: color['--color-surface-3'], color: color['--color-fg-2'], fontSize: 12,
   },
+  imageSheetBody: { display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 },
+  imageSheetScroll: {
+    minHeight: 0, overflowY: 'auto', paddingInline: s['--vv-s-16'], paddingBottom: s['--vv-s-16'],
+    display: 'flex', flexDirection: 'column', gap: s['--vv-s-12'],
+  },
+  imageSheetFooter: {
+    flexShrink: 0, padding: `${s['--vv-s-12']} ${s['--vv-s-16']}`,
+    borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-1'],
+  },
+  imagePromptRow: {
+    display: 'flex', alignItems: 'center', gap: s['--vv-s-10'], minHeight: 44, flexShrink: 0,
+    paddingInline: s['--vv-s-12'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-1'],
+    borderRadius: r['--vv-r-12'], backgroundColor: color['--color-surface-2'], color: color['--color-fg-2'],
+    fontSize: type['--vv-fs-ui'], textAlign: 'start', cursor: 'pointer',
+  },
+  imagePromptLabel: { flex: 1, minWidth: 0 },
+  imagePromptDetail: { margin: 0, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', fontSize: type['--vv-fs-detail'], lineHeight: 1.6, color: color['--color-fg-2'] },
   tagRemove: { width: 24, minWidth: 24, height: 24, minHeight: 24, padding: 0 },
   metaActions: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-8'] },
   sheetFooter: { display: 'flex', alignItems: 'center', gap: s['--vv-s-8'], flexWrap: 'wrap' },
@@ -259,7 +276,7 @@ export const mwList = stylex.create({
     backgroundColor: color['--color-surface-1'], color: color['--color-fg'], cursor: 'pointer',
   },
   workTop: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'] },
-  workThumb: { position: 'relative', width: 92, height: 52, flex: '0 0 auto', borderRadius: r['--vv-r-9'], overflow: 'hidden', backgroundColor: color['--color-surface-2'] },
+  workThumb: { position: 'relative', width: 92, height: 52, flex: '0 0 auto', borderRadius: r['--vv-r-9'], overflow: 'visible', backgroundColor: color['--color-surface-2'] },
   workDur: { position: 'absolute', right: 4, bottom: 3, paddingInline: 4, borderRadius: r['--vv-r-4'], backgroundColor: 'rgba(0,0,0,.72)', color: kit['--kit-white'], fontSize: 10, fontVariantNumeric: 'tabular-nums' },
   workText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
   workTitle: { fontSize: 14, fontWeight: 500, lineHeight: 1.4, color: color['--color-fg'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
