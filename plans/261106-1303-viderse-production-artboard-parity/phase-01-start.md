@@ -1,7 +1,7 @@
 ---
 phase: 1
 title: "Đóng source V40 và chuẩn bị nghiệm thu"
-status: in-progress
+status: completed
 priority: P1
 effort: ""
 dependencies: []
@@ -46,9 +46,10 @@ Sau tích hợp: npm test -w apps/viderse/web; shared kit test/typecheck nếu c
 ## Checklist
 - [x] Đóng lệch V40 và#91/#92 bằng source/native evidence, không thay artboard.
 - [x] Hoàn chỉnh production state/data/action manifest bao gồm Auth desktop và Editor.
-- [ ] Candidate tracked build/smoke/review đạt và PR#7 merge main;#93 vẫn KEEP.
+- [x] Candidate tracked build/smoke/review đạt và PR#7 merge main;#93 vẫn KEEP.
 
 ## Tiến độ thực thi 06/11
-Đã triển khai mode `--production`:517row/29board (37Auth desktop),40probe; toàn bộ pending/null, không có production/device pass. Legacy stdout giữ nguyên; lexical và symlink/hardlink receipt guard đã smoke với `--check`. Native QA dùng app DB/identity/HOME riêng, đã tái hiện dialog giữa màn phone trước vá và kiểm Sheet sau vá, save+GET template200 revision3, close44px và tools POST probe200+GET cùng checkedAt, không install. Source/native build không còn overlay SQLC: generatorcanonical giữ thay đổi riêng, chỉ model sinh không khớp schema được tái sinh. Báo cáo/source tracked artifact và merge còn chờ kiểm ở checklist trên; production chưa deploy.
+Đã triển khai mode `--production`:517row/29board (37Auth desktop),40probe; toàn bộ pending/null, không có production/device pass. Legacy stdout giữ nguyên; lexical và symlink/hardlink receipt guard đã smoke với `--check`. Native QA dùng app DB/identity/HOME riêng, đã tái hiện dialog giữa màn phone trước vá và kiểm Sheet sau vá, save+GET template200 revision3, close44px và tools POST probe200+GET cùng checkedAt, không install. Clean candidate native build không cần overlay SQLC; production chưa deploy.
+PR#7 đã merge main `60b4766429a852f17c6e305e71b9179bbc0d632a` ngày06/11 lúc15:10:12Z. Merge tree `7c248a6008df723538998ee9f25b4a6d04154f95` khớp chính xác tree candidate đã kiểm chứng. Chi tiết kết quả cuối ở [source closure](reports/v40-source-closure.md). Phase01 hoàn thành source, không phải hoàn thành production.
 ## Rủi ro / rollback / bước tiếp
 Credential QA machine-scope phải isolate HOME/config/app+identity DB/media/browser trước draw/logout; không chạm credential thật. Revert fix source trên main nếu cần, không roll backend về rotation/autonomy. Phase02 giữ deploy blocked đến physical proof. Mọi data/route chưa biết được đánh blocked với owner, không pass giả.

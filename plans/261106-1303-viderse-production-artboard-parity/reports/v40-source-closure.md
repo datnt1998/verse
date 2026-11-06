@@ -1,4 +1,4 @@
-# V40 source closure · đang thực thi
+# V40 source closure · merged, production chưa deploy
 
 ## Đã sửa
 - Preview Template có project cũ vẫn hiện overlay stale/building; chặn tương tác, ẩn khỏi accessibility khi unavailable và pause playback thật. Desktop regression: stale/building failed trước vá, passed sau vá; fresh vẫn tương tác.
@@ -26,7 +26,7 @@ App DB,identity DB,HOME/browser riêng; không phải production. Không mint se
 
 ## Review / bảo vệ workspace
 Hai scout độc lập nghiên cứu V40/manifest; hai reviewer code tìm các lỗi context/hash/probe/alias và overlay/playback, đã xử lý. Final matrix review chỉ yêu cầu regenerate sau đổi provenance null; đã regenerate/check. Simplifier chỉ sửa MTemplateScreen/AttachChannelDialog, không chạy checks mid-flight. Controller tích hợp duy nhất; không tạo worktree hoặc động vào normal index có thay đổi của người dùng.
-Git merge-tree HEAD+origin/main trả tree sạch `f5d99216e70cb62bed3998f4e0e138d057e14f1a`; cần clean build từ candidate staged tree và review scoped diff trước commit/push/merge.
+Final reviewer độc lập không có finding còn lại trong source candidate. Commit `cca32ed1fc11b53b570417942462dee8f50244ce` đã push, PR[#7](https://github.com/datnt1998/verse/pull/7) được chuyển khỏi draft và merge thông thường, không bypass. GitHub không cấu hình statusCheckRollup; không ghi CI xanh. Main merge `60b4766429a852f17c6e305e71b9179bbc0d632a` lúc15:10:12Z; tree `7c248a6008df723538998ee9f25b4a6d04154f95` khớp candidate đã kiểm chứng. Normal index checksum giữ nguyên qua commit.
 
 ## Chưa làm / gate
-Chưa có physical iPhone Safari proof#93; chưa deploy production;7group production chưa nghiệm thu. Chưa mở maintenance/quiesce/backup hoặc chạy cutover. Không ghi10-gap-closure bằng commit chưa deploy. Candidate/merge hash và URL preview đúng artifact sẽ bổ sung khi tạo xong; report này không phải release receipt.
+Chưa có physical iPhone Safari proof#93; chưa deploy production;7group production chưa nghiệm thu. Chưa mở maintenance/quiesce/backup hoặc chạy cutover. Không ghi10-gap-closure bằng commit chưa deploy. Preview giao đúng artifact và thời hạn sẽ ghi tại safari-physical.md; report này không phải release receipt. Service native QA do phiên tạo đã dừng sau smoke.

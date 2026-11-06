@@ -1,6 +1,11 @@
 # Safari iPhone thật — gate #93 còn mở
 
-## Route QA
+## Vòng kiểm hiện tại · giao ngày06/11 lúc22:17 giờ Việt Nam
+- Mở **http://192.168.1.13:8045/candidate-f58f95ac/qa.html** trên Safari iPhone cùngLAN. UI main đã merge `60b4766429a852f17c6e305e71b9179bbc0d632a`;359tệp build remote khớp candidate sạch. Dữ liệu mẫu/SSE giả chỉ để kiểm layout, không dùng làm backend hoặc production proof.
+- [Handoff và checklist hiện tại](../../../261106-1303-viderse-production-artboard-parity/reports/safari-physical.md):4lối vào Main/Review/Template/Library; cần clip/model/iOS/Safari. Hạn dự kiến22:17ngày07/11; nếu chưa truy cập được LAN, tính1ngày từ lúc nhận preview dùng được. KEEP, hết hạn không miễn gate.
+- Không dùng URL /qa và source24bf453d bên dưới cho vòng kiểm cuối; đây là lịch sử trước merge.
+
+## Route QA cũ · lưu lịch sử, đã thay bằng vòng trên
 - Mở Safari trên iPhone **cùng mạng LAN với Mac mini**: http://192.168.1.13:8045/qa . Không phải URL production; không đăng nhập.
 - Source UI `24bf453d757d56c1353d3f533c5da066a40cbe53`; assets archive SHA256 `2a72469a7a5abb3d0985af406b1ddc78a2dd4741d0e47ca38b366d764298f43b`. Python stdlib preview chỉ phục vụ assets thật + dữ liệu mẫu rõ nhãn. Không chứa auth/env/database, không forward native API, không gọi provider hoặc cài công cụ.
 - Probe tool trong preview chỉ trả dữ liệu mẫu. Proof probe thật và persistence ở [native-tools.json](native-tools.json), [native-ui-undo.json](native-ui-undo.json), không lấy preview thay backend.
@@ -23,4 +28,4 @@ Ghi iPhone/model, phiên bản iOS, Safari, hướng màn hình; quay màn hình
 - Nếu mạng điện thoại khác LAN, cần người vận hành cùng LAN; chưa cấu hình tunnel/public hostname và không tự đổi DNS/auth.
 
 ## Trạng thái
-**AWAITING_PHYSICAL_IPHONE_OPERATOR — chưa merge PR#7/chưa deploy.** Người dùng đã chọn giữ gate; không xin miễn lại hoặc coi Chromium là Safari.
+**AWAITING_PHYSICAL_IPHONE_OPERATOR — PR#7 đã merge main60b47664; chưa deploy.** Người dùng đã chọn giữ gate; không xin miễn lại hoặc coi Chromium là Safari. Bằng chứng iPhone thật của preview hiện tại vẫn chờ.

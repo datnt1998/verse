@@ -672,12 +672,14 @@ Mẫu:
 - Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai**.
 - **Kiểm tra lại** nằm ngay dưới mô tả đầu trang Công cụ trên máy của mobile, không giấu trong Nâng cao. Dùng chung probe/readback với PC, không cài hoặc tải công cụ.
 - Nguồn thực thi: [ToolsSection.tsx](../../../web/src/screens/settings/tools/ToolsSection.tsx) (`RecheckButton`). Không sửa artboard; đây không phải bằng chứng khớp 1:1 toàn bộ giao diện.
+- Đóng source ngày06/11/2026: PR[#7](https://github.com/datnt1998/verse/pull/7) đã merge main `60b4766429a852f17c6e305e71b9179bbc0d632a`. Native QA biệt lập đã bấm probe200 và GET cùng checkedAt, không install; xem [source closure](../../../../../plans/261106-1303-viderse-production-artboard-parity/reports/v40-source-closure.md). Chưa deploy, không phải production acceptance.
 
 ## #92. V40 — Hoàn tác Bỏ ảnh không được ngầm duyệt hoặc vẽ lại
 
 - Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai unskip tối thiểu**.
 - Hoàn tác phải trả đúng trạng thái và phiên bản trước Bỏ từ snapshot bền vững `beforeSkip`; không ngầm duyệt, không vẽ lại, không thêm quota. Không dùng `approve` hoặc `restore` thay thế; không mở rộng viewer đợt 45.
 - Hợp đồng `unskip`/`expectedRevision`, xử lý bận/revision cũ và giới hạn ảnh skipped cũ không có snapshot: [07-data-contract.md §14](07-data-contract.md#prompt-override). Nút Hoàn tác dùng revision của lần Bỏ thành công và đọc lại kết quả thật trong [useReview.ts](../../../web/src/screens/review/useReview.ts).
+- Đóng source ngày06/11/2026: cùng PR#7/main `60b4766429a852f17c6e305e71b9179bbc0d632a`; giữ proof persisted native đã có và bộ regression Postgres toàn Viderse đạt. Không thay quyết địnhA, chưa xác nhận thao tác này trên production.
 
 ## #93. Gate Safari thiết bị thật trước deploy
 

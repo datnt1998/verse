@@ -1,7 +1,7 @@
 ---
 phase: 2
 title: "Gate Safari iPhone thật #93"
-status: pending
+status: in-progress
 priority: P1
 effort: ""
 dependencies: [1]
@@ -22,8 +22,11 @@ Người dùng chọn **Tự test iPhone trong1ngày** ngày06/11. KEEP: không 
 ## Verification / success
 Checklist handoff5mục có kết quả+clip, không CTA bị che, dock kẹt, overflow, overlay chồng/focus/scroll lock. Source final/candidate không khác phần Safari vừa test. Đây là physical layout gate, production acceptance vẫn ở phase04–10.
 ## Checklist
-- [ ] Giao preview đúng candidate, ghi giờ bắt đầu/hạn1ngày.
+- [x] Giao preview đúng candidate, ghi giờ bắt đầu/hạn1ngày.
 - [ ] Nhận clip/device metadata và5mục checklist đạt; cập nhật#93 theo evidence.
 - [ ] Xác nhận artifact không đổi phần liên quan; cho phép sang phase03, không tự deploy từ planning.
+
+## Handoff đã giao
+[Report thiết bị](reports/safari-physical.md): preview sample-only của source main60b47664 đã kiểm359file artifact; giao06/11 lúc22:17giờ Việt Nam, hạn dự kiến07/11 lúc22:17 nếu LAN truy cập được khi giao. Người dùng chưa xác nhận LAN hoặc gửi clip; thiếu access thì tính lại từ preview dùng được. Không có Safari pass, không deploy.
 ## Rủi ro / rollback
 Không có thiết bị/operator/clip hoặc mạngLAN không tới=blocked, không coi timeout là waiver. Không thay runtime production; chỉ phục hồi/dừng preview đúng owner. Nếu hotfix sau này đổi keyboard/dock/overlay, proof tương ứng phải làm lại trước rollout.
