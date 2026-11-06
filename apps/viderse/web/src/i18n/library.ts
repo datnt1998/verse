@@ -121,6 +121,8 @@ export const libraryCopy = {
     attachBody: 'Chọn kênh để mở Kênh › Template rồi chọn mẫu video này làm mặc định.',
     attachGo: (name: string) => `Mở ${name}`,
     attachEmpty: 'Chưa có kênh nào để đặt mẫu video mặc định.',
+    attachLoading: 'Đang đọc danh sách kênh…',
+    attachFailed: 'Không tải được danh sách kênh. Thử lại.',
     nameTaken: 'Tên này đã có mẫu video khác dùng.',
     importTemplate: 'Nhập mẫu video',
     importTitle: 'Nhập mẫu video cũ',

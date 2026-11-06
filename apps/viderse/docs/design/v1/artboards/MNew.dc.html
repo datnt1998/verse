@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video mới · điện thoại</title>
+<title>Làm video</title>
 <script src="./support.js"></script>
 <style data-vv="kit r37">
 /* Viderse tokens — bộ của Noverse, đổi theme màu (đợt 19, 29/10/2026).
@@ -566,6 +566,40 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 @media (hover: none) { .vv-row__more { opacity: 1; } }
 .vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
 button.vv-row { -webkit-appearance: none; appearance: none; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }   /* r38: hàng là nút */
+/* r40: Trình xem ảnh — một thành phần cho mọi chỗ có ảnh (Duyệt, Phòng vẽ, Editor, Template, Thư viện). Chế độ: Duyệt · Xem · Xem + Thay · Mẫu */
+.vv-viewer-scrim { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--vv-scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: vv-fade .18s ease-out both; }
+.vv-viewer { width: min(1240px, 100%); height: min(800px, 100%); display: grid; grid-template-rows: 52px minmax(0, 1fr) 60px; border-radius: 18px; overflow: hidden; background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 32px 90px rgba(0,0,0,.65); animation: vv-dlgIn .22s var(--vv-ease) both; }
+.vv-viewer__top { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 0 10px 0 16px; border-bottom: 1px solid var(--vv-hairline); font-size: 13.5px; }
+.vv-viewer__title { font-weight: 600; white-space: nowrap; }
+.vv-viewer__sub { min-width: 0; color: var(--vv-text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-viewer__body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: 0; }
+.vv-viewer__stage { min-width: 0; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.vv-viewer__img { position: relative; flex: 1 1 auto; min-height: 0; border-radius: 12px; background-color: #050506; background-position: center; background-size: contain; background-repeat: no-repeat; }
+.vv-viewer__nav { position: absolute; top: 50%; width: 38px; height: 38px; margin-top: -19px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(11,11,13,.62); color: var(--vv-text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color var(--vv-dur), transform 80ms; }
+.vv-viewer__nav:hover { background: rgba(11,11,13,.85); } .vv-viewer__nav:active { transform: scale(.94); }
+.vv-viewer__nav > .ic { width: 16px; height: 16px; }
+.vv-viewer__nav--prev { left: 12px; } .vv-viewer__nav--prev > .ic { transform: rotate(180deg); } .vv-viewer__nav--next { right: 12px; }
+.vv-viewer__strip { flex: 0 0 auto; display: flex; gap: 8px; }
+.vv-viewer__thumb { position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 7px; background-position: center; background-size: cover; opacity: .55; cursor: pointer; transition: opacity var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-viewer__thumb:hover { opacity: .85; }
+.vv-viewer__thumb[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--vv-text); }
+.vv-viewer__thumb > b { position: absolute; left: 5px; top: 4px; font-size: 10.5px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.vv-viewer__thumb--wait { background: repeating-linear-gradient(135deg, #131315 0 8px, #17171A 8px 16px); cursor: default; }
+.vv-viewer__side { min-height: 0; overflow-y: auto; border-left: 1px solid rgba(255,255,255,.06); padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
+.vv-viewer__cap { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--vv-text-hint); }
+.vv-viewer__cap > span { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 500; }
+.vv-viewer__bar { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 16px; border-top: 1px solid var(--vv-hairline); }
+.vv-viewer__note { min-width: 0; font-size: 12.5px; color: var(--vv-text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-viewer__fb { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); }
+.vv-viewer__fb textarea { min-height: 64px; resize: none; padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,.14); color: var(--vv-text); font: inherit; font-size: 13.5px; outline: none; }
+.vv-viewer__fb textarea:focus { border-color: rgba(255,255,255,.32); }
+.vv-viewer__ver { display: flex; gap: 8px; flex-wrap: wrap; }
+.vv-viewer__ver > button { width: 72px; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 6px; background-position: center; background-size: cover; opacity: .7; cursor: pointer; }
+.vv-viewer__ver > button[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--vv-st-ready); }
+@media (prefers-reduced-motion: reduce) { .vv-viewer-scrim, .vv-viewer { animation: none; } }
+/* r40: ô ảnh bấm được (Phòng vẽ, Editor, Template) */
+.vv-imgbtn { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; cursor: zoom-in; border-radius: inherit; }
+.vv-imgbtn:focus-visible { outline: 2px solid var(--vv-text); outline-offset: -2px; }
 .vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
 .vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
 .vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
@@ -757,6 +791,11 @@ ul.vv-dialog__list { padding-left: 30px; }
   .vv-wide > .vv-composer-dock { max-width: var(--vv-wide-composer); }
 }
 
+
+.i-arrow-r{-webkit-mask-image:url(../icons/arrow-r.svg);mask-image:url(../icons/arrow-r.svg)}
+.i-info{-webkit-mask-image:url(../icons/info.svg);mask-image:url(../icons/info.svg)}
+.i-radar{-webkit-mask-image:url(../icons/radar.svg);mask-image:url(../icons/radar.svg)}
+.i-tick{-webkit-mask-image:url(../icons/tick.svg);mask-image:url(../icons/tick.svg)}
 </style>
 </head>
 <body>
@@ -860,145 +899,89 @@ textarea,select{font:inherit}
 <span class="num">9:41</span>
 <span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; align-items: flex-end; gap: 2px; height: 11px"><span style="width: 3px; height: 4px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 6px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 8px; border-radius: 1px; background: #EDEDEF"></span><span style="width: 3px; height: 11px; border-radius: 1px; background: #EDEDEF"></span></span><span style="width: 25px; height: 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.45); padding: 1.5px; display: flex"><span style="width: 72%; border-radius: 2px; background: #EDEDEF"></span></span></span>
 </div>
-<header style="flex: 0 0 auto; height: 52px; padding: 0 6px; display: flex; align-items: center">
-<a class="ib ghost" href="MMain.dc.html" aria-label="Đóng"><span class="ic i-close" aria-hidden="true"></span></a>
-<span style="flex: 1; min-width: 0; padding-left: 2px; font-size: 16px; font-weight: 600">Video mới</span>
-</header>
-<main class="vs" style="flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 16px">
-<div style="display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding-top: 4px">
-<span aria-hidden="true" style="display: flex; align-items: center; gap: 6px"><span class="orb o-scout" style="width: 18px; height: 18px"></span><span class="orb o-director" style="width: 18px; height: 18px"></span><span class="orb o-artist" style="width: 18px; height: 18px"></span><span class="orb o-qa" style="width: 18px; height: 18px"></span></span>
-<h1 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em">Bạn muốn làm video nào?</h1>
-</div>
-
-<div class="vv-seg vv-seg--m vv-seg--fill" role="radiogroup" aria-label="Cách bắt đầu">
-<sc-for list="{{modes}}" as="m" hint-placeholder-count="2">
-<button type="button" role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}"><span class="ic {{m.icon}}" aria-hidden="true" style="width: 16px; height: 16px"></span>{{m.label}}</button>
-</sc-for>
-</div>
-
-<div class="card" style="border-radius: 16px; padding: 4px 4px 4px 14px; background: #161618">
-<sc-if value="{{isSingle}}" hint-placeholder-val="{{ true }}">
-<div style="display: flex; align-items: center; gap: 8px">
-<label for="ml" class="sr-only">Link video YouTube</label>
-<input id="ml" type="url" inputmode="url" value="{{linkValue}}" placeholder="Dán link video YouTube" style="flex: 1; min-width: 0; height: 48px; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 15px">
-<sc-if value="{{hasLink}}" hint-placeholder-val="{{ false }}"><button class="ib ghost" type="button" aria-label="Xoá link" onClick="{{clear}}"><span class="ic i-close" aria-hidden="true" style="width: 16px; height: 16px"></span></button></sc-if>
-<sc-if value="{{noLink}}" hint-placeholder-val="{{ true }}"><button class="vv-btn vv-btn--primary" type="button" onClick="{{paste}}" style="--h: 40px">Dán</button></sc-if>
-</div>
-</sc-if>
-<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
-<label for="mm" class="sr-only">Nhiều link video</label>
-<textarea id="mm" rows="4" style="width: 100%; resize: none; padding: 10px 10px 10px 0; background: transparent; border: none; outline: none; color: #EDEDEF; font-size: 14px; line-height: 1.6" value="{{multiText}}"></textarea>
-</sc-if>
-</div>
-
-<sc-if value="{{showPreview}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; gap: 12px; align-items: flex-start">
-<span aria-hidden="true" style="position: relative; width: 132px; aspect-ratio: 16 / 9; border-radius: 10px; flex: 0 0 auto; overflow: hidden; background: url(../img/k_lakehouse.jpg) center / cover no-repeat"><span class="num" style="position: absolute; left: 5px; bottom: 4px; height: 18px; padding: 0 6px; display: flex; align-items: center; border-radius: 5px; background: rgba(11,11,13,0.82); color: #F3D9AE; font-size: 11px; font-weight: 600">×2,7</span><span class="num mono" style="position: absolute; right: 5px; bottom: 4px; padding: 0 4px; border-radius: 4px; background: rgba(0,0,0,0.75); font-size: 10.5px">48:40</span></span>
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
-<span class="clamp2" style="font-size: 14px; font-weight: 600; line-height: 1.35">The Lake House Guestbook Had One More Name</span>
-<span class="ell" style="font-size: 12px; color: #8B8B97">Nocturne Stories · 780 N lượt xem · 1 ngày trước</span>
-<span style="display: flex; align-items: center; gap: 5px; color: #A6EDC1; font-size: 12px"><span class="ic i-subtitle" aria-hidden="true" style="width: 13px; height: 13px"></span>Có phụ đề do kênh đăng</span>
-</span>
-</div>
-</sc-if>
-
-<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px">
-<span style="display: flex; align-items: center; gap: 8px; color: #A6EDC1"><span class="ic i-tick-b" aria-hidden="true" style="width: 15px; height: 15px"></span>3 link đọc được</span>
-<span style="display: flex; align-items: center; gap: 8px; color: #F6CB8C"><span class="ic i-flag" aria-hidden="true" style="width: 15px; height: 15px"></span>1 đã làm cho kênh này · sẽ bỏ qua</span>
-<span style="color: #8B8B97; line-height: 1.5">{{multiPace}}</span>
-</div>
-</sc-if>
-
-<sc-if value="{{hasInput}}" hint-placeholder-val="{{ true }}">
-<div class="card" style="border-radius: 16px; display: flex; flex-direction: column">
-<sc-for list="{{opts}}" as="o" hint-placeholder-count="3">
-<button class="ghost" type="button" onClick="{{o.tap}}" style="min-height: 52px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; border-bottom: 1px solid {{o.line}}; background: transparent; color: #EDEDEF; text-align: left">
-<span class="ic {{o.icon}}" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97"></span>
-<span style="font-size: 14px; color: #A0A0AB">{{o.k}}</span>
-<span class="ell" style="flex: 1; min-width: 0; text-align: right; font-size: 14px">{{o.v}}</span>
-<span class="ic {{o.end}}" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97"></span>
-</button>
-</sc-for>
-<!-- r31-v27: Ưu tiên cả N (#61) -->
-<sc-if value="{{isMulti}}" hint-placeholder-val="{{ false }}">
-<button class="ghost" type="button" role="switch" aria-checked="{{prioOn}}" onClick="{{togglePrio}}" style="min-height: 52px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; background: transparent; color: #EDEDEF; text-align: left">
-<span class="ic i-arrow-up" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97"></span>
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 14px">Ưu tiên cả 3</span><span class="ell" style="font-size: 12px; color: #8B8B97">Lên đầu hàng chờ, không theo nhịp kênh</span></span>
-<span aria-hidden="true" style="flex: 0 0 auto; width: 44px; height: 26px; border-radius: 999px; padding: 3px; background: {{prioBg}}; display: flex; justify-content: {{prioJ}}"><span style="width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF"></span></span>
-</button>
-</sc-if>
-</div>
-</sc-if>
-
-<sc-if value="{{noInput}}" hint-placeholder-val="{{ false }}">
-<div style="display: flex; flex-direction: column; gap: 10px">
-<span style="font-size: 13px; color: #A0A0AB">Hoặc chọn video nổi trội của đối thủ</span>
-<sc-for list="{{ideas}}" as="v" hint-placeholder-count="3">
-<button class="ghost" type="button" onClick="{{v.pick}}" style="display: flex; gap: 12px; padding: 8px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.07); background: #141416; color: #EDEDEF; text-align: left; white-space: normal">
-<span aria-hidden="true" style="position: relative; width: 104px; height: 58px; border-radius: 9px; flex: 0 0 auto; overflow: hidden; background: {{v.bg}}"><span class="num" style="position: absolute; left: 4px; bottom: 4px; height: 17px; padding: 0 5px; display: flex; align-items: center; border-radius: 5px; background: #F6CB8C; color: #0B0B0D; font-size: 10.5px; font-weight: 600">{{v.score}}</span></span>
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px"><span class="clamp2" style="font-size: 13.5px; font-weight: 500; line-height: 1.35">{{v.title}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{v.meta}}</span></span>
-</button>
-</sc-for>
-</div>
-</sc-if>
+<header style="flex: 0 0 auto; height: 52px; padding: 0 6px; display: flex; align-items: center"><a class="ib ghost" href="MMain.dc.html" aria-label="Đóng"><span class="ic i-close" aria-hidden="true"></span></a><span style="flex: 1; min-width: 0; padding-left: 2px; display: flex; flex-direction: column"><span style="font-size: 16px; font-weight: 600">Làm video</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{nv.sub}}</span></span></header>
+<main class="vs" style="flex: 1; min-height: 0; padding: 4px 16px 16px; display: flex; flex-direction: column; gap: 14px">
+<sc-if value="{{nv.showField}}" hint-placeholder-val="{{ true }}"><div style="display: flex; flex-direction: column; gap: 8px"><div class="card" style="border-radius: 16px; padding: 4px 4px 4px 14px; display: flex; align-items: flex-start; gap: 6px; border-color: {{nv.fieldBd}}"><label for="mlinks" class="sr-only">Link video YouTube</label><textarea id="mlinks" rows="{{nv.rows}}" value="{{nv.text}}" placeholder="Dán link YouTube · mỗi dòng một link" style="flex: 1; min-width: 0; padding: 11px 0; border: none; background: transparent; color: #EDEDEF; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; outline: none; resize: none"></textarea><sc-if value="{{nv.hasText}}" hint-placeholder-val="{{ true }}"><button class="ib ghost" type="button" aria-label="Xoá link" onClick="{{nv.clear}}"><span class="ic i-close" aria-hidden="true" style="width: 16px; height: 16px"></span></button></sc-if><sc-if value="{{nv.isEmpty}}" hint-placeholder-val="{{ false }}"><button class="vv-btn vv-btn--primary" type="button" onClick="{{nv.paste}}" style="--h: 40px; margin: 2px">Dán</button></sc-if></div><sc-if value="{{nv.isError}}" hint-placeholder-val="{{ false }}"><span role="alert" style="font-size: 13px; color: #FFC09A; line-height: 1.5">Không đọc được video từ link này. Kiểm tra lại link YouTube, hoặc video có thể đã bị ẩn.</span></sc-if><sc-if value="{{nv.isEmpty}}" hint-placeholder-val="{{ false }}"><a href="MExplore.dc.html" style="min-height: 44px; display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #C9C9D1"><span class="ic i-radar" aria-hidden="true" style="width: 16px; height: 16px"></span>Chưa có link? Chọn video nổi trội ở Khám phá<span class="ic i-arrow-r" aria-hidden="true" style="width: 14px; height: 14px; margin-left: auto; color: #8B8B97"></span></a></sc-if></div></sc-if>
+<sc-if value="{{nv.showOne}}" hint-placeholder-val="{{ true }}"><div style="display: flex; gap: 12px; align-items: flex-start"><span aria-hidden="true" style="position: relative; width: 128px; aspect-ratio: 16 / 9; border-radius: 9px; flex: 0 0 auto; background: {{nv.one.img}}"><span class="num" style="position: absolute; left: 4px; bottom: 4px; height: 17px; padding: 0 5px; display: flex; align-items: center; border-radius: 5px; background: {{nv.one.scoreBg}}; color: {{nv.one.scoreFg}}; font-size: 10.5px; font-weight: 600">{{nv.one.score}}</span><span class="num mono" style="position: absolute; right: 4px; bottom: 4px; height: 17px; padding: 0 5px; display: flex; align-items: center; border-radius: 5px; background: rgba(11,11,13,0.82); font-size: 10.5px">{{nv.one.dur}}</span></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px"><span class="clamp2" style="font-size: 14px; font-weight: 600; line-height: 1.35">{{nv.one.title}}</span><span class="ell" style="font-size: 12px; color: #8B8B97">{{nv.one.meta}}</span><span style="display: flex; align-items: center; gap: 5px; font-size: 12px; color: #A6EDC1"><span class="ic i-subtitle" aria-hidden="true" style="width: 13px; height: 13px"></span>Có phụ đề do kênh đăng</span></span></div></sc-if>
+<sc-if value="{{nv.isDup}}" hint-placeholder-val="{{ false }}"><div class="vv-banner vv-banner--review" role="status"><span class="ic i-info" aria-hidden="true"></span><div class="vv-banner__body"><span class="vv-banner__title">Midnight Tales đã có video từ link này</span><span class="vv-banner__text">Đang vẽ ảnh. Muốn làm cho kênh khác thì đổi Kênh bên dưới.</span><a class="vv-btn vv-btn--sm" href="MMain.dc.html" style="align-self: flex-start; margin-top: 6px">Mở ở Bàn dựng</a></div></div></sc-if>
+<sc-if value="{{nv.showList}}" hint-placeholder-val="{{ false }}"><div class="card" style="border-radius: 16px; overflow: hidden"><div style="display: flex; justify-content: space-between; gap: 8px; padding: 10px 14px; font-size: 12.5px; color: #A0A0AB"><span>{{nv.listHead}}</span><span class="num" style="flex: 0 0 auto">{{nv.listCount}}</span></div><sc-for list="{{nv.list}}" as="v" hint-placeholder-count="3"><div style="display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 6px 4px 6px 14px; border-top: 1px solid rgba(255,255,255,0.06); opacity: {{v.op}}"><span aria-hidden="true" style="width: 64px; aspect-ratio: 16 / 9; border-radius: 6px; flex: 0 0 auto; background: {{v.img}}"></span><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 13.5px">{{v.title}}</span><span class="ell" style="font-size: 12px; color: {{v.subFg}}">{{v.sub}}</span></span><button class="ib ghost" type="button" aria-label="Bỏ {{v.title}}" onClick="{{v.rm}}"><span class="ic i-close" aria-hidden="true" style="width: 15px; height: 15px"></span></button></div></sc-for></div></sc-if>
+<div class="card" style="border-radius: 16px; overflow: hidden"><button class="ghost vv-row" type="button" onClick="{{nv.ch.toggle}}" aria-haspopup="dialog" style="width: 100%; min-height: 54px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; border-top: none; border-radius: 0; background: none; color: inherit; text-align: left"><span class="ic i-channel" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97; flex: 0 0 auto"></span><span style="font-size: 14px; color: #A0A0AB; flex: 0 0 auto">Kênh</span><span class="ell" style="flex: 1; min-width: 0; text-align: right; font-size: 14px; font-weight: 500">{{nv.ch.cur}}</span><sc-if value="{{nv.ch.hasTag}}" hint-placeholder-val="{{ false }}"><span class="vv-tag" style="flex: 0 0 auto">{{nv.ch.tag}}</span></sc-if><span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97; flex: 0 0 auto"></span></button><button class="ghost vv-row" type="button" onClick="{{nv.tp.toggle}}" aria-haspopup="dialog" style="width: 100%; min-height: 54px; padding: 0 14px; display: flex; align-items: center; gap: 12px; border: none; border-top: 1px solid rgba(255,255,255,0.06); border-radius: 0; background: none; color: inherit; text-align: left"><span class="ic i-layer" aria-hidden="true" style="width: 17px; height: 17px; color: #8B8B97; flex: 0 0 auto"></span><span style="font-size: 14px; color: #A0A0AB; flex: 0 0 auto">Template</span><span class="ell" style="flex: 1; min-width: 0; text-align: right; font-size: 14px; font-weight: 500">{{nv.tp.cur}}</span><sc-if value="{{nv.tp.hasTag}}" hint-placeholder-val="{{ false }}"><span class="vv-tag" style="flex: 0 0 auto">{{nv.tp.tag}}</span></sc-if><span class="ic i-arrow-d" aria-hidden="true" style="width: 15px; height: 15px; color: #8B8B97; flex: 0 0 auto"></span></button></div>
 </main>
-<div style="flex: 0 0 auto; padding: 10px 16px 4px; border-top: 1px solid rgba(255,255,255,0.06); background: #0D0D0F; display: flex; flex-direction: column; gap: 8px">
-<sc-if value="{{hasInput}}" hint-placeholder-val="{{ true }}"><span style="display: flex; gap: 8px; align-items: flex-start; padding: 0 2px 4px; font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-clock" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; color: #8B8B97"></span>{{planText}}</span></sc-if>
-<button class="btn-red" type="button" aria-disabled="{{startDisabled}}" style="background: {{startBg}}; color: {{startFg}}">{{startLabel}}</button>
-</div>
+<div style="flex: 0 0 auto; padding: 10px 16px 4px; border-top: 1px solid rgba(255,255,255,0.06); background: #0D0D0F; display: flex; flex-direction: column; gap: 8px"><span style="display: flex; gap: 8px; align-items: flex-start; padding: 0 2px 4px; font-size: 12.5px; color: #A0A0AB; line-height: 1.5"><span class="ic i-clock" aria-hidden="true" style="width: 15px; height: 15px; margin-top: 2px; color: #8B8B97; flex: 0 0 auto"></span>{{nv.plan}}</span><button class="btn-red" type="button" aria-disabled="{{nv.startDis}}" onClick="{{nv.start}}" style="background: {{nv.startBg}}; color: {{nv.startFg}}">{{nv.startLabel}}</button></div>
+<sc-if value="{{nv.pk.show}}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" onClick="{{nv.pk.close}}" style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 5"></div><section role="dialog" aria-modal="true" aria-label="{{nv.pk.title}}" class="vv-sheet-in" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; border-radius: 22px 22px 0 0; background: #141416; border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding-bottom: 28px"><div aria-hidden="true" style="display: flex; justify-content: center; padding: 8px 0 2px"><span style="width: 36px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.22)"></span></div><div style="padding: 6px 16px 4px; display: flex; flex-direction: column"><span class="sheet-t" style="margin-bottom: 6px">{{nv.pk.title}}</span><sc-for list="{{nv.pk.list}}" as="o" hint-placeholder-count="4"><button class="press ghost" type="button" role="option" aria-selected="{{o.on}}" onClick="{{o.pick}}" style="min-height: 60px; padding: 6px 4px; display: flex; align-items: center; gap: 12px; border: none; background: none; color: inherit; text-align: left; width: 100%"><sc-if value="{{o.isAv}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto; background: {{o.img}}; border: {{o.bd}}; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700">{{o.ini}}</span></sc-if><sc-if value="{{o.isThumb}}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="width: 64px; aspect-ratio: 16 / 9; border-radius: 6px; flex: 0 0 auto; background: {{o.img}}"></span></sc-if><span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span class="ell" style="font-size: 15px; font-weight: 500">{{o.name}}</span><span class="ell" style="font-size: 12.5px; color: #8B8B97">{{o.sub}}</span></span><sc-if value="{{o.sel}}" hint-placeholder-val="{{ false }}"><span class="ic i-tick-b" aria-hidden="true" style="width: 18px; height: 18px"></span></sc-if></button></sc-for></div></section></sc-if>
+<sc-if value="{{nv.toast}}" hint-placeholder-val="{{ false }}"><div role="status" class="vv-toast vv-toast--ok vv-toast-in" style="position: absolute; left: 16px; right: 16px; bottom: 150px; z-index: 7"><span class="ic i-tick" aria-hidden="true"></span><span class="vv-toast__text">{{nv.toastT}}</span></div></sc-if>
 <div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"input": {"editor": "enum", "options": ["empty", "pasted", "multi"], "default": "pasted", "section": "Ô nhập"}, "prio": {"editor": "enum", "options": ["off", "on"], "default": "off", "section": "Nhiều link · Ưu tiên cả 3"}, "$preview": {"width": 390, "height": 844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"input": {"editor": "enum", "options": ["empty", "pasted", "duplicate", "error", "multi"], "default": "pasted", "section": "Ô dán link"}, "from": {"editor": "enum", "options": ["topbar", "explore"], "default": "topbar", "section": "Mở từ (Khám phá: mang 3 video đã chọn)"}, "picker": {"editor": "enum", "options": ["none", "channel", "template"], "default": "none", "section": "Sheet chọn"}, "$preview": {"width": 390, "height": 844}}'>
 class Component extends DCLogic {
   constructor(props) {
     super(props);
-    this.state = { input: null, imagesOn: true };
+    this.state = { nvIn: null, nvCh: null, nvTp: null, nvPk: null, nvRm: {}, nvT: null };
   }
   componentDidUpdate(prev) {
-    if (prev.input !== this.props.input || prev.prio !== this.props.prio) this.setState({ input: null, imagesOn: true, prio: null });
+    if (prev.input !== this.props.input || prev.from !== this.props.from || prev.picker !== this.props.picker) this.setState({ nvIn: null, nvCh: null, nvTp: null, nvPk: null, nvRm: {}, nvT: null });
   }
   renderVals() {
-    const input = this.state.input || this.props.input || 'pasted';
-    const multi = input === 'multi';
-    const has = input === 'pasted';
-    const prio = this.state.prio !== null && this.state.prio !== undefined ? this.state.prio : this.props.prio === 'on';
-    const modes = [['link', 'Dán link', 'i-link'], ['multi', 'Nhiều video', 'i-video-add']].map((m) => {
-      const on = (m[0] === 'multi') === multi;
-      return { label: m[1], icon: m[2], on: on ? 'true' : 'false', bg: on ? '#222225' : 'transparent', fg: on ? '#EDEDEF' : '#A0A0AB', fw: on ? '500' : '400',
-        pick: () => this.setState({ input: m[0] === 'multi' ? 'multi' : 'empty' }) };
-    });
-    const opts = [
-      { icon: 'i-channel', k: 'Kênh', v: 'Midnight Tales', end: 'i-arrow-d', tap: () => {} },
-      { icon: 'i-layer', k: 'Template', v: 'Luân phiên · Phim tài liệu', end: 'i-arrow-d', tap: () => {} }
-    ].map((o, i) => Object.assign(o, { line: i < 1 || multi ? 'rgba(255,255,255,0.06)' : 'transparent' }));
-    const TH = [
-      'url(../img/k_nurse.jpg) center / cover no-repeat',
-      'url(../img/k_radio.jpg) center / cover no-repeat',
-      'url(../img/k_mall.jpg) center / cover no-repeat'
-    ];
-    const ideas = [
-      { title: 'What I Saw Through the Night Bus Window', meta: 'Nocturne Stories · 4 ngày', score: '×2,8', bg: 'url(../img/k_nightbus.jpg) center / cover no-repeat' },
-      { title: 'The Motel Clerk Who Never Checked Anyone Out', meta: 'The Late Archive · 3 ngày', score: '×3,7', bg: 'url(../img/k_motel.jpg) center / cover no-repeat' },
-      { title: 'What I Found Behind the Hospital’s Sealed Wing', meta: 'Dark Hollow Tales · 5 ngày', score: '×3,2', bg: 'url(../img/k_sealed.jpg) center / cover no-repeat' }
-    ].map((v) => Object.assign(v, { pick: () => this.setState({ input: 'pasted' }) }));
-    const can = has || multi;
-    return {
-      modes, opts, ideas, isSingle: !multi, isMulti: multi, hasLink: has, noLink: !has && !multi,
-      linkValue: has ? 'youtube.com/watch?v=Kx8CbXtaW5Y' : '',
-      multiText: multi ? 'https://youtu.be/Kx8CbXtaW5Y\nhttps://youtu.be/p3Qd8mWz1aE\nhttps://youtu.be/Hh41LwZr0sk\nhttps://youtu.be/Za0Q7nB2cVw' : '',
-      showPreview: has, hasInput: can, noInput: !can,
-      clear: () => this.setState({ input: 'empty' }), paste: () => this.setState({ input: 'pasted' }),
-      startLabel: multi ? 'Làm 3 video' : 'Làm video', startDisabled: can ? 'false' : 'true',
-      startBg: can ? '#EDEDEF' : '#2A2A2E', startFg: can ? '#0B0B0D' : '#8B8B97',
-      prioOn: prio ? 'true' : 'false', prioBg: prio ? '#E6002E' : '#3A3A40', prioJ: prio ? 'flex-end' : 'flex-start', togglePrio: () => this.setState({ prio: !prio }),
-      multiPace: prio ? 'Ưu tiên: cả 3 chạy ngay khi có luồng trống.' : 'Hôm nay kênh còn 2 lượt, video thứ 3 chạy ngày mai.',
-      planText: multi ? (prio ? 'Cả 3 lên đầu hàng chờ, không theo nhịp kênh · bắt đầu từ khoảng 00:40' : 'Vào cuối hàng chờ, theo nhịp 5 video/ngày của Midnight Tales. Hôm nay còn 2 lượt.') : 'Lên đầu hàng chờ · bắt đầu khoảng 00:40'
+    const st = this.state, P = this.props;
+    const B = (id) => 'url(/_blob/' + id + ') center / cover no-repeat';
+    const fromEx = P.from === 'explore';
+    const input = st.nvIn || P.input || 'pasted';
+    const CH = { MT: { ini: 'MT', name: 'Midnight Tales', tint: '#2E2236', ring: '#D79BFF', tpl: 'std', left: 2, cap: 5 }, CL: { ini: 'CL', name: 'Chuyện Lạ Đêm Khuya', tint: '#302418', ring: '#F6CB8C', tpl: 'night', left: 3, cap: 5 }, QH: { ini: 'QH', name: 'Quiet Hours', tint: '#1F2C27', ring: '#A6EDC1', tpl: 'std', left: 2, cap: 3 } };
+    const TP = { std: ['Mẫu chuẩn · Tách nền', 'Tách nền · 6 ảnh', B('1aa52bce2b88efeedcec536e8ae1ed7f')], doc: ['Phim tài liệu', 'Toàn khung · mỗi 7 phút 1 ảnh', B('98fb3e2e33d1e009f53ed62c0c3be3c9')], close: ['Cận cảnh', 'Cần sửa · thiếu clip nền', B('64ad7cdf21a2314d67874a039ff4f62d')], sleep: ['Ru ngủ · Không ảnh', 'Không vẽ ảnh cảnh · bìa Ảnh sạch', B('aecc6e35cc24d45d4a9d751175d82fd6')], night: ['Truyện kể đêm', 'Tách nền · mỗi 5 phút 1 ảnh', B('618c286c4e54da1094434a7750d72fd8')] };
+    const chId = st.nvCh || 'MT'; const ch = CH[chId];
+    const tpId = st.nvTp || ch.tpl; const isDef = tpId === ch.tpl;
+    const pk = st.nvPk !== null ? st.nvPk : (P.picker && P.picker !== 'none' ? P.picker : null);
+    const rm = st.nvRm || {};
+    const V = {
+      lake: { title: 'The Lake House Guestbook Had One More Name', meta: 'Nocturne Stories · 780 N lượt xem · 1 ngày trước', score: '×2,7', dur: '48:40', img: B('988045ee58c05555ad3984dd58d4d5a6') },
+      bus: { title: 'What I Saw Through the Night Bus Window', meta: 'Nocturne Stories · 812 N lượt xem · 4 ngày trước', score: '×2,8', dur: '33:12', img: B('75b0cddcf7986ac85f0e6ea38c3eef7a') },
+      room: { title: 'Room Service Kept Calling From the 9th Floor', meta: 'Nocturne Stories · 512 N lượt xem · 5 ngày trước', score: '×1,8', dur: '41:02', img: B('bf4eba0ef0f92f89658b4ba590f9acf7') },
+      motel: { title: 'The Motel Clerk Who Never Checked Anyone Out', meta: 'The Late Archive · 640 N lượt xem · 3 ngày trước', score: '×3,7', dur: '47:12', img: B('3f5e9e20afe2a0e63364d45da7a8c11e') },
+      nurse: { title: 'Night Shift Nurse Hears Breathing From an Empty Room', meta: 'Nocturne Stories · 1,2 Tr lượt xem · 9 ngày trước', score: '×4,2', dur: '42:10', img: B('80ddd10c08a7818adf4abe886c373b1c') }
     };
+    const dupFor = (id) => id === 'nurse' && chId === 'MT';
+    let ids = [];
+    if (fromEx) ids = ['bus', 'lake', 'room'];
+    else if (input === 'multi') ids = ['lake', 'bus', 'motel', 'nurse'];
+    else if (input === 'pasted') ids = ['lake'];
+    else if (input === 'duplicate') ids = ['nurse'];
+    ids = ids.filter((k) => !rm[k]);
+    const okIds = ids.filter((k) => !dupFor(k));
+    const many = fromEx || input === 'multi';
+    const n = many ? okIds.length : (input === 'pasted' || (input === 'duplicate' && !dupFor('nurse')) ? 1 : 0);
+    const list = ids.map((k) => { const d = dupFor(k); return { title: V[k].title, img: V[k].img, sub: d ? 'Đã làm cho Midnight Tales · đang vẽ ảnh · bỏ qua' : V[k].meta.split(' · ').slice(0, 1).concat([V[k].dur, V[k].score]).join(' · '), subFg: d ? '#F6CB8C' : '#8B8B97', op: d ? '0.6' : '1', rm: () => this.setState({ nvRm: Object.assign({}, rm, { [k]: true }) }) }; });
+    const oneK = !many && ids.length ? ids[0] : null;
+    const one = oneK ? Object.assign({}, V[oneK], { scoreBg: oneK === 'nurse' ? '#F6CB8C' : 'rgba(11,11,13,0.82)', scoreFg: oneK === 'nurse' ? '#0B0B0D' : '#F3D9AE',
+      chips: oneK === 'nurse' ? [{ t: 'Có phụ đề do kênh đăng', fg: '#A6EDC1' }, { t: 'Đối thủ đã liên kết với kênh', fg: '#A0A0AB' }] : [{ t: 'Có phụ đề do kênh đăng', fg: '#A6EDC1' }, { t: 'Đối thủ đã liên kết với kênh', fg: '#A0A0AB' }] }) : { chips: [] };
+    const toggle = (k) => () => this.setState({ nvPk: pk === k ? 'none' : k });
+    const chSel = { cur: ch.name, hasTag: false, tag: '', open: pk === 'channel', openA: pk === 'channel' ? 'true' : 'false', toggle: toggle('channel'),
+      list: Object.keys(CH).map((k) => ({ name: CH[k].name, sub: 'Template mặc định: ' + TP[CH[k].tpl][0] + ' · hôm nay còn ' + CH[k].left + ' lượt', ini: CH[k].ini, img: CH[k].tint, bd: '1.5px solid ' + CH[k].ring, isAv: true, isThumb: false, on: k === chId ? 'true' : 'false', sel: k === chId, pick: () => this.setState({ nvCh: k, nvTp: null, nvPk: 'none' }) })) };
+    const tpSel = { cur: TP[tpId][0], hasTag: !isDef, tag: isDef ? 'mặc định' : 'chỉ video này', open: pk === 'template', openA: pk === 'template' ? 'true' : 'false', toggle: toggle('template'),
+      list: Object.keys(TP).map((k) => ({ name: TP[k][0], sub: (k === ch.tpl ? 'Mặc định của kênh · ' : '') + TP[k][1], ini: '', img: TP[k][2], bd: 'none', isAv: false, isThumb: true, on: k === tpId ? 'true' : 'false', sel: k === tpId, pick: () => this.setState({ nvTp: k, nvPk: 'none' }) })) };
+    const warnTpl = tpId === 'close';
+    const plan = n === 0 ? (input === 'error' ? 'Sửa link rồi bấm Làm video.' : (input === 'empty' ? 'Video bạn tự thêm luôn lên đầu hàng chờ, làm trước video Tự lấy.' : 'Không có video mới để làm cho kênh này.'))
+      : (n === 1 ? 'Lên đầu hàng chờ · bắt đầu khoảng 00:40, khi một trong 2 video đang chạy xong. Không tính vào nhịp ' + ch.cap + ' video/ngày của ' + ch.name + '.'
+        : 'Cả ' + n + ' lên đầu hàng chờ, chạy lần lượt khi có luồng trống · video đầu bắt đầu khoảng 00:40. Không tính vào nhịp của kênh.') + (warnTpl ? ' Template Cận cảnh đang thiếu clip nền: video sẽ dừng ở bước dựng.' : '');
+    const closed = false;
+    const label = n > 1 ? 'Làm ' + n + ' video' : 'Làm video';
+    return { nv: {
+      open: !closed, closed, close: () => this.setState({ nvClosed: true, nvPk: 'none' }), reopen: () => this.setState({ nvClosed: false }),
+      sub: fromEx ? ids.length + ' video đã chọn ở Khám phá' : 'Kênh và template điền sẵn, đổi được',
+      showField: !fromEx, rows: input === 'multi' ? '4' : '1', hasText: input !== 'empty', isEmpty: input === 'empty', isError: input === 'error',
+      text: { empty: '', pasted: 'https://youtu.be/Kx8CbXtaW5Y', duplicate: 'https://youtu.be/Hk3WqZ0dP7s', error: 'https://youtu.be/xx-invalid', multi: 'https://youtu.be/Kx8CbXtaW5Y\nhttps://youtu.be/p3Qd8mWz1aE\nhttps://youtu.be/Hh41LwZr0sk\nhttps://youtu.be/Hk3WqZ0dP7s' }[input],
+      fieldBd: input === 'error' ? 'rgba(255,154,92,0.45)' : 'var(--vv-field-border)', clear: () => this.setState({ nvIn: 'empty', nvRm: {} }),
+      showOne: !many && !!oneK, one, isDup: !many && oneK === 'nurse' && dupFor('nurse'),
+      showList: many && ids.length > 0, list, listHead: fromEx ? 'Video đã chọn ở Khám phá' : (ids.length - okIds.length ? ids.length + ' link đọc được · ' + (ids.length - okIds.length) + ' đã làm cho kênh này, sẽ bỏ qua' : ids.length + ' link đọc được'), listCount: okIds.length + ' sẽ làm',
+      ch: chSel, tp: tpSel, plan,
+      startLabel: label, startDis: n ? 'false' : 'true', startTip: n ? label + ' cho ' + ch.name : (input === 'duplicate' ? 'Đã có video này ở kênh đang chọn' : 'Dán link video trước'),
+      start: n ? () => this.setState({ nvPk: 'none', nvT: (n > 1 ? 'Đã thêm ' + n + ' video' : 'Đã thêm “' + V[okIds[0] || oneK].title + '”') + ' vào đầu hàng chờ của ' + ch.name + (isDef ? '' : ' · template ' + TP[tpId][0]) }) : () => {},
+      startBg: n ? '#EDEDEF' : '#2A2A2E', startFg: n ? '#0B0B0D' : '#8B8B97', paste: () => this.setState({ nvIn: 'pasted' }), toast: !!st.nvT, toastT: st.nvT || '',
+      pk: { show: pk === 'channel' || pk === 'template', title: pk === 'channel' ? 'Làm cho kênh' : 'Template cho lần này', list: pk === 'channel' ? chSel.list : tpSel.list, close: () => this.setState({ nvPk: 'none' }) }
+    } };
   }
 }
 </script>
-<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts)document.fonts.ready.then(q);q();})();</script>
+<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts){document.fonts.ready.then(q);if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',q);}if(window.ResizeObserver){var ro=new ResizeObserver(q);var ob=function(){document.querySelectorAll('.vv-seg:not(.vv-seg--thumb),.vv-seg:not(.vv-seg--thumb)>button').forEach(function(e){if(!e.__vvro){e.__vvro=1;ro.observe(e);}});};new MutationObserver(ob).observe(document.documentElement,{subtree:true,childList:true});ob();}q();})();</script>
 </body>
 </html>

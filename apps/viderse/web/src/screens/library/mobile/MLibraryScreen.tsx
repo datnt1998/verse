@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Button, ConfirmSheet, Dialog, Icon, InitialsAvatar, MobilePage,
+  ActionSheet, Button, ConfirmSheet, Icon, InitialsAvatar, MobilePage,
   MobilePageAction, Segmented, Sheet, TextField, toast, useTabMode,
   type MobileSheetAction,
 } from '@noverse/ui'
@@ -58,10 +58,15 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
   const [promptFilter, setPromptFilter] = useState<PromptFilter>('all')
   const [sheet, setSheet] = useState<'new' | null>(null)
   const [active, setActive] = useState<TemplateSummary | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [newOpen, setNewOpen] = useState(false)
+  const afterMenu = useRef<{ source: 'template' | 'new'; run: () => void } | null>(null)
   /** Hộp đặt tên: `template` null = tạo template mới, có = đổi tên. */
   const [naming, setNaming] = useState<{ template: TemplateSummary | null } | null>(null)
   const [nameDraft, setNameDraft] = useState('')
   const [nameError, setNameError] = useState<string | null>(null)
+  const [nameOpen, setNameOpen] = useState(false)
+  const [nameSaving, setNameSaving] = useState(false)
   const [attaching, setAttaching] = useState(false)
   const [deleting, setDeleting] = useState<TemplateSummary | null>(null)
   const [editingPrompt, setEditingPrompt] = useState<ImagePrompt | null | undefined>(undefined)
@@ -131,32 +136,36 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     setActive(null)
     setSheet(null)
     setNaming({ template })
+    setNameOpen(true)
     setNameDraft(template?.name ?? '')
     setNameError(null)
   }
 
   const saveName = async () => {
-    if (!naming) return
+    if (!naming || nameSaving) return
     const name = nameDraft.trim()
     const target = naming.template
     if (target && !name) {
       setNameError(t.library.templates.renameEmpty)
       return
     }
+    setNameSaving(true)
     try {
       if (target) {
         await patchTemplate(target.id, { revision: target.revision, name })
         await Promise.all([invalidate(keys.templates()), invalidate(keys.template(target.id))])
         toast.ok(t.library.templates.renamed)
-        setNaming(null)
+        setNameOpen(false)
       } else {
         const created = await createTemplate({ name })
         await invalidate(keys.templates())
-        setNaming(null)
+        setNameOpen(false)
         navigate(paths.template(created.id))
       }
     } catch (err) {
       setNameError(fieldErrors(err).name ?? (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setNameSaving(false)
     }
   }
 
@@ -179,6 +188,29 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     } catch (err) {
       toast(err instanceof Error ? err.message : String(err), 'err')
     }
+  }
+  const followMenu = (source: 'template' | 'new', run: () => void) => {
+    afterMenu.current = { source, run }
+    if (source === 'template') setMenuOpen(false)
+    else setNewOpen(false)
+  }
+  const finishMenu = (source: 'template' | 'new') => {
+    if (source === 'template') setActive(null)
+    else setSheet(null)
+    if (afterMenu.current?.source !== source) return
+    const { run } = afterMenu.current
+    afterMenu.current = null
+    run()
+  }
+  const openMenu = (template: TemplateSummary) => {
+    afterMenu.current = null
+    setActive(template)
+    setMenuOpen(true)
+  }
+  const openNew = () => {
+    afterMenu.current = null
+    setSheet('new')
+    setNewOpen(true)
   }
 
   const exportTemplate = async (template: TemplateSummary) => {
@@ -242,7 +274,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
     },
     {
       key: 'rename', icon: 'edit', label: t.library.templates.rename,
-      onSelect: () => openName(active),
+      onSelect: () => followMenu('template', () => openName(active)),
     },
     {
       key: 'duplicate', icon: 'copy', label: t.library.duplicate,
@@ -252,7 +284,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
       ? {
           key: 'attach', icon: 'channel', label: t.library.templates.addToChannel,
           description: activeChannels.length ? copy.attachHint(activeChannels) : copy.attachUnused,
-          onSelect: () => { setActive(null); setAttaching(true) },
+          onSelect: () => followMenu('template', () => setAttaching(true)),
         }
       : {
           key: 'attach', icon: 'channel', label: t.library.templates.addToChannel,
@@ -267,15 +299,15 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
       destructive: true,
       ...(activeChannels.length
         ? { disabled: true, description: copy.deleteHintBusy(activeChannels), onSelect: () => undefined }
-        : { description: copy.deleteHintFree, onSelect: () => { setActive(null); setDeleting(active) } }),
+        : { description: copy.deleteHintFree, onSelect: () => followMenu('template', () => setDeleting(active)) }),
     },
   ] : []
 
   const newItems: MobileSheetAction[] = [
-    { key: 'template', icon: 'layer', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => openName(null) },
-    { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => { setSheet(null); setImporting(true) } },
-    { key: 'prompt', icon: 'magicpen', label: copy.newPrompt, onSelect: () => openPrompt(null) },
-    { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => { setSheet(null); setAddingBackdrop(true) } },
+    { key: 'template', icon: 'layer', label: t.library.templates.newTemplate, description: copy.newTemplateHint, onSelect: () => followMenu('new', () => openName(null)) },
+    { key: 'import', icon: 'document-download', label: t.library.templates.importTemplate, description: copy.importTemplateHint, onSelect: () => followMenu('new', () => setImporting(true)) },
+    { key: 'prompt', icon: 'magicpen', label: copy.newPrompt, onSelect: () => followMenu('new', () => openPrompt(null)) },
+    { key: 'backdrop', icon: 'video-play', label: copy.newBackdrop, onSelect: () => followMenu('new', () => setAddingBackdrop(true)) },
   ]
 
   const subtitle = ownerChannels.length ? copy.subtitle(ownerChannels.length) : copy.subtitleEmpty
@@ -285,7 +317,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
       title={t.library.title}
       subtitle={subtitle}
       onBack={() => navigate(channelsHref(ownerChannels))}
-      actions={<MobilePageAction icon="add" label={copy.addAria} onClick={() => setSheet('new')} />}
+      actions={<MobilePageAction icon="add" label={copy.addAria} onClick={openNew} />}
       banner={(
         <div className={stylex.props(mlib.tabsWrap).className}>
           <Segmented
@@ -330,7 +362,7 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
                         template={template}
                         prompts={prompts.data?.items}
                         onOpen={() => navigate(paths.template(template.id))}
-                        onMenu={() => setActive(template)}
+                        onMenu={() => openMenu(template)}
                       />
                     ))}
                   </div>
@@ -431,37 +463,37 @@ export function MLibraryScreen({ route }: { route: LibraryRoute }) {
       </div>
 
       {active && <ActionSheet
-        open
-        onClose={() => setActive(null)}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onExited={() => finishMenu('template')}
         title={active.name}
         actions={actionItems}
       />}
       {sheet === 'new' && <ActionSheet
-        open
-        onClose={() => setSheet(null)}
+        open={newOpen}
+        onClose={() => setNewOpen(false)}
+        onExited={() => finishMenu('new')}
         title={copy.addSheetTitle}
         actions={newItems}
       />}
 
-      {naming && (
-        <Dialog onClose={() => setNaming(null)}
-          title={naming.template ? t.library.templates.renameTitle(naming.template.name) : t.library.templates.createTitle}
-          footer={<>
-            <Button variant="quiet" onClick={() => setNaming(null)}>{t.library.cancel}</Button>
-            <Button variant="primary" onClick={() => void saveName()}>{naming.template ? t.library.templates.renameAction : t.library.templates.createAction}</Button>
-          </>}>
+      <Sheet open={nameOpen} onClose={() => { if (!nameSaving) setNameOpen(false) }} onExited={() => setNaming(null)}
+        title={naming?.template ? t.library.templates.renameTitle(naming.template.name) : t.library.templates.createTitle}
+        size="md" height="auto" homeIndicator grab={!nameSaving} bodyStyle={nameSheet.body}>
           <div className={stylex.props(mlib.field).className}>
-            {!naming.template && <p {...stylex.props(mlib.fieldLabel)}>{t.library.templates.createBody}</p>}
-            <TextField label={t.library.nameLabel} value={nameDraft} maxLength={60}
-              placeholder={naming.template ? undefined : t.library.templates.createPlaceholder}
+            {!naming?.template && <p {...stylex.props(mlib.fieldLabel)}>{t.library.templates.createBody}</p>}
+            <TextField label={t.library.nameLabel} value={nameDraft} disabled={nameSaving} maxLength={60}
+              placeholder={naming?.template ? undefined : t.library.templates.createPlaceholder}
               error={nameError ?? undefined} onChange={setNameDraft} />
           </div>
-        </Dialog>
-      )}
+        <div {...stylex.props(nameSheet.actions)}>
+          <Button variant="quiet" xstyle={nameSheet.touch} disabled={nameSaving} onClick={() => setNameOpen(false)}>{t.library.cancel}</Button>
+          <Button variant="primary" xstyle={nameSheet.touch} disabled={nameSaving} onClick={() => void saveName()}>{nameSaving ? t.library.saving : naming?.template ? t.library.templates.renameAction : t.library.templates.createAction}</Button>
+        </div>
+      </Sheet>
 
       {attaching && (
         <AttachChannelDialog
-          channels={ownerChannels}
           inLibrary
           onClose={() => setAttaching(false)}
         />
@@ -738,3 +770,9 @@ function AssetDetail({ asset, templates, templatesLoading, templatesError, retry
     </Sheet>
   )
 }
+
+const nameSheet = stylex.create({
+  body: { paddingInline: 'var(--vv-s-16)', paddingBottom: 'var(--vv-s-16)' },
+  actions: { display: 'flex', justifyContent: 'flex-end', gap: 'var(--vv-s-8)', paddingTop: 'var(--vv-s-16)' },
+  touch: { minHeight: 'var(--vv-s-44)' },
+})

@@ -249,7 +249,7 @@ export function TemplatesTab({ channels, onImport }: {
           {renameError && <p className={`vlb-fielderr ${stylex.props(sx.fielderr).className}`} role="alert">{renameError}</p>}
         </Dialog>
       )}
-      {attach && <AttachChannelDialog inLibrary channels={channels} onClose={() => setAttach(false)} />}
+      {attach && <AttachChannelDialog inLibrary onClose={() => setAttach(false)} />}
     </div>
   )
 }

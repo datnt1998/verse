@@ -647,6 +647,40 @@ textarea.vv-field { height: auto; padding: 10px 12px; line-height: 1.55; resize:
 @media (hover: none) { .vv-row__more { opacity: 1; } }
 .vv-row--m { min-height: var(--vv-m-row); padding: 6px 10px; border-radius: 12px; }
 button.vv-row { -webkit-appearance: none; appearance: none; width: 100%; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }   /* r38: hàng là nút */
+/* r40: Trình xem ảnh — một thành phần cho mọi chỗ có ảnh (Duyệt, Phòng vẽ, Editor, Template, Thư viện). Chế độ: Duyệt · Xem · Xem + Thay · Mẫu */
+.vv-viewer-scrim { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 32px; background: var(--vv-scrim); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); animation: vv-fade .18s ease-out both; }
+.vv-viewer { width: min(1240px, 100%); height: min(800px, 100%); display: grid; grid-template-rows: 52px minmax(0, 1fr) 60px; border-radius: 18px; overflow: hidden; background: var(--vv-dialog); border: 1px solid rgba(255,255,255,.1); box-shadow: 0 32px 90px rgba(0,0,0,.65); animation: vv-dlgIn .22s var(--vv-ease) both; }
+.vv-viewer__top { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 0 10px 0 16px; border-bottom: 1px solid var(--vv-hairline); font-size: 13.5px; }
+.vv-viewer__title { font-weight: 600; white-space: nowrap; }
+.vv-viewer__sub { min-width: 0; color: var(--vv-text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-viewer__body { display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: 0; }
+.vv-viewer__stage { min-width: 0; min-height: 0; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.vv-viewer__img { position: relative; flex: 1 1 auto; min-height: 0; border-radius: 12px; background-color: #050506; background-position: center; background-size: contain; background-repeat: no-repeat; }
+.vv-viewer__nav { position: absolute; top: 50%; width: 38px; height: 38px; margin-top: -19px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(11,11,13,.62); color: var(--vv-text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color var(--vv-dur), transform 80ms; }
+.vv-viewer__nav:hover { background: rgba(11,11,13,.85); } .vv-viewer__nav:active { transform: scale(.94); }
+.vv-viewer__nav > .ic { width: 16px; height: 16px; }
+.vv-viewer__nav--prev { left: 12px; } .vv-viewer__nav--prev > .ic { transform: rotate(180deg); } .vv-viewer__nav--next { right: 12px; }
+.vv-viewer__strip { flex: 0 0 auto; display: flex; gap: 8px; }
+.vv-viewer__thumb { position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 7px; background-position: center; background-size: cover; opacity: .55; cursor: pointer; transition: opacity var(--vv-dur), box-shadow var(--vv-dur); }
+.vv-viewer__thumb:hover { opacity: .85; }
+.vv-viewer__thumb[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--vv-text); }
+.vv-viewer__thumb > b { position: absolute; left: 5px; top: 4px; font-size: 10.5px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.vv-viewer__thumb--wait { background: repeating-linear-gradient(135deg, #131315 0 8px, #17171A 8px 16px); cursor: default; }
+.vv-viewer__side { min-height: 0; overflow-y: auto; border-left: 1px solid rgba(255,255,255,.06); padding: 14px 16px; display: flex; flex-direction: column; gap: 16px; }
+.vv-viewer__cap { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--vv-text-hint); }
+.vv-viewer__cap > span { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 500; }
+.vv-viewer__bar { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 0 16px; border-top: 1px solid var(--vv-hairline); }
+.vv-viewer__note { min-width: 0; font-size: 12.5px; color: var(--vv-text-hint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vv-viewer__fb { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid var(--vv-hairline); }
+.vv-viewer__fb textarea { min-height: 64px; resize: none; padding: 10px 12px; border-radius: 10px; background: #0F0F11; border: 1px solid rgba(255,255,255,.14); color: var(--vv-text); font: inherit; font-size: 13.5px; outline: none; }
+.vv-viewer__fb textarea:focus { border-color: rgba(255,255,255,.32); }
+.vv-viewer__ver { display: flex; gap: 8px; flex-wrap: wrap; }
+.vv-viewer__ver > button { width: 72px; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 6px; background-position: center; background-size: cover; opacity: .7; cursor: pointer; }
+.vv-viewer__ver > button[aria-current="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--vv-st-ready); }
+@media (prefers-reduced-motion: reduce) { .vv-viewer-scrim, .vv-viewer { animation: none; } }
+/* r40: ô ảnh bấm được (Phòng vẽ, Editor, Template) */
+.vv-imgbtn { position: absolute; inset: 0; padding: 0; border: 0; background: transparent; cursor: zoom-in; border-radius: inherit; }
+.vv-imgbtn:focus-visible { outline: 2px solid var(--vv-text); outline-offset: -2px; }
 .vv-avatar { --s: 30px; width: var(--s); height: var(--s); flex: 0 0 auto; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: calc(var(--s) * .38); font-weight: 600; letter-spacing: .02em; color: var(--fg, var(--vv-text)); background: var(--bg, var(--vv-selected)); box-shadow: inset 0 0 0 1px var(--ring, rgba(255,255,255,.08)); }
 .vv-thumb { position: relative; aspect-ratio: 16 / 9; border-radius: var(--vv-r-thumb); overflow: hidden; background: #141416 center / cover no-repeat; flex: 0 0 auto; }
 .vv-thumb__bl, .vv-thumb__br { position: absolute; bottom: 6px; display: flex; gap: 4px; }
@@ -1014,17 +1048,9 @@ ul.vv-dialog__list { padding-left: 30px; }
 <div class="stp" role="group" aria-label="Số luồng chạy cùng lúc"><button type="button" onClick="{{wDown}}" aria-disabled="{{wDD}}" aria-label="Giảm"><span class="ic i-minus" aria-hidden="true" style="width: 16px; height: 16px"></span></button><span class="v num" aria-live="polite">{{workers}}</span><button type="button" onClick="{{wUp}}" aria-disabled="{{wUD}}" aria-label="Tăng"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span></button></div>
 </div>
 <p style="margin: 0 0 6px; font-size: 12.5px; color: #A0A0AB; line-height: 1.55">{{wText}}</p>
-<div style="height: 1px; background: rgba(255,255,255,0.06)"></div>
-<div style="display: flex; align-items: center; gap: 12px; min-height: 64px">
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 500">Ảnh vẽ cùng lúc</span><span style="font-size: 12.5px; color: #8B8B97">Dùng chung cho mọi video · 1 tới 8</span></span>
-<div class="stp" role="group" aria-label="Số ảnh vẽ cùng lúc"><button type="button" onClick="{{iDown}}" aria-disabled="{{iDD}}" aria-label="Giảm"><span class="ic i-minus" aria-hidden="true" style="width: 16px; height: 16px"></span></button><span class="v num" aria-live="polite">{{imgW}}</span><button type="button" onClick="{{iUp}}" aria-disabled="{{iUD}}" aria-label="Tăng"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span></button></div>
-</div>
-<div style="height: 1px; background: rgba(255,255,255,0.06)"></div>
-<div style="display: flex; align-items: center; gap: 12px; min-height: 64px">
-<span style="flex: 1; min-width: 0; display: flex; flex-direction: column"><span style="font-size: 15px; font-weight: 500">Trinh sát xem đối thủ</span><span style="font-size: 12.5px; color: #8B8B97">Cho kênh bật Tự lấy video · 1 tới 24 giờ</span></span>
-<div class="stp" role="group" aria-label="Khoảng giờ xem lại đối thủ"><button type="button" onClick="{{rDown}}" aria-disabled="{{rDD}}" aria-label="Giảm"><span class="ic i-minus" aria-hidden="true" style="width: 16px; height: 16px"></span></button><span class="v num" aria-live="polite">{{rescanT}}</span><button type="button" onClick="{{rUp}}" aria-disabled="{{rUD}}" aria-label="Tăng"><span class="ic i-add" aria-hidden="true" style="width: 16px; height: 16px"></span></button></div>
-</div>
-<p style="margin: 6px 0 0; font-size: 12.5px; color: #8B8B97; line-height: 1.55">Bớt luồng không dừng video đang chạy: luồng thừa nghỉ khi video của nó xong. Nhịp từng kênh sửa ở trang kênh.</p>
+
+
+<p style="margin: 6px 0 0; font-size: 12.5px; color: #8B8B97; line-height: 1.55">Bớt luồng không dừng video đang chạy: luồng thừa nghỉ khi video của nó xong. Phần còn lại máy tự chọn: vẽ tối đa 3 ảnh cùng lúc, Trinh sát xem đối thủ mỗi giờ. Nhịp từng kênh sửa ở trang kênh.</p>
 </div>
 <div style="padding: 10px 16px 4px"><button class="btn-pri" type="button" onClick="{{closeRules}}" style="width: 100%">Xong</button></div>
 <div aria-hidden="true" style="flex: 0 0 auto; height: 26px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px"><span style="width: 134px; height: 5px; border-radius: 3px; background: #EDEDEF; opacity: 0.85"></span></div>
@@ -1055,21 +1081,21 @@ class Component extends DCLogic {
     const running = empty ? [] : [
       job({ title: 'The Night Nurse Who Heard Room 214 Breathing', dur: '42:10', thumb: 'url(../img/c_nurse.jpg) center / cover no-repeat', tpl: 'Mẫu chuẩn · Tách nền', agent: 'Hoạ sĩ', ink: '#FFD08A',
         doing: limited ? 'chờ hạn mức ảnh tới 07:00' : (paused ? 'vẽ nốt cảnh 5 rồi dừng' : 'đang vẽ cảnh 5/6'), doingColor: limited ? '#FFC09A' : '#C9C9D1', eta: limited ? '' : '~9 phút', step: 6, cur: limited ? '#FF9A5C' : '#FFD08A', bd: limited ? 'rgba(255,154,92,0.3)' : 'rgba(255,255,255,0.07)' }),
-      job({ title: 'What the Ferryman Saw on the Fog Night', dur: '51:34', thumb: 'url(../img/c_ferry.jpg) center / cover no-repeat', tpl: 'Phim tài liệu', agent: 'Trinh sát', ink: '#B7CEFF',
+      job({ title: 'What the Ferryman Saw on the Fog Night', dur: '51:34', thumb: 'url(../img/c_ferry.jpg) center / cover no-repeat', tpl: 'Mẫu chuẩn · Tách nền', agent: 'Trinh sát', ink: '#B7CEFF',
         doing: paused ? 'làm nốt phụ đề rồi dừng' : 'đang làm phụ đề', doingColor: '#C9C9D1', eta: '~4 phút', step: 3, cur: '#B7CEFF', bd: 'rgba(255,255,255,0.07)' })
     ];
     const Q0 = [
       { id: 1, c: 'CL', title: 'Người lái taxi đêm và vị khách không có bóng', src: 'Hồ Sơ Bí Ẩn · ×3,6', pick: true, tpl: 'Truyện kể đêm', dur: '48:22', t: '00:20', th: 'url(../img/c_taxi.jpg) center / cover no-repeat' },
-      { id: 2, c: 'QH', title: 'Snowfall Over an Empty Train Station', src: 'Slow Rooms · ×2,4', tpl: 'Ru ngủ · Không ảnh', dur: '1:02:15', t: '00:30', th: 'url(../img/c_snowstation.jpg) center / cover no-repeat' },
-      { id: 3, c: 'MT', title: 'The Hospital Elevator Stops at Floor 13', src: 'Nocturne Stories · ×3,3', tpl: 'Phim tài liệu', dur: '45:20', t: '00:40', th: 'url(../img/c_elevator.jpg) center / cover no-repeat' },
+      { id: 2, c: 'QH', title: 'Snowfall Over an Empty Train Station', src: 'Slow Rooms · ×2,4', tpl: 'Mẫu chuẩn · Tách nền', dur: '1:02:15', t: '00:30', th: 'url(../img/c_snowstation.jpg) center / cover no-repeat' },
+      { id: 3, c: 'MT', title: 'The Hospital Elevator Stops at Floor 13', src: 'Nocturne Stories · ×3,3', tpl: 'Mẫu chuẩn · Tách nền', dur: '45:20', t: '00:40', th: 'url(../img/c_elevator.jpg) center / cover no-repeat' },
       { id: 4, c: 'CL', title: 'Chiếc gương cũ trong tiệm đồ cổ phố Hàng Bạc', src: 'Hồ Sơ Bí Ẩn · ×2,9', tpl: 'Truyện kể đêm', dur: '41:07', t: '01:00', th: 'url(../img/c_guong.jpg) center / cover no-repeat' },
-      { id: 5, c: 'QH', title: 'A Night Ferry Across a Quiet Lake', src: 'Slow Rooms · ×2,1', tpl: 'Ru ngủ · Không ảnh', dur: '58:40', t: '01:10', th: 'url(../img/c_ferrylake.jpg) center / cover no-repeat' },
-      { id: 6, c: 'MT', title: 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', src: 'Nocturne Stories · ×4,2', tpl: 'Cận cảnh', warn: true, dur: '39:51', t: '01:25', th: 'url(../img/c_radio.jpg) center / cover no-repeat' },
+      { id: 5, c: 'QH', title: 'A Night Ferry Across a Quiet Lake', src: 'Slow Rooms · ×2,1', tpl: 'Mẫu chuẩn · Tách nền', dur: '58:40', t: '01:10', th: 'url(../img/c_ferrylake.jpg) center / cover no-repeat' },
+      { id: 6, c: 'MT', title: 'My Grandfather’s Radio Picks Up a Station That Shut Down in 1962', src: 'Nocturne Stories · ×4,2', tpl: 'Mẫu chuẩn · Tách nền', dur: '39:51', t: '01:25', th: 'url(../img/c_radio.jpg) center / cover no-repeat' },
       { id: 7, c: 'CL', title: 'Tiếng gõ cửa lúc 3 giờ sáng ở khu tập thể', src: 'Hồ Sơ Bí Ẩn · ×4,0', tpl: 'Truyện kể đêm', dur: '36:18', t: '01:50', th: 'url(../img/c_tapthe.jpg) center / cover no-repeat' },
-      { id: 8, c: 'QH', title: 'Rain on the Lighthouse: Part Two', src: 'Slow Rooms · ×1,9', tpl: 'Ru ngủ · Không ảnh', dur: '1:00:02', t: '02:05', th: 'url(../img/c_rainlh2.jpg) center / cover no-repeat' },
+      { id: 8, c: 'QH', title: 'Rain on the Lighthouse: Part Two', src: 'Slow Rooms · ×1,9', tpl: 'Mẫu chuẩn · Tách nền', dur: '1:00:02', t: '02:05', th: 'url(../img/c_rainlh2.jpg) center / cover no-repeat' },
       { id: 9, c: 'MT', title: 'The Snowplow Driver Who Never Stopped', src: 'The Late Archive · ×3,4', tpl: 'Mẫu chuẩn · Tách nền', dur: '47:33', t: '02:20', th: 'url(../img/c_snowplow.jpg) center / cover no-repeat' },
       { id: 10, c: 'CL', title: 'Cô gái áo trắng trên chuyến xe buýt cuối', src: 'Hồ Sơ Bí Ẩn · ×2,7', tpl: 'Truyện kể đêm', dur: '44:50', t: '02:45', th: 'url(../img/c_aotrang.jpg) center / cover no-repeat' },
-      { id: 11, c: 'MT', title: 'Room Service Kept Calling From the 9th Floor', src: 'Dark Hollow Tales · ×2,8', tpl: 'Phim tài liệu', dur: '52:09', t: '03:10', th: 'url(../img/c_roomservice.jpg) center / cover no-repeat' },
+      { id: 11, c: 'MT', title: 'Room Service Kept Calling From the 9th Floor', src: 'Dark Hollow Tales · ×2,8', tpl: 'Mẫu chuẩn · Tách nền', dur: '52:09', t: '03:10', th: 'url(../img/c_roomservice.jpg) center / cover no-repeat' },
       { id: 12, c: 'CL', title: 'Ngôi nhà hoang cuối con dốc Đà Lạt', src: 'Hồ Sơ Bí Ẩn · ×3,1', tpl: 'Truyện kể đêm', dur: '39:27', t: '03:30', th: 'url(../img/c_dalat.jpg) center / cover no-repeat' }
     ];
     const order = this.state.order || Q0.map((q) => q.id);
@@ -1121,7 +1147,7 @@ class Component extends DCLogic {
       running, runCount: (empty ? 0 : 2) + '/' + W, runHint: limited ? 'Bước không cần vẽ ảnh vẫn chạy.' : (paused ? 'Không luồng nào lấy video mới cho tới khi bạn bấm Chạy tiếp.' : 'Luồng rảnh sẽ lấy video tiếp theo.'),
       filters, queue, liveN: String(live.length), noRows: !empty && queue.length === 0,
       removedNote: removedN ? 'Đã bỏ ' + removedN + ' video khỏi hàng chờ' : '', undoRemove: () => this.setState({ removed: {} }),
-      rulesSum: W + ' luồng · ' + IW + ' ảnh · đối thủ mỗi ' + RH + ' giờ',
+      rulesSum: W + ' luồng · nhịp theo từng kênh',
       openRules: () => this.setState({ sheet: 'rules' }), closeRules: () => this.setState({ sheet: 'none' }), rulesShow: sheet === 'rules',
       rowShow: sheet === 'row' && allQ.length > 0, closeRow: () => this.setState({ sheet: 'none', row: null }), rw,
       workers: String(W), wText: 'Mỗi luồng là một video chạy cùng lúc. Thêm luồng thì mỗi video chậm hơn và hết hạn mức ảnh sớm hơn.',
@@ -1138,6 +1164,6 @@ class Component extends DCLogic {
   }
 }
 </script>
-<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts)document.fonts.ready.then(q);q();})();</script>
+<script data-vv="glide">/* r37: viên trượt của .vv-seg (như Noverse) — đo mục đang chọn, đặt --gx/--gw */(function(){var raf=0;function m(){raf=0;document.querySelectorAll('.vv-seg:not(.vv-seg--thumb)').forEach(function(g){var b=g.querySelector(':scope>button[aria-checked="true"],:scope>button[aria-selected="true"]');if(!b||!b.offsetWidth){return;}var x=b.offsetLeft+'px',w=b.offsetWidth+'px';if(g.style.getPropertyValue('--gx')===x&&g.style.getPropertyValue('--gw')===w&&g.classList.contains('is-glide'))return;var first=!g.classList.contains('is-glide');if(first)g.classList.add('no-anim');g.style.setProperty('--gx',x);g.style.setProperty('--gw',w);if(first){g.classList.add('is-glide');requestAnimationFrame(function(){requestAnimationFrame(function(){g.classList.remove('no-anim');});});}});}function q(){if(!raf)raf=requestAnimationFrame(m);}new MutationObserver(q).observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-checked','aria-selected']});addEventListener('resize',q);if(document.fonts){document.fonts.ready.then(q);if(document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',q);}if(window.ResizeObserver){var ro=new ResizeObserver(q);var ob=function(){document.querySelectorAll('.vv-seg:not(.vv-seg--thumb),.vv-seg:not(.vv-seg--thumb)>button').forEach(function(e){if(!e.__vvro){e.__vvro=1;ro.observe(e);}});};new MutationObserver(ob).observe(document.documentElement,{subtree:true,childList:true});ob();}q();})();</script>
 </body>
 </html>

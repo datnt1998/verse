@@ -683,3 +683,13 @@ Mẫu:
 
 - Quyết định (người dùng, 05/11/2026): **KEEP — giữ gate Safari trên iPhone thật trước deploy**. Không miễn gate hoặc diễn giải kiểm Chromium là kiểm Safari.
 - Trạng thái: **Chờ bằng chứng thiết bị thật; chưa deploy**. Cần người vận hành/QA kiểm keyboard, URL bar, xoay màn hình và dock trên Safari iPhone; chưa có proof đáp ứng gate này.
+- Bổ sung quyết định (người dùng, 06/11/2026): **người dùng tự test Safari iPhone thật theo `physical-safari-handoff.md` trong vòng 1 ngày từ khi nhận preview truy cập được của bản V40 cuối**. Giữ KEEP; hết hạn không tự miễn gate. Chỉ deploy khi có bằng chứng đạt trên đúng bản liên quan; đây chưa phải bằng chứng đã test.
+
+## #94. Nghiệm thu trạng thái first-run trên production đã có dữ liệu
+
+- Trạng thái: **Đã chốt A (người dùng, 06/11/2026) — ngoại lệ hẹp cho first-run**. Chỉ các trạng thái Onboard/thiết lập đầu tiên không thể dựng an toàn trên instance production đã có dữ liệu được dùng bằng chứng instance first-run biệt lập, cùng release commit, backend/dữ liệu thật. Không mock, không mở rộng ngoại lệ sang trạng thái khác; báo cáo phải phân biệt ảnh instance biệt lập với ảnh production và dẫn số #94.
+- Phát hiện khi lập kế hoạch phát hành ngày 06/11/2026: tài khoản mới không tạo được Onboard lần đầu. `postgres/queries/channels.sql:5–8` liệt kê kênh chung toàn instance; `ChannelNewScreen.tsx:22–26` chỉ bật Onboard khi danh sách đó rỗng.
+- Thiết lập tài khoản đầu tiên cũng không thể dựng qua API production hiện tại: `platform/webapp/server.go:596–607,622–634` trả không cần thiết lập và từ chối setup khi identity store đã có người dùng. Viderse dùng chung identity với Noverse; không được xoá/reset store để lấy ảnh.
+- Phương án A: duyệt ngoại lệ nghiệm thu hẹp cho đúng các trạng thái first-run không thể dựng trên instance đã vận hành: chạy cùng release commit bằng ứng dụng/backend/dữ liệu thật trên instance first-run biệt lập, không mock; production report ghi rõ không dựng được và dẫn số #94, không gọi ảnh đó là ảnh production. Mọi trạng thái còn lại vẫn nghiệm thu production như yêu cầu.
+- Phương án B: giữ yêu cầu mọi trạng thái phải có bằng chứng tại production hiện hữu; giữ blocker cho các trạng thái first-run đến khi có đường vận hành an toàn được duyệt. Không xoá kênh/identity, không thêm query/DOM giả hoặc tự mở tenancy chỉ để vượt gate; không tuyên bố nghiệm thu đầy đủ khi blocker còn.
+

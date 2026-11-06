@@ -1,0 +1,1 @@
+const v={"--vv-s-16":"var(--vv-s-16)","--vv-s-20":"var(--vv-s-20)","--vv-s-48":"var(--vv-s-48)","--vv-s-76":"var(--vv-s-76)"},a={width:"var(--x1xcx11l)",height:"var(--x15jnyzc)",header:"var(--x1ytr4tj)",footer:"var(--x155duya)"},s={quickDialogWidth:"var(--xnx3jjw)"};export{a as i,s as p,v as s};

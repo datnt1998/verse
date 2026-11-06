@@ -378,3 +378,17 @@ Luật ở [ia-flows §9](01-ia-flows.md); lớp CSS ở [05-kit.md › Trợ l�
 - **InsightRow** (`.vv-insight`): câu nhận xét + 2 thanh so sánh nhóm (số video, trung vị 7 ngày) + nút Áp dụng; khối có nhãn **Sơ bộ** khi dưới 20 video.
 - **ImageScore** (`.vv-imgscore`, `--low` dưới ngưỡng): góc dưới trái ảnh; ảnh dưới ngưỡng viền cam.
 
+## Trình xem ảnh <a id="c-viewer"></a> <!-- r40 -->
+Một thành phần cho mọi chỗ có ảnh (quy ước 2 của workflow). Kit: `.vv-viewer-scrim` › `.vv-viewer` (`__top` · `__body` (`__stage` › `__img` + `__nav--prev/next` + `__strip` › `__thumb`) · `__side` · `__bar`); ô ảnh bấm được dùng `.vv-imgbtn` phủ kín ô.
+
+| Chế độ | Mở từ | Có gì |
+|---|---|---|
+| **Duyệt** | Duyệt (mở sẵn); Bàn dựng › ảnh của video chờ duyệt (chuyển sang Duyệt, đúng ảnh đó) | Phiên bản, prompt, tham chiếu, Góp ý & vẽ lại (R), Sửa prompt (E), Bỏ ảnh, **Duyệt cả video & dựng (A)** |
+| **Xem** | Bàn dựng › Phòng vẽ (video đang làm, sẵn sàng) | Phiên bản, prompt (Chép), **Góp ý & vẽ lại** mở ô góp ý ở cột phải; nút chính ghi giá “Vẽ lại · tốn 1 ảnh (còn 7)”; gửi xong hiện “Đã gửi Hoạ sĩ · bản 2” |
+| **Xem + Thay** | Editor › ảnh cảnh | Như Xem, thêm Thay ảnh cho cảnh |
+| **Mẫu** | Template › Xem thử, Thư viện › Prompt ảnh | Ảnh mẫu của prompt, không phiên bản; Vẽ thử |
+
+- Khung 1240 × 800 tối đa, ảnh `contain` không phóng quá cỡ gốc; dải ảnh đủ ảnh của video, ảnh chưa vẽ/đang vẽ là ô sọc không bấm được; ← → bỏ qua ô chưa vẽ.
+- Đóng: Esc, nút ×, bấm nền. Lớp này nằm trên panel, dưới hộp thoại xác nhận.
+- Artboard: `Main` · `viewer=view|redraw` (hoặc bấm ảnh ở Phòng vẽ); `Review` là chế độ Duyệt.
+- Điện thoại: [MobileImageSheet](../../../web/src/screens/workbench/mobile/MobileImageSheet.tsx) giữ ảnh và thao tác chính ở lượt xem đầu; chỉ dẫn dài mở trong lượt xem riêng để không đẩy các thao tác ra ngoài màn.

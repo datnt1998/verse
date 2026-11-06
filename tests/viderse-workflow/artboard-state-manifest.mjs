@@ -25,7 +25,7 @@
  */
 
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -2398,12 +2398,12 @@ function genericExpected(screen, propKey, prop, value) {
   return `${screen} renders “${prop.section}” with ${propKey}=${String(value)} (footer default ${String(prop.default)}); compare the reference board at the same tweak with the seeded app state.`
 }
 
-function buildRows({ artboards }) {
+function buildRows({ artboards, specs = SCREEN_SPECS }) {
   const rows = []
   const seen = new Set()
   const propertyInventory = []
 
-  for (const [name, spec] of Object.entries(SCREEN_SPECS)) {
+  for (const [name, spec] of Object.entries(specs)) {
     const board = artboards[name]
     if (!board) fail(`Included artboard ${name} was not parsed`)
     const actualProps = Object.keys(board.props).filter((key) => key !== '$preview')
@@ -2957,23 +2957,216 @@ function buildManifest() {
   }
 }
 
+function buildProductionManifest() {
+  const legacy = buildManifest()
+  const groups = [
+    { id: '01', title: 'Bàn dựng', boards: ['Main', 'MMain', 'Activity', 'Editor'] },
+    { id: '02', title: 'Duyệt', boards: ['Review', 'MReview'] },
+    { id: '03', title: 'Kênh', boards: ['Channel', 'MChannel'] },
+    { id: '04', title: 'Thư viện + Template', boards: ['Library', 'Template', 'MLibrary', 'MTemplate'] },
+    { id: '05', title: 'Làm video + Khám phá + Hàng chờ', boards: ['NewVideo', 'MNew', 'Explore', 'MExplore', 'MCompVideo', 'Queue', 'MQueue'] },
+    { id: '06', title: 'Cài đặt', boards: ['Settings', 'MSettings'] },
+    { id: '07', title: 'Đăng nhập/Tạo kênh/Hệ thống', boards: ['Auth', 'MAuth', 'Onboard', 'CreateChannel', 'MCreate', 'System', 'MSystem', 'Dialogs'] },
+  ]
+  const productBoards = groups.flatMap(group => group.boards)
+  if (productBoards.length !== 29 || new Set(productBoards).size !== 29) fail('Production groups must own exactly 29 distinct product boards')
+
+  const authFile = `${ARTBOARDS_REL}/Auth.dc.html`
+  const authProps = extractDataProps(read(authFile), authFile).props
+  const mobileAuth = SCREEN_SPECS.MAuth
+  const authSpec = {
+    ...mobileAuth,
+    page: 'desktop',
+    expected: 'Desktop Auth matches the real footer state; identity/session behavior and permissions stay unchanged.',
+    props: {
+      screen: { ...mobileAuth.props.screen, valueNotes: { ...mobileAuth.props.screen.valueNotes, menu: { expected: 'Account menu over the current app, not the account page.' } } },
+      kicked: mobileAuth.props.kicked,
+      err: mobileAuth.props.err,
+      role: mobileAuth.props.role,
+      other: mobileAuth.props.other,
+      app: { ...mobileAuth.props.app, context: { screen: 'menu' } },
+      step: mobileAuth.props.step,
+      down: mobileAuth.props.down,
+      pwerr: mobileAuth.props.pwerr,
+      fail: mobileAuth.props.fail,
+      busy: mobileAuth.props.busy,
+    },
+  }
+  const auth = buildRows({ artboards: { Auth: { props: authProps } }, specs: { Auth: authSpec } })
+  const routeFor = (row, state) => {
+    if (row.board !== 'Auth') return row.appRoute
+    return state.screen === 'account' ? '#/account' : state.screen === 'menu' ? '#/ + avatar menu' : 'pre-session auth gate (no hash route)'
+  }
+  const productionRow = row => {
+    const state = { ...row.defaults, ...row.context, ...row.patch }
+    let group = groups.find(entry => entry.boards.includes(row.board))?.id
+    if (!group) fail(`No production group for ${row.id}`)
+    const dialog = state.dialog ?? state.state ?? state.view
+    if (row.board === 'Dialogs' || row.board === 'MSystem') {
+      if (['delVideo', 'delete-video', 'restart', 'clip', 'clip-picker', 'shortcuts', 'channel-switch'].includes(dialog)) group = '01'
+      else if (['redrawAll', 'redraw-all'].includes(dialog)) group = '02'
+      else if (['delChannel', 'delete-channel', 'unlink'].includes(dialog)) group = '03'
+    } else if (row.board === 'Activity' && state.view === 'settings') group = '06'
+    const firstRun = row.board === 'Onboard' || (['Auth', 'MAuth'].includes(row.board) && state.screen === 'setup')
+    const appRoute = routeFor(row, state)
+    return {
+      id: row.id,
+      kind: row.kind,
+      group,
+      board: row.board,
+      artboard: row.artboard,
+      file: row.file,
+      page: row.page,
+      viewport: row.page === 'mobile' ? { width: 390, height: 844 } : { width: 1440, height: 900 },
+      property: row.property,
+      value: row.value,
+      valueType: row.valueType,
+      allowedValues: row.allowedValues,
+      defaultValue: row.defaultValue,
+      isDefault: row.isDefault,
+      defaults: row.defaults,
+      props: row.props,
+      context: row.context,
+      patch: row.patch,
+      appRoute,
+      captureTarget: row.captureTarget,
+      expectedVisible: row.expectedVisible,
+      recipe: {
+        entity: null,
+        steps: [
+          'Use the authorized real account and supported UI/API; identify an approved acceptance entity before preparing this state.',
+          'Before mounting the desktop shell, GET /api/setup/state; incomplete tool setup requires install approval before navigation.',
+          `Open ${appRoute}; reach ${row.property}=${JSON.stringify(row.value)} with context ${JSON.stringify(row.context)} through real operations, never DOM/store injection or a QA seed on production.`,
+          'Record each preparation action, its blast radius, permission, cost and authoritative readback; close automation lifetime after the final action.',
+        ],
+        prerequisite: row.expectedVisible,
+        mutation: 'approval-required-before-state-preparation',
+        firstRunExceptionEligible: firstRun ? 94 : null,
+      },
+      observation: {
+        environment: null, url: null, capturedAt: null, deployedCommit: null,
+        sourceCommit: null, fontReady: null, dpr: null, realEntity: null, observedVisible: null,
+        controls: null, unresponsive: null, unverified: null, differences: null,
+      },
+      evidence: PENDING_EVIDENCE(),
+      status: 'pending',
+      blockedReason: null,
+      exception: null,
+    }
+  }
+  const rows = [...legacy.rows, ...auth.rows].map(productionRow)
+  const coverage = productBoards.map(board => {
+    const entries = rows.filter(row => row.board === board)
+    if (!entries.length) fail(`Production board ${board} has no footer rows`)
+    const reference = legacy.coverage.find(entry => entry.board === board)
+    return {
+      board, groups: [...new Set(entries.map(row => row.group))],
+      properties: Object.keys(entries[0].props).length, rows: entries.length,
+      rawPropsSha256: reference.rawPropsSha256, htmlSha256: reference.htmlSha256,
+    }
+  })
+  const probes = legacy.probes.map(probe => ({
+    ...probe,
+    group: groups.find(group => group.boards.includes(probe.board))?.id ?? fail(`No production group for probe ${probe.id}`),
+    seed: null,
+    prerequisite: 'Use supported operations on authorized real entities; no QA fixture/DB seeding on production.',
+    environment: null,
+    deployedCommit: null,
+    observedVisible: null,
+    evidence: PENDING_EVIDENCE(),
+    status: 'pending',
+  }))
+  const lifecycleProbes = [
+    { key: 'indicator', scenarios: ['fonts-loaded', 'resize', 'label-change'], expected: 'For every Segmented/Tabs instance, each indicator edge is within2px of its target after fonts settle. Record measured edges and any non-applicable control explicitly.' },
+    { key: 'overlay', scenarios: ['open', 'dismiss', 'cancel', 'confirm'], expected: 'Every popover/sheet stays within the viewport, does not push page content, has reachable cancel, and preserves focus/scroll correctly.' },
+    { key: 'responsive', scenarios: ['360x844', '430x844', '767x900', '768x900', 'long-scroll', 'safe-area', 'keyboard'], expected: 'No horizontal overflow, obscured CTA, stuck dock or scroll lock; touch targets≥44px. Physical iPhone safe-area/keyboard evidence remains required by#93.' },
+    { key: 'motion', scenarios: ['normal', 'reduced', 'rapid-reopen', 'route-change', 'focus-restore', 'scroll-restore'], expected: 'Exercise complete opening→closing transitions and interrupted exits for every applicable overlay/control. No stale follow-up action, duplicate active overlay or hidden focusable control.' },
+  ]
+  for (const group of groups) {
+    for (const probe of lifecycleProbes) {
+      probes.push({
+        id: `production.group-${group.id}.${probe.key}`,
+        kind: 'geometry-lifecycle', group: group.id, boards: group.boards,
+        scope: 'Every applicable row and control of this group; examples do not replace full coverage.',
+        scenarios: probe.scenarios, expectedVisible: probe.expected,
+        prerequisite: 'Authorized real data/actions; do not mutate production DOM or inject fixture state.',
+        environment: null, deployedCommit: null, observedVisible: null, measurements: null,
+        evidence: PENDING_EVIDENCE(), status: 'pending',
+      })
+    }
+  }
+  const acceptanceContract = 'plans/261106-1303-viderse-production-artboard-parity/acceptance-contract.md'
+  return {
+    schemaVersion: 2,
+    artifact: 'viderse-production-artboard-state-matrix',
+    generatedBy: 'tests/viderse-workflow/artboard-state-manifest.mjs --production',
+    deterministic: true,
+    sourceCommit: null,
+    trackedContentVerified: false,
+    note: 'Pending inventory, not production/device proof. Record the exact source/build/deployed hashes at capture; no commit or artifact has been verified by inventory generation.',
+    productionOrigin: 'https://vid.aarverse.studio',
+    acceptanceContract,
+    groups,
+    sourceHashes: { ...legacy.sourceHashes, [acceptanceContract]: sha256(read(acceptanceContract)) },
+    runtimeProtocol: legacy.runtimeProtocol,
+    evidencePolicy: {
+      statesStartPending: true,
+      productionDOMOrNetworkMocksAllowed: false,
+      actualControlsRequired: true,
+      zeroUnresponsiveAndUnverifiedControls: true,
+      sliderTolerancePx: 2,
+      firstRunException: 'Only approved #94 first-run rows may use the isolated real instance of the same release. Eligibility is not verification; record verified-exception-94 with environment/hash/images, never production-pass.',
+      secrets: 'Cookies/storage state stay outside the repository with mode0600. Never include credentials or raw traces in evidence.',
+      lifecycle: 'After create/link/toggle, verify terminal automation configuration, stop future acceptance-channel admission when authorization ends, and reconcile queued/running work and receipts.',
+      sharedDialogs: 'Dialogs and Activity instances belong to their parent action; one tested instance cannot pass the whole board.',
+    },
+    coverage,
+    rows,
+    probes,
+    validation: {
+      ok: true,
+      targetAcceptanceEvaluated: false,
+      totalRows: rows.length,
+      probes: probes.length,
+      includedStatefulBoards: coverage.length,
+      previewFrameMismatches: legacy.validation.previewFrameMismatches,
+      allRowsPending: rows.every(row => row.status === 'pending'),
+      allEvidenceNull: rows.every(row => Object.values(row.evidence).every(value => value === null)),
+    },
+  }
+}
+
 // ---------------------------------------------------------------------------
 // CLI
 // ---------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const options = { out: DEFAULT_OUT, stdout: false, check: false, help: false }
+  const options = { out: DEFAULT_OUT, explicitOut: false, stdout: false, check: false, help: false, production: false }
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]
     if (arg === '--stdout') options.stdout = true
     else if (arg === '--check') options.check = true
+    else if (arg === '--production') options.production = true
     else if (arg === '--help' || arg === '-h') options.help = true
     else if (arg === '--out') {
       index += 1
       if (!argv[index]) fail('--out needs a path')
       options.out = resolve(process.cwd(), argv[index])
+      options.explicitOut = true
     } else {
       fail(`Unknown argument: ${arg}\nUse --help for usage.`)
+    }
+  }
+  if (options.production && !options.help) {
+    if (!options.explicitOut && !options.stdout) fail('--production requires --out; the legacy receipt must not be overwritten')
+    if (options.explicitOut) {
+      const sameFile = existsSync(options.out) && existsSync(DEFAULT_OUT)
+        && (() => {
+          const target = statSync(options.out)
+          const receipt = statSync(DEFAULT_OUT)
+          return target.dev === receipt.dev && target.ino === receipt.ino
+        })()
+      if (options.out === DEFAULT_OUT || sameFile) fail('--production cannot target the legacy receipt')
     }
   }
   return options
@@ -2990,6 +3183,7 @@ function usage() {
     '  --out <path>  Write to a different path',
     '  --stdout      Print the manifest instead of writing',
     '  --check       Compare on-disk JSON with a fresh render (exit 1 on drift)',
+    '  --production Build the 29-board production inventory including desktop Auth; requires --out',
     '  --help        Show this help',
   ].join('\n')
 }
@@ -3000,7 +3194,7 @@ function main() {
     process.stdout.write(`${usage()}\n`)
     return
   }
-  const manifest = buildManifest()
+  const manifest = options.production ? buildProductionManifest() : buildManifest()
   const text = `${JSON.stringify(manifest, null, 2)}\n`
   if (options.stdout) {
     process.stdout.write(text)

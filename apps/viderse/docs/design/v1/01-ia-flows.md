@@ -66,6 +66,50 @@ Mọi thứ quyết định một video trông thế nào được **tạo một
 - Duyệt › **Prompt riêng cho từng ảnh**: thêm lớp thứ ba, làm khó hiểu vì sao một ảnh khác các ảnh còn lại.
 - Bàn dựng › menu ⋯ **Không tạo ảnh cho video này**, **Tải ảnh bìa của bạn** và thẻ **Phong cách kênh** trong Phòng vẽ: gộp vào chip Ảnh.
 
+### 0.3 Workflow gọn — đã chốt 02/11 <a id="workflow"></a> <!-- r40 -->
+
+Board **`Workflow`** (đầu trang Máy tính của canvas) là nguồn chuẩn cho việc sửa các màn từ đợt 40. Tóm tắt:
+
+- **Vòng lặp:** Tìm video (Khám phá) → Làm video (hộp Làm video) → Duyệt ảnh (Duyệt) → Đăng (Bàn dựng › Sẵn sàng). Máy chạy phần giữa; chỉ ba thông báo kéo người dùng về: Chờ duyệt → Duyệt, Cần xử lý → Bàn dựng, Sẵn sàng → Bàn dựng.
+- **Thanh trên (máy tính):** Bàn dựng · Duyệt · Khám phá · Kênh · **Thư viện** + nút **Làm video**. Việc nền, Cài đặt, avatar như cũ.
+- **Sáu quy ước tương tác:**
+  1. Video chỉ có một nhà: bấm video ở đâu cũng mở Bàn dựng với video đó.
+  2. Bấm ảnh nào cũng mở **Trình xem ảnh** (một thành phần; chế độ Duyệt · Xem · Xem + Thay · Mẫu). Video chờ duyệt thì mở thẳng Duyệt tại ảnh đó.
+  3. Xem/sửa chi tiết: panel phải hoặc sửa tại chỗ, không dùng hộp thoại.
+  4. Hộp thoại chỉ hai kiểu: **Xác nhận** (xoá, tốn hạn mức, không hoàn tác) và **Nhập nhanh** (Làm video, Theo dõi đối thủ, Nhập template). Không hộp thoại chồng hộp thoại.
+  5. Một lớp trên cùng, Esc đóng; mỗi lớp có địa chỉ (`?video=…&img=…`).
+  6. Bấm gì cũng có phản hồi (mở lớp, đổi trạng thái, hoặc toast); board nào cũng về 0 nút bấm không phản hồi.
+- **Đã chốt bỏ/gộp:** trang Video mới → hộp Làm video; Kênh bỏ tab Video, cột Đang áp dụng, lịch đăng đối thủ; Thư viện lên thanh trên; Bàn dựng bỏ Bản tin, ô Nhắn trợ lý mọi kênh và thẻ Kế hoạch, đề xuất thành dòng trong Chờ bạn, cột phải còn hai tab (Nội dung đăng · Thông tin). Giữ Hàng chờ và Duyệt.
+- **Đã chốt giảm logic nghiệp vụ:** đề xuất của trợ lý còn 3 loại (video nổi trội chưa làm, template hay lỗi, dọn MP4 đã đăng); bỏ **Vì sao?**, bỏ học quy tắc từ việc sửa (Lưu thành quy tắc, Quy tắc đã học, Ghi chú đã học), bỏ hiệu quả sau đăng (số liệu 24 giờ/7/28 ngày, Trợ lý nhận ra, Ưu tiên kênh theo Lượt xem, khoá YouTube Data API); **Mức tự chủ** thành một công tắc “Tự duyệt khi mọi ảnh ≥ 85” (máy luôn tự thử sửa lỗi 1 lần, Tự lấy bật là lấy mọi video mới); bỏ **ảnh riêng cho một video** (chip Ảnh); bỏ **luân phiên template** (mỗi kênh một template mặc định, đổi trong hộp Làm video); bỏ **Ưu tiên cả N** (video bạn tự thêm luôn lên đầu hàng); Quy tắc chạy chỉ còn Số luồng và Nhịp kênh. §9 và các luật L3 (phần template), L9, L14 sửa theo khi tới đợt tương ứng.
+- **Lộ trình:** đợt 40 Trình xem ảnh + nối nút (xong) · 41 Bàn dựng gọn (xong 03/11) · 42 Kênh + Thư viện (xong 03/11) · 43 Làm video thành hộp thoại (xong 03/11) · 44 điện thoại (xong 03/11, xem §6.2) · 45 Trình xem ảnh bản điện thoại. W3, W4, W5, W10, W11, W12, W15, §6.1 và §9.4–9.5 đã viết lại theo đợt 41–43; điện thoại theo đợt 44; chỗ nào lệch với board `Workflow` thì theo board. <!-- r41g -->
+
+
+**Mục lục màn** <a id="toc"></a> <!-- r41 --> — mỗi màn một số theo vòng lặp, giống nhau giữa máy tính và điện thoại; tiêu đề board trên canvas bắt đầu bằng số này. `00` là board `Workflow`.
+
+| Số | Màn | Máy tính | Điện thoại |
+|---|---|---|---|
+| 0.1 | Đăng nhập & tài khoản (Bắt đầu) | `Auth` | `MAuth` |
+| 0.2 | Lần đầu mở (Bắt đầu) | `Onboard` | chỉ máy tính |
+| 0.3 | Tạo kênh (Bắt đầu) | `CreateChannel` | `MCreate` |
+| 1.1 | Khám phá (Tìm video) | `Explore` | `MExplore` |
+| 1.2 | Chi tiết video đối thủ (Tìm video) | panel phải của 1.1 | `MCompVideo` |
+| 2.1 | Làm video (Làm video) | `NewVideo` | `MNew` |
+| 2.2 | Hàng chờ (Làm video) | `Queue` | `MQueue` |
+| 2.3 | Việc nền & thông báo (Làm video) | `Activity` | sheet trong 4.1 |
+| 3.1 | Duyệt (Duyệt & sửa) | `Review` | `MReview` |
+| 3.2 | Editor (Duyệt & sửa) | `Editor` | chỉ máy tính |
+| 4.1 | Bàn dựng (Bàn dựng) | `Main` | `MMain` |
+| 5.1 | Kênh (Thiết lập) | `Channel` | `MChannel` |
+| 5.2 | Thư viện (Thiết lập) | `Library` | `MLibrary` |
+| 5.3 | Sửa template (Thiết lập) | `Template` | `MTemplate` |
+| 5.4 | Cài đặt (Thiết lập) | `Settings` | `MSettings` |
+| 6.1 | Hộp thoại & toast (Hệ thống) | `Dialogs` | `MSystem` |
+| 6.2 | Trạng thái hệ thống (Hệ thống) | `System` | trong `MSystem` |
+| 6.3 | UI Kit (Hệ thống) — **page UI Kit riêng**: UK.0 `UkOverview` · UK.1 `UkFoundation` · UK.2 `UkMotion` · UK.3 `UkControls` · UK.4 `UkInputs` · UK.5 `UkFeedback` · UK.6 `UkOverlays` · UK.7 `UkShell` · UK.8 `UkViderse` | page UI Kit | page UI Kit |
+| 6.4 | Thương hiệu (Hệ thống) — UK.9 ở page UI Kit | `Brand` | — |
+
+`Kit` / `MKit` cũ nằm ở cuối page UI Kit, nhãn **Lưu trữ** (còn các thành phần đã bỏ ngày 02/11); không dùng làm chuẩn.
+
 ## 1. Người dùng muốn gì
 
 Một người vận hành nhiều kênh YouTube, chạy app trên máy của mình. Mỗi ngày họ cần:
@@ -209,7 +253,7 @@ Nơi khác chỉ hiển thị giá trị và link tới nhà của nó.
 ## 6. Điều hướng
 
 ### 6.1 Máy tính
-Thanh trên: **Bàn dựng · Duyệt · Kênh · Khám phá · Video mới**.
+Thanh trên: **Bàn dựng · Duyệt · Kênh · Khám phá · Thư viện** + nút **Làm video** (phím N) bên phải. <!-- r41g --> Mọi màn máy tính đã dùng thanh này (đợt 42). Mục đang mở sáng trên thanh; trang Sửa template sáng ở Thư viện. Nút Làm video (phím N) mở **hộp Làm video** (Nhập nhanh, W4) ngay trên màn đang mở; đóng thì về đúng chỗ cũ.
 
 Bên trái thanh trên: logo và **bộ đổi kênh** (“Mọi kênh” với 3 avatar chồng nhau, hoặc tên một kênh). Menu gồm Mọi kênh (nhịp hôm nay và số Chờ bạn của cả 3 kênh), từng kênh (nhịp hôm nay, chấm vàng khi có việc chờ bạn), Tạo kênh. Bộ đổi kênh chỉ có ở **Bàn dựng** (đổi phạm vi danh sách). Kênh và Khám phá dùng breadcrumb (“Kênh của tôi”, “Khám phá / <đối thủ>”); đổi kênh ở cột trái trang Kênh. <!-- r5-scope --> <!-- r11-audit -->
 
@@ -221,7 +265,7 @@ Bên phải thanh trên:
 - Avatar.
 
 Trang phụ:
-- **Thư viện** mở từ cột trái trang Kênh.
+- **Thư viện** ở thanh trên. Trang Kênh không còn mục Thư viện ở cột trái (đợt 42).
 - **Tạo kênh** (`CreateChannel`) mở từ cột trái trang Kênh và từ bộ đổi kênh; cùng màn với bước Tạo kênh của Lần đầu mở, nhưng không có bước Chuẩn bị máy. <!-- r13-create -->
 - **Editor** mở từ “Mở trong editor”.
 
@@ -233,10 +277,25 @@ Thanh dưới: **Bàn dựng · Duyệt · [+] Video mới · Kênh · Khám ph�
 - Khám phá và Duyệt không có bộ đổi kênh (giống máy tính: chỉ Bàn dựng đổi phạm vi, Kênh đổi kênh đang mở).
 - Viên **Việc nền** ở mọi màn gốc mở cùng một sheet (đang chạy + “Mở hàng chờ”); ở Bàn dựng là sheet Hàng chờ có Tạm dừng, “Mở cả hàng chờ” và “Quy tắc chạy”. Cả hai dẫn tới màn **Hàng chờ** (`MQueue`). <!-- r31-v27 -->
 - Cài đặt mở từ avatar, là màn con (không có thanh dưới).
+- Trạng thái hệ thống của Bàn dựng và mọi hộp xác nhận có bản điện thoại dạng sheet đáy: `MSystem` · `state`. <!-- r39 -->
 - Editor, Lần đầu mở chỉ có trên máy tính. Link tới các trang đó trên điện thoại hiện “Mở trên máy tính”.
 - **Thư viện dùng chung** và **Sửa template** có trên điện thoại (Gói V34): `MLibrary`, `MTemplate`. Cùng dữ liệu, cùng tuỳ chọn với máy tính; bố cục theo điện thoại (tab dạng nhóm chọn, ⋯ mở sheet, mỗi mục của template là một màn con, tự lưu). Lối vào: Kênh › Template › *Mở Thư viện dùng chung*. <!-- r38 -->
 - **Tạo kênh** có trên điện thoại (`MCreate`), mở từ sheet Đổi kênh: cùng trường, cùng mặc định với máy tính; nhận diện vẽ sau khi tạo nên không cần màn lớn. <!-- r13-create -->
 - Trong trang Kênh, chỉ máy tính có: **Chọn nhiều** (thao tác hàng loạt) và ô **Dặn trợ lý về kênh này**. Mọi thiết lập còn lại của kênh có đủ trên điện thoại.
+- **Đợt 44 (03/11/2026) — điện thoại theo workflow** <!-- r44 -->. Cùng chức năng, tuỳ chọn, nhãn, mặc định với máy tính đợt 41–43; khác ở bố cục: danh sách thả và menu ⋯ là **sheet đáy**, kết quả là **toast** phía trên thanh dưới, việc xoá/đăng xuất hỏi bằng sheet xác nhận có nói hệ quả. Mọi nút trên 13 board điện thoại đều có phản hồi (bấm thử tự động, mọi giá trị tweak).
+  - **Bàn dựng** (`MMain`): bỏ Bản tin, dải Đề xuất (thành 3 dòng trong Chờ bạn), Ảnh của video, Vì sao?, ô nhắn Hoạ sĩ; khối Nhật ký đổi tên **Tiến độ**; ⋯ ở chi tiết mở sheet Làm lại / Xoá; Sao chép gói có toast.
+  - **Làm video** (`MNew`): màn phủ như hộp Làm video (W4): ô dán một/nhiều link hoặc video chọn ở Khám phá; Kênh / Template mở sheet; video tự thêm lên đầu hàng chờ.
+  - **Kênh** (`MChannel`): 3 tab **Nguồn & tự động · Template mặc định · Hồ sơ**; sheet Đổi template, Liên kết đối thủ; bỏ tab Video.
+  - **Khám phá** (`MExplore`): chip Dài / Đăng trong mở sheet; công tắc *Chưa làm cho kênh nào* lọc thật; chọn nhiều → **Làm N video** mở `MNew`; Top 10 chọn thật; sheet thông tin đối thủ có ⋯ (Kiểm tra video mới, Mở YouTube, Liên kết với kênh, Bỏ theo dõi) và Tạm dừng / Tiếp tục quét.
+  - **Video đối thủ** (`MCompVideo`): bỏ Vì sao?; sheet chọn kênh thêm thẳng vào đầu hàng chờ (kênh đó thành “Vừa thêm”), link phụ sang `MNew` để đổi template; chương mở YouTube từ mốc giờ.
+  - **Duyệt** (`MReview`): bỏ Vì sao? và gợi ý *Thêm vào Ghi chú đã học*; prompt đã gửi còn 4 phần (Cảnh · Phong cách · Tham chiếu · Tránh); **Video sau** đi qua 3 video chờ duyệt; *Bỏ ảnh này* có Hoàn tác; chip góp ý chèn/gỡ câu trong ô góp ý.
+  - **Hàng chờ** (`MQueue`): Quy tắc chạy còn Số luồng (ảnh vẽ cùng lúc và chu kỳ xem đối thủ do máy chọn); template từng video theo mặc định của kênh.
+  - **Thư viện** (`MLibrary`): tab chia đều vừa khung (số lượng ở dòng mô tả); bấm prompt / kênh nền / lớp phủ mở sheet chi tiết; sheet Đổi tên, Thêm kênh nền, Prompt mới; ⋯ template có *Đặt làm mặc định cho kênh*.
+  - **Sửa template** (`MTemplate`): *Kênh dùng làm mặc định* thay luân phiên; chọn video xem thử, gắn kênh nền mở sheet; Dựng lại, Vẽ thử, Xuất tệp, Nhân bản có phản hồi.
+  - **Cài đặt** (`MSettings`, kèm `Settings`): bỏ thẻ YouTube Data API; Model · N của mọi nhà cung cấp mở danh mục; Đăng xuất hỏi xác nhận; Đổi khoá / Đổi địa chỉ mở sheet nhập; Xoá dữ liệu hỏi xác nhận kèm số GB.
+  - **Hệ thống** (`MSystem`): bỏ 2 sheet trợ lý (`state=ask|unknown`, theo ô nhắn đã bỏ); câu luân phiên thành template mặc định.
+  - **Đăng nhập** (`MAuth`), **Tạo kênh** (`MCreate`, kèm `CreateChannel`): nút mắt hiện mật khẩu, Đăng xuất về màn đăng nhập (giữ tên đăng nhập), Thử lại có trạng thái; ô **Theo dõi** đối thủ mới thêm dòng và tự chọn, ô trống thì báo.
+  - **Nhóm chọn có viên trượt** (`.vv-seg`): đo lại khi nút đổi cỡ hoặc font tải xong (ResizeObserver + `document.fonts`), không còn lệch vài px sau khi font về. Áp mọi board.
 
 ## 7. Workflow
 
@@ -268,6 +327,7 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 - **Bước:**
   1. **Tạo kênh** — chọn đối thủ đã theo dõi (bắt buộc ≥ 1), hoặc dán @handle / link để **theo dõi và chọn luôn** ngay tại màn này (chưa theo dõi ai thì màn hướng dẫn làm việc này); tên và link YouTube tuỳ chọn. Khối **Cách kênh chạy** đã điền sẵn mặc định: Template = Mẫu chuẩn (tạo tự động), Nhịp 5/ngày, **Mức tự chủ Cân bằng** (lấy mọi video mới, duyệt ảnh luôn hỏi; §9.4). Nút chính **Tạo kênh**. <!-- r16-agent -->
   2. **Xong** — thẻ **Đang chạy nền**: Đạo diễn đặt tên & mô tả, Hoạ sĩ vẽ avatar + ảnh bìa, tạo Mẫu chuẩn. Không cần đợi; xong sẽ có thông báo (L13). Lối tiếp: **Làm video mới nhất của <đối thủ>** (đỏ) · Mở kênh · Khám phá.
+- **Cách kênh chạy (gọn, đợt 41)** <!-- r41b -->: ba dòng, không còn Mức tự chủ ba mức. **Template** chọn ngay tại chỗ (máy tính: danh sách nổi ngay trên ô chọn, không đẩy nội dung; điện thoại: sheet đáy; không sang trang Template; mặc định **Mẫu chuẩn · gợi ý** — Viderse tạo theo nhận diện kênh mới) · **Tự duyệt ảnh** (công tắc, mặc định tắt; bật thì video có mọi ảnh từ 85 điểm tự sang dựng) · **Video mỗi ngày** (1–50, mặc định 5: số video máy tự lấy từ đối thủ mỗi ngày). Artboard `CreateChannel` / `Onboard` / `MCreate` · `tplMenu`.
 - Nhận diện theo **đối thủ chọn đầu tiên** (tham chiếu): cùng ngôn ngữ, cùng thể loại; tên mới cùng nghĩa, ảnh cùng định dạng nhưng là tác phẩm mới. <!-- r10-channel -->
 - **Mẫu chuẩn** tạo tự động = cách ghép **Tách nền** + prompt ảnh cảnh **Theo nhận diện kênh** + prompt bìa **Chữ hook**, 6 ảnh. Kênh mới vẽ đúng phong cách của mình mà không phải chọn gì. <!-- r11-audit -->
 - Ngôn ngữ viết tiêu đề, mô tả lưu theo ngôn ngữ đoán từ đối thủ tham chiếu; đổi ở Hồ sơ kênh.
@@ -285,60 +345,58 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
   - Giữa: video lọc theo Nổi trội / Mới nhất / Lượt xem, độ dài, khoảng thời gian, và “Chưa làm cho kênh nào”. Mỗi thẻ hiện điểm nổi trội và trạng thái nếu đã làm cho kênh nào.
   - Phải: thông tin đối thủ, quét lịch sử, **lịch đăng hiện mọi khung đăng lặp lại** (không chỉ một khung nhiều nhất): mỗi khung có các thứ, khoảng giờ (VN / New York, đổi cả thứ khi qua nửa đêm), số video trên 30 và độ đều; bấm một khung để làm nổi các ô của nó trên bảng thứ × giờ. Trang Kênh gộp khung của mọi đối thủ liên kết, ghi đối thủ nào đăng khung đó.
 - **Video đã chọn** (bấm một thẻ): cột phải đổi sang xem trước — ảnh, điểm nổi trội, chương (của video gốc), chọn kênh (kênh đã làm video này hiện trạng thái + “Mở ›” ngay trong danh sách, không chọn được), <!-- r12-small --> dòng kế hoạch và nút chính **Làm video cho <kênh>**. “← Thông tin đối thủ” để quay lại. Không có trang chi tiết riêng.
-- **Chọn nhiều:** tích video → **Làm N video cho <kênh>** (đỏ) · Sao chép link · Top 10/20 · Bỏ chọn. Theo L2, các video này vào cuối hàng.
+- **Chọn nhiều:** tích video → **Làm N video** (mở hộp Làm video với các video đã chọn; chọn kênh và template trong hộp, W4) · Sao chép link · Top 10/20 (chọn video chưa làm có điểm cao nhất) · Bỏ chọn. Video tự thêm lên đầu hàng chờ. <!-- r43 -->
+- **Lọc (đợt 43):** chip Dài (Mọi độ dài · ≥ 8 · ≥ 20 · ≥ 40 phút), Đăng trong (7 · 30 · 90 ngày · Mọi lúc), Trạng thái (Tất cả · Chưa làm · Đã làm) và **Giới hạn quét** (500 · 1.000 · 2.000 · 5.000) là danh sách nổi; khác mặc định thì chip sáng. Menu ⋯ của đối thủ: Kiểm tra video mới, Mở trên YouTube, Liên kết với kênh… (mở Kênh), Bỏ theo dõi (hộp Xác nhận). Panel xem trước ghi template mặc định của từng kênh. <!-- r43 -->
 - **Tìm tiêu đề** <!-- r28-explore -->: ô 240px trước Chọn nhiều, phím `/`; tìm trong đối thủ đang chọn, cộng với lọc đang bật, không phân biệt hoa thường và dấu; không có kết quả → khối giữa lưới + Xoá tìm.
 - **Chưa có kênh / hàng chờ** (trước V4, V6): các nút làm video, chọn kênh, liên kết kênh và lọc Trạng thái khoá kèm một câu lý do; không ẩn.
 - Ví dụ ở ô thêm đối thủ: một kênh Anh, một kênh Việt, một mã UC.
 - **Artboard:** `Explore` · `preview`, `select`, `rivalMenu`, `scan`, `search=none|match|nomatch`, `empty` · điện thoại `MExplore` (làm ở V10) · `MCompVideo` (Chi tiết video) · `sheet=none|picker`.
 
-- **Vì sao nổi trội?** cạnh điểm ở Video đã chọn (`Explore` · `preview=true`, `why=true`) và ở chi tiết video trên điện thoại (`MCompVideo` · `sheet=why`) (§9.1); video đạt ≥ ×3 mà Tự lấy không lấy thành đề xuất `hot_video` (§9.2). <!-- r16-agent -->
-### W4 · Làm video
-- **Mục tiêu:** từ link tới video đang làm trong một bấm.
-- **Bước:**
-  - Dán **một link** hoặc **nhiều link** (chọn từ video nổi trội làm ở Khám phá; gợi ý ở dưới dẫn sang đó).
-  - Hai chip đã điền sẵn: **Kênh** (kênh đang mở) và **Template** (“Luân phiên · <template tiếp theo>”). Mọi thứ khác lấy từ template; ngoại lệ cho riêng video đặt ở Bàn dựng (L14). <!-- r9-assets -->
-  - Một dòng **kế hoạch** nói trước video sẽ chạy khi nào: “Lên đầu hàng chờ · bắt đầu khoảng 00:40” hoặc “Vào cuối hàng chờ, theo nhịp 5 video/ngày”.
-  - Nhiều link: công tắc **Ưu tiên cả N** (“Lên đầu hàng chờ, không theo nhịp kênh”). Máy tính là chip công tắc cạnh dòng kế hoạch; điện thoại là hàng 52px cuối nhóm Kênh/Template. <!-- r31-v27 -->
-  - Một nút chính **Làm video** / **Làm N video** (Enter).
-  - **Không có** tuỳ chọn ảnh ở Video mới (L14): video không ảnh → chọn template không ảnh ở chip Template, hoặc chip **Ảnh** ở Bàn dựng sau khi video vào hàng. <!-- r31-v27 -->
-- **Chặn:** link đã làm cho kênh này → dẫn tới video đó. Link lỗi → câu giải thích màu cam. Nhiều link: tự bỏ link trùng và ghi rõ số đã bỏ.
+- ~~**Vì sao nổi trội?**~~ đã bỏ ở máy tính (đợt 43; điện thoại đợt 44). Trước đây: cạnh điểm ở Video đã chọn (`Explore` · `preview=true`, `why=true`) và ở chi tiết video trên điện thoại (`MCompVideo` · `sheet=why`) (§9.1); video đạt ≥ ×3 mà Tự lấy không lấy thành đề xuất `hot_video` (§9.2). <!-- r16-agent -->
+### W4 · Làm video <!-- r43 -->
+Viết lại theo đợt 43 (03/11/2026): trang Video mới thành **hộp Làm video** (hộp thoại Nhập nhanh, §0.3 quy ước 4).
+- **Mục tiêu:** từ link tới video đang làm trong một bấm, không rời màn đang mở.
+- **Mở từ:** nút **Làm video** (phím N) trên thanh trên mọi màn; Khám phá › **Làm N video** (mang các video đã chọn) và **Làm video cho <kênh>** ở panel xem trước; Hàng chờ trống; Bàn dựng chưa có video.
+- **Trong hộp:**
+  - **Một ô dán link** (textarea): một link → thẻ xem trước (ảnh, điểm nổi trội, thời lượng, đối thủ · lượt xem · tuổi, nhãn “Có phụ đề do kênh đăng”, “Đối thủ đã liên kết với kênh”); nhiều link (mỗi dòng một link) → danh sách “N link đọc được · M đã làm cho kênh này, sẽ bỏ qua”, mỗi dòng bỏ được bằng ×. Ô trống có lối “Chọn video nổi trội ở Khám phá”.
+  - Mở từ Khám phá: không có ô dán, chỉ danh sách “Video đã chọn ở Khám phá”.
+  - **Kênh** (danh sách nổi: avatar, template mặc định, “hôm nay còn N lượt”) và **Template** (danh sách nổi 5 template của Thư viện). Template điền sẵn mặc định của kênh, nhãn “mặc định”; đổi sang template khác thì nhãn “**chỉ video này**”. Đổi kênh thì template về mặc định của kênh mới.
+  - Một dòng **kế hoạch**: video tự thêm luôn **lên đầu hàng chờ**, không tính vào nhịp kênh (“Lên đầu hàng chờ · bắt đầu khoảng 00:40…”, nhiều video: “Cả 3 lên đầu hàng chờ, chạy lần lượt…”). Template đang lỗi thì nói thêm video sẽ dừng ở bước dựng.
+  - Nút chính **Làm video** / **Làm N video** (Enter); khoá khi không có video làm được, kèm lý do. Esc / Huỷ / × / bấm nền đều đóng.
+- **Chặn:** link đã làm cho kênh đang chọn → banner “<kênh> đã có video từ link này” + **Mở ở Bàn dựng**; đổi kênh thì làm được. Link lỗi → câu cam dưới ô.
+- **Xong:** hộp đóng, toast “Đã thêm … vào đầu hàng chờ của <kênh>” (+ template nếu khác mặc định); viên Việc nền cập nhật.
+- **Đã bỏ:** trang riêng Video mới, hai chế độ Một link / Nhiều link, công tắc **Ưu tiên cả N**, gợi ý video nổi trội, dải “Điều sẽ diễn ra”, 3 thẻ mẹo.
 - **Luật:** L1, L2, L4.
-- **Artboard:** `NewVideo` · `input=empty|pasted|duplicate|error|multi` · `MNew` · `input=empty|pasted|multi`, `prio=off|on`.
+- **Artboard:** `NewVideo` (nền là Bàn dựng) · `input=empty|pasted|duplicate|error|multi` · `from=topbar|explore` · `picker=none|channel|template`. Điện thoại `MNew` đổi ở đợt 44.
 
-### W5 · Theo dõi video đang làm (Bàn dựng)
+### W5 · Theo dõi video đang làm (Bàn dựng) <!-- r41g -->
+Viết lại theo đợt 41 (Bàn dựng gọn, 03/11/2026). Phần cũ (Bản tin, nút Đề xuất, chip Ảnh, ô Nhắn trợ lý, thẻ Kế hoạch, Vì sao?, Lưu thành quy tắc, cột phải 4 tab) đã bỏ.
 - **Mục tiêu:** một màn trả lời “việc gì đang chờ tôi ở mọi kênh” và “video này đang ở đâu, ai đang làm, còn bao lâu”.
 - **Phạm vi (bộ đổi kênh trên đầu trang):** <!-- r5-scope -->
-  - **Mọi kênh** (mặc định khi mở app): đây là trang tổng quan. Không có trang Tổng quan riêng.
-    - Đầu cột trái là khối **Kênh**: mỗi kênh một dòng gồm avatar, tên, nhịp hôm nay (`3/5`) kèm thanh, “N chờ bạn · N sẵn sàng đăng”, và icon cam khi template của kênh cần sửa. Bấm một dòng thì lọc theo kênh đó.
-    - Danh sách video gộp cả 3 kênh; mỗi mục có avatar kênh 20px.
-    - Tiêu đề cột là “Video mọi kênh · 6 / 13 hôm nay”; chân cột ghi “Tự lấy video: bật ở 2/3 kênh” (Quiet Hours ở mức Cẩn thận: chỉ đề xuất) và “Hàng chờ chung: 12 video”.
-  - **Một kênh:** chỉ video của kênh đó. Chân cột ghi Tự lấy video và Template luân phiên của kênh.
-  - Bàn dựng nhớ phạm vi đã chọn. Đổi phạm vi không đóng video đang mở; nếu video đó thuộc kênh khác phạm vi thì cạnh tiêu đề hiện avatar kênh của video.
-- **Bố cục:**
-  - Trái: video theo nhóm **Chờ bạn · Đang làm · Sẵn sàng đăng · Chờ lượt** (thêm **Đã đăng** khi xem một kênh). Nhóm rỗng thì ẩn.
-    - Chờ lượt chỉ hiện vài video sắp chạy (Mọi kênh: 3, một kênh: 2) và link “Xem cả N trong Hàng chờ”.
-    - Đã đăng hiện video gần nhất và link “Xem ở trang kênh”.
-  - Giữa: tiêu đề + chip (trạng thái, nguồn, template, độ dài), rồi **Nhật ký tiến độ** (câu theo trợ lý), **Phòng vẽ** (ảnh bìa + cảnh: đã vẽ / đang vẽ / chờ / lỗi), và ô **Nhắn cho <trợ lý đang chạy>**.
-  - Phải: tab **Trợ lý · Nội dung · Nguồn · Nền**.
-- **Mở Bàn dựng chọn video nào:** Cần xử lý cũ nhất → Chờ duyệt cũ nhất → Đang làm mới nhất → Sẵn sàng mới nhất. Thứ tự này xét trong phạm vi đang xem (Mọi kênh thì xét cả 3 kênh).
-- **Hành động trên video:**
-  - Tạm dừng (Esc) / Chạy tiếp.
-  - Menu ⋯: Mở trong editor, Làm lại từ đầu, Xoá video.
-- **Chip Ảnh** <!-- r9-assets --> (cạnh chip Template; điện thoại: dòng “Ảnh của video” dưới bốn trợ lý) là chỗ ngoại lệ duy nhất của video:
-  - Popover hai tab **Ảnh cảnh · <tên>** / **Ảnh bìa · <tên>**; dòng đầu là “Theo template · <tên>”, dòng cuối tab Ảnh cảnh là **Không tạo ảnh cho video này**, dòng cuối tab Ảnh bìa là **Dùng ảnh của bạn** (PNG/JPEG/WebP, không tốn ảnh).
-  - Chọn khác thì hiện ngay **giá**: số ảnh phải vẽ lại, hạn mức còn, có phải dựng/xuất lại không. Nút chính ghi đúng việc: “Đổi và vẽ lại 4 ảnh”, “Đổi và vẽ lại ảnh bìa”, “Đổi · không tạo ảnh”.
-  - Khác template thì chip có chữ “riêng video này”.
-- **Tab Nội dung** <!-- r10-channel -->: tiêu đề, mô tả, tag do Đạo diễn viết theo video đối thủ và quy tắc viết của kênh.
-  - Sửa trực tiếp từng ô; có bộ đếm theo giới hạn YouTube (100 · 5.000 · 30 tag / 500 ký tự). Sửa tay thì có nhãn “bạn đã sửa”.
-  - Mô tả hiện **đoạn cuối của kênh** riêng một khối (không sửa ở đây, link “Sửa ở Hồ sơ kênh”). Tag luôn thêm của kênh đứng đầu, có biểu tượng kênh, không bỏ được ở đây.
-  - **Viết lại**: chọn phần (Tiêu đề / Mô tả / Tag) + góp ý + gợi ý nhanh. Không tốn ảnh; phần đã sửa tay bị thay, bản cũ vào Lịch sử.
-  - Sao chép từng phần hoặc cả gói. Gói đăng tải về luôn dùng bản mới nhất.
-  - Điện thoại: mục **Nội dung đăng** trong chi tiết video, cùng các thao tác.
+  - **Mọi kênh** (mặc định khi mở app) là trang tổng quan. Đầu cột trái là khối **Kênh**: mỗi kênh một dòng gồm avatar, tên, nhịp hôm nay (`3/5`) kèm thanh, “N chờ bạn · N sẵn sàng đăng”, và icon cam khi template của kênh cần sửa. Bấm một dòng thì lọc theo kênh đó.
+  - Danh sách gộp cả 3 kênh, mỗi dòng có avatar kênh 20px. Đầu cột: “Video mọi kênh” + nút **Chọn**; thanh tiến độ và “6 / 13 hôm nay” ở dòng dưới.
+  - **Một kênh:** chỉ video của kênh đó. Chân cột ghi Tự lấy video và **Template mặc định** của kênh (bỏ luân phiên).
+  - Bàn dựng nhớ phạm vi đã chọn. Đổi phạm vi không đóng video đang mở.
+- **Cột trái:** nhóm **Chờ bạn · Đang làm · Sẵn sàng đăng · Chờ lượt** (thêm **Đã đăng** khi xem một kênh); nhóm rỗng thì ẩn.
+  - **Bấm dòng nào cũng mở video đó** ở cột giữa (dòng là `button`, `aria-current` cho dòng đang mở). Không còn link sang trang khác.
+  - **Đề xuất của trợ lý** là dòng trong nhóm Chờ bạn, xếp sau video chờ bạn: orb trợ lý + câu đề xuất + “<Trợ lý> đề xuất · <việc>” + nút × (Bỏ qua). Chỉ ba loại (§0.3): video nổi trội chưa làm (Trinh sát), template hay lỗi (Kiểm định), dọn MP4 đã đăng (Kiểm định). Bấm dòng thì làm việc của đề xuất; × ẩn dòng (cùng đề xuất không quay lại trong 7 ngày).
+  - **Chọn nhiều:** nút Chọn bật hộp kiểm trên mỗi dòng video (đề xuất không chọn được); dưới cùng hiện thanh dính **Tải gói N video** (chỉ tính video sẵn sàng đăng; chưa chọn video sẵn sàng thì nút khoá). **Xong** thoát chọn. Thay cho Chọn nhiều ở Kênh › Video (bỏ ở đợt 42).
+  - Chờ lượt chỉ hiện vài video sắp chạy và link “Xem cả N trong Hàng chờ”; Đã đăng hiện video gần nhất.
+- **Cột giữa:** tiêu đề + chip (trạng thái, nguồn, template, độ dài) + Tạm dừng (Esc) / Chạy tiếp + ⋯.
+  - Một khối chính theo trạng thái (Phòng vẽ trực tiếp, Duyệt, Đang dựng, Cần xử lý, Thành phẩm). Đầu khối là **Tiến độ**: 2 dòng nhật ký gần nhất + “Nhật ký · N bước” mở đủ. Không còn khối Nhật ký riêng.
+  - Ảnh: bấm ô ảnh mở **Trình xem ảnh**; video chờ duyệt thì sang Duyệt đúng ảnh đó. Video không có bộ ảnh (lỗi sớm, chỉ dựng từ nền…) dùng bố cục tóm tắt: ảnh bìa 16:9 + các dòng sự kiện + nút việc tiếp theo.
+  - Thành phẩm: ảnh bìa/khung hình 16:9 (không kéo giãn) + 4 thẻ: độ hoàn thiện, MP4, ảnh bìa, hướng dẫn đăng.
+  - Menu ⋯: Mở trong editor, Làm lại từ đầu, Xoá video (hai mục cuối mở hộp xác nhận 6.1).
+  - Toast kết quả ở góc dưới phải, tự đóng sau 4 giây.
+- **Cột phải — hai tab** (mặc định **Thông tin**):
+  - **Thông tin:** Bốn trợ lý (một dòng mỗi trợ lý: trạng thái, việc đang làm) · **Nguồn** (ảnh video đối thủ, số liệu, Mở trên YouTube, Khám phá, đoạn đầu bản chép lời) · **Template** (một dòng, mở 5.3) · **Nền** (thanh độ phủ, clip; clip cố định không đổi được; “Xem cả N clip” mở Thư viện).
+  - **Nội dung đăng:** tiêu đề, mô tả, tag (như cũ: bộ đếm theo giới hạn YouTube, nhãn “bạn đã sửa”, đoạn cuối của kênh, tag của kênh đứng đầu, Viết lại). Sao chép từng phần (nút icon cạnh Tiêu đề, Mô tả, Tag) hoặc **Sao chép cả gói đăng**; tag bỏ bằng ×, thêm bằng ô “Thêm tag” (Enter). Gói đăng tải về luôn dùng bản mới nhất.
+- **Mở Bàn dựng chọn video nào:** Cần xử lý cũ nhất → Chờ duyệt cũ nhất → Đang làm mới nhất → Sẵn sàng mới nhất (trong phạm vi đang xem).
+- **Ảnh của video:** không còn ngoại lệ ảnh cho riêng một video (chip Ảnh). Muốn đổi cách vẽ thì đổi template mặc định của kênh, hoặc chọn template khác khi Làm video.
 - **Luật:** L6, L9, L10, L14.
-- **Artboard:** `Main` · `scope=all|channel` · `stage=images|review|render|issue|quality|done|paused` · `panel=agents|content|source|backdrop` · `backdropShort` · `promptPop=none|scene|cover` · `meta=pending|writing|failed|ai|edited|rewrite|history` (cần `panel=content`) · `MMain` · `scope=all|channel` · `screen=list|detail|jobs|switch` · `stage` · `promptPop=none|scene|cover` · `meta` (cần `screen=detail`). <!-- r11-audit -->
-- **Điện thoại:** Mọi kênh có dải thẻ kênh cuộn ngang (rộng 158px) ở đầu danh sách. Bộ đổi kênh mở thành sheet **Đổi kênh** (Mọi kênh · 3 kênh · Tạo kênh → `MCreate`).
+- **Artboard:** `Main` · `video=nurse|mall|lastbus|ferry|hotel|hem` (video đang mở) · `stage=images|review|render|issue|quality|done|paused` (cho video nurse) · `viewer=none|view|redraw` · `panel=info|content` · `meta=pending|writing|failed|ai|edited|rewrite|history` (với `panel=content`) · `backdropShort` · `scope=all|channel` · `jobs=running|idle|paused|offline` · `select` (Chọn nhiều). Tweak cũ `agent`, `promptPop`, `panel=agents|source|backdrop` đã bỏ.
+- **Điện thoại:** `MMain` chưa đổi (đợt 44). Hiện vẫn là bố cục cũ: dải thẻ kênh, sheet Đổi kênh, chi tiết video có Bản tin và “Ảnh của video”.
 
-- **Trợ lý chủ động** (§9): nhóm **Đề xuất** đầu cột trái, nút **Bản tin**, **Vì sao?** ở Nội dung, gợi ý **Lưu thành quy tắc** dưới ô vừa sửa, ô nhắn trả về **thẻ Kế hoạch**. Artboard `Main` · `agent=recap|suggest|plan|learn|why`; điện thoại `MMain` · `screen=recap|plan`, `agent=learn|why`. <!-- r16-agent -->
 ### W6 · Duyệt ảnh
 - **Mục tiêu:** duyệt một video trong dưới một phút, không rời bàn phím; ảnh nào chưa ưng thì sửa đúng ảnh đó ngay tại chỗ. <!-- r33-img -->
 - **Bước:**
@@ -359,7 +417,8 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 - **Phím:** ←/→ ảnh · J/K video · R vẽ lại · E sửa prompt · ⌘↵ vẽ lại với prompt đã sửa · Esc huỷ sửa / bỏ chọn · V so sánh với bản trước · A duyệt cả video.
 - **Điện thoại:** ảnh 16:9 rộng hết màn; dưới dải ảnh là **Phiên bản** và hàng **Prompt đã gửi** (dòng đầu prompt + ảnh tham chiếu tròn) mở sheet đọc đủ prompt, *Chép prompt*, **Sửa prompt rồi vẽ lại**. Sheet Vẽ lại có hai tab **Góp ý** · **Sửa prompt** (phần Cảnh + ảnh tham chiếu). Cùng hiệu ứng đang vẽ / vẽ xong.
 - **Luật:** L7, L14.
-- **Artboard:** `Review` · `state=review|redrawing|reveal|failed|batch|blocked|empty|learn`, `prompt=view|edit|raw`, `refs=view|add` · `MReview` · `state=review|prompt|feedback|edit|redrawing|reveal|empty|learn` · `Dialogs` · `dialog=redraw-all`.
+- **Đã bỏ (đợt 44, theo §0.3):** **Vì sao?** cạnh điểm ảnh và gợi ý *Thêm vào Ghi chú đã học*; prompt đã gửi còn 4 phần: Cảnh · Phong cách · Tham chiếu · Tránh (câu “không có chữ” chuyển vào Tránh). Thanh tóm tắt điểm ghi “<kênh> chưa bật Tự duyệt ảnh nên vẫn hỏi bạn” thay cho mức tự chủ.
+- **Artboard:** `Review` · `state=review|redrawing|reveal|failed|batch|blocked|empty`, `prompt=view|edit|raw`, `refs=view|add` · `MReview` · `state=review|prompt|feedback|edit|redrawing|reveal|empty` · `Dialogs` · `dialog=redraw-all`.
 
 - **Điểm ảnh** trên từng ảnh khi kênh dùng Duyệt theo điểm hoặc khi có ảnh dưới 85; ảnh dưới ngưỡng viền cam, dòng tóm tắt trên dải ảnh có nút đi thẳng tới nó; cột phải có **Điểm của Kiểm định** + **Vì sao?**. Vẽ lại kèm góp ý lần thứ 2 với cùng prompt → gợi ý **Thêm vào Ghi chú đã học** (§9.3). Artboard `Review` / `MReview` · `score=true`, `state=learn`. <!-- r16-agent -->
 ### W7 · Xử lý sự cố
@@ -401,7 +460,8 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
   - **Đang chạy:** trợ lý + thanh 9 đoạn.
   - **Luân phiên giữa các kênh:** kênh kế tiếp và lý do bỏ lượt.
   - **Chờ lượt:** video bạn chọn ghi “Ưu tiên · bạn chọn” ở đầu. Mỗi dòng có giờ bắt đầu dự kiến và **vì sao chưa chạy** (`waitReason`, câu ở 06-copy › Hàng chờ), lọc theo kênh, kéo thả, Lên đầu, ⋯ (Mở kênh, Xem video gốc, Bỏ khỏi hàng chờ). <!-- r31-v27 -->
-  - **Quy tắc chạy:** luồng video, luồng ảnh, chu kỳ xem đối thủ, nhịp từng kênh (chỉ xem), hạn mức ảnh, xong hôm nay.
+  - **Quy tắc chạy (đợt 43):** chỉ còn **Luồng chạy cùng lúc** (1–6) và **Nhịp kênh mỗi ngày** (chỉ xem, sửa ở Kênh). Ảnh vẽ cùng lúc (3) và chu kỳ xem đối thủ (1 giờ) dùng mặc định, ghi một dòng. Dưới vẫn có hạn mức ảnh và Xong hôm nay. <!-- r43 -->
+  - Cột Template của Chờ lượt: video Tự lấy dùng template mặc định của kênh; video bạn tự thêm có thể dùng template khác (chọn trong hộp Làm video).
 - **Tạm dừng:**
   - **Tạm dừng hàng chờ** là nút trung tính. Video đang chạy làm xong bước hiện tại rồi dừng, và không video mới nào bắt đầu.
   - Khi đã tạm dừng, **Chạy tiếp** là nút chính.
@@ -412,38 +472,38 @@ Mỗi workflow: mục tiêu → các bước → luật áp dụng → artboard 
 - **Artboard:** `Queue` · `state=running|paused|limited|empty` · `MQueue` · `state=…`, `sheet=none|rules|row`.
 - **Artboard:** `Queue` · `state=running|paused|limited|empty` · `Activity` · `view=running|inbox|toasts|system|settings|empty` · `MMain` · `screen=jobs`.
 
-### W11 · Thiết lập kênh <!-- r10-channel --> <!-- r11-audit -->
-Trang Kênh có 4 tab, giống nhau trên máy tính và điện thoại (trừ hai mục chỉ có trên máy tính ở §6.2):
-- **Video:** danh sách video, lọc, chọn nhiều (máy tính). Video Sẵn sàng có **Tải gói đăng** ngay trên dòng.
+### W11 · Thiết lập kênh <!-- r10-channel --> <!-- r11-audit --> <!-- r42 -->
+Viết lại theo đợt 42 (03/11/2026): trang Kênh chỉ còn thiết lập. Đã bỏ tab Video, cột “Đang áp dụng cho kênh”, Lịch đăng của đối thủ, Mức tự chủ 3 mức, Ưu tiên kênh, Template luân phiên, Quy tắc đã học, Trợ lý nhận ra.
+- **Cột trái:** Kênh của tôi (mỗi kênh: avatar, tên, “Hôm nay 3/5 · N chờ bạn”, chấm vàng khi có việc chờ) + Tạo kênh. Bấm dòng đổi kênh ngay tại trang. Không còn mục Thư viện ở đây.
+- **Đầu trang:** avatar, tên, chip **Tự lấy · N video/ngày** (hoặc “Tự lấy đang tắt”), chip **Tự duyệt ảnh ≥ 85** khi bật, chip ngôn ngữ; handle · ngày tạo · số đối thủ; **Mở YouTube** (kênh chưa có link: **Liên kết YouTube** mở Hồ sơ kênh) và **Làm video cho kênh** (nút chính).
+- **Số liệu:** 4 ô Video đã làm · Đã đăng · Chờ bạn · Chờ lượt; dưới là một dòng “N video của kênh nằm ở Bàn dựng…” + **Xem trong Bàn dựng** (mở Bàn dựng lọc theo kênh). Danh sách video, Chọn nhiều, Tải gói đã về Bàn dựng (W5).
+- **Ba tab:** **Nguồn & tự động** (mặc định) · **Template** · **Hồ sơ kênh**. Giống nhau trên máy tính và điện thoại (điện thoại đổi ở đợt 44).
 - **Nguồn & tự động:**
-  - Đối thủ liên kết: mỗi đối thủ có **Làm video mới nhất** · **Chọn video nổi trội** (mở Khám phá ở đối thủ đó, xếp theo Nổi trội, sẵn chế độ chọn nhiều; video chọn vào hàng chờ theo nhịp) · Mở trong Khám phá · **Bỏ liên kết…**. Điện thoại gom ba mục sau vào sheet ⋯.
-  - **Bỏ liên kết** luôn hỏi xác nhận. Video đã làm và video đã vào hàng chờ giữ nguyên; Tự lấy không lấy thêm từ đối thủ đó; đối thủ vẫn ở Khám phá. Bỏ đối thủ tham chiếu thì đối thủ kế tiếp thành tham chiếu (không vẽ lại gì). Bỏ đối thủ cuối cùng thì Tự lấy tự tắt, ghi “cần ít nhất một đối thủ liên kết”.
-  - Đối thủ đầu tiên có nhãn **Tham chiếu nhận diện**.
-  - **Liên kết đối thủ** chọn từ đối thủ đang theo dõi (một đối thủ dùng được cho nhiều kênh). Theo dõi đối thủ mới làm ở Khám phá; sheet Theo dõi có lối tắt liên kết luôn với kênh.
-  - **Nhịp mỗi ngày** (1–50) và **Mức tự chủ** (§9.4): 3 mức sẵn + 4 dòng chỉnh riêng; **Ưu tiên kênh** Đều đặn / Lượt xem (§9.5). Chọn Tự chạy hoặc Tự duyệt hết thì hỏi xác nhận (cùng nội dung trên máy tính và điện thoại). <!-- r16-agent -->
-  - **Lịch đăng của đối thủ**: khung đăng lặp lại (máy tính ở cột phải, điện thoại tóm tắt 3 khung + link Khám phá).
-- **Template luân phiên:** thứ tự, template kế tiếp, sức khoẻ template, thêm từ Thư viện, bỏ khỏi kênh. Sửa template ở Thư viện (máy tính).
+  - Đối thủ liên kết: mỗi đối thủ có **Làm video mới nhất** · **Chọn video nổi trội** (Khám phá) · Khám phá · **Bỏ liên kết**. Đối thủ đầu tiên có nhãn **Tham chiếu nhận diện**.
+  - **Bỏ liên kết** luôn hỏi xác nhận (Xác nhận, 6.1): video đã làm và đang chờ lượt giữ nguyên; Tự lấy không lấy thêm; đối thủ kế tiếp thành tham chiếu; bỏ đối thủ cuối thì Tự lấy tạm dừng.
+  - **Liên kết đối thủ** chọn từ đối thủ đang theo dõi (danh sách nổi, một đối thủ dùng được cho nhiều kênh); nút **Liên kết N**.
+  - Khối **Tự động** ba dòng:
+    - **Tự lấy video mới** (công tắc): lấy mọi video mới của các đối thủ liên kết, xếp cuối hàng theo nhịp kênh.
+    - **Video mỗi ngày** (1–20, bước chỉnh) + “Hôm nay 3/5 · lần xem gần nhất” + **Xem đối thủ ngay**. Video bạn tự thêm luôn làm trước, không tính vào nhịp.
+    - **Tự duyệt ảnh** (công tắc, ngưỡng cố định 85): mọi ảnh ≥ 85 thì video tự sang dựng; một ảnh dưới 85 thì cả video vẫn chờ duyệt. Bật/tắt không hỏi xác nhận, có toast; áp cho ảnh vẽ từ lúc đổi.
+    - Ghi chú cố định: gặp lỗi máy tự thử sửa 1 lần rồi mới báo; không bao giờ tự đăng, xoá, đổi template, bỏ liên kết đối thủ.
+- **Template:** một thẻ **Template mặc định** (ảnh, tên, công thức, sức khoẻ) + **Đổi template** (danh sách nổi các template trong Thư viện + “Xem trong Thư viện”) + **Sửa template** (5.3). Template đang lỗi: banner cam “video mới sẽ dừng ở bước dựng”. Ghi chú: mọi video của kênh (kể cả Tự lấy) dùng template này; muốn một video dùng template khác thì chọn trong hộp Làm video; đổi mặc định áp cho video bắt đầu từ lúc đổi.
 - **Hồ sơ kênh:**
-  - **Nhận diện:** ảnh bìa kênh (công tắc vùng hiện trên điện thoại 1546×423), avatar, **Vẽ lại avatar · 1 ảnh** · **Vẽ lại ảnh bìa kênh · 1 ảnh** · Đặt tên khác · Tải avatar + ảnh bìa kênh. Khi Hoạ sĩ đang vẽ: ảnh cũ giữ, các nút vẽ lại khoá. Khi lỗi: khối cam ở đầu + Thử lại + giờ tự thử lại.
-  - **Mô tả kênh** (sửa được, ≤ 2.000 ký tự, dán vào Giới thiệu trên YouTube). Bản bạn sửa là hướng cho lần tạo lại sau.
-  - **Phong cách nhận diện** (app tự rút, chỉ đọc): một câu + nguồn (đối thủ tham chiếu) + nơi dùng. Ô **Góp ý cho lần tạo lại** + **Tạo lại cả bộ · 2 ảnh**: Đạo diễn giữ ý của mô tả hiện tại, có thể đặt tên mới; ảnh cũ giữ tới khi ảnh mới xong; video đã làm không đổi.
-  - **Khi viết tiêu đề, mô tả, tag:** Ngôn ngữ (Tiếng Anh / Tiếng Việt / **Theo đối thủ** = giữ ngôn ngữ của từng video nguồn), Giọng văn, **Đoạn cuối mô tả** (nguyên văn, ≤ 1.000 ký tự), **Tag luôn thêm** (≤ 10, đứng đầu mọi video). Tự lưu khi rời ô; áp cho video viết sau đó (video cũ: Viết lại ở Bàn dựng › Nội dung).
-  - Thông tin kênh: tên, link YouTube. Xoá kênh.
-  - Liên kết sang Cài đặt › Trợ lý AI (dùng chung mọi kênh).
+  - **Nhận diện:** ảnh bìa kênh (vùng hiện trên điện thoại 1546×423), avatar, Vẽ lại avatar · 1 ảnh, Vẽ lại ảnh bìa kênh · 1 ảnh, Đặt tên khác, Tải avatar + ảnh bìa kênh. Đang vẽ: ảnh cũ giữ, nút vẽ lại khoá. Lỗi: khối cam + Thử lại.
+  - **Mô tả kênh** (≤ 2.000 ký tự), **Phong cách nhận diện** (chỉ đọc) + Góp ý cho lần tạo lại + **Tạo lại cả bộ · 2 ảnh**.
+  - **Khi viết tiêu đề, mô tả, tag:** Ngôn ngữ (Tiếng Anh / Tiếng Việt / Theo đối thủ), Giọng văn, Đoạn cuối mô tả (≤ 1.000), Tag luôn thêm (≤ 10, bỏ bằng ×, thêm bằng ô “Tag mới” + Enter). Quy tắc viết chỉ sửa tay ở đây (không còn học từ việc sửa).
+  - Thông tin kênh (tên, link YouTube), lối sang Nguồn & tự động, Template mặc định, Cài đặt › Trợ lý AI.
+  - **Xoá kênh:** khoá khi kênh có video đang làm (“Xem N video đang làm” mở Bàn dựng); không có thì mở hộp Xác nhận gõ tên kênh (6.1 `delete-channel`).
+- **Ô Dặn trợ lý về kênh này** (dưới trang): chọn trợ lý bằng danh sách nổi mở lên (Trinh sát · Đạo diễn · Hoạ sĩ · Kiểm định), gửi thì có toast; áp cho video tiếp theo của kênh.
+- **Dữ liệu mẫu theo kênh** (khớp Bàn dựng): Midnight Tales 18 video · 9 đã đăng · 2 chờ bạn · 4 chờ lượt · 3 đối thủ · Mẫu chuẩn · Tách nền; Chuyện Lạ Đêm Khuya 8 · 1 · 1 · 5 · Hồ Sơ Bí Ẩn · Truyện kể đêm; Quiet Hours 5 · 1 · 1 · 3 · Slow Rooms · Mẫu chuẩn · Tách nền.
+- **Artboard:** `Channel` · `tab=sources|templates|settings` · `channel=MT|CL|QH` · `autoApprove` · `tplMenu` · `identity=ready|generating|failed` · `link=none|picker|empty` · `fresh` (After Dark Stories, kênh mới chưa có video). Tweak cũ `tab=videos`, `filter`, `select`, `autonomy` đã bỏ. `MChannel` chưa đổi (đợt 44).
 
-Cột phải **Đang áp dụng cho kênh** (máy tính) chỉ tóm tắt: Tự lấy video (Bật · Nhịp 5/ngày), Mức tự chủ (Cân bằng), <!-- r16-agent --> Template luân phiên, Tiêu đề, mô tả, tag, Trợ lý AI (chung mọi kênh). Mỗi dòng có **Tuỳ chỉnh** mở đúng tab (Trợ lý AI mở Cài đặt). Nhãn **riêng** chỉ hiện khi khác mặc định của kênh mới (Nhịp 5, Mức tự chủ Cân bằng, chỉ Mẫu chuẩn, chưa có quy tắc viết).
-
-**Xoá kênh:**
-- Bị khoá khi kênh có video đang chạy.
-- Xoá kênh giữ lại video đã làm và không động tới kênh trên YouTube.
-
-**Artboard:** `Channel` · `tab=videos|sources|templates|settings`, `identity=ready|generating|failed`, `link=none|picker|empty`, `autonomy=balanced|careful|auto|custom|confirm` · `MChannel` · `tab=videos|sources|templates|settings`, `identity=ready|generating|failed`, `autonomy=balanced|careful|auto|custom|confirm`, `sheet=none|rival|unlink|row` · `MExplore` · `mode=add` (theo dõi + liên kết luôn).
-
-- **Trợ lý chủ động ở Kênh:** Nguồn & tự động có Mức tự chủ và Ưu tiên kênh; Hồ sơ kênh có **Quy tắc đã học**; tab Video có **Trợ lý nhận ra** và lượt xem 7 ngày ở Đã đăng (§9.5). Artboard `Channel` · `tab=sources`, `tab=settings`, `tab=videos` + `filter=posted`, `autonomy=balanced|careful|auto|custom|confirm`; `MChannel` · cùng tab, `autonomy`, `sheet=row`. <!-- r16-agent -->
 ### W12 · Template và thư viện
+- **Xem ảnh mẫu (đợt 41):** mỗi thẻ prompt ảnh cảnh và ảnh bìa có nút **mắt** (góc trên trái) mở Trình xem ảnh chế độ **Mẫu**: ảnh mẫu, nội dung prompt, template đang dùng; nút **Dùng prompt này** (đang dùng thì ghi “Template đang dùng”). Ô “Dựng từ video đã làm” (cột Xem thử) và ô video của **Vẽ thử ảnh bìa** mở danh sách nổi, không đẩy nội dung. <!-- r41g -->
 - **Template tự lưu.** Mỗi thay đổi làm bản xem thử thành “cũ”. **Dựng lại bản xem thử** là nút chính duy nhất và chỉ hiện khi bản xem thử đã cũ.
 - **Vẽ thử ảnh bìa** dùng hạn mức ChatGPT nên là nút trung tính, có ghi giá: “1 ảnh”.
-- **Template đang được kênh dùng:** không xoá được. Bị chặn kèm lý do “Đang dùng ở 2 kênh. Bỏ khỏi kênh trước rồi xoá.”
+- **Template mặc định của kênh** (đợt 42): mỗi kênh đúng một template mặc định, chọn ở Kênh › Template; hộp Làm video cho chọn template khác cho từng video. Thư viện ghi “Mặc định của <kênh>” hoặc “Chưa kênh nào dùng làm mặc định”; Sửa template có mục **Kênh dùng làm mặc định** (mỗi dòng **Đổi ở Kênh**) và nút **Đặt làm mặc định cho kênh…** (mở Kênh). Không còn danh sách luân phiên. <!-- r42 -->
+- **Template đang là mặc định của kênh:** không xoá được. Bị chặn kèm lý do “Đang là template mặc định của 2 kênh. Đổi template mặc định ở Kênh › Template trước rồi xoá.”
 - **Video nền** (Thư viện, trước là Kênh nền) <!-- r22-sources --> — kho video chạy phía sau ảnh cảnh, dùng chung cho mọi template. Hai nhóm:
   - **Kênh nền:** kênh Twitch (clip, highlight, phát lại) hoặc trang Bilibili (video đã đăng). App đọc danh sách video và lấy clip mới theo thời gian; template bốc clip từ đây.
   - **Video lẻ:** một video cụ thể (≤ 10 phút đoạn dùng) kèm **đoạn dùng** (Từ–Đến). Gắn vào template thành **clip cố định** — luôn có mặt trong nền, không bị đổi ngẫu nhiên. Đổi đoạn ở Thư viện thì mọi template đang gắn đổi theo.
@@ -476,6 +536,7 @@ Cột phải **Đang áp dụng cho kênh** (máy tính) chỉ tóm tắt: Tự 
   - **Của bạn:** tạo mới, nhân bản, sửa, vẽ thử (1 ảnh trong hạn mức, chạy nền, ảnh vẽ thử được giữ làm ảnh mẫu), nhập/xuất tệp `.json`.
   - Sửa prompt đang dùng: cảnh báo “Lưu thì N template đổi theo”; áp dụng cho video bắt đầu sau khi lưu (L9). Không đổi được loại (cảnh/bìa) khi đang dùng. **Xoá** bị chặn khi có template dùng: “Đang dùng ở <template>. Đổi prompt ở template đó trước rồi xoá.”
   - Trong Cài đặt template: ô Cách ghép (3 ô ảnh), lưới chọn prompt 4 cột (ảnh mẫu, tên, dấu ✓), ô “Prompt mới” dẫn sang kho, và khung tóm tắt prompt đang chọn (nội dung, template khác cũng dùng, link “Sửa trong kho”). Đổi gì cũng làm bản xem thử thành cũ.
+- **Thư viện (đợt 42):** ở thanh trên, không còn cột trái (kênh + mục thư viện trùng tab); nội dung rộng hết màn. Menu ⋯ của template có **Đặt làm mặc định cho kênh…**. Ô “Vẽ thử với” (sửa prompt) và Sắp xếp video nền là danh sách nổi; menu ⋯ của kênh nền có Mở kênh và Bỏ khỏi thư viện (khoá khi còn template gắn). <!-- r42 -->
 - **Artboard:** `Library` · `tab=templates|prompts|backdrops|overlays`, `prompt=list|mine|builtin|new` (sửa bìa: bấm “Ảnh bìa” ở Dùng cho), `menu`, `nguon=channels|videos|adding|addvideo|unsupported`, `kenh=slowroads|nightdrivefm|bilibili|lofilanes` (với `tab=backdrops`) · `Template` · `section=images|cover|backdrop|output`, `picker=none|add|choose|video` (với `section=backdrop`), `preview`, `fewClips` · `Main` · `panel=backdrop`.
 
 ### W13 · Cài đặt máy
@@ -484,7 +545,7 @@ Sáu mục:
 - **Kết nối AI** <!-- r8-ai --> (giống Noverse): danh sách nhà cung cấp, mỗi thẻ có loại kết nối (Đăng nhập gói · Khoá API · Trên máy này), việc làm được (Chữ · Vẽ ảnh), hạn mức hoặc chi phí, và ba nút **Model · N** / **Thử kết nối** / Đăng xuất · Đổi khoá · Đổi địa chỉ.
   - **Model · N** mở danh mục lấy thẳng từ nhà cung cấp: tìm, lọc Đã chọn / Gợi ý / Tất cả, mỗi model có nhãn Chữ · Chữ · đọc ảnh · Vẽ ảnh, ngữ cảnh và giá. “Không thấy model? Thêm theo tên” gọi thử model rồi mới thêm.
   - **Thêm nhà cung cấp:** OpenAI, Gemini, OpenRouter, DeepSeek, xAI, Anthropic, Ollama, Tương thích OpenAI. Dán khoá → **Kết nối và lấy model** → thẻ mới lên đầu danh sách, nhắc chọn ít nhất một model. Khoá chỉ hiện dạng che.
-  - **Số liệu YouTube** <!-- r38 -->: nhóm riêng dưới nút Thêm nhà cung cấp (không phải AI). Một thẻ **YouTube Data API** · Khoá API · Không bắt buộc. Có khoá: Trinh sát đọc lượt xem, thích, bình luận sau đăng qua API; không có khoá: đọc từ trang công khai. Thêm / Đổi khoá mở ô dán ngay trong thẻ (Lưu khoá · Huỷ); Google từ chối → viền cam + câu lỗi; mất kết nối → mọi nút của thẻ tắt.
+  - ~~**Số liệu YouTube** (thẻ YouTube Data API)~~ — **đã bỏ** ở đợt 44 cùng hiệu quả sau đăng (§0.3); `Settings`/`MSettings` không còn tweak `ytkey`.
   - Lỗi khoá: thẻ viền cam, câu nói rõ nhà cung cấp từ chối khoá, nút Đổi khoá · Thử lại · Thêm theo tên.
   - Thay đổi chưa lưu: thanh dính ở đầu mục (Huỷ · Lưu).
 - **Trợ lý AI:** bốn trợ lý. Trinh sát, Kiểm định ghi “Không dùng model”. Đạo diễn: model, mức suy nghĩ (Tự động/Thấp/Vừa/Cao), chuỗi dự phòng. Hoạ sĩ: model viết mô tả ảnh (mờ model không đọc được ảnh), **Vẽ ảnh bằng** (ChatGPT · Grok · Gemini…), công tắc “Vẽ lại bằng nguồn khác khi lỗi” và thứ tự nguồn dự phòng. Ô chọn model chỉ liệt kê model đã chọn ở Kết nối AI; model không làm được việc đó hiện mờ kèm lý do.
@@ -548,6 +609,7 @@ Sáu mục:
   - **Cảnh:** ảnh (16:9, có hiệu ứng đang vẽ) · **Bản** 1 · 2… (chấm xanh = đang dùng, *Dùng bản N*) · **Prompt đã gửi** (4 dòng, *Xem đủ*, *Sửa* phần Cảnh; ảnh tham chiếu thu nhỏ; *Mở ở Duyệt* để sửa đủ) · ô góp ý + **Vẽ lại** · **Thay ảnh**. Vẽ xong ảnh mới **tự thay vào timeline**, giữ chuyển động, keyframe, thời lượng; toast “Cảnh 5 đã dùng bản 2” + *Hoàn tác (⌘Z)*; ảnh mới đánh dấu cần duyệt lại và Độ hoàn thiện kiểm lại. Trong lúc vẽ vẫn chỉnh editor được; khung xem và clip trên timeline có vòng chờ. <!-- r33-img --> · Chuyển động (Đứng yên / Zoom chậm / Trôi + co giãn) · Sang cảnh sau (Cắt / Mờ 1,2 s / Trượt) · **Nâng cao** gập (vị trí, kích thước, độ trong suốt, keyframe).
   - **Clip nền:** nguồn, đoạn lấy · Đổi ngẫu nhiên · Chọn đoạn khác · Bỏ (nói trước nền sẽ lặp). Chỉ cho video này.
   - **Không chọn gì:** cách bắt đầu + khung hình 1920×1080 · 30 fps (khoá, có lý do).
+- **Ảnh cảnh (đợt 41):** bấm ảnh ở bảng phải mở Trình xem ảnh chế độ **Xem + Thay** (7 ảnh của video, ← →, Thay ảnh). <!-- r41g -->
 - **Bảng trái khác:** Cảnh (7 dòng ảnh + giờ), Phụ đề (tìm, đoạn lệch có nhãn), Nền & lớp phủ (độ phủ, clip của video, Đổi ngẫu nhiên tất cả, nhắc đổi cho mọi video ở Template), Âm thanh (LUFS đo được, âm lượng giọng gốc / nền / lớp phủ), Media (như cũ).
 - **Timeline:** thanh công cụ **Tách (S) · Xoá · Bắt dính** + chip **Đoạn lệch 2/3 ‹ ›** + thu phóng. Bỏ công cụ chữ “V/T” và nhãn “Vùng In–Out” (chỉ hiện khi đã đặt). Đoạn lệch cam trên thước và track; thứ đang chọn có viền 2px đỏ; đoạn đã khớp trở về màu track.
 - **Xuất khi chưa đạt:** hỏi “Xuất khi chưa đạt độ hoàn thiện?” — liệt kê mục còn lại · **Sửa tiếp** (chính) · **Vẫn xuất** (ghi lại là người dùng chọn bỏ qua; giống Vẫn xuất ở Bàn dựng).
@@ -569,6 +631,8 @@ Sáu mục:
 <!-- r4-slots -->
 
 ## 9. Trợ lý chủ động <!-- r16-agent -->
+
+> **Đợt 41 (03/11):** Bàn dựng đã bỏ **Vì sao?** (§9.1), học quy tắc (§9.3), **Bản tin** (§9.6), **Kế hoạch / Nhắn trợ lý** (§9.7). Đề xuất (§9.2) chỉ còn 3 loại `hot_video`, `template_failing`, `cleanup`, hiện thành dòng trong Chờ bạn (W5). §9.4 Mức tự chủ và §9.5 đổi ở đợt 42. Các mục dưới giữ để đối chiếu, **không làm phần đã bỏ**. <!-- r41g -->
 
 Bốn trợ lý không chỉ chạy các bước. Chúng **giải thích**, **đề xuất**, **học** từ việc bạn sửa, **tự làm** phần bạn đã giao, và **kể lại** khi bạn quay về. Mục này là luật cho lớp đó; giao diện ở `Main` (`agent=…`), `Explore` (`why`), `Channel`, `Review` và các board điện thoại cùng tên.
 
@@ -613,6 +677,8 @@ Bốn trợ lý không chỉ chạy các bước. Chúng **giải thích**, **đ
 - Hiệu lực từ lần viết/vẽ tiếp theo (L9, L14). Video đã viết xong không tự đổi; có thể bấm Viết lại.
 
 ### 9.4 Mức tự chủ
+> **Đợt 42 (03/11):** thay bằng khối **Tự động** ở Kênh › Nguồn & tự động (W11): Tự lấy video (công tắc, lấy mọi video mới), Video mỗi ngày, **Tự duyệt ảnh** (công tắc, ngưỡng cố định 85). Máy luôn tự thử sửa lỗi 1 lần; video chưa đạt 90 luôn hỏi (Cần xử lý). Bảng ba mức dưới đây chỉ để đối chiếu, không làm. <!-- r42 -->
+
 Mỗi kênh có một **Mức tự chủ** ở Kênh › Nguồn & tự động, chọn bằng 3 mức sẵn hoặc chỉnh từng dòng (hiện “Tuỳ chỉnh”).
 
 | Việc | Cẩn thận | **Cân bằng** (mặc định) | Tự chạy |
@@ -631,6 +697,8 @@ Mỗi kênh có một **Mức tự chủ** ở Kênh › Nguồn & tự động,
 - Mọi việc tự làm ghi vào Thông báo (`action_result`, nguồn “Tự làm theo Mức tự chủ”) và Bản tin.
 
 ### 9.5 Ưu tiên kênh và hiệu quả sau đăng
+> **Đợt 42 (03/11):** bỏ cả mục này (số liệu sau đăng, Trợ lý nhận ra, Ưu tiên kênh). Đánh dấu đã đăng chỉ ghi ngày; kênh luôn chạy đều theo thứ tự mới. Không làm phần dưới. <!-- r42 -->
+
 - **Số liệu sau đăng:** khi bạn **Đánh dấu đã đăng** (dán link YouTube, hoặc app tự khớp theo link kênh), Trinh sát đọc lượt xem, thích, bình luận công khai ở mốc 24 giờ, 7 ngày, 28 ngày (nguồn chờ quyết định D5). Tab Video › Đã đăng hiện lượt xem 7 ngày và so với trung vị kênh (“×1,4”).
 - **Trợ lý nhận ra:** khi kênh có ≥ 6 video đã đăng có số 7 ngày, Trinh sát so theo template, kiểu tiêu đề, độ dài, giờ đăng. Một nhận xét chỉ hiện khi chênh ≥ ×1,3 và mỗi nhóm ≥ 3 video; dưới 20 video gắn nhãn **Sơ bộ**. Mỗi nhận xét có một nút ghi đúng việc (“Thêm vào quy tắc viết”, “Cho chạy nhiều hơn”) — không tự áp dụng. Chỉ đếm video đã có số 7 ngày.
 - **Ưu tiên kênh** (Kênh › Nguồn & tự động): **Đều đặn** (mặc định: giữ nhịp, lấy theo thứ tự mới) hoặc **Lượt xem**. Lượt xem: Tự lấy xếp video điểm nổi trội cao trước trong phần của kênh, và Template luân phiên cho template có lượt xem 7 ngày tốt hơn chạy nhiều hơn (tối đa gấp đôi lượt). Chưa đủ 6 video có số thì chạy như Đều đặn và ghi “Cần thêm N video có số liệu”.

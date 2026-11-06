@@ -31,15 +31,18 @@ function Frame({ children }: { children: ReactNode }) {
  * The transport's icon buttons carry Radix tooltips, so the standalone route supplies the
  * `TooltipProvider` the editor root normally owns.
  */
-export function PreviewPlayer({ projectId }: { projectId: string }) {
+export function PreviewPlayer({ projectId, active }: { projectId: string; active: boolean }) {
   return (
     <TooltipProvider>
-      <PreviewPlayerBody projectId={projectId} />
+      <PreviewPlayerBody projectId={projectId} active={active} />
     </TooltipProvider>
   );
 }
 
-function PreviewPlayerBody({ projectId }: { projectId: string }) {
+function PreviewPlayerBody({ projectId, active }: { projectId: string; active: boolean }) {
+  useEffect(() => {
+    if (!active) usePlaybackStore.getState().pause();
+  }, [active]);
   const { state, retry } = usePreviewSession(projectId);
   const loaded = useProjectStore((store) => store.currentProject?.id === projectId);
   if (state === "not-found") {

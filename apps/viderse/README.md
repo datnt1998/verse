@@ -83,6 +83,12 @@ Viderse chạy trên Mac mini cùng Noverse, địa chỉ công khai `vid.aarver
 
 Tuyến live dùng `~/server/bin/build-deploy-viderse.sh` và launchd `com.dat.viderse`; script dựng từ `origin/main`, migrate, kiểm `/readyz` và tự rollback nếu lỗi. Xem [tuyến Mac mini và cấu hình triển khai](deploy/README.md#tuyến-live-trên-mac-mini). Dockerfile vận hành nằm trên máy chủ, không phải Dockerfile của Noverse; hai tuyến dùng chung checkout nên triển khai tuần tự.
 
+Cutover workflow V38 không được dựa vào rollback binary đơn lẻ của script hiện tại:
+cần quiesce mọi writer, backup đã thử restore và nhánh recovery tương thích schema
+trước khi migrate. Sau khi mở ghi lại không tự phục hồi snapshot cũ. `/readyz` và
+marker commit không thay bằng chứng inode của process, public assets và đọc dữ liệu
+thực qua phiên đăng nhập.
+
 ## Sao lưu và khôi phục
 
 Sao lưu **cùng lúc**: DB nghiệp vụ, DB identity (kho tài khoản dùng chung), thư mục dự án (hoặc bucket S3) và `~/.viderse/secret.key`.
@@ -243,6 +249,19 @@ npm test -w apps/viderse/web
 npm run build -w apps/viderse/web        # build ra internal/web/dist (được //go:embed vào binary)
 npm run size -w apps/viderse/web         # gate entry JS, cold mobile JS và CSS, kể cả CSS inline
 ```
+
+Inventory nghiệm thu production dùng cùng extractor artboard nhưng tách receipt QA cũ:
+
+```bash
+node tests/viderse-workflow/artboard-state-manifest.mjs --production --out <new-plan>/reports/production-state-matrix.json
+node tests/viderse-workflow/artboard-state-manifest.mjs --production --check --out <new-plan>/reports/production-state-matrix.json
+```
+
+`--production` bao gồm 29 board sản phẩm, Auth desktop, nhóm nghiệm thu và probe
+geometry/lifecycle. Tất cả bắt đầu `pending`, không chứng minh đã chụp production;
+source/build/deployed hash chỉ điền khi nghiệm thu. Phải chỉ định `--out` mới,
+không trỏ vào receipt cũ (kể cả qua symlink/hard link). Runner baseline và interaction
+QA vẫn chỉ cho loopback; không nới guard để gán ảnh fixture thành ảnh production.
 
 Ngân sách và đồ thị tải thực thuộc [`web/scripts/size.mjs`](web/scripts/size.mjs).
 Phân phối StyleX production thuộc [`stylex-route-css.ts`](web/scripts/stylex-route-css.ts):

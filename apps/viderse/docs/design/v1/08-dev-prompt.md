@@ -968,6 +968,175 @@ Nguồn sự thật:
 - Tạo kênh khi ChatGPT không phản hồi: vẫn tới bước Xong, tên “Kênh mới”, *Thử lại* chạy lại Đạo diễn.
 - Ghi “Gói V34” vào `10-gap-closure.md`.
 
+## Gói V35 — Trạng thái hệ thống và xác nhận trên điện thoại (P2) <!-- r39 --> <a id="goi-v35"></a>
+
+**Vì sao:** `System` và `Dialogs` (máy tính) chưa có bản điện thoại. Board mới `MSystem` · tweak `state`, cùng câu chữ với máy tính, hộp thoại thành sheet đáy.
+
+| `state` | Khớp máy tính | Ghi chú điện thoại |
+|---|---|---|
+| `loading` | `System` · `loading` | Ô xương theo bố cục Bàn dựng, giữ thanh trên và thanh dưới |
+| `offline` | `System` · `offline` | Banner cam + *Thử lại ngay*; danh sách cũ mờ, không bấm được; nút Việc nền đổi icon cam |
+| `notfound` | `System` · `not-found` | Bỏ dòng mã kỹ thuật (chỉ máy tính có ở *Chi tiết*); một nút **Về Bàn dựng** |
+| `empty` | `System` · `empty-workbench` | **Làm video đầu tiên** + *Mở Khám phá*, 4 trợ lý “Chờ việc” |
+| `delVideo` · `delChannel` (+ `typed`) · `redrawAll` · `restart` | `Dialogs` cùng tên | Sheet đáy, hai nút chia đôi: Huỷ + nút chính; xoá dùng nút cam. Xoá kênh mở từ Kênh › Hồ sơ kênh, nút chỉ mở khi gõ đúng tên |
+| `ask` · `unknown` | `Dialogs` · `assistant-confirm` · `assistant-unknown` | Gợi ý là hàng bấm được 52px |
+| `clip` | `Dialogs` · `clip-picker` | Mở từ chi tiết video › Nền video; chip lọc cuộn ngang, danh sách clip, dải Từ–Đến |
+
+### Nghiệm thu
+- Điện thoại: tắt mạng ở Bàn dựng thấy banner + danh sách mờ; mở link video đã xoá thấy “Không tìm thấy video này”, không lộ mã lỗi.
+- Mọi xác nhận là sheet đáy, Huỷ bên trái; xoá kênh khoá nút tới khi gõ đúng tên.
+- Ghi “Gói V35” vào `10-gap-closure.md`.
+
+## Gói V36 — Workflow gọn, Trình xem ảnh, nối nút (P1) <!-- r40 --> <a id="goi-v36"></a>
+
+**Vì sao:** người dùng gặp nhiều chỗ bấm không ra gì (hộp thoại không mở, bấm ảnh không xem được). Máy bấm thử 557 điều khiển trên 16 board máy tính: 120 không phản hồi. Workflow gọn đã chốt ở board **`Workflow`** và `01-ia-flows.md` § 0.3; gói này là đợt đầu.
+
+### Làm ngay (đợt 40)
+- **Trình xem ảnh** (04 › Trình xem ảnh): thành phần dùng chung. Bàn dựng › Phòng vẽ: bấm ảnh mở chế độ Xem; nút Vẽ lại trên ô ảnh mở luôn ô góp ý. Video chờ duyệt: bấm ảnh sang Duyệt đúng ảnh đó. Artboard `Main` · `viewer=view|redraw`.
+- **Duyệt:** nút “Vẽ lại cả 7 ảnh” mở hộp xác nhận (trước đây chỉ có ở `Dialogs`). Artboard `Review` · `confirm=redrawAll`.
+- **Nối nút:** Thư viện (Nhân bản, Xuất tệp → toast), Khám phá (Sao chép link → toast “Đã chép link YouTube”), Cài đặt (Kiểm tra lại), Template (Mở trong editor là link; ⋯ mở menu Nhân bản · Xuất tệp · Về Thư viện · Xoá (khoá khi đang dùng); nút phát xem thử), Việc nền (dòng video và nút Mở tới Bàn dựng; Cài đặt thông báo mở đúng màn), hộp thoại ở `Dialogs` đóng được bằng Huỷ / ×.
+- Toast kết quả dùng `.vv-toast` của kit, giữa đáy, tự đóng sau 4 giây.
+
+### Ảnh hưởng tới backend (đã chốt, áp khi tới đợt)
+- Bỏ: đọc số liệu sau đăng và `perf_insight`, khoá YouTube Data API (`YoutubeDataKeyCard`, `/api/performance/data-key`), `learn_rule`, `raise_autonomy`, `pace`, Ưu tiên kênh “Lượt xem”, ngoại lệ ảnh theo video (prompt riêng video), danh sách luân phiên template của kênh, cờ ưu tiên khi thêm nhiều link.
+- Đổi: Mức tự chủ của kênh còn một cờ `autoApprove` (ngưỡng cố định 85); kênh có một `defaultTemplateId`; video người dùng tự thêm luôn vào phần đầu hàng.
+- Anh/chị dev xem lại, chỗ nào khó bỏ (đã có dữ liệu) thì ghi hỏi đáp trước khi xoá.
+
+### Tạo kênh: Cách kênh chạy (đợt 41b) <!-- r41b -->
+- Ba dòng: **Template** (ô chọn mở danh sách nổi — `Select`/`Popover`, không đẩy nội dung; điện thoại mở sheet đáy — bỏ link “Chọn template khác” sang Thư viện), **Tự duyệt ảnh** (công tắc → `autoApprove`), **Video mỗi ngày** (bước chỉnh → nhịp kênh). Bỏ Mức tự chủ ba mức ở màn này.
+- Artboard `CreateChannel` · `Onboard` (bước Tạo kênh) · `MCreate` · tweak `tplMenu`.
+
+### Đợt sau (đã chốt, chưa vẽ lại)
+- 41 Bàn dựng gọn (xong, xem Gói V37) · 42 Kênh chỉ còn thiết lập (xong, xem Gói V38), Thư viện lên thanh trên · 43 Làm video thành hộp thoại (xong, xem Gói V39) · 44 điện thoại (xong, xem Gói V40) · 45 Trình xem ảnh bản điện thoại. Chi tiết ở board `Workflow` mục 05 và 07.
+
+### Nghiệm thu
+- Bàn dựng: bấm một ảnh đã vẽ ở Phòng vẽ → Trình xem ảnh; ← → đổi ảnh, Esc đóng; Góp ý & vẽ lại hiện giá trước khi gửi.
+- Duyệt: Vẽ lại cả 7 ảnh → hộp xác nhận có số ảnh tốn.
+- Không còn nút nào bấm không có phản hồi ở các chỗ liệt kê trên.
+- Ghi “Gói V36” vào `10-gap-closure.md`.
+
+## Gói V37 — Bàn dựng gọn, Editor & Template mở ảnh, nền mới cho Việc nền/Hộp thoại/Trạng thái (P1) <!-- r41g --> <a id="goi-v37"></a>
+
+**Vì sao:** đợt 41 của workflow gọn (01 § 0.3). Bàn dựng còn nhiều khối ít dùng (Bản tin, Nhắn trợ lý, chip Ảnh, cột phải 4 tab) và nhiều chỗ bấm không ra gì.
+
+### Màn và artboard
+- **4.1 Bàn dựng** (`Main`) — 01 › W5 (viết lại):
+  - Thanh trên: Bàn dựng · Duyệt · Kênh · Khám phá · **Thư viện** + nút **Làm video** (N).
+  - Cột trái: bấm dòng mở video; **Chọn** → hộp kiểm + thanh **Tải gói N video**; **đề xuất là dòng trong Chờ bạn** (3 loại, có ×); chân cột “Template mặc định”.
+  - Cột giữa: khối **Tiến độ** (2 dòng nhật ký + “Nhật ký · N bước”) gộp vào khối chính; bỏ dock (ô nhắn, kế hoạch, hàng phím tắt); bố cục tóm tắt cho video không có bộ ảnh; ảnh thành phẩm 16:9; toast góc dưới phải.
+  - Cột phải: hai tab **Nội dung đăng · Thông tin** (mặc định Thông tin). Sao chép, bỏ/thêm tag đã nối.
+  - Bỏ: Bản tin, nút Đề xuất N, chip Ảnh (ảnh riêng video), Vì sao?, Lưu thành quy tắc, thẻ Kế hoạch, ô Nhắn trợ lý.
+  - Tweak: `video`, `select`, `panel=info|content`; bỏ `agent`, `promptPop`.
+- **3.2 Editor** (`Editor`): bấm ảnh cảnh mở Trình xem ảnh **Xem + Thay**; thanh trái là cột dọc (trước bị vẽ thành nhóm ngang); nối hoàn tác/làm lại, Phím tắt (popover nổi), Về đầu/Phát/Tới cuối, tắt tiếng, ±0,1 s, Nghe lại, Tách/Xoá, thu phóng timeline, ẩn từng track.
+- **5.3 Sửa template** (`Template`): nút mắt trên mỗi prompt mở Trình xem ảnh **Mẫu**; ô “Dựng từ video đã làm” và ô video của Vẽ thử ảnh bìa là **danh sách nổi** (`Select`/`Popover`, không đẩy nội dung); thanh Độ mạnh/Tốc độ kéo được; Chọn ảnh, Đặt lại, Bỏ hiệu ứng, Thêm vào kênh, Bỏ khỏi kênh có phản hồi.
+- **2.3 Việc nền** (`Activity`), **6.1 Hộp thoại** (`Dialogs`), **6.2 Trạng thái hệ thống** (`System`): nền phía sau dựng lại từ `Main` mới.
+  - Việc nền: bấm viên đóng/mở popover; nối mọi nút trong popover; công tắc Cài đặt thông báo bật/tắt được; bỏ “Bản tin khi bạn quay lại”; “Đề xuất của trợ lý” một công tắc cho 3 loại.
+  - Hộp thoại: bỏ `assistant-confirm` / `assistant-unknown` (ô Nhắn trợ lý đã bỏ); Phím tắt “N Làm video” thay “/ Nhắn trợ lý”, bỏ “Gửi tin nhắn”; “template mặc định” thay “template luân phiên”.
+  - Trạng thái: khung đang tải theo bố cục mới; Mất kết nối có Thử lại ngay (“Đang kết nối lại…”) và Chi tiết; Bàn dựng chưa có video: cột phải “Bốn trợ lý”, chân trái “Template mặc định”, ẩn số Duyệt khi 0.
+
+### Việc FE
+- Bàn dựng: `VideoList` dòng là nút; thêm chế độ chọn (`selection` state, thanh dính); `SuggestionRow` (orb, câu, trợ lý · việc, nút ×) trong nhóm Chờ bạn; bỏ `RecapView`, `SuggestionCard`, `PlanCard`, `AgentComposer`, `ExplainPopover`, `LearnRulePrompt`, `VideoImagePopover`.
+- Cột phải: `Tabs` 2 mục; tab Thông tin gom Bốn trợ lý + Nguồn + Template + Nền.
+- Trình xem ảnh dùng lại ở Editor (`mode="view-replace"`) và Template (`mode="sample"`).
+- Lớp phủ Việc nền/Hộp thoại/Trạng thái dùng chung khung Bàn dựng, không giữ bản sao riêng.
+
+### Ảnh hưởng tới backend
+- Không còn gọi: tạo Bản tin, `explain`, `learn_rule`, kế hoạch từ câu nhắn, ngoại lệ ảnh theo video. Đề xuất chỉ 3 loại (Gói V36).
+- Cài đặt thông báo: bỏ cờ “Bản tin khi bạn quay lại”; “Đề xuất của trợ lý” là một cờ bật/tắt.
+
+### Nghiệm thu
+- Bàn dựng: bấm từng dòng ở cột trái → cột giữa và cột phải đổi theo video; Chọn → chọn 2 video sẵn sàng → “Tải gói 2 video”; × trên dòng đề xuất → dòng ẩn.
+- Editor: bấm ảnh cảnh → Trình xem ảnh, ← → đổi ảnh, Esc đóng.
+- Template: bấm mắt trên prompt → Trình xem ảnh Mẫu; mở ô “Dựng từ video đã làm” → danh sách nổi, nội dung bên dưới không dịch.
+- Việc nền / Hộp thoại / Trạng thái: nền giống hệt Bàn dựng mới; không còn Bản tin, chip Ảnh, ô nhắn.
+- Bấm thử: các board trên về 0 nút không phản hồi (trừ phần nằm dưới hộp thoại/popover).
+
+## Gói V38 — Kênh chỉ còn thiết lập, Thư viện lên thanh trên, template mặc định (P1) <!-- r42 --> <a id="goi-v38"></a>
+
+**Vì sao:** đợt 42 của workflow gọn (01 § 0.3). Trang Kênh có bảng video thứ hai (trùng Bàn dựng), cột tóm tắt và lịch đăng ít dùng, Mức tự chủ quá nhiều lựa chọn, luân phiên template khó đoán video nào ra kiểu gì; Thư viện bị giấu trong cột trái trang Kênh.
+
+### Màn và artboard
+- **Thanh trên mọi màn máy tính** (`Main`, `Review`, `Channel`, `Explore`, `Library`, `Template`, `Queue`, `Settings`, `NewVideo`, `CreateChannel`, `Onboard`, `Auth`, `Activity`, `Dialogs`, `System`): Bàn dựng · Duyệt · Kênh · Khám phá · **Thư viện** + nút **Làm video (N)**. Sửa template sáng ở Thư viện.
+- **5.1 Kênh** (`Channel`) — 01 › W11 (viết lại):
+  - Cột trái chỉ còn Kênh của tôi (bấm đổi kênh) + Tạo kênh.
+  - Ba tab Nguồn & tự động · Template · Hồ sơ kênh. Bỏ tab Video, cột Đang áp dụng, Lịch đăng.
+  - Số liệu 4 ô + “Xem trong Bàn dựng”.
+  - Khối **Tự động**: Tự lấy video mới (công tắc), Video mỗi ngày (1–20), Tự duyệt ảnh (công tắc, ≥ 85).
+  - Tab Template: một **Template mặc định** + Đổi template (danh sách nổi) + Sửa template.
+  - Hồ sơ kênh: bỏ Quy tắc đã học; nối Vẽ lại, Tải, Đặt tên khác, Tạo lại cả bộ, ngôn ngữ, tag, Xoá kênh.
+  - Bỏ liên kết đối thủ hỏi xác nhận; Liên kết N chạy.
+  - Tweak: `tab=sources|templates|settings`, `channel`, `autoApprove`, `tplMenu`, `identity`, `link`, `fresh`.
+- **5.2 Thư viện** (`Library`): bỏ cột trái; template ghi “Mặc định của …”; menu ⋯ “Đặt làm mặc định cho kênh…”; nối Đổi tên, Nhập prompt, Vẽ thử, Nhân bản, Lưu, Làm mới, Hiện thêm; danh sách nổi cho Vẽ thử với và Sắp xếp.
+- **5.3 Sửa template** (`Template`): chip “Mặc định của 2 kênh” (MT, QH); mục **Kênh dùng làm mặc định** + Đổi ở Kênh; nối Xuất tệp, Nhân bản.
+- **6.1 Hộp thoại** (`Dialogs`): bỏ `autonomy` (Chuyển sang Tự chạy).
+
+### Việc FE
+- `TopNav` một bộ cho mọi màn; `NewVideoButton` (đợt 43 mở hộp thoại).
+- Trang Kênh: bỏ `ChannelVideosTab`, `AppliedSummary`, `RivalSchedule`, `AutonomyPresets`, `ChannelPriority`, `LearnedRules`, `TemplateRotationList`. Thêm `AutomationCard` (3 dòng) và `DefaultTemplateCard` (`Select`/`Popover` không đẩy nội dung).
+- Thư viện: route riêng `/library` trên thanh trên; bỏ `LibrarySideNav`.
+
+### Ảnh hưởng tới backend
+- Kênh: `defaultTemplateId` (bắt buộc) thay danh sách luân phiên; `autoApprove: boolean` (ngưỡng 85 cố định) thay `autonomy` (pick/approve/onError/below + ngưỡng); `autoFetch: boolean`; `perDay` 1–20.
+- Bỏ: `priority` (steady/views), `learned_rules`, số liệu sau đăng, lịch đăng đối thủ theo kênh (lịch vẫn có ở Khám phá).
+- Đổi template mặc định áp cho job tạo sau thời điểm đổi; job đang chạy giữ template cũ.
+- Dữ liệu cũ: kênh có luân phiên thì lấy template đầu danh sách làm mặc định; `autonomy.approve = score|all` → `autoApprove = true`.
+
+### Nghiệm thu
+- Kênh: bấm Chuyện Lạ Đêm Khuya ở cột trái → số liệu, đối thủ (Hồ Sơ Bí Ẩn), template (Truyện kể đêm), hồ sơ đổi theo; Đổi template → danh sách nổi, chọn → toast; Tự duyệt ảnh bật → chip ở đầu trang.
+- Không còn chữ “luân phiên”, “Mức tự chủ”, “Ưu tiên kênh” ở máy tính.
+- Thư viện mở từ thanh trên, mục Thư viện sáng; Sửa template cũng sáng Thư viện.
+- Bấm thử Kênh, Thư viện, Template: 0 nút không phản hồi.
+
+## Gói V39 — Làm video thành hộp thoại, Khám phá nối hộp, Hàng chờ gọn (P1) <!-- r43 --> <a id="goi-v39"></a>
+
+**Vì sao:** đợt 43 của workflow gọn. Video mới là một trang riêng chỉ để dán link; người dùng phải rời màn đang làm. Hộp thoại Nhập nhanh làm việc này tại chỗ.
+
+### Màn và artboard
+- **2.1 Làm video** (`NewVideo`, nền Bàn dựng) — 01 › W4 (viết lại): ô dán một/nhiều link, thẻ xem trước hoặc danh sách, Kênh + Template (danh sách nổi; nhãn “mặc định” / “chỉ video này”), dòng kế hoạch, Làm video / Làm N video. Tweak `input`, `from=topbar|explore`, `picker`.
+- **1.1 Khám phá** (`Explore`): Làm N video và Làm video cho <kênh> mở hộp; chip lọc + Giới hạn quét là danh sách nổi; Top 10/20 chọn thật; menu ⋯ đối thủ nối đủ; bỏ Vì sao? (tweak `why`); xem trước ghi template mặc định.
+- **2.2 Hàng chờ** (`Queue`): Quy tắc chạy còn Luồng chạy cùng lúc + Nhịp kênh; template trong Chờ lượt theo mặc định của kênh.
+
+### Việc FE
+- `NewVideoDialog` (Nhập nhanh) dùng chung; mở bằng nút thanh trên, phím N, Khám phá (truyền danh sách video đã chọn), Hàng chờ trống, Bàn dựng chưa có video. Route `/new` (nếu còn) chuyển sang mở hộp trên trang trước đó.
+- Một `textarea` nhận một hoặc nhiều link (tách theo dòng/khoảng trắng); đọc từng link song song, hiện trạng thái từng dòng.
+- `Select` Kênh / Template: `Popover` nổi, không đẩy nội dung.
+- Bỏ: trang `NewVideo` cũ, `ModeTabs` (Một link / Nhiều link), công tắc Ưu tiên cả N, khối gợi ý.
+- Khám phá: bỏ `ExplainPopover` (Vì sao nổi trội?).
+
+### Ảnh hưởng tới backend
+- `POST /api/jobs` nhận `templateId` tuỳ chọn cho từng lần thêm (mặc định = `defaultTemplateId` của kênh); không còn cờ ưu tiên — job người dùng thêm luôn vào phần đầu hàng.
+- Kiểm tra trùng theo (video nguồn, kênh) trước khi tạo; trả về job đã có để mở ở Bàn dựng.
+- Quy tắc chạy: chỉ còn `workers` (1–6) cho người dùng chỉnh; `imageConcurrency` (3) và chu kỳ quét (1 giờ) cố định.
+
+### Nghiệm thu
+- Từ Kênh bấm Làm video → hộp mở trên Kênh; dán 4 link trong đó 1 link đã làm → “Làm 3 video”; đổi template → nhãn “chỉ video này”; bấm Làm → toast, hộp đóng, vẫn ở Kênh.
+- Khám phá: chọn 3 video → Làm 3 video → hộp mở với 3 video, không có ô dán.
+- Hàng chờ: chỉ còn 2 điều khiển ở Quy tắc chạy.
+- Bấm thử `NewVideo`, `Explore`, `Queue`: 0 nút không phản hồi (trừ phần nằm dưới hộp thoại).
+
+## Gói V40 — Điện thoại theo workflow, 0 nút không phản hồi (P1) <!-- r44 --> <a id="goi-v40"></a>
+
+**Vì sao:** đợt 44. Máy tính đã gọn ở đợt 41–43 nhưng điện thoại còn phần đã bỏ (Bản tin, Vì sao?, học quy tắc, luân phiên template, thẻ YouTube Data API) và nhiều nút bấm không có phản hồi; nhóm chọn có viên trượt lệch vài px.
+
+### Màn và artboard
+Chi tiết từng màn ở 01 › §6.2 (khối Đợt 44). Board: `MMain`, `MNew`, `MChannel`, `MExplore`, `MCompVideo`, `MReview`, `MQueue`, `MLibrary`, `MTemplate`, `MSettings`, `MSystem`, `MAuth`, `MCreate`. Máy tính sửa kèm: `Settings` (bỏ thẻ YouTube Data API), `Review` (bỏ Vì sao?, học quy tắc), `CreateChannel` (nút Theo dõi & chọn).
+
+### Việc FE
+- Điện thoại: mọi danh sách thả, menu ⋯ và chi tiết phụ là `BottomSheet` (scrim đóng được, kể cả khi mở sẵn); kết quả là `Toast` đặt trên thanh dưới / thanh thao tác; xoá, đăng xuất dùng `ConfirmSheet` nói hệ quả (số GB, việc bị ảnh hưởng).
+- Bỏ khỏi điện thoại: `RecapCard`, `SuggestionStrip` (đề xuất thành dòng trong Chờ bạn), `WhyButton`/`ExplainSheet`, `LearnPrompt` (Ghi chú đã học), `AssistantComposer` và hai sheet trợ lý ở `MSystem`, `YoutubeDataKeyCard` (cả máy tính).
+- `Segmented` có viên trượt: đo lại bằng `ResizeObserver` trên nhóm và từng nút, và khi `document.fonts` tải xong — không chỉ lúc mount.
+- Tab Thư viện điện thoại: 4 cột bằng nhau, không cuộn ngang; số lượng chuyển xuống mô tả tab.
+- Template trong Hàng chờ, Thư viện, Sửa template, Video đối thủ lấy từ `defaultTemplateId` của kênh (MT, QH: Mẫu chuẩn · Tách nền; CL: Truyện kể đêm).
+
+### Ảnh hưởng tới backend
+- Không thêm API. Bỏ `/api/performance/data-key` (khoá YouTube Data API) và phần prompt `learned` khỏi prompt đã gửi.
+- Đăng xuất một nhà cung cấp gói (ChatGPT, Grok): trợ lý không dùng nhà cung cấp đó; ảnh đang vẽ chuyển nguồn dự phòng nếu bật, không thì chờ.
+
+### Nghiệm thu
+- Bấm thử tự động 13 board điện thoại ở mọi giá trị tweak: 0 nút không phản hồi (trừ phần nằm dưới sheet đang mở), mọi sheet nằm trong màn, không tràn ngang.
+- Nhóm chọn có viên trượt: lệch ≤ 2px so với nút đang chọn sau khi font tải xong.
+- Không còn chữ “luân phiên” (template), “Mức tự chủ”, “Vì sao?”, “Ghi chú đã học”, “YouTube Data API” ở màn điện thoại.
+
 ## Tổng hợp backend
 
 | Gói | Thay đổi DB/API |
@@ -1004,6 +1173,8 @@ Nguồn sự thật:
 | V32 | Tiến độ trung bình các việc đang chạy cho vòng của nút Việc nền (có thể tính ở FE từ `status`); số thông báo chưa đọc (đã có `attention`) | <!-- r36 -->
 | V33 | Không đổi API (chỉ giao diện) | <!-- r37 -->
 | V34 | Không đổi API; Khám phá cần gọi lại danh sách khi bấm Thử lại; Tạo kênh trả kênh dù Đạo diễn lỗi (tên tạm) | <!-- r38 -->
+| V35 | Không đổi API (chỉ giao diện điện thoại) | <!-- r39 -->
+| V36 | Không đổi API ở đợt 40; đợt 43 cần điểm mở hộp Làm video từ mọi màn (chỉ FE) | <!-- r40 -->
 | V11 (đợt 16) | `assistant/plan`, `assistant/run-plan`, intent `prioritize`/`set_autonomy`/`add_rule`/`make_videos` |
 | V17 | `ai_providers` (+ khoá trong keychain), danh mục model, `GET/PUT /api/ai/agents`, `clone.imageProvider`/`imageFallback` → `artist.draw`/`drawFallback`, gọi model qua adapter (Codex, Grok CLI, OpenAI-compatible, Gemini, Ollama) | <!-- r8-ai -->
 <!-- r3-dev -->
