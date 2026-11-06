@@ -218,10 +218,10 @@ func updateTemplateProject(raw json.RawMessage, name string, recipe domain.Recip
 	// Struct-valued settings serialize in declaration order, then reorder on
 	// the next parse/marshal and change the persisted project's byte identity.
 	images := map[string]any{"mode": recipe.Scenes.Images.Mode}
-	if recipe.Scenes.Images.Count != 0 {
+	switch recipe.Scenes.Images.Mode {
+	case ImagesFixed:
 		images["count"] = recipe.Scenes.Images.Count
-	}
-	if recipe.Scenes.Images.Minutes != 0 {
+	case ImagesPerMinutes:
 		images["minutes"] = recipe.Scenes.Images.Minutes
 	}
 	motion := recipe.Scenes.Motion

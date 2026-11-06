@@ -234,7 +234,7 @@ export function PreviewPanel({ video, rival, channels, onClose }: {
         aria-label={selectedChannel ? tt.makeVideoForAria(selectedChannel.name) : undefined}
         onClick={make}
       >
-        <Icon name="video-add" size={18} />
+        <Icon name="video-add" size={18} xstyle={exploreStyles.actionIcon} />
         <span {...stylex.props(previewStyles.makeBtnText)}>
           <span>{queued ? tt.queuedLabel : tt.makeVideo}</span>
           {selectedChannel && !queued && <span {...stylex.props(previewStyles.makeBtnSub)}>{tt.makeSubtitle(selectedChannel.name)}</span>}
@@ -284,8 +284,8 @@ export const previewStyles = stylex.create({
   "usedOpen": { flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: s["--vv-s-3"], fontSize: "12px", color: color["--color-fg-3"], textDecorationLine: "none" },
   "locknote": { "margin": 0, "fontSize": "12px", "lineHeight": 1.5, "color": "var(--vv-fg-note)" },
   /* Artboard Explore › preview: CTA rộng theo nội dung, hai dòng "Làm video / cho <kênh>". */
-  "makeBtn": { "alignSelf": "flex-start", "height": "auto", "minHeight": "44px", "paddingBlock": s["--vv-s-6"] },
-  "makeBtnText": { "minWidth": 0, "display": "flex", "flexDirection": "column", "alignItems": "flex-start", "lineHeight": 1.3 },
+  "makeBtn": { "alignSelf": "flex-start", "minWidth": 0, "maxWidth": "100%", "height": "auto", "minHeight": "44px", "paddingBlock": s["--vv-s-6"], "overflow": "hidden" },
+  "makeBtnText": { "flex": "1 1 auto", "minWidth": 0, "maxWidth": "100%", "display": "flex", "flexDirection": "column", "alignItems": "flex-start", "lineHeight": 1.3 },
   "makeBtnSub": { "maxWidth": "100%", "fontSize": "12px", "fontWeight": 500, "color": "rgba(11,11,13,0.82)", "whiteSpace": "nowrap", "overflow": "hidden", "textOverflow": "ellipsis" },
   "yt": { "alignSelf": "flex-start", "height": "34px", "padding": `0 ${s["--vv-s-12"]}`, "display": "inline-flex", "alignItems": "center", "gap": s["--vv-s-6"], "borderRadius": r["--vv-r-9"], "borderWidth": "1px", "borderStyle": "solid", "borderColor": line["--line-4"], "color": color["--color-fg-2"], "textDecorationLine": "none", "fontSize": "13px" },
   "duration": { "position": "absolute", "right": s["--vv-s-8"], "bottom": s["--vv-s-7"] },

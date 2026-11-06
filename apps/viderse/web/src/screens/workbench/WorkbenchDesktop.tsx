@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
-import { Button, Icon, type IconName } from '@noverse/ui'
+import { Button, Icon, Shimmer, type IconName } from '@noverse/ui'
 import { space as s, corners as r } from '../../styles/viderse.stylex'
 import { acceptExport, getWorkbench, getWorkbenchJob, getJobImages, getScoreArtifact, jobAction, getRecap, markRecapSeen, type CloneJobView } from '../../api/workbench'
 import { getJobImages as getFullJobImages, redrawImages, type ImageRef, type PromptPartKind, type RedrawRef } from '../../api/images'
@@ -205,13 +205,15 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
         <ol {...stylex.props(styles.rows)}>{group.items.map(item => {
           const itemStage = jobStage(item)
           const current = item.id === selectedId
+          const itemChannel = channelRows.find(channel => channel.channelId === item.channelId)
+          const itemRunning = item.stageGroup === 'working' && item.status === 'running'
           return <li key={item.id}><button type="button" aria-current={current || undefined} title={item.source.title} {...stylex.props(styles.row, current && styles.selected)} onClick={() => { if (recapOpen) closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, scope: route.scope, video: item.id })) }}>
-            {scope === 'all' && <ChannelAvatar name={channelRows.find(c => c.channelId === item.channelId)?.name ?? item.source.channelTitle ?? 'Kênh'} initials={channelRows.find(c => c.channelId === item.channelId)?.initials} src={channelRows.find(c => c.channelId === item.channelId)?.avatarUrl ?? undefined} color={channelRows.find(c => c.channelId === item.channelId) ? { bg: channelRows.find(c => c.channelId === item.channelId)!.color, ring: channelRows.find(c => c.channelId === item.channelId)!.color } : undefined} size={20} />}
-            <span {...stylex.props(styles.rowText)}><span {...stylex.props(styles.rowTitle, current && styles.rowTitleCurrent)}>{item.source.title}</span><span {...stylex.props(styles.rowHint)}>{item.subline}</span></span>
+            <ChannelAvatar name={itemChannel?.name || `Kênh ${item.channelId}`} initials={itemChannel?.initials || undefined} src={itemChannel?.avatarUrl ?? undefined} color={itemChannel ? { bg: itemChannel.color, ring: itemChannel.color } : undefined} size={20} />
+            <span {...stylex.props(styles.rowText)}><span {...stylex.props(styles.rowTitle, current && styles.rowTitleCurrent)}>{item.source.title}</span><span {...stylex.props(styles.rowHint)}>{itemRunning ? <Shimmer>{item.subline}</Shimmer> : item.subline}</span></span>
             {itemStage === 'review' ? <Icon name="flag" size={15} xstyle={styles.reviewIcon} label={label[item.stageGroup]} />
               : itemStage === 'issue' || itemStage === 'quality' ? <Icon name="danger" size={15} xstyle={styles.warnIcon} label="Cần xử lý" />
                 : itemStage === 'paused' ? <Icon name="pause" size={15} xstyle={styles.noteIcon} label="Tạm dừng" />
-                  : itemStage === 'render' || itemStage === 'images' ? (current ? <Orb of={itemStage === 'render' ? 'qa' : 'artist'} size={12} live /> : <span {...stylex.props(styles.rowSpinner)} aria-label="Đang làm" />)
+                  : itemRunning ? (current ? <Orb of={stepAgent(item.activeStep ?? '') ?? 'scout'} size={12} live /> : <span {...stylex.props(styles.rowSpinner)} aria-label="Đang làm" />)
                     : itemStage === 'done' ? <Icon name="tick-b" size={15} xstyle={styles.okIcon} label={item.stageGroup === 'posted' ? 'Đã đăng' : 'Sẵn sàng'} />
                       : <Icon name="clock" size={15} xstyle={styles.noteIcon} label="Chờ lượt" />}
           </button></li>
@@ -228,7 +230,7 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
       {recapOpen ? <Suspense fallback={<SystemLoading />}><Recap data={recap.data} loading={recap.initialLoading} error={recap.error} waitingCount={groups.find(group => group.key === 'waiting')?.count || 0} readyCount={groups.find(group => group.key === 'ready')?.count || 0} channelNames={Object.fromEntries(channelRows.map(c => [c.channelId, c.name]))} onRetry={() => void recap.refresh()} onEnter={closeRecap} onSelectJob={id => { closeRecap(); navigate(routePath({ name: 'workbench', channel: route.channel, video: id })) }} /></Suspense> : !selectedId ? <EmptyWorkbench /> : detail.initialLoading ? <SystemLoading /> : !job ? <SystemNotFound /> : <>
         <header {...stylex.props(styles.header)}>
           <div {...stylex.props(styles.heading)}>
-            {(scope === 'all' || job.channelId !== scope) && <ChannelAvatar name={jobChannel?.name ?? job.source.channelTitle ?? 'Kênh'} initials={jobChannel?.initials} src={jobChannel?.avatarUrl ?? undefined} color={jobChannel ? { bg: jobChannel.color, ring: jobChannel.color } : undefined} size={26} />}
+            {(scope === 'all' || job.channelId !== scope) && <ChannelAvatar name={jobChannel?.name || `Kênh ${job.channelId}`} initials={jobChannel?.initials || undefined} src={jobChannel?.avatarUrl ?? undefined} color={jobChannel ? { bg: jobChannel.color, ring: jobChannel.color } : undefined} size={26} />}
             <h1 title={job.source.title} {...stylex.props(styles.title)}>{job.source.title}</h1>
             <div {...stylex.props(styles.actions)}>
               {stage === 'images' && job.stageGroup === 'working' && <Button size="compact" variant="ghost" kbd="Esc" disabled={!online} title={!online ? 'Mất kết nối' : undefined} onClick={() => void action('pause')}><Icon name="pause" size={15} />Tạm dừng</Button>}
@@ -273,7 +275,7 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
           <div {...stylex.props(styles.logHead)}><h2 {...stylex.props(styles.h2)}><Icon name="activity" size={16} />Nhật ký tiến độ</h2><span {...stylex.props(styles.logCount)}>{job.steps?.length ?? 0} bước</span></div>
           <ol {...stylex.props(styles.logList)}>{job.steps?.length ? job.steps.map(step => {
             const agent = stepAgent(step.step)
-            const running = step.status === 'running'
+            const running = job.stageGroup === 'working' && job.status === 'running' && step.status === 'running'
             const failed = step.status === 'failed'
             const done = step.status === 'succeeded' || step.status === 'done'
             const text = progressText(step)
@@ -281,7 +283,7 @@ export function WorkbenchDesktop({ route }: { route: Extract<Route, { name: 'wor
             return <li key={step.step} {...stylex.props(styles.logRow)}>
               <span {...stylex.props(styles.logTime)}>{stepClock(step.startedAt)}</span>
               <span {...stylex.props(styles.logIcon)}>{running ? <span aria-label="Đang chạy" {...stylex.props(styles.rowSpinner)} /> : <Icon name={failed ? 'danger' : done ? 'tick-b' : 'clock'} size={15} label={state || undefined} xstyle={failed ? styles.warnIcon : done ? styles.okIcon : styles.noteIcon} />}</span>
-              <span {...stylex.props(styles.logText)}>{agent && <b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b>}{agent && ' · '}<span>{text}</span></span>
+              <span {...stylex.props(styles.logText)}>{agent && <b style={{ color: ASSISTANT_INK[agent] }}>{assistantName(agent)}</b>}{agent && ' · '}<span>{running ? <Shimmer>{text}</Shimmer> : text}</span></span>
               <span {...stylex.props(styles.logDuration)}>{stepDuration(step)}</span>
             </li>
           }) : <li {...stylex.props(styles.logEmpty)}>Chưa có bước nào chạy.</li>}</ol>

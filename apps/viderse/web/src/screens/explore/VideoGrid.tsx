@@ -56,6 +56,7 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
   const dur = fmtDuration(video.durationSec)
   const usage = video.usage?.[0]
   const usageTitle = video.usage?.map((u) => `${u.channelName} · ${stageLabel(u)}`).join('\n')
+  const makeLabel = channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo
   const copy = async () => {
     const ok = await copyText(video.url)
     if (ok) toast.ok(tt.copied)
@@ -103,14 +104,16 @@ export function VideoCard({ video, picked, selectMode, checked, onOpen, onToggle
         ) : (
           <ActionButton
             size="sm"
+            xstyle={exploreStyles.makeButton}
+            aria-label={makeLabel}
+            title={makeLabel}
             onClick={() => onOpen(video)}
-            icon={<Icon name="video-add" size={14} />}
+            icon={<Icon name="video-add" size={14} xstyle={exploreStyles.actionIcon} />}
           >
-            {channelLabel ? tt.makeFor(channelLabel) : tt.makeVideo}
+            <span {...stylex.props(exploreStyles.makeLabel)}>{makeLabel}</span>
           </ActionButton>
         )}
-        <span className={`vx-grow ${stylex.props(exploreStyles.grow).className}`} />
-        <Button variant="icon" size="sm" aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}><Icon name="copy" size={15} /></Button>
+        <Button variant="icon" size="sm" xstyle={exploreStyles.copyButton} aria-label={tt.copyLinkVideo(video.title)} title={tt.copyLinkTitle} onClick={copy}><Icon name="copy" size={15} /></Button>
       </div>
     </article>
   )

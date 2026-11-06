@@ -321,7 +321,7 @@ export const mwList = stylex.create({
     backgroundColor: color['--color-surface-1'], color: color['--color-fg'], cursor: 'pointer',
   },
   workTop: { display: 'flex', alignItems: 'flex-start', gap: s['--vv-s-12'] },
-  workThumb: { position: 'relative', width: 92, height: 52, flex: '0 0 auto', borderRadius: r['--vv-r-9'], overflow: 'hidden', backgroundColor: color['--color-surface-2'] },
+  workThumb: { position: 'relative', width: 92, height: 52, flex: '0 0 auto', borderRadius: r['--vv-r-9'], overflow: 'visible', backgroundColor: color['--color-surface-2'] },
   workDur: { position: 'absolute', right: 4, bottom: 3, paddingInline: 4, borderRadius: r['--vv-r-4'], backgroundColor: 'rgba(0,0,0,.72)', color: kit['--kit-white'], fontSize: 10, fontVariantNumeric: 'tabular-nums' },
   workText: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: s['--vv-s-4'] },
   workTitle: { fontSize: 14, fontWeight: 500, lineHeight: 1.4, color: color['--color-fg'], display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
