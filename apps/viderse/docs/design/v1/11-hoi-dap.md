@@ -672,7 +672,7 @@ Mẫu:
 - Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai**.
 - **Kiểm tra lại** nằm ngay dưới mô tả đầu trang Công cụ trên máy của mobile, không giấu trong Nâng cao. Dùng chung probe/readback với PC, không cài hoặc tải công cụ.
 - Nguồn thực thi: [ToolsSection.tsx](../../../web/src/screens/settings/tools/ToolsSection.tsx) (`RecheckButton`). Không sửa artboard; đây không phải bằng chứng khớp 1:1 toàn bộ giao diện.
-- Đóng source ngày06/11/2026: PR[#7](https://github.com/datnt1998/verse/pull/7) đã merge main `60b4766429a852f17c6e305e71b9179bbc0d632a`. Native QA biệt lập đã bấm probe200 và GET cùng checkedAt, không install; xem [source closure](../../../../../plans/261106-1303-viderse-production-artboard-parity/reports/v40-source-closure.md). Chưa deploy, không phải production acceptance.
+- Đóng source ngày06/11/2026: PR[#7](https://github.com/datnt1998/verse/pull/7) đã merge main `60b4766429a852f17c6e305e71b9179bbc0d632a`. Native QA biệt lập đã bấm probe200 và GET cùng checkedAt, không install; xem [source closure](../../../../../plans/261106-1303-viderse-production-artboard-parity/reports/v40-source-closure.md). Đã deploy trong main `c436aa74a73ae0cf7157445e487dbee75effe2d2` ngày06/11; chưa nghiệm thu riêng thao tác này trên production.
 
 ## #92. V40 — Hoàn tác Bỏ ảnh không được ngầm duyệt hoặc vẽ lại
 
@@ -681,11 +681,13 @@ Mẫu:
 - Hợp đồng `unskip`/`expectedRevision`, xử lý bận/revision cũ và giới hạn ảnh skipped cũ không có snapshot: [07-data-contract.md §14](07-data-contract.md#prompt-override). Nút Hoàn tác dùng revision của lần Bỏ thành công và đọc lại kết quả thật trong [useReview.ts](../../../web/src/screens/review/useReview.ts).
 - Đóng source ngày06/11/2026: cùng PR#7/main `60b4766429a852f17c6e305e71b9179bbc0d632a`; giữ proof persisted native đã có và bộ regression Postgres toàn Viderse đạt. Không thay quyết địnhA, chưa xác nhận thao tác này trên production.
 
-## #93. Gate Safari thiết bị thật trước deploy
+## #93. Safari iPhone thật — deploy trước, người dùng test trực tiếp
 
 - Quyết định (người dùng, 05/11/2026): **KEEP — giữ gate Safari trên iPhone thật trước deploy**. Không miễn gate hoặc diễn giải kiểm Chromium là kiểm Safari.
-- Trạng thái: **Chờ bằng chứng thiết bị thật; chưa deploy**. Cần người vận hành/QA kiểm keyboard, URL bar, xoay màn hình và dock trên Safari iPhone; chưa có proof đáp ứng gate này.
-- Bổ sung quyết định (người dùng, 06/11/2026): **người dùng tự test Safari iPhone thật theo `physical-safari-handoff.md` trong vòng 1 ngày từ khi nhận preview truy cập được của bản V40 cuối**. Giữ KEEP; hết hạn không tự miễn gate. Chỉ deploy khi có bằng chứng đạt trên đúng bản liên quan; đây chưa phải bằng chứng đã test.
+- Trạng thái: **Chờ bằng chứng thiết bị thật; người dùng đã cho phép deploy trước**. Không coi deploy hoặc Chromium là Safari PASS.
+- Lịch sử06/11: ban đầu người dùng chọn tự test preview trong1ngày và giữ gate trước deploy.
+- Quyết định mới06/11/2026: người dùng yêu cầu **“deploy lên macmini đi a sẽ test trực tiếp”**. Cho phép phát hành thật lên Mac mini/production trước, sau đó người dùng test Safari trực tiếp. Quyết định mới thay thứ tự gate cũ, không miễn kiểm thiết bị hoặc nghiệm thu1:1; backup/migration/khôi phục và kiểm đúng commit vẫn bắt buộc.
+- Đã deploy ngày06/11/2026: production https://vid.aarverse.studio chạy `c436aa74a73ae0cf7157445e487dbee75effe2d2`, schema41; backup/restore rehearsal và health/asset/auth read đạt. Người dùng test Safari trực tiếp; không đánh dấu thiết bị PASS hoặc toàn bộ UI1:1.
 
 ## #94. Nghiệm thu trạng thái first-run trên production đã có dữ liệu
 

@@ -7,6 +7,7 @@ effort: ""
 dependencies: [1]
 ---
 # Phase 02 · Safari iPhone thật trước deploy
+**Quyết định mới06/11 thay thứ tự bên dưới:** người dùng yêu cầu deploy lên Mac mini để tự test trực tiếp. Production đã chạy `c436aa74`,schema41; Safari proof vẫn pending. Preview/hạn1ngày dưới đây là lịch sử, không còn chặn deploy hoặc là deadline cho lần test production. Không đánh dấu phase này completed khi chưa có clip/device results.
 ## Mục tiêu / quyết định
 Người dùng chọn **Tự test iPhone trong1ngày** ngày06/11. KEEP: không có waiver, hết1ngày không tự deploy. Đồng hồ bắt đầu khi giao preview truy cập được của candidate cuối cùng; ghi thời điểm giao và hạn cụ thể vào report.
 ## File inventory

@@ -11,24 +11,45 @@ Viderse cần **hai** cơ sở dữ liệu Postgres:
 
 `https://vid.aarverse.studio` chạy bằng launchd `com.dat.viderse`, bind
 `127.0.0.1:8789`. Tuyến triển khai hiện hành là
-`~/server/bin/build-deploy-viderse.sh`: lấy `origin/main` tại
-`~/server/src/verse`, dựng binary macOS arm64 bằng Docker, migrate rồi restart.
-Binary đang chạy là tệp thường `~/server/apps/viderse/bin/viderse`; commit nằm
-ở `viderse.commit` cùng thư mục. Giữ đường dẫn binary ổn định để không xin lại
-quyền riêng tư macOS mỗi lần phát hành.
+`~/server/bin/build-deploy-viderse.sh`. Từ ngày06/11/2026, script nhận artifact
+native đã kiểm chứng, không tự reset shared checkout hoặc rebuild Docker:
 
-Script kiểm `/readyz` trước khi nhận bản mới và tự trả về bản trước nếu lỗi.
-`/healthz` kiểm tiến trình; kiểm thêm origin công khai và màn vừa thay đổi sau
-triển khai. Không chạy đồng thời script này và `build-deploy.sh` của Noverse:
-hai tuyến dùng chung checkout nguồn. Secret chỉ đọc từ cấu hình runtime hiện
-có; không truyền token hoặc DSN trên đối số hay chép vào tài liệu.
+```sh
+~/server/bin/build-deploy-viderse.sh --commit <main-sha> \
+  --binary <absolute-staged-native-binary> --sha256 <binary-sha256> \
+  --confirm-maintenance
+```
 
-Nếu fetch HTTPS thất bại vì credential, dùng fallback SSH agent tạm theo
-[tuyến Mac mini dùng chung](../../noverse/deploy/README.md#tuyến-vận-hành-mac-mini-hiện-dùng),
-vẫn gọi `build-deploy-viderse.sh`: forward đúng key có TTL, ép URL HTTPS→SSH
-chỉ bằng env của lệnh, xác minh GitHub host key, không chép private key hoặc
-đổi global Git config. Dừng agent đã tạo và kiểm `viderse.commit`/health/ready
-sau rollout.
+Build/check source sạch trước khi chuyển artifact bằng SCP; chứng minh source,
+assets và backend cùng main SHA (chỉ docs khác source đã test thì ghi rõ).
+Không đưa secret vào artifact. Script đối chiếu SHA256 và remote main, giữ lock
+`~/server/.verse-deploy.lock`. Không chạy song song với Noverse deploy:
+hai tuyến vẫn dùng chung vận hành; Noverse script chưa tự nhận lock này.
+
+Script giữ binary/marker/plist cũ, `bootout` riêng Viderse để ngăn KeepAlive;
+chỉ tiếp tục khi không còn listener, app DB session, active lease hoặc receipt
+chưa kết toán. Backup DB nghiệp vụ bằng `pg_dump -Fc`, restore DB riêng,
+so counts/snapshot/queue-template digest, chạy thử migration bằng candidate,
+rồi migrate production và so hậu điều kiện trong transaction READ ONLY.
+Backup/receipt và DB restore được giữ ở `~/server/apps/viderse/releases/<sha>/`;
+không chứa trong repo, không thay identity DB hoặc media.
+
+App chưa có chế độ serve không writer: gate read-only là SQL khi app đã dừng,
+không phải cờ môi trường giả. `launchctl bootstrap` là thời điểm mở lại writer;
+kiểm readiness/process inode/public asset/auth ngay sau đó. Binary vẫn là tệp
+thường `~/server/apps/viderse/bin/viderse`, marker `viderse.commit` cùng thư mục,
+giữ đường dẫn ổn định cho quyền macOS.
+
+**Không tự rollback binary cũ qua schema mới.** Migration/restore/invariant lỗi
+giữ maintenance; lỗi sau mở writer thì dừng Viderse và forward-fix/reconcile,
+không tự restore snapshot cũ làm mất job/paid receipt. Trước reopen, restore
+backup chỉ khi toàn bộ writer vẫn quiesced, ghép đúng binary/config cũ đã giữ.
+`/healthz` chỉ kiểm tiến trình; phải kiểm `/readyz`, origin công khai và luồng thật.
+
+Nếu đọc remote main HTTPS thất bại vì credential, dùng fallback SSH agent tạm
+theo [tuyến Mac mini dùng chung](../../noverse/deploy/README.md#tuyến-vận-hành-mac-mini-hiện-dùng):
+forward đúng key có TTL, ép URL HTTPS→SSH chỉ bằng env của lệnh, xác minh host key;
+không chép private key hoặc đổi global Git config. Dừng agent do phiên tạo.
 
 ### Viderse không lên dù PostgreSQL trong Colima vẫn khỏe
 

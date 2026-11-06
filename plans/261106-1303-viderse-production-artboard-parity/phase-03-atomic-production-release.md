@@ -1,12 +1,13 @@
 ---
 phase: 3
 title: "Deploy main nguyên tử UI/backend/schema"
-status: pending
+status: in-progress
 priority: P1
 effort: ""
 dependencies: [2]
 ---
 # Phase 03 · Phát hành nguyên tử, không chỉ đổi nhãn
+**Rollout06/11 đã thực hiện theo quyết định mới#93:** deploy trước, người dùng test Safari trực tiếp sau. Main `c436aa74`,schema41; [preflight](reports/release-preflight.md),[release proof](reports/release-proof.json). Script đã harden và backup/restore/upgrade rehearsal đạt. App không có no-writer serve: read-only gate thực là SQL offline khi launchd đã bootout; process/public/auth verification được chạy sau bootstrap (writer reopen), không giả định đạt trước. Không đánh dấu nghiệm thu paid actions/3loại proposal khi chưa có dữ liệu/thao tác thật.
 ## Mục tiêu / evidence
 Production https://vid.aarverse.studio chạy main có V36–V40 và cutover V38/V39 đúng dữ liệu. [Backend contract đã duyệt](../261103-0752-viderse-workflow-rounds-40-44/backend-contracts.md), mục Chuyển dữ liệu V38, dòng23–34. [Runbook](../../apps/viderse/deploy/README.md). Phase này chỉ xác minh rollout, KHÔNG đủ kết luận khớp artboard.
 ## File inventory / ownership
@@ -44,6 +45,6 @@ Chỉ là lệnh tương lai; host macmini, env do wrapper nạp, không in secr
 ## Rollback boundary
 Trước reopen writes, rollback chỉ khi writers vẫn quiesced liên tục: phục hồi DB nghiệp vụ từ backup đã restore-test và đúng binary/config cũ theo compatibility; giữ media/receipt journal. Nếu có side effect bên ngoài từ trước đó phải reconcile trước, không claim down lossless. Sau reopen writes hoặc accepted paid attempt mới: CẤM auto-restore snapshot cũ; giữ receipts/jobs, forward-fix hoặc recovery được duyệt riêng. Không chạy script auto binary rollback nguyên trạng. Bất kỳ failure nào giữ trạng thái release-blocked, không gọi production xong.
 ## Checklist
-- [ ] Preflight/mapping/maintenance/backup/restore gate đạt; script vận hành an toàn schema đã review/thử riêng.
+- [x] Preflight/mapping/maintenance/backup/restore gate đạt; script vận hành an toàn schema đã review/thử riêng.
 - [ ] Main SHA duy nhất chạy FE+BE+schema; source/binary/inode/public chunks/auth read proof đạt trước reopen writes.
 - [ ] Safe real write/admission/proposals readback đạt; rollback boundary và deployed SHA được ghi; chuyển nhóm01.
