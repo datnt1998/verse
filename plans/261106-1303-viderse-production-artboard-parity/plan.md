@@ -48,4 +48,4 @@ Kiểm format/link/coverage và red-team evidence:[Planning validation](reports/
 - [ ] Production chạy đúng main SHA với V38/V39 data cutover; binary/process/public asset/auth checks khớp.
 - [ ] Bảy nhóm theo thứ tự đều đạt hợp đồng; không còn blocker/control chưa kiểm/lệch chưa có quyết định; các nhóm bị fix sau ảnh hưởng đã retest.
 ## Handoff
-Production https://vid.aarverse.studio đã chạy main `c436aa74a73ae0cf7157445e487dbee75effe2d2`,schema41 theo quyết định mới#93. Người dùng kiểm iPhone trực tiếp; các phase nghiệm thu7nhóm vẫn chưa hoàn tất. Không gọi deploy/smoke là parity1:1; Bàn dựng còn lộ mã media trong lỗi job cũ. Plan là execution authority, release facts ở reports/release-proof.json.
+Production https://vid.aarverse.studio hiện chạy main `9871dfb09d97b9e69a32bb42092857c8d6fe0342`,schema41; PR#16 sửa cover grid2×2 và false-stale metadata lookup. [Bằng chứng bugfix/retry](reports/grid-and-media-fix.md); bản phát hành đầu ở reports/release-proof.json. Người dùng kiểm iPhone trực tiếp theo#93; các phase nghiệm thu7nhóm vẫn chưa hoàn tất. Không gọi deploy/smoke là parity1:1.
