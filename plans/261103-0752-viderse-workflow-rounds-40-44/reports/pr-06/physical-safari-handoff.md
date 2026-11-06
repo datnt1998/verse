@@ -1,5 +1,7 @@
 # Safari iPhone thật — gate #93 còn mở
 
+**Cập nhật mới nhất06/11:** người dùng yêu cầu deploy lên Mac mini và test trực tiếp production. Mở **https://vid.aarverse.studio**, main `c436aa74`,schema41. Preview8045 đã dừng; các route/deadline preview dưới đây chỉ lưu lịch sử. Bằng chứng iPhone vẫn chờ, không phải PASS; [release proof](../../../261106-1303-viderse-production-artboard-parity/reports/release-proof.json).
+
 ## Vòng kiểm hiện tại · giao ngày06/11 lúc22:17 giờ Việt Nam
 - Mở **http://192.168.1.13:8045/candidate-f58f95ac/qa.html** trên Safari iPhone cùngLAN. UI main đã merge `60b4766429a852f17c6e305e71b9179bbc0d632a`;359tệp build remote khớp candidate sạch. Dữ liệu mẫu/SSE giả chỉ để kiểm layout, không dùng làm backend hoặc production proof.
 - [Handoff và checklist hiện tại](../../../261106-1303-viderse-production-artboard-parity/reports/safari-physical.md):4lối vào Main/Review/Template/Library; cần clip/model/iOS/Safari. Hạn dự kiến22:17ngày07/11; nếu chưa truy cập được LAN, tính1ngày từ lúc nhận preview dùng được. KEEP, hết hạn không miễn gate.

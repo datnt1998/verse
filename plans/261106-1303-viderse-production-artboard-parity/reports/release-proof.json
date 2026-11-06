@@ -1,0 +1,111 @@
+{
+  "status": "deployed-not-full-artboard-acceptance",
+  "observedAt": "2026-11-06T16:54:49.345Z",
+  "productionURL": "https://vid.aarverse.studio",
+  "deployedCommit": "c436aa74a73ae0cf7157445e487dbee75effe2d2",
+  "testedCodeCommit": "60b4766429a852f17c6e305e71b9179bbc0d632a",
+  "difference": "8 documentation files only; code and embedded assets unchanged",
+  "binarySha256": "ffac589155f30bfd5193b1a9e13de48ce2a55e7f7e37bef39ab9a6bf36bd61b4",
+  "process": {
+    "launchd": "com.dat.viderse",
+    "pid": 33791,
+    "installedInode": 3353276,
+    "processTextInode": 3353276,
+    "match": true
+  },
+  "schema": {
+    "before": 37,
+    "after": 41,
+    "rehearsalVersions": [
+      38,
+      39,
+      40,
+      41
+    ],
+    "productionVersions": [
+      38,
+      39,
+      40,
+      41
+    ],
+    "countsPreserved": true,
+    "snapshotDigest": "b9e9672784083763ca07f9c7381514c5",
+    "queueTemplateDigest": "32dbac2b3983d42a21ed2799173f8003",
+    "channelCount": 1,
+    "templateCount": 3,
+    "defaultTemplateFKValid": true,
+    "perDay": 5,
+    "autoFetch": true,
+    "autoApprove": false
+  },
+  "backup": {
+    "remoteDirectory": "~/server/apps/viderse/releases/c436aa74a73ae0cf7157445e487dbee75effe2d2/rollout-20261106T165108Z",
+    "restoreDatabase": "viderse_release_20261106165109",
+    "restoreCompared": true,
+    "previousCommit": "520d4ba3946ad458bbfa1b023a31f9087c1b2d3e",
+    "identityAndMediaUnchanged": true
+  },
+  "runtimeSafety": {
+    "launchdBootedOut": true,
+    "noAppDatabaseSessionsBeforeBackup": true,
+    "noInflightImageReceipts": true,
+    "readOnlyAcceptance": "offline SQL while app stopped; no no-writer serve mode exists",
+    "writersReopened": true,
+    "noAutomaticSnapshotRollbackAfterReopen": true
+  },
+  "health": {
+    "loopbackReady": true,
+    "loopbackHealth": true,
+    "publicReady": true,
+    "publicHealth": true
+  },
+  "assets": [
+    {
+      "path": "assets/index-AMJJ_jRZ.js",
+      "sha256": "bd22af20a311f5867da47c38fc7036328ee73c1d0df46867e62c481242416ed0",
+      "matches": true
+    },
+    {
+      "path": "assets/ChannelScreen-DEML3Adh.js",
+      "sha256": "b13bd2eaad149adf1a0971dc29e7f423c3bbd81479a7b3b719ba52bf17fef326",
+      "matches": true
+    },
+    {
+      "path": "assets/TemplatesTab-Pno_5XBY.js",
+      "sha256": "f9cc8a906e43db598316b7b4da64ee64fc8063e2cfeedb32f6a38a64b33fd20d",
+      "matches": true
+    }
+  ],
+  "authenticatedBrowser": {
+    "existingRealSession": true,
+    "meStatus": 200,
+    "setupState": "done",
+    "phoneViewport": "390x844",
+    "desktopViewport": "1440x900",
+    "channelContractStatus": 200,
+    "newFieldsPresent": true,
+    "retiredFieldsAbsent": true,
+    "observedPages": [
+      "phone workbench",
+      "phone channel source settings",
+      "desktop workbench"
+    ],
+    "horizontalOverflow": false
+  },
+  "suggestions": {
+    "status": 200,
+    "total": 0,
+    "allThreeKindsActionProof": false
+  },
+  "remaining": {
+    "physicalSafari": "pending user direct production test; order explicitly changed under #93",
+    "artboardParity": "not verified",
+    "visibleIssue": "Desktop workbench leaks a media identifier in a historical failed-video error; not fixed by deployment",
+    "paidActions": "not invoked",
+    "allControlLedger": "not performed"
+  },
+  "credentials": {
+    "temporaryAgentStopped": true,
+    "secretValuesRecorded": false
+  }
+}

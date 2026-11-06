@@ -420,3 +420,13 @@ Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và
 | Phạm vi | Ngày | Commit thật | Bằng chứng và chỗ lệch |
 |---|---|---|---|
 | Vá hẹp đã deploy; không thay nghiệm thu V37–V40 | 06/11/2026 | `520d4ba3946ad458bbfa1b023a31f9087c1b2d3e` | [Receipt](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-06/template-channel-hotfix/receipt.json): sửa serializer ảnh làm mẫu Joker không mở/sửa được; sao lưu và so revision/project trước sửa dữ liệu, chỉ bỏ trường không hoạt động. Native PostgreSQL/UI đổi ba mode và autosave track qua; production Get/ReadEditorProject read-only qua. Nút Làm cho… không đè copy; avatar đúng kênh; Shimmer running/reduced/paused có kiểm. [Audit đúng kênh](../../../../../plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-06/channel-workbench-audit.md): production còn Bản tin, composer, inspector và template luân phiên cũ; chưa chứng nhận1:1 hay Safari thật, gate#93 giữ nguyên. |
+
+## Workflow gọn · đã deploy để người dùng test trực tiếp (06/11/2026)
+
+| Gói | Ngày | Commit đã deploy | Chỗ lệch |
+|---|---|---|---|
+| V36 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Chưa đối chiếu đủ trạng thái production1:1; không xác nhận nghiệm thu viewer. |
+| V37 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Bàn dựng desktop vẫn lộ mã media trong lỗi video cũ; chưa sửa/đóng parity. |
+| V38 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Cutover schema41/default template thật đã kiểm; chưa đối chiếu toàn bộ Kênh/Thư viện/Template. |
+| V39 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Chưa chạy job trả phí hoặc kiểm toàn bộ Nhập nhanh/Hàng chờ trên production. |
+| V40 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | #93 đổi sang người dùng test Safari trực tiếp sau deploy; bằng chứng iPhone và parity đầy đủ vẫn chờ. |

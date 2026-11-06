@@ -1,5 +1,7 @@
 # Safari iPhone thật · chờ người dùng
 
+**Đã đổi sang test production theo yêu cầu mới của người dùng06/11:** https://vid.aarverse.studio chạy main `c436aa74`,schema41. Preview8045 đã dừng; URL/hạn phía dưới chỉ là lịch sử, không dùng cho vòng test hiện tại. Clip/model/iOS/Safari vẫn chờ; không có physical PASS. [Bằng chứng deploy](release-proof.json).
+
 - Gate#93: KEEP, chưa có clip/device result, không deploy.
 - Giao preview: 2026-11-06T15:17:54.848Z (22:17 ngày06/11 giờ Việt Nam).
 - URL: http://192.168.1.13:8045/candidate-f58f95ac/qa.html — iPhone cùng LAN với Mac mini; không đăng nhập.
