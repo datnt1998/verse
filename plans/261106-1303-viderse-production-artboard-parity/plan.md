@@ -16,8 +16,8 @@ HOLD SCOPE, mode **deep**: nhiều màn, cutover schema và release có rủi ro
 Repo thực:/Users/dat/Projects/verse. Checkout ainovel-cli là repo Noverse cũ, không phải nơi triển khai. [Audit production](../261103-0752-viderse-workflow-rounds-40-44/reports/pr-06/channel-workbench-audit.md) xác nhận hotfix không phải workflow mới. Planning không merge/deploy hoặc nghiệm thu production.
 Nguồn:[Workflow v97](../../apps/viderse/docs/design/v1/artboards/Workflow.dc.html), [IA §0.3/§6.2 Đợt44](../../apps/viderse/docs/design/v1/01-ia-flows.md), [V36–V40](../../apps/viderse/docs/design/v1/08-dev-prompt.md), footer và [catalog](../../apps/viderse/docs/design/v1/artboards/README.md). Không sửa artboard; muốn lệch phải có số11-hoi-dap chốt.
 ## Roadmap tuần tự
-- [01 · Đóng source V40, #91/#92 và merge PR](phase-01-start.md) — pending; phụ thuộc không.
-- [02 · Safari iPhone thật #93 — người dùng tự test trong1ngày](phase-02-safari-gate.md) — pending; phụ thuộc 01.
+- [01 · Đóng source V40, #91/#92 và merge PR](phase-01-start.md) — completed; main `60b47664`, source closure không phải deploy.
+- [02 · Safari iPhone thật #93 — người dùng tự test trong1ngày](phase-02-safari-gate.md) — in-progress; phụ thuộc 01 đã đạt, chờ giao preview và clip thật.
 - [03 · Deploy main UI/backend/schema nguyên tử](phase-03-atomic-production-release.md) — pending; phụ thuộc 02.
 - [04 · Nhóm 01 · Bàn dựng và Editor](phase-04-main-workbench.md) — pending; phụ thuộc 03.
 - [05 · Nhóm 02 · Duyệt](phase-05-review.md) — pending; phụ thuộc 04.
@@ -40,7 +40,7 @@ Desktop Auth được bổ sung vì matrix cũ loại; Editor desktop ở nhóm 
 - Trước desktop navigation phải GET /api/setup/state để tránh auto-install chưa có quyền; mutation ledger phải đóng vòng đời autoFetch sau create/link/toggle. Kênh nghiệm thu#87–#89 đủ bốn người nhận, consumer snapshot và unsupported guard; Editor dùng đúng editor/v13 tests.
 ## Validation Log
 06/11/2026,2câu quyết định: **#93:Tự test iPhone trong1ngày**, giữ KEEP; **#94:Ngoại lệ hẹp cho first-run**, cùng release/backend/dữ liệu thật trên instance biệt lập, không ảnh production giả. Options và trả lời đầy đủ ở planning validation và11-hoi-dap. Đã phản ánh phase01/02/03/10 và contract; không có Safari waiver hoặc quyền tự đổi artboard.
-Kiểm format/link/coverage và red-team evidence:[Planning validation](reports/planning-validation.md). Chưa có kết quả runtime sản phẩm; không gọi test planning là production acceptance.
+Kiểm format/link/coverage và red-team evidence:[Planning validation](reports/planning-validation.md). Kết quả runtime source/native thật và merge:[V40 source closure](reports/v40-source-closure.md); chưa có production acceptance.
 ## Red Team Review
 4reviewer /4lens;6finding unique (2High,4Medium), đều có source evidence, đã xử lý. Hai blocker feasibility first-run được user chốt#94A; các correction còn lại giữ nguyên scope. Chi tiết và whole-plan sweep ở [Planning validation](reports/planning-validation.md).
 ## Tiêu chí đóng toàn bộ
@@ -48,4 +48,4 @@ Kiểm format/link/coverage và red-team evidence:[Planning validation](reports/
 - [ ] Production chạy đúng main SHA với V38/V39 data cutover; binary/process/public asset/auth checks khớp.
 - [ ] Bảy nhóm theo thứ tự đều đạt hợp đồng; không còn blocker/control chưa kiểm/lệch chưa có quyết định; các nhóm bị fix sau ảnh hưởng đã retest.
 ## Handoff
-Chạy /ak:cook /Users/dat/Projects/verse/plans/261106-1303-viderse-production-artboard-parity/plan.md từ repo verse. Không thêm --auto nếu người dùng chưa yêu cầu. Bắt đầu phase01; release vẫn chờ phase02 và preflight phase03. Plan là execution authority, không receipt phát hành.
+Đã thực thi /ak:cook --parallel: phase01 source đã merge. Tiếp tục phase02 nhận bằng chứng Safari iPhone thật; release vẫn chờ#93 và preflight phase03. Không thêm --auto hoặc bỏ gate. Plan là execution authority, không receipt phát hành.
