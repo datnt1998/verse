@@ -25,7 +25,7 @@
   },
   "openDecisions": [],
   "deploy": "NOT_DEPLOYED",
-  "finalSourceCommit": "828ff4c91a5f9dd3c91b8c3cac763394c72c3398",
+  "finalSourceCommit": "e57978b7caa4266df0c30383f990894b01bd962d",
   "finalFocusedTests": {
     "files": 3,
     "passed": 37
@@ -145,5 +145,14 @@
     "fullWorkflowUIDeployed": false,
     "receipt": "editor-settings-hotfix/receipt.json",
     "limits": "Original authenticated production conflict not captured; template output audit is not implementation; physical Safari gate #93 KEEP."
+  },
+  "productionTemplateChannelHotfix": {
+    "deployed": true,
+    "sourceCommit": "520d4ba3946ad458bbfa1b023a31f9087c1b2d3e",
+    "binarySHA256": "9590fb848297639b32f7d02fe1afe50442fde5bb05c0073bff99b09aa3eb846a",
+    "receipt": "template-channel-hotfix/receipt.json",
+    "fullWorkflowUIDeployed": false,
+    "channelArtboardAudit": "channel-workbench-audit.md",
+    "templateDataRepair": "expected revision3 and full project guard; revision4; only inactive field and timestamps changed; read-only business functions succeed"
   }
 }

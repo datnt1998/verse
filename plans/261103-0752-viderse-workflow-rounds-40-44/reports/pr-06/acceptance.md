@@ -60,3 +60,12 @@ Trạng thái UI: đã kiểm tới `24bf453d`; backend forward-port `776195e6` 
 - Isolated production:452 file,3740 test qua/4 bỏ qua; typecheck/Vite/native build qua. PostgreSQL bắt buộc3/3 qua, không skip. Primary focused59 qua.
 - Đã cài rồi kickstart: PID79761/inode2856607 đúng binary; loopback/public ready200, chunk Settings/Editor public trùng build. [Receipt và ảnh](editor-settings-hotfix/receipt.json).
 - [Team audit Template đầu ra](template-output-audit.md): báo cáo source/artboard, chưa sửa UI Template, chưa có browser production đăng nhập hoặc Safari thật. Giữ V40 chưa phát hành và gate #93 KEEP.
+
+## Hotfix sửa mẫu Joker và phản hồi kênh · 2026-11-06
+
+- Production `520d4ba3`: chỉ ghi trường của chế độ ảnh đang hoạt động vào track; form giữ số khi đổi chế độ. Regression ba mode thất bại trước và qua sau vá. Full suite library qua trên production source và main integration; primary typecheck/51 test qua, production typecheck/build/24 test qua.
+- Project Joker cũ có `none` kèm `count:5`, làm GET Editor400. Đã sao lưu0600, khoá hàng và so sánh revision3 + toàn bộ project trước sửa; chỉ bỏ count không hoạt động và cập nhật giờ/revision4. Readback so sánh toàn bộ phần còn lại và recipe không đổi. Read-only business Get/ReadEditorProject trên production cùng qua.
+- Native PostgreSQL/compiled UI: mở thẻ → settings → đổi đủ ba mode → mở Biên tập; thao tác ẩn track được tự lưu, đọc lại revision7 và visible=false. Media/quality không được cấu hình đầy đủ trong fixture; không phải nghiệm thu phát/xuất video.
+- Nút Làm cho… có nhãn co/ellipsis và icon cố định; thẻ200px không đè copy, copy đúng link. Avatar dùng nguồn của đúng kênh, tròn và không bị thumbnail cắt; normal motion có kit-shim2.4s, reduced motion tắt, paused không shimmer. Kiểm390×844 không tràn; chưa có browser production đăng nhập hoặc Safari thật.
+- Đã cài trước kickstart, binary mapped đúng inode; public/loopback ready200, các chunk public so trùng build. Source hiện tại bổ sung file settings.stylex.ts bị thiếu trong commit hotfix trước dù binary cũ đã chứa file đó.
+- [Receipt và ảnh](template-channel-hotfix/receipt.json), [audit Bàn dựng đúng kênh](channel-workbench-audit.md). Còn Bản tin/Đề xuất/ô Nhắn trợ lý/inspector/template luân phiên theo UI cũ: không tuyên bố chuẩn toàn bộ artboard hoặc fullV40 đã deploy; gate Safari#93 KEEP.
