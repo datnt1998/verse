@@ -202,7 +202,7 @@ function KitConfirm() {
     },
     {
       id: 'logout', label: 'Đăng xuất nhà cung cấp', sub: 'cam nhạt, nút chủ động',
-      open: () => void confirmProviderLogout({ provider: 'ChatGPT', fallback: 'Gemini', onConfirm: run('Đăng xuất ChatGPT') }),
+      open: () => void confirmProviderLogout({ provider: 'ChatGPT', onConfirm: run('Đăng xuất ChatGPT') }),
     },
     {
       id: 'video', label: 'Xoá video', sub: 'hệ quả 2 cột + nút cam đặc',

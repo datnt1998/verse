@@ -1,0 +1,287 @@
+{
+  "production": {
+    "source": "520d4ba3946ad458bbfa1b023a31f9087c1b2d3e",
+    "binarySHA256": "9590fb848297639b32f7d02fe1afe50442fde5bb05c0073bff99b09aa3eb846a",
+    "indexSHA256": "1b2153791cd7d882d30f6f292a2de44c9213213bb8bd21d109883917904880b1",
+    "pidAtVerification": 70768,
+    "mappedInode": 3230885,
+    "publicReady": 200,
+    "loopbackReady": 200,
+    "publicAssets": [
+      {
+        "asset": "SettingsScreen-P-gvbWGP.js",
+        "sha256": "af1412f1467a975ad09fb6f2fc9ff57d2f2281c637792eeb105f546f1add514b",
+        "matchesBuild": true
+      },
+      {
+        "asset": "TemplateScreen-D1YDa3QV.js",
+        "sha256": "bf39430e8039d0e8db47d59c29f2b4016bb806ddad336218656ee959cc749546",
+        "matchesBuild": true
+      },
+      {
+        "asset": "ExploreScreen-DtoPx0i6.js",
+        "sha256": "0a8d3f3bc7c531ed9f7259e2be7e3f719497e08b0d125697f50e25a16a8711e6",
+        "matchesBuild": true
+      },
+      {
+        "asset": "WorkbenchDesktop-BOEHEYmy.js",
+        "sha256": "11986d04c70909d369c14c1b85895a2d16c2f87c01e4e45a819bda6d7993ce56",
+        "matchesBuild": true
+      }
+    ],
+    "fullWorkflowUIDeployed": false
+  },
+  "template": {
+    "id": "99d15a24-0d7c-4455-90d0-1346e8250b7a",
+    "cause": "Inactive numeric image fields serialized into discriminated templateScenes.images; mode none with count5 causes strict track validation400, preventing settings/editor loads.",
+    "failingBefore": [
+      "fixed",
+      "per-minutes",
+      "none"
+    ],
+    "regression": "TestTemplateImageModeChangesRemainEditable; library full suite PASS",
+    "nativePersistedFixture": "Exact production project raw-seeded in isolated real PostgreSQL: GET400 before; remove inactive field ->GET200; real UI card opened settings and editor.",
+    "modeCycles": [
+      {
+        "label": "Cố định",
+        "status": 200,
+        "revision": "3",
+        "images": {
+          "count": 5,
+          "mode": "fixed"
+        }
+      },
+      {
+        "label": "Theo độ dài",
+        "status": 200,
+        "revision": "4",
+        "images": {
+          "minutes": 1,
+          "mode": "per-minutes"
+        }
+      },
+      {
+        "label": "Không tạo ảnh",
+        "status": 200,
+        "revision": "5",
+        "images": {
+          "mode": "none"
+        }
+      }
+    ],
+    "actualUITimelineSave": {
+      "status": 200,
+      "revision": "7",
+      "snowVisible": false,
+      "images": {
+        "mode": "none"
+      }
+    },
+    "productionReadOnlyBusinessRead": {
+      "editorLoad": true,
+      "id": "99d15a24-0d7c-4455-90d0-1346e8250b7a",
+      "mode": "none",
+      "revision": "4",
+      "schema": 15,
+      "templateGet": true
+    },
+    "repair": {
+      "expectedRevision": 3,
+      "newRevision": 4,
+      "backup": "macmini:~/server/qa/viderse-template-edit-20261106/joker-before-repair.json",
+      "backupMode": "0600",
+      "guard": "Row lock, exact whole project comparison plus revision3; abort on concurrent change",
+      "change": "Remove count only from none-mode scene track; project.updatedAt/rowupdated_at/revision advanced",
+      "otherProjectAndRecipeDataPreserved": true
+    }
+  },
+  "explore": {
+    "narrowGeometry": [
+      {
+        "width": 200,
+        "buttons": [
+          {
+            "aria": "Làm cho Billionaire Battles",
+            "width": 160,
+            "right": 436,
+            "scroll": 158,
+            "client": 158,
+            "height": 30
+          },
+          {
+            "aria": "Sao chép link Video kiểm thử số 0",
+            "width": 30,
+            "right": 472,
+            "scroll": 30,
+            "client": 30,
+            "height": 30
+          }
+        ],
+        "right": 474
+      },
+      {
+        "width": 200,
+        "buttons": [
+          {
+            "aria": "Làm cho Billionaire Battles",
+            "width": 160,
+            "right": 648,
+            "scroll": 158,
+            "client": 158,
+            "height": 30
+          },
+          {
+            "aria": "Sao chép link Video kiểm thử số 1",
+            "width": 30,
+            "right": 684,
+            "scroll": 30,
+            "client": 30,
+            "height": 30
+          }
+        ],
+        "right": 686
+      },
+      {
+        "width": 200,
+        "buttons": [
+          {
+            "aria": "Làm cho Billionaire Battles",
+            "width": 160,
+            "right": 436,
+            "scroll": 158,
+            "client": 158,
+            "height": 30
+          },
+          {
+            "aria": "Sao chép link Video kiểm thử số 2",
+            "width": 30,
+            "right": 472,
+            "scroll": 30,
+            "client": 30,
+            "height": 30
+          }
+        ],
+        "right": 474
+      },
+      {
+        "width": 200,
+        "buttons": [
+          {
+            "aria": "Làm cho Billionaire Battles",
+            "width": 160,
+            "right": 648,
+            "scroll": 158,
+            "client": 158,
+            "height": 30
+          },
+          {
+            "aria": "Sao chép link Video kiểm thử số 3",
+            "width": 30,
+            "right": 684,
+            "scroll": 30,
+            "client": 30,
+            "height": 30
+          }
+        ],
+        "right": 686
+      }
+    ],
+    "copyClickResult": "https://example.invalid/video/0",
+    "mobile": "390x844 list unchanged; screenshot; existing phone detail control not claimed repaired"
+  },
+  "workbench": {
+    "channelId": "aa72b6a1-7114-4a46-9ed5-539216fb81fb",
+    "dataAvatarPathPresent": "channels/aa72b6a1-7114-4a46-9ed5-539216fb81fb/c985b9ca-6633-40ce-9f49-0e1ae0d613c7-avatar.png",
+    "manifestSHA": "93d74f1c2737cf5d4613e736b6898724060d220fbdf840b85db2afb7b54f2c1e",
+    "desktopAvatarAndMotion": {
+      "avatars": [
+        {
+          "label": "Billionaire Battles",
+          "background": "url(\"http://127.0.0.1:8047/__ui_fixture/image.png\")",
+          "radius": "50%",
+          "box": {
+            "x": 18,
+            "y": 200.9375,
+            "width": 20,
+            "height": 20,
+            "top": 200.9375,
+            "right": 38,
+            "bottom": 220.9375,
+            "left": 18
+          }
+        }
+      ],
+      "shimmers": [
+        {
+          "text": "Trinh sát đang tải video nguồn",
+          "name": "kit-shim",
+          "duration": "2.4s"
+        }
+      ],
+      "overflow": false
+    },
+    "mobile": {
+      "avatars": [
+        {
+          "bg": "url(\"http://127.0.0.1:8047/__ui_fixture/image.png\")",
+          "radius": "50%",
+          "box": {
+            "x": 55,
+            "y": 21,
+            "width": 26,
+            "height": 26,
+            "top": 21,
+            "right": 81,
+            "bottom": 47,
+            "left": 55
+          }
+        },
+        {
+          "bg": "url(\"http://127.0.0.1:8047/__ui_fixture/image.png\")",
+          "radius": "50%",
+          "box": {
+            "x": 25,
+            "y": 387.015625,
+            "width": 20,
+            "height": 20,
+            "top": 387.015625,
+            "right": 45,
+            "bottom": 407.015625,
+            "left": 25
+          }
+        }
+      ],
+      "animations": [],
+      "overflow": false
+    },
+    "mobileNormalMotion": {
+      "reduced": false,
+      "animation": "kit-shim",
+      "duration": "2.4s"
+    },
+    "reducedMotion": "True -> animation none, readable text retained",
+    "pausedMotion": {
+      "shimmers": [],
+      "overflow": false,
+      "paused": true
+    },
+    "imageProofLimit": "Geometry uses synthetic image fixture with real channel ID/name. Production avatar logical path and blob manifest exist; actual authenticated image/browser not captured.",
+    "remainingArtboardGaps": "../channel-workbench-audit.md"
+  },
+  "verification": {
+    "productionGoLibrary": "PASS",
+    "primaryTypecheck": "PASS",
+    "primaryFocusedTests": 51,
+    "productionTypecheckViteBuild": "PASS",
+    "productionExploreWorkbenchTests": 24,
+    "warnings": [
+      "existing React act warning",
+      "existing large chunk warnings; editor budget131.9KiB pass"
+    ],
+    "browserLimit": "Private full compiled UI + native PostgreSQL; absent optional media/quality/Bản tin/suggestion routes are fixture limits, not proof of complete feature pass. No authenticated production/Safari proof.",
+    "exactMainIntegrationTypecheck": "PASS",
+    "exactMainIntegrationLibrarySuite": "PASS",
+    "mainSourceCommit": "09a13d98af6138055cf8f497e605fd345bc92942"
+  },
+  "sourceCorrection": "Previous editor/settings source commit omitted settings.stylex.ts dependency although binary contained it. Current exact production commit includes the missing style file; archive build now passes typecheck."
+}

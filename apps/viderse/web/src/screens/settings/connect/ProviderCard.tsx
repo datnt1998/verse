@@ -10,7 +10,7 @@ import { styles as settingsStyles, connBarMarker, connErrTextMarker, connManualR
 //   • ghi chú "đã kết nối, chọn model" (conn=added) và hộp lỗi cam (conn=failed).
 //   • danh mục model inline (máy tính) — điện thoại mở sheet.
 import { useEffect, useRef, useState } from 'react'
-import { Button, Field, Icon, PasswordField, Spinner, confirm, toast } from '@noverse/ui'
+import { Button, Field, Icon, PasswordField, Sheet, Spinner, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { confirmProviderLogout } from '../../../components'
 import { ApiError } from '../../../api/client'
@@ -194,7 +194,7 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
       setPasteOpen(false)
     } catch (error) {
       if (reasonOf(error) === 'invalid_code') setCodeErr(true)
-      else toast.err(error instanceof Error ? error.message : t.errors.failed)
+      else toast.err(t.errors.failed)
     }
   }
 
@@ -210,7 +210,7 @@ function LoginFlow({ provider, kind, authWindow, onDone, mobile = false }: {
       try { win.current = window.open('', '_blank', 'noopener') } catch { win.current = null }
     }
     try { await startProviderLogin(provider.id) } catch (error) {
-      toast.err(error instanceof Error ? error.message : t.errors.failed)
+      toast.err(t.errors.failed)
     }
   }
 
@@ -310,6 +310,11 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
   const [open, setOpen] = useState(Boolean(isNew))
   const [edit, setEdit] = useState<null | 'key' | 'url'>(null)
   const [editValue, setEditValue] = useState('')
+  const [editOpen, setEditOpen] = useState(false)
+  const [savingEdit, setSavingEdit] = useState(false)
+  const editBusy = useRef(false)
+  const editSession = useRef(0)
+  const removeAfterEdit = useRef(false)
   const [testing, setTesting] = useState(false)
   const [testResult, setTestResult] = useState<null | { ok: boolean; ms: number; error?: string }>(null)
   const [loginOpen, setLoginOpen] = useState(provider.status === 'login_pending')
@@ -321,7 +326,9 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
   // Chọn lại nguồn đã có ở panel Thêm: cuộn tới thẻ và mở sẵn Đổi khoá (hỏi đáp #27).
   useEffect(() => {
     if (!revealKey || provider.auth !== 'api_key') return
+    editSession.current += 1
     setEdit('key')
+    setEditOpen(true)
     setEditValue('')
     cardRef.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
   }, [revealKey, provider.auth])
@@ -352,37 +359,65 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
     }
   }
 
+  function closeEdit() {
+    editSession.current += 1
+    if (mobile) setEditOpen(false)
+    else { setEdit(null); setEditValue('') }
+  }
+
+  function editExited() {
+    setEdit(null)
+    setEditValue('')
+    if (removeAfterEdit.current) {
+      removeAfterEdit.current = false
+      void remove()
+    }
+  }
+
   async function saveEdit() {
     const value = editValue.trim()
-    if (!value) return
+    if (!value || editBusy.current) return
+    editBusy.current = true
+    setSavingEdit(true)
+    const session = editSession.current
     try {
       await updateProvider(provider.id, edit === 'key' ? { apiKey: value } : { baseUrl: value })
       await invalidate(keys.aiProviders())
-      setEdit(null)
-      setEditValue('')
-    } catch (error) {
-      toast.err(error instanceof Error ? error.message : t.errors.failed)
+      if (session === editSession.current) closeEdit()
+    } catch {
+      toast.err(t.errors.failed)
+    } finally {
+      editBusy.current = false
+      setSavingEdit(false)
     }
   }
 
   async function remove() {
     const guard = (error: unknown) => {
       if (reasonOf(error) === 'in_use') toast.err(c.inUseError)
-      else toast.err(error instanceof Error ? error.message : t.errors.failed)
+      else toast.err(t.errors.failed)
     }
     if (subscription) {
       const doLogout = async () => {
-        await logoutProvider(provider.id)
-        await invalidate(keys.aiProviders())
+        try {
+          await logoutProvider(provider.id)
+          await invalidate(keys.aiProviders())
+        } catch {
+          throw new Error(t.errors.failed)
+        }
       }
-      void confirmProviderLogout({ provider: provider.label, fallback: 'OpenRouter', onConfirm: doLogout }).catch(guard)
+      void confirmProviderLogout({ provider: provider.label, onConfirm: doLogout }).catch(guard)
       return
     }
     // Provider khoá/địa chỉ: xoá hẳn cấu hình → cam xác nhận trước khi DELETE.
     const doDelete = async () => {
-      await deleteProvider(provider.id)
-      await invalidate(keys.aiProviders())
-      toast.ok(c.removed(provider.label))
+      try {
+        await deleteProvider(provider.id)
+        await invalidate(keys.aiProviders())
+        toast.ok(c.removed(provider.label))
+      } catch (error) {
+        throw new Error(reasonOf(error) === 'in_use' ? c.inUseError : t.errors.failed)
+      }
     }
     void confirm({
       tone: 'warn',
@@ -405,7 +440,7 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
       setLoginOpen(true)
       await invalidate(keys.aiProviders())
     } catch (error) {
-      toast.err(error instanceof Error ? error.message : t.errors.failed)
+      toast.err(t.errors.failed)
     }
   }
 
@@ -414,7 +449,9 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
   const secondaryGo = () => {
     if (subscription) { void remove(); return }
     const kind = provider.auth === 'api_key' ? 'key' : 'url'
+    editSession.current += 1
     setEdit(edit === kind ? null : kind)
+    setEditOpen(true)
     setEditValue(kind === 'key' ? '' : (provider.baseUrl ?? ''))
   }
 
@@ -432,6 +469,22 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
         {loginKind === 'grok' ? c.loginGrok : c.loginChatGPT}
       </Button>
     : <Button size={mobile ? 'lg' : 'compact'} variant="ghost" onClick={secondaryGo}>{secondary}</Button>
+
+  const editForm = edit && (
+    <div className={`conn-edit ${stylex.props(settingsStyles.connEdit, mobile && settingsStyles.connEditMobile).className}`}>
+      {edit === 'key'
+        ? <PasswordField className={`conn-edit__grow ${stylex.props(settingsStyles.connEditGrow).className}`} placeholder={c.keyLabel} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.keyLabel} style={mobile ? { height: 46, fontSize: 16 } : undefined} toggleStyle={mobile ? { width: 44, height: 44, top: 1, right: 1 } : undefined} autoFocus />
+        : <Field mobile={mobile} className="conn-edit__grow" xstyle={[settingsStyles.connEditGrow]} placeholder={c.addressPlaceholder} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.addressLabel} autoFocus />}
+      <Button size={mobile ? 'lg' : 'compact'} variant="primary" pending={savingEdit} onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
+      <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={closeEdit}>{c.cancelEdit}</Button>
+      {!subscription && (
+        <Button size={mobile ? 'lg' : 'compact'} variant="quiet" disabled={savingEdit} onClick={() => {
+          if (mobile) { removeAfterEdit.current = true; setEditOpen(false) }
+          else void remove()
+        }}>{c.removeOk}</Button>
+      )}
+    </div>
+  )
 
   return (
     <section
@@ -499,7 +552,7 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
 
       {testResult && (
         <span className={`conn-sub ${stylex.props(settingsStyles.connSub, (testResult.ok) && settingsStyles.connSubOk, (!(testResult.ok)) && settingsStyles.connSubErr).className}`} role="status">
-          {testResult.ok ? c.testOk(testResult.ms) : (testResult.error || c.testFail)}
+          {testResult.ok ? c.testOk(testResult.ms) : c.testFail}
         </span>
       )}
 
@@ -509,18 +562,12 @@ export function ProviderCard({ provider, draft, mobile = false, isNew, revealKey
         <LoginFlow provider={provider} kind={loginKind} authWindow={authWindow.current} mobile={mobile} onDone={() => setLoginOpen(false)} />
       )}
 
-      {edit && (
-        <div className={`conn-edit ${stylex.props(settingsStyles.connEdit).className}`}>
-          {edit === 'key'
-            ? <PasswordField className={`conn-edit__grow ${stylex.props(settingsStyles.connEditGrow).className}`} placeholder={c.keyLabel} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.keyLabel} autoFocus />
-            : <Field className="conn-edit__grow" xstyle={[settingsStyles.connEditGrow]} placeholder={c.addressPlaceholder} value={editValue} onChange={(e) => setEditValue(e.target.value)} aria-label={c.addressLabel} autoFocus />}
-          <Button size={mobile ? 'lg' : 'compact'} variant="primary" onClick={() => void saveEdit()} disabled={!editValue.trim()}>{c.saveKey}</Button>
-          <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => setEdit(null)}>{c.cancelEdit}</Button>
-          {!subscription && (
-            <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={() => void remove()}>{c.removeOk}</Button>
-          )}
-        </div>
-      )}
+      {mobile ? (
+        <Sheet open={editOpen && edit != null} onClose={closeEdit} onExited={editExited}
+          title={edit === 'key' ? c.changeKey : c.changeAddress} size="md" height="auto" homeIndicator>
+          {editForm}
+        </Sheet>
+      ) : editForm}
 
       {isNew && !failed && <div className={`conn-note ${stylex.props(settingsStyles.connNote).className}`}>{c.addedNote(provider.label, provider.catalogCount)}</div>}
 

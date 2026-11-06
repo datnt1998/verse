@@ -1,0 +1,57 @@
+{
+  "proof": "PREVIEW_HARNESS_CHROMIUM_ONLY_NOT_PHYSICAL_SAFARI",
+  "cases": [
+    "studio-real-components",
+    "review-real-components",
+    "tools-real-components"
+  ],
+  "errors": [],
+  "failedResponses": [
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/activity"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/notifications/settings"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/channels/summary"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/channels/summary"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/queue"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/storage/server"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/version"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/errors"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/platforms"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/ai/agents"
+    },
+    {
+      "status": 404,
+      "url": "http://192.168.1.13:8045/api/storage"
+    }
+  ],
+  "status": "PASS",
+  "browserClosed": true
+}

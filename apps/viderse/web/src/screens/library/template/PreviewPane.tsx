@@ -46,25 +46,29 @@ export function PreviewPane({ detail, dirty, editLockedReason }: { detail: Templ
         </span>
       </div>
 
-      {preview.projectId ? (
-        <TemplatePreviewPlayer projectId={preview.projectId} />
-      ) : (
-        <div className={`vt-preview-frame ${stylex.props(sx.previewFrame).className}`} data-state={state}>
-          <span className={`vt-preview-art ${stylex.props(sx.previewArt).className}`} aria-hidden="true" />
-          {state === 'stale' && (
-            <div className={`vt-preview-overlay ${stylex.props(sx.previewOverlay).className}`}>
-              <strong {...stylex.props(sx.vtPreviewOverlayStrong)}>{copy.staleTitle}</strong>
-              <span {...stylex.props(sx.vtPreviewOverlaySpan)}>{copy.staleBody}</span>
-            </div>
-          )}
-          {(state === 'none' || building) && (
-            <div className={`vt-preview-overlay ${stylex.props(sx.previewOverlay).className}`}>
-              <strong {...stylex.props(sx.vtPreviewOverlayStrong)}>{state === 'none' ? copy.noneTitle : copy.badge.building}</strong>
-              <span {...stylex.props(sx.vtPreviewOverlaySpan)}>{state === 'none' ? copy.noneBody : progress}</span>
+      <div className={`vt-preview-stage ${stylex.props(sx.previewStage).className}`} data-state={state}>
+        <div inert={state !== 'fresh'} aria-hidden={state !== 'fresh' ? true : undefined}>
+          {preview.projectId ? (
+            <TemplatePreviewPlayer projectId={preview.projectId} active={state === 'fresh'} />
+          ) : (
+            <div className={`vt-preview-frame ${stylex.props(sx.previewFrame).className}`}>
+              <span className={`vt-preview-art ${stylex.props(sx.previewArt).className}`} aria-hidden="true" />
             </div>
           )}
         </div>
-      )}
+        {state === 'stale' && (
+          <div className={`vt-preview-overlay ${stylex.props(sx.previewOverlay).className}`} role="status">
+            <strong {...stylex.props(sx.vtPreviewOverlayStrong)}>{copy.staleTitle}</strong>
+            <span {...stylex.props(sx.vtPreviewOverlaySpan)}>{copy.staleBody}</span>
+          </div>
+        )}
+        {(state === 'none' || building) && (
+          <div className={`vt-preview-overlay ${stylex.props(sx.previewOverlay).className}`} role="status">
+            <strong {...stylex.props(sx.vtPreviewOverlayStrong)}>{state === 'none' ? copy.noneTitle : copy.badge.building}</strong>
+            <span {...stylex.props(sx.vtPreviewOverlaySpan)}>{state === 'none' ? copy.noneBody : progress}</span>
+          </div>
+        )}
+      </div>
 
       <p className={`vt-hint ${stylex.props(sx.hint).className}`}>
         {builtAt ? copy.builtAt(builtAt) : copy.never}
@@ -132,6 +136,7 @@ const sx = stylex.create({
   badgeDataStateFresh: { color: color['--color-ok'], backgroundColor: 'var(--vv-ok-10)', backgroundImage: 'none' },
   badgeDataStateStale: { color: color['--color-warn'], backgroundColor: 'var(--vv-warn-bg)', backgroundImage: 'none' },
   badgeDataStateBuilding: { color: color['--color-fg-2'], backgroundColor: 'var(--tint-accent)', backgroundImage: 'none' },
+  previewStage: { position: 'relative', minWidth: 0 },
   previewFrame: { position: 'relative', aspectRatio: libraryVars.videoAspectRatio, borderTopLeftRadius: 'var(--vv-r-9)', borderTopRightRadius: 'var(--vv-r-9)', borderBottomRightRadius: 'var(--vv-r-9)', borderBottomLeftRadius: 'var(--vv-r-9)', overflowX: 'hidden', overflowY: 'hidden', backgroundColor: 'transparent', backgroundImage: libraryVars.promptsTabPcardArtBackgroundImage },
   previewArt: { position: 'absolute', top: libraryVars.templatePreviewPanePreviewArtTop, right: libraryVars.templatePreviewPanePreviewArtRight, bottom: libraryVars.templatePreviewPanePreviewArtTop, left: libraryVars.templatePreviewPanePreviewArtRight, borderTopLeftRadius: 'var(--vv-r-10)', borderTopRightRadius: 'var(--vv-r-10)', borderBottomRightRadius: 'var(--vv-r-10)', borderBottomLeftRadius: 'var(--vv-r-10)', backgroundColor: 'var(--vv-tile-idle)', backgroundImage: 'none', opacity: libraryVars.templatePreviewPanePreviewArtOpacity },
   previewOverlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', rowGap: 'var(--vv-s-3)', columnGap: 'var(--vv-s-3)', paddingTop: 'var(--vv-s-12)', paddingRight: 'var(--vv-s-12)', paddingBottom: 'var(--vv-s-12)', paddingLeft: 'var(--vv-s-12)', textAlign: 'center', backgroundColor: 'var(--vv-thumb-veil)', backgroundImage: 'none' },

@@ -120,7 +120,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
         <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{copy.exportHelp}</p>
       </div>
 
-      <div className={`vt-card vt-danger ${stylex.props(sx.cardDanger).className}`}>
+      {!hideTitle && <div className={`vt-card vt-danger ${stylex.props(sx.cardDanger).className}`}>
         <span className={`vt-label ${stylex.props(sx.label).className}`}>{copy.deleteTitle}</span>
         <div className={`vt-switch-row ${stylex.props(sx.switchRow).className}`}>
           <p className={`vt-hint ${stylex.props(sx.hint).className}`}>{inUse ? copy.deleteReason(channels.map((channel) => channel.name)) : copy.deleteFree}</p>
@@ -131,7 +131,7 @@ export function OutputSection({ detail, onSave, onDuplicate, onDelete, onAttach,
             lockedReason={inUse ? copy.deleteReason(channels.map((channel) => channel.name)) : undefined}
           >{t.library.delete}</ActionButton>
         </div>
-      </div>
+      </div>}
     </section>
   )
 }

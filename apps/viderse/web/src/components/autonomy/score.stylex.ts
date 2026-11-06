@@ -1,5 +1,4 @@
-// Điểm Kiểm định trên Review (artboard Review › score=true: .vv-imgscore,
-// dòng tóm tắt .vv-banner, cột phải "Điểm của Kiểm định" + .vv-why).
+// Điểm Kiểm định: huy hiệu ảnh, tóm tắt và điểm của ảnh đang xem.
 import * as stylex from '@stylexjs/stylex'
 import { color, line } from '@noverse/ui/tokens.stylex'
 import { space, corners } from '../../styles/viderse.stylex'
@@ -18,7 +17,5 @@ export const scoreStyles = stylex.create({
   panelHead: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'] },
   panelTitle: { margin: 0, fontSize: 13, fontWeight: 500, color: color['--color-fg-3'], whiteSpace: 'nowrap' },
   spacer: { flex: '1 1 0' },
-  why: { display: 'inline-flex', alignItems: 'center', gap: space['--vv-s-4'], height: space['--vv-s-22'], paddingInline: space['--vv-s-2'], borderWidth: 0, borderStyle: 'none', borderColor: 'currentColor', backgroundColor: 'transparent', color: { default: color['--color-fg-3'], ':hover': color['--color-fg'] }, fontFamily: 'inherit', fontSize: 12, whiteSpace: 'nowrap', textDecorationLine: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: space['--vv-s-3'], cursor: 'pointer' },
-  whyOpen: { color: color['--color-fg'] },
   status: { margin: 0, fontSize: 12, color: 'var(--vv-fg-note)' },
 })

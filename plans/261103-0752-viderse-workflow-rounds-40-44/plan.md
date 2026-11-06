@@ -13,7 +13,7 @@ created: 2026-11-03
 # Viderse · Workflow gọn theo thiết kế đợt40–44
 
 ## Kết quả và ranh giới
-HOLD SCOPE · kế hoạch đã chốt theo mode **deep**, người dùng đã gọi `ak-cook` để triển khai. Inventory, nền UI, V36, V37 và V38 đã merge qua PR #1–#5; merge mới nhất `1591b66b466e3767327459ccb2630d412115f192`. Đang triển khai V39, sau đó V40 và gate phát hành cuối. GitHub Actions đang tắt, không có kết quả CI hosted. **Chưa deploy workflow mới**; kiểm live ngày 05/11/2026 còn `a61dc0d02035016bf2157fa8fdd040b22a41ceb6`, `/readyz` trả `{"ok":true}`. Desktop/mobile cùng chức năng/default theo thiết kế, mọi thao tác có phản hồi; không làm mobile image viewer đợt45 hoặc tự thiết kế mobile Editor. Không đụng Noverse, `verse-os`, provider production hay hàng đợi người dùng.
+HOLD SCOPE · kế hoạch mode **deep**, người dùng đã gọi `ak-cook`. Inventory, nền UI và V36–V39 merge qua PR#1–#6 (workflow merge mới nhất `9ad1effc`). V40 vẫn Draft PR#7: UI kiểm tới `24bf453d`, backend `776195e6` có full affected Go checks; helper duration `bbfab83c` có36focusedtests qua. #91/#92 đã chốt/triển khai, giữ Safari iPhone thật#93. GitHub Actions tắt, không nhận CI hosted. **Chưa deploy toàn bộ workflow/UI mới.** Hotfix production riêng: scoped-loopback/catalog ảnh `401d1b45`, rồi playback backport tối thiểu trên UI cũ `9d440603`. [Recovery](reports/pr-06/production-video-recovery.json): score100/100; export attempt1 nay thành công, MP4432.805.526B/SHA/ffprobe3380,7s đã kiểm. [Playback](reports/pr-06/playback-hotfix/receipt.json): built UI PC/mobile phát/seek đúng file thật qua read-response fixture; public chunk khớp build, không có authenticated prod/Safari physical proof. Không thay PUBLIC_URL/SSO/editor policy, không bỏ hash/token/workspace hoặc chạy lại AI; không mở gate UI. Không làm viewer45/mobile Editor, không đụng Noverse/`verse-os` hoặc provider production.
 Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 01-ia-flows §0.3/§6.1/§6.2 Đợt44/W3–W13 → 08-dev-prompt V36–V40 → artboard/footer/kit/copy/data/stack. Không sửa artboards; muốn lệch phải ghi `11-hoi-dap.md` và chờ trả lời.
 
 ## Bảng kiểm kê gửi trước sửa code
@@ -27,8 +27,8 @@ Nguồn ưu tiên: `apps/viderse/docs/design/v1/artboards/Workflow.dc.html` → 
 | 3 | [2 · V36 Viewer và nối nút](phase-03-v36-viewer-and-actions.md) | Desktop shared viewer, data-key removal | PR1 merge | Completed · PR #3 merged `3e238b08` |
 | 4 | [3 · V37 Bàn dựng gọn](phase-04-v37-compact-studio.md) | Main/progress/proposals/obsolete backend | PR2 merge | Completed · [PR #4 merged](https://github.com/datnt1998/verse/pull/4) `277b902b`, [nghiệm thu](reports/pr-03/acceptance.md) |
 | 5 | [4 · V38 Kênh, Thư viện, Template](phase-05-v38-channels-and-library.md) | FE+BE+schema/default-template | PR3 merge | Completed · [PR #5 merged](https://github.com/datnt1998/verse/pull/5) `1591b66b`; mobile final gate ở phase07 |
-| 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | In progress · backend và frontend có phạm vi riêng |
-| 7 | [6 · V40 Mobile và full-flow gate](phase-07-v40-mobile-parity.md) | §6.2 Đợt44 + desktop regression | PR5 merge | Pending |
+| 6 | [5 · V39 Nhập nhanh và hàng chờ](phase-06-v39-quick-create-and-queue.md) | Canonical creation/dedup/front order | PR4 merge | Completed · [PR #6 merged](https://github.com/datnt1998/verse/pull/6) `9ad1effc`, [nghiệm thu có giới hạn](reports/pr-05/acceptance.md) |
+| 7 | [6 · V40 Mobile và full-flow gate](phase-07-v40-mobile-parity.md) | §6.2 Đợt44 + desktop regression | PR5 merge | [Draft PR #7](https://github.com/datnt1998/verse/pull/7), source/native checks qua, #91/#92 đã đóng; chờ [Safari iPhone thật](reports/pr-06/physical-safari-handoff.md), chưa merge/deploy |
 
 ## Kiến trúc và hợp đồng
 Shell/session → adapter responsive trên `@noverse/ui` → cùng dữ liệu/action desktop-mobile. Một desktop image viewer reuse review/provenance/mutations; không viewer/service riêng cho từng màn. Existing HTTP→service→transactional postgres queue được giữ.
@@ -46,7 +46,7 @@ Không merge PR có blocker chức năng/UI. Ngoại lệ thực thi được ng
 - [x] PR2: viewer/action/data-key theo V36, PR #3 merged; giới hạn thiết bị và gate#83 vẫn giữ ở nghiệm thu cuối.
 - [x] PR3: Main/progress/3proposal + backend obsolete theo V37; PR #4 merged.
 - [x] PR4: default template/automation/library/create cùng schema, cả mobile contract; PR #5 merged `1591b66b`.
-- [ ] PR5: Nhập nhanh/jobs API/dedup/front ordering/compact queue rules.
+- [x] PR5: Nhập nhanh/jobs API/dedup/front ordering/compact queue rules; PR #6 merged `9ad1effc`.
 - [ ] PR6: full mobile parity/motion/keyboard/prompt4parts và toàn gate cuối.
 
 ## Red Team Review

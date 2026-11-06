@@ -1,0 +1,402 @@
+{
+  "qualification": "Native V40 UI; response-only UI_FIXTURE for missing mobile review/history/content states. No persistence/provider proof. Headless Chrome viewport emulation, not physical Safari.",
+  "actions": [
+    {
+      "n": 1,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 2,
+      "label": "Escape feedback no-preference"
+    },
+    {
+      "n": 3,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 4,
+      "label": "open scene editor from submitted prompt no-preference"
+    },
+    {
+      "n": 5,
+      "label": "Escape scene editor no-preference"
+    },
+    {
+      "n": 6,
+      "label": "click Vẽ lại"
+    },
+    {
+      "n": 7,
+      "label": "Escape feedback reduce"
+    },
+    {
+      "n": 8,
+      "label": "click Xem prompt đã gửi"
+    },
+    {
+      "n": 9,
+      "label": "open scene editor from submitted prompt reduce"
+    },
+    {
+      "n": 10,
+      "label": "Escape scene editor reduce"
+    }
+  ],
+  "checks": [
+    {
+      "name": "no-preference MVideo content tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 204.5,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "no-preference MVideo image tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 196.5,
+        "y": 204.5,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "MVideo no-preference font ready",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Chi tiết video",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "MVideo no-preference segmented indicator within 2px after font load",
+      "pass": true,
+      "detail": [
+        {
+          "label": "Chi tiết video",
+          "dx": 0,
+          "dy": 0,
+          "dw": 0,
+          "dh": 0
+        }
+      ]
+    },
+    {
+      "name": "MVideo no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Chi tiết video",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-preference missing template label is not technical ID",
+      "pass": true
+    },
+    {
+      "name": "no-preference submitted prompt opener >=44",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 623.171875,
+        "width": 358,
+        "height": 44
+      }
+    },
+    {
+      "name": "no-preference feedback tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 482.078125,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "no-preference scene edit tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 196.5,
+        "y": 482.078125,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "Feedback no-preference font ready",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Góp ý để vẽ lại",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "Feedback no-preference segmented indicator within 2px after font load",
+      "pass": true,
+      "detail": [
+        {
+          "label": "Góp ý để vẽ lại",
+          "dx": 0,
+          "dy": 0,
+          "dw": 0,
+          "dh": 0
+        }
+      ]
+    },
+    {
+      "name": "Feedback no-preference no document overflow",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Góp ý để vẽ lại",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-preference feedback exit has zero overlays",
+      "pass": true
+    },
+    {
+      "name": "no-preference no competing interactive overlays",
+      "pass": true,
+      "detail": [
+        {
+          "dialogs": 1,
+          "interactiveOverlays": 1
+        },
+        {
+          "dialogs": 1,
+          "interactiveOverlays": 1
+        },
+        {
+          "dialogs": 1,
+          "interactiveOverlays": 1
+        }
+      ]
+    },
+    {
+      "name": "no-preference scene editor exit has zero overlays",
+      "pass": true
+    },
+    {
+      "name": "reduce MVideo content tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 204.5,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "reduce MVideo image tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 196.5,
+        "y": 204.5,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "MVideo reduce font ready",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Chi tiết video",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "MVideo reduce segmented indicator within 2px after font load",
+      "pass": true,
+      "detail": [
+        {
+          "label": "Chi tiết video",
+          "dx": 0,
+          "dy": 0,
+          "dw": 0,
+          "dh": 0
+        }
+      ]
+    },
+    {
+      "name": "MVideo reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Chi tiết video",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "reduce missing template label is not technical ID",
+      "pass": true
+    },
+    {
+      "name": "reduce submitted prompt opener >=44",
+      "pass": true,
+      "detail": {
+        "x": 16,
+        "y": 623.171875,
+        "width": 358,
+        "height": 44
+      }
+    },
+    {
+      "name": "reduce feedback tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 20,
+        "y": 482.078125,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "reduce scene edit tab >=44",
+      "pass": true,
+      "detail": {
+        "x": 196.5,
+        "y": 482.078125,
+        "width": 173.5,
+        "height": 44
+      }
+    },
+    {
+      "name": "Feedback reduce font ready",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Góp ý để vẽ lại",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "Feedback reduce segmented indicator within 2px after font load",
+      "pass": true,
+      "detail": [
+        {
+          "label": "Góp ý để vẽ lại",
+          "dx": 0,
+          "dy": 0,
+          "dw": 0,
+          "dh": 0
+        }
+      ]
+    },
+    {
+      "name": "Feedback reduce no document overflow",
+      "pass": true,
+      "detail": {
+        "fontStatus": "loaded",
+        "overflow": false,
+        "indicators": [
+          {
+            "label": "Góp ý để vẽ lại",
+            "dx": 0,
+            "dy": 0,
+            "dw": 0,
+            "dh": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "reduce feedback exit has zero overlays",
+      "pass": true
+    },
+    {
+      "name": "reduce no competing interactive overlays",
+      "pass": true,
+      "detail": [
+        {
+          "dialogs": 0,
+          "interactiveOverlays": 0
+        },
+        {
+          "dialogs": 1,
+          "interactiveOverlays": 1
+        },
+        {
+          "dialogs": 1,
+          "interactiveOverlays": 1
+        }
+      ]
+    },
+    {
+      "name": "reduce scene editor exit has zero overlays",
+      "pass": true
+    }
+  ],
+  "geometry": [],
+  "mutations": [],
+  "externalBlocked": 0,
+  "errors": [],
+  "screenshots": [],
+  "actionCount": 10,
+  "status": "DONE"
+}

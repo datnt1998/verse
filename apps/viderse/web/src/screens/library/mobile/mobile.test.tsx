@@ -214,6 +214,34 @@ describe('sửa template — điện thoại', () => {
 })
 
 
+describe('mobile template menu handoff', () => {
+  it('does not replay a selected rename after reopening and cancelling the closing menu', async () => {
+    window.matchMedia = vi.fn((query: string) => ({
+      matches: !query.includes('prefers-reduced-motion'), media: query, onchange: null,
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), addListener: vi.fn(), removeListener: vi.fn(), dispatchEvent: vi.fn(),
+    }))
+    const page = await render(<TemplateScreen route={{ name: 'template', templateId: 't1' }} />)
+    const more = () => Array.from(page.querySelectorAll<HTMLButtonElement>('button')).find(
+      button => button.getAttribute('aria-label') === t.library.mobile.moreSheetAria,
+    )!
+    await click(more())
+    vi.useFakeTimers()
+    try {
+      const rename = Array.from(document.querySelectorAll<HTMLButtonElement>('button')).find(
+        button => button.textContent?.includes(t.library.templates.rename),
+      )!
+      await act(async () => rename.click())
+      await act(async () => more().click())
+      await act(async () => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
+      await act(async () => { vi.advanceTimersByTime(300) })
+      expect(document.querySelector('#mtpl-rename')).toBeNull()
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})
+
 describe('thư viện dùng chung — xuất tệp', () => {
   it('hàng Xuất tệp template trong tấm thao tác tải tệp thật qua API', async () => {
     const downloaded: string[] = []

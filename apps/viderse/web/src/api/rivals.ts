@@ -8,8 +8,10 @@
 //   PATCH  /api/rivals/:id/scan {historyCap} → ScanStatus
 //   GET    /api/rivals/:id/posting-slots?zone=vn|ny → PostingSchedule
 // `:id = "all"` chỉ hợp lệ ở /videos — quét và lịch đăng là của từng kênh.
-import type { Reason } from '../components/reason/ReasonPopover'
+import type { Assistant } from '../components/agents'
 import { mutate, request, ApiError } from './request'
+
+type Reason = { agent: Assistant; text: string; facts: { label: string; value: string; source: string }[]; fix?: { label: string; href: string } }
 
 export type RivalScan = { state: HistoryState; discoveryRunning: boolean }
 

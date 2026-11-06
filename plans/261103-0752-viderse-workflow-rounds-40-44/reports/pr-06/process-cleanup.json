@@ -1,0 +1,20 @@
+{
+  "ownedNativeServer": "STOPPED before worker fence",
+  "ownedWorkerFence": "STOPPED; no surviving V39_QA_WORKER_STANDBY_LOCK_HELD backend in isolated QA database",
+  "ownedLocalPreview": "STOPPED",
+  "browserControllers": "all actual native/LAN preview Playwright browsers closed in finally",
+  "listeners8043And8045Local": "none",
+  "qaCredentialRemoved": true,
+  "sourceAuthSHAUnchanged": true,
+  "protectedModelSHAUnchanged": true,
+  "retainedDevicePreview": {
+    "service": "viderse-macmini-safari-qa",
+    "mode": "persist",
+    "host": "macmini",
+    "remotePIDAtStart": 93598,
+    "port": 8045,
+    "purpose": "physical iPhone Safari gate #93 only; credential-free synthetic data",
+    "cleanup": "Stop after physical evidence; exact operational route in physical-safari-handoff.md"
+  },
+  "sharedChrome": "No broad kill; unrelated/shared runtime daemon left untouched"
+}

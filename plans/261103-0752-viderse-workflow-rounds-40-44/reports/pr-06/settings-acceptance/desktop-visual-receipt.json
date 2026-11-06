@@ -1,0 +1,63 @@
+{
+  "qualification": "Append-only desktop screenshot receipt. Native V40 UI, explicit AI GET fixtures; local static SVG allowed, external/media blocked. No writes or logout performed.",
+  "cases": [
+    {
+      "name": "desktop-normal inline editor capture",
+      "file": "desktop-normal-static-icons-editor.png",
+      "modalCount": 0,
+      "width": 1440
+    },
+    {
+      "name": "desktop-normal logout capture then cancel",
+      "file": "desktop-normal-static-icons-logout.png",
+      "modalCount": 1,
+      "width": 1440
+    },
+    {
+      "name": "desktop-reduced inline editor capture",
+      "file": "desktop-reduced-static-icons-editor.png",
+      "modalCount": 0,
+      "width": 1440
+    },
+    {
+      "name": "desktop-reduced logout capture then cancel",
+      "file": "desktop-reduced-static-icons-logout.png",
+      "modalCount": 1,
+      "width": 1440
+    }
+  ],
+  "mutations": [],
+  "staticSvg": [
+    "/icons/favicon.svg",
+    "/assets/workbench-C8dvxkhe.svg",
+    "/assets/folder-CHIoXNO-.svg",
+    "/assets/video-add-fpEAdCmk.svg",
+    "/assets/setting-8SswWu69.svg",
+    "/assets/cpu-Bokn8h1p.svg",
+    "/assets/key-CgUnPpHe.svg",
+    "/assets/magic-B84lK2wZ.svg",
+    "/assets/global-TA_-oTcI.svg",
+    "/assets/notification-CkepdTpR.svg",
+    "/assets/flag-BggdRYsj.svg",
+    "/assets/routing-rr8szoCo.svg",
+    "/assets/refresh-8urF4N3U.svg",
+    "/assets/eye-slash-CKVrFYVP.svg",
+    "/assets/danger-B0Wn1yVs.svg",
+    "/icons/favicon.svg",
+    "/assets/workbench-C8dvxkhe.svg",
+    "/assets/folder-CHIoXNO-.svg",
+    "/assets/video-add-fpEAdCmk.svg",
+    "/assets/setting-8SswWu69.svg",
+    "/assets/cpu-Bokn8h1p.svg",
+    "/assets/key-CgUnPpHe.svg",
+    "/assets/magic-B84lK2wZ.svg",
+    "/assets/global-TA_-oTcI.svg",
+    "/assets/notification-CkepdTpR.svg",
+    "/assets/flag-BggdRYsj.svg",
+    "/assets/routing-rr8szoCo.svg",
+    "/assets/refresh-8urF4N3U.svg",
+    "/assets/eye-slash-CKVrFYVP.svg",
+    "/assets/danger-B0Wn1yVs.svg"
+  ],
+  "failures": []
+}

@@ -273,7 +273,7 @@ function TemplateEditor({ initial, section }: { initial: TemplateDetail; section
           </aside>
         </div>
       </main>
-      {attach && <AttachChannelDialog inLibrary={false} channels={channels.data?.channels ?? []} onClose={() => setAttach(false)} />}
+      {attach && <AttachChannelDialog inLibrary={false} onClose={() => setAttach(false)} />}
     </div>
   )
 }

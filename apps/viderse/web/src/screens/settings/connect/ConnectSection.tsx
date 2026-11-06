@@ -48,6 +48,7 @@ export function ConnectSection() {
   const [reveal, setReveal] = useState<{ id: string; nonce: number } | null>(null)
   const [addOpen, setAddOpen] = useState(false)
   const [addSheet, setAddSheet] = useState(false)
+  const [pendingReveal, setPendingReveal] = useState<string | null>(null)
   const [modelsSheet, setModelsSheet] = useState<AiProvider | null>(null)
   const [saving, setSaving] = useState(false)
   const list = providers.data ?? []
@@ -96,7 +97,8 @@ export function ConnectSection() {
   }
 
   function onReveal(id: string) {
-    setReveal((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }))
+    if (mobile) setPendingReveal(id)
+    else setReveal((prev) => ({ id, nonce: (prev?.nonce ?? 0) + 1 }))
     setAddOpen(false)
     setAddSheet(false)
   }
@@ -144,8 +146,8 @@ export function ConnectSection() {
     <div className={`conn-dirty ${stylex.props(connDirtyMarker, settingsStyles.connDirty).className}`} role="status">
       <Icon name="info" size={15} xstyle={settingsStyles.icIsWarn} />
       <span className={`conn-dirty__text ${stylex.props(settingsStyles.connDirtyText).className}`}>{c.dirty(changed)}</span>
-      <Button size="compact" variant="quiet" onClick={cancel}>{c.cancel}</Button>
-      <Button size="compact" variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
+      <Button size={mobile ? 'lg' : 'compact'} variant="quiet" onClick={cancel}>{c.cancel}</Button>
+      <Button size={mobile ? 'lg' : 'compact'} variant="primary" pending={saving} onClick={() => void save()}>{c.save}</Button>
     </div>
   )
 
@@ -175,7 +177,12 @@ export function ConnectSection() {
 
         <Button size="lg" block variant="ghost" icon={<Icon name="add" size={15} />} onClick={() => setAddSheet(true)}>{c.addOpenShort}</Button>
 
-        <Sheet open={addSheet} onClose={() => setAddSheet(false)} title={c.addTitle} subtitle={c.addSubMobile} size="md" homeIndicator height="auto">
+        <Sheet open={addSheet} onClose={() => { setPendingReveal(null); setAddSheet(false) }} onExited={() => {
+          if (pendingReveal) {
+            setReveal((prev) => ({ id: pendingReveal, nonce: (prev?.nonce ?? 0) + 1 }))
+            setPendingReveal(null)
+          }
+        }} title={c.addTitle} subtitle={c.addSubMobile} size="md" homeIndicator height="auto">
           <AddProviderBody mobile onAdded={onAdded} onReveal={onReveal} onDone={() => setAddSheet(false)} providers={list} />
         </Sheet>
 

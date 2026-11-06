@@ -6,7 +6,7 @@ import type * as ReviewModule from '../useReview'
 import { dismissToasts, ToastHost } from '@noverse/ui'
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
-const state = vi.hoisted(() => ({ jobId: 'j', mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', nextVersion: 'none' as 'none' | 'drawing' | 'ready', cancelledVersions: [] as number[], pending: {} as Record<string, boolean> }))
+const state = vi.hoisted(() => ({ jobId: 'j', mutate: vi.fn().mockResolvedValue(true), loadImages: vi.fn(), status: 'review', legacy: false, nextVersion: 'none' as 'none' | 'drawing' | 'ready', cancelledVersions: [] as number[], pending: {} as Record<string, boolean> }))
 const image = {
   id: 'b', kind: 'scene', status: 'review', prompt: 'Đêm mưa, quán nhỏ ven đường', sceneId: '2',
   currentVersion: null, reviewVersion: null, startSec: 3, endSec: 9, narration: 'Lời kể trong cảnh',
@@ -25,9 +25,15 @@ vi.mock('../useReview', async importOriginal => {
         id: image.id,
         versions: [
           { n: 1, state: 'ready', parts: [{ kind: 'scene', text: 'Cảnh 1 phần Cảnh: góc máy rộng.', source: { type: 'artist', label: 'Hoạ sĩ' } }] },
-          { n: 2, state: 'ready', parts: [{ kind: 'scene', text: 'Cảnh 2 phần Cảnh: đêm mưa, quán nhỏ ven đường.', source: { type: 'artist', label: 'Hoạ sĩ' } }] },
+          { n: 2, state: 'ready', parts: [
+            { kind: 'scene', text: 'Cảnh 2 phần Cảnh: đêm mưa, quán nhỏ ven đường.', source: { type: 'artist', label: 'Hoạ sĩ' } },
+            { kind: 'style', text: 'Cold cinematic lighting.', source: { type: 'image_prompt', label: 'Prompt ảnh' } },
+            { kind: 'refs', text: 'Keep the reference camera angle.', source: { type: 'artist', label: 'Ảnh tham chiếu' } },
+            { kind: 'learned', text: 'Old learned note must stay hidden.', source: { type: 'template', label: 'Ghi chú đã học' } },
+            { kind: 'avoid', text: 'No readable text, no watermark.', source: { type: 'template', label: 'Template' } },
+          ] },
           ...(state.nextVersion === 'none' ? [] : [{ n: 3, state: state.nextVersion, parts: [{ kind: 'scene', text: 'Bản mới', source: { type: 'artist', label: 'Hoạ sĩ' } }] }]),
-        ].map(version => state.cancelledVersions.includes(version.n) ? { ...version, state: 'cancelled' } : version),
+        ].map(version => state.legacy ? { ...version, partsLegacy: true, sentText: 'Original legacy prompt · keep every byte.', parts: [{ kind: 'scene', text: 'Original legacy prompt · keep every byte.', source: { type: 'legacy', label: 'Bản cũ · chưa tách phần' } }] } : version).map(version => state.cancelledVersions.includes(version.n) ? { ...version, state: 'cancelled' } : version),
       }], items: [{ ...image, status: state.status, versions: [...image.versions, ...(state.nextVersion === 'none' ? [] : [{ version: 3, cutout: null, originalUrl: state.nextVersion === 'ready' ? '/v3.jpg' : '', prompt: 'Bản mới' }])].map(version => state.cancelledVersions.includes(version.version) ? { ...version, originalUrl: '' } : version) }], approved: false, approvedToday: null, learn: null, summary: null } },
       imageErrors: {}, pending: state.pending, loadImages: state.loadImages, loadJobs: vi.fn(), mutate: state.mutate,
     }),
@@ -48,6 +54,7 @@ afterEach(async () => {
   container = undefined
   state.jobId = 'j'
   state.status = 'review'
+  state.legacy = false
   state.nextVersion = 'none'
   state.cancelledVersions = []
   state.pending = {}
@@ -96,6 +103,65 @@ it('shows the saved QA issue only while its historical image is being viewed', a
   }
 })
 
+async function openPromptEditor() {
+  act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+  for (let frame = 0; frame < 3; frame++) {
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 100)) })
+    expect([...document.querySelectorAll('[role="dialog"]')].filter(dialog => !dialog.closest('[inert]')).length).toBeLessThanOrEqual(1)
+  }
+}
+
+it('shows the selected submitted prompt in four sections without old learned notes', async () => {
+  const node = await render()
+  act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
+  const dialog = document.querySelector('[role="dialog"]')!
+  for (const text of ['Cảnh', 'Phong cách', 'Tham chiếu', 'Tránh', 'Cold cinematic lighting.', 'No readable text, no watermark.']) expect(dialog.textContent).toContain(text)
+  expect(dialog.textContent).not.toContain('Ghi chú đã học')
+  expect(dialog.textContent).not.toContain('Old learned note must stay hidden.')
+})
+
+it('keeps a legacy whole prompt raw instead of inventing a scene section', async () => {
+  state.legacy = true
+  const node = await render()
+  act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
+  const dialog = document.querySelector('[role="dialog"]')!
+  expect(dialog.textContent).toContain('Original legacy prompt · keep every byte.')
+  expect(dialog.textContent).not.toContain('Bản cũ · chưa tách phần')
+  expect(button('Sửa chỉ dẫn rồi vẽ lại')?.disabled).toBe(true)
+  expect(state.mutate).not.toHaveBeenCalled()
+})
+
+it('toggling a suggestion preserves a manually authored sentence containing its words', async () => {
+  await render()
+  act(() => button('Vẽ lại')!.click())
+  const input = document.querySelector<HTMLTextAreaElement>('textarea')!
+  const ownText = 'Tông lạnh hơn một chút nhưng giữ chiếc ô đỏ'
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(input, ownText)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  expect(button('Tông lạnh hơn')?.getAttribute('aria-pressed')).toBe('false')
+  act(() => button('Tông lạnh hơn')!.click())
+  act(() => button('Tông lạnh hơn')!.click())
+  expect(input.value).toBe(ownText)
+})
+
+it('toggles a feedback suggestion without losing the owner’s own feedback', async () => {
+  await render()
+  act(() => button('Vẽ lại')!.click())
+  const input = document.querySelector<HTMLTextAreaElement>('textarea')!
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!.call(input, 'Giữ chiếc ô đỏ')
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  })
+  act(() => button('Tông lạnh hơn')!.click())
+  expect(input.value).toBe('Giữ chiếc ô đỏ, Tông lạnh hơn')
+  expect(button('Tông lạnh hơn')?.getAttribute('aria-pressed')).toBe('true')
+  act(() => button('Tông lạnh hơn')!.click())
+  expect(input.value).toBe('Giữ chiếc ô đỏ')
+  expect(button('Tông lạnh hơn')?.getAttribute('aria-pressed')).toBe('false')
+})
+
 describe('MReview — duyệt ảnh trên điện thoại', () => {
   it('keeps the preview and review open after a failed version change and prevents duplicate submissions', async () => {
     let reply!: (response: Response) => void
@@ -127,9 +193,9 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v2.jpg')
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    expect(document.querySelector('[role="dialog"]')?.textContent).toContain(image.versions[0].prompt)
+    expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Cảnh 1 phần Cảnh: góc máy rộng.')
     expect(document.querySelector('[role="dialog"]')?.textContent).not.toContain(image.prompt)
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     expect(document.querySelector('textarea')?.value).toBe('Cảnh 1 phần Cảnh: góc máy rộng.')
     expect((button('Vẽ lại với chỉ dẫn này') as HTMLButtonElement).disabled).toBe(true)
     expect(state.mutate).not.toHaveBeenCalled()
@@ -163,7 +229,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     const node = await render()
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     const textarea = document.querySelector<HTMLTextAreaElement>('textarea')!
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
@@ -186,7 +252,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     const node = await render()
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Bản 1"]')!.click())
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     const textarea = document.querySelector<HTMLTextAreaElement>('textarea')!
     await act(async () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!
@@ -222,7 +288,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     expect(activeDialogs()).toHaveLength(1)
     const edit = button('Sửa chỉ dẫn rồi vẽ lại')!
     expect(activeDialogs()[0]?.contains(edit)).toBe(true)
-    act(() => edit.click())
+    await openPromptEditor()
     expect(activeDialogs()).toHaveLength(1)
     expect(activeDialogs()[0]?.querySelector<HTMLTextAreaElement>('textarea')?.value).toBe('Cảnh 2 phần Cảnh: đêm mưa, quán nhỏ ven đường.')
     expect(state.loadImages).toHaveBeenCalledWith('j', true)
@@ -264,8 +330,7 @@ describe('MReview — duyệt ảnh trên điện thoại', () => {
     act(() => cancelled!.click())
     expect(node.querySelector('main img')?.getAttribute('src')).toBe('/v1.jpg')
     act(() => node.querySelector<HTMLButtonElement>('[aria-label="Xem prompt đã gửi"]')!.click())
-    expect(document.querySelector('[role="dialog"]')?.textContent).toContain(image.versions[0].prompt)
-    act(() => button('Sửa chỉ dẫn rồi vẽ lại')!.click())
+    await openPromptEditor()
     expect(document.querySelector('textarea')?.value).toBe('Cảnh 1 phần Cảnh: góc máy rộng.')
   })
 

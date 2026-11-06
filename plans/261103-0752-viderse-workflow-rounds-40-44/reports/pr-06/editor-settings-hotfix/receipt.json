@@ -1,0 +1,193 @@
+{
+  "sourceCommit": "9d1e4b6fe1ee67997576b73985602ea0bacda1f3",
+  "binarySHA256": "b17d076001826caf305ee91a99af5107372f2faa7371f3fef76a0cdbd1230be0",
+  "UIIndexSHA256": "7639fe5731c0a411a3c25f4fdee9bcd6d235d9f657affb73f80c90f8a810fe56",
+  "mappedExecutable": {
+    "pidAtVerification": 79761,
+    "inode": 2856607,
+    "matchesInstalled": true
+  },
+  "readiness": {
+    "loopback": 200,
+    "public": 200
+  },
+  "publicAssets": [
+    {
+      "asset": "SettingsScreen-CIMVeFGD.js",
+      "sha256": "0edd1f4eae830268807fafe84dc4073166fed47533d8709e4c506cc666480d3a",
+      "matchesBuild": true
+    },
+    {
+      "asset": "EditorScreen-CTq94ifT.js",
+      "sha256": "aee863124e674f16dfa6ff74817d908ed881e0e128c894c77a8b6007ebc284a1",
+      "matchesBuild": true
+    }
+  ],
+  "fullWorkflowUIDeployed": false,
+  "editor": {
+    "causeConfidence": "Conditional weak-ETag transport bug reproduced before/after; actual original production authenticated header/request UNOBSERVED; awaiting full editor URL.",
+    "nativeBeforeAfter": {
+      "oldRevision": "W/\"sha256:414c7fa5ee1fd2d7f65354d15c5a233b83f9baeeb9d07456bb221facc15c4d18",
+      "oldSave": {
+        "name": "StorageConflictError",
+        "status": 409
+      },
+      "applicationRevision": "sha256:414c7fa5ee1fd2d7f65354d15c5a233b83f9baeeb9d07456bb221facc15c4d18",
+      "currentSaveSucceeded": true
+    },
+    "nativeConcurrency": {
+      "remoteStatus": 200,
+      "failure": {
+        "name": "StorageConflictError",
+        "code": "conflict",
+        "status": 409,
+        "serverRevision": null
+      },
+      "snapshotRetained": true,
+      "baseRevisionRetained": true
+    },
+    "actualUI": "Current schema15 project normalized via real PUT200 and opened; actual stale autosave409 displayed neutral conflict dialog; continue disabled autosave and dismissed dialog.",
+    "fixtureLimit": "Private native PostgreSQL fixture; optional quality endpoint not mounted (500). Not complete editor feature proof, authenticated production or physical Safari.",
+    "tests": {
+      "focusedPrimary": 59,
+      "fullProduction": {
+        "files": 452,
+        "passed": 3740,
+        "skipped": 4
+      },
+      "postgresRequired": {
+        "tests": 3,
+        "passed": 3,
+        "skipped": 0
+      },
+      "typecheck": "PASS",
+      "viteBuild": "PASS",
+      "nativeBuild": "PASS"
+    },
+    "authorAttribution": "Removed fabricated Kiểm định and local timestamp; no CAS bypass."
+  },
+  "settings": {
+    "desktopRows": [
+      {
+        "text": "Công cụ trên máy",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Kết nối AI",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Trợ lý AI",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Tài khoản nền tảng",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Thông báo",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Lưu trữ811,4 MB",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Báo lỗi12",
+        "tag": "BUTTON",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": null
+      },
+      {
+        "text": "Luồng chạy · hàng chờ",
+        "tag": "A",
+        "x": 10,
+        "width": 227,
+        "height": 34,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": "#/queue"
+      },
+      {
+        "text": "Thành viên · ở Noverse",
+        "tag": "A",
+        "x": 10,
+        "width": 227,
+        "height": 44,
+        "iconX": 20,
+        "labelX": 47,
+        "trailRight": 227,
+        "overflow": false,
+        "href": "https://noverse.example.invalid/#/settings/members"
+      }
+    ],
+    "clickedSettingsRoutes": 7,
+    "queueNavigation": "PASS",
+    "membersLink": "href/role preserved; external navigation not attempted",
+    "mobile": "390x844 no horizontal overflow; queue66px/members56px; not full 1:1 claim"
+  },
+  "templateAudit": "../template-output-audit.md",
+  "screenshots": [
+    "settings-desktop.webp",
+    "settings-mobile.webp",
+    "editor-open.webp",
+    "editor-conflict.webp",
+    "editor-continue.webp"
+  ]
+}

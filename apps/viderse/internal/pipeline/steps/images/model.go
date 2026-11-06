@@ -111,6 +111,7 @@ type Item struct {
 	ReviewVersion  *int                `json:"reviewVersion"`
 	InFlight       *Flight             `json:"inFlight,omitempty"`
 	SkipReason     string              `json:"skipReason,omitempty"`
+	BeforeSkip     *SkipSnapshot       `json:"beforeSkip,omitempty"`
 	Error          string              `json:"error,omitempty"`
 	Context        *scenes.TextContext `json:"context"`
 	// Draft là prompt/ảnh tham chiếu chủ kênh sửa cho lần vẽ kế tiếp của đúng
@@ -122,6 +123,15 @@ type Item struct {
 	// RebindError ghi lần thay media vào project đã dựng bị lỗi, để lần "Dùng
 	// bản này" sau sửa lại.
 	RebindError string `json:"rebindError,omitempty"`
+}
+
+// SkipSnapshot preserves only the owner-review state hidden by a skip. It is
+// consumed by unskip; it never queues a draw or chooses a different version.
+type SkipSnapshot struct {
+	Status         string `json:"status"`
+	CurrentVersion *int   `json:"currentVersion"`
+	ReviewVersion  *int   `json:"reviewVersion"`
+	SkipReason     string `json:"skipReason,omitempty"`
 }
 
 // PromptDraft là phần chủ kênh sửa tay cho một ảnh: chỉ áp cho lần vẽ kế tiếp
@@ -450,6 +460,9 @@ func Review(m Manifest, id, op, prompt string, version *int) (Manifest, error) {
 		i.Error = ""
 		i.SkipReason = ""
 	case "skip":
+		if i.Status == "skipped" || i.Status == "queued" {
+			return m, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Ảnh không ở trạng thái có thể bỏ qua"}
+		}
 		remaining := 0
 		for _, j := range m.Items {
 			if j.Kind == "scene" && j.Status != "skipped" {
@@ -459,15 +472,34 @@ func Review(m Manifest, id, op, prompt string, version *int) (Manifest, error) {
 		if i.Kind != "scene" || remaining <= 1 {
 			return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Cần giữ ít nhất một ảnh cảnh; không thể bỏ qua ảnh bìa"}
 		}
+		i.BeforeSkip = &SkipSnapshot{Status: i.Status, CurrentVersion: i.CurrentVersion, ReviewVersion: i.ReviewVersion, SkipReason: i.SkipReason}
 		i.Status = "skipped"
 		i.SkipReason = "owner"
 		i.CurrentVersion = nil
 		i.ReviewVersion = nil
+	case "unskip":
+		if prompt != "" || version != nil {
+			return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Hoàn tác bỏ qua không nhận prompt hoặc phiên bản"}
+		}
+		saved := i.BeforeSkip
+		if i.Kind != "scene" || i.Status != "skipped" || i.SkipReason != "owner" || saved == nil {
+			return m, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Không có lần bỏ qua của bạn để hoàn tác"}
+		}
+		if saved.Status == "pending" || saved.Status == "queued" || saved.Status == "running" || saved.Status == "skipped" {
+			return m, &domain.CloneError{Code: domain.CloneErrConflict, Message: "Không thể khôi phục trạng thái trước khi bỏ qua"}
+		}
+		i.Status = saved.Status
+		i.CurrentVersion = saved.CurrentVersion
+		i.ReviewVersion = saved.ReviewVersion
+		i.SkipReason = saved.SkipReason
 	case "restore":
 		i.Status = "pending"
 		i.SkipReason = ""
 	default:
 		return m, &domain.CloneError{Code: domain.CloneErrInvalidRequest, Message: "Hành động duyệt ảnh không hợp lệ"}
+	}
+	if op != "skip" {
+		i.BeforeSkip = nil
 	}
 	m.Revision++
 	return m, nil

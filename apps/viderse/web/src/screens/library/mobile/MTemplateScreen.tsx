@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import * as stylex from '@stylexjs/stylex'
 import {
-  ActionSheet, Banner, Button, ConfirmSheet, Dialog, Icon, MobilePage, MobilePageAction,
+  ActionSheet, Banner, Button, ConfirmSheet, Sheet, Icon, MobilePage, MobilePageAction,
   TextField, toast, useTabMode, type IconName, type MobileSheetAction,
 } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
@@ -61,6 +61,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   const recipe = detail.recipe
   const editorLockedReason = draft.reloading ? 'Đang tải lại…' : draft.saving ? t.library.template.saving : draft.dirty ? draft.conflict ? t.library.conflict : t.library.template.saveFail : undefined
   const [more, setMore] = useState(false)
+  const [nextMore, setNextMore] = useState<'rename' | 'delete' | null>(null)
   const [renaming, setRenaming] = useState(false)
   const [renameName, setRenameName] = useState(detail.name)
   const [renameError, setRenameError] = useState<string | null>(null)
@@ -107,6 +108,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   const canBuild = !!selectedSource && !selectedSource.disabled && !preview.busy && !draft.saving && !draft.reloading && !draft.dirty
   const buildLockedReason = draft.reloading ? 'Đang tải lại…' : draft.saving ? t.library.template.saving : draft.dirty ? draft.conflict ? t.library.conflict : t.library.template.saveFail : selectedSource?.reason ?? t.library.template.preview.buildLocked
   const renameFieldError = renameError ?? draft.fieldErrors.name
+  const renameBusy = renameSaving || draft.reloading
 
   const saveRename = async () => {
     const name = renameName.trim()
@@ -157,13 +159,14 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
   }
 
   const moreItems: MobileSheetAction[] = [
-    { key: 'rename', icon: 'edit', label: t.library.templates.rename, onSelect: () => { setRenameName(detail.name); setRenameError(null); setRenaming(true) } },
+    { key: 'rename', icon: 'edit', label: t.library.templates.rename, onSelect: () => { setRenameName(detail.name); setRenameError(null); setNextMore('rename') } },
     { key: 'duplicate', icon: 'copy', label: t.library.duplicate, onSelect: () => duplicate() },
     { key: 'export', icon: 'export', label: copy.exportFile, onSelect: () => void exportFile() },
     detail.channels.length
       ? { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, disabled: true, description: copy.deleteHintBusy(detail.channels.map((channel) => channel.name)), onSelect: () => undefined }
-      : { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, description: copy.deleteHintFree, onSelect: () => setDeleting(true) },
+      : { key: 'delete', icon: 'trash', label: copy.deleteTemplate, destructive: true, description: copy.deleteHintFree, onSelect: () => setNextMore('delete') },
   ]
+  const openMore = () => { setNextMore(null); setMore(true) }
 
   const sectionMeta = SECTIONS.map((id) => ({
     id,
@@ -195,15 +198,17 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
     {section && <Button size="sm" xstyle={sx.touch} onClick={() => navigate(paths.template(detail.id))}>{copy.previewAction}</Button>}
   </div>
   const overlaysAndSheets = <>
-    <ActionSheet open={more} onClose={() => setMore(false)} title={styleName} actions={moreItems} />
-    {renaming && <Dialog onClose={() => { if (!renameSaving && !draft.reloading) setRenaming(false) }} title={t.library.templates.renameTitle(detail.name)}
-      footer={<>
-        <Button variant="quiet" xstyle={sx.touch} disabled={renameSaving || draft.reloading} onClick={() => setRenaming(false)}>{t.library.cancel}</Button>
-        <Button variant="primary" xstyle={sx.touch} disabled={renameSaving || draft.reloading || draft.conflict} onClick={() => void saveRename()}>{renameSaving ? t.library.saving : t.library.templates.renameAction}</Button>
-      </>}>
+    <ActionSheet open={more} onClose={() => setMore(false)} title={styleName} actions={moreItems}
+      onExited={() => {
+        if (nextMore === 'rename') setRenaming(true)
+        else if (nextMore === 'delete') setDeleting(true)
+        setNextMore(null)
+      }} />
+    <Sheet open={renaming} onClose={() => { if (!renameBusy) setRenaming(false) }} title={t.library.templates.renameTitle(detail.name)}
+      size="md" height="auto" homeIndicator grab={!renameBusy} bodyStyle={sx.sheetBody}>
       <div {...stylex.props(mtpl.field)}>
         <label htmlFor="mtpl-rename" {...stylex.props(mtpl.fieldLabel)}>{t.library.nameLabel}</label>
-        <TextField id="mtpl-rename" value={renameName} maxLength={60} disabled={renameSaving || draft.reloading}
+        <TextField id="mtpl-rename" value={renameName} maxLength={60} disabled={renameBusy}
           aria-invalid={Boolean(renameFieldError) || undefined} aria-describedby={renameFieldError ? 'mtpl-rename-error' : undefined} onChange={(value) => { setRenameName(value); setRenameError(null) }} />
         {renameFieldError && <span id="mtpl-rename-error" role="alert" {...stylex.props(mtpl.previewError)}>{renameFieldError}</span>}
         {draft.error && <p role="alert" {...stylex.props(mtpl.previewError)}>{draft.error}</p>}
@@ -212,11 +217,15 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
           Bản đang sửa vẫn được giữ. Tải lại sẽ thay bằng bản mới trên máy chủ.
         </Banner>}
       </div>
-    </Dialog>}
+      <div {...stylex.props(sx.sheetActions)}>
+        <Button variant="quiet" xstyle={sx.touch} disabled={renameBusy} onClick={() => setRenaming(false)}>{t.library.cancel}</Button>
+        <Button variant="primary" xstyle={sx.touch} disabled={renameBusy || draft.conflict} onClick={() => void saveRename()}>{renameSaving ? t.library.saving : t.library.templates.renameAction}</Button>
+      </div>
+    </Sheet>
     <ConfirmSheet open={deleting} onClose={() => setDeleting(false)} title={t.library.template.deleteTitle(detail.name)}
       description={t.library.template.deleteBody} tone="danger"
       action={{ label: t.library.template.deleteAction, destructive: true, onSelect: remove }} cancel={t.library.cancel} />
-    {attaching && <AttachChannelDialog channels={ownerChannels.data?.channels ?? []} inLibrary onClose={() => setAttaching(false)} />}
+    {attaching && <AttachChannelDialog inLibrary onClose={() => setAttaching(false)} />}
   </>
 
   // ── Màn con một mục ──────────────────────────────────────────────────────
@@ -227,7 +236,7 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
         title={<span {...stylex.props(mtpl.headerTitle)} title={label}>{label}</span>}
         subtitle={<span title={styleName}>{styleName}</span>}
         onBack={() => navigate(paths.template(detail.id))}
-        actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={() => setMore(true)} />}
+        actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={openMore} />}
         footStyle={mtpl.footer}
         footer={saveFooter}
       >
@@ -251,20 +260,22 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
       title={<span {...stylex.props(mtpl.headerTitle)} title={styleName}>{styleName}</span>}
       subtitle={<span title={subtitle}>{subtitle}</span>}
       onBack={() => navigate(paths.library('templates'))}
-      actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={() => setMore(true)} />}
+      actions={<MobilePageAction icon="more" label={copy.moreSheetAria} onClick={openMore} />}
       footStyle={mtpl.footer}
       footer={saveFooter}
     >
       <div className={stylex.props(mtpl.scroll).className}>
         {saveFeedback}
         <div className={stylex.props(mtpl.card).className}>
+          <div inert={previewKey !== 'fresh'} aria-hidden={previewKey !== 'fresh' ? true : undefined}>
           {preview.projectId ? (
-            <TemplatePreviewPlayer projectId={preview.projectId} />
+            <TemplatePreviewPlayer projectId={preview.projectId} active={previewKey === 'fresh'} />
           ) : (
             <div className={stylex.props(mtpl.frame).className}>
               <span {...stylex.props(mtpl.frameArt)} aria-hidden="true" />
             </div>
           )}
+          </div>
           <div className={stylex.props(mtpl.body).className}>
             <div {...stylex.props(mtpl.stateRow)}>
               <span {...stylex.props(mtpl.previewState, stalePreview && mtpl.previewWarn)}>
@@ -354,4 +365,6 @@ function MTemplateEditor({ initial, section }: { initial: TemplateDetail; sectio
 const sx = stylex.create({
   touch: { minHeight: 'var(--vv-s-44)' },
   editingFields: { margin: 0, padding: 0, borderWidth: 0, minWidth: 0 },
+  sheetBody: { paddingInline: 'var(--vv-s-16)', paddingBottom: 'var(--vv-s-16)' },
+  sheetActions: { display: 'flex', justifyContent: 'flex-end', gap: 'var(--vv-s-8)', paddingTop: 'var(--vv-s-16)' },
 })

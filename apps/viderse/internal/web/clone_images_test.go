@@ -16,9 +16,9 @@ import (
 
 type imageHTTPFixture struct {
 	*cloneimages.Service
-	input   cloneimages.ReviewInput
-	calls   int
-	err     error
+	input cloneimages.ReviewInput
+	calls int
+	err   error
 }
 
 func (f *imageHTTPFixture) Read(context.Context, string) (cloneimages.View, error) {
@@ -58,6 +58,36 @@ func TestCloneImageReviewRoutePreservesRevisionAndFeedback(t *testing.T) {
 		t.Fatalf("stale revision status %d: %s", w.Code, w.Body.String())
 	}
 }
+
+func TestCloneImageUnskipRejectsMutationPayloadAndReportsBusy(t *testing.T) {
+	tg := newTestGateway(t)
+	svc := &imageHTTPFixture{}
+	MountCloneOperations(tg.g, CloneOperations{Images: svc})
+	MountClone(tg.g, &fakeCloneService{}, nil, nil)
+	cookie := tg.sessionCookie()
+	for _, body := range []string{
+		`{"op":"unskip","expectedRevision":8,"version":1}`,
+		`{"op":"unskip","expectedRevision":8,"prompt":"redraw"}`,
+		`{"op":"unskip","expectedRevision":8,"prompt":""}`,
+		`{"op":"unskip","expectedRevision":0}`,
+		`{"op":"unskip","expectedRevision":8,"approve":true}`,
+	} {
+		w := tg.do(http.MethodPost, "/api/clone/job/images/sc-f0", cookie, body)
+		if w.Code != http.StatusBadRequest {
+			t.Fatalf("invalid undo accepted: %s -> %d %s", body, w.Code, w.Body.String())
+		}
+	}
+	if svc.calls != 0 {
+		t.Fatalf("invalid undo reached review %d times", svc.calls)
+	}
+	svc.err = &domain.CloneError{Code: domain.CloneErrConflict, Message: "Bước phụ thuộc đang chạy"}
+	w := tg.do(http.MethodPost, "/api/clone/job/images/sc-f0", cookie, `{"op":"unskip","expectedRevision":8}`)
+	var body cloneErrorWire
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil || w.Code != http.StatusConflict || body.Code != domain.CloneErrConflict {
+		t.Fatalf("busy undo did not return truthful conflict: %d %s %v", w.Code, w.Body.String(), err)
+	}
+}
+
 func TestCloneImageUnknownJobIsNotFound(t *testing.T) {
 	tg := newTestGateway(t)
 	svc := &imageHTTPFixture{err: pipeline.ErrNotFound}

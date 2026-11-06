@@ -1,0 +1,187 @@
+{
+  "proof": "ACTUAL_NATIVE_TOOLS_RECHECK_NO_INSTALL",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "bounds": {
+        "x": 903.5,
+        "y": 177.71875,
+        "width": 119.5,
+        "height": 32
+      },
+      "authoritativeReadback": true
+    },
+    {
+      "width": 390,
+      "status": "PASS",
+      "bounds": {
+        "x": 16,
+        "y": 120.28125,
+        "width": 358,
+        "height": 44
+      },
+      "authoritativeReadback": true
+    }
+  ],
+  "writes": [
+    {
+      "width": 1440,
+      "path": "/api/tools/check"
+    },
+    {
+      "width": 390,
+      "path": "/api/tools/check"
+    }
+  ],
+  "pageErrors": [],
+  "geometry": [
+    {
+      "width": 1440,
+      "ancestors": [
+        {
+          "tag": "BUTTON",
+          "cls": "x3nfvp2 x6s0dn4 xl56j7k x1j9xkj6 xuxw1ft xmkeg23 x1y0btm7 x1osegqy x9kvfbb x1n2onr6 x10w6t97 xaope02 xur7f20 x4z9k3i xo1l8bm x1uf86x9 x1tdpok3 xk4oym4 xjbqb8w xszmurq",
+          "height": "32px",
+          "minHeight": "auto",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 32
+        },
+        {
+          "tag": "SECTION",
+          "cls": "vv-tools__sum x1k4chu1 xnpyrzq x1y0btm7 x9t24fs x1v1cizd x1ej3lhd x1schc0p x78zum5 x137v6ai x6s0dn4 xfjg1si",
+          "height": "72.0625px",
+          "minHeight": "auto",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 72.0625
+        },
+        {
+          "tag": "DIV",
+          "cls": "vv-set__body x19k5vry x78zum5 xdt5ytf xfyiwc6",
+          "height": "647.688px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 647.6875
+        },
+        {
+          "tag": "MAIN",
+          "cls": "vv-set__center vv-wide vv-wide--read x12lumcd xeuugli x2lwn1j x1odjw0f x13idbh3",
+          "height": "845px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 845
+        },
+        {
+          "tag": "DIV",
+          "cls": "vv-set x78zum5 x12lumcd x2lwn1j xb3r6kr",
+          "height": "845px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 845
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "height": "845px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 845
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "height": "900px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 900
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "height": "900px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 900
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "height": "900px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 900
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "height": "900px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 900
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "ancestors": [
+        {
+          "tag": "BUTTON",
+          "cls": "xk50ysn x3nfvp2 x6s0dn4 xl56j7k x1j9xkj6 xuxw1ft xmkeg23 x1y0btm7 x1osegqy x9kvfbb x1n2onr6 x1uf86x9 x1tdpok3 x1akczb3 x1v6gde7 x1hr3lfm xif65rj x4pepcl xk4oym4 xjbqb8w xszmurq",
+          "height": "44px",
+          "minHeight": "44px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 44
+        },
+        {
+          "tag": "DIV",
+          "cls": "vv-mset__body x98rzlu x2lwn1j x1odjw0f x1e2f09v x78zum5 xdt5ytf xfyiwc6",
+          "height": "784px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 784
+        },
+        {
+          "tag": "DIV",
+          "cls": "vv-mset xixxii4 x10a8y8t xpu3k3v x78zum5 xdt5ytf x1scs1y x18o3ruo x4zv5z4 x1uf86x9",
+          "height": "844px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 844
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "height": "844px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 844
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "height": "844px",
+          "minHeight": "0px",
+          "transform": "none",
+          "flexShrink": "1",
+          "rect": 844
+        }
+      ]
+    }
+  ],
+  "status": "PASS",
+  "browserClosed": true
+}

@@ -1,0 +1,177 @@
+[
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/inventory.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-01-inventory.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-02-shared-ui-foundation.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-03-v36-viewer-and-actions.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-04-v37-compact-studio.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-03/acceptance.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-05-v38-channels-and-library.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-06-v39-quick-create-and-queue.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-05/acceptance.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "phase-07-v40-mobile-parity.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "backend-contracts.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-02/selected-source-integration.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-02/viewer-and-actions.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "verification.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-01/foundation.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/plan-review.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/plan-review.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md",
+    "target": "reports/pr-00/baseline.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md",
+    "target": "backend-contracts.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md",
+    "target": "verification.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md",
+    "target": "reports/pr-05/acceptance.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-07-v40-mobile-parity.md",
+    "target": "reports/inventory.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-07-v40-mobile-parity.md",
+    "target": "verification.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/phase-07-v40-mobile-parity.md",
+    "target": "backend-contracts.md",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "native-ui.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "composer-explore.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "comparisons.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "focus-border-repair/results.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "explore-acceptance/manifest.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "post-fix-surfaces.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "queue-acceptance/manifest.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "post-fix-surfaces.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "native-api.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "native-ui-save-readback.json",
+    "exists": true
+  },
+  {
+    "document": "plans/261103-0752-viderse-workflow-rounds-40-44/reports/pr-05/acceptance.md",
+    "target": "native-cli.json",
+    "exists": true
+  }
+]

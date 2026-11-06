@@ -1,0 +1,158 @@
+{
+  "sourceBranch": "refactor/viderse-v40-mobile-parity",
+  "previousPR": {
+    "number": 6,
+    "mergeCommit": "9ad1effc6ac8cd14b537d47c6056942a67cf2bd6"
+  },
+  "frontendSuite": {
+    "files": 442,
+    "passed": 3677,
+    "skipped": 4,
+    "qualifier": "Final unskip/tools/Toast source; subsequent Button lg minHeight-only fix covered by shared33 checks, typecheck/build and actual native PC/mobile smoke"
+  },
+  "typecheck": "PASS",
+  "build": "PASS",
+  "native": "PASS actual HTTP + authoritative GET, worker fenced",
+  "sizeKiBGzip": {
+    "entry": 142.6,
+    "phoneInitial": 179.4,
+    "css": 33.8
+  },
+  "budgetsKiB": {
+    "entry": 150,
+    "phoneInitial": 200,
+    "css": 40
+  },
+  "openDecisions": [],
+  "deploy": "NOT_DEPLOYED",
+  "finalSourceCommit": "e57978b7caa4266df0c30383f990894b01bd962d",
+  "finalFocusedTests": {
+    "files": 3,
+    "passed": 37
+  },
+  "finalTypecheck": "PASS",
+  "finalViteBuild": "PASS",
+  "finalNativeBuild": "PASS final embedded assets",
+  "finalNativeFocusedSmoke": {
+    "actions": 10,
+    "checks": 30,
+    "failed": 0,
+    "mutations": 0,
+    "motion": [
+      "normal",
+      "reduced"
+    ],
+    "sliderProof": "Actual selected-button vs thumb x/y/width/height deltas <=2px after document.fonts.ready; not count of range controls"
+  },
+  "latencyGate": {
+    "status": "PASS",
+    "execution": "serial after builds, unit suites and browser controllers settled",
+    "sourceTest": "apps/viderse/internal/persistence/postgres/rivals_bench_pg_test.go",
+    "testSHA256": "c69459c88a23e8010c33f7a1a9168aa282ace51016bc7d00f6a3cafacab57b06",
+    "sourceCommit": "4da829e8c7eb7d4a2784a0c408b0d0f1a936adec",
+    "regressionThresholdMs": 400,
+    "rivalVideos": {
+      "fixtureVideos": 20000,
+      "variants": 16,
+      "worstVariant": "all/views/first",
+      "worstP95Ms": 155.83
+    },
+    "rivalList": {
+      "channels": 50,
+      "videos": 100000,
+      "retainedJobs": 50000,
+      "p50Ms": 22.68,
+      "p95Ms": 25.05
+    },
+    "packageSeconds": 125.27,
+    "modelOverlay": true,
+    "productionDBMutation": false
+  },
+  "physicalSafari": {
+    "status": "AWAITING_PHYSICAL_IPHONE_OPERATOR",
+    "attempts": [
+      "local xcrun devicectl list devices: utility unavailable",
+      "Mac mini xcrun devicectl list devices: utility unavailable"
+    ],
+    "qualification": "No operable physical Safari-device route established; not evidence that no device exists. Chromium not substituted.",
+    "decision": "User explicitly KEEP gate #93",
+    "previewURL": "http://192.168.1.13:8045/qa",
+    "previewType": "Real compiled UI with explicit synthetic fixture data; not native/provider or physical-device proof",
+    "LANChromiumSmoke": "PASS 3 scoped flows; unsupported auxiliary fixture endpoints return404, retained in receipt"
+  },
+  "sharedFocusedTests": {
+    "files": 3,
+    "passed": 33
+  },
+  "backendUnskip": {
+    "affectedPackages": "PASS 3",
+    "postgresPersistence": "PASS",
+    "race": "PASS",
+    "nativeApiCases": 4,
+    "nativeUICases": 2,
+    "noNewImages": true,
+    "ledger": {
+      "jobs": 3,
+      "steps": 27,
+      "receipts": 2
+    }
+  },
+  "nativeTools": {
+    "cases": 2,
+    "mobileHeightPx": 44,
+    "actualProbeAndReadback": true,
+    "installs": 0
+  },
+  "review": "task-role bounded review: no concrete blockers; no independent-family claim",
+  "productionBackendHotfix": {
+    "deployed": true,
+    "sourceCommit": "401d1b4585b8e243874acd23dc7d877a3fbfaec3",
+    "PR": [
+      9,
+      10
+    ],
+    "fullWorkflowUIDeployed": false,
+    "readiness": "Loopback/public HTTP200; workspace assertion unchanged",
+    "browserOrigin": "Launcher-bound direct HTTP loopback; scoped render/measure only; no proxy metadata",
+    "launchdImage": "PID38806 inode2809657 matches installed binary after install then kickstart -k",
+    "actualRecovery": "Score attempt12 succeeded100/100, accepted=false; export attempt1 now succeeded,432805526B MP4 verified SHA and ffprobe3380.7s. Playback UI subsequently patched separately below.",
+    "publicWorkaround": "Attempt10 claimed, uploaded426240000bytes, failed existing10minute deadline",
+    "transportBenchmark": {
+      "bytes": 9216000,
+      "publicMs": 36327.88,
+      "loopbackMs": 53.479
+    },
+    "upstreamAI": "All preceding succeeded attempts preserved; no broad invalidation/retry",
+    "artifactLookup": "Approved images persisted in job catalog but absent from step output. Exact own-job relative catalog resolution restored; retained upstream precedence and hash checks.",
+    "tests": "Before claim regression403; after scoped origin race PASS. Final exact production and actual integration web/render/cmd suites PASS; catalog Inputs-to-ComputeScore and tamper/isolation/ambiguity/precedence regression PASS; catalog race PASS. Earlier unchanged15ms hang test failed under concurrent load, isolated and final serial suites PASS. No hosted CI claim.",
+    "receipt": "production-video-recovery.json"
+  },
+  "productionPlaybackHotfix": {
+    "sourceCommit": "9d440603fdb56fe3cad4bc8f28ccebbdb8f917d8",
+    "deployed": true,
+    "fullWorkflowUIDeployed": false,
+    "rootCause": "Production PC/mobile only selected MP4 artifacts; current editor export output has data.projectId/exportId and empty artifacts.",
+    "tests": "Isolated production43tests/typecheck/Vite/native build PASS; integrated36tests PASS.",
+    "realMP4Browser": "Built UI desktop/mobile fixture loaded actual production MP43380.7s1920x1080, played and sought1800s; mobile canonical direct-open and no horizontal overflow.",
+    "productionProof": "Mapped PID47165/inode2830537; public readiness200; public PC/mobile chunks byte-identical to smoke build. Unauthenticated export HEAD401 retained.",
+    "limits": "No authenticated production browser proof: chrome-profile unavailable, live relay timed out. Fixture is not physical Safari; no auth bypass/session minted.",
+    "receipt": "playback-hotfix/receipt.json"
+  },
+  "productionEditorSettingsHotfix": {
+    "deployed": true,
+    "sourceCommit": "9d1e4b6fe1ee67997576b73985602ea0bacda1f3",
+    "binarySHA256": "b17d076001826caf305ee91a99af5107372f2faa7371f3fef76a0cdbd1230be0",
+    "fullWorkflowUIDeployed": false,
+    "receipt": "editor-settings-hotfix/receipt.json",
+    "limits": "Original authenticated production conflict not captured; template output audit is not implementation; physical Safari gate #93 KEEP."
+  },
+  "productionTemplateChannelHotfix": {
+    "deployed": true,
+    "sourceCommit": "520d4ba3946ad458bbfa1b023a31f9087c1b2d3e",
+    "binarySHA256": "9590fb848297639b32f7d02fe1afe50442fde5bb05c0073bff99b09aa3eb846a",
+    "receipt": "template-channel-hotfix/receipt.json",
+    "fullWorkflowUIDeployed": false,
+    "channelArtboardAudit": "channel-workbench-audit.md",
+    "templateDataRepair": "expected revision3 and full project guard; revision4; only inactive field and timestamps changed; read-only business functions succeed"
+  }
+}

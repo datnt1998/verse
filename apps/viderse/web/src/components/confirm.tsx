@@ -73,18 +73,17 @@ export function confirmOverwrite(args: {
 /** logout — Đăng xuất nhà cung cấp AI (nguy hiểm làm lại được → cam nhạt). */
 export function confirmProviderLogout(args: {
   provider: string
-  fallback: string
   onConfirm: () => void | Promise<void>
 }): Promise<boolean> {
   const c = t.confirm.logout
   return open({
     tone: 'dsoft',
     title: c.title(args.provider),
-    body: c.body(args.fallback),
+    body: c.body,
     cancelLabel: t.common.cancel,
     confirmLabel: c.ok(args.provider),
     pendingLabel: c.busy,
-    successMessage: c.done(args.provider, args.fallback),
+    successMessage: c.done(args.provider),
     onConfirm: args.onConfirm,
   })
 }

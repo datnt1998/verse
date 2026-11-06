@@ -9,7 +9,15 @@
 | Nút chính sáng, nền, chữ, xám, xanh lá, vàng | giữ nguyên | `--vv-primary`, `--vv-bg`, `--vv-text*`, `--vv-st-*` |
 | Orb Kiến trúc sư · Người viết · Biên tập · Trọng tài | Orb Trinh sát · Đạo diễn · Hoạ sĩ · Kiểm định | `--vv-orb-*` |
 
-- **Board:**
+- **Page UI Kit (đợt 41c, 03/11/2026) — chuẩn dùng chung cho page Máy tính và Điện thoại:** <!-- r41c -->
+  - `UkOverview` UK.0 Tổng quan: cách dùng 3 bước, 8 nguyên tắc, mục lục, bảng Máy tính ↔ Điện thoại, kit ↔ `@noverse/ui`, các class đã bỏ.
+  - `UkFoundation` UK.1 Nền tảng: 104 token màu (đọc thẳng từ `tokens.css`), màu có nghĩa, chữ (máy tính + điện thoại), cỡ & vùng chạm, bo góc, bóng & thứ tự lớp z, khoảng cách, 73 icon, bốn trợ lý.
+  - `UkMotion` UK.2 Chuyển động: 6 đường cong vẽ thật, thang thời lượng, 21 mẫu (lớp phủ, điều khiển, phản hồi) có nút **Phát lại** và bảng thông số: lớp, keyframe, thời lượng, easing, đóng, điện thoại.
+  - `UkControls` UK.3 · `UkInputs` UK.4 · `UkFeedback` UK.5 · `UkOverlays` UK.6 · `UkShell` UK.7 · `UkViderse` UK.8: 35 thành phần; mỗi cái có khi dùng, mẫu **máy tính và điện thoại cạnh nhau**, thông số, nên / không nên, nguồn.
+  - `Brand` là UK.9. `Kit` / `MKit` cũ: cuối page, nhãn Lưu trữ.
+  - Công tắc, hộp kiểm, radio, nhóm chọn, tab trên các board UI Kit bấm được thật (script nhỏ `data-uk="live"` trong board, chỉ để xem).
+- **Lớp mới trong `kit.css` (đợt 41c):** `.vv-pop--up` + `.vv-pop-up` (popover gần đáy mở lên), `.vv-pop-out`, `.vv-sheet-in` / `.vv-sheet-out`, `.vv-panel-in` / `.vv-panel-out`, `.vv-swap-in` (đổi nội dung tab, đổi ảnh). Token mới: [03-tokens.md](03-tokens.md) › Token chuyển động đầy đủ.
+- **Board cũ (lưu trữ):**
   - `Kit` (máy tính). Tweak:
     - `section=foundation|confirm|menus|select|inputs|overlays|video|agent`. Năm nhóm `confirm` → `overlays` là 5 nhóm của Kit Noverse; `foundation`, `video`, `agent` là phần riêng Viderse.
     - `confirm=pause|overwrite|logout|video|channel|stopAll|leave` — 7 tình huống xác nhận.
@@ -125,8 +133,12 @@ Từ đợt 20, cả 23 artboard màn hình đã vẽ theo kit mới. Bảng nà
 - **Vùng bấm:**
   - Máy tính ≥ 24px (nút 30–36px).
   - Điện thoại ≥ 44px; hàng 56px; nút lớn 48px.
+  - Kit chạy thật dùng chung `--kit-touch-min: 44px` trong [tokens.stylex.ts](../../../../../platform/ui/src/tokens.stylex.ts). [Toast.tsx](../../../../../platform/ui/src/Toast.tsx), nhánh activity: nút hành động/đóng trên mobile có vùng chạm tối thiểu 44×44px, vòng đếm vẫn 28px; không phóng vòng đếm theo vùng chạm.
+  - [Button.tsx](../../../../../platform/ui/src/Button.tsx), cỡ `lg`: `minHeight` dùng cùng token để không bị flex nén dưới 44px.
 
 - **`button.vv-row`** <!-- r38 -->: hàng danh sách là một nút (mở màn con, mở sheet) — kit đặt lại nền, viền, font, căn trái, rộng 100%; không tự style lại.
+
+- **`.vv-viewer*`** <!-- r40 -->: Trình xem ảnh (04 › Trình xem ảnh). **`.vv-imgbtn`**: nút trong suốt phủ ô ảnh để mở Trình xem ảnh, con trỏ phóng to.
 
 ## Khi thêm thành phần mới
 

@@ -666,3 +666,30 @@ Mẫu:
 - Phương án B — Ảnh thật ưu tiên, thiếu thì minh hoạ thiết kế: dùng asset thiết kế như đồ hoạ sản phẩm, ghi rõ “Minh hoạ bố cục”, không lưu nó làm ảnh AI hay bản xem thử. Không gọi AI, nhưng cần duyệt chính sách dùng ảnh minh hoạ trong UI dữ liệu thật.
 - Không sửa artboard; không tạo thêm lượt suy luận/ảnh để lấp thiếu dữ liệu trong QA.
 - Quyết định người dùng: chọn **Ảnh thật hoặc hình chờ** qua câu hỏi#90. Có ảnh mẫu thì hiển thị đúng ảnh của chỉ dẫn đang gắn; thiếu/tải lỗi thì ô trung tính với nghĩa “Chưa có ảnh mẫu”. Không dùng ảnh thiết kế thay dữ liệu thật và không tốn thêm lượt vẽ.
+
+## #91. V40 — Điểm vào Kiểm tra lại công cụ trên điện thoại
+
+- Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai**.
+- **Kiểm tra lại** nằm ngay dưới mô tả đầu trang Công cụ trên máy của mobile, không giấu trong Nâng cao. Dùng chung probe/readback với PC, không cài hoặc tải công cụ.
+- Nguồn thực thi: [ToolsSection.tsx](../../../web/src/screens/settings/tools/ToolsSection.tsx) (`RecheckButton`). Không sửa artboard; đây không phải bằng chứng khớp 1:1 toàn bộ giao diện.
+
+## #92. V40 — Hoàn tác Bỏ ảnh không được ngầm duyệt hoặc vẽ lại
+
+- Trạng thái: **Đã chốt A (người dùng, 05/11/2026) — đã triển khai unskip tối thiểu**.
+- Hoàn tác phải trả đúng trạng thái và phiên bản trước Bỏ từ snapshot bền vững `beforeSkip`; không ngầm duyệt, không vẽ lại, không thêm quota. Không dùng `approve` hoặc `restore` thay thế; không mở rộng viewer đợt 45.
+- Hợp đồng `unskip`/`expectedRevision`, xử lý bận/revision cũ và giới hạn ảnh skipped cũ không có snapshot: [07-data-contract.md §14](07-data-contract.md#prompt-override). Nút Hoàn tác dùng revision của lần Bỏ thành công và đọc lại kết quả thật trong [useReview.ts](../../../web/src/screens/review/useReview.ts).
+
+## #93. Gate Safari thiết bị thật trước deploy
+
+- Quyết định (người dùng, 05/11/2026): **KEEP — giữ gate Safari trên iPhone thật trước deploy**. Không miễn gate hoặc diễn giải kiểm Chromium là kiểm Safari.
+- Trạng thái: **Chờ bằng chứng thiết bị thật; chưa deploy**. Cần người vận hành/QA kiểm keyboard, URL bar, xoay màn hình và dock trên Safari iPhone; chưa có proof đáp ứng gate này.
+- Bổ sung quyết định (người dùng, 06/11/2026): **người dùng tự test Safari iPhone thật theo `physical-safari-handoff.md` trong vòng 1 ngày từ khi nhận preview truy cập được của bản V40 cuối**. Giữ KEEP; hết hạn không tự miễn gate. Chỉ deploy khi có bằng chứng đạt trên đúng bản liên quan; đây chưa phải bằng chứng đã test.
+
+## #94. Nghiệm thu trạng thái first-run trên production đã có dữ liệu
+
+- Trạng thái: **Đã chốt A (người dùng, 06/11/2026) — ngoại lệ hẹp cho first-run**. Chỉ các trạng thái Onboard/thiết lập đầu tiên không thể dựng an toàn trên instance production đã có dữ liệu được dùng bằng chứng instance first-run biệt lập, cùng release commit, backend/dữ liệu thật. Không mock, không mở rộng ngoại lệ sang trạng thái khác; báo cáo phải phân biệt ảnh instance biệt lập với ảnh production và dẫn số #94.
+- Phát hiện khi lập kế hoạch phát hành ngày 06/11/2026: tài khoản mới không tạo được Onboard lần đầu. `postgres/queries/channels.sql:5–8` liệt kê kênh chung toàn instance; `ChannelNewScreen.tsx:22–26` chỉ bật Onboard khi danh sách đó rỗng.
+- Thiết lập tài khoản đầu tiên cũng không thể dựng qua API production hiện tại: `platform/webapp/server.go:596–607,622–634` trả không cần thiết lập và từ chối setup khi identity store đã có người dùng. Viderse dùng chung identity với Noverse; không được xoá/reset store để lấy ảnh.
+- Phương án A: duyệt ngoại lệ nghiệm thu hẹp cho đúng các trạng thái first-run không thể dựng trên instance đã vận hành: chạy cùng release commit bằng ứng dụng/backend/dữ liệu thật trên instance first-run biệt lập, không mock; production report ghi rõ không dựng được và dẫn số #94, không gọi ảnh đó là ảnh production. Mọi trạng thái còn lại vẫn nghiệm thu production như yêu cầu.
+- Phương án B: giữ yêu cầu mọi trạng thái phải có bằng chứng tại production hiện hữu; giữ blocker cho các trạng thái first-run đến khi có đường vận hành an toàn được duyệt. Không xoá kênh/identity, không thêm query/DOM giả hoặc tự mở tenancy chỉ để vượt gate; không tuyên bố nghiệm thu đầy đủ khi blocker còn.
+

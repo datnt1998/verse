@@ -560,7 +560,7 @@ function DesktopReviewScreen({ route }: { route: Extract<Route, { name: 'review'
           candidates={candidates}
           onUpload={upload}
           uploading={uploading}
-          score={scores || shownVersion?.scoreIssue ? <ScorePanel imageId={`${item.id}:${shownVersion?.n}`} rawScore={shownVersion?.score} min={scores?.min ?? APPROVE_DEFAULT} issue={shownVersion?.scoreIssue} /> : undefined}
+          score={scores || shownVersion?.scoreIssue ? <ScorePanel rawScore={shownVersion?.score} min={scores?.min ?? APPROVE_DEFAULT} issue={shownVersion?.scoreIssue} /> : undefined}
         />
       ))} />
     </>}

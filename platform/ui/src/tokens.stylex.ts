@@ -319,6 +319,7 @@ export const brand = stylex.defineVars({
  * --kit-wash-N = rgba(255,255,255,N%).
  */
 export const kit = stylex.defineVars({
+  '--kit-touch-min': '44px',
   /* Nhúi trắng chưa có trong line */
   '--kit-wash-4': 'rgba(255,255,255,.04)',
   '--kit-wash-5': 'rgba(255,255,255,.05)',

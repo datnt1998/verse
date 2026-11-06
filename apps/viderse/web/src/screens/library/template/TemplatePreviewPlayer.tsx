@@ -6,11 +6,11 @@ import { color, line } from '@noverse/ui/tokens.stylex'
 const LazyPreviewPlayer = lazy(() =>
   import('../../../editor/ui/preview-player/preview-player').then((mod) => ({ default: mod.PreviewPlayer })))
 
-export function TemplatePreviewPlayer({ projectId }: { projectId: string }) {
+export function TemplatePreviewPlayer({ projectId, active }: { projectId: string; active: boolean }) {
   return (
     <div className={`vt-preview-player ${stylex.props(sx.player).className}`} data-project={projectId}>
       <Suspense fallback={<div className={`vt-preview-player-fallback ${stylex.props(sx.fallback).className}`} role="status">Đang tải bản xem thử…</div>}>
-        <LazyPreviewPlayer projectId={projectId} />
+        <LazyPreviewPlayer projectId={projectId} active={active} />
       </Suspense>
     </div>
   )

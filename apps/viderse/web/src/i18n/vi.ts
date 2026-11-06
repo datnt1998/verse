@@ -142,10 +142,10 @@ export const base = {
     },
     logout: {
       title: (provider: string) => `Đăng xuất gói ${provider}?`,
-      body: (fallback: string) => `Hoạ sĩ chuyển sang vẽ bằng ${fallback} (dự phòng) cho tới khi bạn đăng nhập lại. Video đang làm không bị mất.`,
+      body: 'Tài khoản này dùng chung cho cả máy. Trợ lý sẽ không dùng nhà cung cấp này cho lượt gọi mới cho tới khi bạn đăng nhập lại. Ảnh đã gửi có thể vẫn hoàn tất; nếu lượt vẽ báo lỗi, Viderse dùng nguồn dự phòng đã bật và còn dùng được, nếu không thì chờ bạn xử lý. Video đang làm và ảnh đã có được giữ nguyên.',
       ok: (provider: string) => `Đăng xuất ${provider}`,
       busy: 'Đang đăng xuất…',
-      done: (provider: string, fallback: string) => `Đã đăng xuất ${provider} · Hoạ sĩ vẽ bằng ${fallback}`,
+      done: (provider: string) => `Đã đăng xuất ${provider}`,
       error: 'Không đăng xuất được: mất kết nối mạng.',
     },
     deleteVideo: {

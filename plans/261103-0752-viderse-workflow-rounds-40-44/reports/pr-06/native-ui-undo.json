@@ -1,0 +1,64 @@
+{
+  "proof": "ACTUAL_NATIVE_UI_SKIP_UNDO_GET_READBACK_WORKER_FENCED",
+  "cases": [
+    {
+      "width": 1440,
+      "status": "PASS",
+      "routeChangedBeforeUndo": true,
+      "authoritativeReadback": true,
+      "restoredStatus": "approved",
+      "restoredVersion": 1,
+      "undoBounds": {
+        "x": 720.890625,
+        "y": 848,
+        "width": 99.4375,
+        "height": 28
+      },
+      "touchPass": true
+    },
+    {
+      "width": 390,
+      "status": "PASS",
+      "routeChangedBeforeUndo": false,
+      "authoritativeReadback": true,
+      "restoredStatus": "approved",
+      "restoredVersion": 1,
+      "undoBounds": {
+        "x": 187.890625,
+        "y": 693,
+        "width": 99.4375,
+        "height": 44
+      },
+      "touchPass": true
+    }
+  ],
+  "writes": [
+    {
+      "width": 1440,
+      "path": "/api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/sc-01",
+      "op": "skip",
+      "revision": 33
+    },
+    {
+      "width": 1440,
+      "path": "/api/clone/b816c8ba-e80f-4776-92ab-5c848425d233/images/sc-01",
+      "op": "unskip",
+      "revision": 34
+    },
+    {
+      "width": 390,
+      "path": "/api/clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/images/sc-01",
+      "op": "skip",
+      "revision": 29
+    },
+    {
+      "width": 390,
+      "path": "/api/clone/de3a4a6e-8a5c-4e57-9415-2704497bd292/images/sc-01",
+      "op": "unskip",
+      "revision": 30
+    }
+  ],
+  "pageErrors": [],
+  "status": "PASS",
+  "browserClosed": true
+}

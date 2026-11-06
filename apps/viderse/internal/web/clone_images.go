@@ -389,7 +389,7 @@ func (ops CloneOperations) images(w http.ResponseWriter, r *http.Request, id str
 		valid = input.Version == nil
 	case "editPrompt":
 		valid = input.Version == nil && input.Prompt != nil && strings.TrimSpace(*input.Prompt) != ""
-	case "skip":
+	case "skip", "unskip":
 		valid = input.Version == nil && input.Prompt == nil
 	}
 	if !valid || input.Prompt != nil && utf8.RuneCountInString(*input.Prompt) > 8000 {

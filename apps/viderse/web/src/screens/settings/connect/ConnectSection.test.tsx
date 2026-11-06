@@ -16,6 +16,7 @@ import { ModelCatalog, PAGE } from './ModelCatalog'
 import { ChatGPTLoginAction } from './ChatGPTLogin'
 import type { AiModel, AiProvider } from '../../../api/ai'
 import { aiCopy } from '../../../i18n/ai'
+import { getKitLabels } from '@noverse/ui'
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true })
 
@@ -297,9 +298,14 @@ describe('Kết nối AI', () => {
     const card = el.querySelector('[data-kind="ollama"]')!
     const error = card.querySelector('[role="alert"]')!
     await click(byText(error, 'button', 'Đổi địa chỉ'))
-    const field = card.querySelector('.conn-edit input') as HTMLInputElement
+    const editor = mobile ? lastDialog()! : card
+    const field = editor.querySelector('.conn-edit input') as HTMLInputElement
+    if (mobile) expect(card.querySelector('.conn-edit')).toBeNull()
     expect(field.value).toBe('http://127.0.0.1:11435')
     expect(field.type).not.toBe('password')
+    expect(calls.some((call) => call.method !== 'GET')).toBe(false)
+    await click(byText(editor, 'button', aiCopy.connect.cancelEdit))
+    await flush()
     expect(calls.some((call) => call.method !== 'GET')).toBe(false)
   })
 
@@ -322,6 +328,96 @@ describe('Kết nối AI', () => {
     await act(async () => { await vi.advanceTimersByTimeAsync(30) })
     const del = calls.filter((c) => c.method === 'DELETE' && c.url === '/api/ai/providers/p-or')
     expect(del).toHaveLength(1)
+  })
+
+  it('mobile key editor saves once and closes its sheet without an inline duplicate', async () => {
+    providerState = [openrouter]
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
+      matches: true, addEventListener: () => {}, removeEventListener: () => {},
+    })))
+    const el = await render()
+    const card = el.querySelector('[data-kind="openrouter"]')!
+    await click(byText(card, 'button', aiCopy.connect.changeKey))
+    const editor = lastDialog()!
+    expect(editor).toBeTruthy()
+    expect(card.querySelector('.conn-edit')).toBeNull()
+    await setInput(editor.querySelector('input[type="password"]') as HTMLInputElement, 'replacement-key')
+    await click(byText(editor, 'button', aiCopy.connect.saveKey))
+    await flush()
+    const writes = calls.filter((call) => call.method === 'PATCH')
+    expect(writes).toHaveLength(1)
+    expect(JSON.parse(writes[0].body!)).toEqual({ apiKey: 'replacement-key' })
+    expect(document.querySelector('.conn-edit')).toBeNull()
+  })
+
+  it('mobile remove leaves the key sheet before confirmation and cancel keeps the provider', async () => {
+    providerState = [openrouter]
+    vi.stubGlobal('matchMedia', vi.fn().mockImplementation(() => ({
+      matches: true, addEventListener: () => {}, removeEventListener: () => {},
+    })))
+    const el = await render()
+    await click(byText(el.querySelector('.conn-card')!, 'button', aiCopy.connect.changeKey))
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.removeOk))
+    await flush()
+    expect(document.querySelector('.conn-edit')).toBeNull()
+    expect(document.querySelectorAll('[role="dialog"],[role="alertdialog"]')).toHaveLength(1)
+    expect(calls.some((call) => call.method === 'DELETE')).toBe(false)
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.cancel))
+    await flush()
+    expect(calls.some((call) => call.method === 'DELETE')).toBe(false)
+    expect(providerState).toHaveLength(1)
+  })
+
+  it('a completed earlier key save does not discard a reopened mobile draft', async () => {
+    providerState = [openrouter]
+    vi.stubGlobal('matchMedia', vi.fn((query: string) => ({
+      matches: query.includes('max-width'), addEventListener: () => {}, removeEventListener: () => {},
+    })))
+    let release!: () => void
+    const gate = new Promise<void>(resolve => { release = resolve })
+    const fetchBefore = globalThis.fetch
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'PATCH') await gate
+      return fetchBefore(input, init)
+    }))
+    const el = await render()
+    const card = el.querySelector('.conn-card')!
+    await click(byText(card, 'button', aiCopy.connect.changeKey))
+    await setInput(lastDialog()!.querySelector('input[type="password"]')!, 'first-key')
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.saveKey))
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.cancelEdit))
+    await act(async () => { await vi.advanceTimersByTimeAsync(300) })
+    await click(byText(card, 'button', aiCopy.connect.changeKey))
+    await setInput(lastDialog()!.querySelector('input[type="password"]')!, 'unsaved-second-key')
+    await act(async () => { release(); await Promise.resolve() })
+    await flush()
+    expect(lastDialog()!.querySelector<HTMLInputElement>('input[type="password"]')?.value).toBe('unsaved-second-key')
+    expect(calls.filter(call => call.method === 'PATCH')).toHaveLength(1)
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.cancelEdit))
+    await act(async () => { await vi.advanceTimersByTimeAsync(300) })
+  })
+
+  it('provider removal failure stays retryable without exposing the upstream exception', async () => {
+    providerState = [openrouter]
+    const fetchBefore = globalThis.fetch
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === 'DELETE'
+        ? Response.json({ error: 'upstream_internal_exception_marker' }, { status: 500 })
+        : fetchBefore(input, init)))
+    const el = await render()
+    await click(byText(el.querySelector('.conn-card')!, 'button', aiCopy.connect.changeKey))
+    await click(byText(el.querySelector('.conn-card')!, 'button', aiCopy.connect.removeOk))
+    await click(byText(lastDialog()!, 'button', aiCopy.connect.removeOk))
+    await flush()
+    const dialog = lastDialog()!
+    expect(dialog.querySelector('[role="alert"]')).toBeTruthy()
+    expect(dialog.textContent).not.toContain('upstream_internal_exception_marker')
+    await click(byText(dialog, 'button', getKitLabels().confirm.retry))
+    await flush()
+    expect(vi.mocked(fetch).mock.calls.filter(([, init]) => init?.method === 'DELETE')).toHaveLength(2)
+    expect(providerState).toHaveLength(1)
+    await click(byText(dialog, 'button', aiCopy.connect.cancel))
+    await act(async () => { await vi.advanceTimersByTimeAsync(300) })
   })
 
   it('grok logged_out → chỉ nút Đăng nhập Grok', async () => {

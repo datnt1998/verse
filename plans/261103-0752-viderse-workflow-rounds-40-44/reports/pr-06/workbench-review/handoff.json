@@ -1,0 +1,50 @@
+{
+  "status": "DONE_WITH_CONCERNS",
+  "changedFiles": {
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchDetail.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/workbench/mobile/MobileWorkbenchDetail.tsx",
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchList.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/workbench/mobile/MobileWorkbenchList.tsx",
+    "apps/viderse/web/src/screens/workbench/mobile/mworkbench.stylex.ts": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/workbench/mobile/mworkbench.stylex.ts",
+    "apps/viderse/web/src/screens/workbench/mobile/MobileWorkbenchDetail.test.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/workbench/mobile/MobileWorkbenchDetail.test.tsx",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/mobile/MReviewScreen.tsx",
+    "apps/viderse/web/src/screens/review/mobile/mreview.stylex.ts": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/mobile/mreview.stylex.ts",
+    "apps/viderse/web/src/screens/review/mobile/MReviewScreen.test.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/mobile/MReviewScreen.test.tsx",
+    "apps/viderse/web/src/screens/review/imageView.ts": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/imageView.ts",
+    "apps/viderse/web/src/screens/review/ImageRail.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/ImageRail.tsx",
+    "apps/viderse/web/src/screens/review/ReviewScreen.tsx": "/var/folders/v7/cgy6bv_j1x18zxxk5l7dphw80000gn/T/verse-v39-isolated-v0gyo7bg/v40-team/workbench-review/src/screens/review/ReviewScreen.tsx"
+  },
+  "changes": [
+    {
+      "sourceAnchors": ["MobileWorkbenchDetail.tsx:47-73", "MobileWorkbenchDetail.tsx:165-204", "MobileWorkbenchDetail.tsx:253-255", "MobileWorkbenchDetail.tsx:286-337"],
+      "change": "Two mobile video tabs, content default, counted image tab; consolidated information sheet contains assistants, source, template, and actual backdrop read/mutate controls. Existing metadata operations, live image feedback, export playback, pause/resume and overflow preserved. Review-stage images route to the actual selected review image. Log visibly renamed Tiến độ.",
+      "designReferences": ["phase-07 step 2", "01-ia-flows.md:285-286", "MMain.dc.html:1112-1136", "Workflow.dc.html:977-980"]
+    },
+    {
+      "sourceAnchors": ["MobileWorkbenchList.tsx:37-38", "MobileWorkbenchList.tsx:56-69", "MobileWorkbenchList.tsx:103"],
+      "change": "Removed standalone proposal section; actual top-three proposal rows and waiting videos share one Chờ bạn group. Existing no-recap/no-plan implementation retained.",
+      "designReferences": ["01-ia-flows.md:286", "08-dev-prompt.md:1126", "Workflow.dc.html:979"]
+    },
+    {
+      "sourceAnchors": ["MReviewScreen.tsx:MReviewScreen", "imageView.ts:153-159", "ImageRail.tsx:349", "ReviewScreen.tsx:563"],
+      "change": "Removed mobile local Why button/sheet/ReasonPopover path. Mobile reads selected modern version's actual Cảnh/Phong cách/Tham chiếu/Tránh parts and references instead of labelling the legacy whole prompt as Cảnh. Both layouts use the canonical four-part order; learned label removed. Legacy prompt remains readable as nguyên văn, not fabricated parts. Version comparison picks an actual prior usable version rather than assuming n-1. Feedback chips insert/remove their text, accepted redraw and skip actions show real toasts, first low-score image can be opened, obsolete autonomy prose is not displayed. API failures retain API copy while unexpected exceptions get Vietnamese fallback. Desktop ScorePanel call drops imageId in coordination with parent's shared component change.",
+      "designReferences": ["phase-07 step 6", "01-ia-flows.md:291,420", "08-dev-prompt.md:1126,1132,1138", "MReview.dc.html:988-1005,1046-1050", "Workflow.dc.html:980"]
+    },
+    {
+      "sourceAnchors": ["mworkbench.stylex.ts:7-10,299-303", "mreview.stylex.ts:existing NO_MOTION styles", "MobileWorkbenchDetail.test.tsx:164-183", "MReviewScreen.test.tsx:105-128,161"],
+      "change": "Added token-timed, reduced-motion-aware tab panel entry. Shared Sheet/Segmented and existing DevelopEffect/Orb feedback remain responsible for sheet transitions, measured slider, progress and new-image motion. Added interaction tests for content default/image tab switching/information sheet, four real prompt parts and reversible feedback chips. Updated version-source behavior assertion from the old legacy prompt to the selected modern scene part. No tests deleted or weakened as obsolete wording tests; no source-text tests added.",
+      "designReferences": ["phase-07 step 7", "01-ia-flows.md:298", "08-dev-prompt.md:1127", "MMain.dc.html:268-272"]
+    }
+  ],
+  "concreteRemainingLimitations": [
+    {
+      "issue": "Bỏ ảnh này cannot have a truthful exact-state Hoàn tác with currently exposed operations. No misleading undo action is shipped.",
+      "evidence": ["apps/viderse/web/src/screens/review/useReview.ts:74,203-232 exposes skip/approve but no non-approving unskip", "apps/viderse/internal/pipeline/steps/images/model.go:416-442 approve/select restores the version AND sets approved", "apps/viderse/internal/pipeline/steps/images/model.go:452-468 skip clears current/review versions; restore sets pending (redraw)", "apps/viderse/internal/clone/images/service.go:368-369 restore enters drawing work"],
+      "decision": "Per parent direction, retain actual skip behavior plus result toast, no implicit approval or new lifecycle. Parent-owned 11-hoi-dap question required for exact undo semantics/API authorization."
+    }
+  ],
+  "verification": {
+    "executed": [],
+    "reason": "Worker instructed not to run tests/build/lint/formatters or browser; parent verifies integrated source once.",
+    "recommendedParentChecks": ["Focused mobile workbench/review tests and desktop ReviewScreen/ImageRail tests", "Typecheck/build after shared ScorePanel prop integration", "Integrated mobile tab/sheet/source/backdrop/version/compare/redraw feedback interactions", "Normal/reduced motion; Safari keyboard and dock/safe-area gate"]
+  },
+  "unchangedScope": ["MobileImageSheet retained; no round45 shared mobile viewer or editor", "No backend, API schema, auth, DB, provider or primary-source edits", "No artboard edits", "Desktop ScoreParts Why removal is parent-owned"]
+}

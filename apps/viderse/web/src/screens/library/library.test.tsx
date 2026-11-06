@@ -232,6 +232,25 @@ describe('cài đặt template — xem thử', () => {
       expect(build.getAttribute('aria-disabled')).toBe('true')
     })
   }
+  it.each(['stale', 'building'] as const)('blocks the saved player while %s without discarding its project', async (state) => {
+    detailBody = detail({ preview: { state, builtAt: '2026-11-06T10:00:00Z', projectId: 'saved-preview' } })
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const player = page.querySelector('.vt-preview-player')
+    expect(player?.getAttribute('data-project')).toBe('saved-preview')
+    expect(player?.closest('[inert]')).not.toBeNull()
+    expect(page.querySelector('.vt-preview-overlay')?.textContent).toContain(
+      state === 'stale' ? previewCopy.staleTitle : previewCopy.badge.building,
+    )
+  })
+
+  it('keeps the matching saved player interactive', async () => {
+    detailBody = detail({ preview: { state: 'fresh', builtAt: '2026-11-06T10:00:00Z', projectId: 'saved-preview' } })
+    const page = await render(<TemplateScreen route={templateRoute} />)
+    const player = page.querySelector('.vt-preview-player')
+    expect(player?.getAttribute('data-project')).toBe('saved-preview')
+    expect(player?.closest('[inert]')).toBeNull()
+    expect(page.querySelector('.vt-preview-overlay')).toBeNull()
+  })
 })
 
 describe('thư viện — xoá', () => {
