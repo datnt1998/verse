@@ -107,6 +107,29 @@ artifact trung gian, không nhất thiết có trong output bước ảnh. Rende
 catalog qua repository, ưu tiên output hiện hành và từ chối đường dẫn mơ hồ;
 không chọn bản cuối theo thứ tự DB hoặc bỏ kiểm hash để qua chất lượng.
 
+Đo xuất chậm trên **lần xuất thật kế tiếp**, không suy thời gian từ clip QA ngắn:
+
+- Request riêng ở `~/.viderse/render/export-requests/` giữ `progress.timings`;
+  output bước export giữ `timings` và `postprocess`. Xem contract tại
+  [`export-timings.go`](../internal/render/export-timings.go).
+- `renderMs` gồm render/decode/GPU; `encoderWaitMs` chỉ là phần chờ encoder còn
+  lại sau khi render đã chồng lấp, **không** phải toàn bộ thời gian encode.
+  `prepareMs` không gồm claim/gate/preflight. Không cộng các counter thành
+  thời gian tổng hoặc diễn giải chúng thành thời gian GPU thuần.
+- `uploadMs` đo tải byte lên API; `publishMs` đo commit, gồm kiểm định và lưu kho.
+  Log `export_commit`/`export_publication` trong `~/server/logs/viderse.log` tách
+  thời gian commit khỏi publication. `export_completion_acquire` đo lần kiểm
+  file cuối trước khi headless request kết thúc; nằm ngoài `publishMs` và vẫn
+  giữ nguyên kiểm integrity. `postprocess` tách chuẩn bị bản gốc,nén và hoàn
+  tất bản thay thế; attempted/applied phân biệt nén thành công với fallback.
+- Trên Mac, log `export_resources` mỗi30giây và khi kết thúc ghi RSS app/cây
+  Chrome,swap và dung lượng scratch trống. RSS cộng cả trang chia sẻ,không phải
+  RAM vật lý riêng; mẫu định kỳ có thể bỏ lỡ đỉnh. Probe lỗi thì bỏ trường,không
+  báo0. Không ghi argv Chrome,token,URL media hay credential vào log.
+- Bản gốc lớn hơn cache dùng workspace tạm; nhánh nén thành công chỉ acquire
+  bản gốc một lần. Nhánh không nén/fallback vẫn kiểm tra acquire; không bỏ
+  checksum,full readback,caption gate hay kiểm revision để lấy tốc độ.
+
 Khi hotfix backend trong lúc UI mới chưa nghiệm thu, không chạy script lấy toàn bộ
 `origin/main`: dựng từ đúng revision production với patch tối thiểu, giữ nguyên
 assets đang phục vụ và kiểm SHA. Giữ binary/marker trước đó để rollback, kiểm

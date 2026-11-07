@@ -16,7 +16,7 @@ import (
 
 func mountRender(ctx context.Context, g *web.Gateway, store *postgres.CloneStore, files *media.Service, edit *editor.Service, cfgDir, origin string, toolKit *tools.Tools, deps tools.Deps, tasks *activity.Service) *render.Service {
 	requests := &render.Store{Root: filepath.Join(cfgDir, "render")}
-	supervisor := &render.Supervisor{Store: requests, Runner: deps.Runner, Origin: origin, Tasks: tasks, ChromePath: func(ctx context.Context) (string, error) {
+	supervisor := &render.Supervisor{Store: requests, Runner: deps.Runner, Origin: origin, Tasks: tasks, ObserveResources: render.LogExportResources, ChromePath: func(ctx context.Context) (string, error) {
 		path := toolKit.Chrome.ManagedPath()
 		if path == "" {
 			return "", &domain.CloneError{Code: domain.CloneErrToolMissing, Message: "Cài Chrome for Testing trong Cài đặt → Công cụ"}

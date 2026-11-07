@@ -5,8 +5,8 @@
 // shape on mocks without importing production code). End-to-end protection of
 // the full orchestrator remains the headless chrome e2e (headless/test.mjs).
 
-import { describe, it, expect } from 'vitest'
-import { runPipelinedFrameLoop } from './pipelined-frame-loop'
+import { describe, it, expect, vi } from 'vitest'
+import { runPipelinedFrameLoop, type PipelinedFrameTimings } from './pipelined-frame-loop'
 
 interface Deferred {
   promise: Promise<void>
@@ -37,6 +37,8 @@ interface FakeSample {
 interface HarnessOptions {
   signal?: AbortSignal
   getPendingError?: () => unknown
+  timings?: PipelinedFrameTimings
+  captureImpl?: () => void
   renderImpl?: (frame: number) => void | Promise<void>
   encodeImpl?: (sample: FakeSample, keyFrame: boolean) => Promise<void>
 }
@@ -50,11 +52,13 @@ function createHarness(totalFrames: number, opts: HarnessOptions = {}) {
       totalFrames,
       signal: opts.signal,
       getPendingError: opts.getPendingError,
+      timings: opts.timings,
       renderFrame: async (frame) => {
         events.push(`render-${frame}`)
         await opts.renderImpl?.(frame)
       },
       captureSample: (frame) => {
+        opts.captureImpl?.()
         const sample: FakeSample = {
           frame,
           closed: false,
@@ -91,6 +95,57 @@ const indexOf = (events: string[], event: string) => {
 }
 
 describe('runPipelinedFrameLoop', () => {
+  it('counts render, capture and only residual encode waits including the final drain', async () => {
+    let now = 0
+    const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
+    const timings: PipelinedFrameTimings = { renderMs: 0, captureMs: 0, encoderWaitMs: 0, frames: 0 }
+    const encodes: Deferred[] = []
+    try {
+      const { run } = createHarness(2, {
+        timings,
+        renderImpl: () => { now += 10 },
+        captureImpl: () => { now += 3 },
+        encodeImpl: () => {
+          const pending = deferred()
+          encodes.push(pending)
+          return pending.promise
+        },
+      })
+      const running = run()
+      await tick()
+      // The second render has overlapped encode 0; none of that encode's
+      // elapsed time belongs to the residual wait counter.
+      expect(timings).toEqual({ renderMs: 20, captureMs: 3, encoderWaitMs: 0, frames: 1 })
+      now += 7
+      encodes[0]!.resolve()
+      await tick()
+      expect(timings).toEqual({ renderMs: 20, captureMs: 6, encoderWaitMs: 7, frames: 2 })
+      now += 11
+      encodes[1]!.resolve()
+      await running
+      expect(timings).toEqual({ renderMs: 20, captureMs: 6, encoderWaitMs: 18, frames: 2 })
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
+  it('retains elapsed render time without counting an uncaptured frame on failure', async () => {
+    let now = 0
+    const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
+    const timings: PipelinedFrameTimings = { renderMs: 0, captureMs: 0, encoderWaitMs: 0, frames: 0 }
+    const failure = new Error('render failed')
+    try {
+      const { run } = createHarness(1, {
+        timings,
+        renderImpl: () => { now += 9; throw failure },
+      })
+      await expect(run()).rejects.toBe(failure)
+      expect(timings).toEqual({ renderMs: 9, captureMs: 0, encoderWaitMs: 0, frames: 0 })
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
   it('encodes all frames in order and closes every sample', async () => {
     const { events, samples, run } = createHarness(5)
     await run()

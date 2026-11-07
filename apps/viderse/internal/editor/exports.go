@@ -10,12 +10,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"math"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/media"
 	"github.com/datnt1998/verse/platform/blobstore"
@@ -400,7 +402,12 @@ func (s *Service) exportDiagnostics(ctx context.Context, pid, eid string, diagno
 	return e
 }
 
-func (s *Service) CommitExport(ctx context.Context, pid, eid string, metadata Object) (ExportRecord, error) {
+func (s *Service) CommitExport(ctx context.Context, pid, eid string, metadata Object) (record ExportRecord, err error) {
+	started := time.Now()
+	defer func() {
+		slog.InfoContext(ctx, "export_commit", "project_id", pid, "export_id", eid,
+			"duration_ms", time.Since(started).Milliseconds(), "success", err == nil)
+	}()
 	if _, err := exportKey(pid, eid); err != nil {
 		return ExportRecord{}, err
 	}
@@ -486,7 +493,12 @@ func (s *Service) CommitExport(ctx context.Context, pid, eid string, metadata Ob
 
 // A fresh immutable path and a metadata CAS make file replacement atomic for
 // readers. The old path stays live until the new pointer is durable.
-func (s *Service) publishExportFile(ctx context.Context, pid, eid, file string, next Object, revision string) error {
+func (s *Service) publishExportFile(ctx context.Context, pid, eid, file string, next Object, revision string) (err error) {
+	started := time.Now()
+	defer func() {
+		slog.InfoContext(ctx, "export_publication", "project_id", pid, "export_id", eid,
+			"duration_ms", time.Since(started).Milliseconds(), "bytes", exportInt(next["size"]), "success", err == nil)
+	}()
 	key, err := exportKey(pid, eid)
 	if err != nil {
 		return err

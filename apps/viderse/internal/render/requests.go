@@ -50,11 +50,12 @@ type ChromeProcess struct {
 }
 
 type ExportProgress struct {
-	Phase       string `json:"phase"`
-	FramesDone  *int64 `json:"framesDone"`
-	FramesTotal *int64 `json:"framesTotal"`
-	BytesSent   *int64 `json:"bytesSent"`
-	BytesTotal  *int64 `json:"bytesTotal"`
+	Phase       string         `json:"phase"`
+	FramesDone  *int64         `json:"framesDone"`
+	FramesTotal *int64         `json:"framesTotal"`
+	BytesSent   *int64         `json:"bytesSent"`
+	BytesTotal  *int64         `json:"bytesTotal"`
+	Timings     *ExportTimings `json:"timings,omitempty"`
 }
 
 func (p ExportProgress) validate() error {
@@ -62,6 +63,9 @@ func (p ExportProgress) validate() error {
 		if n != nil && *n < 0 {
 			return requestError("invalid_request", "Tiến độ phải là số nguyên không âm")
 		}
+	}
+	if p.Timings != nil {
+		return p.Timings.validate()
 	}
 	return nil
 }

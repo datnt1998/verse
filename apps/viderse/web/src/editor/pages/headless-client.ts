@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { Project } from '@editor/types/project'
 import type { ServerMediaRecord } from '@editor/storage/types'
+import type { ExportTimings } from '@editor/features/export/utils/client-renderer'
 import { measurementFailure } from '../ui/clone/measurement-runtime'
 
 export type HeadlessKind = 'render' | 'measure'
@@ -12,6 +13,7 @@ export interface HeadlessProgress {
   bytesSent?: number
   bytesTotal?: number
   chunksSent?: number
+  timings?: ExportTimings
 }
 
 const identifier = z.string().min(1).max(256).regex(/^[\w-]+$/)
@@ -161,6 +163,11 @@ export async function withHeadlessLease<T>(client: HeadlessClient, controller: A
   } catch (error) {
     clearInterval(timer)
     await pending
+    // Persist the last truthful partial snapshot before marking the request failed.
+    // Do not reuse an aborted work signal for this final diagnostic write.
+    if (client.kind === 'render' && !leaseError) {
+      try { await client.heartbeat(progress()) } catch { /* Preserve the original failure. */ }
+    }
     const cause = leaseError && error !== leaseError
       ? new AggregateError([leaseError, error], 'Yêu cầu mất quyền xử lý', { cause: leaseError })
       : leaseError ?? error

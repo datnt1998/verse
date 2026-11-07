@@ -23,6 +23,9 @@ func Units(phase string, done, total *int64) int64 {
 	if phase == "uploading" {
 		from, to = 750, 800
 	}
+	if phase == "publishing" {
+		return 800
+	}
 	if phase == "compressing" {
 		from, to = 800, 1000
 	}
@@ -48,6 +51,14 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 		}
 		units := Units(p.Phase, done, total)
 		phase := p.Phase
+		// Detailed request phases stay available for diagnostics; product UI
+		// keeps its existing Vietnamese render/save vocabulary.
+		switch phase {
+		case "preflight", "preparing", "encoding", "finalizing":
+			phase = "rendering"
+		case "publishing":
+			phase = "uploading"
+		}
 		if rerun {
 			phase += "-again"
 		}
@@ -62,5 +73,12 @@ func (h Handler) Run(ctx context.Context, s *pipeline.StepContext) (pipeline.Ste
 	if progressErr != nil {
 		return pipeline.StepResult{}, progressErr
 	}
-	return pipeline.StepResult{Data: map[string]any{"projectId": result.ProjectID, "exportId": record.ID, "fileName": record.FileName, "size": record.Size, "durationMs": result.DurationMS, "accepted": gate.Accepted}}, nil
+	data := map[string]any{"projectId": result.ProjectID, "exportId": record.ID, "fileName": record.FileName, "size": record.Size, "durationMs": result.DurationMS, "accepted": gate.Accepted}
+	if result.Timings != nil {
+		data["timings"] = result.Timings
+	}
+	if result.Postprocess != nil {
+		data["postprocess"] = result.Postprocess
+	}
+	return pipeline.StepResult{Data: data}, nil
 }

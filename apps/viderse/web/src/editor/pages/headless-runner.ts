@@ -54,6 +54,7 @@ export async function runHeadlessRequest(client: HeadlessClient, controller: Abo
         if (typeof VideoEncoder === 'undefined') throw new Error('Trình duyệt xuất ngầm thiếu bộ mã hoá video')
         const encoder = await VideoEncoder.isConfigSupported({ codec: 'avc1.640028', width: 1920, height: 1080, framerate: 30 })
         if (!encoder.supported) throw new Error('Trình duyệt xuất ngầm thiếu H.264 1080p30')
+        report({ phase: 'preflight' })
         const result = await runServerExport({
           project, revision, composition, settings: cloneExportSettings(), fps: project.metadata.fps,
           durationFrames: composition.durationInFrames ?? Math.max(1, Math.round(project.duration * project.metadata.fps)),
@@ -62,8 +63,24 @@ export async function runHeadlessRequest(client: HeadlessClient, controller: Abo
           requestId: client.requestId, signal,
           onExportId: exportId => client.bind(exportId, signal),
           onProgress: progress => {
-            if (progress.kind === 'render') report({ phase: 'rendering', framesDone: progress.progress.currentFrame ?? null, framesTotal: progress.progress.totalFrames ?? null })
-            else report({ phase: 'uploading', bytesSent: progress.sent, bytesTotal: progress.total })
+            if (progress.kind === 'render') {
+              report({
+                phase: progress.progress.phase,
+                framesDone: progress.progress.timings?.frames ?? progress.progress.currentFrame ?? null,
+                framesTotal: progress.progress.totalFrames ?? null,
+                ...(progress.progress.timings ? { timings: progress.progress.timings } : {}),
+              })
+            } else if (progress.kind === 'upload') {
+              report({
+                ...lastProgress, phase: 'uploading', bytesSent: progress.sent, bytesTotal: progress.total,
+                ...(progress.timings ? { timings: progress.timings } : {}),
+              })
+            } else {
+              report({
+                ...lastProgress, phase: 'publishing',
+                ...(progress.timings ? { timings: progress.timings } : {}),
+              })
+            }
           },
         })
         return { exportId: result.record.id }
