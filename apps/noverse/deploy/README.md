@@ -303,6 +303,19 @@ Postgres hay khoá bucket.
 | Listener nội bộ | `~/server/apps/noverse/compose.yml` sở hữu bind `127.0.0.1:8081:8081`; không mở qua tunnel, Access hay cổng công khai. Kiểm lại claim không token trả 401 sau rollout. |
 | Revision và rollback | Sau bootstrap thành công mới ghi `~/server/apps/noverse/bin/noverse-tts.commit`; kiểm thêm service có PID và `/api/tts/status` trả `ready: true`. Binary trước ở `noverse-tts.previous` cùng thư mục. App rollback theo `~/server/bin/deploy.sh`; nếu phải phục hồi native, dừng đúng service của worker và đợi gỡ đăng ký trước khi thay binary rồi bootstrap lại plist. Không chỉ rollback một phía khi wire contract đã đổi. |
 
+Nếu worker báo `connection refused` tại `127.0.0.1:8081` nhưng claim bên
+trong container trả 401 khi không token, kiểm tra port forwarding Colima trước
+khi restart app. Ngày 2026-11-07, log
+`~/.colima/_lima/colima/ha.stderr.log` ghi tạo lại forward thất bại sau lần
+container khởi động lại; host không có listener dù Docker vẫn công bố mapping.
+Khi VM và SSH control socket còn hoạt động, chỉ khôi phục forward đang thiếu:
+`ssh -F "$HOME/.colima/_lima/colima/ssh.config" -O forward -L 127.0.0.1:8081:127.0.0.1:8081 lima-colima`.
+Lệnh dùng kết nối Colima hiện hữu, không tạo daemon riêng và không sửa cấu hình
+Lima sinh tự động. Kiểm lại host claim không token trả 401, worker có heartbeat
+mới và một yêu cầu nghe thử thật trả WAV giải mã được; chỉ `ready: true` chưa đủ.
+Đây là khôi phục vận hành, không phải bản sửa cơ chế retry port forwarding của
+Colima; nếu tái diễn, giữ log và xử lý lớp VM trong cửa sổ bảo trì.
+
 Nếu route/script không tồn tại hoặc quyền thay đổi, dừng ở lỗi đó và tra lại
 operator của môi trường; không dò sang HOME cá nhân, không in token để chẩn đoán.
 
@@ -972,35 +985,22 @@ Còn lại (cần môi trường thật, không thể giả lập ở local):
   hiện bảo vệ credentials kho tệp trong DB, không tự mã hoá các file model cũ.
 - Multi-replica (chưa thiết kế; giữ 1 replica).
 
-## 11. Live trên Mac (launchd)
+## 11. Bản live local trên Mac đã ngừng
 
-Bản live cá nhân chạy file mode trên Mac, tách khỏi repo đang phát triển:
+Worktree `~/Projects/verse-live` đã được dọn theo yêu cầu chủ máy; không còn
+là đường chạy hoặc cập nhật ứng dụng. Launch agent `dev.verse.noverse-live`
+đã được disable và bootout để `KeepAlive` không khởi động lại từ đường dẫn
+không còn tồn tại. Đây là bản local cổng `8790`, không phải deploy Mac mini.
 
-| Mục | Giá trị |
-|---|---|
-| Worktree | `/Users/dat/Projects/verse-live`, nhánh `live` của `datnt1998/verse` |
-| Binary | `verse-live/bin/noverse`, build bằng `apps/noverse/scripts/run-live.sh update` |
-| Dữ liệu | Sách ở `~/NoverseLive`; tài khoản, cấu hình model, OAuth ở `~/.ainovel` |
-| Địa chỉ | `127.0.0.1:8790` (`NOVERSE_LIVE_ADDR`, `NOVERSE_LIVE_ROOT` để đổi) |
-| launchd | `~/Library/LaunchAgents/dev.verse.noverse-live.plist`: chạy `run-live.sh`, `RunAtLoad`, `KeepAlive`, PATH gồm `~/.local/bin` (uv) và `/opt/homebrew/bin` (ffmpeg, rg) |
-| Log | `~/Library/Logs/noverse-live.log` |
-
-```sh
-# Cập nhật lên main mới nhất rồi khởi động lại
-/Users/dat/Projects/verse-live/apps/noverse/scripts/run-live.sh update
-launchctl kickstart -k gui/$(id -u)/dev.verse.noverse-live
-
-# Dừng hẳn (chỉ kill process thì KeepAlive bật lại ngay)
-launchctl bootout gui/$(id -u)/dev.verse.noverse-live
-
-# Bật lại
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/dev.verse.noverse-live.plist
-```
-
-Không chạy song song một bản khác trên cùng `~/.ainovel` (ví dụ service omp
-`noverse-live*` cũ): hai process cùng ghi file tài khoản. Trước khi cập nhật lớn,
-sao lưu `~/NoverseLive` và `~/.ainovel` bằng `umask 077` rồi `tar` vào
-`~/Backups/`; file chứa secret, không đưa vào repo.
+- Khi phục hồi bản local: tìm bản sao worktree và cấu hình launch agent trong
+  `~/Backups/verse-worktrees-*`; branch `live` vẫn được giữ trong repo chính.
+  Bản sao không chứa `node_modules`, cần cài lại dependency trước khi dùng.
+- Dữ liệu truyện `~/NoverseLive`, tài khoản/cấu hình `~/.ainovel` và log
+  `~/Library/Logs/noverse-live.log` không bị xoá. Không chạy hai process cùng
+  ghi kho tài khoản này.
+- Kiểm tra trạng thái tự chạy bằng `launchctl print-disabled gui/$(id -u)`.
+  Không bật lại plist cũ trước khi khôi phục đường chạy và được chủ máy
+  cho phép; riêng kill process không đủ để dừng service có `KeepAlive`.
 
 ## 12. File mode + bind mount / Colima trên macOS
 
