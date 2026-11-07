@@ -21,4 +21,7 @@ Artifact đúng revision của lần xuất:3474.967s,1920×1080,30fps,104249fra
 4. Tắt compress chỉ bỏ được tối đa khoảng11phút,đổi ra filegần6lần lớn hơn;không giải quyết78phút browser. Đổi hardware encoder cần samplevisual/size,nó không mặc định tương đương chất lượng.
 5. Snapshot máy lúc điều tra:M4/10core/16GiB,swap3.78GB,data volume95%full,còn≈11GiB,có ứng dụng khác dùng tài nguyên. [INFERENCE]có thể làm chậm;không có CPU/GPUtrace của lần xuất cũ để định lượng. Không tự killprocess/prunecache hoặc tăng concurrent exports.
 
-Chưa thay cấu hình,nén,codec,bitrate,FPS,resolution,effect;chưa benchmark candidate. Chưa đủ phase timings để xác định riêngrender/decode/encode/uploadnào chiếm phần lớn78phút. Đây là kết quả điều tra,không phải bản tối ưu đã phát hành.
+## Thay đổi đã phát hành07/11/2026
+Production đã chạy main `2b55c0241ee3c394f09dba89099cb132a1a02c9f` (PR#20): bỏ queue-completion fence thừa trước phép copy Canvas2D đồng bộ; không đổi codec,bitrate,FPS,resolution,audio hay hiệu ứng. Mẫu30s/300s,Chrome trực tiếp không CDP và chuyển cảnh thật đều khớp từng frame giải mã,PCM và caption coverage. [Phép đo và giới hạn](export-real-baseline-20261107.md).
+
+Mẫu300s đo46.361→45.124s;đây là một lượt đo,mức chênh≈2.7% chưa chứng minh tăng tốc ổn định. Mẫu dùng output QA local,không tái hiện publication production hay nén backend. **Chưa tái hiện hoặc giải quyết được nguyên nhân lần89phút;không ngoại suy thời gian57phút.** Native/public-asset/process/auth/playback smoke qua;Safari và parity7nhóm không được suy ra từ phép đo này.
