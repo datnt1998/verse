@@ -47,3 +47,10 @@ it('locks clips while building and updates coverage when removing one', async ()
   expect(el.textContent).toContain('Nền sẽ lặp 0:30')
   expect(calls.find(x => x.body?.op === 'remove')?.body?.revision).toBe('r')
 })
+it('does not offer background repair for a template with no background sources', async () => {
+  backdrop = { ...backdrop, randomPicks: false, wantedCount: 0, readyCount: 0, items: [], fixedItems: [], sources: [], coverage: { mode: 'count', fixedSec: 0, channelSec: 0, videoSec: 100 } }
+  await act(async () => root.render(<WorkbenchPanels job={job} onRefresh={() => {}} />))
+  expect(el.querySelector('[role="progressbar"]')).toBeNull()
+  expect(button('Thêm clip')).toBeUndefined()
+  expect(button('Đổi ngẫu nhiên tất cả')).toBeUndefined()
+})

@@ -22,7 +22,8 @@ import { mw, mwDetail as d } from './mworkbench.stylex'
 import { OverflowMenu } from '../OverflowMenu'
 import { MobileMetaSheet } from './MobileMetaSheet'
 import { MobileImageSheet } from './MobileImageSheet'
-import { coverageAfterRemoval } from '../panels/panelLogic'
+import { coverageAfterRemoval, usesBackdrop } from '../panels/panelLogic'
+import { TemplateAssetList } from '../panels/TemplateAssetList'
 
 const c = screenWorkbench.mobile
 const STATE: Record<string, string> = { waiting: 'Chờ lượt', running: 'Đang làm', done: 'Xong', stopped: 'Dừng', needs_you: 'Chờ bạn' }
@@ -311,12 +312,13 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
           <h2 {...stylex.props(d.sectionTitle)}>Template</h2>
           <span>{job.templateName || 'Chưa xác định mẫu video'}</span>
           <a href={`#/templates/${encodeURIComponent(job.templateId)}`} {...stylex.props(mw.moreLink)}>Mở template</a>
+          <TemplateAssetList assets={job.templateSharedAssets} />
         </section>
         <section aria-label="Video nền" {...stylex.props(d.sectionCard)}>
           <h2 {...stylex.props(d.sectionTitle)}>Video nền</h2>
           {!!(backdropError || backdrop.error) && <div role="alert" {...stylex.props(d.writeFailed)}>{backdropError || 'Không tải được nền của video.'}<Button size="lg" onClick={() => void backdrop.refresh()}>Thử lại</Button></div>}
           {backdrop.initialLoading && <p role="status" {...stylex.props(d.sectionNote)}>Đang tải nền…</p>}
-          {backdrop.data ? <>
+          {backdrop.data && usesBackdrop(backdrop.data) ? <>
             <span {...stylex.props(d.sectionNote)}>{coverage?.total == null ? 'Độ phủ chưa xác định' : coverage.short ? `Nền sẽ lặp ${durationLabel(coverage.total - coverage.covered)}` : 'Phủ kín video'} · {backdrop.data.items.length + (backdrop.data.fixedItems?.length ?? 0)} clip</span>
             {coverage?.short && <Button size="lg" disabled={backdropLocked} onClick={() => void changeBackdrop('add')}>Thêm clip</Button>}
             {building && <p {...stylex.props(d.sectionNote)}>Kiểm định đang dựng video. Đổi nền được sau khi dựng xong.</p>}
@@ -330,7 +332,7 @@ export function MobileWorkbenchDetail({ job, images, imagesLoading, imagesError,
             </div>)}
             {backdrop.data.fixedItems?.map((clip, index) => <div key={clip.id} {...stylex.props(mw.card)}><span>{clip.title} · Cố định · {durationLabel(clip.startSec)}–{durationLabel(clip.endSec)}</span><Button size="lg" disabled={backdropLocked} aria-label={`Bỏ clip cố định ${index + 1}`} onClick={() => void changeBackdrop('remove', clip.id)}>Bỏ clip</Button></div>)}
             <p {...stylex.props(d.sectionNote)}>Sau khi đổi, app chỉ tải phần thay đổi rồi dựng lại video. Dựng lại không bốc lại clip.</p>
-          </> : !backdrop.initialLoading && !backdrop.error && <p {...stylex.props(d.sectionNote)}>{job.queueItem ? 'Nền được chuẩn bị khi video bắt đầu được làm.' : 'Chưa có clip nền cho video này.'}</p>}
+          </> : !backdrop.initialLoading && !backdrop.error && <p {...stylex.props(d.sectionNote)}>{job.queueItem ? 'Nền được chuẩn bị khi video bắt đầu được làm.' : backdrop.data ? 'Template này không dùng clip nền.' : 'Chưa có clip nền cho video này.'}</p>}
           <a href="#/library?tab=backdrops" {...stylex.props(mw.moreLink)}>Mở Thư viện video nền</a>
         </section>
       </div>

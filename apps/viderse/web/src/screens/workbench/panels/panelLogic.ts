@@ -1,3 +1,5 @@
+import type { BackdropView } from '../../../api/workbenchPanels'
+
 export type MetadataPart = 'title' | 'description' | 'tags'
 
 export function togglePart(parts: MetadataPart[], part: MetadataPart): MetadataPart[] {
@@ -20,4 +22,8 @@ export function metadataDescriptionWithFooter(description: string, footer?: stri
 export function coverageAfterRemoval(coverage: { fixedSec: number; channelSec: number; videoSec: number | null }, removedSeconds: number) {
   const covered = Math.max(0, coverage.fixedSec + coverage.channelSec - removedSeconds)
   return { covered, total: coverage.videoSec, short: coverage.videoSec !== null && covered < coverage.videoSec }
+}
+
+export function usesBackdrop(backdrop: Pick<BackdropView, 'randomPicks' | 'wantedCount' | 'items' | 'fixedItems' | 'sources'>): boolean {
+  return backdrop.randomPicks || backdrop.wantedCount > 0 || backdrop.items.length > 0 || backdrop.fixedItems.length > 0 || backdrop.sources.length > 0
 }
