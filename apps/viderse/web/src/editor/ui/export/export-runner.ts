@@ -14,7 +14,7 @@ import type { Project } from '@editor/types/project'
 import { assessExportPreflight, type ExportPreflightResult } from '@editor/features/export/utils/export-preflight'
 import { runRender, type RunRenderOutcome } from '@editor/features/export/utils/render-pipeline'
 import { releaseTemporaryExportOutput } from '@editor/features/export/utils/export-output-target'
-import type { RenderProgress } from '@editor/features/export/utils/client-renderer'
+import type { ExportTimings, RenderProgress } from '@editor/features/export/utils/client-renderer'
 import { resolveMediaUrls } from '@editor/features/timeline/deps/media-library-resolver'
 import { getEditorStorage } from '@editor/storage/storage-backend'
 import type { ServerExportRecord } from '@editor/storage/types'
@@ -23,7 +23,8 @@ import { cloneExportSettingsAllowed } from '@/editor/ui/clone/quality-gate'
 
 export type ServerExportProgress =
   | { kind: 'render'; progress: RenderProgress }
-  | { kind: 'upload'; sent: number; total: number }
+  | { kind: 'upload'; sent: number; total: number; timings?: ExportTimings }
+  | { kind: 'publish'; timings?: ExportTimings }
 
 export interface ServerExportResult {
   record: ServerExportRecord
@@ -64,7 +65,14 @@ export async function saveServerExport(options: {
 }): Promise<ServerExportResult> {
   const { outcome, projectId, fileName, projectRevision, signal } = options
   const storage = getEditorStorage()
-  options.onProgress?.({ kind: 'upload', sent: 0, total: outcome.result.blob.size })
+  const timings = outcome.result.timings ? { ...outcome.result.timings } : undefined
+  let sentBytes = 0
+  let totalBytes = outcome.result.blob.size
+  const reportUpload = () => options.onProgress?.({
+    kind: 'upload', sent: sentBytes, total: totalBytes,
+    ...(timings ? { timings: { ...timings } } : {}),
+  })
+  reportUpload()
   let exportId = options.exportId ?? null
   try {
     cancelled(signal)
@@ -80,16 +88,35 @@ export async function saveServerExport(options: {
       await options.onExportId?.(exportId)
     }
     cancelled(signal)
-    await storage.uploadExport(projectId, exportId, outcome.result.blob, {
-      signal,
-      mime: outcome.result.mimeType,
-      onProgress: (sent, total) => options.onProgress?.({ kind: 'upload', sent, total }),
-    })
+    const uploadStart = performance.now()
+    try {
+      await storage.uploadExport(projectId, exportId, outcome.result.blob, {
+        signal,
+        mime: outcome.result.mimeType,
+        onProgress: (sent, total) => {
+          sentBytes = sent
+          totalBytes = total
+          if (timings) timings.uploadMs = performance.now() - uploadStart
+          reportUpload()
+        },
+      })
+    } finally {
+      if (timings) timings.uploadMs = performance.now() - uploadStart
+      reportUpload()
+    }
     cancelled(signal)
     const metadata = options.clone && projectRevision && outcome.result.captionCoverage
       ? { captionCoverage: { projectRevision, coverage: outcome.result.captionCoverage } }
       : undefined
-    const record = await storage.commitExport(projectId, exportId, metadata)
+    options.onProgress?.({ kind: 'publish', ...(timings ? { timings: { ...timings } } : {}) })
+    const publishStart = performance.now()
+    let record: ServerExportRecord
+    try {
+      record = await storage.commitExport(projectId, exportId, metadata)
+    } finally {
+      if (timings) timings.publishMs = performance.now() - publishStart
+      options.onProgress?.({ kind: 'publish', ...(timings ? { timings: { ...timings } } : {}) })
+    }
     cancelled(signal)
     await releaseTemporaryExportOutput(outcome.result)
     return { record, outcome, fileName }

@@ -51,15 +51,36 @@ export interface ClientExportSettings {
   collectCaptionCoverage?: boolean
 }
 
+/**
+ * Cumulative wall-clock observations, not additive pipeline stages:
+ * render includes decode/GPU work; encoderWait is only residual backpressure
+ * after rendering and the final drain, not hardware encode duration.
+ * Absent for paths that do not instrument the frame loop.
+ */
+export interface ExportTimings {
+  prepareMs: number
+  renderMs: number
+  captureMs: number
+  encoderWaitMs: number
+  finalizeMs: number
+  uploadMs: number
+  publishMs: number
+  /** Frames captured and submitted to the encoder (not necessarily drained). */
+  frames: number
+}
+
 export interface RenderProgress {
   phase: 'preparing' | 'rendering' | 'encoding' | 'finalizing'
   progress: number // 0-100
   currentFrame?: number
   totalFrames?: number
   message?: string
+  timings?: ExportTimings
 }
 
 export interface ClientRenderResult {
+  /** Final engine snapshot, carried across worker completion into upload. */
+  timings?: ExportTimings
   blob: Blob
   mimeType: string
   duration: number

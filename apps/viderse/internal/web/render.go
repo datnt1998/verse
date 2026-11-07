@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/netip"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/datnt1998/verse/apps/viderse/internal/domain"
 	"github.com/datnt1998/verse/apps/viderse/internal/editor"
@@ -258,7 +260,10 @@ func (h renderHTTP) route(w http.ResponseWriter, r *http.Request) error {
 			if current.ExportID == "" || current.ExportID != editorField(body, "exportId") {
 				return &render.RequestError{Code: "conflict", Message: "Export không thuộc yêu cầu"}
 			}
+			acquireStarted := time.Now()
 			file, _, e := h.service.Editor.AcquireExport(ctx, pid, current.ExportID)
+			slog.InfoContext(ctx, "export_completion_acquire", "request_id", id,
+				"duration_ms", time.Since(acquireStarted).Milliseconds(), "success", e == nil)
 			if e != nil {
 				return e
 			}

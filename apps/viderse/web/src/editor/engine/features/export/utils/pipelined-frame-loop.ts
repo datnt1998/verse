@@ -13,6 +13,14 @@
  * path drains it.
  */
 
+/** Mutated in place; no per-frame timing objects or history. */
+export interface PipelinedFrameTimings {
+  renderMs: number
+  captureMs: number
+  encoderWaitMs: number
+  frames: number
+}
+
 export interface CloseableSample {
   close(): void
 }
@@ -20,6 +28,9 @@ export interface CloseableSample {
 export interface PipelinedFrameLoopDeps<S extends CloseableSample> {
   totalFrames: number
   signal?: AbortSignal
+  timings?: PipelinedFrameTimings
+  /** Observes the final encode drain without changing its scheduling. */
+  onEncoderDrain?: () => void
   /**
    * Read (not throw) a pending async error, e.g. a failed audio task.
    * Checked with a truthiness test at the top of every iteration.
@@ -55,6 +66,7 @@ export async function runPipelinedFrameLoop<S extends CloseableSample>(
   const {
     totalFrames,
     signal,
+    timings,
     getPendingError,
     renderFrame,
     captureSample,
@@ -74,10 +86,13 @@ export async function runPipelinedFrameLoop<S extends CloseableSample>(
     // we are aborting anyway and must always surface AbortError.
     if (signal?.aborted) {
       if (pendingEncode) {
+        const waitStart = performance.now()
         try {
           await pendingEncode
         } catch {
           /* discarded — aborting */
+        } finally {
+          if (timings) timings.encoderWaitMs += performance.now() - waitStart
         }
       }
       await onAbort()
@@ -87,16 +102,34 @@ export async function runPipelinedFrameLoop<S extends CloseableSample>(
     // Render frame first — this overlaps with the previous frame's encode
     // that is still in flight. The previous sample already copied its
     // pixels, so writing to the capture surface here cannot corrupt it.
-    await renderFrame(frame)
+    const renderStart = performance.now()
+    try {
+      await renderFrame(frame)
+    } finally {
+      if (timings) timings.renderMs += performance.now() - renderStart
+    }
 
     // Now wait for the previous encode to finish before capturing a new
     // sample. This ensures at most one encode is in flight and that frames
     // are fed to the encoder in order.
-    if (pendingEncode) await pendingEncode
+    if (pendingEncode) {
+      const waitStart = performance.now()
+      try {
+        await pendingEncode
+      } finally {
+        if (timings) timings.encoderWaitMs += performance.now() - waitStart
+      }
+    }
 
     // Snapshot pixels into a sample. The capture copies pixel data
     // immediately — the surface is free for the next render.
-    const sample = captureSample(frame)
+    const captureStart = performance.now()
+    let sample: S
+    try {
+      sample = captureSample(frame)
+    } finally {
+      if (timings) timings.captureMs += performance.now() - captureStart
+    }
 
     // Kick off encoding in the background. NOT awaited here — it runs
     // concurrently with the next iteration's renderFrame().
@@ -111,10 +144,19 @@ export async function runPipelinedFrameLoop<S extends CloseableSample>(
         sample.close()
       }
     })()
+    if (timings) timings.frames++
 
     onFrameProgress(frame)
   }
 
   // Drain the final in-flight encode before finalizing
-  if (pendingEncode) await pendingEncode
+  deps.onEncoderDrain?.()
+  if (pendingEncode) {
+    const waitStart = performance.now()
+    try {
+      await pendingEncode
+    } finally {
+      if (timings) timings.encoderWaitMs += performance.now() - waitStart
+    }
+  }
 }

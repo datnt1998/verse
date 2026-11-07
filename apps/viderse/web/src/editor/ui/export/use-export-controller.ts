@@ -163,7 +163,10 @@ export function useExportController(cloneQuality: { clone: { jobId: string } | n
         },
         onProgress: (p) => {
           if (p.kind === 'render') { setProgress(p.progress); setElapsedSeconds((Date.now() - startedAt) / 1000) }
-          else { setStage('saving'); setSaveProgress({ sent: p.sent, total: p.total }) }
+          else {
+            setStage('saving')
+            if (p.kind === 'upload') setSaveProgress({ sent: p.sent, total: p.total })
+          }
         },
       })
       // The runner already uploaded and committed; mirror saveScratch's done state.

@@ -13,7 +13,7 @@ import { compositionFrameForOutput, outputFrameCount } from './output-frame-cloc
  */
 
 import type { CompositionInputProps, SubtitleExportMode } from '@editor/types/export'
-import type { ClientExportSettings, RenderProgress, ClientRenderResult } from './client-renderer'
+import type { ClientExportSettings, RenderProgress, ClientRenderResult, ExportTimings } from './client-renderer'
 import { createOutputFormat, getDefaultAudioCodec, getMimeType } from './client-renderer'
 import { createMediabunnyInputSource } from '@editor/infrastructure/browser/mediabunny-input-source'
 import { createLogger } from '@editor/shared/logging/logger'
@@ -450,7 +450,25 @@ async function tryPacketRemuxComposition(
  * Main render function – orchestrates the entire client-side render.
  */
 export async function renderComposition(options: RenderEngineOptions): Promise<ClientRenderResult> {
-  const { settings, composition, onProgress, signal } = options
+  const prepareStart = performance.now()
+  const { settings, composition, onProgress: reportProgress, signal } = options
+  const timings: ExportTimings = {
+    prepareMs: 0, renderMs: 0, captureMs: 0, encoderWaitMs: 0,
+    finalizeMs: 0, uploadMs: 0, publishMs: 0, frames: 0,
+  }
+  let instrumented = false
+  let frameLoopStarted = false
+  let finalizeStart: number | undefined
+  let lastProgress: RenderProgress | undefined
+  const onProgress = (progress: RenderProgress) => {
+    if (instrumented) {
+      if (!frameLoopStarted) timings.prepareMs = performance.now() - prepareStart
+      if (finalizeStart !== undefined) timings.finalizeMs = performance.now() - finalizeStart
+    }
+    lastProgress = progress
+    if (instrumented) progress.timings = { ...timings }
+    reportProgress(progress)
+  }
   const { fps, durationInFrames = 0 } = composition
   const canvasAudio = await loadCanvasAudio()
 
@@ -493,6 +511,7 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
   if (remuxResult) {
     return remuxResult
   }
+  instrumented = true
 
   // Dynamically import mediabunny (AC-3 decoder is loaded lazily by canvas-audio when needed)
   const mediabunny: MediabunnyModule = await import('mediabunny')
@@ -778,7 +797,7 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
   })
 
   onProgress({
-    phase: 'rendering',
+    phase: 'preparing',
     progress: 0,
     currentFrame: 0,
     totalFrames,
@@ -804,8 +823,11 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
     // immediately after. We overlap the previous frame's encode with the
     // next frame's render for ~25-40% throughput improvement.
     const renderer = frameRenderer
+    timings.prepareMs = performance.now() - prepareStart
+    frameLoopStarted = true
     await runPipelinedFrameLoop({
       totalFrames,
+      timings,
       signal,
       getPendingError: () => audioError,
       renderFrame: async (frame) => {
@@ -833,7 +855,14 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
           message: `Rendering frame ${frame + 1}/${totalFrames}`,
         })
       },
+      onEncoderDrain: () => onProgress({
+        phase: 'encoding',
+        progress: 94,
+        currentFrame: totalFrames,
+        totalFrames,
+      }),
     })
+    finalizeStart = performance.now()
 
     if (audioTask) {
       onProgress({
@@ -883,6 +912,7 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
     canvasAudio.clearAudioDecodeCache()
 
     return {
+      timings: { ...timings },
       blob,
       mimeType,
       duration: durationSeconds,
@@ -892,6 +922,8 @@ export async function renderComposition(options: RenderEngineOptions): Promise<C
       ...(captionCoverage ? { captionCoverage } : {}),
     }
   } catch (error) {
+    // Report completed work before cleanup; never manufacture a completion on error.
+    if (lastProgress) onProgress(lastProgress)
     // Cleanup on error
     frameRenderer?.dispose()
     captionCoverageCollector?.dispose()

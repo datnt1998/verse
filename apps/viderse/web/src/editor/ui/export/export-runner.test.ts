@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { EditorStorage } from '@editor/storage/storage-backend'
 import type { RunRenderOutcome } from '@editor/features/export/utils/render-pipeline'
 import { cloneExportSettings } from './export-settings'
-import { runServerExport, saveServerExport } from './export-runner'
+import { runServerExport, saveServerExport, type ServerExportProgress } from './export-runner'
 
 const dependencies = vi.hoisted(() => ({
   storage: { beginExport: vi.fn(), uploadExport: vi.fn(), commitExport: vi.fn(), abortExport: vi.fn() },
@@ -33,6 +33,51 @@ beforeEach(() => {
 afterEach(() => { vi.resetAllMocks() })
 
 describe('shared export runner scoped integration', () => {
+  it('times only upload and commit calls while preserving the engine snapshot', async () => {
+    let now = 0
+    const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
+    const rendered = outcome()
+    rendered.result.timings = {
+      prepareMs: 2, renderMs: 30, captureMs: 3, encoderWaitMs: 4,
+      finalizeMs: 5, uploadMs: 0, publishMs: 0, frames: 30,
+    }
+    const progress: ServerExportProgress[] = []
+    dependencies.storage.beginExport.mockImplementation(async () => { now += 100; return 'export-1' })
+    dependencies.storage.uploadExport.mockImplementation(async () => { now += 17 })
+    dependencies.storage.commitExport.mockImplementation(async () => { now += 23; return { id: 'export-1' } })
+    try {
+      await saveServerExport({ projectId: 'project-1', fileName: 'Video.mp4', outcome: rendered, signal: signal(), onProgress: value => progress.push(value) })
+      expect(progress.at(-1)).toEqual({
+        kind: 'publish', timings: { ...rendered.result.timings, uploadMs: 17, publishMs: 23 },
+      })
+      expect(rendered.result.timings.uploadMs).toBe(0)
+      expect(progress[0]).toMatchObject({ kind: 'upload', timings: { uploadMs: 0, publishMs: 0 } })
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
+  it('reports partial upload elapsed time on failure without claiming publication', async () => {
+    let now = 0
+    const clock = vi.spyOn(performance, 'now').mockImplementation(() => now)
+    const rendered = outcome()
+    rendered.result.timings = {
+      prepareMs: 2, renderMs: 30, captureMs: 3, encoderWaitMs: 4,
+      finalizeMs: 5, uploadMs: 0, publishMs: 0, frames: 30,
+    }
+    const progress: ServerExportProgress[] = []
+    const failure = new Error('upload interrupted')
+    dependencies.storage.uploadExport.mockImplementation(async () => { now += 19; throw failure })
+    try {
+      await expect(saveServerExport({ projectId: 'project-1', exportId: 'export-1', fileName: 'Video.mp4', outcome: rendered, signal: signal(), onProgress: value => progress.push(value) })).rejects.toBe(failure)
+      expect(progress.at(-1)).toMatchObject({ kind: 'upload', timings: { uploadMs: 19, publishMs: 0, frames: 30 } })
+      expect(progress.some(value => value.kind === 'publish')).toBe(false)
+      expect(dependencies.storage.commitExport).not.toHaveBeenCalled()
+    } finally {
+      clock.mockRestore()
+    }
+  })
+
   it('uses the request-scoped gate instead of the authenticated clone endpoint', async () => {
     const scopedGate = vi.fn().mockResolvedValue({ allowed: true })
     const bind = vi.fn()

@@ -33,6 +33,7 @@ type Supervisor struct {
 	DeleteStaged                               func(context.Context, string, string) error
 	Remeasure                                  func(context.Context, string, string) (bool, []string, error)
 	MeasurementPublished                       func(context.Context, MeasurementRequest) (bool, error)
+	ObserveResources                           func(context.Context, ExportRequest)
 	Tasks                                      interface {
 		Start(context.Context, domain.TaskSpec) (string, error)
 		Update(context.Context, string, domain.TaskUpdate) error
@@ -172,10 +173,12 @@ func (s *Supervisor) Sweep(ctx context.Context, startup bool) error {
 }
 
 type ExportLaunchResult struct {
-	ExportID   string `json:"exportId"`
-	ProjectID  string `json:"projectId"`
-	DurationMS int64  `json:"durationMs"`
-	RequestID  string `json:"requestId"`
+	ExportID    string                    `json:"exportId"`
+	ProjectID   string                    `json:"projectId"`
+	DurationMS  int64                     `json:"durationMs"`
+	RequestID   string                    `json:"requestId"`
+	Timings     *ExportTimings            `json:"timings,omitempty"`
+	Postprocess *ExportPostprocessTimings `json:"postprocess,omitempty"`
 }
 
 func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, onProgress func(ExportProgress, bool)) (result ExportLaunchResult, resultErr error) {
@@ -221,7 +224,11 @@ func (s *Supervisor) LaunchExport(ctx context.Context, projectID, jobID string, 
 		}
 		done, crash, err := s.runExportAttempt(ctx, r, restarts > 0 || driftRecovered, onProgress)
 		if err == nil {
-			return ExportLaunchResult{ExportID: done.ExportID, ProjectID: projectID, RequestID: done.ID, DurationMS: s.Clock.Now().Sub(started).Milliseconds()}, nil
+			result := ExportLaunchResult{ExportID: done.ExportID, ProjectID: projectID, RequestID: done.ID, DurationMS: s.Clock.Now().Sub(started).Milliseconds()}
+			if done.Progress != nil {
+				result.Timings = done.Progress.Timings
+			}
+			return result, nil
 		}
 		if ctx.Err() != nil {
 			_, _ = s.Store.CancelExport(r.ID, r.Nonce)
@@ -304,6 +311,7 @@ func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, reru
 	moved := began
 	lastMove := ""
 	childExited := false
+	nextResourceSample := began
 	for {
 		if err = s.Clock.Sleep(ctx, s.PollInterval); err != nil {
 			return r, false, err
@@ -313,6 +321,10 @@ func (s *Supervisor) runExportAttempt(ctx context.Context, r ExportRequest, reru
 			return r, false, e
 		}
 		r = latest
+		if s.ObserveResources != nil && r.Chrome != nil && (r.Terminal() || !s.Clock.Now().Before(nextResourceSample)) {
+			s.ObserveResources(ctx, r)
+			nextResourceSample = s.Clock.Now().Add(30 * time.Second)
+		}
 		if r.Progress != nil && onProgress != nil {
 			onProgress(*r.Progress, rerun)
 		}
