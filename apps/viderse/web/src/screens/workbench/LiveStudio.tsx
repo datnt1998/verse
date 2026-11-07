@@ -875,7 +875,7 @@ const styles = stylex.create({
   stepDuration: { fontSize: 12, color: 'var(--vv-fg-note)', fontStyle: 'italic', fontVariantNumeric: 'tabular-nums' },
   unitRow: { display: 'flex', flexDirection: 'column', gap: s['--vv-s-6'], paddingInlineStart: s['--vv-s-24'] },
   unitTrack: { height: 6, borderRadius: r['--vv-r-6'], backgroundColor: 'var(--color-surface-3)', overflow: 'hidden' },
-  unitFill: { height: '100%', borderRadius: r['--vv-r-6'], background: 'linear-gradient(90deg,#A6EDC1,#5DC1B0)' },
+  unitFill: { height: '100%', borderRadius: r['--vv-r-6'], backgroundImage: 'var(--vv-grad-export-progress)' },
   unitCaption: { display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
   kvRow: { display: 'flex', flexWrap: 'wrap', gap: s['--vv-s-6'], paddingInlineStart: s['--vv-s-24'] },
   kv: { padding: `${s['--vv-s-3']} ${s['--vv-s-8']}`, borderRadius: r['--vv-r-6'], backgroundColor: 'var(--color-surface-0)', border: '1px solid var(--line-1)', fontSize: 12, color: 'var(--vv-fg-note)' },
