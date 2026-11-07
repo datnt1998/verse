@@ -7,7 +7,7 @@ import { DEFAULT_LAYER_PARAMS, type CompositeLayer } from '@editor/infrastructur
 import { applyMasks, type MaskCanvasSettings, type PreparedMask } from './canvas-masks'
 import type { ActiveTransition } from './canvas-transitions'
 import type { CanvasPool } from './canvas-pool'
-import type { CanvasSettings, ItemRenderContext } from './canvas-item-renderer'
+import type { CanvasSettings } from './canvas-item-renderer'
 import type { GpuPipelineManager } from './gpu-pipeline-manager'
 import type { RenderedTaskResult } from './frame-mask-helpers'
 
@@ -26,7 +26,6 @@ export interface FrameCompositingDeps {
   activeMasks: PreparedMask[]
   contentCanvas: OffscreenCanvas
   contentCtx: OffscreenCanvasRenderingContext2D
-  itemRenderContext: ItemRenderContext
   canvasPool: CanvasPool
   getCurrentItem: <TItem extends TimelineItem>(item: TItem) => TItem
   getEffectiveBlendMode: (item: TimelineItem) => TimelineItem['blendMode']
@@ -74,7 +73,6 @@ export async function compositeFrameResults(deps: FrameCompositingDeps): Promise
     activeMasks,
     contentCanvas,
     contentCtx,
-    itemRenderContext,
     canvasPool,
     getCurrentItem,
     getEffectiveBlendMode,
@@ -187,7 +185,9 @@ export async function compositeFrameResults(deps: FrameCompositingDeps): Promise
       }
 
       if (compositedToGpuCanvas) {
-        await itemRenderContext.gpuPipeline?.waitForSubmittedWork()
+        // Canvas2D.drawImage consumes the submitted GPU canvas synchronously.
+        // An explicit queue fence adds a round trip per frame and can let the
+        // browser present/discard this canvas before the caller copies it.
         finalCompositeSource = gpuCompositeOutput.canvas
       } else {
         // Fall back to the established Canvas2D compositor if the GPU target

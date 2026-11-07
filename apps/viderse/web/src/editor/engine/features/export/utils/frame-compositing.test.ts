@@ -52,7 +52,6 @@ describe('compositeFrameResults resource cleanup', () => {
       activeMasks: [],
       contentCanvas: {} as OffscreenCanvas,
       contentCtx: {} as OffscreenCanvasRenderingContext2D,
-      itemRenderContext: {},
       canvasPool: { release: releaseCanvas },
       getCurrentItem: <TItem extends TimelineItem>(candidate: TItem) => candidate,
       getEffectiveBlendMode: () => 'normal',
