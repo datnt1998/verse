@@ -703,5 +703,6 @@ Mẫu:
 - Người dùng báo Bàn dựng thiếu danh sách asset như nền/phần dùng chung. Dữ liệu thật có lớp phủ Tuyết và các lớp Subscribe/sóng giọng trong template chốt của job; inspector hiện chỉ hiển thị clip nền từ recipe. Job mẫu không cấu hình recipe nền nên0clip là đúng,nhưng đang báo “Nền sẽ lặp” gây hiểu nhầm; lớp phủ/asset template không có danh sách.
 - Main artboard hiện có Thông tin→Nguồn/Template/Nền,không có tab danh sách asset dùng chung riêng. Không tự thay artboard.
 - A(đã chọn): hiện danh sách chỉ đọc trong tab Thông tin/sheet Thông tin điện thoại,ngay dưới Template;phân biệt asset của template đang dùng và clip nền của job. Dùng snapshot chốt,không đọc template mới để giả dữ liệu video cũ;link về nơi quản lý tương ứng. Giữ2tab hiện có,không sửa artboard.
+- Đã deploy `3f6b1650cbb59ab6ee123689d24f4c7a37d67d13` ngày07/11;[proof PC/mobile](../../../../../plans/261106-1303-viderse-production-artboard-parity/reports/shared-assets-fix.md). Không coi là full artboard/Safari PASS.
 - B: thêm tab Tài nguyên riêng trên PC và mục tương đương trên điện thoại;dễ xem nhiều asset nhưng thay IA/tab artboard. Không mặc định cho sửa/xoá asset thư viện từ Bàn dựng.
 
