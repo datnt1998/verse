@@ -12,7 +12,16 @@ Người dùng chọn#95A: giữ2tab,hiện danh sách chỉ đọc trong Thông
 - Inline review:không server API/schema/encoder changes;projected labels chỉ render React text,internal IDs chỉ làm key;không import Editor vào initial bundle. Other user dirty changes/index không đưa vào candidate.
 
 ## Deployment
-Pending native artifact commit/merge/hash/process/public and actual PC/mobile smoke. Không gọi local smoke là production acceptance.
+Đã phát hành và kiểm trực tiếp;chỉ đóng bug asset/empty-background,không phải nghiệm thu toàn bộ Bàn dựng.
+- Đã deploy https://vid.aarverse.studio commit `3f6b1650cbb59ab6ee123689d24f4c7a37d67d13` từ PR#18. Merge tree khớp candidate;binary SHA256 `5353f7341ddc8a649d7e292d81adbde44fed5bc5b88516d67164165132bac056`,PID88642,installed/process inode3588986. Public ready và entry/shared-list chunk bytehash đạt. Schema41 không đổi;backup/restore rehearsal đạt,không encoder/server API change.
+- Backup tại `~/server/apps/viderse/releases/3f6b1650cbb59ab6ee123689d24f4c7a37d67d13/rollout-20261107T062245Z`,restore DB `viderse_release_20261107062245`. SCP qua Tailscale timeout120s khi mới staged27MB;production chưa thay ở thời điểm đó. Rsync nén/resume hoàn tất,checksum đúng rồi mới rollout.
+- Actual authenticated production1440×900và390×844hiện cùng8asset,snow lặp đúng,Nền không cấu hình không warningfalse,không tràn ngang. Phone sau fonts/motion settle chỉ1dialog,y118.172→844;open/scrim-close/reopen3actions đạt. First desktop screenshot timeout30s,reopen/capture sau settle đạt;không sửa DOM để làm ảnh proof. Links Template/Thư viện giữ route hiện có,không thử sửa/xoá asset hoặc export.
+- Local read-only proxy,credential file vàSSH agent tạm đã dừng/xoá. Không gọi đây là full artboard1:1hoặc physical Safari PASS.
 
 ## Xuất chậm
 [Phân tích riêng](export-performance.md):89m21s là elapsed thật,78m24s browser supervision và10m57s hậu xử lý. Chưa benchmark hoặc đổi chất lượng/cấu hình xuất;không hứa tốc độ tăng chưa đo.
+
+## Production
+| Desktop1440×900 | Phone390×844 |
+|---|---|
+| ![Asset dùng chung trên production desktop](shared-assets-production-desktop.webp) | ![Asset dùng chung trong sheet production phone](shared-assets-production-phone.webp) |
