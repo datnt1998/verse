@@ -120,6 +120,7 @@
   --vv-artist-ink: #FFD08A;
   /* Main › Phòng vẽ trực tiếp: thanh tiến độ Hoạ sĩ. */
   --vv-grad-artist-progress: linear-gradient(90deg, #F6CB8C, #EC9548 60%, #E25E36);
+  --vv-grad-export-progress: linear-gradient(90deg, #A6EDC1, #5DC1B0);
   /* DevelopEffect (Review/Editor/Main): màu và hạt nhiễu theo artboard. */
   --vv-develop-clear: rgba(255, 208, 138, 0);
   --vv-develop-glint: rgba(255, 208, 138, .95);
