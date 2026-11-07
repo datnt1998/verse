@@ -426,7 +426,7 @@ Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và
 | Gói | Ngày | Commit đã deploy | Chỗ lệch |
 |---|---|---|---|
 | V36 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Chưa đối chiếu đủ trạng thái production1:1; không xác nhận nghiệm thu viewer. |
-| V37 | 07/11/2026 | `3f6b1650cbb59ab6ee123689d24f4c7a37d67d13` | Đã sửa cover2×2/stale và hiện8asset dùng chung theo#95A,kiểm PC/mobile;Nền0clip không còn warning giả,parity toàn bộ trạng thái vẫn chờ. |
+| V37 | 07/11/2026 | `2b55c0241ee3c394f09dba89099cb132a1a02c9f` | Cover2×2/stale và8asset dùng chung theo#95A giữ nguyên; bỏ GPU fence thừa,frame/audio/coverage mẫu thật khớp,nhưng chưa chứng minh hết chậm89phút;parity toàn trạng thái vẫn chờ. |
 | V38 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Cutover schema41/default template thật đã kiểm; chưa đối chiếu toàn bộ Kênh/Thư viện/Template. |
 | V39 | 07/11/2026 | `9871dfb09d97b9e69a32bb42092857c8d6fe0342` | Đã sửa metadata head legacy;job thật tạo bản dựng và chờ duyệt,không vẽ lại/phát sinh image receipt; chưa nghiệm thu mọi Nhập nhanh/Hàng chờ. |
 | V40 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | #93 đổi sang người dùng test Safari trực tiếp sau deploy; bằng chứng iPhone và parity đầy đủ vẫn chờ. |
