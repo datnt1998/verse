@@ -5,6 +5,7 @@
 // schema vào entry.
 import { bool, list, maybe, num, oneOf, record, str } from './guard'
 import { mutate, request } from './request'
+import { readTemplateSharedAssets, type TemplateSharedAsset } from './templateAssets'
 
 export type JobSource = {
   id: string
@@ -54,6 +55,7 @@ export type CloneJobView = {
   templateId: string
   /** Tên template lúc tạo job (library.Snapshot.templateName). */
   templateName?: string
+  templateSharedAssets?: TemplateSharedAsset[]
   status: string
   stageGroup: string
   activeStep: string | null
@@ -157,6 +159,7 @@ export const readCloneJob = (value: unknown, path: string): CloneJobView => {
   const supersededAt = o.supersededAt === null ? null : nullishStr(o.supersededAt, `${path}.supersededAt`)
   const exportBytes = o.exportBytes === null ? null : nullishNum(o.exportBytes, `${path}.exportBytes`)
   const previousJobId = o.previousJobId === null ? null : nullishStr(o.previousJobId, `${path}.previousJobId`)
+  const template = o.templateSnapshot == null ? undefined : record(o.templateSnapshot, `${path}.templateSnapshot`)
   return {
     id: str(o.id, `${path}.id`),
     channelId: str(o.channelId, `${path}.channelId`),
@@ -165,7 +168,7 @@ export const readCloneJob = (value: unknown, path: string): CloneJobView => {
     generation: num(o.generation, `${path}.generation`),
     ...(supersededAt === undefined ? {} : { supersededAt }),
     templateId: str(o.templateId, `${path}.templateId`),
-    ...(o.templateSnapshot == null ? {} : { templateName: maybe(record(o.templateSnapshot, `${path}.templateSnapshot`).templateName, str, `${path}.templateSnapshot.templateName`) }),
+    ...(template === undefined ? {} : { templateName: maybe(template.templateName, str, `${path}.templateSnapshot.templateName`), templateSharedAssets: readTemplateSharedAssets(template, `${path}.templateSnapshot`) }),
     status: str(o.status, `${path}.status`),
     stageGroup: str(o.stageGroup, `${path}.stageGroup`),
     activeStep: nullableStr(o.activeStep, `${path}.activeStep`),

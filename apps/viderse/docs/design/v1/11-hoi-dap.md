@@ -697,3 +697,11 @@ Mẫu:
 - Phương án A: duyệt ngoại lệ nghiệm thu hẹp cho đúng các trạng thái first-run không thể dựng trên instance đã vận hành: chạy cùng release commit bằng ứng dụng/backend/dữ liệu thật trên instance first-run biệt lập, không mock; production report ghi rõ không dựng được và dẫn số #94, không gọi ảnh đó là ảnh production. Mọi trạng thái còn lại vẫn nghiệm thu production như yêu cầu.
 - Phương án B: giữ yêu cầu mọi trạng thái phải có bằng chứng tại production hiện hữu; giữ blocker cho các trạng thái first-run đến khi có đường vận hành an toàn được duyệt. Không xoá kênh/identity, không thêm query/DOM giả hoặc tự mở tenancy chỉ để vượt gate; không tuyên bố nghiệm thu đầy đủ khi blocker còn.
 
+## #95. Bàn dựng — hiện asset dùng chung của video
+
+- Trạng thái: **Đã chốt A(người dùng,07/11/2026): Trong Thông tin,dưới Template**.
+- Người dùng báo Bàn dựng thiếu danh sách asset như nền/phần dùng chung. Dữ liệu thật có lớp phủ Tuyết và các lớp Subscribe/sóng giọng trong template chốt của job; inspector hiện chỉ hiển thị clip nền từ recipe. Job mẫu không cấu hình recipe nền nên0clip là đúng,nhưng đang báo “Nền sẽ lặp” gây hiểu nhầm; lớp phủ/asset template không có danh sách.
+- Main artboard hiện có Thông tin→Nguồn/Template/Nền,không có tab danh sách asset dùng chung riêng. Không tự thay artboard.
+- A(đã chọn): hiện danh sách chỉ đọc trong tab Thông tin/sheet Thông tin điện thoại,ngay dưới Template;phân biệt asset của template đang dùng và clip nền của job. Dùng snapshot chốt,không đọc template mới để giả dữ liệu video cũ;link về nơi quản lý tương ứng. Giữ2tab hiện có,không sửa artboard.
+- B: thêm tab Tài nguyên riêng trên PC và mục tương đương trên điện thoại;dễ xem nhiều asset nhưng thay IA/tab artboard. Không mặc định cho sửa/xoá asset thư viện từ Bàn dựng.
+

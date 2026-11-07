@@ -9,9 +9,10 @@ import { Button, Icon, Tabs, toast } from '@noverse/ui'
 import { getChannel, type Channel } from '../../../api/channels'
 import { Orb } from '../../../components/Orb'
 import type { Assistant } from '../../../components/agents'
-import { coverageAfterRemoval, metadataCounts, metadataDescriptionBody, metadataDescriptionWithFooter, togglePart, type MetadataPart } from './panelLogic'
+import { coverageAfterRemoval, metadataCounts, metadataDescriptionBody, metadataDescriptionWithFooter, togglePart, usesBackdrop, type MetadataPart } from './panelLogic'
 import type { CloneJobView } from '../../../api/workbench'
 import { getMetadata, mutateMetadata, getHistory, getBackdrop, mutateBackdrop, type Metadata, type MetaResponse, type History, type BackdropView } from '../../../api/workbenchPanels'
+import { TemplateAssetList } from './TemplateAssetList'
 
 const labels: Record<MetadataPart, string> = { title: 'Tiêu đề', description: 'Mô tả', tags: 'Tag' }
 const agentNames: Record<Assistant, [string, string]> = { scout: ['Trinh sát', 'Tải nguồn, phụ đề, bốc clip nền'], director: ['Đạo diễn', 'Chia cảnh, viết tiêu đề, tag'], artist: ['Hoạ sĩ', 'Vẽ ảnh cảnh và ảnh bìa'], qa: ['Kiểm định', 'Dựng, đo, xuất MP4'] }
@@ -123,9 +124,10 @@ export function WorkbenchPanels({ job, onRefresh }: { job: CloneJobView; onRefre
         </div>
         <div {...stylex.props(s.section)}><span {...stylex.props(s.sectionTitle)}>Template</span>
           <div {...stylex.props(s.templateRow)}><Icon name="layer" size={16} xstyle={s.mutedIcon} /><div {...stylex.props(s.grow)}><span>{job.templateName ?? job.templateId}</span><small {...stylex.props(s.muted)}>Template của video này</small></div><a href={`#/templates/${encodeURIComponent(job.templateId)}`} {...stylex.props(s.quietLink)}>Mở</a></div>
+          <TemplateAssetList assets={job.templateSharedAssets} />
         </div>
         <div {...stylex.props(s.section)}><span {...stylex.props(s.sectionTitle)}>Nền</span>
-          {loadingBackdrop && !backdrop ? <div role="status" {...stylex.props(s.card)}>Đang tải…</div> : !backdrop ? !panelError && <div {...stylex.props(s.card)}>Chưa có clip nền cho video này. <a href="#/library?tab=backdrops" {...stylex.props(s.inlineLink)}>Mở Thư viện</a></div> : <>
+          {loadingBackdrop && !backdrop ? <div role="status" {...stylex.props(s.card)}>Đang tải…</div> : !backdrop || !usesBackdrop(backdrop) ? !panelError && <div {...stylex.props(s.card)}>{backdrop ? 'Template này không dùng clip nền.' : 'Chưa có clip nền cho video này.'} <a href="#/library?tab=backdrops" {...stylex.props(s.inlineLink)}>Mở Thư viện</a></div> : <>
             <div {...stylex.props(s.card, s.coverageCard)}>
               <div {...stylex.props(s.between, s.coverageHeading)}><span {...stylex.props(s.row)}><span aria-hidden="true" {...stylex.props(s.coverageDot, coverage?.short ? s.warn : s.ok)} /><strong {...stylex.props(coverage?.short ? s.warn : s.ok)}>{coverage?.total == null ? 'Độ phủ chưa xác định' : coverage.short ? `Nền sẽ lặp ${fmt(coverage.total - coverage.covered)}` : 'Phủ kín video'}</strong></span><span {...stylex.props(s.muted)}>{backdrop.items.length + (backdrop.fixedItems?.length ?? 0)} clip</span></div>
               <div role="progressbar" aria-label="Độ phủ nền video" aria-valuemin={0} aria-valuemax={coverage?.total ?? 1} aria-valuenow={Math.min(coverage?.covered ?? 0, coverage?.total ?? 1)} {...stylex.props(s.progress)}>
