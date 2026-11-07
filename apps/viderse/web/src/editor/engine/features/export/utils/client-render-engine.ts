@@ -2553,7 +2553,6 @@ export async function createCompositionRenderer(
           activeMasks,
           contentCanvas,
           contentCtx,
-          itemRenderContext,
           canvasPool,
           getCurrentItem,
           getEffectiveBlendMode,
