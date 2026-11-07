@@ -1,6 +1,6 @@
 # Production export timing and duplicate-acquisition fix · 2026-11-07
 
-Status: implementation and bounded real pipeline smoke verified; production rollout pending.
+Status: deployed to https://vid.aarverse.studio at main `bd49e0f92b0c4a0d9d0998dc16a7306a6709c74d` (PR#22); bounded real pipeline smoke verified. Historical89-minute export has not been rerun.
 
 ## Delivered change
 
@@ -38,3 +38,9 @@ Evidence outside Git: remote `~/server/qa/viderse-export-perf-20261107/pipeline-
 ## Operational boundary
 
 See [owning operations guide](../../../apps/viderse/deploy/README.md) and [read-only production host/storage evidence](production-export-host-storage.md). Current provider ranges were155–196MiB/s over32MiB only; internal disk/swap pressure was observed, not proven causal. Historical browser78-minute phase attribution remains unavailable. New measurements are automatic on the next normal export, without auto-running that export.
+
+## Production rollout evidence
+
+Safe deploy completed at `2026-11-07T10:36:16Z`; schema41 unchanged, restore rehearsal and backup succeeded before writers reopened. Running native SHA256 `57241d78d45fb20f7f781abd88f11b4b32fa5275391838d84569360d80b35292`, PID38771, executable path and commit marker match the release. Public `/readyz` returned200; served `index-CThE_4-P.js` SHA256 `be96e5bb6435c90ce6534d40bbd8d619b7e3b20ac21183075082f8c4b9409b50` matched the tested artifact. Signed-in production playback advanced with1920×1080decoded video and no media error. Startup connection refusals/timeouts preceded successful readiness, not a failed rollout.
+
+The next ordinary export will produce the new phase/resource observations; no production export was automatically enqueued. No claim of full artboard parity or physical Safari acceptance.
