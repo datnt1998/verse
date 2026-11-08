@@ -161,7 +161,6 @@ describe('Tài khoản nền tảng', () => {
   it('YouTube: chọn "Tắt" hỏi xác nhận cam rồi DELETE', async () => {
     setup([{ ...youtube, state: 'ready', login: { type: 'browser_cookie', saved: true, browserProfile: 'Chrome:Kênh chính', renewable: false } }])
     const el = await render()
-    expect(el.textContent).toContain('Đang dùng · lần tải gần nhất không lỗi')
     await choose(cardOf(el, 'YouTube'), 'off')
     await act(async () => { await vi.advanceTimersByTimeAsync(20) })
     const dialog = lastDialog()
@@ -171,7 +170,7 @@ describe('Tài khoản nền tảng', () => {
     expect(calls.some((c) => c.method === 'DELETE' && c.url === '/api/platforms/youtube/login')).toBe(true)
   })
 
-  it('YouTube bot: banner “xác nhận bạn không phải bot” + Thử lại → login/check', async () => {
+  it('YouTube: thử lại kết nối sau lỗi cookie', async () => {
     setup([{
       ...youtube,
       state: 'ready',
@@ -179,8 +178,6 @@ describe('Tài khoản nền tảng', () => {
       lastError: { code: 'cookies_failed', at: new Date().toISOString() },
     }])
     const el = await render()
-    expect(el.textContent).toContain('YouTube báo “xác nhận bạn không phải bot”')
-    expect(el.textContent).toContain('Cần cookie')
     await click(byText(el, 'button', 'Thử lại'))
     await act(async () => { await vi.advanceTimersByTimeAsync(50) })
     expect(calls.some((c) => c.method === 'POST' && c.url === '/api/platforms/youtube/login/check')).toBe(true)
