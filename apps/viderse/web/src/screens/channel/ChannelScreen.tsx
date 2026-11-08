@@ -1,7 +1,7 @@
+// Màn Kênh: danh sách video, nguồn, template và hồ sơ.
+// Mỗi tab có địa chỉ riêng; bấm video mở đúng video trong Bàn dựng.
 import * as stylex from '@stylexjs/stylex'
 import { channelStyles, channelRootMarker } from './channel.stylex'
-// Kênh dùng cùng dữ liệu và ba tab trên PC/điện thoại.
-// Chỉ dẫn theo kênh ở dock PC và Sheet Nhập nhanh trong Hồ sơ điện thoại.
 import { useEffect, useRef, useState } from 'react'
 import { Button, Icon, Spinner, Tabs, Segmented, Sheet, toast } from '@noverse/ui'
 import { invalidate, setData } from '@noverse/ui/data'
@@ -24,12 +24,13 @@ import { VideoStats } from './VideoStats'
 import { SourcesTab } from './SourcesTab'
 import { TemplatesTab } from './TemplatesTab'
 import { SettingsTab } from './SettingsTab'
+import { ChannelVideos } from './ChannelVideos'
 
-const TABS: ChannelTab[] = ['sources', 'templates', 'settings']
+const TABS: ChannelTab[] = ['videos', 'sources', 'templates', 'settings']
 
 export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channel' }> }) {
   const tt = t.channels
-  const tab: ChannelTab = route.tab && TABS.includes(route.tab) ? route.tab : 'sources'
+  const tab: ChannelTab = route.tab && TABS.includes(route.tab) ? route.tab : 'videos'
   const narrow = useMediaQuery('(max-width: 767px)')
   const [instructionsOpen, setInstructionsOpen] = useState(false)
   const tabLabels = narrow ? tt.page.tabsShort : tt.page.tabs
@@ -39,7 +40,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
     { keepPrevious: true },
   )
   const channels = useResource(keys.channels(), ({ signal }) => listChannels(signal))
-  const jobs = useResource(keys.channelJobs(route.channelId), ({ signal }) => getChannelJobs(route.channelId, signal), { keepPrevious: true })
+  const jobs = useResource(keys.channelJobs(route.channelId), ({ signal }) => getChannelJobs(route.channelId, signal))
 
   const list = channels.data?.channels ?? []
   const data = channel.data
@@ -71,6 +72,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
   }
 
   const counts: Record<ChannelTab, string> = {
+    videos: jobs.data ? String(jobs.data.jobs.length) : '',
     sources: String(data.sources.length),
     templates: '',
     settings: '',
@@ -123,6 +125,7 @@ export function ChannelScreen({ route }: { route: Extract<Route, { name: 'channe
         </div>
 
         <div id="channel-panel" role="tabpanel" aria-labelledby={`channel-tabs-${tab}`} {...stylex.props(channelStyles.tabRegion)}>
+        {tab === 'videos' && <ChannelVideos channelId={route.channelId} resource={jobs} />}
         {tab === 'sources' && <SourcesTab channel={data} channels={list} />}
         {tab === 'templates' && <TemplatesTab channel={data} />}
         {tab === 'settings' && <SettingsTab channel={data} onInstructions={() => setInstructionsOpen(true)} />}

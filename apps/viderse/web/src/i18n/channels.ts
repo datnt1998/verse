@@ -35,21 +35,35 @@ export const channelsCopy = {
     backToChannels: 'Về Kênh của tôi',
     language: { en: 'Tiếng Anh', vi: 'Tiếng Việt', auto: 'Theo đối thủ' },
     languageLower: { en: 'tiếng Anh', vi: 'tiếng Việt', auto: 'theo đối thủ' },
-    tabs: { sources: 'Nguồn & tự động', templates: 'Template', settings: 'Hồ sơ kênh' },
-    /** Nhãn ngắn trên điện thoại (artboard MChannel): ba tab vừa một hàng. */
-    tabsShort: { sources: 'Nguồn', templates: 'Template', settings: 'Hồ sơ' },
+    tabs: { videos: 'Video', sources: 'Nguồn & tự động', templates: 'Template', settings: 'Hồ sơ kênh' },
+    /** Nhãn ngắn trên điện thoại. */
+    tabsShort: { videos: 'Video', sources: 'Nguồn', templates: 'Template', settings: 'Hồ sơ' },
     /** Chip đầu kênh (artboard Channel › head): Tự lấy + Tự duyệt ảnh. */
     fetchChip: (perDay: number) => `Tự lấy · ${perDay} video/ngày`,
     fetchChipOff: 'Tự lấy đang tắt',
     approveChip: 'Tự duyệt ảnh ≥ 85',
     /** Dòng chỉ đường dưới 4 số liệu (artboard Channel/MChannel › listNote). */
-    listNote: (n: number) => `${n} video của kênh nằm ở Bàn dựng, nhóm theo Chờ bạn · Đang làm · Sẵn sàng.`,
-    listNoteNone: 'Kênh chưa có video. Video của kênh nằm ở Bàn dựng, nhóm theo Chờ bạn · Đang làm · Sẵn sàng.',
-    listNoteM: (n: number) => `${n} video của kênh ở Bàn dựng`,
-    listNoteNoneM: 'Kênh chưa có video · xem Bàn dựng',
+    listNote: (n: number) => `${n} video của kênh · bấm video để mở Bàn dựng.`,
+    listNoteNone: 'Kênh chưa có video.',
+    listNoteM: (n: number) => `${n} video của kênh`,
+    listNoteNoneM: 'Kênh chưa có video',
     openWorkbench: 'Xem trong Bàn dựng',
     avatarAlt: (name: string) => `Ảnh kênh ${name}`,
     bannerAlt: (name: string) => `Ảnh bìa kênh ${name}`,
+  },
+
+  videos: {
+    title: 'Video của kênh',
+    empty: 'Kênh chưa có video',
+    emptyHint: 'Video được làm cho kênh này sẽ xuất hiện ở đây.',
+    loadFailed: 'Chưa tải được video của kênh',
+    retryHint: 'Thử tải lại danh sách video.',
+    retry: 'Thử lại',
+    stale: 'Chưa cập nhật được danh sách video.',
+    untitled: 'Video chưa có tiêu đề',
+    updated: (date: string) => `Cập nhật ${date}`,
+    otherState: 'Đang cập nhật',
+    states: { ready: 'Sẵn sàng đăng', posted: 'Đã đăng', attention: 'Cần xử lý', review: 'Chờ duyệt ảnh', paused: 'Tạm dừng', working: 'Đang làm', queued: 'Chờ lượt', legacy: 'Video cũ' } as Record<string, string>,
   },
 
   /** Thẻ “Tự động” (artboard Channel › sources phải · MChannel): ba hàng

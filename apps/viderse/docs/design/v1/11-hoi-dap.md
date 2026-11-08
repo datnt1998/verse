@@ -706,3 +706,13 @@ Mẫu:
 - Đã deploy `3f6b1650cbb59ab6ee123689d24f4c7a37d67d13` ngày07/11;[proof PC/mobile](../../../../../plans/261106-1303-viderse-production-artboard-parity/reports/shared-assets-fix.md). Không coi là full artboard/Safari PASS.
 - B: thêm tab Tài nguyên riêng trên PC và mục tương đương trên điện thoại;dễ xem nhiều asset nhưng thay IA/tab artboard. Không mặc định cho sửa/xoá asset thư viện từ Bàn dựng.
 
+
+## #96. Kênh — bổ sung lại danh sách Video
+
+- **Đã chốt (người dùng, 08/11/2026):** “Thêm danh sách video của kênh”. Thay quyết định bỏ tab Video của workflow gọn trong phạm vi này; không sửa artboard.
+- Thêm tab **Video** trên máy tính và điện thoại, mở mặc định khi vào kênh không chỉ định tab. Giữ Nguồn & tự động, Template và Hồ sơ.
+- Danh sách đọc video thật của đúng kênh qua API hiện có; hiện ảnh đại diện, tiêu đề, trạng thái và ngày cập nhật. Bao gồm video đã làm và đang xử lý để không làm mất dấu video của kênh.
+- Bấm video mở Bàn dựng tại đúng kênh/video; không tạo trang chi tiết, bản sao video, lượt xuất hoặc hành động đăng mới.
+- Đổi kênh không được giữ danh sách/link của kênh trước trong lúc tải. Lỗi tải không giả thành danh sách trống; có Thử lại. Giữ cập nhật theo sự kiện đang có.
+- Đây là ngoại lệ IA được người dùng yêu cầu, không phải bằng chứng khớp 1:1 với artboard ba tab cũ.
+
