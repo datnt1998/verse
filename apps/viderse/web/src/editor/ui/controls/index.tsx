@@ -274,7 +274,7 @@ export function ColorField({ label, value, onChange }: { label: string; value: s
       <label htmlFor={`${id}-hex`} className="hit-area min-w-0 flex-1">
         <Input id={`${id}-hex`} aria-label={`${label}, mã màu`} value={draft ?? swatch} onChange={e => setDraft(e.target.value)} onBlur={commit}
           onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); commit(); } else if (e.key === "Escape") { e.preventDefault(); setDraft(null); } }}
-          className={cn(fieldClass, "font-mono")}
+          className={fieldClass}
         />
       </label>
     </div>

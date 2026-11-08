@@ -13,6 +13,7 @@ import type { AudioEqSettings, AudioFxEffect, ResolvedAudioEqSettings } from "@e
 import { useItemsStore } from "@editor/features/timeline/stores/items-store";
 import type { TimelineItem, VideoItem } from "@editor/types/timeline";
 import { useTimelineStore } from "@editor/features/timeline/stores/timeline-store";
+import { videoLoopBarrier } from "@editor/features/timeline/utils/source-calculations";
 import { usePlaybackStore } from "@editor/shared/state/playback";
 import { useSelectionStore } from "@editor/shared/state/selection";
 import {
@@ -87,12 +88,12 @@ function ToggleRow({ label, checked, onChange, disabled }: { label: string; chec
  */
 function LoopRow({ item }: { item: VideoItem }) {
   const hasLinkedAudio = useItemsStore(state => !!item.linkedGroupId && state.items.some(other => other.type === "audio" && other.linkedGroupId === item.linkedGroupId));
-  const needsMute = item.embeddedAudioMuted !== true || hasLinkedAudio;
-  const disabled = needsMute;
+  const barrier = videoLoopBarrier(item, hasLinkedAudio);
+  const disabled = !item.loop && barrier !== null;
   return <PropertyRow label="Lặp lại">
     <Switch
       aria-label="Lặp lại"
-      data-tooltip={needsMute ? "Chỉ lặp được clip đã tắt tiếng và không có âm thanh liên kết" : undefined}
+      data-tooltip={barrier === "no-window" ? "Cần xác định được khoảng nguồn video trước khi lặp" : barrier ? "Chỉ lặp được clip đã tắt tiếng và không có âm thanh liên kết" : undefined}
       checked={item.loop === true}
       disabled={disabled}
       onCheckedChange={loop => {
@@ -415,6 +416,7 @@ function AudioBody({ item }: { item: TimelineItem }) {
   const durationSeconds = item.durationInFrames / fps;
   const speed = item.speed ?? 1;
   const mediaClip = item.type === "audio" || item.type === "video";
+  const linkedAudio = useItemsStore(state => item.type === "video" && !!item.linkedGroupId && state.items.some(other => other.type === "audio" && other.linkedGroupId === item.linkedGroupId));
   const changeSpeed = (next: number) => {
     const clamped = Math.max(0.1, Math.min(10, next));
     if (Math.abs(clamped - speed) < 1e-6) return;
@@ -423,7 +425,8 @@ function AudioBody({ item }: { item: TimelineItem }) {
   return <>
     <SectionHeader title="Âm lượng">
       <AnimatedNumber item={item} property="volume" label="Âm lượng" value={item.volume ?? 0} min={MIN_DB} max={MAX_DB} step={0.5} unit="dB" onChange={volume => { setClip(item.id, { volume }); }} />
-      {item.type === "video" && <ToggleRow label="Tắt tiếng âm thanh gốc" checked={item.embeddedAudioMuted === true} onChange={embeddedAudioMuted => setClip(item.id, { embeddedAudioMuted })} />}
+      {item.type === "video" && <ToggleRow label="Tắt tiếng âm thanh gốc" checked={item.embeddedAudioMuted === true} disabled={linkedAudio} onChange={embeddedAudioMuted => setClip(item.id, { embeddedAudioMuted })} />}
+      {linkedAudio && <p className="text-xs text-muted-foreground">Âm thanh nằm ở clip liên kết riêng. Chỉnh tiếng trên clip âm thanh để tránh phát trùng.</p>}
     </SectionHeader>
     <SectionHeader title="Âm vào ra dần">
       <FadePreview item={item} fps={fps} />

@@ -716,3 +716,17 @@ Mẫu:
 - Đổi kênh không được giữ danh sách/link của kênh trước trong lúc tải. Lỗi tải không giả thành danh sách trống; có Thử lại. Giữ cập nhật theo sự kiện đang có.
 - Đây là ngoại lệ IA được người dùng yêu cầu, không phải bằng chứng khớp 1:1 với artboard ba tab cũ.
 
+
+## #97. Giao diện — bỏ font mono
+
+- **Đã chốt (người dùng, 09/11/2026):** “kiểm tra fix hết bỏ các nơi dùng font mono”.
+- Giao diện Viderse, gồm editor, đường dẫn, thời gian, số liệu, phím tắt và tên model, dùng font sans của ứng dụng. Số vẫn được căn bằng `tabular-nums` khi cần; đường dẫn đo lại theo font thực tế.
+- Đây là yêu cầu thay typography UI so với mẫu mono cũ; không sửa artboard. Giữ khả năng chọn font cho nội dung video và hiệu ứng ASCII, không đổi font trong project của người dùng.
+- Token mono của kit dùng chung được ghi đè trong brand Viderse để các điều khiển kit cũng dùng sans; không đổi typography của Noverse.
+
+## #98. Editor — chỉnh thuộc tính theo loại đối tượng
+
+- **Đã chốt (người dùng, 09/11/2026):** bổ sung tùy chỉnh thuộc tính của các đối tượng, không chỉ vị trí và xoay.
+- Mục Nâng cao theo đối tượng gồm: chữ và từng đoạn chữ có kiểu riêng; màu tô/chuyển màu/viền/hình học/đường vẽ/mặt nạ của hình dạng; màu, hiệu ứng, crop và transform của ảnh/video; âm lượng, tốc độ, cao độ và xử lý âm thanh; nội dung, màu và giá trị tùy chỉnh được định nghĩa trong hoạt ảnh/nhóm cảnh.
+- Mọi thay đổi dùng lịch sử lệnh, lưu project và áp dụng qua renderer thật. Không thêm điều khiển cho trường dữ liệu mà preview/export chưa hỗ trợ; không mở lại lựa chọn độ phân giải/FPS đã khóa.
+- Không sửa artboard. Các thuộc tính này nằm trong disclosure theo ngữ cảnh, không phục hồi inspector nhiều tab cũ.

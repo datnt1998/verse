@@ -703,7 +703,7 @@ export function TimelinePanel() {
       } catch (error) { toast.error(error instanceof Error ? error.message : 'Không thêm được vào timeline'); } finally { clearMediaDragData(); }
     }}>
       <div className={styles.surface} style={{ width, height: Math.max(160, virtualTracks.getTotalSize()) }}>
-        <div className={styles.ruler}><Ruler fps={timeline.fps} end={end} scale={scale} startFrame={firstFrame} endFrame={lastFrame} onStart={(event) => begin(event, 'scrub')} /><div className={styles.rulerCorner}><span className="font-mono tabular-nums">{timeline.fps} fps</span></div>
+        <div className={styles.ruler}><Ruler fps={timeline.fps} end={end} scale={scale} startFrame={firstFrame} endFrame={lastFrame} onStart={(event) => begin(event, 'scrub')} /><div className={styles.rulerCorner}><span className="tabular-nums">{timeline.fps} fps</span></div>
           {displayIn !== null && displayOut !== null && <div className={styles.range} style={{ left: HEADER + displayIn * scale, width: Math.max(0, displayOut - displayIn) * scale }} />}
           {(['in', 'out'] as const).map((side) => { const frame = side === 'in' ? displayIn : displayOut; return frame !== null && <button key={side} data-hit-area data-tooltip={side === 'in' ? 'Điểm vào (I)' : 'Điểm ra (O)'} aria-label={side === 'in' ? 'Điểm vào' : 'Điểm ra'} className={styles.rangeHandle} style={{ left: HEADER + frame * scale - 14 }} onPointerDown={(event) => begin(event, side)} onKeyDown={(event) => { if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); event.stopPropagation(); const next = frame + (event.key === 'ArrowLeft' ? -1 : 1) * (event.shiftKey ? timeline.fps : 1); if (side === 'in') actions.setInPoint(next); else actions.setOutPoint(next); } }}>{side === 'in' ? 'I' : 'O'}</button>; })}
           {timeline.markers.filter((marker) => marker.frame >= firstFrame && marker.frame <= lastFrame).map((marker, index) => {
@@ -788,7 +788,7 @@ export function TimelinePanel() {
         {keyboardMarquee && <div className={styles.marquee} style={{ left: HEADER + Math.min(keyboardMarquee.start, keyboardMarquee.end) * scale, width: Math.max(2, Math.abs(keyboardMarquee.end - keyboardMarquee.start) * scale), top: trackRows[Math.min(keyboardMarquee.firstTrack, keyboardMarquee.lastTrack)]?.start ?? 32, height: tracks.slice(Math.min(keyboardMarquee.firstTrack, keyboardMarquee.lastTrack), Math.max(keyboardMarquee.firstTrack, keyboardMarquee.lastTrack) + 1).reduce((sum, track) => sum + Math.max(minimumTrackHeight, track.height), 0) }} />}
       </div>
     </div>
-    <div className={styles.footer}><span>{selectedIds.length ? `Đã chọn ${selectedIds.length} clip` : `${timeline.items.length} clip · ${tracks.length} track`}{gesture && ` · ${gesture.delta > 0 ? '+' : ''}${gesture.delta} khung`}</span><span className="font-mono tabular-nums">{timecode(end, timeline.fps)}</span></div>
+    <div className={styles.footer}><span>{selectedIds.length ? `Đã chọn ${selectedIds.length} clip` : `${timeline.items.length} clip · ${tracks.length} track`}{gesture && ` · ${gesture.delta > 0 ? '+' : ''}${gesture.delta} khung`}</span><span className="tabular-nums">{timecode(end, timeline.fps)}</span></div>
     <AlertDialog open={removeTrackId !== null} onOpenChange={(open) => { if (!open) setRemoveTrackId(null); }}>
       <AlertDialogContent><AlertDialogHeader>
         <AlertDialogTitle>Xoá track {tracks.find((track) => track.id === removeTrackId)?.name}?</AlertDialogTitle>

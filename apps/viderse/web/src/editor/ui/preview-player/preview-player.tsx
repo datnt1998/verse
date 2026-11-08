@@ -109,7 +109,7 @@ function PlayerStage() {
       <div className="flex min-w-0 items-center gap-2">
         <IconButton icon={playing ? Pause : Play} label={playing ? "Tạm dừng" : "Phát"} onClick={() => usePlaybackStore.getState().togglePlayPause()} />
         <Slider aria-label="Tua video" min={0} max={last} step={1} value={[Math.min(frame, last)]} onValueChange={([next]) => seek(next)} className="min-h-11 min-w-0 flex-1" />
-        <span role="timer" aria-label={`Thời gian ${spokenClock(frame, fps)}`} className="shrink-0 font-mono text-xs tabular-nums">
+        <span role="timer" aria-label={`Thời gian ${spokenClock(frame, fps)}`} className="shrink-0 text-xs tabular-nums">
           {clockLabel(frame, fps)} <span className="text-muted-foreground">/ {clockLabel(duration, fps)}</span>
         </span>
         <IconButton icon={muted ? VolumeX : Volume2} label={muted ? "Bật tiếng" : "Tắt tiếng"} aria-pressed={muted} onClick={() => usePlaybackStore.getState().toggleMute()} />

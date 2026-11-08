@@ -1319,6 +1319,8 @@ function itemScopes(state: ProjectStateView): TimelineItem[][] {
 function validateLoopUpdate(state: ProjectStateView, itemId: string, updates: Record<string, unknown>, clear?: string[]): CommandIssue[] {
   if (updates.loop !== true) return []
   return itemScopes(state).flatMap(items => items.filter(item => item.id === itemId).flatMap(item => {
+    // Lottie repeats its own animation; picture-only video source guards do not apply.
+    if (item.type === 'lottie') return []
     if (item.type !== 'video') return [{ message: 'Chỉ clip video mới lặp được', code: 'item.loopVideoOnly', path: 'updates.loop' }]
     // The merged view must keep the video subtype for the window check.
     const merged: VideoItem = { ...item, ...(mergeClear(updates, clear) as Partial<VideoItem>) }

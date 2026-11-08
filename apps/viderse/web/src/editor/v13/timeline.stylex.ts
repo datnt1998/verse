@@ -32,7 +32,7 @@ export const timelineStyles = stylex.create({
   ruler: { position: 'relative', flexGrow: 1, height: space['--vv-s-24'], boxSizing: 'border-box', borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-3'], cursor: 'ew-resize', touchAction: 'none', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: v13.accent, outlineOffset: -2 } },
   tick: (left: number) => ({ position: 'absolute', left, bottom: 0, width: 1, height: metrics['--ed-space-10'], backgroundColor: t.tick, pointerEvents: 'none' }),
   tickMinor: (left: number) => ({ position: 'absolute', left, bottom: 0, width: 1, height: metrics['--ed-space-4'], backgroundColor: kit['--kit-wash-12'], pointerEvents: 'none' }),
-  tickLabel: { position: 'absolute', left: 4, bottom: 5, fontFamily: font['--font-mono'], fontSize: typography['--vv-fs-badge'], color: t.muted, whiteSpace: 'nowrap' },
+  tickLabel: { position: 'absolute', left: 4, bottom: 5, fontFamily: font['--font-sans'], fontSize: typography['--vv-fs-badge'], color: t.muted, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' },
   rangeMarker: (left: number) => ({ position: 'absolute', left, top: 2, width: metrics['--ed-space-10'], height: space['--vv-s-10'], marginLeft: 'calc(-1 * var(--vv-s-5))', backgroundColor: t.orange, clipPath: 'polygon(50% 100%,0 0,100% 0)', pointerEvents: 'none' }),
   lane: { position: 'relative', flexGrow: 1, minWidth: 0, touchAction: 'none' },
   hidden: { opacity: 0.35 },

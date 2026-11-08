@@ -59,7 +59,7 @@ export function MediaThumbnail({ media }: { media: MediaMetadata }) {
   return <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden bg-muted text-muted-foreground">
     {src && !failed ? <Image src={src} alt="" width={320} height={180} unoptimized className="size-full object-contain" onError={() => setFailed(true)} /> : <Icon aria-hidden className="size-6" />}
     <span className="absolute left-1 top-1 flex items-center gap-1 rounded bg-background/90 px-1 py-0.5 text-[10px]"><Icon aria-hidden className="size-3" />{kindLabel}</span>
-    {media.duration > 0 && <span className="absolute bottom-1 right-1 rounded bg-background/90 px-1 font-mono text-[10px] tabular-nums">{Math.floor(media.duration / 60).toString().padStart(2, '0')}:{Math.floor(media.duration % 60).toString().padStart(2, '0')}</span>}
+    {media.duration > 0 && <span className="absolute bottom-1 right-1 rounded bg-background/90 px-1 text-[10px] tabular-nums">{Math.floor(media.duration / 60).toString().padStart(2, '0')}:{Math.floor(media.duration % 60).toString().padStart(2, '0')}</span>}
   </div>;
 }
 

@@ -49,7 +49,7 @@ function detectFormat(fileName: string): "srt" | "vtt" | "json3" | null {
   return extension === "json" || extension === "json3" ? "json3" : null;
 }
 
-function DraftInput({ label, value, onCommit, className, mono }: { label: string; value: string; onCommit: (value: string) => void; className?: string; mono?: boolean }) {
+function DraftInput({ label, value, onCommit, className, numeric }: { label: string; value: string; onCommit: (value: string) => void; className?: string; numeric?: boolean }) {
   const [draft, setDraft] = useState<string | null>(null);
   const commit = () => {
     if (draft !== null && draft !== value) onCommit(draft);
@@ -59,7 +59,7 @@ function DraftInput({ label, value, onCommit, className, mono }: { label: string
     if (event.key === "Enter") { event.preventDefault(); commit(); }
     else if (event.key === "Escape") { event.preventDefault(); setDraft(null); }
   };
-  return <Input aria-label={label} value={draft ?? value} onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={onKeyDown} className={`${inputClass} ${mono ? "font-mono tabular-nums" : ""} ${className ?? ""}`} />;
+  return <Input aria-label={label} value={draft ?? value} onChange={(e) => setDraft(e.target.value)} onBlur={commit} onKeyDown={onKeyDown} className={`${inputClass} ${numeric ? "tabular-nums" : ""} ${className ?? ""}`} />;
 }
 
 function WordRow({ item, index, fps, active }: { item: CaptionItem; index: number; fps: number; active: boolean }) {
@@ -97,11 +97,11 @@ function WordRow({ item, index, fps, active }: { item: CaptionItem; index: numbe
       <div className="grid grid-cols-2 gap-2 pl-7">
         <div className="space-y-1">
           <NumberField label={`${position}: khung bắt đầu`} value={word.startFrame} min={0} max={word.endFrame - 1} step={1} unit="f" onChange={(value) => setFrame("startFrame", value, "bắt đầu")} />
-          <DraftInput label={`${position}: timecode bắt đầu`} value={formatTimecode(word.startFrame, fps)} onCommit={(text) => setTimecode("startFrame", text, "bắt đầu")} mono />
+          <DraftInput label={`${position}: timecode bắt đầu`} value={formatTimecode(word.startFrame, fps)} onCommit={(text) => setTimecode("startFrame", text, "bắt đầu")} numeric />
         </div>
         <div className="space-y-1">
           <NumberField label={`${position}: khung kết thúc`} value={word.endFrame} min={word.startFrame + 1} max={item.durationInFrames} step={1} unit="f" onChange={(value) => setFrame("endFrame", value, "kết thúc")} />
-          <DraftInput label={`${position}: timecode kết thúc`} value={formatTimecode(word.endFrame, fps)} onCommit={(text) => setTimecode("endFrame", text, "kết thúc")} mono />
+          <DraftInput label={`${position}: timecode kết thúc`} value={formatTimecode(word.endFrame, fps)} onCommit={(text) => setTimecode("endFrame", text, "kết thúc")} numeric />
         </div>
       </div>
     </li>
