@@ -119,16 +119,23 @@ func (s *Service) listBrowserProfiles() ([]domain.BrowserProfile, error) {
 			continue
 		}
 		raw, err := os.ReadFile(filepath.Join(dir, "Local State"))
+		if errors.Is(err, os.ErrNotExist) {
+			continue // Trình duyệt chưa được cài.
+		}
 		if err != nil {
-			continue // trình duyệt không cài hoặc Local State hỏng → bỏ qua
+			return nil, fmt.Errorf("không đọc được hồ sơ %s: %w", browser, err)
 		}
 		var state localState
 		if err := json.Unmarshal(raw, &state); err != nil {
-			continue
+			return nil, fmt.Errorf("danh sách hồ sơ %s không đọc được: %w", browser, err)
 		}
 		var names []string
 		for profile := range state.Profile.InfoCache {
-			if st, err := os.Stat(filepath.Join(dir, profile)); err == nil && st.IsDir() {
+			st, err := os.Stat(filepath.Join(dir, profile))
+			if err != nil && !errors.Is(err, os.ErrNotExist) {
+				return nil, fmt.Errorf("không truy cập được hồ sơ %s: %w", browser, err)
+			}
+			if err == nil && st.IsDir() {
 				names = append(names, profile)
 			}
 		}
@@ -246,9 +253,12 @@ func classifyProbeError(err error) error {
 	if errors.As(err, &coded) {
 		switch coded.ErrorCode() {
 		case "cookies_failed":
-			return rejectedf("Không đọc được cookie của hồ sơ trình duyệt này. Hồ sơ cần đang đăng nhập tài khoản Google phụ; mở trình duyệt đó một lần rồi thử lại.")
+			return rejectedf("Không đọc hoặc giải mã được cookie của hồ sơ trình duyệt này. Trên macOS, mở phiên đăng nhập của người dùng chạy Viderse trên máy chủ, mở khóa Keychain đăng nhập và cho phép công cụ yt-dlp truy cập mục Safe Storage của trình duyệt nếu macOS hỏi. Không cần đăng xuất hay đổi tài khoản Google; sau đó chọn lại hồ sơ.")
 		case "login_required":
-			return rejectedf("Hồ sơ trình duyệt này chưa đăng nhập tài khoản Google phụ.")
+			if strings.Contains(strings.ToLower(err.Error()), "not a bot") {
+				return rejectedf("YouTube yêu cầu xác nhận bạn không phải bot. Mở YouTube bằng đúng hồ sơ trình duyệt trên máy chủ, hoàn tất xác nhận nếu có rồi thử lại. Thông báo này chưa đủ để kết luận cookie không giải mã được hay phiên đăng nhập đã hết hạn.")
+			}
+			return rejectedf("YouTube yêu cầu đăng nhập với hồ sơ này. Kiểm tra phiên đăng nhập Google trong đúng hồ sơ trình duyệt trên máy chủ rồi thử lại.")
 		}
 	}
 	return unavailablef("Chưa kiểm tra được hồ sơ trình duyệt (yt-dlp không chạy được). Cài công cụ ở Cài đặt › Công cụ rồi thử lại.")

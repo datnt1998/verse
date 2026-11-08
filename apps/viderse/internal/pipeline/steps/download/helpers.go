@@ -440,8 +440,8 @@ func BuildTranscodeArgs(o TranscodeArgsOpts) []string {
 type helpEntry struct{ Hint string }
 
 var YtDlpHelp = map[string]helpEntry{
-	"login_required": {Hint: "Cần tài khoản Google phụ đã đăng nhập YouTube: chọn hồ sơ trình duyệt trong Cài đặt → Cookies rồi thử lại."},
-	"cookies_failed": {Hint: "Khi máy hỏi quyền truy cập, chọn “Luôn cho phép”, hoặc chọn hồ sơ khác trong Cài đặt → Cookies."},
+	"login_required": {Hint: "Chọn hồ sơ trình duyệt đã đăng nhập YouTube trong Cài đặt → Tài khoản nền tảng → YouTube rồi thử lại."},
+	"cookies_failed": {Hint: "Chọn lại hồ sơ trình duyệt trong Cài đặt → Tài khoản nền tảng → YouTube; nếu máy hỏi quyền truy cập, cho phép rồi thử lại."},
 	"unavailable":    {Hint: "Video có thể là riêng tư, đã bị xoá hoặc bị chặn theo vùng. Hãy chọn video khác."},
 }
 
@@ -452,8 +452,10 @@ func stepError(code, message, recovery string) *domain.CloneError {
 	}
 	return e
 }
-func retryError(message, recovery string, now int64, after time.Duration) *domain.CloneError {
+func retryError(reason, message, recovery string, now int64, after time.Duration) *domain.CloneError {
+	// Keep quota as the historical retryable parking code, not the user-facing cause.
 	e := stepError(domain.CloneErrQuota, message, recovery)
+	e.WaitReason = reason
 	at := time.UnixMilli(now).Add(after)
 	e.RetryAt = &at
 	e.RetryAtSource = domain.RetryAtWorker
@@ -469,19 +471,18 @@ func MapDownloadError(err *tools.YtDlpError, now int64) *domain.CloneError {
 	if strings.Contains(err.Message, "Requested format is not available") {
 		return stepError(domain.CloneErrInvalidRequest, netguard.UnsafeFormatMessage, "Chọn video có định dạng tải được qua http(s).")
 	}
-	message := "yt-dlp: " + err.Message
 	switch err.Code {
 	case tools.YtDlpLoginRequired:
 		if strings.Contains(strings.ToLower(err.Message), "not a bot") {
-			return retryError(message, "YouTube tạm chặn vì tải nhiều video liên tục. Chờ khoảng 30 phút rồi bấm Thử lại; nếu vẫn bị, kiểm tra Cài đặt → Cookies", now, 30*time.Minute)
+			return retryError(domain.CloneWaitSourceAuth, "YouTube yêu cầu xác nhận phiên đăng nhập để tải video.", "Chờ rồi thử lại; nếu vẫn bị chặn, chọn hồ sơ đã đăng nhập YouTube trong Cài đặt → Tài khoản nền tảng → YouTube.", now, 30*time.Minute)
 		}
-		return stepError(domain.CloneErrInvalidRequest, message, YtDlpHelp["login_required"].Hint)
+		return stepError(domain.CloneErrInvalidRequest, "Nguồn yêu cầu đăng nhập YouTube để tải video.", YtDlpHelp["login_required"].Hint)
 	case tools.YtDlpCookiesFailed:
-		return stepError(domain.CloneErrInvalidRequest, message, YtDlpHelp["cookies_failed"].Hint)
+		return stepError(domain.CloneErrInvalidRequest, "Không đọc được phiên đăng nhập YouTube đã chọn.", YtDlpHelp["cookies_failed"].Hint)
 	case tools.YtDlpUnavailable:
-		return stepError(domain.CloneErrSourceUnavailable, message, YtDlpHelp["unavailable"].Hint)
+		return stepError(domain.CloneErrSourceUnavailable, "Video nguồn hiện không tải được.", YtDlpHelp["unavailable"].Hint)
 	default:
-		return retryError(message, "Thử lại sau — lỗi tạm thời khi tải từ nguồn", now, 10*time.Minute)
+		return retryError(domain.CloneWaitSource, "Tạm thời chưa tải được video nguồn.", "Thử lại sau; kiểm tra kết nối mạng và quyền truy cập video nguồn.", now, 10*time.Minute)
 	}
 }
 

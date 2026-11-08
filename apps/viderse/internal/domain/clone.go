@@ -242,6 +242,8 @@ type CloneError struct {
 	Recovery      *string    `json:"recovery"`
 	RetryAt       *time.Time `json:"retryAt"`
 	RetryAtSource string     `json:"retryAtSource,omitempty"`
+	// WaitReason describes the cause without changing the stable retry/parking code.
+	WaitReason string `json:"waitReason,omitempty"`
 }
 
 func (e *CloneError) Error() string { return e.Message }

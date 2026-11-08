@@ -20,13 +20,19 @@ type fakeRunner struct {
 	calls     int
 	result    string
 	err       error
+	lines     []string
 }
 
 func (f *fakeRunner) IsInstalled() bool { return f.installed }
 
-func (f *fakeRunner) Run(_ context.Context, args []string, _ tools.RunYtDlpOptions) (string, error) {
+func (f *fakeRunner) Run(_ context.Context, args []string, opts tools.RunYtDlpOptions) (string, error) {
 	f.calls++
 	f.args = append([]string(nil), args...)
+	if opts.OnLine != nil {
+		for _, line := range f.lines {
+			opts.OnLine(line, tools.StreamStdout)
+		}
+	}
 	return f.result, f.err
 }
 
@@ -60,6 +66,11 @@ func TestProbeMapsOutcomes(t *testing.T) {
 		{"ok", &fakeRunner{installed: true}, ""},
 		{"unavailable-passes", &fakeRunner{installed: true, err: &tools.YtDlpError{Code: tools.YtDlpUnavailable, StderrTail: "x"}}, ""},
 		{"cookies_failed-rejects", &fakeRunner{installed: true, err: &tools.YtDlpError{Code: tools.YtDlpCookiesFailed, StderrTail: "x"}}, "cookies_failed"},
+		{"decryption-failure-before-bot-challenge", &fakeRunner{installed: true, lines: []string{"Extracted 0 cookies from chrome (518 could not be decrypted)"}, err: &tools.YtDlpError{Code: tools.YtDlpLoginRequired}}, "cookies_failed"},
+		{"decryption-failure-before-unavailable", &fakeRunner{installed: true, lines: []string{"Extracted 0 cookies from chrome (518 could not be decrypted)"}, err: &tools.YtDlpError{Code: tools.YtDlpUnavailable}}, "cookies_failed"},
+		{"decryption-failure-even-with-public-video-success", &fakeRunner{installed: true, lines: []string{"Extracted 0 cookies from chrome (518 could not be decrypted)"}}, "cookies_failed"},
+		{"partial-decryption-success", &fakeRunner{installed: true, lines: []string{"Extracted 82 cookies from chrome (1 could not be decrypted)"}}, ""},
+		{"bot-challenge-after-successful-decryption", &fakeRunner{installed: true, lines: []string{"Extracted 82 cookies from chrome"}, err: &tools.YtDlpError{Code: tools.YtDlpLoginRequired}}, "login_required"},
 		{"generic-error", &fakeRunner{installed: true, err: errors.New("boom")}, "fail"},
 		{"not-installed", &fakeRunner{installed: false}, ""},
 	} {
@@ -79,9 +90,9 @@ func TestProbeMapsOutcomes(t *testing.T) {
 				if err == nil {
 					t.Fatal("lỗi phải lọt ra ngoài")
 				}
-			case "cookies_failed":
+			case "cookies_failed", "login_required":
 				var coded interface{ ErrorCode() string }
-				if !errors.As(err, &coded) || coded.ErrorCode() != "cookies_failed" {
+				if !errors.As(err, &coded) || coded.ErrorCode() != tc.wantCode {
 					t.Fatalf("err = %v", err)
 				}
 			}

@@ -36,6 +36,8 @@ Quy tắc trạng thái:
 - `needs_you` chỉ dành cho `qa` khi video ở Chờ duyệt.
 - Còn lại là `waiting`.
 
+Lỗi step có thể thêm `waitReason?: "source_auth" | "source" | "storage" | "transient" | "image_quota"` để trình bày đúng nguyên nhân chờ. `code="quota"` cũ vẫn là mã đỗ/thử lại, không đủ để kết luận hết hạn mức ảnh. Máy chủ/client phân loại dữ liệu cũ theo step và bằng chứng lỗi; giữ nguyên lịch thử lại, số lần thử và hạn mức thật. Không hiển thị nguyên văn chẩn đoán tiếng Anh.
+
 ## §2 · Trạng thái video (đổi ánh xạ, thêm Tạm dừng)
 
 `CloneStageGroup` hiện có → nhóm UI:
@@ -679,6 +681,7 @@ POST /api/clone/:jobId/quality { accept: boolean } → { accepted: boolean }    
 ```
 - Mở editor từ Cần xử lý: `?fix=captionAlignment&cue=<id đầu tiên>` → chọn sẵn đoạn, playhead tới `startSec`.
 - `captions/align` là một thao tác hoàn tác được (một bước undo cho cả lệnh), lưu project như mọi sửa khác; không tự đo lại.
+- **Project đã lưu:** `timeline.compositions[].transitions` và `.keyframes` là tùy chọn; [serializer](../../../web/src/editor/engine/features/timeline/stores/timeline-persistence.ts) bỏ chúng khi rỗng. [Bộ đọc xuất nền](../../../web/src/editor/pages/headless-client.ts) chấp nhận trường vắng mặt nhưng vẫn kiểm kiểu mảng khi có; không yêu cầu sửa project chỉ để thêm mảng rỗng.
 
 ### §24.1 · Đăng nhập nền tảng bằng mã QR (Gói V24) <a id="qr-login"></a> <!-- r24-biliqr -->
 

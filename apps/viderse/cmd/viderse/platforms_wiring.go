@@ -9,6 +9,8 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -101,10 +103,27 @@ func (p ytDlpProbe) Check(ctx context.Context, browser, profile string) error {
 	if p.tool == nil || !p.tool.IsInstalled() {
 		return errors.New("yt-dlp chưa cài")
 	}
+	// yt-dlp can continue anonymously after every cookie fails decryption,
+	// then report only YouTube's bot challenge as its final ERROR. Preserve
+	// the extraction result before that downstream error hides the cause.
+	var decryptionFailed atomic.Bool
 	_, err := p.tool.Run(ctx, []string{
 		"--simulate", "--skip-download", "--no-playlist", "--no-warnings",
 		"--cookies-from-browser", browser + ":" + profile, probeURL,
-	}, tools.RunYtDlpOptions{Timeout: 90 * time.Second})
+	}, tools.RunYtDlpOptions{
+		Timeout: 90 * time.Second,
+		OnLine: func(line string, _ tools.Stream) {
+			if strings.Contains(line, "Extracted 0 cookies from ") && strings.Contains(line, "could not be decrypted") {
+				decryptionFailed.Store(true)
+			}
+		},
+	})
+	if decryptionFailed.Load() {
+		return &tools.YtDlpError{
+			Code:    tools.YtDlpCookiesFailed,
+			Message: "Không giải mã được cookie của hồ sơ trình duyệt.",
+		}
+	}
 	var coded interface{ ErrorCode() string }
 	if errors.As(err, &coded) && coded.ErrorCode() == "unavailable" {
 		// Video mẫu không xem được không nói gì về cookie: yt-dlp đã đọc được

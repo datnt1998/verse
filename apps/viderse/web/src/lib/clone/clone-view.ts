@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { AWAITING_REVIEW_CODE, type CloneStatusSnapshot, type CloneStepName } from "./clone-contract";
 import { autoRetryAt } from "./clone-retry";
+import { cloneWaitReason, cloneWaitText } from "./clone-wait";
 import { CLONE_STEPS, stageOf } from "./clone-steps";
 import { captionAlignmentSchema, cloneScoreAllowsExport, cloneScoreSchema } from "./clone-quality";
 
@@ -46,6 +47,8 @@ export const cloneStepErrorWireSchema = z.object({
   retryAt: z.string().nullable(),
   /** "provider" only for a real provider reset timestamp; "worker"/absent = own backoff. */
   retryAtSource: z.enum(["provider", "worker"]).optional(),
+  /** Presentation-only cause; does not change the retry/parking contract. */
+  waitReason: z.string().optional(),
 });
 
 export const cloneStepWireSchema = z.object({
@@ -895,7 +898,8 @@ export function cloneFailure(snapshot: Pick<CloneStatusWire, "job" | "steps"> & 
   const error = row?.error;
   if (!found || !row || !error) return null;
   const base = found.entry.failed;
-  const needsLogin = row.step === "download" && /cookie|login/i.test(`${error.message} ${error.recovery ?? ""}`);
+  const waitReason = cloneWaitReason(row.step, error);
+  const needsLogin = waitReason === "source_auth" || (row.step === "download" && /cookie|login|đăng nhập/i.test(`${error.message} ${error.recovery ?? ""}`));
   // A parked job has no worker left: only a running job waits out its backoff by itself.
   const autoRetry = row.status === "waiting" && snapshot.job.status === "running" && autoRetryAt(row, now) !== null ? error.retryAt : null;
   let sentence: string;
@@ -907,7 +911,7 @@ export function cloneFailure(snapshot: Pick<CloneStatusWire, "job" | "steps"> & 
       sentence = `${base} Máy chưa sẵn sàng cho việc này — mở Cài đặt để hoàn tất.`;
       break;
     case "quota":
-      sentence = row.step === "images" ? "Đã hết lượt vẽ ảnh. Bấm Thử lại khi có lượt mới." : autoRetry ? "Gặp sự cố tạm thời. App sẽ tự thử lại." : "Gặp sự cố tạm thời. Bấm Thử lại.";
+      sentence = cloneWaitText(waitReason ?? "transient");
       break;
     case "interrupted":
       sentence = autoRetry ? "Quá trình bị dừng giữa chừng. App sẽ tự làm tiếp." : "Quá trình bị dừng giữa chừng. Bấm Thử lại để làm tiếp.";

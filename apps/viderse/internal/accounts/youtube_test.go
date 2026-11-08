@@ -316,3 +316,37 @@ func TestYouTubeWithoutProbeIsUnavailable(t *testing.T) {
 		t.Fatalf("thiếu probe phải unavailable, được %v", err)
 	}
 }
+
+func TestProfileReadFailuresAreNotCachedAsAnEmptyBrowserList(t *testing.T) {
+	for _, directory := range []bool{false, true} {
+		t.Run(map[bool]string{false: "invalid metadata", true: "unreadable metadata"}[directory], func(t *testing.T) {
+			e := newYTEnv(t)
+			path := filepath.Join(e.home, "Library", "Application Support", "Google/Chrome", "Local State")
+			if err := os.Remove(path); err != nil {
+				t.Fatal(err)
+			}
+			if directory {
+				if err := os.Mkdir(path, 0o700); err != nil {
+					t.Fatal(err)
+				}
+			} else if err := os.WriteFile(path, []byte("{"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			svc := e.service()
+			if _, err := svc.Profiles(context.Background(), false); err == nil {
+				t.Fatal("unreadable browser data must not be reported as an empty or partial list")
+			}
+			if err := os.Remove(path); err != nil {
+				t.Fatal(err)
+			}
+			writeLocalState(t, e.home, "Google/Chrome", map[string][2]string{"Default": {"Cá nhân", ""}}, "Default")
+			profiles, err := svc.Profiles(context.Background(), false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(profiles) != 2 || profiles[0].Browser != "chrome" || profiles[0].Profile != "Default" || profiles[1].Browser != "brave" {
+				t.Fatalf("repaired Chrome and installed Brave must be discoverable immediately: %v", profiles)
+			}
+		})
+	}
+}

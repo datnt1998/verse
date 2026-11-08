@@ -409,8 +409,8 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 		}
 		return line
 	}
-	// working: ưu tiên chờ hạn mức rồi câu đang làm của step đang chạy.
-	if line := quotaSubline(steps); line != "" {
+	// Working: show the actual parked cause before an active step's sentence.
+	if line := waitSubline(steps); line != "" {
 		return line
 	}
 	views := AgentViews(job, steps)
@@ -425,24 +425,25 @@ func Subline(job CloneJob, steps []CloneStepRecord, now time.Time) string {
 	return ""
 }
 
-// quotaSubline: step đỗ vì hết hạn mức — "Chờ hạn mức ảnh · 07:00" (không là lỗi).
-func quotaSubline(steps []CloneStepRecord) string {
+// waitSubline keeps source/storage backoffs distinct from genuine image quota.
+func waitSubline(steps []CloneStepRecord) string {
 	for i := range steps {
 		r := &steps[i]
 		if r.Status != CloneWaiting || r.Error == nil || r.Error.Code != CloneErrQuota {
 			continue
 		}
+		label := cloneWaitLabel(CloneWaitReason(r.Step, r.Error))
 		if r.Error.RetryAt != nil {
-			return fmt.Sprintf("Chờ hạn mức ảnh · %02d:%02d", r.Error.RetryAt.Hour(), r.Error.RetryAt.Minute())
+			return fmt.Sprintf("%s · %02d:%02d", label, r.Error.RetryAt.Hour(), r.Error.RetryAt.Minute())
 		}
-		return "Chờ hạn mức ảnh"
+		return label
 	}
 	return ""
 }
 
 // attentionSubline giải thích vì sao job rơi vào Cần xử lý.
 func attentionSubline(job CloneJob, steps []CloneStepRecord) string {
-	if line := quotaSubline(steps); line != "" {
+	if line := waitSubline(steps); line != "" {
 		return line
 	}
 	for i := range steps {

@@ -454,7 +454,7 @@ func (h *Handler) download(ctx context.Context, step *pipeline.StepContext, y *t
 			if why == "deadline" {
 				message = "vượt giới hạn thời gian"
 			}
-			return retryError(fmt.Sprintf("Tải nguồn %s (stall %ds, max %dph)", message, int(limits.Stall/time.Second), int(limits.Max/time.Minute)), "Kiểm tra mạng rồi chạy lại — phần .part đã tải được giữ để tiếp tục", h.now(), 5*time.Minute)
+			return retryError(domain.CloneWaitTransient, fmt.Sprintf("Tải nguồn %s (stall %ds, max %dph)", message, int(limits.Stall/time.Second), int(limits.Max/time.Minute)), "Kiểm tra mạng rồi chạy lại — phần .part đã tải được giữ để tiếp tục", h.now(), 5*time.Minute)
 		}
 		if err == nil {
 			return nil
@@ -574,7 +574,7 @@ func humanSize(n float64) string {
 	return tools.HumanBytes(int64(n))
 }
 func (h *Handler) diskError() *domain.CloneError {
-	return retryError("Không đủ chỗ", "Giải phóng dung lượng đĩa rồi chạy lại bước tải", h.now(), 30*time.Minute)
+	return retryError(domain.CloneWaitStorage, "Không đủ chỗ", "Giải phóng dung lượng đĩa rồi chạy lại bước tải", h.now(), 30*time.Minute)
 }
 func isDiskFailure(err error) bool {
 	if errors.Is(err, syscall.ENOSPC) || errors.Is(err, syscall.EDQUOT) {
@@ -604,7 +604,7 @@ func (h *Handler) guardDisk(ctx context.Context, path string, needed float64) er
 		free = volume.FreeBytes
 	}
 	if free >= 0 && float64(free) < needed {
-		return retryError(fmt.Sprintf("Không đủ chỗ: cần %s, ổ chỉ còn %s", humanSize(needed), tools.HumanBytes(free)), "Giải phóng dung lượng đĩa rồi chạy lại bước tải", h.now(), 30*time.Minute)
+		return retryError(domain.CloneWaitStorage, fmt.Sprintf("Không đủ chỗ: cần %s, ổ chỉ còn %s", humanSize(needed), tools.HumanBytes(free)), "Giải phóng dung lượng đĩa rồi chạy lại bước tải", h.now(), 30*time.Minute)
 	}
 	return nil
 }
