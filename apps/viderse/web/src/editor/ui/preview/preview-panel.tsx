@@ -64,7 +64,7 @@ function Transport({ duration, fps }: { duration: number; fps: number }) {
     <EditorIconButton icon={isPlaying ? Pause : Play} label={isPlaying ? 'Tạm dừng' : 'Phát'} shortcut="Space" onClick={() => usePlaybackStore.getState().togglePlayPause()} />
     <EditorIconButton icon={ChevronRight} label="Tiến một khung" shortcut="→" onClick={() => seek(currentFrame + 1)} />
     <EditorIconButton icon={SkipForward} label="Về cuối" shortcut="End" onClick={() => seek(duration - 1)} />
-    <span role="timer" className="px-1 font-mono text-[10px] tabular-nums" aria-label={`Thời gian ${frameTimecode(currentFrame, fps)}`}>{frameTimecode(currentFrame, fps)} <span className="text-muted-foreground">/ {frameTimecode(duration, fps)}</span></span>
+    <span role="timer" className="px-1 text-[10px] tabular-nums" aria-label={`Thời gian ${frameTimecode(currentFrame, fps)}`}>{frameTimecode(currentFrame, fps)} <span className="text-muted-foreground">/ {frameTimecode(duration, fps)}</span></span>
     <EditorIconButton icon={Repeat} label="Lặp lại" aria-pressed={loop} onClick={() => usePlaybackStore.getState().toggleLoop()} />
     <EditorIconButton icon={muted ? VolumeX : Volume2} label={muted ? 'Bật tiếng màn hình' : 'Tắt tiếng màn hình'} aria-pressed={muted} onClick={() => usePlaybackStore.getState().toggleMute()} />
     <Slider aria-label="Âm lượng màn hình" min={0} max={1} step={0.05} value={[volume]} onValueChange={values => usePlaybackStore.getState().setVolume(values[0])} className="w-14" />

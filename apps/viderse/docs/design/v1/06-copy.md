@@ -85,6 +85,8 @@
 | Trùng link | “Kênh này đã có video từ link này: “<tiêu đề>”, đang vẽ ảnh.” + [Mở video đang làm] |
 | Link lỗi | “Không đọc được video từ link này. Kiểm tra lại link YouTube, hoặc video có thể đã bị ẩn.” |
 | Chờ hạn mức | Dòng phụ: “Chờ hạn mức ảnh · 07:00” (không là lỗi) |
+| Chờ tải nguồn cần xác thực | “Chờ xác thực YouTube”; hướng tới Cài đặt → Tài khoản nền tảng → YouTube, không báo hết hạn mức ảnh |
+| Chờ tải lại nguồn / dung lượng / xử lý tạm thời | “Chờ tải lại nguồn” / “Chờ dung lượng lưu trữ” / “Chờ thử lại”, theo nguyên nhân thật |
 | Đăng nhập hết hạn | “Phiên đăng nhập ChatGPT đã hết hạn ở cảnh 5. Ảnh đã xong được giữ lại; đăng nhập lại là Hoạ sĩ vẽ tiếp.” |
 | Khoá vì đang chạy | “Đợi Hoạ sĩ vẽ xong cảnh 5 rồi sửa” |
 | Khoá duyệt | “Chờ Hoạ sĩ vẽ lại xong ảnh đang vẽ” |
@@ -94,6 +96,8 @@
 | Hàng chờ trống | “Hàng chờ trống” · “Thêm video từ Khám phá hoặc dán link ở Video mới.” |
 | Đã duyệt hết | “Đã duyệt hết” · “Kiểm định đang dựng 3 video vừa duyệt. Video mới cần duyệt sẽ hiện ở đây, kèm thông báo.” |
 | Nhắn trợ lý không hiểu | “Chưa làm được việc này.” + 2 gợi ý |
+
+**Làm video:** gọi link đầu vào là “video nguồn trên YouTube”, không bắt buộc là đối thủ đã theo dõi. Chưa nhập nguồn thì hướng dẫn dán link hoặc chọn ở Khám phá; đang đọc, đọc lỗi và nguồn đã có là các trạng thái riêng. Không báo “không có video mới” khi chưa đọc được nguồn. Thẻ Đang làm chỉ hiện thanh tiến trình khi có tiến độ đo được; trạng thái chờ không vẽ rãnh trống.
 
 **Trợ lý chủ động** <!-- r16-agent -->
 - Bản tin, câu đầu: “Trong lúc bạn vắng: 2 video sẵn sàng đăng, 3 chờ bạn duyệt, 1 cần xử lý.” Chỉ đếm; không khen, không “Chào buổi sáng”.
@@ -107,7 +111,7 @@
 | `code` | Câu | Nút |
 |---|---|---|
 | `login_required` | “Cần đăng nhập ChatGPT để Hoạ sĩ vẽ tiếp.” | Đăng nhập lại |
-| `cookies_failed` | “YouTube yêu cầu đăng nhập để tải video này.” | Mở Tài khoản nền tảng |
+| `cookies_failed` | “Không đọc hoặc giải mã được cookie của hồ sơ trình duyệt.” Trên macOS: mở khóa Keychain đăng nhập của người dùng chạy Viderse, tự duyệt quyền Safe Storage nếu được hỏi, rồi chọn lại hồ sơ; không kết luận phiên Google đã hết hạn. | Mở Tài khoản nền tảng |
 | `unsupported_platform` | “Chưa hỗ trợ <nền tảng>. App lấy nguồn nền từ Twitch và Bilibili.” | Gửi yêu cầu hỗ trợ <nền tảng> | <!-- r22-sources -->
 | `platform_paused` | Không hiện lỗi; nhãn “Tạm chặn tới 02:10” + banner một dòng | Tài khoản nền tảng |
 | QR `expired` | “Mã đã hết hạn sau 3 phút.” | Tạo mã mới | <!-- r24-biliqr -->

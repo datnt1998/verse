@@ -137,7 +137,7 @@ func (h *Handler) transcode(ctx context.Context, job TranscodeJob) error {
 		return fmt.Errorf("%w: %w", toolchain.ErrCancelled, ctx.Err())
 	}
 	if g.why() != "" {
-		return retryError("Transcode nguồn bị timeout", "Chạy lại bước tải; video dài có thể cần tăng YTF_CLONE_TRANSCODE_MAX_MS", h.now(), 10*time.Minute)
+		return retryError(domain.CloneWaitTransient, "Chuyển mã nguồn vượt thời gian chờ.", "Chạy lại bước tải; video dài có thể cần tăng YTF_CLONE_TRANSCODE_MAX_MS", h.now(), 10*time.Minute)
 	}
 	if err != nil {
 		var failed *tools.ProcessFailedError

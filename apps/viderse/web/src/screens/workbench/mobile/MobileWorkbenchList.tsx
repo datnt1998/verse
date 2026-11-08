@@ -183,6 +183,6 @@ function WorkingCard({ job, channel, scope, onOpen }: { job: CloneJobView; chann
       <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 13, color: 'var(--color-fg-2)' }}>{running ? <Shimmer>{statusText}</Shimmer> : statusText}</span>
       {progress && <span {...stylex.props(l.workPct)}>{Math.round(progress.pct * 100)}%</span>}
     </span>
-    <span aria-hidden="true" {...stylex.props(l.workTrack)}><span {...stylex.props(l.workFill(progress ? progress.pct * 100 : 0, ink))} /></span>
+    {progress && <span aria-hidden="true" {...stylex.props(l.workTrack)}><span {...stylex.props(l.workFill(progress.pct * 100, ink))} /></span>}
   </button>
 }

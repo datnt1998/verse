@@ -31,7 +31,7 @@ export type JobStep = {
   status: string
   progress: { unitsDone: number; unitsTotal: number | null; phase: string }
   output: { artifacts: JobArtifact[] | null; data?: Record<string, unknown> } | null
-  error: { code: string; message: string } | null
+  error: { code: string; message: string; waitReason?: string } | null
   startedAt: string | null
   finishedAt: string | null
 }
@@ -109,7 +109,11 @@ const readStep = (value: unknown, path: string): JobStep => {
   })()
   const error = o.error == null ? null : (() => {
     const err = record(o.error, `${path}.error`)
-    return { code: str(err.code, `${path}.error.code`), message: str(err.message, `${path}.error.message`) }
+    return {
+      code: str(err.code, `${path}.error.code`),
+      message: str(err.message, `${path}.error.message`),
+      ...(err.waitReason == null ? {} : { waitReason: str(err.waitReason, `${path}.error.waitReason`) }),
+    }
   })()
   return {
     step: str(o.step, `${path}.step`),

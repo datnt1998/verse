@@ -21,7 +21,7 @@ const trackSchema = z.object({ id: z.string(), name: z.string(), height: z.numbe
 const itemSchema = z.object({ id: z.string(), trackId: z.string(), type: z.enum(['video', 'audio', 'image', 'text', 'subtitle', 'shape', 'composition', 'adjustment', 'controller', 'lottie']), from: z.number().finite().nonnegative(), durationInFrames: z.number().finite().nonnegative() }).passthrough()
 const subCompositionSchema = z.object({
   id: z.string(), name: z.string(), items: z.array(itemSchema), tracks: z.array(trackSchema.extend({ items: z.array(itemSchema) })),
-  transitions: z.array(z.object({}).passthrough()), keyframes: z.array(z.object({}).passthrough()),
+  transitions: z.array(z.object({}).passthrough()).optional(), keyframes: z.array(z.object({}).passthrough()).optional(),
   fps: z.number().finite().positive(), width: z.number().positive(), height: z.number().positive(), durationInFrames: z.number().finite().nonnegative(),
 }).passthrough()
 const timelineSchema = z.object({ tracks: z.array(trackSchema), items: z.array(itemSchema), transitions: z.array(z.object({}).passthrough()).optional(), compositions: z.array(subCompositionSchema).optional() }).passthrough()

@@ -238,7 +238,7 @@ export const previewStyles = stylex.create({
   "chaptersHead": { display: "flex", alignItems: "center", gap: s["--vv-s-6"], fontSize: "12.5px", fontWeight: 500, color: color["--color-fg-3"] },
   "chaptersList": { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: s["--vv-s-3"] },
   "chapterRow": { display: "flex", alignItems: "baseline", gap: s["--vv-s-8"], minWidth: 0 },
-  "chapterTime": { flex: "0 0 auto", fontFamily: "var(--font-mono)", fontSize: "11.5px", color: "var(--vv-fg-note)", fontVariantNumeric: "tabular-nums" },
+  "chapterTime": { flex: "0 0 auto", fontFamily: "var(--font-sans)", fontSize: "11.5px", color: "var(--vv-fg-note)", fontVariantNumeric: "tabular-nums" },
   "chapterName": { minWidth: 0, fontSize: "12.5px", lineHeight: 1.45, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
   "chaptersEmpty": { margin: 0, fontSize: "12px", lineHeight: 1.5, color: "var(--vv-fg-note)" },
   "usedRow": { display: "flex", alignItems: "center", gap: s["--vv-s-8"], minHeight: s["--vv-s-44"], padding: `0 ${s["--vv-s-8"]}`, borderRadius: r["--vv-r-9"], borderWidth: "1px", borderStyle: "solid", borderColor: line["--line-2"], backgroundColor: "var(--kit-wash-4)" },

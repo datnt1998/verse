@@ -77,7 +77,7 @@ export function AccountMenu({ fallbackName }: { fallbackName?: string }) {
       const index = event.key === 'Home' ? 0 : event.key === 'End' ? items.length - 1 : (current + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length
       items[index]?.focus()
     }}>
-      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} style={{ fontSize: 15, border: '1px solid var(--kit-wash-10)' }} /><span {...stylex.props(sx.text)}><span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)' }}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(accountStyles.tag)}>{t.role[user.role]}</span></span><span className="mono" style={{ fontSize: 12, color: 'var(--vv-fg-note)' }}>@{user.username}</span></span></div>
+      <div {...stylex.props(sx.user)}><Avatar name={name} size={40} style={{ fontSize: 15, border: '1px solid var(--kit-wash-10)' }} /><span {...stylex.props(sx.text)}><span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)' }}><b {...stylex.props(sx.name)} title={name}>{name}</b><span {...stylex.props(accountStyles.tag)}>{t.role[user.role]}</span></span><span style={{ fontSize: 12, color: 'var(--vv-fg-note)' }}>@{user.username}</span></span></div>
       {apps.some((app) => app.id !== 'viderse') && <><div {...stylex.props(sx.divider)} /><span {...stylex.props(sx.heading)}>{t.account.apps}</span><AppLinks apps={apps} menu /></>}
       <div {...stylex.props(sx.divider)} />
       <button type="button" role="menuitem" {...stylex.props(sx.row)} onClick={() => { close(); navigate(paths.account()) }}><Icon name="user" size={17} {...stylex.props(sx.muted)} /><span style={{ flex: 1 }}>{t.account.title}</span><span {...stylex.props(sx.sub)}>{t.account.menuAccountHint}</span></button>

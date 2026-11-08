@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { HeadlessApiError, HeadlessClient, parseHeadlessCredential, withHeadlessLease, type HeadlessSnapshot } from './headless-client'
 import { HeadlessEditorStorage } from './headless-storage'
+import { makeTimelineTrack } from '@editor/features/timeline/test-helpers'
 
 function snapshot(): HeadlessSnapshot {
   return {
@@ -62,6 +63,21 @@ describe('headless scoped transport', () => {
       const client = new HeadlessClient('render', 'request-1', 'token', fakeServer(() => Response.json(response)))
       await expect(client.snapshot()).rejects.toThrow()
     }
+  })
+
+  it('exports saved compositions without empty animation arrays while validating arrays when present', async () => {
+    const payload = snapshot()
+    const composition = {
+      id: 'nested', name: 'Nhóm cảnh', fps: 30, width: 1920, height: 1080, durationInFrames: 30,
+      tracks: [makeTimelineTrack({ id: 'nested-track', name: 'Nội dung', kind: 'video', order: 0 })],
+      items: [{ id: 'heading', trackId: 'nested-track', type: 'text' as const, label: 'Tiêu đề', text: 'Nội dung', color: '#ffffff', from: 0, durationInFrames: 30 }],
+    }
+    payload.project.timeline!.compositions = [composition]
+    const client = new HeadlessClient('render', 'request-1', 'token', fakeServer(() => Response.json(payload)))
+    const loaded = await client.snapshot()
+    expect(loaded.project.timeline?.compositions?.[0]).toEqual(composition)
+    const malformed = { ...payload, project: { ...payload.project, timeline: { ...payload.project.timeline, compositions: [{ ...composition, keyframes: 'invalid' }] } } }
+    await expect(new HeadlessClient('render', 'request-1', 'token', fakeServer(() => Response.json(malformed))).snapshot()).rejects.toThrow()
   })
 
   it('preserves fenced PCM bytes and reports progress separately from heartbeat', async () => {

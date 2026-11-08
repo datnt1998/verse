@@ -10,12 +10,13 @@ import { usePlaybackStore } from '@editor/shared/state/playback'
 import { useSelectionStore } from '@editor/shared/state/selection'
 import { getWaveformMeta, getWaveformRecord } from '@editor/infrastructure/storage'
 import { computeInitialTransform } from '@editor/features/timeline/utils/transform-init'
-import type { CaptionWord, ImageItem, SubtitleSegmentItem, TextItem, TimelineItem, VideoItem } from '@editor/types/timeline'
+import type { CaptionWord, ImageItem, SubtitleSegmentItem, TextItem, VideoItem } from '@editor/types/timeline'
 import type { SerializedCommand } from '@editor/commands'
-import type { TransformProperties } from '@editor/types/transform'
 import type { ImageProgress, ImageQuota, JobImage } from '../../api/images'
 import { Segmented } from '../../components/Segmented'
 import { useShortcutAction } from '../ui/shortcuts'
+import { TransitionSection } from '../ui/inspector/transitions'
+import { AdvancedInspector, ITEM_TYPE_LABELS, ProjectAudioInspector } from './AdvancedInspector'
 import { MediaAsset, backdropItemFor, editorCommand, isCaption, panelError, panelTime, useBackdropActions, type BackdropActions } from './ContentPanels'
 import { sceneImageFor } from './scene-images'
 import { SceneImagePanel } from './SceneImagePanel'
@@ -226,7 +227,7 @@ function CaptionInspector({ item, ranges, selectedRange, onSelectRange, onAlign,
       <Button variant="quiet" size="sm" xstyle={sx.quietButton} title="Nghe lại đoạn này (L)" onClick={replay} icon={<Icon name="play" size={14} />}>Nghe lại đoạn này</Button>
       {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
     </section>
-    <section {...stylex.props(sx.section)}><label htmlFor="v13-caption-text" {...stylex.props(sx.muted)}>Chữ của đoạn</label><textarea id="v13-caption-text" {...stylex.props(sx.input)} rows={2} value={draft ?? text} onChange={event => setDraft(event.target.value)} onBlur={commit} onKeyDown={event => { if (event.key === 'Escape') { setDraft(null); event.currentTarget.blur() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit() } }} /><p {...stylex.props(sx.help)}>Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; cỡ chữ và màu theo mẫu video.</p></section>
+    <section {...stylex.props(sx.section)}><label htmlFor="v13-caption-text" {...stylex.props(sx.muted)}>Chữ của đoạn</label><textarea id="v13-caption-text" {...stylex.props(sx.input)} rows={2} value={draft ?? text} onChange={event => setDraft(event.target.value)} onBlur={commit} onKeyDown={event => { if (event.key === 'Escape') { setDraft(null); event.currentTarget.blur() } if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit() } }} /><p {...stylex.props(sx.help)}>Sửa chữ không đổi tiếng. Chữ karaoke tô theo mốc từng từ; mở Nâng cao để chỉnh kiểu chữ và màu.</p></section>
   </>
 }
 
@@ -237,7 +238,6 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
   const projectId = useProjectStore(state => state.currentProject?.id)
   const transitions = useTransitionsStore(state => state.transitions)
   const keyframes = useKeyframesStore(state => state.keyframes.find(entry => entry.itemId === item.id))
-  const [advanced, setAdvanced] = useState(false)
   const [error, setError] = useState('')
   const image = images ? sceneImageFor(images, item, projectId) : undefined
   const sceneItems = items.filter(entry => entry.trackId === item.trackId && entry.type === 'image').toSorted((a, b) => a.from - b.from)
@@ -280,8 +280,6 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
     if (durationInFrames < 1) { setError('Cảnh quá ngắn để chuyển cảnh.'); return }
     run([transition ? { type: 'transition.update', params: { id: transition.id, updates: { presentation: value, durationInFrames, ...(value === 'slide' ? { direction: 'from-left' } : {}) } } } : { type: 'transition.add', params: { leftClipId: item.id, rightClipId: next.id, type: 'crossfade', presentation: value, durationInFrames, ...(value === 'slide' ? { direction: 'from-left' } : {}) } }])
   }
-  const updateTransform = (patch: Partial<TransformProperties>) => { if (Object.values(patch).some(value => typeof value === 'number' && !Number.isFinite(value))) { setError('Giá trị phải là số hợp lệ.'); return }; run([{ type: 'item.updateTransform', params: { id: item.id, transform: patch } }]) }
-  const scalarKeys = keyframes?.properties.flatMap(property => property.keyframes.map(keyframe => ({ property: property.property, ...keyframe }))) ?? []
   return <>
     <SceneImagePanel
       item={item}
@@ -304,6 +302,7 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
           { id: 'drift', label: 'Trôi + co giãn' },
         ]}
         onChange={value => { if (value === 'none' || value === 'zoom' || value === 'drift') setMotion(value) }} />
+      <p {...stylex.props(sx.help)}>{motion === 'custom' ? 'Đang dùng chuyển động tuỳ chỉnh. ' : ''}Chọn một mẫu sẽ thay thế chuyển động và điểm mốc vị trí, kích thước, góc xoay hiện có. Có thể Hoàn tác để khôi phục.</p>
     </section>
     {next && <section {...stylex.props(sx.section)}>
       <h3 {...stylex.props(sx.subheading)}>Sang cảnh {number + 1}</h3>
@@ -316,40 +315,7 @@ function SceneInspector({ item, jobId, images, imageProgress, imageQuota, before
         onChange={value => { if (value === 'cut' || value === 'fade' || value === 'slide') setTransition(value) }} />
       <p {...stylex.props(sx.help)}>Theo mẫu video. Đổi ở đây chỉ cho chỗ này.</p>
     </section>}
-    <section {...stylex.props(sx.section, sx.noBorder)}>
-      <Button variant="quiet" size="sm" xstyle={sx.quietButton} aria-expanded={advanced} aria-describedby="v13-scene-advanced-help"
-        onClick={() => setAdvanced(!advanced)} icon={<Icon name={advanced ? 'arrow-up-2' : 'arrow-d'} size={13} />}>
-        Nâng cao
-      </Button>
-      <p id="v13-scene-advanced-help" {...stylex.props(sx.help)}>· vị trí, kích thước, độ trong suốt, điểm mốc</p>
-      {advanced && <>
-        <div {...stylex.props(sx.twoColumns)}>
-          {([['x', 'X'], ['y', 'Y'], ['rotation', 'Xoay']] as const).map(([property, label]) => <label key={property} {...stylex.props(sx.field)}>
-            {label}<input type="number" {...stylex.props(sx.numeric)} aria-label={label} value={transform[property] ?? 0}
-              onChange={event => { if (event.currentTarget.value !== '') updateTransform({ [property]: event.currentTarget.valueAsNumber }) }} />
-          </label>)}
-          <label {...stylex.props(sx.field)}>Tỉ lệ<input type="number" min={1} step={1} {...stylex.props(sx.numeric)} aria-label="Tỉ lệ ảnh"
-            value={Math.round((transform.width ?? fitted.width ?? 1) / (fitted.width || 1) * 100)}
-            onChange={event => {
-              const percent = event.currentTarget.valueAsNumber
-              if (Number.isFinite(percent) && percent > 0) updateTransform({ width: (fitted.width || 1) * percent / 100, height: (fitted.height || 1) * percent / 100 })
-            }} /></label>
-        </div>
-        <label {...stylex.props(sx.field)}>Độ trong suốt
-          <input type="range" {...stylex.props(sx.slider)} min={0} max={100} value={Math.round((transform.opacity ?? 1) * 100)}
-            aria-label={`Độ trong suốt ảnh cảnh ${number}`} onChange={event => updateTransform({ opacity: Number(event.target.value) / 100 })} />
-          <span>{Math.round((transform.opacity ?? 1) * 100)}%</span>
-        </label>
-        <span {...stylex.props(sx.meta)}>Điểm mốc {scalarKeys.length + (keyframes?.vectorProperties?.reduce((sum, property) => sum + property.keyframes.length, 0) ?? 0)}</span>
-        {scalarKeys.map(keyframe => <label key={keyframe.id} {...stylex.props(sx.field)}>
-          {panelTime((item.from + keyframe.frame) / fps)} · {keyframe.property}
-          <input type="number" aria-label={`Điểm mốc ${keyframe.property} tại ${keyframe.frame}`} {...stylex.props(sx.numeric)} value={keyframe.value}
-            onChange={event => {
-              if (Number.isFinite(event.currentTarget.valueAsNumber)) run([{ type: 'keyframe.update', params: { itemId: item.id, property: keyframe.property, keyframeId: keyframe.id, updates: { value: event.currentTarget.valueAsNumber } } }])
-            }} />
-        </label>)}
-      </>}
-    </section>
+    {error && <p role="alert" {...stylex.props(sx.error)}>{error}</p>}
   </>
 }
 
@@ -423,6 +389,8 @@ function BackgroundInspector({ item, actions, jobId }: { item: VideoItem; action
 export function Inspector(props: InspectorProps) {
   const backdropActions = useBackdropActions(props)
   const selectedId = useSelectionStore(state => state.selectedItemIds[0])
+  const selectedTransitionId = useSelectionStore(state => state.selectedTransitionId)
+  const selectedTransition = useTransitionsStore(state => state.transitions.find(entry => entry.id === selectedTransitionId))
   const item = useItemsStore(state => selectedId ? state.itemById[selectedId] : undefined)
   const tracks = useItemsStore(state => state.tracks)
   const items = useItemsStore(state => state.items)
@@ -434,9 +402,26 @@ export function Inspector(props: InspectorProps) {
   const inspectorElement = useRef<HTMLElement>(null)
   useEffect(() => {
     if (inspectorElement.current) inspectorElement.current.scrollTop = 0
-  }, [selectedId, props.selectedRange])
-  return <aside ref={inspectorElement} {...stylex.props(sx.panel)} aria-label={item && isCaption(item) ? 'Phụ đề' : item?.type === 'image' ? 'Cảnh' : background ? 'Clip nền' : 'Video'} data-shortcut-scope="inspector">
+  }, [selectedId, selectedTransitionId, props.selectedRange])
+  return <aside ref={inspectorElement} {...stylex.props(sx.panel)} aria-label={selectedTransition ? 'Chuyển cảnh' : item && isCaption(item) ? 'Phụ đề' : background ? 'Clip nền' : item ? ITEM_TYPE_LABELS[item.type] : 'Video'} data-shortcut-scope="inspector">
     {backdropActions.error && <p role="alert" {...stylex.props(sx.error)}>{backdropActions.error}</p>}
-    {item && isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} /> : item?.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} images={props.images} imageProgress={props.imageProgress} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} onRedrawn={props.onRedrawn} /> : item?.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} /> : <><section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên dòng thời gian để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section><section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section></>}
+    {selectedTransition ? <section {...stylex.props(sx.section)}>
+      <h2 {...stylex.props(sx.heading)}>Chuyển cảnh</h2>
+      <TransitionSection key={selectedTransition.id} transition={selectedTransition} />
+    </section> : item ? <>
+      {isCaption(item) ? <CaptionInspector key={captionKey} {...props} item={item} />
+        : item.type === 'image' ? <SceneInspector key={item.id} item={item} jobId={props.jobId} images={props.images} imageProgress={props.imageProgress} imageQuota={props.imageQuota} beforeMutation={props.beforeMutation} onProjectChanged={props.onProjectChanged} onRedrawn={props.onRedrawn} />
+          : item.type === 'video' && background ? <BackgroundInspector key={item.id} item={item} jobId={props.jobId} actions={backdropActions} />
+            : <section {...stylex.props(sx.section)}>
+              <h2 {...stylex.props(sx.heading)}>{ITEM_TYPE_LABELS[item.type]}</h2>
+              <p {...stylex.props(sx.muted)}>{item.label}</p>
+              <span {...stylex.props(sx.meta)}>{panelTime(item.from / fps)}–{panelTime((item.from + item.durationInFrames) / fps)}</span>
+            </section>}
+      <AdvancedInspector key={item.id} item={item} />
+    </> : <>
+      <section {...stylex.props(sx.section)}><h2 {...stylex.props(sx.heading)}>Video</h2><p {...stylex.props(sx.muted)}>Chọn một cảnh, đoạn phụ đề hay clip nền trên dòng thời gian để sửa. Bấm Cần sửa ở bên trái để xem việc còn lại.</p></section>
+      <section {...stylex.props(sx.section)}><h3 {...stylex.props(sx.subheading)}>Khung hình</h3><span {...stylex.props(sx.meta)}>{project?.metadata.width ?? 1920}×{project?.metadata.height ?? 1080} · {fps} fps · cả video {panelTime(duration / fps)}</span><p {...stylex.props(sx.help)}>Cố định cho video kênh: Kiểm định chỉ nhận bản xuất 1080p30 đủ thời lượng.</p></section>
+    </>}
+    <ProjectAudioInspector />
   </aside>
 }

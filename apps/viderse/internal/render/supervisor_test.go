@@ -278,6 +278,10 @@ func TestSupervisorRestartsClaimedHeartbeatAndProgressHangs(t *testing.T) {
 			s, runner, ops := fakeSupervisor(t, "hang")
 			s.ClaimDeadline = time.Second
 			s.StallDeadline = 15 * time.Millisecond
+			if reason == "heartbeat" {
+				// Keep progress timeout out of the heartbeat-only scenario.
+				s.StallDeadline = time.Minute
+			}
 			runner.run = func(ctx context.Context, n int, args []string, spec tools.Spec) error {
 				pid := 40000 + n
 				ops.mu.Lock()

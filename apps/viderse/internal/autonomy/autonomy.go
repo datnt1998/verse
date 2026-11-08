@@ -185,4 +185,3 @@ func (s *Service) diag(format string, args ...any) {
 		s.Diag(fmt.Sprintf(format, args...))
 	}
 }
-

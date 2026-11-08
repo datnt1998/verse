@@ -80,10 +80,10 @@ export function LinkImportForm({ overlay = false, onImported }: { overlay?: bool
       <Input id={`${id}-url`} required value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://www.twitch.tv/videos/…" className="h-8 border-ring/60 text-xs" />
       <div className="grid grid-cols-2 gap-1">
         <label className="space-y-1 text-[10px] text-muted-foreground">Từ
-          <Input value={from} onChange={(event) => setFrom(event.target.value)} placeholder="1:05" className="h-7 border-ring/60 font-mono text-xs tabular-nums" />
+          <Input value={from} onChange={(event) => setFrom(event.target.value)} placeholder="1:05" className="h-7 border-ring/60 text-xs tabular-nums" />
         </label>
         <label className="space-y-1 text-[10px] text-muted-foreground">Đến
-          <Input value={to} onChange={(event) => setTo(event.target.value)} placeholder="1:35" className="h-7 border-ring/60 font-mono text-xs tabular-nums" />
+          <Input value={to} onChange={(event) => setTo(event.target.value)} placeholder="1:35" className="h-7 border-ring/60 text-xs tabular-nums" />
         </label>
       </div>
       <p className="text-[10px] leading-relaxed text-muted-foreground">Video dài cần đoạn Từ/Đến, tối đa 10 phút.</p>

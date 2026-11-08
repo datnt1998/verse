@@ -66,7 +66,7 @@ export function LoginScreen() {
         <AuthLabel htmlFor="lg-user">{t.auth.username}</AuthLabel>
         <Field id="lg-user" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false}
           placeholder={t.auth.usernamePlaceholder} invalid={!!error} value={username}
-          className={input.className} style={{ ...input.style, borderRadius: 'var(--vv-r-10)', fontFamily: 'var(--font-mono)' }} onChange={(event) => setUsername(event.currentTarget.value)} />
+          className={input.className} style={{ ...input.style, borderRadius: 'var(--vv-r-10)', fontFamily: 'var(--font-sans)' }} onChange={(event) => setUsername(event.currentTarget.value)} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
         <AuthLabel htmlFor="lg-pass">{t.auth.password}</AuthLabel>

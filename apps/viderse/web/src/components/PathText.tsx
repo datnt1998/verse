@@ -3,7 +3,7 @@ import { font } from '@noverse/ui/tokens.stylex'
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 
 // 04-components › Đường dẫn thư mục (#78): in `displayPath` của API, một dòng,
-// chữ mono, hết chỗ thì cắt GIỮA theo thư mục — giữ phần đầu (`~` hoặc
+// chữ UI, hết chỗ thì cắt GIỮA theo thư mục — giữ phần đầu (`~` hoặc
 // `/Volumes/<tên ổ>`) và 2 thư mục cuối, vẫn dài thì 1 thư mục cuối, tên cuối
 // quá dài mới cắt ký tự ở đầu tên. Không xuống dòng, không cắt cuối. Bề rộng
 // đo bằng canvas theo font thật của dòng (không đếm ký tự cứng) và đo lại khi
@@ -63,7 +63,7 @@ const sx = stylex.create({
     maxWidth: '100%',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
-    fontFamily: font['--font-mono'],
+    fontFamily: font['--font-sans'],
   },
 })
 
@@ -97,7 +97,7 @@ export function PathText({ path, title, className, xstyle, style }: PathTextProp
     apply()
     const observer = new ResizeObserver(apply)
     observer.observe(el)
-    // Font mono tải xong sau lần đo đầu thì bề rộng chữ đổi — đo lại.
+    // Font UI tải xong sau lần đo đầu thì bề rộng chữ đổi — đo lại.
     void document.fonts?.ready.then(apply)
     return () => observer.disconnect()
   }, [path])

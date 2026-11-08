@@ -46,20 +46,6 @@
   font-weight: 700;
   src: url("/fonts/be-vietnam-pro-700.woff2") format("woff2");
 }
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 400;
-  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  font-style: normal;
-  font-display: swap;
-  font-weight: 500;
-  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
-}
 
 /* Literata cho phông đọc dài (--font-read của kit): tách unicode-range
    latin/tiếng Việt để chỉ tải phần ký tự đang hiển thị. */
@@ -437,10 +423,9 @@ body {
 /* Chỗ giữ chỗ của ô nhập — kit không đặt màu placeholder cho mọi input. */
 input::placeholder, textarea::placeholder { color: var(--color-fg-4); }
 
-/* Ba lớp tiện ích kit đọc theo tên: Button/ConfirmDialog/Dialog/Field/Inputs/
-   Menus/QrCode/Selects của platform/ui gắn class="mono|num|lbl", nên chúng phải
-   ở tầng toàn cục — không chuyển được vào StyleX của app. */
-.mono { font-family: var(--font-mono); }
+/* Kit dùng các lớp tiện ích này trong component dùng chung. Viderse giữ
+   font giao diện kế thừa cho số/mã; chỉ giữ cách canh chữ số và nhãn. */
+.mono { font-variant-numeric: tabular-nums; }
 .num { font-variant-numeric: tabular-nums; }
 .lbl {
   font-size: 11px; font-weight: 600; letter-spacing: .08em;

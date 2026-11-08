@@ -2,7 +2,7 @@
 export const errorsCopy = {
   errors: {
     login_required: 'Cần đăng nhập ChatGPT để Hoạ sĩ vẽ tiếp.',
-    cookies_failed: 'YouTube yêu cầu đăng nhập để tải video này.',
+    cookies_failed: 'Không đọc hoặc giải mã được cookie của hồ sơ trình duyệt. Kiểm tra quyền truy cập ở Tài khoản nền tảng → YouTube.',
     unsupported_platform: (platform: string) => `Chưa hỗ trợ ${platform}. App lấy nguồn nền từ Twitch và Bilibili.`,
     unavailable: 'Video nguồn không còn xem được (đã ẩn hoặc xoá).',
     no_subtitles: 'Video không có phụ đề. Trinh sát sẽ tự chép lời từ âm thanh.',

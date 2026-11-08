@@ -221,7 +221,7 @@ export function TimelinePreviewScrubberVisual({
           {showTooltip ? (
             <div
               ref={tooltipRef}
-              className="absolute left-1/2 -top-[22px] -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-1.5 py-0.5 font-mono text-[10px] leading-3 text-white"
+              className="absolute left-1/2 -top-[22px] -translate-x-1/2 whitespace-nowrap rounded bg-black/80 px-1.5 py-0.5 text-[10px] leading-3 tabular-nums text-white"
             />
           ) : null}
         </>

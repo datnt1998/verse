@@ -12,6 +12,7 @@
 // gói hỗ trợ nên không mất nguyên nhân.
 import type { JobStep } from '../api/workbench'
 import { progressCopy } from '../i18n/screens'
+import { cloneWaitReason, cloneWaitText } from './clone/clone-wait'
 
 /** Phần dữ liệu của một bước mà nhật ký thật sự đọc — `CloneStep` trên dây. */
 export type ProgressStep = Pick<JobStep, 'step' | 'status' | 'progress' | 'error'>
@@ -54,6 +55,8 @@ function runningFallback(step: string): string {
  */
 export function progressText(step: ProgressStep): string {
   const code = step.error?.code?.trim()
+  const waitReason = cloneWaitReason(step.step, step.error)
+  if (waitReason) return cloneWaitText(waitReason)
   if (code) return providerErrors[code] ?? progressCopy.errors[code] ?? progressCopy.failed
   if (step.status === 'failed') return progressCopy.failed
   if (step.status === 'cancelled') return progressCopy.cancelled

@@ -260,7 +260,7 @@ export function ModelCatalog({ provider, draft, onToggle, variant = 'inline', au
                 <label {...stylex.props(settingsStyles.controlGrow)}>
                   <span {...stylex.props(text.srOnly)}>{c.manualLabel}</span>
                   <input
-                    className={`conn-input mono ${stylex.props(settingsStyles.connInput, settingsStyles.ConnManualRowInput).className}`}
+                    className={`conn-input ${stylex.props(settingsStyles.connInput, settingsStyles.ConnManualRowInput).className}`}
                     type="text"
                     value={manualName}
                     placeholder={c.manualPlaceholder}

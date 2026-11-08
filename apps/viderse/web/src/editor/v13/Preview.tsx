@@ -11,6 +11,7 @@ import { usePlayerStoreSync, usePreviewComposition } from '../ui/preview/use-pre
 import { frameTimecode } from '../ui/preview/timecode'
 import { useShortcutAction, type ShortcutScope } from '../ui/shortcuts'
 import { previewStyles as s } from './preview.stylex'
+import { CanvasTransformInteraction } from './canvas-transform-interaction'
 
 function TransportShortcuts({ scope, fps, duration }: { scope: ShortcutScope; fps: number; duration: number }) {
   const jump = (delta: number) => {
@@ -94,6 +95,7 @@ export function Preview({ overlay }: { overlay?: ReactNode } = {}) {
         <CanvasPreview composition={composition} quality={quality} />
         {!items.length && <div {...stylex.props(s.empty)}>Nhập media, rồi thêm vào dòng thời gian.</div>}
         {safe && <><span aria-hidden {...stylex.props(s.outerSafe)} /><span aria-hidden {...stylex.props(s.innerSafe)} /></>}
+        <CanvasTransformInteraction width={width} height={height} fps={fps} />
         {overlay}
       </div>
     </div>

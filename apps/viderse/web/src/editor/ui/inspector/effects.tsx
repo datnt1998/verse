@@ -275,20 +275,21 @@ function BlendModeRow({ item }: { item: TimelineItem }) {
   /></PropertyRow>;
 }
 
-export function EffectsSection({ item }: { item: TimelineItem }) {
+export function EffectsSection({ item, onChooseEffect }: { item: TimelineItem; onChooseEffect?: () => void }) {
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set());
   const chainRef = useRef<HTMLDivElement>(null);
   if (item.type === "audio") return <p className="py-6 text-xs text-muted-foreground">Đoạn âm thanh không dùng hiệu ứng hình ảnh. Hãy chọn một đoạn video hoặc ảnh.</p>;
   const effects = item.effects ?? [];
   const toggleOpen = (id: string) => setCollapsed(prev => { const next = new Set(prev); if (!next.delete(id)) next.add(id); return next; });
+  const chooseEffect = onChooseEffect ?? (() => { window.dispatchEvent(new CustomEvent(OPEN_LIBRARY_TAB_EVENT, { detail: "effects" })); });
   return <div className="space-y-3 pt-3" data-tour="editor-effects-panel">
     <div ref={chainRef} tabIndex={-1} className="space-y-2 outline-none">
       <h3 className="text-xs font-semibold">Hiệu ứng đang dùng ({effects.length})</h3>
       {effects.length === 0
-        ? <div className="space-y-2 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground"><p>Đoạn này chưa có hiệu ứng nào.</p><Button type="button" variant="outline" size="sm" onClick={() => window.dispatchEvent(new CustomEvent(OPEN_LIBRARY_TAB_EVENT, { detail: "effects" }))}><Sparkles aria-hidden />Chọn hiệu ứng</Button></div>
+        ? <div className="space-y-2 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground"><p>Đoạn này chưa có hiệu ứng nào.</p><Button type="button" variant="outline" size="sm" onClick={chooseEffect}><Sparkles aria-hidden />Chọn hiệu ứng</Button></div>
         : <ol className="space-y-1.5">{effects.map((entry, index) => <EffectCard key={entry.id} item={item} entry={entry} index={index} count={effects.length} open={!collapsed.has(entry.id)} onToggleOpen={() => toggleOpen(entry.id)} onRemoved={() => chainRef.current?.focus()} />)}</ol>}
     </div>
-    {effects.length > 0 && <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => window.dispatchEvent(new CustomEvent(OPEN_LIBRARY_TAB_EVENT, { detail: "effects" }))}><Plus aria-hidden />Thêm hiệu ứng khác</Button>}
+    {effects.length > 0 && <Button type="button" variant="outline" size="sm" className="w-full" onClick={chooseEffect}><Plus aria-hidden />Thêm hiệu ứng khác</Button>}
     <details className="group border-t border-border pt-2"><summary className="flex min-h-7 cursor-pointer list-none items-center gap-1 text-xs text-muted-foreground">Nâng cao: cách hoà trộn hình</summary><div className="pt-2"><BlendModeRow item={item} /></div></details>
   </div>;
 }

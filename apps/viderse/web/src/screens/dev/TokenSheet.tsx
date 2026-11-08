@@ -98,7 +98,6 @@ const GROUPS: Group[] = [
     kind: 'font',
     swatches: [
       { label: 'Giao diện', token: '--font-sans' },
-      { label: 'Số & mã', token: '--font-mono' },
       { label: 'Đọc dài', token: '--font-read' },
     ],
   },
@@ -133,8 +132,8 @@ export function TokenSheet() {
               <div key={swatch.token} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)', minWidth: 0 }}>
                 <SwatchPreview kind={group.kind} token={swatch.token} value={values[swatch.token]} />
                 <span style={{ fontSize: 12.5, color: 'var(--color-fg-2)' }}>{swatch.label}</span>
-                <code className="mono" style={{ fontSize: 10.5, color: 'var(--color-fg-4)', overflowWrap: 'anywhere' }}>{swatch.token}</code>
-                <code className="mono" style={{ fontSize: 11, color: 'var(--color-fg-3)', overflowWrap: 'anywhere' }}>{values[swatch.token] || '—'}</code>
+                <span style={{ fontSize: 10.5, color: 'var(--color-fg-4)', overflowWrap: 'anywhere' }}>{swatch.token}</span>
+                <span style={{ fontSize: 11, color: 'var(--color-fg-3)', overflowWrap: 'anywhere' }}>{values[swatch.token] || '—'}</span>
               </div>
             ))}
           </div>
@@ -153,7 +152,7 @@ export function TokenSheet() {
           ].map((step) => (
             <span key={step.size} style={{ display: 'flex', alignItems: 'baseline', gap: 'var(--vv-s-10)' }}>
               <span style={{ fontSize: step.size, fontWeight: step.weight }}>Viderse — Chờ duyệt</span>
-              <code className="mono" style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>{step.size}px / {step.weight} · {step.label}</code>
+              <span style={{ fontSize: 11, color: 'var(--color-fg-4)' }}>{step.size}px / {step.weight} · {step.label}</span>
             </span>
           ))}
         </div>

@@ -150,7 +150,7 @@ export const sx = stylex.create({
   segChangedLabel: { textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: color['--color-ok'] },
   diffRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], fontSize: 12, color: 'var(--vv-fg-note)' },
   diffNote: { flex: 1, minWidth: 0 },
-  raw: { margin: 0, paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-0'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], fontFamily: "'JetBrains Mono', monospace", fontSize: 11.5, lineHeight: 1.6, color: color['--color-fg-2'], whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
+  raw: { margin: 0, paddingBlock: space['--vv-s-10'], paddingInline: space['--vv-s-12'], borderRadius: corners['--vv-r-10'], backgroundColor: color['--color-surface-0'], borderWidth: space['--vv-s-1'], borderStyle: 'solid', borderColor: line['--line-2'], fontFamily: 'var(--font-sans)', fontSize: 11.5, lineHeight: 1.6, color: color['--color-fg-2'], whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
   metaRow: { display: 'flex', alignItems: 'center', gap: space['--vv-s-8'], flexWrap: 'wrap', fontSize: 12, color: 'var(--vv-fg-note)' },
   metaText: { flex: '1 1 auto', fontVariantNumeric: 'tabular-nums' },
   narration: { display: 'flex', flexDirection: 'column', gap: space['--vv-s-6'] },

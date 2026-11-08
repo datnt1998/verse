@@ -43,7 +43,7 @@ type Lane struct {
 	UsedToday     int
 	LastStart     time.Time // started_at mới nhất của kênh (0 = chưa chạy → đi trước)
 	LastSequence  int64     // job.created_at mới nhất, chống hoà
-	PausedChannel bool // Tự lấy tắt → chỉ khoá mục batch origin=auto
+	PausedChannel bool      // Tự lấy tắt → chỉ khoá mục batch origin=auto
 }
 
 // ETA là giờ bắt đầu/kết thúc dự kiến của một mục; nil khi vượt chân trời

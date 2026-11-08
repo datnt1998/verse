@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlignCenter, AlignLeft, AlignRight, AlignVerticalJustifyCenter, AlignVerticalJustifyEnd, AlignVerticalJustifyStart, ChevronDown, Italic, Underline } from "lucide-react";
-import type { SubtitleSegmentItem, TextItem, TimelineItem } from "@editor/types/timeline";
+import type { SubtitleSegmentItem, TextItem, TextSpan, TimelineItem } from "@editor/types/timeline";
 import type { TextFontWeight, TextHorizontalAlign, TextShadow, TextStroke, TextVerticalAlign } from "@editor/types/text";
 import type { TextMotionEffectBase, TextMotionSpec } from "@editor/types/text-motion";
 import { useTimelineStore } from "@editor/features/timeline/stores/timeline-store";
@@ -82,7 +82,6 @@ function useSettledAnnounce() {
 
 function TextContent({ item }: { item: TextItem }) {
   const [draft, setDraft] = useState<string | null>(null);
-  const locked = Boolean(item.textSpans?.length);
   const commit = () => {
     if (draft !== null && draft !== item.text) {
       update(item, { text: draft });
@@ -96,7 +95,6 @@ function TextContent({ item }: { item: TextItem }) {
       <Textarea
         id={`text-content-${item.id}`}
         value={draft ?? item.text}
-        disabled={locked}
         rows={3}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}
@@ -108,10 +106,55 @@ function TextContent({ item }: { item: TextItem }) {
         aria-describedby={`text-content-hint-${item.id}`}
       />
       <p id={`text-content-hint-${item.id}`} className="text-[11px] text-muted-foreground">
-        {locked ? "Văn bản gồm nhiều đoạn, không sửa trực tiếp tại đây." : "Ctrl/⌘ + Enter để áp dụng, Esc để hoàn tác nội dung đang gõ."}
+        Ctrl/⌘ + Enter để áp dụng, Esc để hoàn tác nội dung đang gõ.
       </p>
     </div>
   );
+}
+
+function StyledSpanContent({ item, index }: { item: TextItem; index: number }) {
+  const span = item.textSpans![index]!;
+  const [draft, setDraft] = useState<string | null>(null);
+  const label = `Đoạn chữ ${index + 1}`;
+  const patch = (values: Partial<TextSpan>) => {
+    const latest = useTimelineStore.getState().items.find((entry) => entry.id === item.id);
+    if (latest?.type !== "text" || !latest.textSpans?.[index]) return;
+    const spans = latest.textSpans.map((entry, at) => at === index ? { ...entry, ...values } : entry);
+    update(latest, { textSpans: spans, ...(values.text === undefined ? {} : { text: spans.map((entry) => entry.text).join(latest.spanLayout === "inline" ? "" : "\n") }) });
+  };
+  const commit = () => {
+    if (draft !== null && draft !== span.text) patch({ text: draft });
+    setDraft(null);
+  };
+  const ownsFont = item.spanLayout !== "inline" || index === 0;
+  return <SectionHeader title={label} defaultOpen={index === 0}>
+    <Textarea aria-label={`Nội dung ${label.toLowerCase()}`} value={draft ?? span.text} rows={2}
+      onChange={(event) => setDraft(event.target.value)} onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") { event.preventDefault(); setDraft(null); }
+        else if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); commit(); }
+      }} />
+    <PropertyRow label="Màu chữ"><ColorField label={`Màu ${label.toLowerCase()}`} value={span.color ?? item.color} onChange={(color) => patch({ color })} /></PropertyRow>
+    <PropertyRow label="Gạch chân"><Switch aria-label={`Gạch chân ${label.toLowerCase()}`} checked={span.underline ?? item.underline ?? false} onCheckedChange={(underline) => patch({ underline })} /></PropertyRow>
+    {ownsFont ? <>
+      <PropertyRow label="Phông chữ"><FontPicker label={`Phông ${label.toLowerCase()}`} value={span.fontFamily ?? item.fontFamily ?? DEFAULT_TEXT_FONT_FAMILY} onChange={(fontFamily) => patch({ fontFamily })} /></PropertyRow>
+      <PropertyRow label="Cỡ chữ"><NumberField label={`Cỡ ${label.toLowerCase()}`} value={span.fontSize ?? item.fontSize ?? 60} min={1} step={1} unit="px" onChange={(fontSize) => patch({ fontSize })} /></PropertyRow>
+      <PropertyRow label="Độ đậm"><EditorSelect label={`Độ đậm ${label.toLowerCase()}`} value={span.fontWeight ?? item.fontWeight ?? "normal"} onValueChange={(fontWeight) => patch({ fontWeight: fontWeight as TextFontWeight })} options={WEIGHTS.map((value) => ({ value, label: WEIGHT_LABELS[value] }))} /></PropertyRow>
+      <PropertyRow label="Chữ nghiêng"><Switch aria-label={`Chữ nghiêng ${label.toLowerCase()}`} checked={(span.fontStyle ?? item.fontStyle) === "italic"} onCheckedChange={(italic) => patch({ fontStyle: italic ? "italic" : "normal" })} /></PropertyRow>
+      <PropertyRow label="Giãn chữ"><NumberField label={`Giãn ${label.toLowerCase()}`} value={span.letterSpacing ?? item.letterSpacing ?? 0} step={0.1} unit="px" onChange={(letterSpacing) => patch({ letterSpacing })} /></PropertyRow>
+    </> : <p className="text-xs text-muted-foreground">Khi nối cùng dòng, phông và cỡ chữ dùng theo đoạn đầu.</p>}
+  </SectionHeader>;
+}
+
+function StyledTextContent({ item }: { item: TextItem }) {
+  if (!item.textSpans?.length) return <TextContent item={item} />;
+  return <div className="space-y-2">
+    <PropertyRow label="Bố cục đoạn"><EditorSelect label="Bố cục các đoạn chữ" value={item.spanLayout ?? "stack"} options={[{ value: "stack", label: "Mỗi đoạn một dòng" }, { value: "inline", label: "Nối cùng dòng" }]} onValueChange={(spanLayout) => {
+      const next = spanLayout as "stack" | "inline";
+      update(item, { spanLayout: next, text: item.textSpans!.map((span) => span.text).join(next === "inline" ? "" : "\n") });
+    }} /></PropertyRow>
+    {item.textSpans.map((_, index) => <StyledSpanContent key={index} item={item} index={index} />)}
+  </div>;
 }
 
 const FONT_ROW_HEIGHT = 28;
@@ -121,7 +164,7 @@ const FONT_OVERSCAN = 4;
 const FONT_TRIGGER_CLASS = "flex h-7 w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-transparent px-2 text-xs whitespace-nowrap shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30 dark:hover:bg-input/50";
 
 /** Font picker with keyboard filtering; renders only the visible rows so it opens almost instantly. */
-function FontPicker({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+function FontPicker({ value, onChange, label = "Phông chữ" }: { value: string; onChange: (next: string) => void; label?: string }) {
   const listId = useId().replace(/\W/g, "");
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -166,7 +209,7 @@ function FontPicker({ value, onChange }: { value: string; onChange: (next: strin
   });
   return (
     <Popover open={open} onOpenChange={(next) => { setOpen(next); if (next) { setQuery(""); setActiveIndex(0); setScrollTop(0); } }}>
-      <PopoverTrigger className={FONT_TRIGGER_CLASS} aria-label="Phông chữ" data-tooltip="Phông chữ">
+      <PopoverTrigger className={FONT_TRIGGER_CLASS} aria-label={label} data-tooltip={label}>
         <span className="min-w-0 flex-1 truncate text-left">{value}</span>
         <ChevronDown aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
       </PopoverTrigger>
@@ -470,12 +513,13 @@ function isStyledText(item: TimelineItem): item is StyledTextItem {
   return item.type === "text" || item.type === "subtitle";
 }
 
-export function TextSection({ item }: { item: TimelineItem }) {
+export function TextSection({ item, styleOnly = false }: { item: TimelineItem; styleOnly?: boolean }) {
   if (!isStyledText(item)) return null;
   return (
     <>
       <SectionHeader title={item.type === "subtitle" ? "Kiểu phụ đề" : "Chữ"}>
-        {item.type === "text" && <TextContent item={item} />}
+        {item.type === "text" && !styleOnly && <StyledTextContent item={item} />}
+        {item.type === "text" && !styleOnly && !!item.textSpans?.length && <p className="text-xs text-muted-foreground">Kiểu mặc định áp dụng cho thuộc tính chưa được chỉnh riêng ở từng đoạn chữ.</p>}
         <FontControls item={item} />
         <AlignControls item={item} />
         <StrokeControls item={item} />

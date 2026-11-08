@@ -1,13 +1,9 @@
-// Kiểu dùng chung của app — thay các lớp tiện ích từng nằm trong
-// styles/base.css (.mono/.num/.lbl/.sr-only/.card) và .vv-errline/.vv-grow
-// từng nằm trong styles/components.css. Không đặt giá trị màu/khoảng cách
-// tay: mọi thứ đọc token của kit hoặc defineVars của Viderse.
+// Kiểu dùng chung của app. Màu và khoảng cách đọc token của kit hoặc Viderse.
 import * as stylex from '@stylexjs/stylex'
-import { color, font, line, surface as kitSurface } from '@noverse/ui/tokens.stylex'
+import { color, line, surface as kitSurface } from '@noverse/ui/tokens.stylex'
 
-/** Chữ: mono cho số/mã, tabular-nums cho số canh cột, nhãn nhóm, chữ chỉ cho trình đọc màn hình. */
+/** Số canh cột, nhãn nhóm và chữ chỉ dành cho trình đọc màn hình. */
 export const text = stylex.create({
-  mono: { fontFamily: font['--font-mono'] },
   num: { fontVariantNumeric: 'tabular-nums' },
   lbl: {
     fontSize: 11,

@@ -6,7 +6,7 @@ import { styles as settingsStyles, saccYtLabelMarker } from '../settings.stylex'
 // Máy tính: nhãn + select + dòng trạng thái chấm màu (artboard Settings).
 // Điện thoại: chỉ một hàng chữ “Cookie từ trình duyệt / Chrome · Profile 1 ·
 // đổi trên máy tính” — không có điều khiển (artboard MSettings).
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Banner, KitSelect, confirm, toast } from '@noverse/ui'
 import { invalidate } from '@noverse/ui/data'
 import { checkPlatformLogin, deletePlatformLogin, listBrowserProfiles, putPlatformLogin, type Platform } from '../../../api/platforms'
@@ -27,9 +27,8 @@ const profileLabel = (value: string | undefined): string => {
   return browser ? `${browser} · ${profile}` : ''
 }
 
-/** Banner bot dùng chung: máy tính ngay dưới đầu thẻ, điện thoại cùng vị trí
- *  (artboard MSettings không có tweak bot, nhưng thẻ vẫn nhận banner trong thân). */
-function BotBanner({ platform, align }: { platform: Platform; align: 'top' | 'center' }) {
+/** The shared cookie error code covers access, decryption and source authentication failures. */
+function YouTubeCookieBanner({ platform, align }: { platform: Platform; align: 'top' | 'center' }) {
   const [busy, setBusy] = useState(false)
 
   async function retry() {
@@ -52,20 +51,20 @@ function BotBanner({ platform, align }: { platform: Platform; align: 'top' | 'ce
       icon="danger"
       role="alert"
       align={align}
-      title={t.ytBotTitle(fmtTime(platform.lastError.at))}
+      title={t.ytCookieErrorTitle(fmtTime(platform.lastError.at))}
       action={{ label: busy ? t.ytRetrying : t.ytRetry, onClick: () => void retry() }}
     >
-      {t.ytBotBody}
+      {t.ytCookieErrorBody}
     </Banner>
   )
 }
 
 export function YouTubeLogin({ platform }: { platform: Platform }) {
+  const forceRefresh = useRef(false)
   const profiles = useResource(
     keys.platformProfiles(),
-    ({ signal }) => listBrowserProfiles(platform.id, { signal }),
+    ({ signal }) => listBrowserProfiles(platform.id, { signal, refresh: forceRefresh.current }),
   )
-  const savedProfile = platform.login.saved ? profileLabel(platform.login.browserProfile) : ''
   const savedValue = platform.login.saved && platform.login.browserProfile ? platform.login.browserProfile : 'off'
   const [choice, setChoice] = useState(savedValue)
   const [busy, setBusy] = useState(false)
@@ -115,7 +114,7 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
   const status = (
     <span className={`sacc-yt__state ${stylex.props(settingsStyles.saccYtState).className}`}>
       <span className={`sacc-dot ${stylex.props(settingsStyles.saccDot, (platform.login.saved) && settingsStyles.saccDotOn, (!(platform.login.saved)) && settingsStyles.saccDotOff).className}`} aria-hidden="true" />
-      {platform.login.saved ? t.ytStatusOn : t.ytStatusOff}
+      {platform.login.saved ? platform.lastError?.code === 'cookies_failed' ? t.ytStatusCheck : t.ytStatusOn : t.ytStatusOff}
     </span>
   )
 
@@ -123,14 +122,20 @@ export function YouTubeLogin({ platform }: { platform: Platform }) {
   // ngăn), rồi tới hàng chọn hồ sơ, rồi dòng trạng thái chấm màu.
   return (
     <>
-      <BotBanner platform={platform} align="center" />
+      <YouTubeCookieBanner platform={platform} align="center" />
       <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
         <div className={`sacc-yt ${stylex.props(settingsStyles.saccYt).className}`}>
           <span className={`sacc-yt__label ${stylex.props(saccYtLabelMarker, settingsStyles.saccYtLabel).className}`}>
             <b {...stylex.props(settingsStyles.SaccYtLabelB)}>{t.ytLoginLabel}</b>
             <span {...stylex.props(settingsStyles.SaccYtLabelSpan)}>{t.ytLoginSub}</span>
           </span>
-          {profiles.data !== undefined && options.length === 1
+          {profiles.error
+            ? <Banner tone="error" icon="danger" role="alert" title={t.ytProfilesError} action={{ label: t.ytRetry, onClick: async () => {
+                forceRefresh.current = true
+                try { await profiles.refresh() } catch { /* The resource retains the failure in this banner. */ }
+                finally { forceRefresh.current = false }
+              } }}>{t.ytProfilesErrorBody}</Banner>
+            : profiles.data !== undefined && options.length === 1
             ? <span className={`sacc-yt__state ${stylex.props(settingsStyles.saccYtState).className}`}>{t.ytProfilesEmpty}</span>
             : (
               <KitSelect
@@ -153,7 +158,7 @@ export function YouTubeLoginRow({ platform }: { platform: Platform }) {
   const saved = platform.login.saved ? profileLabel(platform.login.browserProfile) : ''
   return (
     <>
-      <BotBanner platform={platform} align="top" />
+      <YouTubeCookieBanner platform={platform} align="top" />
       <div className={`sacc-login ${stylex.props(settingsStyles.saccLogin).className}`}>
         <div className={`sacc-mrow ${stylex.props(settingsStyles.saccMrow).className}`}>
           <span className={`sacc-mrow__text ${stylex.props(settingsStyles.saccMrowText).className}`}>

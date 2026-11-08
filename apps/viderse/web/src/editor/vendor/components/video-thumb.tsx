@@ -69,7 +69,7 @@ export function VideoThumb({ videoId, src, score, duration, sizes, priority = "l
         </span>
       )}
       {duration && (
-        <span className="absolute right-2 bottom-2 rounded bg-zinc-950 px-1.5 py-0.5 font-mono text-xs text-white">
+        <span className="absolute right-2 bottom-2 rounded bg-zinc-950 px-1.5 py-0.5 text-xs tabular-nums text-white">
           {duration}
         </span>
       )}

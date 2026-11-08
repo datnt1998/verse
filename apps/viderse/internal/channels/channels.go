@@ -72,17 +72,17 @@ func errConflict(format string, args ...any) *Error {
 
 // Giới hạn đầu vào (cùng luật cho HTTP và CLI).
 const (
-	NameMaxRunes     = 200
-	URLMaxRunes      = 2048
-	StyleMaxRunes    = 8000
-	FooterMaxRunes   = 1000
-	AlwaysTagsMax    = 10
-	AlwaysTagRunes   = 60
+	NameMaxRunes   = 200
+	URLMaxRunes    = 2048
+	StyleMaxRunes  = 8000
+	FooterMaxRunes = 1000
+	AlwaysTagsMax  = 10
+	AlwaysTagRunes = 60
 	// PerDay là nhịp video mỗi ngày (design #86: đồng nhất 1–20 PC/mobile).
-	PerDayMin     = 1
-	PerDayMax     = 20
-	PerDayDefault = 5
-	CompetitorsMax = 200
+	PerDayMin        = 1
+	PerDayMax        = 20
+	PerDayDefault    = 5
+	CompetitorsMax   = 200
 	BriefMaxRunes    = 2000
 	DirectionMaxRune = 1000
 )
