@@ -84,7 +84,7 @@
   "sourceHashes": {
     "apps/viderse/docs/design/v1/artboards/README.md": "fe102b5526e5066b84adb09e8b94b4fa324b507fbefd89aad3321f347599fed1",
     "apps/viderse/docs/design/v1/artboards/Workflow.dc.html": "207cf375f69da1ca8b1136eed71c0451b3a970310973cf4a7acbbc44075a71e6",
-    "apps/viderse/web/src/router.ts": "5e0ed4e061d7f134685c814f8b6f7d10a002fe5b15fcc0e0d382902520a1679a",
+    "apps/viderse/web/src/router.ts": "e80ed9f146446edff44dd1b0a942f3deaf2a6d6860d0b51d3e2cfb09947f4e08",
     "apps/viderse/docs/design/v1/artboards/support.js": "b795ee21261f2e7da1b10cb25b4a4cfa275d1b96165f89396f1fed426e191844",
     "plans/261103-0752-viderse-workflow-rounds-40-44/plan.md": "ab0873fd6ca75130b2f3ce2ea58676f11fe85880a63ce6a6b4eabc1996252dae",
     "plans/261103-0752-viderse-workflow-rounds-40-44/reports/inventory.md": "afbe00cca3745e93fdaf8fcbe76c2aa3710e220e289b5f3d744abecc695f366d",
@@ -95,13 +95,13 @@
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-05-v38-channels-and-library.md": "b71e8c8573672f530bdc521529655603a88b1cbb49ea48704dc2c4d3aa8679e3",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-06-v39-quick-create-and-queue.md": "9e5044d6d3a449e766278c624e90a2844d3ec41c0a1780b30ab80ac6beb78416",
     "plans/261103-0752-viderse-workflow-rounds-40-44/phase-07-v40-mobile-parity.md": "3a825820039f18d5aafb045dfab070f4b4a448d73a070405284b2d7cde7107d9",
-    "apps/viderse/docs/design/v1/01-ia-flows.md": "1bec656cc5a82d9ff4d07d897918389a491e36781847169046b86fc1c3634614",
+    "apps/viderse/docs/design/v1/01-ia-flows.md": "eb38ac77c5e88f25017e3ff133ae0a32e1d94ec59364c096b1d568f0693eafc9",
     "apps/viderse/docs/design/v1/04-components.md": "7c59ac4fff0532b61b29d3ddb5a3657a3648893afedfdbc3311ee3da25f5e2aa",
     "apps/viderse/docs/design/v1/05-kit.md": "6c35abc37f7d38a6c8f5020f3c997e8dfeab61585b43aa53b6c44c477c5656d2",
     "apps/viderse/docs/design/v1/06-copy.md": "8a750972809318c433071328d4ef801a0ff922a09ba823d25bc58c8adc8eca02",
     "apps/viderse/docs/design/v1/07-data-contract.md": "a9dba306d284fd8c78b77fec2e019665046e0878263b2c9f98657c32f4d69efe",
     "apps/viderse/docs/design/v1/08-dev-prompt.md": "7665372b7fe169af7cbf0cc1aae51b1b5c20a8d600571bcbf355b0cb56156485",
-    "apps/viderse/docs/design/v1/10-gap-closure.md": "b467c599750ed953f7ba49dc136c4b1ba67219d5e6f04999e31a1cc144768333",
+    "apps/viderse/docs/design/v1/10-gap-closure.md": "824cb71c4353c71ce9c518e090c0f202ed0987a279665a7348c12d3d439c0018",
     "plans/261106-1303-viderse-production-artboard-parity/acceptance-contract.md": "2c62f2577b6a3aa35cf606b46442df4633c3eaff87955aedd2be668e4d5b2562"
   },
   "runtimeProtocol": {
