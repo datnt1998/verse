@@ -1,6 +1,6 @@
 # Editor object properties — 2026-11-09
 
-**State: verified on isolated QA; not production parity acceptance.** Production release evidence is added only after cutover.
+**State: deployed to production `cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b`; focused smoke passed, not full artboard parity acceptance.**
 
 ## Exercised behavior
 
@@ -29,12 +29,22 @@ Real export: **30.000s, 1920×1080, H.264 30fps + AAC**. [Exported frame](editor
 - Production's stored download error classified as `source_auth`; subline becomes “Chờ xác thực YouTube”, not image quota. Retry timing and real quota semantics are unchanged.
 - Complete Viderse frontend suite: 449 files, 3,744 passed / 4 skipped. Existing React `act` and localhost network diagnostics remain; the suite exited successfully.
 - GitHub Actions repository permission reports `enabled=false`; dispatched runs have no jobs. They are **not** green CI evidence. Local Docker did not answer within 60 seconds, so mandatory Postgres/Garage CI integration coverage was not exercised locally.
-- Full local Go suite exposed competing progress/heartbeat deadlines in the heartbeat-only render test. Keep the progress timeout outside that scenario; production timeout behavior is unchanged.
+- Full local Go suite passed all other packages; the heartbeat-only render test had competing progress/heartbeat deadlines. After isolating that scenario without changing production timeouts, 20 repetitions and the complete render package passed. `go vet ./...` and Viderse `go tool sqlc diff` passed.
 
 ## Isolation and remaining production checks
 
-All project mutations, media import and exports used the existing isolated QA database plus private local blob overlay. Original sample project revision stayed unchanged; no production project or active job was edited/retried.
+The initial property/export QA used the existing isolated QA database plus private local blob overlay. Original sample project revision stayed unchanged. Production verification then used the real project duplicate API: corner radius 48, green fill and rotation 12° survived save/reload; undo restored rotation 0° while retaining fill, redo restored 12°. The source template revision stayed `3`; the private production copy was deleted through the real API (204). No active production job was edited or retried.
 
-Mac mini login Keychain was reported locked; yt-dlp saw 518 Chrome Default cookies and could decrypt none. The user must unlock login Keychain / approve Chrome Safe Storage locally; no password was requested or transmitted. Separately, production profile API returned zero while the same current discovery code run read-only on Mac mini found three; verify the newly deployed process and its sanitized discovery diagnostics rather than claim that mismatch repaired without evidence.
+Mac mini login Keychain was reported locked; yt-dlp saw 518 Chrome Default cookies and could decrypt none. After deployment, profile discovery returns 500 rather than falsely presenting an empty list. Protected diagnostic `~/.viderse/logs/platforms.log` proves `Chrome/Local State: operation not permitted`: macOS blocks the service's access to Chrome app data. The user must grant the Viderse process that access locally, unlock login Keychain and approve Chrome Safe Storage if prompted. No password was requested, no TCC/permission bypass attempted, and cookie retrieval is **still blocked**, not repaired.
 
 The 517-row / 40-probe production matrix remains pending. No screen group or physical Safari gate is closed by this QA report.
+
+## Production release / focused smoke
+
+- URL: https://vid.aarverse.studio; [merged PR #28](https://github.com/datnt1998/verse/pull/28).
+- Installed commit marker and binary checksum match `cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b`, SHA-256 `04e7b14b14a270a36989ce64c661839042d6849a02ad6df5d2b586ee95d22b13`; native 8789 and public `/readyz` returned `{"ok":true}`.
+- Guarded release confirmed idle leases/receipts, backed up and restored the database, compared invariants, and reopened schema41. Backup: `~/server/apps/viderse/releases/cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b/rollout-20261108T205115Z`. Writers have reopened: no blind binary/database rollback.
+- Desktop source field is visible; template popover frontmost with bottom 562.94px < viewport 900px after fonts loaded. Mobile sheet opens, selecting Mẫu Joker returns to composer; no job was created.
+- Real mobile waiting card shows “Chờ xác thực YouTube”, zero progressbar children and no empty progress rail. Visible computed UI monospace count on production editor: 0.
+- Screenshots: [editor properties](editor-properties-production.png), [desktop source dialog](source-dialog-production.png), [mobile waiting card](mobile-wait-production.png), [mobile template sheet](mobile-template-production.png). These are production screenshots, **not** complete artboard pairs. Editor remains desktop ≥1024px, as `Editor.dc.html`'s `state=narrow` specifies; no mobile editor feature claim.
+- Focused production controls: **12 exercised / 0 unresponsive**: desktop composer entry + template picker (2); editor shape selection, advanced disclosure, corner radius, fill, rotation, undo and redo (7); mobile composer entry, template sheet and template option (3). Desktop Escape dismissal also passed. This is a partial smoke, not the full screen control ledger.
