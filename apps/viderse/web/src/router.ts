@@ -21,7 +21,7 @@ export type Route =
   | { name: 'account' }                                                // '#/account'
   | { name: 'devkit'; board?: DevKitBoard; section?: string }          // '#/dev/kit' (chỉ dev)
 
-export const CHANNEL_TABS = ['sources', 'templates', 'settings'] as const
+export const CHANNEL_TABS = ['videos', 'sources', 'templates', 'settings'] as const
 export type ChannelTab = (typeof CHANNEL_TABS)[number]
 
 export const CHANNEL_NEW_STEPS = ['create', 'done'] as const
