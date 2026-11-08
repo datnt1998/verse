@@ -285,31 +285,31 @@ type CloneStepOutput struct {
 	Data map[string]any `json:"data,omitempty"`
 }
 type CloneJob struct {
-	ID                string              `json:"id"`
-	ChannelID         string              `json:"channelId"`
-	SourceKey         string              `json:"sourceKey"`
-	Source            CloneSourceSnapshot `json:"source"`
-	TemplateID        string              `json:"templateId"`
-	TemplateSnapshot  json.RawMessage     `json:"templateSnapshot"`
-	ModelRefs         json.RawMessage     `json:"modelRefs"`
+	ID               string              `json:"id"`
+	ChannelID        string              `json:"channelId"`
+	SourceKey        string              `json:"sourceKey"`
+	Source           CloneSourceSnapshot `json:"source"`
+	TemplateID       string              `json:"templateId"`
+	TemplateSnapshot json.RawMessage     `json:"templateSnapshot"`
+	ModelRefs        json.RawMessage     `json:"modelRefs"`
 	// Instructions là bản chốt "Dặn trợ lý về kênh" tại admission: sửa kênh sau
 	// đó không đổi video đã bắt đầu (cùng luật với TemplateSnapshot).
-	Instructions AgentInstructions `json:"instructions"`
-	NoImages     bool              `json:"noImages"`
-	Generation        int                 `json:"generation"`
-	SupersededAt      *time.Time          `json:"supersededAt"`
-	PausedAt          *time.Time          `json:"pausedAt"`
-	CancelRequestedAt *time.Time          `json:"cancelRequestedAt"`
-	Priority          ClonePriority       `json:"priority"`
-	Origin            CloneOrigin         `json:"origin"`
-	Status            CloneStatus         `json:"status"`
-	StageGroup        string              `json:"stageGroup"`
-	ActiveStep        *CloneStep          `json:"activeStep"`
-	Fence             int64               `json:"-"`
-	Version           int64               `json:"version"`
-	PostedAt          *time.Time          `json:"postedAt"`
-	CreatedAt         time.Time           `json:"createdAt"`
-	UpdatedAt         time.Time           `json:"updatedAt"`
+	Instructions      AgentInstructions `json:"instructions"`
+	NoImages          bool              `json:"noImages"`
+	Generation        int               `json:"generation"`
+	SupersededAt      *time.Time        `json:"supersededAt"`
+	PausedAt          *time.Time        `json:"pausedAt"`
+	CancelRequestedAt *time.Time        `json:"cancelRequestedAt"`
+	Priority          ClonePriority     `json:"priority"`
+	Origin            CloneOrigin       `json:"origin"`
+	Status            CloneStatus       `json:"status"`
+	StageGroup        string            `json:"stageGroup"`
+	ActiveStep        *CloneStep        `json:"activeStep"`
+	Fence             int64             `json:"-"`
+	Version           int64             `json:"version"`
+	PostedAt          *time.Time        `json:"postedAt"`
+	CreatedAt         time.Time         `json:"createdAt"`
+	UpdatedAt         time.Time         `json:"updatedAt"`
 	// AutoFix là lần máy tự thử lại lỗi theo chính sách cố định một lần (07 §20).
 	AutoFix *AutoFix `json:"autoFix"`
 }

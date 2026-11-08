@@ -84,8 +84,8 @@ type Channel struct {
 	// AgentInstructions là chỉ dẫn riêng của chủ kênh cho từng trợ lý
 	// (scout|director|artist|qa). Khoá vắng = không có chỉ dẫn. Đây KHÔNG phải
 	// Giọng văn (StyleNote) hay Mô tả kênh (Branding.Brief).
-	AgentInstructions AgentInstructions
-	Branding          Branding
+	AgentInstructions  AgentInstructions
+	Branding           Branding
 	AvatarPath         *string // tương đối thư mục dự án: channels/<id>/<tệp>
 	BannerPath         *string
 	IdentityState      IdentityState

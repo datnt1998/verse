@@ -6,7 +6,7 @@
 
 | Object | Saved and rendered | Boundary checked |
 |---|---|---|
-| Scene | Position, rotation, grayscale effect; canvas drag | Undo/redo, Escape cancellation, reload |
+| Scene | Position, rotation, grayscale effect; canvas move/resize/rotate | Undo/redo, Escape cancellation, reload; two undos restore resize/rotation to the initial transform |
 | Shape | Seven-point star, green fill, rounded corners, 8px outline | Real command history and retained geometry |
 | Path | Point position and Bézier handle; subdivision/deletion | Rapid delete → undo restores the fourth point; subdivision preserves the cubic outline |
 | Styled text | Per-span content, 72px size, cyan color | Other span retained; color undo does not undo content/size |
@@ -14,7 +14,7 @@
 | Animation | Loop re-enabled, 1.5× speed, blue fill | Actual JSON animation imported through the real media service and included in scoped export |
 | Composition instance | Title and pink color override | Source composition title remains unchanged |
 
-22 distinct property/history controls and a canvas move gesture exercised; 0 unresponsive in that exercised set. This is not an exhaustive control count or a 1:1 artboard audit.
+22 distinct property/history controls and canvas move, resize and rotate gestures exercised; 0 unresponsive in that exercised set. This is not an exhaustive control count or a 1:1 artboard audit.
 
 Real export: **30.000s, 1920×1080, H.264 30fps + AAC**. [Exported frame](editor-object-properties-qa.png) is **QA output, not a production screenshot**. No conclusion about a 57-minute export's throughput follows from this short clip.
 
@@ -27,6 +27,9 @@ Real export: **30.000s, 1920×1080, H.264 30fps + AAC**. [Exported frame](editor
 - Waiting mobile cards do not render an empty progress rail. Video-source dialog exercised at 1430×750, 1440×900 including enlarged root font, and 390×844; desktop template menu stays above the footer and mobile keeps the sheet.
 - Visible computed UI monospace count was 0 on the exercised shell/editor surfaces. Video-content font capability is retained by decision #97.
 - Production's stored download error classified as `source_auth`; subline becomes “Chờ xác thực YouTube”, not image quota. Retry timing and real quota semantics are unchanged.
+- Complete Viderse frontend suite: 449 files, 3,744 passed / 4 skipped. Existing React `act` and localhost network diagnostics remain; the suite exited successfully.
+- GitHub Actions repository permission reports `enabled=false`; dispatched runs have no jobs. They are **not** green CI evidence. Local Docker did not answer within 60 seconds, so mandatory Postgres/Garage CI integration coverage was not exercised locally.
+- Full local Go suite exposed competing progress/heartbeat deadlines in the heartbeat-only render test. Keep the progress timeout outside that scenario; production timeout behavior is unchanged.
 
 ## Isolation and remaining production checks
 

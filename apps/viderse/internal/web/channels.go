@@ -104,28 +104,28 @@ type channelIdentityWire struct {
 }
 
 type channelWire struct {
-	ID                string                `json:"id"`
-	Name              string                `json:"name"`
-	YoutubeURL        *string               `json:"youtubeUrl"`
-	Language          string                `json:"language"`
-	StyleNote         *string               `json:"styleNote"`
-	DescriptionFooter *string               `json:"descriptionFooter"`
-	AlwaysTags        []string              `json:"alwaysTags"`
-	AutoFetch         bool                  `json:"autoFetch"`
-	AutoApprove       bool                  `json:"autoApprove"`
-	PerDay            int                   `json:"perDay"`
-	DefaultTemplateID   string              `json:"defaultTemplateId"`
-	DefaultTemplateName string              `json:"defaultTemplateName"`
+	ID                  string   `json:"id"`
+	Name                string   `json:"name"`
+	YoutubeURL          *string  `json:"youtubeUrl"`
+	Language            string   `json:"language"`
+	StyleNote           *string  `json:"styleNote"`
+	DescriptionFooter   *string  `json:"descriptionFooter"`
+	AlwaysTags          []string `json:"alwaysTags"`
+	AutoFetch           bool     `json:"autoFetch"`
+	AutoApprove         bool     `json:"autoApprove"`
+	PerDay              int      `json:"perDay"`
+	DefaultTemplateID   string   `json:"defaultTemplateId"`
+	DefaultTemplateName string   `json:"defaultTemplateName"`
 	// AgentInstructions là chỉ dẫn riêng của chủ kênh cho từng trợ lý
 	// (Dặn trợ lý về kênh này). Map rỗng nghĩa là chưa dặn.
 	AgentInstructions domain.AgentInstructions `json:"agentInstructions"`
-	Branding          brandingWire          `json:"branding"`
-	AvatarURL         *string               `json:"avatarUrl"`
-	BannerURL         *string               `json:"bannerUrl"`
-	Sources           []channelSourceWire   `json:"sources"`
-	Identity          channelIdentityWire   `json:"identity"`
-	CreatedAt         string                `json:"createdAt"`
-	UpdatedAt         string                `json:"updatedAt"`
+	Branding          brandingWire             `json:"branding"`
+	AvatarURL         *string                  `json:"avatarUrl"`
+	BannerURL         *string                  `json:"bannerUrl"`
+	Sources           []channelSourceWire      `json:"sources"`
+	Identity          channelIdentityWire      `json:"identity"`
+	CreatedAt         string                   `json:"createdAt"`
+	UpdatedAt         string                   `json:"updatedAt"`
 }
 
 type brandingWire struct {
