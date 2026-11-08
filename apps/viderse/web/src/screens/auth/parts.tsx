@@ -67,7 +67,7 @@ export function AuthUser({ user }: { user: User }) {
     <Avatar name={user.name || user.username} size={mobile ? 40 : 38} style={{ fontSize: mobile ? 15 : 14, border: '1px solid var(--kit-wash-10)' }} />
     <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
       <span style={{ fontSize: mobile ? 15 : 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis' }} title={user.name}>{user.name || user.username}</span>
-      <span style={{ fontSize: mobile ? 12.5 : 12, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span> · {t.role[user.role]}</span>
+      <span style={{ fontSize: mobile ? 12.5 : 12, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span>@{user.username}</span> · {t.role[user.role]}</span>
     </span>
   </div>
 }

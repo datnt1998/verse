@@ -119,7 +119,7 @@ export const mStyles = stylex.create({
     borderRadius: corners['--vv-r-5'],
     backgroundColor: 'var(--vv-thumb-veil)',
     color: color['--color-fg'],
-    fontFamily: font['--font-mono'],
+    fontFamily: font['--font-sans'],
     fontSize: 11,
     fontVariantNumeric: 'tabular-nums',
     pointerEvents: 'none',
@@ -201,7 +201,7 @@ export const mStyles = stylex.create({
   /** chương thật của video gốc — mỗi dòng là link tua tới mốc trên trình phát YouTube */
   chapterList: { listStyle: 'none', margin: 0, padding: `0 0 ${s['--vv-s-10']}`, display: 'flex', flexDirection: 'column', gap: 2 },
   chapterRow: { display: 'flex', alignItems: 'baseline', gap: s['--vv-s-8'], minHeight: s['--vv-s-36'], paddingBlock: s['--vv-s-4'], minWidth: 0, color: 'inherit', textDecorationLine: 'none' },
-  chapterTime: { flex: '0 0 auto', fontFamily: font['--font-mono'], fontSize: 11.5, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
+  chapterTime: { flex: '0 0 auto', fontFamily: font['--font-sans'], fontSize: 11.5, color: 'var(--vv-fg-note)', fontVariantNumeric: 'tabular-nums' },
   chapterName: { minWidth: 0, fontSize: 13, lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   copyBtn: { width: s['--vv-s-44'], height: s['--vv-s-44'], margin: `calc(-1 * ${s['--vv-s-6']}) calc(-1 * ${s['--vv-s-10']}) 0 0`, flex: '0 0 auto', color: 'var(--vv-fg-note)' },
   emptyBox: {
@@ -227,7 +227,7 @@ export const mStyles = stylex.create({
     borderRadius: corners['--vv-r-6'],
     backgroundColor: 'var(--vv-wash-6)',
     color: color['--color-fg-3'],
-    fontFamily: font['--font-mono'],
+    fontFamily: font['--font-sans'],
     fontSize: 12,
     whiteSpace: 'nowrap',
   },

@@ -144,7 +144,7 @@ function FolderBrowser({ path, onPick }: { path?: string; onPick: (path: string)
       </div>
       <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
         <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
-        <PathText path={data?.path ?? ''} className="vv-mono" xstyle={settingsStyles.mono} />
+        <PathText path={data?.path ?? ''} />
       </div>
       <label className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`}>
         <Icon name="search" size={14} className="vv-ic" xstyle={[settingsStyles.ic]} />
@@ -305,7 +305,7 @@ function PickPanel({ data, chosen, onChosen, onBrowse, onCancel, onMoved, mobile
         <span className={`vv-label ${stylex.props(settingsStyles.label).className}`} id="lbl-newdir">{t.storage.picker.newDirLabel}</span>
         <div className={`vv-fieldbox ${stylex.props(settingsStyles.fieldbox).className}`} role="group" aria-labelledby="lbl-newdir">
           <Icon name="folder" size={16} className="vv-ic" xstyle={[settingsStyles.ic]} />
-          <PathText path={chosen} className={`vv-mono vv-sto__pickPath ${stylex.props(settingsStyles.stoPickPath, settingsStyles.mono, (chosenCloud) && settingsStyles.stoPickPathIsBad).className}`} />
+          <PathText path={chosen} className={`vv-sto__pickPath ${stylex.props(settingsStyles.stoPickPath, (chosenCloud) && settingsStyles.stoPickPathIsBad).className}`} />
           <ActionButton variant="outline" size="sm" onClick={onBrowse}>{t.storage.picker.browse}</ActionButton>
         </div>
         <span className={`vv-help ${stylex.props(settingsStyles.help).className}`}>{t.storage.picker.browseHelp}</span>
@@ -591,7 +591,7 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
         <span className={`vv-sto__locTextM ${stylex.props(settingsStyles.stoLocTextM).className}`}>
           <span className={`vv-sto__locNameM ${stylex.props(settingsStyles.stoLocNameM).className}`}>{loc.volume.name}</span>
           <span className={`vv-sto__locKindM ${stylex.props(settingsStyles.stoLocKindM).className}`}>{kindLine}</span>
-          <PathText path={loc.displayPath ?? loc.path} className={`vv-mono vv-sto__locPathM ${stylex.props(settingsStyles.stoLocPathM, settingsStyles.mono).className}`} />
+          <PathText path={loc.displayPath ?? loc.path} className={`vv-sto__locPathM ${stylex.props(settingsStyles.stoLocPathM).className}`} />
         </span>
         {canChange ? (
           <span className={`vv-sto__locAct ${stylex.props(stoLocActMarker, settingsStyles.stoLocAct).className}`}>
@@ -606,7 +606,7 @@ function LocationRow({ data, onPick, finderPending, onFinder, mobile, canChange 
       <span className={`vv-loc__icon ${stylex.props(settingsStyles.locIcon).className}`} aria-hidden="true"><Icon name="folder" size={18} /></span>
       <span className={`vv-sto__grow ${stylex.props(settingsStyles.stoGrow).className}`}>
         <span className={`vv-loc__name ${stylex.props(settingsStyles.locName).className}`}>{loc.volume.name} <span className={`vv-loc__kind ${stylex.props(settingsStyles.locKind).className}`}>· {kindLine}</span></span>
-        <PathText path={loc.displayPath ?? loc.path} className={`vv-mono vv-loc__path ${stylex.props(settingsStyles.locPath, settingsStyles.mono).className}`} />
+        <PathText path={loc.displayPath ?? loc.path} className={`vv-loc__path ${stylex.props(settingsStyles.locPath).className}`} />
       </span>
       <ActionButton variant="quiet" size="sm" pending={finderPending} onClick={onFinder}>{t.storage.project.finder}</ActionButton>
       {canChange ? <ActionButton variant="outline" size="sm" onClick={onPick}>{t.storage.project.change}</ActionButton> : null}

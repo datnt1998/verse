@@ -4,6 +4,8 @@
 // Lúc chạy, main.tsx nạp thẳng tệp CSS đó — entry không kéo tokenDefaults.ts.
 import { defineBrand } from '@noverse/ui'
 
+const uiFont = '"Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif'
+
 export const brand = defineBrand({
   name: 'viderse',
   primary: '#FF4D63', // đang chọn, focus, dấu tick, icon tab đang mở
@@ -21,5 +23,10 @@ export const brand = defineBrand({
     ghostInk: '#FFC09A', // chữ `.ghost.btn-warn` của artboard
   },
   // Rãnh công tắc của kit là literal #9A63E3 — ghim thẳng token để đúng #E6002E của design.
-  overrides: { '--kit-switch-on': '#E6002E', '--kit-info-fg': 'var(--vv-info)' },
+  overrides: {
+    '--kit-switch-on': '#E6002E', '--kit-info-fg': 'var(--vv-info)',
+    '--font-sans': uiFont,
+    // Component dùng chung vẫn đọc token này; Viderse dùng font UI cả cho số/mã.
+    '--font-mono': uiFont,
+  },
 })

@@ -265,7 +265,6 @@ export function BilibiliLogin({ platform, mobile }: { platform: Platform; mobile
                 <TextArea
                   rows={2}
                   showCount={false}
-                  className="mono"
                   placeholder={t.biliManualPlaceholder}
                   aria-label={t.biliManualLabel}
                   value={cookie}

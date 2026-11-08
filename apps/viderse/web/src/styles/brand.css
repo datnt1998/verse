@@ -204,7 +204,7 @@
   --radius-card: 16px;
   --radius-dock: 18px;
   --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   --font-read: "Literata", Georgia, serif;
   --font-brand: "Plus Jakarta Sans", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   --ease-out: cubic-bezier(.2,.8,.2,1);
@@ -226,6 +226,7 @@
   --brand-arbiter-4: #36A29C;
   --brand-rim: #140A2E;
   --brand-shadow: #1A0B3D;
+  --kit-touch-min: 44px;
   --kit-wash-4: rgba(255,255,255,.04);
   --kit-wash-5: rgba(255,255,255,.05);
   --kit-wash-6: rgba(255,255,255,.06);

@@ -46,7 +46,7 @@ function Stepper({ aria, value, min, max, fmt, disabled, onChange }: {
     <div role="group" aria-label={aria} className={`vq-step${fmt ? ' vq-step--wide' : ''} ${stylex.props(styles["vq-step"]).className}`}>
       <Button variant="icon" aria-label={`${aria} giảm`} disabled={disabled || value <= min}
         onClick={() => onChange(value - 1)}><Icon name="minus" size={14} /></Button>
-      <span className={`num mono ${stylex.props(styles.stepValue, !!fmt && styles.stepWide).className}`} aria-live="polite">{fmt ? fmt(value) : value}</span>
+      <span className={`num ${stylex.props(styles.stepValue, !!fmt && styles.stepWide).className}`} aria-live="polite">{fmt ? fmt(value) : value}</span>
       <Button variant="icon" aria-label={`${aria} tăng`} disabled={disabled || value >= max}
         onClick={() => onChange(value + 1)}><Icon name="add" size={14} /></Button>
     </div>
@@ -144,7 +144,7 @@ export function QueueScreen() {
         <div className={`vq-run__top ${stylex.props(styles["vq-run__top"]).className}`}>
           <span className={`vq-run__thumb ${stylex.props(styles["vq-run__thumb"]).className}`} aria-hidden="true">
             {j.thumbnailUrl && <img {...stylex.props(styles.image)} src={j.thumbnailUrl} alt="" />}
-            <span className={`num mono vq-run__dur ${stylex.props(styles["vq-run__dur"]).className}`}>{fmtDuration(j.durationSec)}</span>
+            <span className={`num vq-run__dur ${stylex.props(styles["vq-run__dur"]).className}`}>{fmtDuration(j.durationSec)}</span>
           </span>
           <div className={`vq-run__id ${stylex.props(styles["vq-run__id"]).className}`}>
             <span className={`vq-run__title ${stylex.props(styles["vq-run__title"]).className}`} title={j.title}>{j.title}</span>
@@ -182,7 +182,7 @@ export function QueueScreen() {
       />
       <span className={`vq-thumb ${stylex.props(styles["vq-thumb"]).className}`} aria-hidden="true">
         {item.thumbnailUrl && <img {...stylex.props(styles.image)} src={item.thumbnailUrl} alt="" />}
-        {item.durationSec != null && <span className={`num mono vq-thumb__dur ${stylex.props(styles["vq-thumb__dur"]).className}`}>{fmtDuration(item.durationSec)}</span>}
+        {item.durationSec != null && <span className={`num vq-thumb__dur ${stylex.props(styles["vq-thumb__dur"]).className}`}>{fmtDuration(item.durationSec)}</span>}
       </span>
       <span role="cell" className={`vq-title ${stylex.props(styles["vq-title"]).className}`}>
         <span className={`vq-title__name ${stylex.props(styles["vq-title__name"]).className}`} title={item.title}>{item.title || item.source}</span>

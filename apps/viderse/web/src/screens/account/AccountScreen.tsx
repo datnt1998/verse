@@ -54,7 +54,7 @@ export function AccountScreen() {
     <section {...stylex.props(sx.card, sx.user, box.card)} aria-label={t.account.title}>
       <Avatar name={name} size={mobile ? 48 : 52} style={{ fontSize: mobile ? 18 : 19, border: '1px solid var(--kit-wash-10)' }} /><span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-2)' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--vv-s-8)' }}><b title={name} style={{ fontSize: 16, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</b><span {...stylex.props(accountStyles.tag)}>{t.role[user.role]}</span></span>
-        <span style={{ fontSize: mobile ? 12.5 : 13, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span className="mono">@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
+        <span style={{ fontSize: mobile ? 12.5 : 13, color: mobile ? 'var(--vv-fg-note)' : 'var(--color-fg-3)' }}><span>@{user.username}</span>{user.createdAt && <> · {t.account.memberSince.toLocaleLowerCase('vi')} {new Date(user.createdAt).toLocaleDateString('vi-VN')}</>}</span>
       </span>
     </section>
     {mobile && <span {...stylex.props(layout.mobileNote)}>{t.account.subtitleMobile}</span>}

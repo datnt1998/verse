@@ -216,7 +216,7 @@ function MobileSelect({ mobile, onBusy, chip = false, custom, size = 'sm', label
                 <span className={stylex.props(sx.rowLabel).className}>{option.label}</span>
                 {description && <span className={stylex.props(sx.rowHint).className}>{description}</span>}
               </span>
-              {showMeta && <span className={`mono ${stylex.props(sx.meta).className}`}>{option.code ?? option.meta}</span>}
+              {showMeta && <span className={stylex.props(sx.meta).className}>{option.code ?? option.meta}</span>}
               {option.meta != null && option.code != null && <span className={stylex.props(sx.meta).className}>{option.meta}</span>}
               {on && <Icon name="tick-circle" size={17} className={stylex.props(sx.tick).className} />}
             </button>

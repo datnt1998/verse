@@ -16,7 +16,7 @@ const sx = stylex.create({
   logo: { width: 32, height: 32, borderRadius: '50%', display: 'grid', placeItems: 'center', flexShrink: 0, backgroundColor: visualRoles['--vv-surface-3'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-2'] },
   text: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', lineHeight: 1.3 },
   name: { fontSize: 13.5, fontWeight: 500 },
-  host: { fontFamily: 'var(--font-mono)', fontSize: 11.5, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  host: { fontFamily: 'var(--font-sans)', fontSize: 11.5, color: 'var(--vv-fg-note)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   tag: { display: 'inline-flex', alignItems: 'center', height: 22, paddingInline: 'var(--vv-s-8)', gap: 'var(--vv-s-6)', borderRadius: 'var(--vv-r-6)', borderWidth: 0, backgroundColor: kit['--kit-acc-12'], color: visualRoles['--vv-accent-soft'], fontSize: 11.5 },
   neutralTag: { backgroundColor: kit['--kit-wash-6'], color: color['--color-fg-3'] },
   help: { fontSize: 12.5, lineHeight: 1.55, color: color['--color-fg-3'] },

@@ -134,7 +134,7 @@ export function SetupScreen() {
             <AuthLabel htmlFor="setup-code">{t.setup.codeLabel}</AuthLabel>
             <Field id="setup-code" autoComplete="one-time-code" autoCapitalize="characters" spellCheck={false}
               value={code} onChange={(event) => setCode(event.currentTarget.value)} {...stylex.props(sx.input)}
-              style={{ height: mobile ? 52 : 44, borderRadius: 'var(--vv-r-10)', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: mobile ? 20 : 18, letterSpacing: '0.18em' }} />
+              style={{ height: mobile ? 52 : 44, borderRadius: 'var(--vv-r-10)', textAlign: 'center', fontFamily: 'var(--font-sans)', fontSize: mobile ? 20 : 18, letterSpacing: '0.18em' }} />
             <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{mobile ? t.setup.codeHintMobile : t.setup.codeHint}</span>
           </div>
           {error && <FieldError id="setup-err">{error}</FieldError>}
@@ -156,7 +156,7 @@ export function SetupScreen() {
             <AuthLabel htmlFor="setup-user">{t.setup.usernameLabel}</AuthLabel>
             <Field id="setup-user" autoComplete="username" autoCapitalize="none" spellCheck={false}
               value={username} onChange={(event) => setUsername(event.currentTarget.value.trim().toLowerCase())}
-              {...stylex.props(sx.input)} style={{ fontFamily: 'var(--font-mono)', borderRadius: 'var(--vv-r-10)' }} />
+              {...stylex.props(sx.input)} style={{ fontFamily: 'var(--font-sans)', borderRadius: 'var(--vv-r-10)' }} />
             {!mobile && <span style={{ fontSize: 11.5, color: 'var(--vv-fg-note)', lineHeight: 1.5 }}>{t.auth.usernameHint}</span>}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--vv-s-6)' }}>
@@ -182,7 +182,7 @@ export function SetupScreen() {
             {!mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
             <div {...stylex.props(box.card)} style={{ borderRadius: mobile ? 'var(--vv-r-14)' : 'var(--vv-r-12)', padding: 'var(--vv-s-14)', display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'stretch' : 'center', gap: mobile ? 10 : 12 }}>
               {mobile && <span style={{ fontSize: 11.5, color: 'var(--kit-fg-meta)' }}>{t.setup.recoveryLabel}</span>}
-              <span className="mono num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', userSelect: 'all', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
+              <span className="num" style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere', userSelect: 'all', fontSize: mobile ? 18 : 17, letterSpacing: mobile ? '.08em' : '.1em', textAlign: mobile ? 'center' : undefined }}>{recovery}</span>
               <Button size={mobile ? 'md' : 'sm'} style={{ height: mobile ? 44 : 30, ...(mobile ? { fontSize: 14, borderRadius: 'var(--vv-r-12)', paddingInline: 16 } : {}) }} onClick={() => {
                 void (async () => {
                   try { await navigator.clipboard.writeText(recovery); setCopied(true); setError('') }
