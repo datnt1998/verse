@@ -221,7 +221,7 @@ function EffectParams({ item, entry, definition }: { item: TimelineItem; entry: 
           options={(param.options ?? []).map(option => ({ value: option.value, label: OPTION_LABELS[option.value] ?? option.label }))}
         /></PropertyRow>;
       }
-      return <PropertyRow key={key} label={label}><Input aria-label={label} className="h-7 min-w-0 border-ring/50 text-xs" value={String(value)} onChange={event => apply(key, event.target.value)} /></PropertyRow>;
+      return <PropertyRow key={key} label={label}><Input aria-label={label} className="h-7 min-w-0 border-input text-xs" value={String(value)} onChange={event => apply(key, event.target.value)} /></PropertyRow>;
     })}
   </div>;
 }

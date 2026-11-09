@@ -25,7 +25,7 @@ const PAGE_SIZE = 20;
 const ACCEPTED_FILES = ".srt,.vtt,.json,.json3";
 const GENERIC_ERROR = "Không thể áp dụng thay đổi.";
 const VIETNAMESE_TEXT = /[À-ỹ]/u;
-const inputClass = "h-7 min-w-0 rounded-md border-ring/50 bg-background text-xs [@media(pointer:coarse)]:h-11";
+const inputClass = "h-7 min-w-0 rounded-md border-input bg-background text-xs [@media(pointer:coarse)]:h-11";
 
 function fail(message: string) {
   toast.error(message);
@@ -191,7 +191,7 @@ function CaptionsEditor({ item }: { item: CaptionItem }) {
       <SectionHeader title="Phụ đề theo từ" action={item.wordsEstimated && wordCount > 0 ? <Badge variant="outline" title="Thời gian từng từ được chia theo độ dài chữ vì tệp không có mốc từng từ." className="text-[10px]">Ước lượng</Badge> : undefined}>
         <PropertyRow label="Hiệu ứng từ">
           <EditorSelect
-            aria-label="Hiệu ứng từng từ"
+            label="Hiệu ứng từng từ"
             value={preset}
             onValueChange={(id) => {
               const next = CAPTION_ANIMATION_PRESETS.find((option) => option.id === id);

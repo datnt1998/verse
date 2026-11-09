@@ -8,7 +8,7 @@ import { timelineTokens as t } from './timeline-tokens.stylex'
 const spin = stylex.keyframes({ to: { transform: 'rotate(360deg)' } })
 
 export const timelineStyles = stylex.create({
-  root: { boxSizing: 'border-box', flexShrink: 0, height: 286, display: 'flex', flexDirection: 'column', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-3'], backgroundColor: t.background, color: color['--color-fg'], fontSize: typography['--vv-fs-meta'] },
+  root: { boxSizing: 'border-box', flexShrink: 0, height: 'var(--editor-timeline-height, 286px)', display: 'flex', flexDirection: 'column', borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: line['--line-3'], backgroundColor: t.background, color: color['--color-fg'], fontSize: typography['--vv-fs-meta'] },
   toolbar: { boxSizing: 'border-box', flexShrink: 0, height: space['--vv-s-40'], paddingInline: metrics['--ed-space-10'], display: 'flex', alignItems: 'center', gap: metrics['--ed-space-6'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-1'] },
   button: { boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: metrics['--ed-space-6'], height: space['--vv-s-28'], paddingInline: space['--vv-s-9'], borderRadius: corners['--vv-r-7'], borderWidth: 1, borderStyle: 'solid', borderColor: line['--line-3'], backgroundColor: { default: 'transparent', ':hover': t.activeBackground }, color: color['--color-fg-2'], fontSize: typography['--vv-fs-meta'], fontFamily: 'inherit', whiteSpace: 'nowrap', cursor: 'pointer', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: v13.accent, outlineOffset: 2 }, opacity: { default: 1, ':disabled': 0.4 } },
   pressed: { borderColor: t.activeBorder, backgroundColor: t.activeBackground },
@@ -38,6 +38,9 @@ export const timelineStyles = stylex.create({
   hidden: { opacity: 0.35 },
   clip: (left: number, width: number) => ({ position: 'absolute', left, width, minWidth: metrics['--ed-space-2'], top: 4, bottom: 4, borderRadius: corners['--vv-r-5'], boxSizing: 'border-box', display: 'flex', alignItems: 'center', padding: 0, borderWidth: 1, borderStyle: 'solid', cursor: 'pointer', overflow: 'hidden', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: v13.accent, outlineOffset: 2 } }),
   clipLabel: { position: 'relative', paddingInline: metrics['--ed-space-6'], fontSize: typography['--vv-fs-group'], fontFamily: 'inherit', color: color['--color-fg'], overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  trimHandle: { position: 'absolute', top: 0, bottom: 0, width: metrics['--ed-space-8'], zIndex: 5, cursor: 'ew-resize', backgroundColor: { default: 'transparent', ':hover': t.activeBorder }, touchAction: 'none' },
+  trimStart: { left: 0, borderInlineStartWidth: 2, borderInlineStartStyle: 'solid', borderInlineStartColor: t.activeBorder },
+  trimEnd: { right: 0, borderInlineEndWidth: 2, borderInlineEndStyle: 'solid', borderInlineEndColor: t.activeBorder },
   waveform: (left: number, width: number) => ({ position: 'absolute', left, width, height: space['--vv-s-20'], top: 0, color: t.waveform, pointerEvents: 'none' }),
   waveformError: { position: 'absolute', inset: 0, paddingInline: metrics['--ed-space-6'], fontSize: 10, color: t.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   audioLabel: { marginInlineStart: metrics['--ed-space-4'], borderRadius: corners['--vv-r-4'], backgroundColor: t.labelBackground, paddingInline: metrics['--ed-space-5'] },

@@ -101,7 +101,7 @@ export function OverlaysTab({ query }: { query: string }) {
       <Button variant="outline" size="sm" className="w-full" disabled={busy !== null} onClick={() => picker.current?.click()}>
         <Upload aria-hidden />{busy ? `Đang nhập ${busy}` : "Tải lớp phủ"}
       </Button>
-      <button type="button" className="flex w-full items-center justify-center gap-1 hit-area min-h-7 rounded-md border border-ring/50 bg-card px-2 text-xs" aria-pressed={linkOpen} onClick={() => setLinkOpen((open) => !open)}>
+      <button type="button" className="flex w-full items-center justify-center gap-1 hit-area min-h-7 rounded-md border border-input bg-card px-2 text-xs" aria-pressed={linkOpen} onClick={() => setLinkOpen((open) => !open)}>
         <Link2 aria-hidden className="size-3.5" />Lấy từ link
       </button>
       {linkOpen && <LinkImportForm overlay />}

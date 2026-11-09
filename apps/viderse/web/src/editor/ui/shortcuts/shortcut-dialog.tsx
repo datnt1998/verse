@@ -22,7 +22,7 @@ export const ShortcutDialog = memo(function ShortcutDialog({ visible = true }: {
         {(Object.keys(scopeLabels) as ShortcutScope[]).map((scope) => {
           const entries = registered.filter((action) => action.scope === scope && action.bindings?.length);
           if (!entries.length) return null;
-          return <section key={scope} className="mb-6"><h2 className="mb-2 text-sm font-semibold">{scopeLabels[scope]}</h2><dl className="grid gap-1">{entries.map((action) => <div key={`${action.scope}-${action.id}`} className="flex items-center justify-between gap-4 rounded-md px-2 py-1.5 odd:bg-card"><dt className="text-sm">{action.label}</dt><dd className="flex shrink-0 flex-wrap justify-end gap-1">{action.bindings?.map((binding) => <kbd key={binding} className="rounded border border-ring/50 bg-secondary px-2 py-0.5 text-xs">{binding === "shift+Slash" ? "?" : shortcutLabel(binding)}</kbd>)}</dd></div>)}</dl></section>;
+          return <section key={scope} className="mb-6"><h2 className="mb-2 text-sm font-semibold">{scopeLabels[scope]}</h2><dl className="grid gap-1">{entries.map((action) => <div key={`${action.scope}-${action.id}`} className="flex items-center justify-between gap-4 rounded-md px-2 py-1.5 odd:bg-card"><dt className="text-sm">{action.label}</dt><dd className="flex shrink-0 flex-wrap justify-end gap-1">{action.bindings?.map((binding) => <kbd key={binding} className="rounded border border-input bg-secondary px-2 py-0.5 text-xs">{binding === "shift+Slash" ? "?" : shortcutLabel(binding)}</kbd>)}</dd></div>)}</dl></section>;
         })}
       </div>
       <DialogClose asChild><Button variant="outline" className="ml-auto min-h-7 [@media(pointer:coarse)]:min-h-11">Đóng</Button></DialogClose>

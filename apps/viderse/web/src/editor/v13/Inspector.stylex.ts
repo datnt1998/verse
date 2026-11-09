@@ -6,7 +6,7 @@ import { v13 } from './editor-tokens.stylex'
 import { timelineTokens } from './timeline-tokens.stylex'
 
 export const inspectorStyles = stylex.create({
-  panel: { width: { default: metrics['--ed-panel-width'], '@media (max-width: 1279px)': 268 }, flex: { default: `0 0 ${metrics['--ed-panel-width']}`, '@media (max-width: 1279px)': '0 0 268px' }, minHeight: 0, overflowY: 'auto', borderLeftWidth: 1, borderLeftStyle: 'solid', borderLeftColor: 'var(--vv-hairline)', color: color['--color-fg'], fontSize: typography['--vv-fs-ui'] },
+  panel: { boxSizing: 'border-box', width: { default: `var(--editor-inspector-width, ${metrics['--ed-panel-width']})`, '@media (max-width: 1279px)': 'var(--editor-inspector-width, 268px)' }, flex: { default: `var(--editor-inspector-flex, 0 0 ${metrics['--ed-panel-width']})`, '@media (max-width: 1279px)': 'var(--editor-inspector-flex, 0 0 268px)' }, minHeight: 0, overflowY: 'auto', borderLeftWidth: 1, borderLeftStyle: 'solid', borderLeftColor: 'var(--vv-hairline)', color: color['--color-fg'], fontSize: typography['--vv-fs-ui'] },
   section: { display: 'flex', flexDirection: 'column', gap: metrics['--ed-space-8'], padding: metrics['--ed-space-14'], borderBottomWidth: 1, borderBottomStyle: 'solid', borderBottomColor: line['--line-1'] },
   spacious: { gap: metrics['--ed-space-10'] },
   row: { display: 'flex', alignItems: 'center', gap: metrics['--ed-space-6'], minWidth: 0 },

@@ -136,11 +136,11 @@ function calculateScale(
   // Get center of the item in canvas coordinates
   const centerX = canvasWidth / 2 + start.x
   const centerY = canvasHeight / 2 + start.y
-  const center: Point = { x: centerX, y: centerY }
+  const rotationAnchor = getTransformAnchor(start, canvasWidth, canvasHeight)
 
-  // Work in local (unrotated) space for scale calculations
-  const localStart = rotatePoint(startPoint, center, -start.rotation)
-  const localCurrent = rotatePoint(currentPoint, center, -start.rotation)
+  // Rendering rotates around the authored anchor, which need not be the center.
+  const localStart = rotatePoint(startPoint, rotationAnchor, -start.rotation)
+  const localCurrent = rotatePoint(currentPoint, rotationAnchor, -start.rotation)
 
   // Determine which edges are affected
   const affectsLeft = handle.includes('w')
@@ -174,11 +174,6 @@ function calculateScale(
       newWidth = Math.max(MIN_SIZE, start.width * scaleFactor)
       newHeight = Math.max(MIN_SIZE, start.height * scaleFactor)
 
-      // Adjust position to keep anchor fixed
-      const widthDiff = newWidth - start.width
-      const heightDiff = newHeight - start.height
-      newX = affectsRight ? start.x + widthDiff / 2 : start.x - widthDiff / 2
-      newY = affectsBottom ? start.y + heightDiff / 2 : start.y - heightDiff / 2
     } else {
       // Center-anchored (default): use distance from center
       const startDist = Math.sqrt(
@@ -231,26 +226,23 @@ function calculateScale(
       }
     }
 
-    // For corner-anchored scaling, adjust position to keep opposite edge/corner fixed
-    if (cornerAnchored) {
-      const widthDiff = newWidth - start.width
-      const heightDiff = newHeight - start.height
-
-      // Shift center to maintain anchor point
-      // When dragging right handles, anchor is on left, so center shifts right
-      // When dragging left handles, anchor is on right, so center shifts left
-      if (affectsRight) {
-        newX = start.x + widthDiff / 2
-      } else if (affectsLeft) {
-        newX = start.x - widthDiff / 2
-      }
-
-      if (affectsBottom) {
-        newY = start.y + heightDiff / 2
-      } else if (affectsTop) {
-        newY = start.y - heightDiff / 2
-      }
-    }
+  }
+  if (cornerAnchored) {
+    // Keep the opposite rendered corner/edge fixed, not its unrotated canvas
+    // coordinates. This also respects explicit pixel anchors without rewriting them.
+    const fractionX = affectsRight ? 0 : affectsLeft ? 1 : 0.5
+    const fractionY = affectsBottom ? 0 : affectsTop ? 1 : 0.5
+    const fixedBefore = rotatePoint({
+      x: centerX + (fractionX - 0.5) * start.width,
+      y: centerY + (fractionY - 0.5) * start.height,
+    }, rotationAnchor, start.rotation)
+    const resized = { ...start, width: newWidth, height: newHeight }
+    const fixedAfter = rotatePoint({
+      x: centerX + (fractionX - 0.5) * newWidth,
+      y: centerY + (fractionY - 0.5) * newHeight,
+    }, getTransformAnchor(resized, canvasWidth, canvasHeight), start.rotation)
+    newX += fixedBefore.x - fixedAfter.x
+    newY += fixedBefore.y - fixedAfter.y
   }
 
   // Note: Values are NOT rounded here - rounding happens in snap functions

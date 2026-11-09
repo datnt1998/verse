@@ -473,7 +473,13 @@ export const useGizmoStore = create<GizmoStoreState & GizmoStoreActions>((set, g
     const { snapLines: currentSnapLines } = get()
     let snapLines: SnapLine[] = []
     const strokeExpansion = activeGizmo.strokeWidth ?? 0
-    if (snappingEnabled && !altKey && activeGizmo.mode === 'rotate') {
+    // The scale snap solver assumes an axis-aligned, center-anchored box.
+    // Feeding it rotated bounds or an opposite-corner scale changes geometry
+    // and moves the fixed point. Keep the exact calculation and no snap guides
+    // for those modes, including fractional positions/dimensions.
+    const preserveScaleGeometry = activeGizmo.mode === 'scale' &&
+      (ctrlKey || activeGizmo.startTransform.rotation % 360 !== 0)
+    if (!preserveScaleGeometry && snappingEnabled && !altKey && activeGizmo.mode === 'rotate') {
       // Snap rotation to 15° increments unless alt overrides. Normalize to
       // (-180, 180] to keep parity with calculateTransform's output range.
       const step = 15
@@ -481,7 +487,7 @@ export const useGizmoStore = create<GizmoStoreState & GizmoStoreActions>((set, g
       while (snapped > 180) snapped -= 360
       while (snapped <= -180) snapped += 360
       newTransform = { ...newTransform, rotation: snapped }
-    } else if (snappingEnabled && !altKey && activeGizmo.mode !== 'rotate') {
+    } else if (!preserveScaleGeometry && snappingEnabled && !altKey && activeGizmo.mode !== 'rotate') {
       const snapResult =
         activeGizmo.mode === 'translate'
           ? applySnapping(
@@ -504,7 +510,7 @@ export const useGizmoStore = create<GizmoStoreState & GizmoStoreActions>((set, g
             )
       newTransform = snapResult.transform
       snapLines = snapResult.snapLines
-    } else {
+    } else if (!preserveScaleGeometry) {
       // Round values when snapping is disabled or altKey overriding
       newTransform = {
         ...newTransform,

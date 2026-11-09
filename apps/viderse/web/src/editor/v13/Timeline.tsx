@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import * as stylex from '@stylexjs/stylex'
 import { Icon, type IconName } from '@noverse/ui'
 import { toast } from '@/editor/ui/toast'
-import { executeCommands } from '@editor/commands'
+import { executeCommands, withCommandMergeKey } from '@editor/commands'
 import { useItemsStore } from '@editor/features/timeline/stores/items-store'
 import { useTimelineSettingsStore } from '@editor/features/timeline/stores/timeline-settings-store'
 import { useZoomStore } from '@editor/features/timeline/stores/zoom-store'
@@ -16,8 +16,52 @@ import type { TimelineItem, TimelineTrack } from '@editor/types/timeline'
 import { waveformCache, type CachedWaveform } from '@editor/features/timeline/services/waveform-cache'
 import { resolveMediaUrl } from '@editor/features/media-library/utils/media-resolver'
 import { useShortcutAction } from '../ui/shortcuts'
-import { clampFrame, fitZoomLevel, indexItems, rulerKeyFrame, rulerStep, snapFrame, timecode, visibleItems } from '../ui/timeline/geometry'
+import { clampFrame, fitZoomLevel, indexItems, rulerKeyFrame, rulerStep, snapFrame, snapGroupDelta, timecode, visibleItems } from '../ui/timeline/geometry'
 import { timelineStyles as s } from './timeline.stylex'
+import { clampToAdjacentItems, clampTrimAmount } from '@editor/features/timeline/utils/trim-utils'
+import { getTransitionLinkedIds } from '@editor/features/timeline/stores/items-store-indexes'
+import { computeItemSelection, hasPointerDrag } from '../ui/timeline/selection'
+
+type CueWindow = { id: string; start: number; end: number; min: number; max: number }
+type ClipGesture = {
+  pointerId: number
+  target: HTMLButtonElement
+  startX: number
+  startY: number
+  scrollLeft: number
+  scale: number
+  mode: 'move' | 'start' | 'end'
+  anchor: TimelineItem
+  cue?: CueWindow
+  items: TimelineItem[]
+  snapshot: TimelineItem[]
+  moved: boolean
+  delta: number
+}
+
+/** Use the same source and adjacent-item limits as the canonical trim commands. */
+export function clampClipGestureDelta(participants: TimelineItem[], allItems: TimelineItem[], mode: ClipGesture['mode'], requested: number, fps: number): number {
+  let delta = Math.round(requested)
+  const ids = new Set(participants.map(item => item.id))
+  const tighten = (candidate: number) => { delta = delta < 0 ? Math.max(delta, candidate) : Math.min(delta, candidate) }
+  for (const item of participants) {
+    if (mode !== 'end') tighten(Math.max(delta, -item.from))
+    const excluded = new Set([...(mode === 'move' ? ids : [item.id]), ...getTransitionLinkedIds(item.id)])
+    if (mode === 'move') {
+      tighten(clampToAdjacentItems(item, delta < 0 ? 'start' : 'end', delta, allItems, excluded))
+    } else {
+      tighten(clampTrimAmount(item, mode, delta, fps).clampedAmount)
+      tighten(clampToAdjacentItems(item, mode, delta, allItems, excluded))
+    }
+  }
+  return delta
+}
+
+function clampCueGestureDelta(cue: CueWindow, mode: ClipGesture['mode'], requested: number): number {
+  const min = Math.ceil(mode === 'end' ? cue.start + 1 - cue.end : cue.min - cue.start)
+  const max = Math.floor(mode === 'start' ? cue.end - 1 - cue.start : cue.max - cue.end)
+  return min > max ? 0 : Math.max(min, Math.min(max, Math.round(requested)))
+}
 
 export interface TimelineRange {
   start: number
@@ -149,6 +193,9 @@ export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }
   const initialized = useRef(false)
   const zoomScroll = useRef<number | null>(null)
   const dragging = useRef<number | null>(null)
+  const clipGesture = useRef<ClipGesture | null>(null)
+  const suppressClipClick = useRef(false)
+  const [clipPreview, setClipPreview] = useState<{ ids: Set<string>; cueId?: string; mode: ClipGesture['mode']; delta: number } | null>(null)
   const [viewport, setViewport] = useState({ width: 0, left: 0 })
   const orderedTracks = useMemo(() => [...tracks].sort((a, b) => a.order - b.order), [tracks])
   const duration = useMemo(() => items.reduce((end, item) => Math.max(end, item.from + item.durationInFrames), 1), [items])
@@ -276,6 +323,104 @@ export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }
     useZoomStore.getState().setZoomLevelSynchronized(fitLevel)
     if (scroll.current) scroll.current.scrollLeft = 0
   }
+  const cancelClipGesture = () => {
+    const drag = clipGesture.current
+    if (!drag) return
+    clipGesture.current = null
+    suppressClipClick.current = drag.moved
+    setClipPreview(null)
+    if (drag.target.hasPointerCapture(drag.pointerId)) drag.target.releasePointerCapture(drag.pointerId)
+  }
+  useEffect(() => {
+    const stopItems = useItemsStore.subscribe(state => {
+      const drag = clipGesture.current
+      if (drag && (state.items !== drag.snapshot || drag.items.some(item => state.tracks.find(track => track.id === item.trackId)?.locked))) cancelClipGesture()
+    })
+    const stopPlayback = usePlaybackStore.subscribe(state => {
+      if (clipGesture.current && state.isPlaying) cancelClipGesture()
+    })
+    const stopKeyframes = useKeyframesStore.subscribe((state, previous) => {
+      if (clipGesture.current && state.keyframes !== previous.keyframes) cancelClipGesture()
+    })
+    const blur = () => cancelClipGesture()
+    window.addEventListener('blur', blur)
+    return () => { stopItems(); stopPlayback(); stopKeyframes(); window.removeEventListener('blur', blur); cancelClipGesture() }
+  }, [])
+  const startClipGesture = (event: PointerEvent<HTMLButtonElement>, clip: Clip) => {
+    suppressClipClick.current = false
+    if (event.button !== 0 || event.shiftKey || clipGesture.current) return
+    const handle = event.target instanceof Element ? event.target.closest('[data-trim-handle]')?.getAttribute('data-trim-handle') : null
+    const mode = handle === 'start' || handle === 'end' ? handle : 'move'
+    const selection = useSelectionStore.getState().selectedItemIds
+    const ids = selection.includes(clip.item.id) ? selection : [clip.item.id]
+    const expanded = useEditorStore.getState().linkedSelectionEnabled ? expandSelectionWithLinkedItems(items, ids) : ids
+    const participants = clip.cueId ? [clip.item] : items.filter(item => expanded.includes(item.id))
+    if (!participants.length || participants.some(item => tracks.find(track => track.id === item.trackId)?.locked)) return
+    let cue: CueWindow | undefined
+    if (clip.cueId && clip.item.type === 'subtitle') {
+      const cues = clip.item.cues.toSorted((a, b) => a.startSeconds - b.startSeconds)
+      const index = cues.findIndex(cue => cue.id === clip.cueId)
+      if (index < 0) return
+      cue = { id: clip.cueId, start: cues[index].startSeconds * fps, end: cues[index].endSeconds * fps, min: Math.max(0, (cues[index - 1]?.endSeconds ?? 0) * fps), max: Math.min(clip.item.durationInFrames, (cues[index + 1]?.startSeconds ?? clip.item.durationInFrames / fps) * fps) }
+    }
+    event.stopPropagation()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    clipGesture.current = { pointerId: event.pointerId, target: event.currentTarget, startX: event.clientX, startY: event.clientY, scrollLeft: scroll.current?.scrollLeft ?? 0, scale, mode, anchor: clip.item, cue, items: participants, snapshot: items, moved: false, delta: 0 }
+  }
+  const moveClipGesture = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = clipGesture.current
+    if (!drag || drag.pointerId !== event.pointerId) return
+    if (!drag.moved && !hasPointerDrag(drag.startX, drag.startY, event.clientX, event.clientY)) return
+    event.preventDefault(); event.stopPropagation()
+    if (!drag.moved) {
+      drag.moved = true
+      usePlaybackStore.getState().pause()
+      useSelectionStore.getState().selectItems(drag.items.map(item => item.id))
+    }
+    let delta = (event.clientX - drag.startX + (scroll.current?.scrollLeft ?? 0) - drag.scrollLeft) / drag.scale
+    if (snapEnabled && !event.altKey) {
+      const ids = new Set(drag.items.map(item => item.id))
+      const targets = drag.cue && drag.anchor.type === 'subtitle'
+        ? [drag.anchor.from, drag.anchor.from + drag.anchor.durationInFrames, ...drag.anchor.cues.filter(cue => cue.id !== drag.cue?.id).flatMap(cue => [drag.anchor.from + cue.startSeconds * fps, drag.anchor.from + cue.endSeconds * fps])]
+        : [0, ...items.filter(item => !ids.has(item.id)).flatMap(item => [item.from, item.from + item.durationInFrames])]
+      const span = drag.cue ? drag.cue.end - drag.cue.start : drag.anchor.durationInFrames
+      const edge = drag.anchor.from + (drag.cue?.start ?? 0) + (drag.mode === 'end' ? span : 0)
+      delta = drag.mode === 'move'
+        ? snapGroupDelta(drag.cue ? [{ ...drag.anchor, from: edge, durationInFrames: span }] : drag.items, delta, targets, drag.scale).delta
+        : snapFrame(edge + delta, targets, drag.scale).frame - edge
+    }
+    drag.delta = drag.cue ? clampCueGestureDelta(drag.cue, drag.mode, delta) : clampClipGestureDelta(drag.items, items, drag.mode, delta, fps)
+    setClipPreview({ ids: new Set(drag.items.map(item => item.id)), cueId: drag.cue?.id, mode: drag.mode, delta: drag.delta })
+  }
+  const finishClipGesture = (event: PointerEvent<HTMLButtonElement>) => {
+    const drag = clipGesture.current
+    if (!drag || drag.pointerId !== event.pointerId) return
+    moveClipGesture(event)
+    cancelClipGesture()
+    if (!drag.moved || !drag.delta) return
+    const result = withCommandMergeKey(null, () => {
+      if (drag.cue && drag.anchor.type === 'subtitle') {
+        const item = drag.anchor
+        const cue = drag.cue
+        const original = item.cues.find(entry => entry.id === cue.id)!
+        const startSeconds = drag.mode === 'end' ? original.startSeconds : original.startSeconds + drag.delta / fps
+        const endSeconds = drag.mode === 'start' ? original.endSeconds : original.endSeconds + drag.delta / fps
+        const commands = [{ type: 'item.update', params: { id: item.id, updates: { cues: item.cues.map(entry => entry.id === cue.id ? { ...entry, startSeconds, endSeconds } : entry).toSorted((a, b) => a.startSeconds - b.startSeconds) } } }]
+        // Renderer windows already clip words on edge trim. Retain original
+        // timings so extending the cue back restores them without degradation.
+        if (drag.mode !== 'move' || !item.words?.length) return executeCommands(commands)
+        const localStart = Math.round(cue.start)
+        const localEnd = Math.round(cue.end)
+        const words = (item.words ?? []).map(word => word.startFrame >= localStart && word.startFrame < localEnd ? { ...word, startFrame: word.startFrame + drag.delta, endFrame: word.endFrame + drag.delta } : word).toSorted((a, b) => a.startFrame - b.startFrame)
+        return executeCommands([...commands, { type: 'caption.setWords', params: { itemId: item.id, words, estimated: item.wordsEstimated ?? false } }])
+      }
+      return drag.mode === 'move'
+        ? executeCommands([{ type: 'item.moveMany', params: { updates: drag.items.map(item => ({ id: item.id, from: item.from + drag.delta })) } }])
+        : executeCommands([{ type: drag.mode === 'start' ? 'edit.trimItemStart' : 'edit.trimItemEnd', params: { id: drag.anchor.id, handle: drag.mode, amount: drag.delta, itemIds: drag.items.map(item => item.id), linkedSelection: false } }])
+    })
+    if (!result.ok) toast.error('Không áp dụng được thay đổi clip.')
+  }
+  useShortcutAction({ id: 'cancel-clip-gesture', label: 'Huỷ kéo clip', scope: 'timeline', bindings: ['Escape'], run: cancelClipGesture })
   useShortcutAction({ id: 'split', label: 'Tách tại vị trí phát', scope: 'timeline', run: split })
   useShortcutAction({ id: 'delete', label: 'Xoá phần đang chọn', scope: 'timeline', run: remove })
   useShortcutAction({ id: 'snap', label: 'Bắt dính', scope: 'timeline', run: snap })
@@ -300,7 +445,8 @@ export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }
   }
   const endScrub = (event: PointerEvent<HTMLDivElement>) => {
     if (dragging.current !== event.pointerId) return
-    usePlaybackStore.getState().finishScrub(pointerFrame(event)); dragging.current = null
+    const playback = usePlaybackStore.getState()
+    playback.finishScrub(event.type === 'pointerup' ? pointerFrame(event) : playback.previewFrame ?? playback.currentFrame); dragging.current = null
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
   }
   const matchRange = (clip: Clip) => {
@@ -331,12 +477,16 @@ export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }
             <div tabIndex={-1} {...stylex.props(s.lane, !track.visible && s.hidden)} onPointerDown={startScrub} onPointerMove={moveScrub} onPointerUp={endScrub} onPointerCancel={endScrub}>
               {visibleItems(indexes.get(track.id), Math.max(0, viewport.left / scale - 1), (viewport.left + available) / scale + 1).map(clip => {
                 const failure = matchRange(clip)
-                const selectedClip = failure ? failure.index === selectedRange : selected.has(clip.item.id) && (!clip.cueId || clip.id === activeCueId)
-                return <button key={clip.id} type="button" aria-label={`${clip.label}, ${timecode(clip.from, fps)}${failure ? ', Đoạn lệch' : ''}`} aria-pressed={selectedClip} title={clip.label} {...stylex.props(s.clip(clip.from * scale, clip.durationInFrames * scale), s[clip.kind], failure && s.failing, selectedClip && s.selected)} onClick={event => {
+                const selectedClip = clipPreview?.cueId && clipPreview.ids.has(clip.item.id) ? clip.cueId === clipPreview.cueId : failure ? failure.index === selectedRange : selected.has(clip.item.id) && (!clip.cueId || clip.id === activeCueId)
+                const delta = clipPreview?.ids.has(clip.item.id) && (!clipPreview.cueId || clipPreview.cueId === clip.cueId) ? clipPreview.delta : 0
+                const from = clip.from + (clipPreview?.mode === 'end' ? 0 : delta)
+                const clipDuration = clip.durationInFrames + (clipPreview?.mode === 'start' ? -delta : clipPreview?.mode === 'end' ? delta : 0)
+                return <button key={clip.id} type="button" aria-label={`${clip.label}, ${timecode(clip.from, fps)}${failure ? ', Đoạn lệch' : ''}`} aria-pressed={selectedClip} title={clip.label} {...stylex.props(s.clip(from * scale, clipDuration * scale), s[clip.kind], failure && s.failing, selectedClip && s.selected)} onPointerDown={event => startClipGesture(event, clip)} onPointerMove={moveClipGesture} onPointerUp={finishClipGesture} onPointerCancel={cancelClipGesture} onLostPointerCapture={cancelClipGesture} onClick={event => {
+                  if (suppressClipClick.current) { suppressClipClick.current = false; if (event.detail > 0) { event.preventDefault(); return } }
                   if (failure) selectRange(failure.index)
                   else {
                     const ids = useSelectionStore.getState().selectedItemIds
-                    useSelectionStore.getState().selectItems(event.shiftKey ? selected.has(clip.item.id) ? ids.filter(id => id !== clip.item.id) : [...ids, clip.item.id] : [clip.item.id])
+                    useSelectionStore.getState().selectItems(computeItemSelection({ items, currentIds: ids, itemId: clip.item.id, anchorId: null, append: event.shiftKey, range: false, linkedSelection: useEditorStore.getState().linkedSelectionEnabled }))
                     seek(clip.from)
                   }
                 }}
@@ -344,6 +494,7 @@ export function Timeline({ ranges, selectedRange, onSelectRange, drawingClipId }
                   {clip.kind === 'audio' && <AudioWaveform item={clip.item} fps={fps} scale={scale} left={Math.max(0, viewport.left - clip.from * scale)} width={Math.max(0, Math.min(clip.durationInFrames * scale, viewport.left + available - clip.from * scale) - Math.max(0, viewport.left - clip.from * scale))} />}
                   {clip.item.id === drawingClipId && <span aria-label="Đang vẽ lại ảnh cảnh" title="Đang vẽ lại ảnh cảnh" {...stylex.props(s.drawingRing)} />}
                   <span {...stylex.props(s.clipLabel, clip.kind === 'audio' && s.audioLabel)}>{clip.label}</span>
+                  {!track.locked && <><span data-trim-handle="start" title={clip.cueId ? 'Cắt đầu câu phụ đề' : 'Cắt đầu clip'} {...stylex.props(s.trimHandle, s.trimStart)} /><span data-trim-handle="end" title={clip.cueId ? 'Cắt cuối câu phụ đề' : 'Cắt cuối clip'} {...stylex.props(s.trimHandle, s.trimEnd)} /></>}
                 </button>
               })}
               {kind === 'scene' && selectedScene?.trackId === track.id && keyframeFrames.map(frame => <span key={frame} aria-hidden {...stylex.props(s.keyframe((selectedScene.from + frame) * scale))} />)}

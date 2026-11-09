@@ -290,6 +290,25 @@ với phiên nạp chỉ đọc: chuẩn hoá timeline trong bộ nhớ, không 
 revision của project khi chỉ xem. Mở cùng project trong Biên tập vẫn chạy và lưu
 các sửa chữa/nâng cấp theo luồng editor thông thường.
 
+Biên tập trên màn hình rộng có ba đường kéo để đổi chiều rộng bảng nội dung,
+bảng thuộc tính và chiều cao timeline. Có thể dùng phím mũi tên, Shift để đổi
+nhanh, Home để khôi phục bảng đang chọn hoặc nút **Khôi phục bố cục** để đặt lại
+tất cả; kích thước lưu riêng theo project. Màn dưới1024px giữ hướng dẫn mở trên
+máy tính, không phải editor điện thoại.
+
+Trên canvas, chọn đối tượng rồi kéo tay nắm để di chuyển, đổi kích thước hoặc
+xoay; Escape huỷ thao tác, một lần hoàn tác khôi phục cả cử chỉ. Nhóm liên kết
+được biến đổi cùng nhau; resize nhóm giữ tỉ lệ và phóng cả chữ/icon/nền. Đối tượng
+có animation tiếp tục sửa điểm mốc ở vị trí phát hiện tại theo quy tắc auto-key,
+không tự viết lại toàn bộ animation. Thuộc tính do biểu thức/liên kết điều khiển
+không bị ghi đè âm thầm. Kéo thân đoạn trên timeline để dời, kéo mép để cắt;
+một đoạn phụ đề chỉ đổi cue đang kéo và mốc từ thuộc cue đó.
+
+Các control editor nạp semantic utility trong
+[`editor-utilities.css`](web/src/styles/editor-utilities.css), ánh xạ về token
+brand hiện hành. Không bỏ mapping này khi đổi pipeline CSS: portal của menu,
+phông chữ và hộp thoại cũng cần nền, viền và màu chữ đã resolve.
+
 Các màn Cài đặt dùng StyleX (`web/src/screens/settings/settings.stylex.ts`),
 không nạp stylesheet CSS riêng. Trị số artboard chưa có token chung nằm trong
 `settingsVars.stylex.ts`; trạng thái và breakpoint được ghép bằng StyleX.
