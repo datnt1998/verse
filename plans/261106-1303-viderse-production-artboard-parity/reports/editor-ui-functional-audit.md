@@ -19,7 +19,7 @@ Status: implementation and functional verification in progress; no new productio
 | Caption effect selector has no accessible name | `aria-label` passed to EditorSelect but that component only forwards `label` | Pass the supported label; real menu keyboard/select/dismiss behavior |
 | Active shell lacks resize controls | Actual production editor has zero separator handles; v13 uses fixed widths/heights | Real constrained draggable/keyboard panel boundaries, safe persistence/reload |
 
-Baseline screenshot: `editor-select-before.png`. Initial semantic-theme screenshot is intermediate QA, not production proof or artboard acceptance.
+Evidence: [production before](editor-ui-evidence/select-production-before.png), [isolated after](editor-ui-evidence/select-isolated-after.png), [decoded modified caption](editor-ui-evidence/rendered-caption-frame.png), [decoded resized group](editor-ui-evidence/rendered-group-frame.png). Isolated screenshots and rendered frames do not certify full artboard acceptance.
 
 ## DONE contract / required verification
 
@@ -65,5 +65,9 @@ Current isolated preview uses a real duplicated template; only its project PUT i
 ## Release verification
 
 - Final typecheck and production build passed after timeline review corrections; embedded assets regenerated. Existing Rollup annotation, mixed dynamic/static import and >500kB chunk warnings remain visible. Real browser trailing-edge snap: first cue moved15requested frames and snapped17frames so its end meets the next cue; undo restored the original.
-- Guarded deployment and actual production verification remain pending. Current production still runs the source-download repair; this report does not claim the new UI is deployed.
+- Deployed main`7f90abe51faf55aeb6c2b532e6487dbe1d4ead94` through the guarded Mac mini script. Installed SHA256`127a27e0438e15cd4885ee450eb0d2e466b05db9b4acfffd1de713a7069e5eb8` matches the tested native artifact; PR source tree equals merged main tree. Restored rehearsal DB and backup kept under release rollout`20261109T174219Z`; schema41unchanged. Native/public`/readyz` both returned`{"ok":true}` after transient startup retries. No user job paused/retried.
 - Full artboard matrix, physical Safari and full mobile editing are not implied by this scoped desktop editor repair.
+- Actual authenticated production smoke: opaque selector`rgb(30,30,33)`, selected Từng từ saved as`word-by-word`, panel keyboard316→324px, reset, linked3-member resize saved matching width/font factor1.16952, undo.390×844 has no horizontal overflow and retains the desktop-editing handoff. Screenshots: [menu](editor-ui-evidence/production-menu.png), [group resize](editor-ui-evidence/production-group-resize.png).
+- Production smoke exercised10distinct controls: caption clip selection, Nâng cao disclosure, caption selector, Từng từ option, content-width separator, reset button, group clip selection, seek ruler, southeast resize handle, Undo. Zero non-responsive controls **within those10**, not an exhaustive whole-editor certification.
+- Source template revision stayed3. Private QA project deleted through actual API(204); loopback adapter removed, owned preview service and browser stopped, private SRT excerpt removed. No provider request/new user job was created.
+- Remaining visual limits: dense/off-canvas transform handles can overlap/clip within the existing frame model; numeric advanced inspector remains available. Full artboard1:1 certification and whole-editor control coverage remain open; this release is not labelled complete parity.
