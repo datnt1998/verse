@@ -426,7 +426,7 @@ Lượt capture cuối: font loaded, DPR 1, không overflow ngang; app 28/28 và
 | Gói | Ngày | Commit đã deploy | Chỗ lệch |
 |---|---|---|---|
 | V36 | 06/11/2026 | `c436aa74a73ae0cf7157445e487dbee75effe2d2` | Chưa đối chiếu đủ trạng thái production1:1; không xác nhận nghiệm thu viewer. |
-| V37 | 09/11/2026 | `cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b` | Editor thêm thuộc tính đối tượng và kéo/đổi cỡ/xoay; lưu/reload/undo bản sao production qua; chờ YouTube không báo nhầm quota; parity mọi trạng thái và thời gian xuất video dài vẫn chưa chốt. |
+| V37 | 09/11/2026 | `ef8bae59cfa6f334b588d717d62059820ad0f2c1` | Thuộc tính editor/undo/reload qua; sửa JSON nguồn11,7MB bị chặn4MB, video thật tải xong và sang transcript; parity đầy đủ và thời gian xuất video dài chưa chốt. |
 | V38 | 08/11/2026 | `1491dddb1ba653841feaba1c1f025f9cb797ae2e` | Kênh thêm tab Video theo#96:4video thật,8link PC/mobile mở được;khác artboard ba tab theo yêu cầu,chưa nghiệm thu toàn bộ Kênh/Thư viện/Template. |
 | V39 | 09/11/2026 | `cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b` | Làm video hiện ô nguồn, copy trung lập, menu Template không bị footer che; popup desktop/sheet mobile đã bấm thử; chưa nghiệm thu mọi Nhập nhanh/Hàng chờ. |
-| V40 | 09/11/2026 | `cbc06d67f11d39ba8cbd71c27c27fc5fb3b79a3b` | Bỏ font mono UI theo#97 và rail rỗng ở thẻ chờ mobile; cookies còn bị macOS chặn quyền đọc Chrome/Keychain khóa; #93 Safari thật và parity đầy đủ vẫn chờ. |
+| V40 | 09/11/2026 | `ef8bae59cfa6f334b588d717d62059820ad0f2c1` | Bỏ font mono UI theo#97 và rail rỗng mobile; người dùng đã kết nối YouTube, video thật tải nguồn qua sau sửa runner; #93 Safari thật và parity đầy đủ vẫn chờ. |
