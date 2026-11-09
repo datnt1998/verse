@@ -151,11 +151,13 @@ var errLineTooLong = errors.New("dòng đầu ra vượt LineLimit")
 func (d *delivery) write(stream Stream, tail *tailBuffer, w *lineWriter, p []byte) (int, error) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	if err := w.feed(p); err != nil {
-		if d.outErr == nil {
-			d.outErr = err
+	if d.onLine != nil {
+		if err := w.feed(p); err != nil {
+			if d.outErr == nil {
+				d.outErr = err
+			}
+			return len(p), err
 		}
-		return len(p), err
 	}
 	tail.push(p)
 	if d.log != nil {

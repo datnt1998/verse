@@ -3,6 +3,7 @@ package tools
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -483,6 +484,27 @@ func TestOnLineOversizeLineFailsRun(t *testing.T) {
 	var pfe *ProcessFailedError
 	if !errors.As(err, &pfe) {
 		t.Fatalf("err = %v, muốn ProcessFailedError", err)
+	}
+}
+
+func TestRunProcessPreservesLargeSingleLineJSONWithoutLineCallback(t *testing.T) {
+	skipIfWindows(t)
+	script := fmt.Sprintf(`printf '{"padding":"'; printf '%%%ds' ''; printf '","id":"source-video","duration":1800}'`, MaxLineBytes+1)
+	res, err := (&ExecRunner{}).Run(context.Background(), testShell, []string{"-c", script}, Spec{
+		Timeout: 10 * time.Second, LogLimit: 2 * MaxLineBytes,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var metadata struct {
+		ID       string `json:"id"`
+		Duration int    `json:"duration"`
+	}
+	if err := json.Unmarshal([]byte(res.Stdout), &metadata); err != nil {
+		t.Fatalf("metadata JSON was cut short: %v", err)
+	}
+	if metadata.ID != "source-video" || metadata.Duration != 1800 {
+		t.Fatalf("metadata after the large field was lost: %+v", metadata)
 	}
 }
 
