@@ -36,7 +36,7 @@ function TextValue({ label, value, onCommit }: { label: string; value: string; o
     if (draft !== null && draft !== value) onCommit(draft);
     setDraft(null);
   };
-  return <Input aria-label={label} value={draft ?? value} className="h-7 min-w-0 border-ring/50 px-2 text-xs md:text-xs"
+  return <Input aria-label={label} value={draft ?? value} className="h-7 min-w-0 border-input px-2 text-xs md:text-xs"
     onChange={event => setDraft(event.target.value)} onBlur={commit}
     onKeyDown={event => {
       if (event.key === "Enter") { event.preventDefault(); commit(); }

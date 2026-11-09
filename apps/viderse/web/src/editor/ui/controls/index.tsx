@@ -13,9 +13,9 @@ import { defaultPrecision, isNumberEdit, roundForDisplay } from "./number-displa
 /** Dense editor field (inputs and select triggers share it): 28px, 12px values. The 44px touch box
  * comes from `hit-area` on the trigger or on a label wrapper — pseudo-elements cannot grow an
  * <input>'s own hit box. `md:text-xs` overrides the Input primitive's `md:text-sm`. */
-const fieldClass = "h-7 min-w-0 border-ring/50 px-2 text-xs md:text-xs tabular-nums disabled:opacity-100 disabled:text-muted-foreground";
+const fieldClass = "h-7 min-w-0 border-input px-2 text-xs md:text-xs tabular-nums disabled:opacity-100 disabled:text-muted-foreground";
 /** Dialog field: same surface, 44px and 14px text like dialog inputs. */
-const dialogFieldClass = "h-11 min-w-0 border-ring/50 px-3 text-sm md:text-sm";
+const dialogFieldClass = "h-11 min-w-0 border-input px-3 text-sm md:text-sm";
 
 /** Icon-only button. Its tooltip comes from the page's one `SharedTooltip` (`data-tooltip`), not a Radix tooltip per button. */
 export function EditorIconButton({ icon: Icon, label, shortcut, className, ...props }: Omit<ComponentProps<typeof Button>, "children" | "size"> & { icon: LucideIcon; label: string; shortcut?: string }) {
@@ -89,7 +89,7 @@ export function EditorSelect({ label, id, value, onValueChange, options, groups,
       <SelectTrigger ref={setTriggerRef} id={id} aria-label={label} className={cn("hit-area w-full", size === "compact" ? fieldClass : dialogFieldClass, className)}>
         <SelectValue placeholder={placeholder}>{selected?.label}</SelectValue>
       </SelectTrigger>
-      <SelectContent position="popper" align={align} className="max-h-72">
+      <SelectContent position="popper" align={align} className="max-h-72 w-max">
         {open && <>
           {options?.map(renderOption)}
           {groups?.map((group) => (
@@ -268,7 +268,7 @@ export function ColorField({ label, value, onChange }: { label: string; value: s
         <input id={id} type="color" aria-label={label} value={/^#[0-9a-f]{6}$/i.test(swatch) ? swatch : "#ffffff"}
           onChange={e => pick(e.target.value)}
           onBlur={() => { flushColorDrag({ pending, readyAt }); getCommandExecutor().closeMergeGroup(); }}
-          className="size-7 shrink-0 cursor-pointer rounded border border-ring/50 bg-background p-0.5"
+          className="size-7 shrink-0 cursor-pointer rounded border border-input bg-background p-0.5"
         />
       </label>
       <label htmlFor={`${id}-hex`} className="hit-area min-w-0 flex-1">

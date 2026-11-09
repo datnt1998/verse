@@ -34,6 +34,7 @@ export const previewStyles = stylex.create({
   selectionBounds: { position: 'absolute', boxSizing: 'border-box', borderWidth: 2, borderStyle: 'solid', borderColor: v13.accent, pointerEvents: 'none' },
   transformHandle: { position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, padding: 0, borderWidth: 1, borderStyle: 'solid', borderColor: v13.accent, borderRadius: 4, backgroundColor: color['--color-surface-1'], color: color['--color-fg'], pointerEvents: 'auto', touchAction: 'none', ':focus-visible': { outlineWidth: 2, outlineStyle: 'solid', outlineColor: v13.accent, outlineOffset: 2 } },
   moveHandle: { left: '50%', top: '50%', transform: 'translate(-50%, -50%)', cursor: 'move' },
-  scaleHandle: { right: 0, bottom: 0, cursor: 'nwse-resize' },
-  rotateHandle: { left: '50%', top: 0, transform: 'translateX(-50%)', borderRadius: '50%', cursor: 'grab' },
+  resizeHandle: (handle: string) => ({ left: handle.includes('w') ? 0 : handle.includes('e') ? 'calc(100% - 14px)' : 'calc(50% - 7px)', top: handle.includes('n') ? 0 : handle.includes('s') ? 'calc(100% - 14px)' : 'calc(50% - 7px)', width: 14, height: 14, cursor: `${handle}-resize` }),
+  scaleHandle: { left: 'calc(100% - 26px)', top: 'calc(100% - 26px)', width: 26, height: 26, cursor: 'nwse-resize' },
+  rotateHandle: { left: 'calc(50% + 12px)', top: 0, borderRadius: '50%', cursor: 'grab' },
 })

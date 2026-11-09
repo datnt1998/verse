@@ -230,7 +230,7 @@ function FontPicker({ value, onChange, label = "Phông chữ" }: { value: string
             else if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
             else if (event.key === "Enter") { event.preventDefault(); const font = list[clampedActive]; if (font) pick(font); }
           }}
-          className="mb-1 h-7 min-w-0 border-ring/50 text-xs"
+          className="mb-1 h-7 min-w-0 border-input text-xs"
         />
         <div
           ref={listRef}
